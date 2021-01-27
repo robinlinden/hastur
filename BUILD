@@ -7,5 +7,8 @@ cc_binary(
         "@bazel_tools//platforms:windows": [],
         "@bazel_tools//platforms:linux": ["-lpthread"],
     }),
-    deps = ["@asio"],
+    deps = [
+        "@asio",
+        "@pugixml",
+    ],
 )
