@@ -28,6 +28,32 @@ std::string drop_doctype(std::string html) {
     return html;
 }
 
+struct Node {
+    int32_t depth{0};
+    int8_t type{0};
+    std::string name;
+    std::string value;
+};
+
+struct Tree {
+    std::vector<Node> nodes;
+};
+
+struct TreeSaver : pugi::xml_tree_walker {
+    Tree tree;
+
+    bool for_each(pugi::xml_node &xml) override {
+        tree.nodes.push_back(Node{
+            .depth = depth(),
+            .type = xml.type(),
+            .name = xml.name(),
+            .value = xml.value(),
+        });
+
+        return true;
+    }
+};
+
 int main(int argc, char **argv) {
     asio::ip::tcp::iostream stream("www.example.com", "http");
     stream << "GET / HTTP/1.1\r\n";
@@ -51,5 +77,14 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    doc.print(std::cout);
+    auto walker = TreeSaver{};
+    doc.traverse(walker);
+
+    for (const auto &node : walker.tree.nodes) {
+        for (int8_t i = 0; i < node.depth; ++i) {
+            std::cout << "  ";
+        }
+
+        std::cout << "name=" << node.name << ", value=" << node.value << '\n';
+    }
 }
