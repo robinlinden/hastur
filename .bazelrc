@@ -1,1 +1,2 @@
-build --cxxopt='-std=c++2a'
+build:gnulike --cxxopt='-std=c++2a'
+build:msvc --cxxopt='-std:c++latest'
