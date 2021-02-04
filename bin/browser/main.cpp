@@ -1,5 +1,6 @@
+#include "parser/parser.h"
+
 #include <asio.hpp>
-#include <pugixml.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -8,6 +9,23 @@
 
 using namespace std::string_literals;
 
+namespace {
+
+template<class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+
+void print_node(dom::Node node, uint8_t depth = 0) {
+    for (int8_t i = 0; i < depth; ++i) { std::cout << "  "; }
+    std::visit(overloaded {
+        [](std::monostate) {},
+        [](dom::Doctype const &node) { std::cout << "doctype: " << node.doctype << '\n'; },
+        [](dom::Element const &node) { std::cout << "tag: " << node.name << '\n'; },
+        [](dom::Text const &node) { std::cout << "value: " << node.text << '\n'; },
+    }, node.data);
+
+    for (auto const &child : node.children) { print_node(child, depth + 1); }
+}
+
 std::string drop_http_headers(std::string html) {
     const auto delim = "\r\n\r\n"s;
     auto it = html.find(delim);
@@ -15,44 +33,7 @@ std::string drop_http_headers(std::string html) {
     return html;
 }
 
-std::string drop_head(std::string html) {
-    const auto tag_start = "<head>"s;
-    const auto tag_end = "</head>"s;
-    auto head = html.find(tag_start);
-    html.erase(head, html.find(tag_end) - head + tag_end.size());
-    return html;
-}
-
-std::string drop_doctype(std::string html) {
-    html.erase(0, "<!doctype html>"s.size());
-    return html;
-}
-
-struct Node {
-    int32_t depth{0};
-    int8_t type{0};
-    std::string name;
-    std::string value;
-};
-
-struct Tree {
-    std::vector<Node> nodes;
-};
-
-struct TreeSaver : pugi::xml_tree_walker {
-    Tree tree;
-
-    bool for_each(pugi::xml_node &xml) override {
-        tree.nodes.push_back(Node{
-            .depth = depth(),
-            .type = xml.type(),
-            .name = xml.name(),
-            .value = xml.value(),
-        });
-
-        return true;
-    }
-};
+} // namespace
 
 int main(int argc, char **argv) {
     asio::ip::tcp::iostream stream("www.example.com", "http");
@@ -67,24 +48,7 @@ int main(int argc, char **argv) {
     auto buffer = ss.str();
 
     buffer = drop_http_headers(buffer);
-    buffer = drop_head(buffer);
-    buffer = drop_doctype(buffer);
 
-    pugi::xml_document doc;
-    if (auto res = doc.load_string(buffer.c_str()); !res) {
-        std::cerr << res.offset << ": " << res.description() << '\n';
-        std::cerr << buffer.c_str() + res.offset;
-        return 1;
-    }
-
-    auto walker = TreeSaver{};
-    doc.traverse(walker);
-
-    for (const auto &node : walker.tree.nodes) {
-        for (int8_t i = 0; i < node.depth; ++i) {
-            std::cout << "  ";
-        }
-
-        std::cout << "name=" << node.name << ", value=" << node.value << '\n';
-    }
+    auto nodes = parser::Parser{buffer}.parse_nodes();
+    for (auto const &node : nodes) { print_node(node); }
 }

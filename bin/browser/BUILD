@@ -4,11 +4,11 @@ cc_binary(
     name = "browser",
     srcs = ["main.cpp"],
     linkopts = select({
-        "@bazel_tools//platforms:windows": [],
         "@bazel_tools//platforms:linux": ["-lpthread"],
+        "@bazel_tools//platforms:windows": [],
     }),
     deps = [
+        "//parser",
         "@asio",
-        "@pugixml",
     ],
 )

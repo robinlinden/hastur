@@ -1,2 +1,3 @@
 build:gnulike --cxxopt='-std=c++2a'
 build:msvc --cxxopt='-std:c++latest'
+test --test_output=errors

@@ -15,3 +15,10 @@ http_archive(
     strip_prefix = "pugixml-1.11.4",
     urls = ["https://github.com/zeux/pugixml/releases/download/v1.11.4/pugixml-1.11.4.tar.gz"],
 )
+
+http_archive(
+    name = "catch2",
+    sha256 = "e7eb70b3d0ac2ed7dcf14563ad808740c29e628edde99e973adad373a2b5e4df",
+    strip_prefix = "Catch2-2.13.4",
+    urls = ["https://github.com/catchorg/Catch2/archive/v2.13.4.tar.gz"],
+)
