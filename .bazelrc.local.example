@@ -1,0 +1,11 @@
+# Developer-specific configuration
+#
+# Copy this to .bazelrc.local and adjust.
+
+# Choose a build type
+build --config debug
+# build --config release
+
+# Choose a compiler
+build --config gnulike # gcc/clang
+# build --config msvc

@@ -1,3 +1,11 @@
+# Build configuration
+build:debug -c dbg
+build:release -c opt
+
+# Compiler configuration
 build:gnulike --cxxopt='-std=c++2a'
 build:msvc --cxxopt='-std:c++latest'
+
 test --test_output=errors
+
+try-import %workspace%/.bazelrc.local

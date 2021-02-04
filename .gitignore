@@ -1,1 +1,8 @@
-bazel-*
+# Build artifacts.
+/bazel-*
+
+# Work-in-progress directory.
+/wip
+
+# Local settings.
+/.bazelrc.local
