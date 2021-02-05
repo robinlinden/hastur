@@ -14,6 +14,10 @@ namespace {
 template<class... Ts>
 struct overloaded : Ts... { using Ts::operator()...; };
 
+// Not needed as of C++20, but gcc 10 won't work without it.
+template<class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
+
 void print_node(dom::Node node, uint8_t depth = 0) {
     for (int8_t i = 0; i < depth; ++i) { std::cout << "  "; }
     std::visit(overloaded {
