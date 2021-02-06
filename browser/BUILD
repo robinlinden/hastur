@@ -4,8 +4,8 @@ cc_binary(
     name = "browser",
     srcs = ["main.cpp"],
     linkopts = select({
-        "@bazel_tools//platforms:linux": ["-lpthread"],
-        "@bazel_tools//platforms:windows": [],
+        "@platforms//os:linux": ["-lpthread"],
+        "@platforms//os:windows": [],
     }),
     deps = [
         "//parser",
