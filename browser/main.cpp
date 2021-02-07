@@ -55,9 +55,9 @@ std::optional<ftxui::Element> create_ftxui_ui(dom::Node const &node) {
         [&](dom::Element const &node) -> std::optional<ftxui::Element> {
             if (node.name == "html") { return border(children[0]); }
             else if (node.name == "body") { return vbox(children); }
-            else if (node.name == "div") { return vbox(children); }
+            else if (node.name == "div") { return flex(vbox(children)); }
             else if (node.name == "h1") { return underlined(vbox(children)); }
-            else if (node.name == "p") { return vbox(children); }
+            else if (node.name == "p") { return flex(vbox(children)); }
             else if (node.name == "a") { return bold(vbox(children)); }
             else {
                 std::cout << "Unhandled node: " << node.name << '\n';
