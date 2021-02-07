@@ -71,12 +71,12 @@ std::optional<ftxui::Element> create_ftxui_ui(dom::Node const &node) {
 }
 
 void ftxui_test(dom::Node root) {
-    std::cout << "\nBuilding TUI\n";
-    auto document = *create_ftxui_ui(root);
+    auto document = create_ftxui_ui(root);
     if (!document) { return; }
-    document = document | ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 80);
+    std::cout << "\nBuilding TUI\n";
+    document = *document | ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 80);
     auto screen = ftxui::Screen::Create(ftxui::Dimension{80, 10});
-    ftxui::Render(screen, document);
+    ftxui::Render(screen, *document);
     std::cout << screen.ToString() << std::endl;
 }
 
