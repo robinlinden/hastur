@@ -75,7 +75,7 @@ void ftxui_test(dom::Node root) {
     auto document = *create_ftxui_ui(root);
     if (!document) { return; }
     document = document | ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 80);
-    auto screen = ftxui::Screen::Create(ftxui::Dimension::Full(), ftxui::Dimension::Fit(document));
+    auto screen = ftxui::Screen::Create(ftxui::Dimension{80, 10});
     ftxui::Render(screen, document);
     std::cout << screen.ToString() << std::endl;
 }
