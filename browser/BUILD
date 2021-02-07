@@ -10,5 +10,6 @@ cc_binary(
     deps = [
         "//parser",
         "@asio",
+        "@ftxui",
     ],
 )

@@ -24,6 +24,14 @@ http_archive(
 )
 
 http_archive(
+    name = "ftxui",
+    sha256 = "a56359a73a98bc05631d2952b286478ac89f1df3178fc63d52d7b1217ee5e527",
+    build_file = "//bazel:ftxui.BUILD",
+    strip_prefix = "FTXUI-d0eab413442d084d15a328c53fb132814daa58f3",
+    urls = ["https://github.com/ArthurSonzogni/FTXUI/archive/d0eab413442d084d15a328c53fb132814daa58f3.tar.gz"],
+)
+
+http_archive(
     name = "platforms",
     sha256 = "460caee0fa583b908c622913334ec3c1b842572b9c23cf0d3da0c2543a1a157d",
     url = "https://github.com/bazelbuild/platforms/releases/download/0.0.3/platforms-0.0.3.tar.gz",
