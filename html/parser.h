@@ -1,5 +1,5 @@
-#ifndef PARSER_H_
-#define PARSER_H_
+#ifndef HTML_PARSER_H_
+#define HTML_PARSER_H_
 
 #include "dom/dom.h"
 
@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-namespace parser {
+namespace html {
 
 // Inspired by
 // https://github.com/servo/rust-cssparser/blob/02129220f848246ce8899f45a50d4b15068ebd79/src/tokenizer.rs

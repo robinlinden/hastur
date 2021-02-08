@@ -1,4 +1,4 @@
-#include "parser/parser.h"
+#include "html/parser.h"
 
 #include <catch2/catch.hpp>
 
@@ -7,7 +7,7 @@ using namespace std::literals;
 namespace {
 
 TEST_CASE("parser", "[parser]") {
-    using parser::Parser;
+    using html::Parser;
 
     SECTION("doctype") {
         Parser parser{"<!doctype html>"sv};

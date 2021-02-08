@@ -1,18 +1,18 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
-    name = "parser",
+    name = "html",
     hdrs = ["parser.h"],
     visibility = ["//visibility:public"],
     deps = ["//dom"],
 )
 
 cc_test(
-    name = "parser_test",
+    name = "html_test",
     size = "small",
     srcs = ["test_parser.cpp"],
     deps = [
-        ":parser",
+        ":html",
         "@catch2//:catch2_with_main",
     ],
 )

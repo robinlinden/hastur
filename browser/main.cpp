@@ -1,4 +1,4 @@
-#include "parser/parser.h"
+#include "html/parser.h"
 
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 
     buffer = drop_http_headers(buffer);
 
-    auto nodes = parser::Parser{buffer}.parse_nodes();
+    auto nodes = html::Parser{buffer}.parse_nodes();
     for (auto const &node : nodes) { print_node(node); }
     for (auto const &node : nodes) { ftxui_test(node); }
 }

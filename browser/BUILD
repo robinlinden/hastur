@@ -8,7 +8,7 @@ cc_binary(
         "@platforms//os:windows": [],
     }),
     deps = [
-        "//parser",
+        "//html",
         "@asio",
         "@ftxui",
     ],
