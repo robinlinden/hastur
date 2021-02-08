@@ -9,14 +9,6 @@ http_archive(
 )
 
 http_archive(
-    name = "pugixml",
-    build_file = "//bazel:pugixml.BUILD",
-    sha256 = "8ddf57b65fb860416979a3f0640c2ad45ddddbbafa82508ef0a0af3ce7061716",
-    strip_prefix = "pugixml-1.11.4",
-    urls = ["https://github.com/zeux/pugixml/releases/download/v1.11.4/pugixml-1.11.4.tar.gz"],
-)
-
-http_archive(
     name = "catch2",
     sha256 = "e7eb70b3d0ac2ed7dcf14563ad808740c29e628edde99e973adad373a2b5e4df",
     strip_prefix = "Catch2-2.13.4",
