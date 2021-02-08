@@ -1,5 +1,5 @@
-#ifndef DOM_H_
-#define DOM_H_
+#ifndef DOM_DOM_H_
+#define DOM_DOM_H_
 
 #include <map>
 #include <string>
