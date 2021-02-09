@@ -26,15 +26,15 @@ struct Node {
     std::variant<std::monostate, Doctype, Text, Element> data;
 };
 
-Node create_doctype_node(std::string_view doctype) {
+inline Node create_doctype_node(std::string_view doctype) {
     return {{}, Doctype{std::string{doctype}}};
 }
 
-Node create_text_node(std::string_view data) {
+inline Node create_text_node(std::string_view data) {
     return {{}, Text{std::string(data)}};
 }
 
-Node create_element_node(std::string_view name, AttrMap attrs, std::vector<Node> children) {
+inline Node create_element_node(std::string_view name, AttrMap attrs, std::vector<Node> children) {
     return {std::move(children), Element{std::string{name}, std::move(attrs)}};
 }
 

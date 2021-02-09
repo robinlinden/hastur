@@ -1,13 +1,10 @@
 #include "html/parser.h"
+#include "tui/tui.h"
 
-#include <ftxui/dom/elements.hpp>
-#include <ftxui/screen/screen.hpp>
-#include <ftxui/screen/string.hpp>
-#include <asio.hpp> // Needs to be after ftxui due to pulling in macros that break their headers.
+#include <asio.hpp>
 
 #include <cassert>
 #include <iostream>
-#include <optional>
 #include <sstream>
 #include <string>
 
@@ -41,45 +38,6 @@ std::string drop_http_headers(std::string html) {
     return html;
 }
 
-std::optional<ftxui::Element> create_ftxui_ui(dom::Node const &node) {
-    ftxui::Elements children;
-    for (auto const &child : node.children) {
-        if (auto n = create_ftxui_ui(child); n) {
-            children.push_back(*n);
-        }
-    };
-
-    return std::visit(overloaded {
-        [](std::monostate)  -> std::optional<ftxui::Element> { return std::nullopt; },
-        [&](dom::Doctype const &) -> std::optional<ftxui::Element> { return std::nullopt; },
-        [&](dom::Element const &node) -> std::optional<ftxui::Element> {
-            if (node.name == "html") { return border(children[0]); }
-            else if (node.name == "body") { return vbox(children); }
-            else if (node.name == "div") { return flex(vbox(children)); }
-            else if (node.name == "h1") { return underlined(vbox(children)); }
-            else if (node.name == "p") { return flex(vbox(children)); }
-            else if (node.name == "a") { return bold(vbox(children)); }
-            else {
-                std::cout << "Unhandled node: " << node.name << '\n';
-                return std::nullopt;
-            }
-        },
-        [&](dom::Text const &node) -> std::optional<ftxui::Element> {
-            return hflow(ftxui::paragraph(ftxui::to_wstring(node.text)));
-        },
-    }, node.data);
-}
-
-void ftxui_test(dom::Node root) {
-    auto document = create_ftxui_ui(root);
-    if (!document) { return; }
-    std::cout << "\nBuilding TUI\n";
-    document = *document | ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 80);
-    auto screen = ftxui::Screen::Create(ftxui::Dimension{80, 10});
-    ftxui::Render(screen, *document);
-    std::cout << screen.ToString() << std::endl;
-}
-
 } // namespace
 
 int main(int argc, char **argv) {
@@ -98,5 +56,7 @@ int main(int argc, char **argv) {
 
     auto nodes = html::Parser{buffer}.parse_nodes();
     for (auto const &node : nodes) { print_node(node); }
-    for (auto const &node : nodes) { ftxui_test(node); }
+
+    std::cout << "\nBuilding TUI\n";
+    for (auto const &node : nodes) { std::cout << tui::render(node) << '\n'; }
 }

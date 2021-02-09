@@ -9,7 +9,7 @@ cc_binary(
     }),
     deps = [
         "//html",
+        "//tui",
         "@asio",
-        "@ftxui",
     ],
 )
