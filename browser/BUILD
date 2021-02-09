@@ -11,5 +11,6 @@ cc_binary(
         "//html",
         "//tui",
         "@asio",
+        "@spdlog",
     ],
 )

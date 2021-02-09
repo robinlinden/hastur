@@ -2,6 +2,8 @@
 #include "tui/tui.h"
 
 #include <asio.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/cfg/env.h>
 
 #include <cassert>
 #include <iostream>
@@ -41,6 +43,8 @@ std::string drop_http_headers(std::string html) {
 } // namespace
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+    spdlog::cfg::load_env_levels();
+    spdlog::info("Fetching HTML");
     asio::ip::tcp::iostream stream("www.example.com", "http");
     stream << "GET / HTTP/1.1\r\n";
     stream << "Host: www.example.com\r\n";
@@ -54,9 +58,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
     buffer = drop_http_headers(buffer);
 
+    spdlog::info("Parsing HTML");
     auto nodes = html::Parser{buffer}.parse_nodes();
     for (auto const &node : nodes) { print_node(node); }
 
-    std::cout << "\nBuilding TUI\n";
+    spdlog::info("Building TUI");
     for (auto const &node : nodes) { std::cout << tui::render(node) << '\n'; }
+    spdlog::info("Done");
 }

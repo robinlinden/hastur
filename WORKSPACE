@@ -28,9 +28,25 @@ http_archive(
 )
 
 http_archive(
+    name = "fmt",
+    build_file = "//third_party:fmt.BUILD",
+    sha256 = "5cae7072042b3043e12d53d50ef404bbb76949dad1de368d7f993a15c8c05ecc",
+    strip_prefix = "fmt-7.1.3",
+    url = "https://github.com/fmtlib/fmt/archive/7.1.3.tar.gz",
+)
+
+http_archive(
     name = "ftxui",
     build_file = "//third_party:ftxui.BUILD",
     sha256 = "a56359a73a98bc05631d2952b286478ac89f1df3178fc63d52d7b1217ee5e527",
     strip_prefix = "FTXUI-d0eab413442d084d15a328c53fb132814daa58f3",
     urls = ["https://github.com/ArthurSonzogni/FTXUI/archive/d0eab413442d084d15a328c53fb132814daa58f3.tar.gz"],
+)
+
+http_archive(
+    name = "spdlog",
+    build_file = "//third_party:spdlog.BUILD",
+    sha256 = "e20e6bd8f57e866eaf25a5417f0a38a116e537f1a77ac7b5409ca2b180cec0d5",
+    strip_prefix = "spdlog-1.8.2",
+    urls = ["https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz"],
 )

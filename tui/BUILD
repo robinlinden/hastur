@@ -8,5 +8,6 @@ cc_library(
     deps = [
         "//dom",
         "@ftxui",
+        "@spdlog",
     ],
 )

@@ -3,6 +3,7 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
 #include <ftxui/screen/string.hpp>
+#include <spdlog/spdlog.h>
 
 #include <iostream>
 #include <optional>
@@ -38,7 +39,7 @@ std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
             else if (node.name == "p") { return flex(vbox(children)); }
             else if (node.name == "a") { return bold(vbox(children)); }
             else {
-                std::cout << "Unhandled node: " << node.name << '\n';
+                spdlog::warn("Unhandled node: {}", node.name);
                 return std::nullopt;
             }
         },
