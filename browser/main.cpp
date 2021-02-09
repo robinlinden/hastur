@@ -40,7 +40,7 @@ std::string drop_http_headers(std::string html) {
 
 } // namespace
 
-int main(int argc, char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     asio::ip::tcp::iostream stream("www.example.com", "http");
     stream << "GET / HTTP/1.1\r\n";
     stream << "Host: www.example.com\r\n";
