@@ -33,8 +33,10 @@ void print_node(dom::Node node, uint8_t depth = 0) {
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     spdlog::cfg::load_env_levels();
 
-    spdlog::info("Fetching HTML");
-    auto response = http::get("www.example.com");
+    const char *endpoint = argc > 1 ? argv[1] : "www.example.com";
+
+    spdlog::info("Fetching HTML from {}", endpoint);
+    auto response = http::get(endpoint);
 
     spdlog::info("Parsing HTML");
     auto nodes = html::Parser{response.body}.parse_nodes();
