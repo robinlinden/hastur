@@ -38,6 +38,8 @@ std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
             else if (element.name == "h1") { return underlined(vbox(children)); }
             else if (element.name == "p") { return flex(vbox(children)); }
             else if (element.name == "a") { return bold(vbox(children)); }
+            else if (element.name == "center") { return hcenter(flex(vbox(children))); }
+            else if (element.name == "hr") { return ftxui::separator(); }
             else {
                 spdlog::warn("Unhandled element: {}", element.name);
                 return std::nullopt;
