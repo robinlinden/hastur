@@ -9,8 +9,8 @@ cc_binary(
     }),
     deps = [
         "//html",
+        "//http",
         "//tui",
-        "@asio",
         "@spdlog",
     ],
 )

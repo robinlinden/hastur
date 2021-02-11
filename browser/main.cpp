@@ -1,16 +1,11 @@
 #include "html/parser.h"
+#include "http/get.h"
 #include "tui/tui.h"
 
-#include <asio.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/cfg/env.h>
 
-#include <cassert>
 #include <iostream>
-#include <sstream>
-#include <string>
-
-using namespace std::string_literals;
 
 namespace {
 
@@ -33,36 +28,20 @@ void print_node(dom::Node node, uint8_t depth = 0) {
     for (auto const &child : node.children) { print_node(child, depth + 1); }
 }
 
-std::string drop_http_headers(std::string html) {
-    const auto delim = "\r\n\r\n"s;
-    auto it = html.find(delim);
-    html.erase(0, it + delim.size());
-    return html;
-}
-
 } // namespace
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     spdlog::cfg::load_env_levels();
+
     spdlog::info("Fetching HTML");
-    asio::ip::tcp::iostream stream("www.example.com", "http");
-    stream << "GET / HTTP/1.1\r\n";
-    stream << "Host: www.example.com\r\n";
-    stream << "Accept: text/html\r\n";
-    stream << "Connection: close\r\n\r\n";
-    stream.flush();
-
-    std::stringstream ss;
-    ss << stream.rdbuf();
-    auto buffer = ss.str();
-
-    buffer = drop_http_headers(buffer);
+    auto response = http::get("www.example.com");
 
     spdlog::info("Parsing HTML");
-    auto nodes = html::Parser{buffer}.parse_nodes();
+    auto nodes = html::Parser{response.body}.parse_nodes();
     for (auto const &node : nodes) { print_node(node); }
 
     spdlog::info("Building TUI");
     for (auto const &node : nodes) { std::cout << tui::render(node) << '\n'; }
+
     spdlog::info("Done");
 }
