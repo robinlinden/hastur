@@ -8,6 +8,22 @@ build:release -c opt
 # =========================================================
 
 build:gnulike --cxxopt='-std=c++2a'
+build:gnulike --cxxopt='-Wall'
+build:gnulike --cxxopt='-Wextra'
+build:gnulike --cxxopt='-pedantic-errors'
+build:gnulike --cxxopt='-Werror'
+build:gnulike --cxxopt='-Wdouble-promotion'
+build:gnulike --cxxopt='-Wformat=2'
+build:gnulike --cxxopt='-Wmissing-declarations'
+build:gnulike --cxxopt='-Wnon-virtual-dtor'
+build:gnulike --cxxopt='-Wnull-dereference'
+build:gnulike --cxxopt='-Woverloaded-virtual'
+build:gnulike --cxxopt='-Wshadow'
+build:gnulike --cxxopt='-Wsign-compare'
+build:gnulike --cxxopt='-Wundef'
+build:gnulike --cxxopt='-fno-common'
+build:gnulike --per_file_copt='browser:main@-Wno-undef' # asio leaks this into our code.
+build:gnulike --per_file_copt='external/ftxui[:/]@-Wno-shadow'
 
 build:msvc --cxxopt='/std:c++latest'
 build:msvc --cxxopt='/W4' # More warnings.

@@ -25,9 +25,9 @@ void print_node(dom::Node node, uint8_t depth = 0) {
     for (int8_t i = 0; i < depth; ++i) { std::cout << "  "; }
     std::visit(overloaded {
         [](std::monostate) {},
-        [](dom::Doctype const &node) { std::cout << "doctype: " << node.doctype << '\n'; },
-        [](dom::Element const &node) { std::cout << "tag: " << node.name << '\n'; },
-        [](dom::Text const &node) { std::cout << "value: " << node.text << '\n'; },
+        [](dom::Doctype const &doctype) { std::cout << "doctype: " << doctype.doctype << '\n'; },
+        [](dom::Element const &element) { std::cout << "tag: " << element.name << '\n'; },
+        [](dom::Text const &text) { std::cout << "value: " << text.text << '\n'; },
     }, node.data);
 
     for (auto const &child : node.children) { print_node(child, depth + 1); }

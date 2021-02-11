@@ -38,9 +38,9 @@ http_archive(
 http_archive(
     name = "ftxui",
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "a56359a73a98bc05631d2952b286478ac89f1df3178fc63d52d7b1217ee5e527",
-    strip_prefix = "FTXUI-d0eab413442d084d15a328c53fb132814daa58f3",
-    urls = ["https://github.com/ArthurSonzogni/FTXUI/archive/d0eab413442d084d15a328c53fb132814daa58f3.tar.gz"],
+    sha256 = "d38cb90331ff7dc43123dfe0a8565959459044378e60536d80ba3b0abc523ac7",
+    strip_prefix = "FTXUI-73a3c24394621f31a59e6b1235dc5fd28f78d3d1",
+    urls = ["https://github.com/ArthurSonzogni/FTXUI/archive/73a3c24394621f31a59e6b1235dc5fd28f78d3d1.tar.gz"],
 )
 
 http_archive(

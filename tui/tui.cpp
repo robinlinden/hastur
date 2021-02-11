@@ -31,20 +31,20 @@ std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
     return std::visit(overloaded {
         [](std::monostate)  -> std::optional<ftxui::Element> { return std::nullopt; },
         [&](dom::Doctype const &) -> std::optional<ftxui::Element> { return std::nullopt; },
-        [&](dom::Element const &node) -> std::optional<ftxui::Element> {
-            if (node.name == "html") { return border(children[0]); }
-            else if (node.name == "body") { return vbox(children); }
-            else if (node.name == "div") { return flex(vbox(children)); }
-            else if (node.name == "h1") { return underlined(vbox(children)); }
-            else if (node.name == "p") { return flex(vbox(children)); }
-            else if (node.name == "a") { return bold(vbox(children)); }
+        [&](dom::Element const &element) -> std::optional<ftxui::Element> {
+            if (element.name == "html") { return border(children[0]); }
+            else if (element.name == "body") { return vbox(children); }
+            else if (element.name == "div") { return flex(vbox(children)); }
+            else if (element.name == "h1") { return underlined(vbox(children)); }
+            else if (element.name == "p") { return flex(vbox(children)); }
+            else if (element.name == "a") { return bold(vbox(children)); }
             else {
-                spdlog::warn("Unhandled node: {}", node.name);
+                spdlog::warn("Unhandled element: {}", element.name);
                 return std::nullopt;
             }
         },
-        [&](dom::Text const &node) -> std::optional<ftxui::Element> {
-            return hflow(ftxui::paragraph(ftxui::to_wstring(node.text)));
+        [&](dom::Text const &text) -> std::optional<ftxui::Element> {
+            return hflow(ftxui::paragraph(ftxui::to_wstring(text.text)));
         },
     }, node.data);
 }
