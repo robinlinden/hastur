@@ -22,7 +22,7 @@ build:gnulike --cxxopt='-Wshadow'
 build:gnulike --cxxopt='-Wsign-compare'
 build:gnulike --cxxopt='-Wundef'
 build:gnulike --cxxopt='-fno-common'
-build:gnulike --per_file_copt='browser:main@-Wno-undef' # asio leaks this into our code.
+build:gnulike --per_file_copt='http:get@-Wno-undef' # asio leaks this into our code.
 build:gnulike --per_file_copt='external/ftxui[:/]@-Wno-shadow'
 
 build:msvc --cxxopt='/std:c++latest'
