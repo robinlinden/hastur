@@ -20,7 +20,9 @@ struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
+std::optional<ftxui::Element> element_from_node(dom::Node const &node);
+
+ftxui::Elements parse_children(dom::Node const &node) {
     ftxui::Elements children;
     for (auto const &child : node.children) {
         if (auto n = element_from_node(child); n) {
@@ -28,17 +30,22 @@ std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
         }
     };
 
+    return children;
+}
+
+std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
     return std::visit(overloaded {
         [](std::monostate)  -> std::optional<ftxui::Element> { return std::nullopt; },
         [&](dom::Doctype const &) -> std::optional<ftxui::Element> { return std::nullopt; },
         [&](dom::Element const &element) -> std::optional<ftxui::Element> {
-            if (element.name == "html") { return border(children[0]); }
-            else if (element.name == "body") { return vbox(children); }
-            else if (element.name == "div") { return flex(vbox(children)); }
-            else if (element.name == "h1") { return underlined(vbox(children)); }
-            else if (element.name == "p") { return flex(vbox(children)); }
-            else if (element.name == "a") { return bold(vbox(children)); }
-            else if (element.name == "center") { return hcenter(flex(vbox(children))); }
+            if (element.name == "html") { return border(parse_children(node)[0]); }
+            else if (element.name == "head") { return std::nullopt; }
+            else if (element.name == "body") { return vbox(parse_children(node)); }
+            else if (element.name == "div") { return flex(vbox(parse_children(node))); }
+            else if (element.name == "h1") { return underlined(vbox(parse_children(node))); }
+            else if (element.name == "p") { return flex(vbox(parse_children(node))); }
+            else if (element.name == "a") { return bold(vbox(parse_children(node))); }
+            else if (element.name == "center") { return hcenter(flex(vbox(parse_children(node)))); }
             else if (element.name == "hr") { return ftxui::separator(); }
             else {
                 spdlog::warn("Unhandled element: {}", element.name);
