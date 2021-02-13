@@ -14,7 +14,7 @@ namespace http {
 namespace {
 
 std::pair<std::string_view, std::string_view> split(std::string_view str, std::string_view sep) {
-    if (auto it = str.find(sep); it != -1) {
+    if (auto it = str.find(sep); it != std::string::npos) {
         return {str.substr(0, it), str.substr(it + sep.size(), str.size() - it - sep.size())};
     }
     return {str, ""sv};
