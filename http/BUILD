@@ -7,6 +7,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@asio",
+        "@boringssl//:ssl",
         "@fmt",
+        "@spdlog",
     ],
 )

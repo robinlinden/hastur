@@ -21,6 +21,13 @@ http_archive(
 )
 
 http_archive(
+    name = "boringssl",
+    sha256 = "af0e0b561629029332d832fd4a2f2fbed14206eb2f538037a746d82e5281ace8",
+    strip_prefix = "boringssl-b92ed690b31bc2df9197dca73b38aaa1a9225a40",
+    urls = ["https://github.com/google/boringssl/archive/b92ed690b31bc2df9197dca73b38aaa1a9225a40.tar.gz"],
+)
+
+http_archive(
     name = "catch2",
     sha256 = "e7eb70b3d0ac2ed7dcf14563ad808740c29e628edde99e973adad373a2b5e4df",
     strip_prefix = "Catch2-2.13.4",
