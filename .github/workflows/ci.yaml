@@ -1,0 +1,44 @@
+on: [push, pull_request]
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+          echo "CC=gcc-10" >> $GITHUB_ENV
+          echo "CXX=g++-10" >> $GITHUB_ENV
+          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.7.5/bazelisk-linux-amd64 --output-document=bazel
+    - name: Build
+      run: bazel build //... --config gnulike
+    - name: Test
+      run: bazel test //... --config gnulike
+    - name: Run
+      run: bazel run browser --config gnulike
+
+  windows:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: curl --output bazel.exe https://github.com/bazelbuild/bazelisk/releases/download/v1.7.5/bazelisk-windows-amd64.exe
+    - name: Build
+      run: bazel build ///... --config msvc
+    - name: Test
+      run: bazel test ///... --config msvc
+    - name: Run
+      run: bazel run browser --config msvc
+
+  buildifier:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+          wget https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildifier
+          sudo chmod +x buildifier
+    - name: Check
+      run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname *.BUILD -or -iname BUILD)
