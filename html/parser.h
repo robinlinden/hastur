@@ -17,10 +17,10 @@ namespace html {
 // https://github.com/servo/rust-cssparser/blob/02129220f848246ce8899f45a50d4b15068ebd79/src/tokenizer.rs
 struct Parser {
     // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
-    static constexpr auto void_elements = std::to_array({
+    static constexpr auto void_elements = std::array{
             "area", "base", "br", "col", "embed",
             "hr", "img", "input", "link", "meta",
-            "param", "source", "track", "wbr"});
+            "param", "source", "track", "wbr"};
 
     constexpr bool is_void_element(std::string_view tag) {
         return find(begin(void_elements), end(void_elements), tag) != end(void_elements);
