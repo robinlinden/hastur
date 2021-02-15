@@ -11,8 +11,8 @@ features, so a reasonably recent compiler is required.
 
 #### Build system
 
-[Bazel](bazel) is used as the build system. I recommend using
-[Bazelisk](bazelisk) as that will pick up the Bazel version to use from the
+[Bazel][bazel] is used as the build system. I recommend using
+[Bazelisk][bazelisk] as that will pick up the Bazel version to use from the
 `.bazelversion` file in the repository root.
 
 Per-developer configuration (e.g.  compiler used and build type) is managed in
