@@ -27,6 +27,12 @@ build:gnulike --per_file_copt='http:get@-Wno-undef' # asio leaks this into our c
 build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
 build:gnulike --per_file_copt='external/ftxui[:/]@-Wno-shadow'
 build:gnulike --per_file_copt='external/fmt[:/]@-Wno-shadow' # Fixed in master, but not in 7.1.3
+build:gnulike --per_file_copt='external/sfml[:/]@-Wno-double-promotion'
+build:gnulike --per_file_copt='external/sfml[:/]@-Wno-implicit-fallthrough'
+build:gnulike --per_file_copt='external/sfml[:/]@-Wno-missing-declarations'
+build:gnulike --per_file_copt='external/sfml[:/]@-Wno-shadow'
+build:gnulike --per_file_copt='external/sfml[:/]@-Wno-sign-compare'
+build:gnulike --per_file_copt='external/sfml[:/]@-Wno-unused-parameter'
 
 build:msvc --cxxopt='/std:c++latest'
 build:msvc --cxxopt='/W4' # More warnings.
@@ -38,6 +44,10 @@ build:msvc --per_file_copt='external/boringssl[:/]@/wd4267' # C4267: '=': conver
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4005' # C4005: 'NOMINMAX': macro redefinition
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+build:msvc --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
+build:msvc --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
+build:msvc --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
+build:msvc --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
 
 # Misc configuration
 # =========================================================

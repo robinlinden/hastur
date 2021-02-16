@@ -51,6 +51,14 @@ http_archive(
 )
 
 http_archive(
+    name = "sfml",
+    build_file = "//third_party:sfml.BUILD",
+    sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
+    strip_prefix = "SFML-2.5.1",
+    url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
+)
+
+http_archive(
     name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
     sha256 = "e20e6bd8f57e866eaf25a5417f0a38a116e537f1a77ac7b5409ca2b180cec0d5",
