@@ -57,7 +57,7 @@ struct Parser {
     }
 
     constexpr void skip_whitespace() {
-        while (!is_eof() && std::isspace(peek())) { advance(1); }
+        while (!is_eof() && std::isspace(static_cast<unsigned char>(peek()))) { advance(1); }
     }
 
     std::string_view parse_tag_name() {
