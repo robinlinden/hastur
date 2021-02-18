@@ -16,7 +16,6 @@ Overloaded(Ts...) -> Overloaded<Ts...>;
 void print_node(dom::Node node, std::ostream &os, uint8_t depth = 0) {
     for (int8_t i = 0; i < depth; ++i) { os << "  "; }
     std::visit(Overloaded {
-        [](std::monostate) {},
         [&os](dom::Doctype const &doctype) { os << "doctype: " << doctype.doctype << '\n'; },
         [&os](dom::Element const &element) { os << "tag: " << element.name << '\n'; },
         [&os](dom::Text const &text) { os << "value: " << text.text << '\n'; },

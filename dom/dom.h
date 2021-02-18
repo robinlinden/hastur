@@ -23,7 +23,7 @@ struct Element {
 
 struct Node {
     std::vector<Node> children;
-    std::variant<std::monostate, Doctype, Text, Element> data;
+    std::variant<Doctype, Text, Element> data;
 };
 
 inline Node create_doctype_node(std::string_view doctype) {

@@ -35,7 +35,6 @@ ftxui::Elements parse_children(dom::Node const &node) {
 
 std::optional<ftxui::Element> element_from_node(dom::Node const &node) {
     return std::visit(overloaded {
-        [](std::monostate)  -> std::optional<ftxui::Element> { return std::nullopt; },
         [&](dom::Doctype const &) -> std::optional<ftxui::Element> { return std::nullopt; },
         [&](dom::Element const &element) -> std::optional<ftxui::Element> {
             if (element.name == "html") { return border(parse_children(node)[0]); }
