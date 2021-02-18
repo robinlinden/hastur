@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
 
     const char *endpoint = argc > 1 ? argv[1] : "www.example.com";
