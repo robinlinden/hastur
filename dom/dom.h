@@ -38,6 +38,8 @@ inline Node create_element_node(std::string_view name, AttrMap attrs, std::vecto
     return {std::move(children), Element{std::string{name}, std::move(attrs)}};
 }
 
+std::string to_string(Node const &node);
+
 } // namespace dom
 
 #endif
