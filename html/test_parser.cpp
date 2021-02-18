@@ -1,4 +1,4 @@
-#include "html/parser.h"
+#include "html/parse.h"
 
 #include <catch2/catch.hpp>
 
@@ -7,11 +7,8 @@ using namespace std::literals;
 namespace {
 
 TEST_CASE("parser", "[parser]") {
-    using html::Parser;
-
     SECTION("doctype") {
-        Parser parser{"<!doctype html>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<!doctype html>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto doctype = nodes[0];
@@ -20,8 +17,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("weirdly capitalized doctype") {
-        Parser parser{"<!docTYpe html>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<!docTYpe html>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto doctype = nodes[0];
@@ -30,8 +26,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("single element") {
-        Parser parser{"<html></html>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<html></html>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto html = nodes[0];
@@ -41,8 +36,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("self-closing single element") {
-        Parser parser{"<br>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<br>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto br = nodes[0];
@@ -52,8 +46,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("self-closing single element with slash") {
-        Parser parser{"<img/>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<img/>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto img = nodes[0];
@@ -63,8 +56,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("multiple elements") {
-        Parser parser{"<span></span><div></div>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<span></span><div></div>"sv);
         REQUIRE(nodes.size() == 2);
 
         auto span = nodes[0];
@@ -79,8 +71,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("nested elements") {
-        Parser parser{"<html><body></body></html>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<html><body></body></html>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto html = nodes[0];
@@ -94,8 +85,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("single-quoted attribute") {
-        Parser parser{"<meta charset='utf-8'/>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<meta charset='utf-8'/>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -108,8 +98,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("double-quoted attribute") {
-        Parser parser{"<meta charset=\"utf-8\"/>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -122,8 +111,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("multiple attributes") {
-        Parser parser{"<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -137,8 +125,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("multiple nodes with attributes") {
-        Parser parser{"<html bonus='hello'><body style='fancy'></body></html>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto html = nodes[0];
@@ -156,8 +143,7 @@ TEST_CASE("parser", "[parser]") {
     }
 
     SECTION("text node") {
-        Parser parser{"<html>fantastic, the future is now</html>"sv};
-        auto nodes = parser.parse_nodes();
+        auto nodes = html::parse("<html>fantastic, the future is now</html>"sv);
         REQUIRE(nodes.size() == 1);
 
         auto html = nodes[0];

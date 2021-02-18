@@ -15,7 +15,23 @@ namespace html {
 
 // Inspired by
 // https://github.com/servo/rust-cssparser/blob/02129220f848246ce8899f45a50d4b15068ebd79/src/tokenizer.rs
-struct Parser {
+class Parser {
+public:
+    Parser(std::string_view input) : input_{input} {}
+
+    std::vector<dom::Node> parse_nodes() {
+        using namespace std::string_view_literals;
+
+        std::vector<dom::Node> nodes;
+        while (!is_eof()) {
+            skip_whitespace();
+            if (is_eof() || starts_with("</"sv)) { break; }
+            nodes.push_back(parse_node());
+        }
+        return nodes;
+    }
+
+private:
     // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
     static constexpr auto void_elements = std::array{
             "area", "base", "br", "col", "embed",
@@ -27,11 +43,11 @@ struct Parser {
     }
 
     constexpr char peek() const {
-        return input[pos];
+        return input_[pos_];
     }
 
     constexpr std::string_view peek(std::size_t chars) const {
-        return input.substr(pos, chars);
+        return input_.substr(pos_, chars);
     }
 
     constexpr bool starts_with(std::string_view prefix) const {
@@ -39,21 +55,21 @@ struct Parser {
     }
 
     constexpr bool is_eof() const {
-        return pos >= input.size();
+        return pos_ >= input_.size();
     }
 
     constexpr char consume_char() {
-        return input[pos++];
+        return input_[pos_++];
     }
 
     constexpr void advance(std::size_t n) {
-        pos += n;
+        pos_ += n;
     }
 
     std::string_view consume_while(std::function<bool(char)> const &pred) {
-        std::size_t start = pos;
-        while (pred(input[pos])) { ++pos; }
-        return input.substr(start, pos - start);
+        std::size_t start = pos_;
+        while (pred(input_[pos_])) { ++pos_; }
+        return input_.substr(start, pos_ - start);
     }
 
     constexpr void skip_whitespace() {
@@ -126,7 +142,7 @@ struct Parser {
         return dom::create_element_node(name, std::move(attrs), std::move(children));
     }
 
-    static constexpr auto no_case_compare = [](std::string_view a, std::string_view b) {
+    static constexpr bool no_case_compare(std::string_view a, std::string_view b) {
         if (a.size() != b.size()) { return false; }
         for (size_t i = 0; i < a.size(); ++i) {
             if (std::tolower(a[i]) != std::tolower(b[i])) {
@@ -135,7 +151,7 @@ struct Parser {
         }
 
         return true;
-    };
+    }
 
     dom::Node parse_node() {
         using namespace std::string_view_literals;
@@ -147,20 +163,8 @@ struct Parser {
         return parse_text();
     }
 
-    std::vector<dom::Node> parse_nodes() {
-        using namespace std::string_view_literals;
-
-        std::vector<dom::Node> nodes;
-        while (!is_eof()) {
-            skip_whitespace();
-            if (is_eof() || starts_with("</"sv)) { break; }
-            nodes.push_back(parse_node());
-        }
-        return nodes;
-    }
-
-    std::string_view input;
-    std::size_t pos{0};
+    std::string_view input_;
+    std::size_t pos_{0};
 };
 
 } // namespace parser

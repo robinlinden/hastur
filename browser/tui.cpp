@@ -1,4 +1,4 @@
-#include "html/parser.h"
+#include "html/parse.h"
 #include "http/get.h"
 #include "tui/tui.h"
 
@@ -39,7 +39,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
     auto response = http::get(endpoint);
 
     spdlog::info("Parsing HTML");
-    auto nodes = html::Parser{response.body}.parse_nodes();
+    auto nodes = html::parse(response.body);
     for (auto const &node : nodes) { print_node(node); }
 
     spdlog::info("Building TUI");
