@@ -52,9 +52,14 @@ Response get(std::string_view url) {
         asio::io_service svc;
         asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
         asio::ssl::stream<asio::ip::tcp::socket> ssock(svc, ctx);
+        asio::error_code ec;
 
         asio::ip::tcp::resolver resolver{svc};
-        auto endpoints = resolver.resolve(endpoint, "https"sv);
+        auto endpoints = resolver.resolve(endpoint, "https"sv, ec);
+        if (ec) {
+            spdlog::error("http::get: Unable to resolve https endpoint '{}'", endpoint);
+            return {};
+        }
 
         ssock.lowest_layer().connect(*endpoints.begin());
         ssock.handshake(asio::ssl::stream_base::handshake_type::client);
@@ -64,7 +69,6 @@ Response get(std::string_view url) {
         ss << fmt::format("Host: {}\r\n", endpoint);
         ss << "Accept: text/html\r\n";
         ss << "Connection: close\r\n\r\n";
-        asio::error_code ec;
         asio::write(ssock, asio::buffer(ss.str()), ec);
 
         std::string data;
