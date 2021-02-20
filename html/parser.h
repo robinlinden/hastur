@@ -5,13 +5,16 @@
 
 #include <array>
 #include <cctype>
+#include <concepts>
 #include <cstddef>
-#include <functional>
 #include <string_view>
 #include <utility>
 #include <vector>
 
 namespace html {
+
+template<typename T>
+concept Predicate = std::predicate<T, char>;
 
 // Inspired by
 // https://github.com/servo/rust-cssparser/blob/02129220f848246ce8899f45a50d4b15068ebd79/src/tokenizer.rs
@@ -66,7 +69,8 @@ private:
         pos_ += n;
     }
 
-    std::string_view consume_while(std::function<bool(char)> const &pred) {
+    template<Predicate T>
+    constexpr std::string_view consume_while(T const &pred) {
         std::size_t start = pos_;
         while (pred(input_[pos_])) { ++pos_; }
         return input_.substr(start, pos_ - start);
