@@ -2,10 +2,9 @@
 #define HTML_PARSER_H_
 
 #include "dom/dom.h"
+#include "util/base_parser.h"
 
 #include <array>
-#include <cctype>
-#include <concepts>
 #include <cstddef>
 #include <string_view>
 #include <utility>
@@ -13,14 +12,9 @@
 
 namespace html {
 
-template<typename T>
-concept Predicate = std::predicate<T, char>;
-
-// Inspired by
-// https://github.com/servo/rust-cssparser/blob/02129220f848246ce8899f45a50d4b15068ebd79/src/tokenizer.rs
-class Parser {
+class Parser final : util::BaseParser {
 public:
-    Parser(std::string_view input) : input_{input} {}
+    Parser(std::string_view input) : BaseParser{input} {}
 
     std::vector<dom::Node> parse_nodes() {
         using namespace std::string_view_literals;
@@ -43,41 +37,6 @@ private:
 
     constexpr bool is_void_element(std::string_view tag) {
         return find(begin(void_elements), end(void_elements), tag) != end(void_elements);
-    }
-
-    constexpr char peek() const {
-        return input_[pos_];
-    }
-
-    constexpr std::string_view peek(std::size_t chars) const {
-        return input_.substr(pos_, chars);
-    }
-
-    constexpr bool starts_with(std::string_view prefix) const {
-        return peek(prefix.size()) == prefix;
-    }
-
-    constexpr bool is_eof() const {
-        return pos_ >= input_.size();
-    }
-
-    constexpr char consume_char() {
-        return input_[pos_++];
-    }
-
-    constexpr void advance(std::size_t n) {
-        pos_ += n;
-    }
-
-    template<Predicate T>
-    constexpr std::string_view consume_while(T const &pred) {
-        std::size_t start = pos_;
-        while (pred(input_[pos_])) { ++pos_; }
-        return input_.substr(start, pos_ - start);
-    }
-
-    constexpr void skip_whitespace() {
-        while (!is_eof() && std::isspace(static_cast<unsigned char>(peek()))) { advance(1); }
     }
 
     std::string_view parse_tag_name() {
@@ -166,9 +125,6 @@ private:
         if (peek() == '<') { return parse_element(); }
         return parse_text();
     }
-
-    std::string_view input_;
-    std::size_t pos_{0};
 };
 
 } // namespace parser

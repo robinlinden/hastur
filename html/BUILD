@@ -8,7 +8,10 @@ cc_library(
         "parser.h",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//dom"],
+    deps = [
+        "//dom",
+        "//util",
+    ],
 )
 
 cc_test(
