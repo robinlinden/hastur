@@ -1,7 +1,8 @@
 #ifndef UTIL_BASE_PARSER_H_
 #define UTIL_BASE_PARSER_H_
 
-#include <cctype>
+#include <algorithm>
+#include <array>
 #include <concepts>
 #include <cstddef>
 #include <string_view>
@@ -13,7 +14,7 @@ concept Predicate = std::predicate<T, char>;
 
 class BaseParser {
 public:
-    BaseParser(std::string_view input) : input_{input} {}
+    constexpr BaseParser(std::string_view input) : input_{input} {}
 
     constexpr char peek() const {
         return input_[pos_];
@@ -47,10 +48,16 @@ public:
     }
 
     constexpr void skip_whitespace() {
-        while (!is_eof() && std::isspace(static_cast<unsigned char>(peek()))) { advance(1); }
+        while (!is_eof() && is_space(peek())) { advance(1); }
     }
 
 private:
+    static constexpr auto space_chars = std::array{' ', '\f', '\n', '\r', '\t', '\v'};
+
+    constexpr static bool is_space(char c) {
+        return std::find(begin(space_chars), end(space_chars), c) != end(space_chars);
+    }
+
     std::string_view input_;
     std::size_t pos_{0};
 };
