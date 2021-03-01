@@ -7,9 +7,16 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "etest_with_main",
+    srcs = ["etest_main.cpp"],
+    visibility = ["//visibility:public"],
+    deps = [":etest"],
+)
+
 cc_test(
     name = "etest_test",
     size = "small",
     srcs = ["etest_test.cpp"],
-    deps = [":etest"],
+    deps = [":etest_with_main"],
 )

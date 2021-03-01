@@ -20,6 +20,8 @@ std::vector<Test> &registry() {
     return test_registry;
 }
 
+} // namespace
+
 int run_all_tests() noexcept {
     std::cout << registry().size() << " test(s) registered." << std::endl;
     auto const longest_name = std::max_element(registry().begin(), registry().end(),
@@ -43,8 +45,6 @@ int run_all_tests() noexcept {
     return assertion_failures > 0 ? 1 : 0;
 }
 
-} // namespace
-
 int test(std::string_view name, std::function<void()> body) noexcept {
     registry().push_back({name, body});
     return 0;
@@ -55,7 +55,3 @@ void expect_true(bool b) noexcept {
 }
 
 } // namespace etest
-
-int main() {
-    return etest::run_all_tests();
-}
