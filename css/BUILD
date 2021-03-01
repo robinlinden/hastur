@@ -18,6 +18,6 @@ cc_test(
     srcs = ["parser_test.cpp"],
     deps = [
         ":css",
-        "@catch2//:catch2_with_main",
+        "//etest",
     ],
 )

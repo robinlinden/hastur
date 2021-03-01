@@ -1,91 +1,91 @@
 #include "css/parse.h"
 
-#include <catch2/catch.hpp>
+#include "etest/etest.h"
 
 using namespace std::literals;
 
-namespace {
+int main() {
+    using etest::expect_true;
 
-TEST_CASE("parser") {
-    SECTION("simple rule") {
+    etest::test("parser: simple rule", [] {
         auto rules = css::parse("body { width: 50px; }"sv);
-        REQUIRE(rules.size() == 1);
+        expect_true(rules.size() == 1);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{"body"s});
-        REQUIRE(body.declarations.size() == 1);
-        REQUIRE(body.declarations.at("width"s) == "50px"s);
-    }
+        expect_true(body.selectors == std::vector{"body"s});
+        expect_true(body.declarations.size() == 1);
+        expect_true(body.declarations.at("width"s) == "50px"s);
+    });
 
-    SECTION("multiple rules") {
+    etest::test("parser: multiple rules", [] {
         auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv);
-        REQUIRE(rules.size() == 2);
+        expect_true(rules.size() == 2);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{"body"s});
-        REQUIRE(body.declarations.size() == 1);
-        REQUIRE(body.declarations.at("width"s) == "50px"s);
+        expect_true(body.selectors == std::vector{"body"s});
+        expect_true(body.declarations.size() == 1);
+        expect_true(body.declarations.at("width"s) == "50px"s);
 
         auto p = rules[1];
-        REQUIRE(p.selectors == std::vector{"p"s});
-        REQUIRE(p.declarations.size() == 1);
-        REQUIRE(p.declarations.at("font-size"s) == "8em"s);
-    }
+        expect_true(p.selectors == std::vector{"p"s});
+        expect_true(p.declarations.size() == 1);
+        expect_true(p.declarations.at("font-size"s) == "8em"s);
+    });
 
-    SECTION("multiple selectors") {
+    etest::test("parser: multiple selectors", [] {
         auto rules = css::parse("body, p { width: 50px; }"sv);
-        REQUIRE(rules.size() == 1);
+        expect_true(rules.size() == 1);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{"body"s, "p"s});
-        REQUIRE(body.declarations.size() == 1);
-        REQUIRE(body.declarations.at("width"s) == "50px"s);
-    }
+        expect_true(body.selectors == std::vector{"body"s, "p"s});
+        expect_true(body.declarations.size() == 1);
+        expect_true(body.declarations.at("width"s) == "50px"s);
+    });
 
-    SECTION("multiple declarations") {
+    etest::test("parser: multiple declarations", [] {
         auto rules = css::parse("body { width: 50px; height: 300px; }"sv);
-        REQUIRE(rules.size() == 1);
+        expect_true(rules.size() == 1);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{"body"s});
-        REQUIRE(body.declarations.size() == 2);
-        REQUIRE(body.declarations.at("width"s) == "50px"s);
-        REQUIRE(body.declarations.at("height"s) == "300px"s);
-    }
+        expect_true(body.selectors == std::vector{"body"s});
+        expect_true(body.declarations.size() == 2);
+        expect_true(body.declarations.at("width"s) == "50px"s);
+        expect_true(body.declarations.at("height"s) == "300px"s);
+    });
 
-    SECTION("class") {
+    etest::test("parser: class", [] {
         auto rules = css::parse(".cls { width: 50px; }"sv);
-        REQUIRE(rules.size() == 1);
+        expect_true(rules.size() == 1);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{".cls"s});
-        REQUIRE(body.declarations.size() == 1);
-        REQUIRE(body.declarations.at("width"s) == "50px"s);
-    }
+        expect_true(body.selectors == std::vector{".cls"s});
+        expect_true(body.declarations.size() == 1);
+        expect_true(body.declarations.at("width"s) == "50px"s);
+    });
 
-    SECTION("id") {
+    etest::test("parser: id", [] {
         auto rules = css::parse("#cls { width: 50px; }"sv);
-        REQUIRE(rules.size() == 1);
+        expect_true(rules.size() == 1);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{"#cls"s});
-        REQUIRE(body.declarations.size() == 1);
-        REQUIRE(body.declarations.at("width"s) == "50px"s);
-    }
+        expect_true(body.selectors == std::vector{"#cls"s});
+        expect_true(body.declarations.size() == 1);
+        expect_true(body.declarations.at("width"s) == "50px"s);
+    });
 
-    SECTION("empty rule") {
+    etest::test("parser: empty rule", [] {
         auto rules = css::parse("body {}"sv);
-        REQUIRE(rules.size() == 1);
+        expect_true(rules.size() == 1);
 
         auto body = rules[0];
-        REQUIRE(body.selectors == std::vector{"body"s});
-        REQUIRE(body.declarations.size() == 0);
-    }
+        expect_true(body.selectors == std::vector{"body"s});
+        expect_true(body.declarations.size() == 0);
+    });
 
-    SECTION("no rules") {
+    etest::test("parser: no rules", [] {
         auto rules = css::parse(""sv);
-        REQUIRE(rules.size() == 0);
-    }
-}
+        expect_true(rules.size() == 0);
+    });
 
-} // namespace
+    return etest::run_all_tests();
+}
