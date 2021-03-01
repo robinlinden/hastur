@@ -24,6 +24,7 @@ build:gnulike --cxxopt='-Wundef'
 build:gnulike --cxxopt='-fno-common'
 build:gnulike --per_file_copt='http:get@-Wno-sign-compare' # asio leaks this into our code.
 build:gnulike --per_file_copt='http:get@-Wno-undef' # asio leaks this into our code.
+build:gnulike --per_file_copt='http:get@-Wno-shadow' # asio leaks this into our code.
 build:gnulike --per_file_copt='external/asio[:/]@-Wno-sign-compare'
 build:gnulike --per_file_copt='external/asio[:/]@-Wno-undef'
 build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
