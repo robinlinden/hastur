@@ -15,6 +15,10 @@ int main(int argc, char **argv) {
 
     spdlog::info("Fetching HTML from {}", endpoint);
     auto response = http::get(endpoint);
+    if (response.header.empty() || response.body.empty()) {
+        spdlog::error("Got no response from {}", endpoint);
+        return 1;
+    }
 
     spdlog::info("Parsing HTML");
     auto nodes = html::parse(response.body);
