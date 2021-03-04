@@ -28,13 +28,6 @@ http_archive(
 )
 
 http_archive(
-    name = "catch2",
-    sha256 = "e7eb70b3d0ac2ed7dcf14563ad808740c29e628edde99e973adad373a2b5e4df",
-    strip_prefix = "Catch2-2.13.4",
-    urls = ["https://github.com/catchorg/Catch2/archive/v2.13.4.tar.gz"],
-)
-
-http_archive(
     name = "fmt",
     build_file = "//third_party:fmt.BUILD",
     sha256 = "5cae7072042b3043e12d53d50ef404bbb76949dad1de368d7f993a15c8c05ecc",

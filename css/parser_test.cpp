@@ -3,10 +3,9 @@
 #include "etest/etest.h"
 
 using namespace std::literals;
+using etest::expect_true;
 
 int main() {
-    using etest::expect_true;
-
     etest::test("parser: simple rule", [] {
         auto rules = css::parse("body { width: 50px; }"sv);
         expect_true(rules.size() == 1);

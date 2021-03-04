@@ -12,6 +12,6 @@ cc_test(
     srcs = ["base_parser_test.cpp"],
     deps = [
         ":util",
-        "@catch2//:catch2_with_main",
+        "//etest",
     ],
 )

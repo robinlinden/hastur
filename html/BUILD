@@ -20,6 +20,6 @@ cc_test(
     srcs = ["test_parser.cpp"],
     deps = [
         ":html",
-        "@catch2//:catch2_with_main",
+        "//etest",
     ],
 )
