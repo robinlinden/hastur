@@ -44,6 +44,22 @@ http_archive(
 )
 
 http_archive(
+    name = "imgui",
+    build_file = "//third_party:imgui.BUILD",
+    sha256 = "f7c619e03a06c0f25e8f47262dbc32d61fd033d2c91796812bf0f8c94fca78fb",
+    strip_prefix = "imgui-1.81",
+    url = "https://github.com/ocornut/imgui/archive/v1.81.tar.gz",
+)
+
+http_archive(
+    name = "imgui-sfml",
+    build_file = "//third_party:imgui-sfml.BUILD",
+    sha256 = "843536a6c558579ab57f749c4c6e1e67e0f7b033ab434e0f9cf1ad38726ac51e",
+    strip_prefix = "imgui-sfml-2.2",
+    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.2.tar.gz",
+)
+
+http_archive(
     name = "sfml",
     build_file = "//third_party:sfml.BUILD",
     sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
@@ -57,4 +73,12 @@ http_archive(
     sha256 = "e20e6bd8f57e866eaf25a5417f0a38a116e537f1a77ac7b5409ca2b180cec0d5",
     strip_prefix = "spdlog-1.8.2",
     urls = ["https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz"],
+)
+
+http_archive(
+    name = "stb",
+    build_file = "//third_party:stb.BUILD",
+    sha256 = "13a99ad430e930907f5611325ec384168a958bf7610e63e60e2fd8e7b7379610",
+    strip_prefix = "stb-b42009b3b9d4ca35bc703f5310eedc74f584be58",
+    url = "https://github.com/nothings/stb/archive/b42009b3b9d4ca35bc703f5310eedc74f584be58.tar.gz",
 )
