@@ -1,6 +1,6 @@
 on: [push, pull_request]
 jobs:
-  linux:
+  linux-gcc:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -17,7 +17,24 @@ jobs:
     - name: Run
       run: bazel run browser --config gnulike
 
-  windows:
+  linux-clang:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+          sudo apt install libxrandr-dev libgl-dev libudev-dev libfreetype-dev
+          echo "CC=clang-10" >> $GITHUB_ENV
+          echo "CXX=clang++-10" >> $GITHUB_ENV
+          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.7.5/bazelisk-linux-amd64 --output-document=bazel
+    - name: Build
+      run: bazel build //... --config gnulike
+    - name: Test
+      run: bazel test //... --config gnulike
+    - name: Run
+      run: bazel run browser --config gnulike
+
+  windows-msvc:
     runs-on: windows-2019
     defaults:
       run:
