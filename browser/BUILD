@@ -24,6 +24,9 @@ cc_binary(
     name = "gui",
     srcs = ["gui.cpp"],
     deps = [
+        "//dom",
+        "//html",
+        "//http",
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",

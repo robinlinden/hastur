@@ -1,3 +1,6 @@
+#include "http/get.h"
+#include "html/parse.h"
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -9,8 +12,11 @@ int main() {
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
-    char url_buf[255];
+    char url_buf[255]{"example.com"};
     sf::Clock clock;
+    http::Response response{};
+    std::vector<dom::Node> dom{};
+    std::string dom_str{};
 
     while (window.isOpen()) {
         sf::Event event;
@@ -25,8 +31,25 @@ int main() {
         ImGui::SFML::Update(window, clock.restart());
 
         ImGui::Begin("Navigation");
-        ImGui::InputText("Url", url_buf, sizeof(url_buf));
-        ImGui::Button("Go");
+        if (ImGui::InputText(
+                "Url", url_buf, sizeof(url_buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            response = http::get(url_buf);
+            dom = html::parse(response.body);
+            dom_str.clear();
+            for (const auto &node : dom) {
+                dom_str += dom::to_string(node);
+                dom_str += '\n';
+            }
+        }
+        ImGui::End();
+
+        ImGui::Begin("HTTP Response");
+        if (ImGui::CollapsingHeader("Header")) { ImGui::Text("%s", response.header.c_str()); }
+        if (ImGui::CollapsingHeader("Body")) { ImGui::Text("%s", response.body.c_str()); }
+        ImGui::End();
+
+        ImGui::Begin("DOM");
+        ImGui::Text("%s", dom_str.c_str());
         ImGui::End();
 
         window.clear();
