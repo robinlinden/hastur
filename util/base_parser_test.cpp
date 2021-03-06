@@ -32,6 +32,7 @@ int main() {
         expect_true(static_test<abcd.starts_with("abcd")>());
     });
 
+#ifndef __clang__ // Clang doesn't yet support lambdas in templates.
     etest::test("is_eof, advance", [] {
         constexpr auto abcd = BaseParser("abcd");
         expect_true(static_test<!abcd.is_eof()>());
@@ -75,4 +76,5 @@ int main() {
             return true;
         }()>());
     });
+#endif
 }
