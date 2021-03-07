@@ -60,6 +60,20 @@ build:msvc --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of '
 build:msvc --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
 build:msvc --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
 
+# Special build options
+# =========================================================
+
+# Some of this is from "Can I run AddressSanitizer with more aggressive diagnostics enabled?"
+# on https://github.com/google/sanitizers/wiki/AddressSanitizer#faq and some is from
+# https://chromium.googlesource.com/external/github.com/grpc/grpc/+/4e9206f48c91e17f43856b016b12f59dd5118293/tools/bazel.rc
+build:asan --strip=never
+build:asan --copt=-fsanitize=address
+build:asan --copt=-fsanitize-address-use-after-scope
+build:asan --copt=-fno-omit-frame-pointer
+build:asan --linkopt=-fsanitize=address
+build:asan --action_env=ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
+build:asan --action_env=LSAN_OPTIONS=report_objects=1
+
 # Misc configuration
 # =========================================================
 
