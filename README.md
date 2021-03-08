@@ -6,8 +6,8 @@
 
 #### Compiler
 
-Right now gcc 10 and MSVC are tested against. The project makes use of C++20
-features, so a reasonably recent compiler is required.
+Right now GCC 10, Clang 10, and MSVC are tested against. The project makes use
+of C++20 features, so a reasonably recent compiler is required.
 
 #### Build system
 
@@ -35,7 +35,7 @@ The following assumes that you either have Bazel or Bazelisk under the name
 
 #### Building a single target
 
-`bazel build //parser`
+`bazel build //html`
 
 #### Running all tests
 
