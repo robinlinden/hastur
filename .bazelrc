@@ -22,6 +22,7 @@ build:gnulike --cxxopt='-Wshadow'
 build:gnulike --cxxopt='-Wsign-compare'
 build:gnulike --cxxopt='-Wundef'
 build:gnulike --cxxopt='-fno-common'
+build:gnulike --cxxopt='-Wno-missing-field-initializers' # Common idiom for zeroing members.
 build:gnulike --per_file_copt='http:get@-Wno-sign-compare' # asio leaks this into our code.
 build:gnulike --per_file_copt='http:get@-Wno-undef' # asio leaks this into our code.
 build:gnulike --per_file_copt='http:get@-Wno-shadow' # asio leaks this into our code.
