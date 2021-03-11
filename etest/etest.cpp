@@ -1,6 +1,7 @@
 #include "etest/etest.h"
 
 #include <algorithm>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -19,6 +20,8 @@ std::vector<Test> &registry() {
     static std::vector<Test> test_registry;
     return test_registry;
 }
+
+struct test_failure : public std::exception {};
 
 } // namespace
 
@@ -52,6 +55,10 @@ int test(std::string_view name, std::function<void()> body) noexcept {
 
 void expect(bool b) noexcept {
     if (!b) { ++assertion_failures; }
+}
+
+void require(bool b) {
+    if (!b) { throw test_failure{}; }
 }
 
 } // namespace etest

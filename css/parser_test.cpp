@@ -4,11 +4,12 @@
 
 using namespace std::literals;
 using etest::expect;
+using etest::require;
 
 int main() {
     etest::test("parser: simple rule", [] {
         auto rules = css::parse("body { width: 50px; }"sv);
-        expect(rules.size() == 1);
+        require(rules.size() == 1);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
@@ -18,7 +19,7 @@ int main() {
 
     etest::test("parser: multiple rules", [] {
         auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv);
-        expect(rules.size() == 2);
+        require(rules.size() == 2);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
@@ -33,7 +34,7 @@ int main() {
 
     etest::test("parser: multiple selectors", [] {
         auto rules = css::parse("body, p { width: 50px; }"sv);
-        expect(rules.size() == 1);
+        require(rules.size() == 1);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s, "p"s});
@@ -43,7 +44,7 @@ int main() {
 
     etest::test("parser: multiple declarations", [] {
         auto rules = css::parse("body { width: 50px; height: 300px; }"sv);
-        expect(rules.size() == 1);
+        require(rules.size() == 1);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
@@ -54,7 +55,7 @@ int main() {
 
     etest::test("parser: class", [] {
         auto rules = css::parse(".cls { width: 50px; }"sv);
-        expect(rules.size() == 1);
+        require(rules.size() == 1);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{".cls"s});
@@ -64,7 +65,7 @@ int main() {
 
     etest::test("parser: id", [] {
         auto rules = css::parse("#cls { width: 50px; }"sv);
-        expect(rules.size() == 1);
+        require(rules.size() == 1);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"#cls"s});
@@ -74,7 +75,7 @@ int main() {
 
     etest::test("parser: empty rule", [] {
         auto rules = css::parse("body {}"sv);
-        expect(rules.size() == 1);
+        require(rules.size() == 1);
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});

@@ -4,11 +4,12 @@
 
 using namespace std::literals;
 using etest::expect;
+using etest::require;
 
 int main() {
     etest::test("doctype", [] {
         auto nodes = html::parse("<!doctype html>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto doctype = nodes[0];
         expect(doctype.children.size() == 0);
@@ -17,7 +18,7 @@ int main() {
 
     etest::test("weirdly capitalized doctype", [] {
         auto nodes = html::parse("<!docTYpe html>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto doctype = nodes[0];
         expect(doctype.children.size() == 0);
@@ -26,7 +27,7 @@ int main() {
 
     etest::test("single element", [] {
         auto nodes = html::parse("<html></html>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto html = nodes[0];
         expect(html.children.size() == 0);
@@ -36,7 +37,7 @@ int main() {
 
     etest::test("self-closing single element", [] {
         auto nodes = html::parse("<br>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto br = nodes[0];
         expect(br.children.size() == 0);
@@ -46,7 +47,7 @@ int main() {
 
     etest::test("self-closing single element with slash", [] {
         auto nodes = html::parse("<img/>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto img = nodes[0];
         expect(img.children.size() == 0);
@@ -56,7 +57,7 @@ int main() {
 
     etest::test("multiple elements", [] {
         auto nodes = html::parse("<span></span><div></div>"sv);
-        expect(nodes.size() == 2);
+        require(nodes.size() == 2);
 
         auto span = nodes[0];
         expect(span.children.size() == 0);
@@ -71,10 +72,10 @@ int main() {
 
     etest::test("nested elements", [] {
         auto nodes = html::parse("<html><body></body></html>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto html = nodes[0];
-        expect(html.children.size() == 1);
+        require(html.children.size() == 1);
         expect(std::get<dom::Element>(html.data).name == "html"s);
         expect(std::get<dom::Element>(html.data).attributes.size() == 0);
 
@@ -85,7 +86,7 @@ int main() {
 
     etest::test("single-quoted attribute", [] {
         auto nodes = html::parse("<meta charset='utf-8'/>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto meta = nodes[0];
         expect(meta.children.size() == 0);
@@ -98,7 +99,7 @@ int main() {
 
     etest::test("double-quoted attribute", [] {
         auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto meta = nodes[0];
         expect(meta.children.size() == 0);
@@ -111,7 +112,7 @@ int main() {
 
     etest::test("multiple attributes", [] {
         auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto meta = nodes[0];
         expect(meta.children.size() == 0);
@@ -125,10 +126,10 @@ int main() {
 
     etest::test("multiple nodes with attributes", [] {
         auto nodes = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto html = nodes[0];
-        expect(html.children.size() == 1);
+        require(html.children.size() == 1);
         auto html_data = std::get<dom::Element>(html.data);
         expect(html_data.name == "html"s);
         expect(html_data.attributes.size() == 1);
@@ -143,10 +144,10 @@ int main() {
 
     etest::test("text node", [] {
         auto nodes = html::parse("<html>fantastic, the future is now</html>"sv);
-        expect(nodes.size() == 1);
+        require(nodes.size() == 1);
 
         auto html = nodes[0];
-        expect(html.children.size() == 1);
+        require(html.children.size() == 1);
         expect(std::get<dom::Element>(html.data).name == "html"s);
         expect(std::get<dom::Element>(html.data).attributes.size() == 0);
 
