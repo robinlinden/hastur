@@ -8,7 +8,7 @@ namespace etest {
 
 int run_all_tests() noexcept;
 int test(std::string_view name, std::function<void()> body) noexcept;
-void expect_true(bool) noexcept;
+void expect(bool) noexcept;
 
 } // namespace etest
 

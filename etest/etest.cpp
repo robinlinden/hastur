@@ -50,7 +50,7 @@ int test(std::string_view name, std::function<void()> body) noexcept {
     return 0;
 }
 
-void expect_true(bool b) noexcept {
+void expect(bool b) noexcept {
     if (!b) { ++assertion_failures; }
 }
 
