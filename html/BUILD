@@ -17,7 +17,7 @@ cc_library(
 cc_test(
     name = "html_test",
     size = "small",
-    srcs = ["test_parser.cpp"],
+    srcs = ["parser_test.cpp"],
     deps = [
         ":html",
         "//etest",
