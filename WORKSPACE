@@ -49,6 +49,10 @@ http_archive(
     sha256 = "9d2ad4303ce25ae7cfde77409d8364508ac6072a868cfca2e78333c6cdfa05e6",
     strip_prefix = "glib-2.67.5",
     url = "https://download.gnome.org/sources/glib/2.67/glib-2.67.5.tar.xz",
+    patch_cmds = [
+        "sed -i 's@<glib/deprecated/gallocator.h>@\"glib/deprecated/gallocator.h\"@' glib/glib-private.h",
+        "sed -i 's@<glib/deprecated/gallocator.h>@\"glib/deprecated/gallocator.h\"@' glib/glib.h",
+    ],
 )
 
 http_archive(

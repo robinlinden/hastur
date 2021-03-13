@@ -40,6 +40,8 @@ cc_library(
                 "glib/gspawn-win32.c",
                 "glib/giowin32.c",
                 "glib/win_iconv.c",
+                "glib/gthread-win32.c",
+                "glib/gspawn-win32-helper.c",
             ],
         ),
         "@platforms//os:windows": glob(
@@ -59,7 +61,7 @@ cc_library(
         "-DGLIB_COMPILATION",
     ],
     hdrs = glob([
-        "glib/*.h",
+        "glib/**/*.h",
     ]),
     deps = ["@//third_party:glib_config"],
     visibility = ["//visibility:public"],
