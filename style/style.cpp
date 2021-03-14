@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <utility>
 
 namespace style {
 
@@ -28,6 +29,23 @@ std::vector<std::pair<std::string, std::string>> matching_rules(
     }
 
     return matched_rules;
+}
+
+StyledNode style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
+    std::vector<StyledNode> children{};
+    for (auto const &child : root.children) {
+        children.push_back(style_tree(child, stylesheet));
+    }
+
+    auto properties = std::holds_alternative<dom::Element>(root.data)
+            ? matching_rules(std::get<dom::Element>(root.data), stylesheet)
+            : std::vector<std::pair<std::string, std::string>>{};
+
+    return {
+        .node = root,
+        .properties = std::move(properties),
+        .children = std::move(children),
+    };
 }
 
 } // namespace style

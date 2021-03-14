@@ -3,7 +3,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 cc_library(
     name = "style",
     srcs = ["style.cpp"],
-    hdrs = ["style.h"],
+    hdrs = [
+        "style.h",
+        "styled_node.h",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//css",

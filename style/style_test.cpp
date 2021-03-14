@@ -1,4 +1,5 @@
 #include "style/style.h"
+#include "style/styled_node.h"
 
 #include "css/rule.h"
 #include "etest/etest.h"
@@ -65,6 +66,73 @@ int main() {
             require(hr_rules.size() == 1);
             expect(hr_rules[0] == std::pair{"height"s, "auto"s});
         }
+    });
+
+    etest::test("style_tree: structure", [] {
+        dom::Node root = dom::create_element_node(
+            "html",
+            {},
+            {
+                dom::create_element_node("head", {}, {}),
+                dom::create_element_node("body", {}, {
+                    dom::create_element_node("p", {}, {}),
+                }),
+            }
+        );
+
+        style::StyledNode expected{
+            .node = root,
+            .properties = {},
+            .children = {
+                {root.children[0], {}, {}},
+                {root.children[1], {}, {
+                    {root.children[1].children[0], {}, {}},
+                }},
+            },
+        };
+
+        expect(style::style_tree(root, {}) == expected);
+    });
+
+    etest::test("style_tree: style is applied", [] {
+        dom::Node root = dom::create_element_node(
+            "html",
+            {},
+            {
+                dom::create_element_node("head", {}, {}),
+                dom::create_element_node("body", {}, {
+                    dom::create_element_node("p", {}, {}),
+                }),
+            }
+        );
+
+        std::vector<css::Rule> stylesheet{
+            {
+                .selectors = {"p"},
+                .declarations = {
+                    {"height", "100px"},
+                }
+            },
+            {
+                .selectors = {"body"},
+                .declarations = {
+                    {"text-size", "500em"},
+                }
+            },
+        };
+
+        style::StyledNode expected{
+            .node = root,
+            .properties = {},
+            .children = {
+                {root.children[0], {}, {}},
+                {root.children[1], {{"text-size", "500em"}}, {
+                    {root.children[1].children[0], {{"height", "100px"}}, {}},
+                }},
+            },
+        };
+
+        expect(style::style_tree(root, stylesheet) == expected);
     });
 
     return etest::run_all_tests();

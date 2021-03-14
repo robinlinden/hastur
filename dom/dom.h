@@ -40,6 +40,22 @@ inline Node create_element_node(std::string_view name, AttrMap attrs, std::vecto
 
 std::string to_string(Node const &node);
 
+inline bool operator==(dom::Doctype const &a, dom::Doctype const &b) noexcept {
+    return a.doctype == b.doctype;
+}
+
+inline bool operator==(dom::Text const &a, dom::Text const &b) noexcept {
+    return a.text == b.text;
+}
+
+inline bool operator==(dom::Element const &a, dom::Element const &b) noexcept {
+    return a.name == b.name && a.attributes == b.attributes;
+}
+
+inline bool operator==(dom::Node const &a, dom::Node const &b) noexcept {
+    return a.children == b.children && a.data == b.data;
+}
+
 } // namespace dom
 
 #endif
