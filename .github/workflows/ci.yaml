@@ -77,3 +77,18 @@ jobs:
           sudo chmod +x buildifier
     - name: Check
       run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname *.BUILD -or -iname BUILD)
+
+  linux-cmake-gcc:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+          sudo apt install libxrandr-dev libgl-dev libudev-dev libfreetype-dev libasio-dev libfmt-dev libspdlog-dev
+          echo "CC=gcc-10" >> $GITHUB_ENV
+          echo "CXX=g++-10" >> $GITHUB_ENV
+          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.7.5/bazelisk-linux-amd64 --output-document=bazel
+    - name: Configure
+      run:  cmake -S . -B build
+    - name: Build
+      run: cmake --build build
