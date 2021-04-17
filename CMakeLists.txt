@@ -8,6 +8,12 @@ find_package(Asio REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
+endif()
+
 # css
 add_library(hastur_css
     css/parse.cpp
