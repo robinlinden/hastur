@@ -30,5 +30,6 @@ cc_binary(
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",
+        "@spdlog",
     ],
 )

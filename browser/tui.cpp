@@ -15,8 +15,8 @@ int main(int argc, char **argv) {
 
     spdlog::info("Fetching HTML from {}", endpoint);
     auto response = http::get(endpoint);
-    if (response.header.empty() || response.body.empty()) {
-        spdlog::error("Got no response from {}", endpoint);
+    if (response.err != http::Error::Ok) {
+        spdlog::error("Got error {} from {}", response.err, endpoint);
         return 1;
     }
 

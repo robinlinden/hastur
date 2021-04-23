@@ -3,7 +3,6 @@
 #include <asio.hpp>
 #include <asio/ssl.hpp>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
 
 #include <sstream>
 #include <string>
@@ -45,7 +44,7 @@ Response get(std::string_view url) {
         std::string data{ss.str()};
 
         auto [header, body] = split(data, "\r\n\r\n");
-        return {std::string{header}, std::string{body}};
+        return {Error::Ok, std::string{header}, std::string{body}};
     }
 
     if (protocol == "https"sv) {
@@ -57,8 +56,7 @@ Response get(std::string_view url) {
         asio::ip::tcp::resolver resolver{svc};
         auto endpoints = resolver.resolve(endpoint, "https"sv, ec);
         if (ec) {
-            spdlog::error("http::get: Unable to resolve https endpoint '{}'", endpoint);
-            return {};
+            return {Error::Unresolved};
         }
 
         ssock.lowest_layer().connect(*endpoints.begin());
@@ -80,11 +78,10 @@ Response get(std::string_view url) {
         }
 
         auto [header, body] = split(data, "\r\n\r\n");
-        return {std::string{header}, std::string{body}};
+        return {Error::Ok, std::string{header}, std::string{body}};
     }
 
-    spdlog::error("http::get: Unhandled protocol '{}'", protocol);
-    return {};
+    return {Error::Unhandled};
 }
 
 } // namespace http

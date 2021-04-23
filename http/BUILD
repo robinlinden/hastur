@@ -8,6 +8,5 @@ cc_library(
     deps = [
         "@asio",
         "@fmt",
-        "@spdlog",
     ],
 )

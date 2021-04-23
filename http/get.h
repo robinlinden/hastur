@@ -6,7 +6,14 @@
 
 namespace http {
 
+enum class Error {
+    Ok,
+    Unresolved,
+    Unhandled,
+};
+
 struct Response {
+    Error err;
     std::string header;
     std::string body;
 };
