@@ -1,5 +1,10 @@
 # Build artifacts.
 /bazel-*
+CMakeCache.txt
+/CMakeFiles
+cmake_install.cmake
+Makefile
+/lib
 
 # Work-in-progress directory.
 /wip
