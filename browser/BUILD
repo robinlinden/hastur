@@ -15,6 +15,8 @@ cc_binary(
     deps = [
         "//html",
         "//http",
+        "//layout",
+        "//style",
         "//tui",
         "@spdlog",
     ],

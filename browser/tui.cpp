@@ -1,6 +1,8 @@
 #include "dom/dom.h"
 #include "html/parse.h"
 #include "http/get.h"
+#include "layout/layout.h"
+#include "style/style.h"
 #include "tui/tui.h"
 
 #include <spdlog/spdlog.h>
@@ -24,8 +26,15 @@ int main(int argc, char **argv) {
     auto nodes = html::parse(response.body);
     for (auto const &node : nodes) { std::cout << dom::to_string(node); }
 
+    spdlog::info("Styling tree");
+    std::vector<css::Rule> stylesheet{{{"head"}, {{"display", "none"}}}};
+    auto styled = style::style_tree(nodes[1], stylesheet);
+
+    spdlog::info("Creating layout");
+    auto layout = layout::create_layout(styled);
+
     spdlog::info("Building TUI");
-    for (auto const &node : nodes) { std::cout << tui::render(node) << '\n'; }
+    std::cout << tui::render(layout) << '\n';
 
     spdlog::info("Done");
 }

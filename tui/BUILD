@@ -6,7 +6,7 @@ cc_library(
     hdrs = ["tui.h"],
     visibility = ["//visibility:public"],
     deps = [
-        "//dom",
+        "//layout",
         "@ftxui",
         "@spdlog",
     ],
