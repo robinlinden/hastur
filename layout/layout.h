@@ -1,3 +1,6 @@
+#ifndef LAYOUT_LAYOUT_H_
+#define LAYOUT_LAYOUT_H_
+
 #include "style/styled_node.h"
 
 #include <vector>
@@ -35,3 +38,5 @@ inline bool operator==(LayoutBox const &a, LayoutBox const &b) noexcept {
 LayoutBox create_layout(style::StyledNode const &node);
 
 } // namespace layout
+
+#endif
