@@ -31,7 +31,8 @@ int main(int argc, char **argv) {
     auto styled = style::style_tree(nodes[1], stylesheet);
 
     spdlog::info("Creating layout");
-    auto layout = layout::create_layout(styled);
+    // 0 as the width is fine as we don't use the measurements when rendering the tui.
+    auto layout = layout::create_layout(styled, 0);
 
     spdlog::info("Building TUI");
     std::cout << tui::render(layout) << '\n';

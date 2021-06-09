@@ -35,7 +35,7 @@ inline bool operator==(LayoutBox const &a, LayoutBox const &b) noexcept {
             && a.children == b.children;
 }
 
-LayoutBox create_layout(style::StyledNode const &node);
+LayoutBox create_layout(style::StyledNode const &node, int width);
 
 } // namespace layout
 

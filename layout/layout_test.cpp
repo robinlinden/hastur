@@ -39,7 +39,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root);
+        auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
     });
 
@@ -73,7 +73,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root);
+        auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
     });
 
@@ -113,7 +113,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root);
+        auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
     });
 
@@ -150,8 +150,166 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root);
+        auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
+    });
+
+    etest::test("simple width", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"width", "100px"}},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {0, 0, 100, 0},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {0, 0, 100, 0}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 100, 0}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 1000) == expected_layout);
+    });
+
+    etest::test("less simple width", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"width", "100px"}},
+            .children = {
+                {dom_root.children[0], {{"width", "50px"}}, {
+                    {dom_root.children[0].children[0], {{"width", "25px"}}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {0, 0, 100, 0},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {0, 0, 50, 0}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 25, 0}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 1000) == expected_layout);
+    });
+
+    etest::test("auto width expands to fill parent", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"width", "100px"}},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {0, 0, 100, 0},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {0, 0, 100, 0}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 100, 0}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 1000) == expected_layout);
+    });
+
+    etest::test("height doesn't affect children", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"height", "100px"}},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {0, 0, 0, 100},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {0, 0, 0, 0}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 0, 0}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 0) == expected_layout);
+    });
+
+    etest::test("height affects siblings and parents", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {{"height", "25px"}}, {}},
+                    {dom_root.children[0].children[1], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {0, 0, 0, 25},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {0, 0, 0, 25}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 0, 25}, {}},
+                    {&style_root.children[0].children[1], LayoutType::Block, {0, 25, 0, 0}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 0) == expected_layout);
     });
 
     return etest::run_all_tests();
