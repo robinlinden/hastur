@@ -25,7 +25,7 @@ ftxui::Elements parse_children(layout::LayoutBox const &box) {
 ftxui::Element element_from_node(layout::LayoutBox const &box) {
     switch (box.type) {
         case layout::LayoutType::Inline: {
-            if (auto text = std::get_if<dom::Text>(&box.node->node.data)) {
+            if (auto text = std::get_if<dom::Text>(&box.node->node.get().data)) {
                 return hflow(ftxui::paragraph(ftxui::to_wstring(text->text)));
             }
             return hbox(parse_children(box));

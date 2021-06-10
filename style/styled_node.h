@@ -3,14 +3,16 @@
 
 #include "dom/dom.h"
 
+#include <functional>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace style {
 
+// Using reference_wrapper here because I want this to be movable and copy-constructible.
 struct StyledNode {
-    dom::Node const &node;
+    std::reference_wrapper<dom::Node const> node;
     std::vector<std::pair<std::string, std::string>> properties;
     std::vector<StyledNode> children;
 };

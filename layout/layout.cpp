@@ -76,7 +76,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
         [&node](dom::Text const &) -> std::optional<LayoutBox> {
             return LayoutBox{&node, LayoutType::Inline};
         },
-    }, node.node.data);
+    }, node.node.get().data);
 }
 
 // TODO(robinlinden):
