@@ -1,5 +1,7 @@
-#include "http/get.h"
 #include "html/parse.h"
+#include "http/get.h"
+#include "layout/layout.h"
+#include "style/style.h"
 
 #include <fmt/format.h>
 #include <imgui.h>
@@ -8,6 +10,8 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <spdlog/spdlog.h>
+
+#include <optional>
 
 int main() {
     sf::RenderWindow window{sf::VideoMode(640, 480), "gui"};
@@ -18,8 +22,11 @@ int main() {
     sf::Clock clock;
     http::Response response{};
     std::vector<dom::Node> dom{};
+    std::optional<style::StyledNode> styled{};
+    std::optional<layout::LayoutBox> layout{};
     std::string dom_str{};
     std::string err_str{};
+    std::string layout_str{};
 
     while (window.isOpen()) {
         sf::Event event;
@@ -46,6 +53,17 @@ int main() {
                         dom_str += dom::to_string(node);
                         dom_str += '\n';
                     }
+
+                    std::vector<css::Rule> stylesheet{
+                        {{"head"}, {{"display", "none"}}},
+                        {{"h1"}, {{"height", "50px"}}},
+                        {{"p"}, {{"height", "25px"}}},
+                        {{"div"}, {{"height", "100px"}}},
+                        {{"div", "p"}, {{"width", "100px"}}},
+                    };
+                    styled = style::style_tree(dom[1], stylesheet);
+                    layout = layout::create_layout(*styled, window.getSize().x);
+                    layout_str = layout::to_string(*layout);
                     break;
                 }
                 case http::Error::Unresolved: {
@@ -72,6 +90,10 @@ int main() {
 
         ImGui::Begin("DOM");
         ImGui::Text("%s", dom_str.c_str());
+        ImGui::End();
+
+        ImGui::Begin("Layout");
+        ImGui::Text("%s", layout_str.c_str());
         ImGui::End();
 
         window.clear();

@@ -29,6 +29,8 @@ cc_binary(
         "//dom",
         "//html",
         "//http",
+        "//layout",
+        "//style",
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",
