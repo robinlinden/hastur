@@ -3,6 +3,7 @@
 
 #include "style/styled_node.h"
 
+#include <string>
 #include <vector>
 
 namespace layout {
@@ -36,6 +37,8 @@ inline bool operator==(LayoutBox const &a, LayoutBox const &b) noexcept {
 }
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
+
+std::string to_string(LayoutBox const &box);
 
 } // namespace layout
 

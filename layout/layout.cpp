@@ -4,6 +4,7 @@
 #include <cassert>
 #include <charconv>
 #include <optional>
+#include <sstream>
 #include <utility>
 #include <variant>
 
@@ -133,12 +134,54 @@ void layout(LayoutBox &box, Rect const &bounds) {
     }
 }
 
+std::string_view to_str(LayoutType type) {
+    switch (type) {
+        case LayoutType::Inline: return "inline";
+        case LayoutType::Block: return "block";
+        case LayoutType::AnonymousBlock: return "ablock";
+    }
+    assert(false);
+    std::abort();
+}
+
+std::string_view to_str(dom::Node const &node) {
+    return std::visit(Overloaded {
+        [](dom::Doctype const &doctype) -> std::string_view { return doctype.doctype; },
+        [](dom::Element const &element) -> std::string_view { return element.name; },
+        [](dom::Text const &text) -> std::string_view { return text.text; },
+    }, node.data);
+}
+
+std::string to_str(Rect const &rect) {
+    std::stringstream ss;
+    ss << "{" << rect.x << "," << rect.y << "," << rect.width << "," << rect.height << "}";
+    return ss.str();
+}
+
+void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
+    for (int8_t i = 0; i < depth; ++i) { os << "  "; }
+
+    if (box.node != nullptr) {
+        os << to_str(box.node->node.get()) << '\n';
+        for (int8_t i = 0; i < depth; ++i) { os << "  "; }
+    }
+
+    os << to_str(box.type) << " " << to_str(box.dimensions) << '\n';
+    for (auto const &child : box.children) { print_box(child, os, depth + 1); }
+}
+
 } // namespace
 
 LayoutBox create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
     layout(*tree, {0, 0, static_cast<float>(width), 0});
     return *tree;
+}
+
+std::string to_string(LayoutBox const &box) {
+    std::stringstream ss;
+    print_box(box, ss);
+    return ss.str();
 }
 
 } // namespace layout

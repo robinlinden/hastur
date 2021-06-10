@@ -312,5 +312,36 @@ int main() {
         expect(layout::create_layout(style_root, 0) == expected_layout);
     });
 
+    etest::test("to_string", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {{"height", "25px"}}, {}},
+                    {dom_root.children[0].children[1], {}, {}},
+                }},
+            },
+        };
+
+        auto expected =
+                "html\n"
+                "block {0,0,0,25}\n"
+                "  body\n"
+                "  block {0,0,0,25}\n"
+                "    p\n"
+                "    block {0,0,0,25}\n"
+                "    p\n"
+                "    block {0,25,0,0}\n";
+        expect(to_string(layout::create_layout(style_root, 0)) == expected);
+    });
+
     return etest::run_all_tests();
 }
