@@ -13,7 +13,7 @@ struct Overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
-void print_node(dom::Node node, std::ostream &os, uint8_t depth = 0) {
+void print_node(dom::Node const &node, std::ostream &os, uint8_t depth = 0) {
     for (int8_t i = 0; i < depth; ++i) { os << "  "; }
     std::visit(Overloaded {
         [&os](dom::Doctype const &doctype) { os << "doctype: " << doctype.doctype << '\n'; },
