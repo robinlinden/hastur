@@ -28,13 +28,23 @@ int main() {
     std::string err_str{};
     std::string layout_str{};
 
+    bool layout_needed{};
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
 
-            if (event.type == sf::Event::Closed) {
-                window.close();
+            switch (event.type) {
+                case sf::Event::Closed: {
+                    window.close();
+                    break;
+                }
+                case sf::Event::Resized: {
+                    layout_needed = true;
+                    break;
+                }
+                default: break;
             }
         }
 
@@ -62,8 +72,7 @@ int main() {
                         {{"div", "p"}, {{"width", "100px"}}},
                     };
                     styled = style::style_tree(dom[1], stylesheet);
-                    layout = layout::create_layout(*styled, window.getSize().x);
-                    layout_str = layout::to_string(*layout);
+                    layout_needed = true;
                     break;
                 }
                 case http::Error::Unresolved: {
@@ -78,6 +87,13 @@ int main() {
                 }
             }
         }
+
+        if (layout_needed) {
+            layout = layout::create_layout(*styled, window.getSize().x);
+            layout_str = layout::to_string(*layout);
+            layout_needed = false;
+        }
+
         if (response.err != http::Error::Ok) {
             ImGui::Text("%s", err_str.c_str());
         }
