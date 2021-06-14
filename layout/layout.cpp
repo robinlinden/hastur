@@ -48,7 +48,6 @@ std::string_view get_property_or(
 
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     return std::visit(Overloaded {
-        [](dom::Doctype const &) -> std::optional<LayoutBox> { return std::nullopt; },
         [&node](dom::Element const &) -> std::optional<LayoutBox> {
             auto display = get_property(node, "display");
             if (display && *display == "none") {
@@ -146,7 +145,6 @@ std::string_view to_str(LayoutType type) {
 
 std::string_view to_str(dom::Node const &node) {
     return std::visit(Overloaded {
-        [](dom::Doctype const &doctype) -> std::string_view { return doctype.doctype; },
         [](dom::Element const &element) -> std::string_view { return element.name; },
         [](dom::Text const &text) -> std::string_view { return text.text; },
     }, node.data);

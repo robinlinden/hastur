@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 
     spdlog::info("Styling tree");
     std::vector<css::Rule> stylesheet{{{"head"}, {{"display", "none"}}}};
-    auto styled = style::style_tree(dom.children[0], stylesheet);
+    auto styled = style::style_tree(dom.html, stylesheet);
 
     spdlog::info("Creating layout");
     // 0 as the width is fine as we don't use the measurements when rendering the tui.

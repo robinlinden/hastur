@@ -21,7 +21,7 @@ int main() {
     char url_buf[255]{"example.com"};
     sf::Clock clock;
     http::Response response{};
-    dom::Node dom{};
+    dom::Document dom{};
     std::optional<style::StyledNode> styled{};
     std::optional<layout::LayoutBox> layout{};
     std::string dom_str{};
@@ -68,7 +68,7 @@ int main() {
                         {{"div"}, {{"height", "100px"}}},
                         {{"div", "p"}, {{"width", "100px"}}},
                     };
-                    styled = style::style_tree(dom.children[0], stylesheet);
+                    styled = style::style_tree(dom.html, stylesheet);
                     layout_needed = true;
                     break;
                 }

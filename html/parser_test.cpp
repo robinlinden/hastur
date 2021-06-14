@@ -9,33 +9,38 @@ using etest::require;
 int main() {
     etest::test("doctype", [] {
         auto document = html::parse("<!doctype html>"sv);
-        expect(document.children.size() == 0);
-        expect(std::get<dom::Doctype>(document.data).doctype == "html"s);
+        expect(document.html.children.size() == 0);
+        expect(document.doctype == "html"s);
     });
 
     etest::test("weirdly capitalized doctype", [] {
         auto document = html::parse("<!docTYpe html>"sv);
-        expect(document.children.size() == 0);
-        expect(std::get<dom::Doctype>(document.data).doctype == "html"s);
+        expect(document.html.children.size() == 0);
+        expect(document.doctype == "html"s);
     });
 
     etest::test("missing doctype means quirks", [] {
         auto document = html::parse("<html></html>"sv);
-        expect(std::get<dom::Doctype>(document.data).doctype == "quirks"s);
+        expect(document.doctype == "quirks"s);
+    });
+
+    etest::test("everything is wrapped in a html element", [] {
+        auto document = html::parse("<p></p>"sv);
+        auto html = document.html;
+        expect(std::get<dom::Element>(html.data).name == "html"s);
+        require(html.children.size() == 1);
+        expect(std::get<dom::Element>(html.children[0].data).name == "p"s);
     });
 
     etest::test("single element", [] {
-        auto nodes = html::parse("<html></html>"sv).children;
-        require(nodes.size() == 1);
-
-        auto html = nodes[0];
+        auto html = html::parse("<html></html>"sv).html;
         expect(html.children.size() == 0);
         expect(std::get<dom::Element>(html.data).name == "html"s);
         expect(std::get<dom::Element>(html.data).attributes.size() == 0);
     });
 
     etest::test("self-closing single element", [] {
-        auto nodes = html::parse("<br>"sv).children;
+        auto nodes = html::parse("<br>"sv).html.children;
         require(nodes.size() == 1);
 
         auto br = nodes[0];
@@ -45,7 +50,7 @@ int main() {
     });
 
     etest::test("self-closing single element with slash", [] {
-        auto nodes = html::parse("<img/>"sv).children;
+        auto nodes = html::parse("<img/>"sv).html.children;
         require(nodes.size() == 1);
 
         auto img = nodes[0];
@@ -55,7 +60,7 @@ int main() {
     });
 
     etest::test("multiple elements", [] {
-        auto nodes = html::parse("<span></span><div></div>"sv).children;
+        auto nodes = html::parse("<span></span><div></div>"sv).html.children;
         require(nodes.size() == 2);
 
         auto span = nodes[0];
@@ -70,10 +75,7 @@ int main() {
     });
 
     etest::test("nested elements", [] {
-        auto nodes = html::parse("<html><body></body></html>"sv).children;
-        require(nodes.size() == 1);
-
-        auto html = nodes[0];
+        auto html = html::parse("<html><body></body></html>"sv).html;
         require(html.children.size() == 1);
         expect(std::get<dom::Element>(html.data).name == "html"s);
         expect(std::get<dom::Element>(html.data).attributes.size() == 0);
@@ -84,7 +86,7 @@ int main() {
     });
 
     etest::test("single-quoted attribute", [] {
-        auto nodes = html::parse("<meta charset='utf-8'/>"sv).children;
+        auto nodes = html::parse("<meta charset='utf-8'/>"sv).html.children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -97,7 +99,7 @@ int main() {
     });
 
     etest::test("double-quoted attribute", [] {
-        auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv).children;
+        auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv).html.children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -110,7 +112,7 @@ int main() {
     });
 
     etest::test("multiple attributes", [] {
-        auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv).children;
+        auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv).html.children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -124,10 +126,7 @@ int main() {
     });
 
     etest::test("multiple nodes with attributes", [] {
-        auto nodes = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv).children;
-        require(nodes.size() == 1);
-
-        auto html = nodes[0];
+        auto html = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv).html;
         require(html.children.size() == 1);
         auto html_data = std::get<dom::Element>(html.data);
         expect(html_data.name == "html"s);
@@ -142,10 +141,7 @@ int main() {
     });
 
     etest::test("text node", [] {
-        auto nodes = html::parse("<html>fantastic, the future is now</html>"sv).children;
-        require(nodes.size() == 1);
-
-        auto html = nodes[0];
+        auto html = html::parse("<html>fantastic, the future is now</html>"sv).html;
         require(html.children.size() == 1);
         expect(std::get<dom::Element>(html.data).name == "html"s);
         expect(std::get<dom::Element>(html.data).attributes.size() == 0);

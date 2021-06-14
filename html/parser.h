@@ -16,18 +16,22 @@ class Parser final : util::BaseParser {
 public:
     Parser(std::string_view input) : BaseParser{input} {}
 
-    dom::Node parse_document() {
+    dom::Document parse_document() {
         using namespace std::string_view_literals;
 
         constexpr auto doctype_prefix = "<!doctype"sv;
         auto peeked = peek(doctype_prefix.size());
-        auto document = [&]() {
+        auto doctype = [&]() {
             if (no_case_compare(doctype_prefix, peeked)) { return parse_doctype(); }
-            return dom::create_doctype_node("quirks");
+            return "quirks"sv;
         }();
 
-        document.children = parse_nodes();
-        return document;
+        auto children = parse_nodes();
+        if (children.size() == 1 && std::get<dom::Element>(children[0].data).name == "html") {
+            return dom::create_document(doctype, std::move(children[0]));
+        }
+
+        return dom::create_document(doctype, dom::create_element_node("html", {}, std::move(children)));
     }
 
 private:
@@ -86,10 +90,10 @@ private:
         return attrs;
     }
 
-    dom::Node parse_doctype() {
+    std::string_view parse_doctype() {
         consume_while([](char c) { return c != ' '; }); // <!doctype
         skip_whitespace();
-        auto doctype = dom::create_doctype_node(consume_while([](char c) { return c != '>'; }));
+        auto doctype = consume_while([](char c) { return c != '>'; });
         consume_char(); // >
         return doctype;
     }
