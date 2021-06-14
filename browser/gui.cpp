@@ -21,7 +21,7 @@ int main() {
     char url_buf[255]{"example.com"};
     sf::Clock clock;
     http::Response response{};
-    std::vector<dom::Node> dom{};
+    dom::Node dom{};
     std::optional<style::StyledNode> styled{};
     std::optional<layout::LayoutBox> layout{};
     std::string dom_str{};
@@ -59,10 +59,7 @@ int main() {
             switch (response.err) {
                 case http::Error::Ok: {
                     dom = html::parse(response.body);
-                    for (const auto &node : dom) {
-                        dom_str += dom::to_string(node);
-                        dom_str += '\n';
-                    }
+                    dom_str += dom::to_string(dom);
 
                     std::vector<css::Rule> stylesheet{
                         {{"head"}, {{"display", "none"}}},
@@ -71,7 +68,7 @@ int main() {
                         {{"div"}, {{"height", "100px"}}},
                         {{"div", "p"}, {{"width", "100px"}}},
                     };
-                    styled = style::style_tree(dom[1], stylesheet);
+                    styled = style::style_tree(dom.children[0], stylesheet);
                     layout_needed = true;
                     break;
                 }

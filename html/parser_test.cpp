@@ -8,25 +8,24 @@ using etest::require;
 
 int main() {
     etest::test("doctype", [] {
-        auto nodes = html::parse("<!doctype html>"sv);
-        require(nodes.size() == 1);
-
-        auto doctype = nodes[0];
-        expect(doctype.children.size() == 0);
-        expect(std::get<dom::Doctype>(doctype.data).doctype == "html"s);
+        auto document = html::parse("<!doctype html>"sv);
+        expect(document.children.size() == 0);
+        expect(std::get<dom::Doctype>(document.data).doctype == "html"s);
     });
 
     etest::test("weirdly capitalized doctype", [] {
-        auto nodes = html::parse("<!docTYpe html>"sv);
-        require(nodes.size() == 1);
+        auto document = html::parse("<!docTYpe html>"sv);
+        expect(document.children.size() == 0);
+        expect(std::get<dom::Doctype>(document.data).doctype == "html"s);
+    });
 
-        auto doctype = nodes[0];
-        expect(doctype.children.size() == 0);
-        expect(std::get<dom::Doctype>(doctype.data).doctype == "html"s);
+    etest::test("missing doctype means quirks", [] {
+        auto document = html::parse("<html></html>"sv);
+        expect(std::get<dom::Doctype>(document.data).doctype == "quirks"s);
     });
 
     etest::test("single element", [] {
-        auto nodes = html::parse("<html></html>"sv);
+        auto nodes = html::parse("<html></html>"sv).children;
         require(nodes.size() == 1);
 
         auto html = nodes[0];
@@ -36,7 +35,7 @@ int main() {
     });
 
     etest::test("self-closing single element", [] {
-        auto nodes = html::parse("<br>"sv);
+        auto nodes = html::parse("<br>"sv).children;
         require(nodes.size() == 1);
 
         auto br = nodes[0];
@@ -46,7 +45,7 @@ int main() {
     });
 
     etest::test("self-closing single element with slash", [] {
-        auto nodes = html::parse("<img/>"sv);
+        auto nodes = html::parse("<img/>"sv).children;
         require(nodes.size() == 1);
 
         auto img = nodes[0];
@@ -56,7 +55,7 @@ int main() {
     });
 
     etest::test("multiple elements", [] {
-        auto nodes = html::parse("<span></span><div></div>"sv);
+        auto nodes = html::parse("<span></span><div></div>"sv).children;
         require(nodes.size() == 2);
 
         auto span = nodes[0];
@@ -71,7 +70,7 @@ int main() {
     });
 
     etest::test("nested elements", [] {
-        auto nodes = html::parse("<html><body></body></html>"sv);
+        auto nodes = html::parse("<html><body></body></html>"sv).children;
         require(nodes.size() == 1);
 
         auto html = nodes[0];
@@ -85,7 +84,7 @@ int main() {
     });
 
     etest::test("single-quoted attribute", [] {
-        auto nodes = html::parse("<meta charset='utf-8'/>"sv);
+        auto nodes = html::parse("<meta charset='utf-8'/>"sv).children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -98,7 +97,7 @@ int main() {
     });
 
     etest::test("double-quoted attribute", [] {
-        auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv);
+        auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv).children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -111,7 +110,7 @@ int main() {
     });
 
     etest::test("multiple attributes", [] {
-        auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv);
+        auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv).children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -125,7 +124,7 @@ int main() {
     });
 
     etest::test("multiple nodes with attributes", [] {
-        auto nodes = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv);
+        auto nodes = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv).children;
         require(nodes.size() == 1);
 
         auto html = nodes[0];
@@ -143,7 +142,7 @@ int main() {
     });
 
     etest::test("text node", [] {
-        auto nodes = html::parse("<html>fantastic, the future is now</html>"sv);
+        auto nodes = html::parse("<html>fantastic, the future is now</html>"sv).children;
         require(nodes.size() == 1);
 
         auto html = nodes[0];

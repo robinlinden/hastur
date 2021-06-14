@@ -16,16 +16,18 @@ class Parser final : util::BaseParser {
 public:
     Parser(std::string_view input) : BaseParser{input} {}
 
-    std::vector<dom::Node> parse_nodes() {
+    dom::Node parse_document() {
         using namespace std::string_view_literals;
 
-        std::vector<dom::Node> nodes;
-        while (!is_eof()) {
-            skip_whitespace();
-            if (is_eof() || starts_with("</"sv)) { break; }
-            nodes.push_back(parse_node());
-        }
-        return nodes;
+        constexpr auto doctype_prefix = "<!doctype"sv;
+        auto peeked = peek(doctype_prefix.size());
+        auto document = [&]() {
+            if (no_case_compare(doctype_prefix, peeked)) { return parse_doctype(); }
+            return dom::create_doctype_node("quirks");
+        }();
+
+        document.children = parse_nodes();
+        return document;
     }
 
 private:
@@ -37,6 +39,18 @@ private:
 
     constexpr bool is_void_element(std::string_view tag) {
         return find(begin(void_elements), end(void_elements), tag) != end(void_elements);
+    }
+
+    std::vector<dom::Node> parse_nodes() {
+        using namespace std::string_view_literals;
+
+        std::vector<dom::Node> nodes;
+        while (!is_eof()) {
+            skip_whitespace();
+            if (is_eof() || starts_with("</"sv)) { break; }
+            nodes.push_back(parse_node());
+        }
+        return nodes;
     }
 
     std::string_view parse_tag_name() {
@@ -117,11 +131,6 @@ private:
     }
 
     dom::Node parse_node() {
-        using namespace std::string_view_literals;
-
-        constexpr auto doctype_prefix = "<!doctype"sv;
-        auto peeked = peek(doctype_prefix.size());
-        if (no_case_compare(doctype_prefix, peeked)) { return parse_doctype(); }
         if (peek() == '<') { return parse_element(); }
         return parse_text();
     }

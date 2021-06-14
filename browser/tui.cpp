@@ -23,12 +23,12 @@ int main(int argc, char **argv) {
     }
 
     spdlog::info("Parsing HTML");
-    auto nodes = html::parse(response.body);
-    for (auto const &node : nodes) { std::cout << dom::to_string(node); }
+    auto dom = html::parse(response.body);
+    std::cout << dom::to_string(dom);
 
     spdlog::info("Styling tree");
     std::vector<css::Rule> stylesheet{{{"head"}, {{"display", "none"}}}};
-    auto styled = style::style_tree(nodes[1], stylesheet);
+    auto styled = style::style_tree(dom.children[0], stylesheet);
 
     spdlog::info("Creating layout");
     // 0 as the width is fine as we don't use the measurements when rendering the tui.
