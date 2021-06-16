@@ -85,7 +85,7 @@ int main() {
             }
         }
 
-        if (layout_needed) {
+        if (layout_needed && styled) {
             layout = layout::create_layout(*styled, window.getSize().x);
             layout_str = layout::to_string(*layout);
             layout_needed = false;
