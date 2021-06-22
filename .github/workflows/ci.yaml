@@ -6,6 +6,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install
       run: |
+          sudo apt update
           sudo apt install libxrandr-dev libgl-dev libudev-dev libfreetype-dev
           echo "CC=gcc-10" >> $GITHUB_ENV
           echo "CXX=g++-10" >> $GITHUB_ENV
@@ -23,6 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install
       run: |
+          sudo apt update
           sudo apt install libxrandr-dev libgl-dev libudev-dev libfreetype-dev
           echo "CC=clang-10" >> $GITHUB_ENV
           echo "CXX=clang++-10" >> $GITHUB_ENV
@@ -40,6 +42,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install
       run: |
+          sudo apt update
           sudo apt install libxrandr-dev libgl-dev libudev-dev libfreetype-dev
           echo "CC=clang-10" >> $GITHUB_ENV
           echo "CXX=clang++-10" >> $GITHUB_ENV
