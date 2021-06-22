@@ -1,7 +1,11 @@
 #include "dom/dom.h"
 
+#include <algorithm>
+#include <iterator>
 #include <ostream>
 #include <sstream>
+#include <variant>
+#include <vector>
 
 namespace dom {
 namespace {
@@ -30,6 +34,42 @@ std::string to_string(Document const &document) {
     ss << "doctype: " << document.doctype << '\n';
     print_node(document.html, ss);
     return ss.str();
+}
+
+std::vector<Node const *> nodes_by_path(Node const &root, std::string_view path) {
+    std::vector<Node const *> next_search{&root};
+    std::vector<Node const *> searching{};
+    std::vector<Node const *> goal_nodes{};
+
+    while (!next_search.empty()) {
+        searching.swap(next_search);
+        next_search.clear();
+
+        for (auto node : searching) {
+            auto const *data = std::get_if<Element>(&node->data);
+            if (path == data->name) {
+                goal_nodes.push_back(node);
+                continue;
+            }
+
+            if (path.starts_with(data->name + ".")) {
+                std::transform(
+                        cbegin(node->children), cend(node->children),
+                        back_inserter(next_search),
+                        [](Node const &n) -> Node const * { return &n; });
+            }
+        }
+
+        // Remove name + separator.
+        std::size_t separator_position{path.find_first_of(".")};
+        if (separator_position == path.npos) {
+            break;
+        }
+
+        path.remove_prefix(separator_position + 1);
+    }
+
+    return goal_nodes;
 }
 
 } // namespace dom

@@ -41,6 +41,8 @@ inline Node create_element_node(std::string_view name, AttrMap attrs, std::vecto
     return {std::move(children), Element{std::string{name}, std::move(attrs)}};
 }
 
+std::vector<Node const *> nodes_by_path(Node const &root, std::string_view path);
+
 std::string to_string(Document const &node);
 
 inline bool operator==(dom::Text const &a, dom::Text const &b) noexcept {
