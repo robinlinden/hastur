@@ -43,6 +43,7 @@ build:gnulike --per_file_copt='external/sfml[:/]@-Wno-sign-compare'
 build:gnulike --per_file_copt='external/sfml[:/]@-Wno-undef'
 build:gnulike --per_file_copt='external/sfml[:/]@-Wno-unused-parameter'
 
+build:msvc --enable_runfiles
 build:msvc --cxxopt='/std:c++latest'
 build:msvc --cxxopt='/W4' # More warnings.
 build:msvc --cxxopt='/WX' # Treat warnings as errors.

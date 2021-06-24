@@ -86,21 +86,6 @@ cc_library(
     deps = [":system"],
 )
 
-# TODO(robinlinden): Don't use checked-in libraries.
-cc_library(
-    name = "freetype2",
-    srcs = select({
-        "@platforms//os:linux": [],
-        "@platforms//os:windows": ["extlibs/libs-msvc/x64/freetype.lib"],
-    }),
-    hdrs = glob(["extlibs/headers/freetype2/**/*.h"]),
-    linkopts = select({
-        "@platforms//os:linux": ["-lfreetype"],
-        "@platforms//os:windows": [],
-    }),
-    strip_include_prefix = "extlibs/headers/freetype2/",
-)
-
 cc_library(
     name = "graphics",
     srcs = glob(
@@ -131,8 +116,8 @@ cc_library(
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
     deps = [
-        ":freetype2",
         ":window",
+        "@freetype2",
         "@stb//:image",
         "@stb//:image_write",
     ],

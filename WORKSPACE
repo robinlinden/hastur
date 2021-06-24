@@ -36,6 +36,17 @@ http_archive(
 )
 
 http_archive(
+    name = "freetype2",  # FTL
+    build_file = "//third_party:freetype2.BUILD",
+    sha256 = "33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b",
+    strip_prefix = "freetype-2.8",
+    urls = [
+        "https://mirror.bazel.build/download.savannah.gnu.org/releases/freetype/freetype-2.8.tar.gz",
+        "http://download.savannah.gnu.org/releases/freetype/freetype-2.8.tar.gz",
+    ],
+)
+
+http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
     sha256 = "dbf94ebc683e7e68d60fc3a30629b72207b0de3b875f31935bd3c941b427d917",
@@ -60,6 +71,14 @@ http_archive(
 )
 
 http_archive(
+    name = "libpng",  # Libpng
+    build_file = "//third_party:libpng.BUILD",
+    sha256 = "ca74a0dace179a8422187671aee97dd3892b53e168627145271cad5b5ac81307",
+    strip_prefix = "libpng-1.6.37",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.37.tar.gz",
+)
+
+http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
     sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
@@ -81,4 +100,12 @@ http_archive(
     sha256 = "13a99ad430e930907f5611325ec384168a958bf7610e63e60e2fd8e7b7379610",
     strip_prefix = "stb-b42009b3b9d4ca35bc703f5310eedc74f584be58",
     url = "https://github.com/nothings/stb/archive/b42009b3b9d4ca35bc703f5310eedc74f584be58.tar.gz",
+)
+
+http_archive(
+    name = "zlib",  # Zlib
+    build_file = "//third_party:zlib.BUILD",
+    sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",
+    strip_prefix = "zlib-1.2.11",
+    url = "https://github.com/madler/zlib/archive/v1.2.11.tar.gz",
 )
