@@ -12,3 +12,4 @@ build --config gnulike # gcc/clang
 
 # Other interesting build options
 # build --config asan
+# build --config ubsan

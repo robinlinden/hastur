@@ -75,6 +75,13 @@ build:asan --linkopt=-fsanitize=address
 build:asan --action_env=ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
 build:asan --action_env=LSAN_OPTIONS=report_objects=1
 
+build:ubsan --strip=never
+build:ubsan --copt -fsanitize=undefined
+build:ubsan --copt=-fno-omit-frame-pointer
+build:ubsan --linkopt -fsanitize=undefined
+build:ubsan --linkopt -lubsan
+build:ubsan --action_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+
 # Misc configuration
 # =========================================================
 
