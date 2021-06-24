@@ -11,6 +11,8 @@ struct Authority {
     std::string passwd;
     std::string host;
     std::string port;
+
+    bool operator==(Authority const &) const = default;
 };
 
 struct Uri {
@@ -22,6 +24,8 @@ struct Uri {
     std::string path;
     std::string query;
     std::string fragment;
+
+    bool operator==(Uri const &) const = default;
 };
 
 } //namespace util

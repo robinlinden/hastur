@@ -44,14 +44,15 @@ std::optional<Uri> Uri::parse(std::string uristr){
         authority.host = hostport;
     }
 
-    return Uri {
-        .uri{std::move(uristr)},
+    auto uri = Uri {
         .scheme{match.str(2)},
         .authority{std::move(authority)},
         .path{match.str(5)},
         .query{match.str(7)},
         .fragment{match.str(9)},
     };
+    uri.uri = std::move(uristr);
+    return uri;
 }
 
 } // namespace util
