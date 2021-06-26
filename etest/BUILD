@@ -3,7 +3,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 cc_library(
     name = "etest",
     srcs = ["etest.cpp"],
-    hdrs = ["etest.h"],
+    hdrs = [
+        "cxx_compat.h",
+        "etest.h",
+    ],
     visibility = ["//visibility:public"],
 )
 
