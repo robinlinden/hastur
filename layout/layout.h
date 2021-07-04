@@ -10,11 +10,8 @@ namespace layout {
 
 struct Rect {
     float x{}, y{}, width{}, height{};
+    bool operator==(Rect const &) const = default;
 };
-
-constexpr bool operator==(Rect const &a, Rect const &b) noexcept {
-    return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
-}
 
 enum class LayoutType {
     Inline,
@@ -27,14 +24,8 @@ struct LayoutBox {
     LayoutType type;
     Rect dimensions;
     std::vector<LayoutBox> children;
+    bool operator==(LayoutBox const &) const = default;
 };
-
-inline bool operator==(LayoutBox const &a, LayoutBox const &b) noexcept {
-    return a.node == b.node
-            && a.type == b.type
-            && a.dimensions == b.dimensions
-            && a.children == b.children;
-}
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
 

@@ -18,7 +18,7 @@ struct StyledNode {
 };
 
 inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
-    return a.node == b.node && a.properties == b.properties && a.children == b.children;
+    return a.node.get() == b.node.get() && a.properties == b.properties && a.children == b.children;
 }
 
 } // namespace style
