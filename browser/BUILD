@@ -18,6 +18,7 @@ cc_binary(
         "//layout",
         "//style",
         "//tui",
+        "//util",
         "@spdlog",
     ],
 )
@@ -31,6 +32,7 @@ cc_binary(
         "//http",
         "//layout",
         "//style",
+        "//util",
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",

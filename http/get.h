@@ -1,6 +1,8 @@
 #ifndef HTTP_GET_H_
 #define HTTP_GET_H_
 
+#include "util/uri.h"
+
 #include <string>
 #include <string_view>
 
@@ -18,7 +20,7 @@ struct Response {
     std::string body;
 };
 
-Response get(std::string_view endpoint);
+Response get(util::Uri const &uri);
 
 } // namespace http
 

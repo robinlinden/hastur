@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["get.h"],
     visibility = ["//visibility:public"],
     deps = [
+        "//util",
         "@asio",
         "@fmt",
     ],

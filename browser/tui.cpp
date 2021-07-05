@@ -10,15 +10,23 @@
 
 #include <iostream>
 
+namespace {
+char const *const kDefaultUri = "http://www.example.com";
+} // namespace
+
 int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
 
-    const char *endpoint = argc > 1 ? argv[1] : "www.example.com";
+    auto uri = argc > 1 ? util::Uri::parse(argv[1]) : util::Uri::parse(kDefaultUri);
+    if (!uri) {
+        spdlog::error("Unable to parse uri from {}", argc > 1 ? argv[1] : kDefaultUri);
+        return 1;
+    }
 
-    spdlog::info("Fetching HTML from {}", endpoint);
-    auto response = http::get(endpoint);
+    spdlog::info("Fetching HTML from {}", uri->uri);
+    auto response = http::get(*uri);
     if (response.err != http::Error::Ok) {
-        spdlog::error("Got error {} from {}", response.err, endpoint);
+        spdlog::error("Got error {} from {}", response.err, uri->uri);
         return 1;
     }
 

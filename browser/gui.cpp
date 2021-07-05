@@ -18,7 +18,7 @@ int main() {
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
-    char url_buf[255]{"example.com"};
+    char url_buf[255]{"http://example.com"};
     sf::Clock clock;
     http::Response response{};
     dom::Document dom{};
@@ -53,7 +53,12 @@ int main() {
         ImGui::Begin("Navigation");
         if (ImGui::InputText(
                 "Url", url_buf, sizeof(url_buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
-            response = http::get(url_buf);
+            auto uri = util::Uri::parse(url_buf);
+            if (!uri) {
+                continue;
+            }
+
+            response = http::get(*uri);
             dom_str.clear();
 
             switch (response.err) {

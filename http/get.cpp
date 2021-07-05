@@ -23,18 +23,11 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
 
 } // namespace
 
-Response get(std::string_view url) {
-    auto [protocol, endpoint] = split(url, "://"sv);
-    if (endpoint.empty()) {
-        // No protocol included, so let's assume http for now.
-        endpoint = protocol;
-        protocol = "http"sv;
-    }
-
-    if (protocol == "http"sv) {
-        asio::ip::tcp::iostream stream(endpoint, protocol);
+Response get(util::Uri const &uri) {
+    if (uri.scheme == "http"sv) {
+        asio::ip::tcp::iostream stream(uri.authority.host, "http"sv);
         stream << "GET / HTTP/1.1\r\n";
-        stream << fmt::format("Host: {}\r\n", endpoint);
+        stream << fmt::format("Host: {}\r\n", uri.authority.host);
         stream << "Accept: text/html\r\n";
         stream << "Connection: close\r\n\r\n";
         stream.flush();
@@ -47,14 +40,14 @@ Response get(std::string_view url) {
         return {Error::Ok, std::string{header}, std::string{body}};
     }
 
-    if (protocol == "https"sv) {
+    if (uri.scheme == "https"sv) {
         asio::io_service svc;
         asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
         asio::ssl::stream<asio::ip::tcp::socket> ssock(svc, ctx);
         asio::error_code ec;
 
         asio::ip::tcp::resolver resolver{svc};
-        auto endpoints = resolver.resolve(endpoint, "https"sv, ec);
+        auto endpoints = resolver.resolve(uri.authority.host, "https"sv, ec);
         if (ec) {
             return {Error::Unresolved};
         }
@@ -64,7 +57,7 @@ Response get(std::string_view url) {
 
         std::stringstream ss;
         ss << "GET / HTTP/1.1\r\n";
-        ss << fmt::format("Host: {}\r\n", endpoint);
+        ss << fmt::format("Host: {}\r\n", uri.authority.host);
         ss << "Accept: text/html\r\n";
         ss << "Connection: close\r\n\r\n";
         asio::write(ssock, asio::buffer(ss.str()), ec);
