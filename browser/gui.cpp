@@ -97,21 +97,21 @@ int main() {
         }
 
         if (response.err != http::Error::Ok) {
-            ImGui::Text("%s", err_str.c_str());
+            ImGui::TextUnformatted(err_str.c_str());
         }
         ImGui::End();
 
         ImGui::Begin("HTTP Response");
-        if (ImGui::CollapsingHeader("Header")) { ImGui::Text("%s", response.header.c_str()); }
-        if (ImGui::CollapsingHeader("Body")) { ImGui::Text("%s", response.body.c_str()); }
+        if (ImGui::CollapsingHeader("Header")) { ImGui::TextUnformatted(response.header.c_str()); }
+        if (ImGui::CollapsingHeader("Body")) { ImGui::TextUnformatted(response.body.c_str()); }
         ImGui::End();
 
         ImGui::Begin("DOM");
-        ImGui::Text("%s", dom_str.c_str());
+        ImGui::TextUnformatted(dom_str.c_str());
         ImGui::End();
 
         ImGui::Begin("Layout");
-        ImGui::Text("%s", layout_str.c_str());
+        ImGui::TextUnformatted(layout_str.c_str());
         ImGui::End();
 
         window.clear();
