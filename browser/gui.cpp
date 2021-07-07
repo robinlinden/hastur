@@ -13,8 +13,24 @@
 
 #include <optional>
 
+namespace {
+
+auto const kBrowserTitle = "hastur";
+
+std::optional<std::string_view> try_get_title(dom::Document const &doc) {
+    auto title = dom::nodes_by_path(doc.html, "html.head.title");
+    if (title.empty()
+            || title[0]->children.empty()
+            || !std::holds_alternative<dom::Text>(title[0]->children[0].data)) {
+        return std::nullopt;
+    }
+    return std::get<dom::Text>(title[0]->children[0].data).text;
+}
+
+} // namespace
+
 int main() {
-    sf::RenderWindow window{sf::VideoMode(640, 480), "gui"};
+    sf::RenderWindow window{sf::VideoMode(640, 480), kBrowserTitle};
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
@@ -65,6 +81,12 @@ int main() {
                 case http::Error::Ok: {
                     dom = html::parse(response.body);
                     dom_str += dom::to_string(dom);
+
+                    if (auto title = try_get_title(dom); title) {
+                        window.setTitle(fmt::format("{} - {}", *title, kBrowserTitle));
+                    } else {
+                        window.setTitle(kBrowserTitle);
+                    }
 
                     std::vector<css::Rule> stylesheet{
                         {{"head"}, {{"display", "none"}}},
