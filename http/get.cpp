@@ -26,7 +26,7 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
 Response get(util::Uri const &uri) {
     if (uri.scheme == "http"sv) {
         asio::ip::tcp::iostream stream(uri.authority.host, "http"sv);
-        stream << "GET / HTTP/1.1\r\n";
+        stream << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
         stream << fmt::format("Host: {}\r\n", uri.authority.host);
         stream << "Accept: text/html\r\n";
         stream << "Connection: close\r\n\r\n";
@@ -56,7 +56,7 @@ Response get(util::Uri const &uri) {
         ssock.handshake(asio::ssl::stream_base::handshake_type::client);
 
         std::stringstream ss;
-        ss << "GET / HTTP/1.1\r\n";
+        ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
         ss << fmt::format("Host: {}\r\n", uri.authority.host);
         ss << "Accept: text/html\r\n";
         ss << "Connection: close\r\n\r\n";

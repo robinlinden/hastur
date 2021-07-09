@@ -23,6 +23,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (uri->path.empty()) {
+        uri->path = "/";
+    }
+
     spdlog::info("Fetching HTML from {}", uri->uri);
     auto response = http::get(*uri);
     if (response.err != http::Error::Ok) {

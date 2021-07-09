@@ -74,6 +74,10 @@ int main() {
                 continue;
             }
 
+            if (uri->path.empty()) {
+                uri->path = "/";
+            }
+
             response = http::get(*uri);
             dom_str.clear();
 
