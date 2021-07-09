@@ -28,12 +28,16 @@ public:
     }
 
 private:
+    constexpr void skip_if_neq(char c) {
+        if (peek() != c) { advance(1); }
+    }
+
     css::Rule parse_rule() {
         Rule rule{};
         while (peek() != '{') {
-            auto selector = consume_while([](char c) { return c != ' ' && c != ','; });
+            auto selector = consume_while([](char c) { return c != ' ' && c != ',' && c != '{'; });
             rule.selectors.push_back(std::string{selector});
-            consume_char(); // ' ' or ','
+            skip_if_neq('{'); // ' ' or ','
             skip_whitespace();
         }
 
@@ -54,8 +58,8 @@ private:
         auto name = consume_while([](char c) { return c != ':'; });
         consume_char(); // :
         skip_whitespace();
-        auto value = consume_while([](char c) { return c != ';'; });
-        consume_char(); // ;
+        auto value = consume_while([](char c) { return c != ';' && c != '}'; });
+        skip_if_neq('}'); // ;
         return {std::string{name}, std::string{value}};
     }
 };

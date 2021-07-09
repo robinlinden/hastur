@@ -17,6 +17,22 @@ int main() {
         expect(body.declarations.at("width"s) == "50px"s);
     });
 
+    etest::test("parser: minified", [] {
+        auto rules = css::parse("body{width:50px;font:inherit}head,p{display:none}"sv);
+        require(rules.size() == 2);
+
+        auto first = rules[0];
+        expect(first.selectors == std::vector{"body"s});
+        expect(first.declarations.size() == 2);
+        expect(first.declarations.at("width"s) == "50px"s);
+        expect(first.declarations.at("font"s) == "inherit"s);
+
+        auto second = rules[1];
+        expect(second.selectors == std::vector{"head"s, "p"s});
+        expect(second.declarations.size() == 1);
+        expect(second.declarations.at("display"s) == "none"s);
+    });
+
     etest::test("parser: multiple rules", [] {
         auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv);
         require(rules.size() == 2);
