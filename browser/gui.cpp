@@ -1,3 +1,4 @@
+#include "css/parse.h"
 #include "html/parse.h"
 #include "http/get.h"
 #include "layout/layout.h"
@@ -11,6 +12,7 @@
 #include <SFML/Window/Event.hpp>
 #include <spdlog/spdlog.h>
 
+#include <iterator>
 #include <optional>
 
 namespace {
@@ -94,11 +96,29 @@ int main() {
 
                     std::vector<css::Rule> stylesheet{
                         {{"head"}, {{"display", "none"}}},
-                        {{"h1"}, {{"height", "50px"}}},
-                        {{"p"}, {{"height", "25px"}}},
-                        {{"div"}, {{"height", "100px"}}},
-                        {{"div", "p"}, {{"width", "100px"}}},
                     };
+
+                    auto head_links = dom::nodes_by_path(dom.html, "html.head.link");
+                    head_links.erase(std::remove_if(begin(head_links), end(head_links), [](auto const &n) {
+                        auto elem = std::get<dom::Element>(n->data);
+                        return elem.attributes.contains("rel") && elem.attributes.at("rel") != "stylesheet";
+                    }), end(head_links));
+
+                    spdlog::info("Loading {} stylesheets", head_links.size());
+                    for (auto link : head_links) {
+                        auto const &elem = std::get<dom::Element>(link->data);
+                        auto stylesheet_url = fmt::format("{}{}", url_buf, elem.attributes.at("href"));
+                        spdlog::info("Downloading stylesheet from {}", stylesheet_url);
+                        auto style_data = http::get(*util::Uri::parse(stylesheet_url));
+
+                        auto new_rules = css::parse(style_data.body);
+                        stylesheet.reserve(stylesheet.size() + new_rules.size());
+                        stylesheet.insert(
+                                end(stylesheet),
+                                std::make_move_iterator(begin(new_rules)),
+                                std::make_move_iterator(end(new_rules)));
+                    }
+
                     styled = style::style_tree(dom.html, stylesheet);
                     layout_needed = true;
                     break;
