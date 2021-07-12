@@ -7,7 +7,7 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev libudev-dev libfreetype-dev
+          sudo apt install libxrandr-dev libgl-dev libfreetype-dev
           echo "CC=gcc-10" >> $GITHUB_ENV
           echo "CXX=g++-10" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
@@ -25,7 +25,7 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev libudev-dev
+          sudo apt install libxrandr-dev libgl-dev
           echo "CC=clang-10" >> $GITHUB_ENV
           echo "CXX=clang++-10" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
@@ -43,7 +43,7 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev libudev-dev
+          sudo apt install libxrandr-dev libgl-dev
           echo "CC=clang-10" >> $GITHUB_ENV
           echo "CXX=clang++-10" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
@@ -61,7 +61,7 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev libudev-dev
+          sudo apt install libxrandr-dev libgl-dev
           echo "CC=clang-10" >> $GITHUB_ENV
           echo "CXX=clang++-10" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel

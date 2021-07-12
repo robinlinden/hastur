@@ -103,6 +103,14 @@ http_archive(
 )
 
 http_archive(
+    name = "udev-zero",  # ISC
+    build_file = "//third_party:udev-zero.BUILD",
+    sha256 = "23f1046f13403ec217665193e78dad6cdb0af54e105a9aaf8440a846e66a1d62",
+    strip_prefix = "libudev-zero-0.5.2",
+    url = "https://github.com/illiliti/libudev-zero/archive/0.5.2.tar.gz",
+)
+
+http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
     sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",

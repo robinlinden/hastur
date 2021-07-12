@@ -29,7 +29,6 @@ cc_library(
     defines = SFML_DEFINES,
     linkopts = select({
         "@platforms//os:linux": [
-            "-ludev",
             "-pthread",
         ],
         "@platforms//os:windows": [
@@ -38,6 +37,10 @@ cc_library(
     }),
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
+    deps = select({
+        "@platforms//os:linux": ["@udev-zero"],
+        "@platforms//os:windows": [],
+    }),
 )
 
 cc_library(
@@ -71,7 +74,6 @@ cc_library(
             "-lGL",
             "-lX11",
             "-lXrandr",
-            "-ludev",
         ],
         "@platforms//os:windows": [
             "-DEFAULTLIB:advapi32",
@@ -83,7 +85,10 @@ cc_library(
     }),
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
-    deps = [":system"],
+    deps = [":system"] + select({
+        "@platforms//os:linux": ["@udev-zero"],
+        "@platforms//os:windows": [],
+    }),
 )
 
 cc_library(
