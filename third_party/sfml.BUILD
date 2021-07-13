@@ -37,10 +37,6 @@ cc_library(
     }),
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
-    deps = select({
-        "@platforms//os:linux": ["@udev-zero"],
-        "@platforms//os:windows": [],
-    }),
 )
 
 cc_library(
