@@ -30,13 +30,20 @@ std::optional<std::string_view> try_get_title(dom::Document const &doc) {
     return std::get<dom::Text>(title[0]->children[0].data).text;
 }
 
-void render_example() {
+void render_setup(int width, int height) {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, width, height, 0, -1.0, 1.0);
+    glViewport(0, 0, width, height);
+}
+
+void render_example(int width, int height) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBegin(GL_POLYGON);
-    glColor3f(1, 0, 0); glVertex3f(-0.6f, -0.75f, 0.5);
-    glColor3f(0, 1, 0); glVertex3f(0.6f, -0.75f, 0);
-    glColor3f(0, 0, 1); glVertex3f(0, 0.75f, 0);
+    glColor3f(1, 0, 0); glVertex3f(width / 4.f * 1, height / 4.f * 1, 0);
+    glColor3f(0, 1, 0); glVertex3f(width / 4.f * 3, height / 4.f * 1, 0);
+    glColor3f(0, 0, 1); glVertex3f(width / 4.f * 2, height / 4.f * 3, 0);
     glEnd();
 }
 
@@ -59,6 +66,8 @@ int main() {
 
     bool layout_needed{};
 
+    render_setup(window.getSize().x, window.getSize().y);
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -71,6 +80,7 @@ int main() {
                 }
                 case sf::Event::Resized: {
                     layout_needed = true;
+                    render_setup(event.size.width, event.size.height);
                     break;
                 }
                 default: break;
@@ -172,7 +182,7 @@ int main() {
         ImGui::End();
 
         window.clear();
-        render_example();
+        render_example(window.getSize().x, window.getSize().y);
         window.pushGLStates();
         ImGui::SFML::Render(window);
         window.popGLStates();
