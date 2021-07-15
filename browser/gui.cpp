@@ -8,6 +8,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/OpenGL.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <spdlog/spdlog.h>
@@ -27,6 +28,16 @@ std::optional<std::string_view> try_get_title(dom::Document const &doc) {
         return std::nullopt;
     }
     return std::get<dom::Text>(title[0]->children[0].data).text;
+}
+
+void render_example() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBegin(GL_POLYGON);
+    glColor3f(1, 0, 0); glVertex3f(-0.6f, -0.75f, 0.5);
+    glColor3f(0, 1, 0); glVertex3f(0.6f, -0.75f, 0);
+    glColor3f(0, 0, 1); glVertex3f(0, 0.75f, 0);
+    glEnd();
 }
 
 } // namespace
@@ -161,7 +172,10 @@ int main() {
         ImGui::End();
 
         window.clear();
+        render_example();
+        window.pushGLStates();
         ImGui::SFML::Render(window);
+        window.popGLStates();
         window.display();
     }
 
