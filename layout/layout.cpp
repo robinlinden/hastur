@@ -99,20 +99,20 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
         width_px += underflow;
     }
 
-    box.dimensions.width = static_cast<float>(width_px);
+    box.dimensions.content.width = static_cast<float>(width_px);
 }
 
 void calculate_position(LayoutBox &box, Rect const &parent) {
-    box.dimensions.x = parent.x;
+    box.dimensions.content.x = parent.x;
     // Position below previous content in parent.
-    box.dimensions.y = parent.y + parent.height;
+    box.dimensions.content.y = parent.y + parent.height;
 }
 
 // The box should already have the correct height unless it's overridden in CSS.
 void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
     if (auto height = get_property(*box.node, "height"); height) {
-        box.dimensions.height = static_cast<float>(to_px(*height));
+        box.dimensions.content.height = static_cast<float>(to_px(*height));
     }
 }
 
@@ -122,8 +122,8 @@ void layout(LayoutBox &box, Rect const &bounds) {
             calculate_width(box, bounds);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
-                layout(child, box.dimensions);
-                box.dimensions.height += child.dimensions.height;
+                layout(child, box.dimensions.content);
+                box.dimensions.content.height += child.dimensions.content.height;
             }
             calculate_height(box);
             return;
@@ -164,7 +164,7 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
         for (int8_t i = 0; i < depth; ++i) { os << "  "; }
     }
 
-    os << to_str(box.type) << " " << to_str(box.dimensions) << '\n';
+    os << to_str(box.type) << " " << to_str(box.dimensions.content) << '\n';
     for (auto const &child : box.children) { print_box(child, os, depth + 1); }
 }
 

@@ -13,6 +13,21 @@ struct Rect {
     bool operator==(Rect const &) const = default;
 };
 
+struct EdgeSize {
+    float left{}, right{}, top{}, bottom{};
+    bool operator==(EdgeSize const &) const = default;
+};
+
+struct BoxModel {
+    Rect content{};
+
+    EdgeSize margin{};
+    EdgeSize border{};
+    EdgeSize padding{};
+
+    bool operator==(BoxModel const &) const = default;
+};
+
 enum class LayoutType {
     Inline,
     Block,
@@ -22,7 +37,7 @@ enum class LayoutType {
 struct LayoutBox {
     style::StyledNode const *node;
     LayoutType type;
-    Rect dimensions;
+    BoxModel dimensions;
     std::vector<LayoutBox> children;
     bool operator==(LayoutBox const &) const = default;
 };

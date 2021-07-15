@@ -174,10 +174,10 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {0, 0, 100, 0},
+            .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {0, 0, 100, 0}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 100, 0}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
                 }},
             }
         };
@@ -205,10 +205,10 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {0, 0, 100, 0},
+            .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {0, 0, 50, 0}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 25, 0}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 50, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 25, 0}}, {}},
                 }},
             }
         };
@@ -236,10 +236,10 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {0, 0, 100, 0},
+            .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {0, 0, 100, 0}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 100, 0}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
                 }},
             }
         };
@@ -267,10 +267,10 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {0, 0, 0, 100},
+            .dimensions = {{0, 0, 0, 100}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {0, 0, 0, 0}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 0, 0}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 0}}, {}},
                 }},
             }
         };
@@ -300,11 +300,11 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {0, 0, 0, 25},
+            .dimensions = {{0, 0, 0, 25}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {0, 0, 0, 25}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {0, 0, 0, 25}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {0, 25, 0, 0}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 25}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 25}}, {}},
+                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 25, 0, 0}}, {}},
                 }},
             }
         };
