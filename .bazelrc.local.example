@@ -7,7 +7,8 @@ build --config debug
 # build --config release
 
 # Choose a compiler
-build --config gnulike # gcc/clang
+build --config clang
+# build --config gcc
 # build --config msvc
 
 # Other interesting build options
