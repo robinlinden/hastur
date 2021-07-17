@@ -7,7 +7,10 @@ cc_library(
         exclude = ["src/fmt.cpp"],
     ),
     hdrs = glob(["include/**/*.h"]),
-    defines = ["SPDLOG_COMPILED_LIB"],
+    defines = [
+        "SPDLOG_COMPILED_LIB",
+        "SPDLOG_FMT_EXTERNAL",
+    ],
     linkopts = select({
         "@platforms//os:linux": ["-lpthread"],
         "@platforms//os:windows": [],

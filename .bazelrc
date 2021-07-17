@@ -59,6 +59,7 @@ build:gcc --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
 build:gcc --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
 build:gcc --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
+build:gcc --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
 build:gcc --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
 
 build:msvc --enable_runfiles
@@ -86,6 +87,7 @@ build:msvc --per_file_copt='external/sfml[:/]@/wd4244' # C4244: 'initializing': 
 build:msvc --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
 build:msvc --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
 build:msvc --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
+build:msvc --per_file_copt='external/spdlog[:/]@/wd4702' # C4702: unreachable code
 build:msvc --per_file_copt='external/zlib[:/]@/wd4127' # C4127: conditional expression is constant
 build:msvc --per_file_copt='external/zlib[:/]@/wd4131' # C4131: 'adler32_z': uses old-style declarator
 build:msvc --per_file_copt='external/zlib[:/]@/wd4244' # C4244: '+=': conversion from 'int' to 'ush', possible loss of data

@@ -5,8 +5,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "platforms",  # Apache-2.0
-    sha256 = "460caee0fa583b908c622913334ec3c1b842572b9c23cf0d3da0c2543a1a157d",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.3/platforms-0.0.3.tar.gz",
+    sha256 = "079945598e4b6cc075846f7fd6a9d0857c33a7afc0de868c2ccb96405225135d",
+    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.4/platforms-0.0.4.tar.gz",
 )
 
 # Third-party
@@ -15,16 +15,16 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "4af9875df5497fdd507231f4b7346e17d96fc06fe10fd30e2b3750715a329113",
-    strip_prefix = "asio-1.18.1",
-    urls = ["https://downloads.sourceforge.net/project/asio/asio/1.18.1%20(Stable)/asio-1.18.1.tar.bz2"],
+    sha256 = "3ac05d4586d4b10afc28ff09017639652fb04feb9e575f9d48410db3ab27f9f2",
+    strip_prefix = "asio-1.18.2",
+    url = "https://downloads.sourceforge.net/project/asio/asio/1.18.2%20(Stable)/asio-1.18.2.tar.bz2",
 )
 
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    sha256 = "af0e0b561629029332d832fd4a2f2fbed14206eb2f538037a746d82e5281ace8",
-    strip_prefix = "boringssl-b92ed690b31bc2df9197dca73b38aaa1a9225a40",
-    urls = ["https://github.com/google/boringssl/archive/b92ed690b31bc2df9197dca73b38aaa1a9225a40.tar.gz"],
+    sha256 = "e06c3984d087297d0e5514b407d0385eca8b37a2f07ecfb60501be8786ad2500",
+    strip_prefix = "boringssl-5ba39c1948c20827c027ebca6400127edbb313e7",
+    url = "https://github.com/google/boringssl/archive/5ba39c1948c20827c027ebca6400127edbb313e7.tar.gz",
 )
 
 http_archive(
@@ -49,25 +49,25 @@ http_archive(
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "dbf94ebc683e7e68d60fc3a30629b72207b0de3b875f31935bd3c941b427d917",
-    strip_prefix = "FTXUI-84debba10cec8e077fd890cf5f61a45af3e3b6d4",
-    urls = ["https://github.com/ArthurSonzogni/FTXUI/archive/84debba10cec8e077fd890cf5f61a45af3e3b6d4.tar.gz"],
+    sha256 = "ec9d7688007bc7c8ef9cefd4ceec359d383c13d6b3efd978484a063183d79154",
+    strip_prefix = "FTXUI-21d746e8586a59a39ed5c73317812f17264e68d5",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/21d746e8586a59a39ed5c73317812f17264e68d5.tar.gz",
 )
 
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "f7c619e03a06c0f25e8f47262dbc32d61fd033d2c91796812bf0f8c94fca78fb",
-    strip_prefix = "imgui-1.81",
-    url = "https://github.com/ocornut/imgui/archive/v1.81.tar.gz",
+    sha256 = "ccf3e54b8d1fa30dd35682fc4f50f5d2fe340b8e29e08de71287d0452d8cc3ff",
+    strip_prefix = "imgui-1.83",
+    url = "https://github.com/ocornut/imgui/archive/v1.83.tar.gz",
 )
 
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    sha256 = "843536a6c558579ab57f749c4c6e1e67e0f7b033ab434e0f9cf1ad38726ac51e",
-    strip_prefix = "imgui-sfml-2.2",
-    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.2.tar.gz",
+    sha256 = "4e2f520916d1d676a4553f5c266ed869e32808b0f4681b9b603280257323a45b",
+    strip_prefix = "imgui-sfml-2.3",
+    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.3.tar.gz",
 )
 
 http_archive(
@@ -89,17 +89,17 @@ http_archive(
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "e20e6bd8f57e866eaf25a5417f0a38a116e537f1a77ac7b5409ca2b180cec0d5",
-    strip_prefix = "spdlog-1.8.2",
-    urls = ["https://github.com/gabime/spdlog/archive/v1.8.2.tar.gz"],
+    sha256 = "944d0bd7c763ac721398dca2bb0f3b5ed16f67cef36810ede5061f35a543b4b8",
+    strip_prefix = "spdlog-1.8.5",
+    url = "https://github.com/gabime/spdlog/archive/v1.8.5.tar.gz",
 )
 
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "13a99ad430e930907f5611325ec384168a958bf7610e63e60e2fd8e7b7379610",
-    strip_prefix = "stb-b42009b3b9d4ca35bc703f5310eedc74f584be58",
-    url = "https://github.com/nothings/stb/archive/b42009b3b9d4ca35bc703f5310eedc74f584be58.tar.gz",
+    sha256 = "7e1dfff854ca68ed324f6b1fcb55f8d365d41e23e931ef16057221f305a52b1d",
+    strip_prefix = "stb-3a1174060a7dd4eb652d4e6854bc4cd98c159200",
+    url = "https://github.com/nothings/stb/archive/3a1174060a7dd4eb652d4e6854bc4cd98c159200.tar.gz",
 )
 
 http_archive(
