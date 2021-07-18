@@ -89,6 +89,8 @@ int main() {
 
         ImGui::SFML::Update(window, clock.restart());
 
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
         ImGui::Begin("Navigation");
         if (ImGui::InputText(
                 "Url", url_buf, sizeof(url_buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -168,15 +170,21 @@ int main() {
         }
         ImGui::End();
 
+        ImGui::SetNextWindowPos(ImVec2(window.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, window.getSize().y / 2.f), ImGuiCond_FirstUseEver);
         ImGui::Begin("HTTP Response");
         if (ImGui::CollapsingHeader("Header")) { ImGui::TextUnformatted(response.header.c_str()); }
         if (ImGui::CollapsingHeader("Body")) { ImGui::TextUnformatted(response.body.c_str()); }
         ImGui::End();
 
+        ImGui::SetNextWindowPos(ImVec2(0, 50), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, window.getSize().y / 2.f), ImGuiCond_FirstUseEver);
         ImGui::Begin("DOM");
         ImGui::TextUnformatted(dom_str.c_str());
         ImGui::End();
 
+        ImGui::SetNextWindowPos(ImVec2(window.getSize().x / 2.f, window.getSize().y / 2.f), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, window.getSize().y / 2.f), ImGuiCond_FirstUseEver);
         ImGui::Begin("Layout");
         ImGui::TextUnformatted(layout_str.c_str());
         ImGui::End();
