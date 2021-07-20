@@ -37,14 +37,14 @@ void render_setup(int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void render_example(int width, int height) {
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBegin(GL_POLYGON);
-    glColor3f(1, 0, 0); glVertex3f(width / 4.f * 1, height / 4.f * 1, 0);
-    glColor3f(0, 1, 0); glVertex3f(width / 4.f * 3, height / 4.f * 1, 0);
-    glColor3f(0, 0, 1); glVertex3f(width / 4.f * 2, height / 4.f * 3, 0);
-    glEnd();
+void render_layout(layout::LayoutBox const &layout, int depth = 1) {
+    auto const &dimensions = layout.dimensions.content;
+    float color = 1.f / depth;
+    glColor3f(color, color, color);
+    glRectf(dimensions.x, dimensions.y, dimensions.x + dimensions.width, dimensions.y + dimensions.height);
+    for (auto const &child : layout.children) {
+        render_layout(child, depth + 1);
+    }
 }
 
 } // namespace
@@ -190,7 +190,9 @@ int main() {
         ImGui::End();
 
         window.clear();
-        render_example(window.getSize().x, window.getSize().y);
+        if (layout) {
+            render_layout(*layout);
+        }
         window.pushGLStates();
         ImGui::SFML::Render(window);
         window.popGLStates();
