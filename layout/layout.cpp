@@ -86,6 +86,11 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 int to_px(std::string_view property) {
     int res{};
     std::from_chars(property.data(), property.data() + property.size(), res);
+    if (property.ends_with("em")) {
+        // TODO(robinlinden): Value based on font-size for current node.
+        res *= 10;
+    }
+
     return res;
 }
 
