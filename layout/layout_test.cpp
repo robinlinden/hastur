@@ -185,6 +185,70 @@ int main() {
         expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
+    etest::test("min-width", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"min-width", "100px"}},
+            .children = {
+                {dom_root.children[0], {{"min-width", "50px"}}, {
+                    {dom_root.children[0].children[0], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 100, 0}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
+                }},
+            }
+        };
+
+        // TOOD(robinlinden): This test breaks if the width here is less than the min width due
+        //                    to the hack that reduces the width instead of the right margin.
+        expect(layout::create_layout(style_root, 100) == expected_layout);
+    });
+
+    etest::test("max-width", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"max-width", "100px"}},
+            .children = {
+                {dom_root.children[0], {{"max-width", "50px"}}, {
+                    {dom_root.children[0].children[0], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 100, 0}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 50, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 50, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 1000) == expected_layout);
+    });
+
     etest::test("less simple width", [] {
         auto dom_root = dom::create_element_node("html", {}, {
             dom::create_element_node("body", {}, {
@@ -305,6 +369,74 @@ int main() {
                 {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 25}}, {
                     {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 25}}, {}},
                     {&style_root.children[0].children[1], LayoutType::Block, {{0, 25, 0, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 0) == expected_layout);
+    });
+
+    etest::test("min-height is respected", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"min-height", "400px"}},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {{"height", "25px"}}, {}},
+                    {dom_root.children[0].children[1], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 0, 400}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 25}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 25}}, {}},
+                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 25, 0, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 0) == expected_layout);
+    });
+
+    etest::test("max-height is respected", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {{"max-height", "10px"}},
+            .children = {
+                {dom_root.children[0], {}, {
+                    {dom_root.children[0].children[0], {{"height", "400px"}}, {}},
+                    {dom_root.children[0].children[1], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 0, 10}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 400}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 400}}, {}},
+                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 400, 0, 0}}, {}},
                 }},
             }
         };

@@ -93,6 +93,15 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
     assert(box.node != nullptr);
     auto width = get_property_or(*box.node, "width", "auto");
     int width_px = width == "auto" ? static_cast<int>(parent.width) : to_px(width);
+
+    if (auto min = get_property(*box.node, "min-width"); min) {
+        width_px = std::max(width_px, to_px(*min));
+    }
+
+    if (auto max = get_property(*box.node, "max-width"); max) {
+        width_px = std::min(width_px, to_px(*max));
+    }
+
     int underflow = static_cast<int>(parent.width) - width_px;
     if (underflow < 0) {
         // Overflow, this should adjust the right margin, but for now...
@@ -113,6 +122,14 @@ void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
     if (auto height = get_property(*box.node, "height"); height) {
         box.dimensions.content.height = static_cast<float>(to_px(*height));
+    }
+
+    if (auto min = get_property(*box.node, "min-height"); min) {
+        box.dimensions.content.height = std::max(box.dimensions.content.height, static_cast<float>(to_px(*min)));
+    }
+
+    if (auto max = get_property(*box.node, "max-height"); max) {
+        box.dimensions.content.height = std::min(box.dimensions.content.height, static_cast<float>(to_px(*max)));
     }
 }
 
