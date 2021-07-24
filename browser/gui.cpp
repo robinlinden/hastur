@@ -94,7 +94,7 @@ int main() {
         ImGui::Begin("Navigation");
         if (ImGui::InputText(
                 "Url", url_buf, sizeof(url_buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
-            auto uri = util::Uri::parse(url_buf);
+            auto uri = uri::Uri::parse(url_buf);
             if (!uri) {
                 continue;
             }
@@ -132,7 +132,7 @@ int main() {
                         auto const &elem = std::get<dom::Element>(link->data);
                         auto stylesheet_url = fmt::format("{}{}", url_buf, elem.attributes.at("href"));
                         spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-                        auto style_data = http::get(*util::Uri::parse(stylesheet_url));
+                        auto style_data = http::get(*uri::Uri::parse(stylesheet_url));
 
                         auto new_rules = css::parse(style_data.body);
                         stylesheet.reserve(stylesheet.size() + new_rules.size());

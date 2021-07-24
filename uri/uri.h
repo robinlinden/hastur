@@ -1,10 +1,10 @@
-#ifndef UTIL_URI_H_
-#define UTIL_URI_H_
+#ifndef URI_URI_H_
+#define URI_URI_H_
 
 #include <optional>
 #include <string>
 
-namespace util {
+namespace uri {
 
 struct Authority {
     std::string user;
@@ -28,6 +28,6 @@ struct Uri {
     bool operator==(Uri const &) const = default;
 };
 
-} //namespace util
+} //namespace uri
 
 #endif

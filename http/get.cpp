@@ -23,7 +23,7 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
 
 } // namespace
 
-Response get(util::Uri const &uri) {
+Response get(uri::Uri const &uri) {
     if (uri.scheme == "http"sv) {
         asio::ip::tcp::iostream stream(uri.authority.host, "http"sv);
         stream << fmt::format("GET {} HTTP/1.1\r\n", uri.path);

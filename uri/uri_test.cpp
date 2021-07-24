@@ -1,9 +1,9 @@
-#include "util/uri.h"
+#include "uri/uri.h"
 
 #include "etest/etest.h"
 
 using etest::expect;
-using util::Uri;
+using uri::Uri;
 
 int main() {
     etest::test("https: simple uri", [] {

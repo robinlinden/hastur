@@ -1,9 +1,9 @@
-#include "util/uri.h"
+#include "uri/uri.h"
 
 #include <regex>
 #include <utility>
 
-namespace util {
+namespace uri {
 
 std::optional<Uri> Uri::parse(std::string uristr){
     std::smatch match;
@@ -55,4 +55,4 @@ std::optional<Uri> Uri::parse(std::string uristr){
     return uri;
 }
 
-} // namespace util
+} // namespace uri
