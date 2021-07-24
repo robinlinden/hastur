@@ -6,6 +6,7 @@
 
 #include <fmt/format.h>
 #include <imgui.h>
+#include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/OpenGL.hpp>
@@ -54,7 +55,7 @@ int main() {
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
-    char url_buf[255]{"http://example.com"};
+    std::string url_buf{"http://example.com"};
     sf::Clock clock;
     http::Response response{};
     dom::Document dom{};
@@ -92,8 +93,7 @@ int main() {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
         ImGui::Begin("Navigation");
-        if (ImGui::InputText(
-                "Url", url_buf, sizeof(url_buf), ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if (ImGui::InputText("Url", &url_buf, ImGuiInputTextFlags_EnterReturnsTrue)) {
             auto uri = uri::Uri::parse(url_buf);
             if (!uri) {
                 continue;
