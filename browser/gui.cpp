@@ -20,6 +20,7 @@
 namespace {
 
 auto const kBrowserTitle = "hastur";
+auto const kDefaultUrl = "http://example.com";
 
 std::optional<std::string_view> try_get_title(dom::Document const &doc) {
     auto title = dom::nodes_by_path(doc.html, "html.head.title");
@@ -50,12 +51,13 @@ void render_layout(layout::LayoutBox const &layout, int depth = 1) {
 
 } // namespace
 
-int main() {
+int main(int argc, char **argv) {
     sf::RenderWindow window{sf::VideoMode(640, 480), kBrowserTitle};
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
 
-    std::string url_buf{"http://example.com"};
+    std::string url_buf{argc > 1 ? argv[1] : kDefaultUrl};
+    bool url_from_argv = argc > 1;
     sf::Clock clock;
     http::Response response{};
     dom::Document dom{};
@@ -93,7 +95,8 @@ int main() {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
         ImGui::Begin("Navigation");
-        if (ImGui::InputText("Url", &url_buf, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if (ImGui::InputText("Url", &url_buf, ImGuiInputTextFlags_EnterReturnsTrue) || url_from_argv) {
+            url_from_argv = false;
             auto uri = uri::Uri::parse(url_buf);
             if (!uri) {
                 continue;
