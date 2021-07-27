@@ -21,6 +21,11 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
     return {str, ""sv};
 }
 
+Response parse_response(std::string_view data) {
+    auto [header, body] = split(data, "\r\n\r\n");
+    return {Error::Ok, std::string{header}, std::string{body}};
+}
+
 } // namespace
 
 Response get(uri::Uri const &uri) {
@@ -36,8 +41,7 @@ Response get(uri::Uri const &uri) {
         ss << stream.rdbuf();
         std::string data{ss.str()};
 
-        auto [header, body] = split(data, "\r\n\r\n");
-        return {Error::Ok, std::string{header}, std::string{body}};
+        return parse_response(data);
     }
 
     if (uri.scheme == "https"sv) {
@@ -70,8 +74,7 @@ Response get(uri::Uri const &uri) {
             data.append(buf, buf + received);
         }
 
-        auto [header, body] = split(data, "\r\n\r\n");
-        return {Error::Ok, std::string{header}, std::string{body}};
+        return parse_response(data);
     }
 
     return {Error::Unhandled};
