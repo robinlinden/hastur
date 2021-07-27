@@ -3,6 +3,7 @@
 
 #include "uri/uri.h"
 
+#include <map>
 #include <string>
 #include <string_view>
 
@@ -12,15 +13,25 @@ enum class Error {
     Ok,
     Unresolved,
     Unhandled,
+    InvalidResponse,
+};
+
+struct StatusLine {
+    std::string version;
+    int status_code;
+    std::string reason;
 };
 
 struct Response {
     Error err;
-    std::string header;
+    StatusLine status_line;
+    std::map<std::string, std::string> headers;
     std::string body;
 };
 
 Response get(uri::Uri const &uri);
+
+std::string to_string(std::map<std::string, std::string> const &headers);
 
 } // namespace http
 

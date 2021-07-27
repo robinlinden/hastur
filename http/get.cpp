@@ -4,6 +4,8 @@
 #include <asio/ssl.hpp>
 #include <fmt/format.h>
 
+#include <charconv>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -21,9 +23,59 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
     return {str, ""sv};
 }
 
+std::optional<StatusLine> parse_status_line(std::string_view headers) {
+    auto first_line_end = headers.find("\r\n");
+    if (first_line_end == std::string_view::npos) {
+        return std::nullopt;
+    }
+
+    headers.remove_suffix(headers.size() - first_line_end);
+    auto sep1 = headers.find(' ');
+    if (sep1 == std::string_view::npos) {
+        return std::nullopt;
+    }
+
+    auto sep2 = headers.find(' ', sep1 + 1);
+    if (sep2 == std::string_view::npos) {
+        return std::nullopt;
+    }
+
+    int status_code = -1;
+    auto status_str = headers.substr(sep1 + 1, sep1 + 4);
+    std::from_chars(status_str.data(), status_str.data() + status_str.size(), status_code);
+    if (status_code == -1) {
+        return std::nullopt;
+    }
+
+    return StatusLine{
+        std::string{headers.substr(0, sep1)},
+        status_code,
+        std::string{headers.substr(sep2 + 1, headers.size())},
+    };
+}
+
 Response parse_response(std::string_view data) {
     auto [header, body] = split(data, "\r\n\r\n");
-    return {Error::Ok, std::string{header}, std::string{body}};
+    auto status_line = parse_status_line(header);
+    if (!status_line) {
+        return {Error::InvalidResponse};
+    }
+
+    header.remove_prefix(header.find("\r\n") + 2);
+
+    std::map<std::string, std::string> headers{};
+    for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
+        headers.emplace(split(header.substr(0, sep), ": "));
+        header.remove_prefix(sep + 2);
+    }
+    headers.emplace(split(header, ": "));
+
+    return {
+        Error::Ok,
+        std::move(*status_line),
+        std::move(headers),
+        std::string{body},
+    };
 }
 
 } // namespace
@@ -78,6 +130,14 @@ Response get(uri::Uri const &uri) {
     }
 
     return {Error::Unhandled};
+}
+
+std::string to_string(std::map<std::string, std::string> const &headers) {
+    std::stringstream ss{};
+    for (auto const &header : headers) {
+        ss << header.first << ": " << header.second << "\n";
+    }
+    return ss.str();
 }
 
 } // namespace http

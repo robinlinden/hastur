@@ -63,6 +63,8 @@ int main(int argc, char **argv) {
     dom::Document dom{};
     std::optional<style::StyledNode> styled{};
     std::optional<layout::LayoutBox> layout{};
+    std::string status_line_str{};
+    std::string response_headers_str{};
     std::string dom_str{};
     std::string err_str{};
     std::string layout_str{};
@@ -107,6 +109,11 @@ int main(int argc, char **argv) {
             }
 
             response = http::get(*uri);
+            status_line_str = fmt::format("{} {} {}",
+                    response.status_line.version,
+                    response.status_line.status_code,
+                    response.status_line.reason);
+            response_headers_str = http::to_string(response.headers);
             dom_str.clear();
 
             switch (response.err) {
@@ -159,6 +166,11 @@ int main(int argc, char **argv) {
                     spdlog::error(err_str);
                     break;
                 }
+                case http::Error::InvalidResponse: {
+                    err_str = fmt::format("Invalid response from '{}'", url_buf);
+                    spdlog::error(err_str);
+                    break;
+                }
             }
         }
 
@@ -176,7 +188,8 @@ int main(int argc, char **argv) {
         ImGui::SetNextWindowPos(ImVec2(window.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, window.getSize().y / 2.f), ImGuiCond_FirstUseEver);
         ImGui::Begin("HTTP Response");
-        if (ImGui::CollapsingHeader("Header")) { ImGui::TextUnformatted(response.header.c_str()); }
+        ImGui::TextUnformatted(status_line_str.c_str());
+        if (ImGui::CollapsingHeader("Headers")) { ImGui::TextUnformatted(response_headers_str.c_str()); }
         if (ImGui::CollapsingHeader("Body")) { ImGui::TextUnformatted(response.body.c_str()); }
         ImGui::End();
 
