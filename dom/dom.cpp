@@ -47,6 +47,10 @@ std::vector<Node const *> nodes_by_path(Node const &root, std::string_view path)
 
         for (auto node : searching) {
             auto const *data = std::get_if<Element>(&node->data);
+            if (!data) {
+                continue;
+            }
+
             if (path == data->name) {
                 goal_nodes.push_back(node);
                 continue;

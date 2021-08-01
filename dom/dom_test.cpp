@@ -96,5 +96,18 @@ int main() {
         expect(second.attributes.at("display") == "block");
     });
 
+    etest::test("non-element node in search path", [] {
+        auto const dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("head", {}, {}),
+            dom::create_text_node("I don't belong here. :("),
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto const nodes = nodes_by_path(dom_root, "html.body.p");
+        expect(nodes.size() == 1);
+    });
+
     return etest::run_all_tests();
 }
