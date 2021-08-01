@@ -5,6 +5,7 @@
 
 #include "util/base_parser.h"
 
+#include <cstring>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -17,11 +18,34 @@ public:
 
     std::vector<css::Rule> parse_rules() {
         std::vector<css::Rule> rules;
+        std::string_view media_query;
 
         skip_whitespace();
         while (!is_eof()) {
+            if (starts_with("@media ")) {
+                advance(std::strlen("@media"));
+                skip_whitespace();
+
+                media_query = consume_while([](char c) { return c != '{'; });
+                if (auto last_char = media_query.find_last_not_of(' '); last_char != std::string_view::npos) {
+                    media_query.remove_suffix(media_query.size() - (last_char + 1));
+                }
+                consume_char(); // {
+                skip_whitespace();
+            }
+
             rules.push_back(parse_rule());
+            if (!media_query.empty()) {
+                rules.back().media_query = std::string{media_query};
+            }
+
             skip_whitespace();
+
+            if (!media_query.empty() && peek() == '}') {
+                media_query = {};
+                consume_char(); // }
+                skip_whitespace();
+            }
         }
 
         return rules;

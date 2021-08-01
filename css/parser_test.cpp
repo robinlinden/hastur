@@ -103,5 +103,32 @@ int main() {
         expect(rules.size() == 0);
     });
 
+    etest::test("parser: media query", [] {
+        auto rules = css::parse("@media screen and (min-width: 900px) {\n"
+            "article { width: 50px; }\n"
+            "p { font-size: 9em; }\n"
+        "}\n"
+        "a { background-color: indigo; }");
+        require(rules.size() == 3);
+
+        auto article = rules[0];
+        expect(article.selectors == std::vector{"article"s});
+        require(article.declarations.contains("width"));
+        expect(article.declarations.at("width"s) == "50px"s);
+        expect(article.media_query == "screen and (min-width: 900px)");
+
+        auto p = rules[1];
+        expect(p.selectors == std::vector{"p"s});
+        require(p.declarations.contains("font-size"));
+        expect(p.declarations.at("font-size"s) == "9em"s);
+        expect(p.media_query == "screen and (min-width: 900px)");
+
+        auto a = rules[2];
+        expect(a.selectors == std::vector{"a"s});
+        require(a.declarations.contains("background-color"));
+        expect(a.declarations.at("background-color"s) == "indigo"s);
+        expect(a.media_query.empty());
+    });
+
     return etest::run_all_tests();
 }
