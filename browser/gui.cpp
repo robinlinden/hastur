@@ -152,6 +152,7 @@ int main(int argc, char **argv) {
                                 std::make_move_iterator(end(new_rules)));
                     }
 
+                    spdlog::info("Styling dom w/ {} rules", stylesheet.size());
                     styled = style::style_tree(dom.html, stylesheet);
                     layout_needed = true;
                     break;
