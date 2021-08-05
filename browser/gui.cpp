@@ -17,19 +17,21 @@
 #include <iterator>
 #include <optional>
 
+using namespace std::literals;
+
 namespace {
 
 auto const kBrowserTitle = "hastur";
 auto const kDefaultUrl = "http://example.com";
 
-std::optional<std::string_view> try_get_title(dom::Document const &doc) {
-    auto title = dom::nodes_by_path(doc.html, "html.head.title");
-    if (title.empty()
-            || title[0]->children.empty()
-            || !std::holds_alternative<dom::Text>(title[0]->children[0].data)) {
+std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
+    auto nodes = dom::nodes_by_path(doc.html, path);
+    if (nodes.empty()
+            || nodes[0]->children.empty()
+            || !std::holds_alternative<dom::Text>(nodes[0]->children[0].data)) {
         return std::nullopt;
     }
-    return std::get<dom::Text>(title[0]->children[0].data).text;
+    return std::get<dom::Text>(nodes[0]->children[0].data).text;
 }
 
 void render_setup(int width, int height) {
@@ -121,7 +123,7 @@ int main(int argc, char **argv) {
                     dom = html::parse(response.body);
                     dom_str += dom::to_string(dom);
 
-                    if (auto title = try_get_title(dom); title) {
+                    if (auto title = try_get_text_content(dom, "html.head.title"sv); title) {
                         window.setTitle(fmt::format("{} - {}", *title, kBrowserTitle));
                     } else {
                         window.setTitle(kBrowserTitle);
