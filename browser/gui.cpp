@@ -133,6 +133,15 @@ int main(int argc, char **argv) {
                         {{"head"}, {{"display", "none"}}},
                     };
 
+                    if (auto style = try_get_text_content(dom, "html.head.style"sv); style) {
+                        auto new_rules = css::parse(*style);
+                        stylesheet.reserve(stylesheet.size() + new_rules.size());
+                        stylesheet.insert(
+                                end(stylesheet),
+                                std::make_move_iterator(begin(new_rules)),
+                                std::make_move_iterator(end(new_rules)));
+                    }
+
                     auto head_links = dom::nodes_by_path(dom.html, "html.head.link");
                     head_links.erase(std::remove_if(begin(head_links), end(head_links), [](auto const &n) {
                         auto elem = std::get<dom::Element>(n->data);
