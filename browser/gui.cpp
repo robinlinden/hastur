@@ -2,6 +2,7 @@
 #include "html/parse.h"
 #include "http/get.h"
 #include "layout/layout.h"
+#include "render/render.h"
 #include "style/style.h"
 
 #include <fmt/format.h>
@@ -9,7 +10,6 @@
 #include <imgui_stdlib.h>
 #include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/OpenGL.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <spdlog/spdlog.h>
@@ -34,23 +34,6 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
     return std::get<dom::Text>(nodes[0]->children[0].data).text;
 }
 
-void render_setup(int width, int height) {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, width, height, 0, -1.0, 1.0);
-    glViewport(0, 0, width, height);
-}
-
-void render_layout(layout::LayoutBox const &layout, int depth = 1) {
-    auto const &dimensions = layout.dimensions.content;
-    float color = 1.f / depth;
-    glColor3f(color, color, color);
-    glRectf(dimensions.x, dimensions.y, dimensions.x + dimensions.width, dimensions.y + dimensions.height);
-    for (auto const &child : layout.children) {
-        render_layout(child, depth + 1);
-    }
-}
-
 } // namespace
 
 int main(int argc, char **argv) {
@@ -73,7 +56,7 @@ int main(int argc, char **argv) {
 
     bool layout_needed{};
 
-    render_setup(window.getSize().x, window.getSize().y);
+    render::render_setup(window.getSize().x, window.getSize().y);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -87,7 +70,7 @@ int main(int argc, char **argv) {
                 }
                 case sf::Event::Resized: {
                     layout_needed = true;
-                    render_setup(event.size.width, event.size.height);
+                    render::render_setup(event.size.width, event.size.height);
                     break;
                 }
                 default: break;
@@ -219,7 +202,7 @@ int main(int argc, char **argv) {
 
         window.clear();
         if (layout) {
-            render_layout(*layout);
+            render::render_layout(*layout);
         }
         window.pushGLStates();
         ImGui::SFML::Render(window);

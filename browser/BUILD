@@ -32,6 +32,7 @@ cc_binary(
         "//html",
         "//http",
         "//layout",
+        "//render",
         "//style",
         "//uri",
         "@imgui",
