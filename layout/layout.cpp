@@ -123,6 +123,11 @@ void calculate_position(LayoutBox &box, Rect const &parent) {
 
 void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
+    if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
+        auto font_size = get_property_or(*box.node, "font-size", "10px");
+        box.dimensions.content.height = static_cast<float>(to_px(font_size));
+    }
+
     if (auto height = get_property(*box.node, "height"); height) {
         box.dimensions.content.height = static_cast<float>(to_px(*height));
     }

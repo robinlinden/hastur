@@ -139,12 +139,12 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {},
+            .dimensions = {{0, 0, 0, 20}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {}, {
-                    {nullptr, LayoutType::AnonymousBlock, {}, {
-                        {&style_root.children[0].children[0], LayoutType::Inline, {}, {}},
-                        {&style_root.children[0].children[1], LayoutType::Inline, {}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 20}}, {
+                    {nullptr, LayoutType::AnonymousBlock, {{0, 0, 0, 20}}, {
+                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 0, 10}}, {}},
+                        {&style_root.children[0].children[1], LayoutType::Inline, {{0, 10, 0, 10}}, {}},
                     }},
                 }},
             }
