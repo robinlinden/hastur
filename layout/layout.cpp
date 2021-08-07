@@ -80,7 +80,6 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 }
 
 // TODO(robinlinden):
-// * Deal with more layout types.
 // * margin, border, padding, etc.
 // * Not all measurements have to be in pixels.
 int to_px(std::string_view property) {
@@ -122,7 +121,6 @@ void calculate_position(LayoutBox &box, Rect const &parent) {
     box.dimensions.content.y = parent.y + parent.height;
 }
 
-// The box should already have the correct height unless it's overridden in CSS.
 void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
     if (auto height = get_property(*box.node, "height"); height) {
@@ -140,6 +138,7 @@ void calculate_height(LayoutBox &box) {
 
 void layout(LayoutBox &box, Rect const &bounds) {
     switch (box.type) {
+        case LayoutType::Inline:
         case LayoutType::Block: {
             calculate_width(box, bounds);
             calculate_position(box, bounds);
@@ -150,8 +149,15 @@ void layout(LayoutBox &box, Rect const &bounds) {
             calculate_height(box);
             return;
         }
-        case LayoutType::Inline: return;
-        case LayoutType::AnonymousBlock: return;
+        // TODO(robinlinden): This needs to place its children side-by-side.
+        case LayoutType::AnonymousBlock: {
+            calculate_position(box, bounds);
+            for (auto &child : box.children) {
+                layout(child, box.dimensions.content);
+                box.dimensions.content.height += child.dimensions.content.height;
+            }
+            return;
+        }
     }
 }
 
