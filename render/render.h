@@ -6,7 +6,7 @@
 namespace render {
 
 void render_setup(int width, int height);
-void render_layout(layout::LayoutBox const &layout);
+void render_layout(layout::LayoutBox const &layout, int scroll_offset);
 
 } // namespace render
 

@@ -56,6 +56,8 @@ int main(int argc, char **argv) {
 
     bool layout_needed{};
 
+    int scroll_offset{};
+
     render::render_setup(window.getSize().x, window.getSize().y);
 
     while (window.isOpen()) {
@@ -71,6 +73,21 @@ int main(int argc, char **argv) {
                 case sf::Event::Resized: {
                     layout_needed = true;
                     render::render_setup(event.size.width, event.size.height);
+                    break;
+                }
+                case sf::Event::KeyPressed: {
+                    switch (event.key.code) {
+                        case sf::Keyboard::Key::J: {
+                            scroll_offset += event.key.shift ? 20 : 5;
+                            break;
+                        }
+                        case sf::Keyboard::Key::K: {
+                            scroll_offset -= event.key.shift ? 20 : 5;
+                            break;
+                        }
+                        default: break;
+                    }
+                    scroll_offset = std::max(0, scroll_offset);
                     break;
                 }
                 default: break;
@@ -170,6 +187,7 @@ int main(int argc, char **argv) {
         }
 
         if (layout_needed && styled) {
+            scroll_offset = 0;
             layout = layout::create_layout(*styled, window.getSize().x);
             layout_str = layout::to_string(*layout);
             layout_needed = false;
@@ -202,7 +220,7 @@ int main(int argc, char **argv) {
 
         window.clear();
         if (layout) {
-            render::render_layout(*layout);
+            render::render_layout(*layout, scroll_offset);
         }
         window.pushGLStates();
         ImGui::SFML::Render(window);
