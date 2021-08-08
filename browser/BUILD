@@ -2,7 +2,7 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 alias(
     name = "browser",
-    actual = "tui",
+    actual = "gui",
 )
 
 cc_binary(

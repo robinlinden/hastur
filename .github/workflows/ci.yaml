@@ -16,7 +16,7 @@ jobs:
     - name: Test
       run: bazel test //... --config gcc
     - name: Run
-      run: bazel run browser --config gcc
+      run: bazel run browser:tui --config gcc
 
   linux-clang:
     runs-on: ubuntu-20.04
@@ -34,7 +34,7 @@ jobs:
     - name: Test
       run: bazel test //... --config clang
     - name: Run
-      run: bazel run browser --config clang
+      run: bazel run browser:tui --config clang
 
   linux-clang-asan:
     runs-on: ubuntu-20.04
@@ -52,7 +52,7 @@ jobs:
     - name: Test
       run: bazel test //... --config clang --config asan
     - name: Run
-      run: bazel run browser --config clang --config asan
+      run: bazel run browser:tui --config clang --config asan
 
   linux-clang-ubsan:
     runs-on: ubuntu-20.04
@@ -70,7 +70,7 @@ jobs:
     - name: Test
       run: bazel test //... --config clang --config ubsan
     - name: Run
-      run: bazel run browser --config clang --config ubsan
+      run: bazel run browser:tui --config clang --config ubsan
 
   windows-msvc:
     runs-on: windows-2019
@@ -86,7 +86,7 @@ jobs:
     - name: Test
       run: bazel test ///... --config msvc
     - name: Run
-      run: bazel run browser --config msvc
+      run: bazel run browser:tui --config msvc
 
   buildifier:
     runs-on: ubuntu-20.04
