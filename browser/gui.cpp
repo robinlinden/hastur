@@ -13,6 +13,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <iterator>
 #include <optional>
@@ -37,6 +38,8 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 } // namespace
 
 int main(int argc, char **argv) {
+    spdlog::set_default_logger(spdlog::stderr_color_mt(kBrowserTitle));
+
     sf::RenderWindow window{sf::VideoMode(640, 480), kBrowserTitle};
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);

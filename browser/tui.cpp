@@ -7,6 +7,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/cfg/env.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <iostream>
 
@@ -15,6 +16,7 @@ char const *const kDefaultUri = "http://www.example.com";
 } // namespace
 
 int main(int argc, char **argv) {
+    spdlog::set_default_logger(spdlog::stderr_color_mt("hastur"));
     spdlog::cfg::load_env_levels();
 
     auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
