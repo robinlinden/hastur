@@ -14,7 +14,7 @@ using source_location = std::source_location;
 #include <cstdint>
 namespace etest {
 struct source_location {
-    static consteval source_location current() noexcept { return source_location{}; }
+    static constexpr source_location current() noexcept { return source_location{}; }
     constexpr std::uint_least32_t line() const noexcept { return 0; }
     constexpr std::uint_least32_t column() const noexcept { return 0; }
     constexpr char const *file_name() const noexcept { return ""; }
