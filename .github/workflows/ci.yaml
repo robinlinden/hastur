@@ -18,7 +18,7 @@ jobs:
     - name: Run
       run: bazel run browser:tui --config gcc
 
-  linux-clang:
+  linux-clang-10:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -28,6 +28,24 @@ jobs:
           sudo apt install libxrandr-dev libgl-dev
           echo "CC=clang-10" >> $GITHUB_ENV
           echo "CXX=clang++-10" >> $GITHUB_ENV
+          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
+    - name: Build
+      run: bazel build //... --config clang
+    - name: Test
+      run: bazel test //... --config clang
+    - name: Run
+      run: bazel run browser:tui --config clang
+
+  linux-clang-12:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+          sudo apt update
+          sudo apt install clang-12 libxrandr-dev libgl-dev
+          echo "CC=clang-12" >> $GITHUB_ENV
+          echo "CXX=clang++-12" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
       run: bazel build //... --config clang
