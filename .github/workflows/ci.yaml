@@ -61,9 +61,9 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev
-          echo "CC=clang-10" >> $GITHUB_ENV
-          echo "CXX=clang++-10" >> $GITHUB_ENV
+          sudo apt install clang-12 libxrandr-dev libgl-dev
+          echo "CC=clang-12" >> $GITHUB_ENV
+          echo "CXX=clang++-12" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
       run: bazel build //... --config clang --config asan
@@ -79,9 +79,9 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev
-          echo "CC=clang-10" >> $GITHUB_ENV
-          echo "CXX=clang++-10" >> $GITHUB_ENV
+          sudo apt install clang-12 libxrandr-dev libgl-dev
+          echo "CC=clang-12" >> $GITHUB_ENV
+          echo "CXX=clang++-12" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
       run: bazel build //... --config clang --config ubsan
