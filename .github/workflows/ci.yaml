@@ -1,94 +1,56 @@
 on: [push, pull_request]
 jobs:
-  linux-gcc:
+  linux-ci:
+    name: linux-${{ matrix.name }}
     runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install
-      run: |
-          sudo apt update
-          sudo apt install libxrandr-dev libgl-dev
-          echo "CC=gcc-10" >> $GITHUB_ENV
-          echo "CXX=g++-10" >> $GITHUB_ENV
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
-    - name: Build
-      run: bazel build //... --config gcc
-    - name: Test
-      run: bazel test //... --config gcc
-    - name: Run
-      run: bazel run browser:tui --config gcc
 
-  linux-clang-10:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install
-      run: |
-          sudo apt update
-          sudo apt install libxrandr-dev libgl-dev
-          echo "CC=clang-10" >> $GITHUB_ENV
-          echo "CXX=clang++-10" >> $GITHUB_ENV
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
-    - name: Build
-      run: bazel build //... --config clang
-    - name: Test
-      run: bazel test //... --config clang
-    - name: Run
-      run: bazel run browser:tui --config clang
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc
+            bazel: --config gcc
+            cc: gcc-10
+            cxx: g++-10
 
-  linux-clang-12:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install
-      run: |
-          sudo apt update
-          sudo apt install clang-12 libxrandr-dev libgl-dev
-          echo "CC=clang-12" >> $GITHUB_ENV
-          echo "CXX=clang++-12" >> $GITHUB_ENV
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
-    - name: Build
-      run: bazel build //... --config clang
-    - name: Test
-      run: bazel test //... --config clang
-    - name: Run
-      run: bazel run browser:tui --config clang
+          - name: clang-10
+            bazel: --config clang
+            cc: clang-10
+            cxx: clang++-10
 
-  linux-clang-asan:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install
-      run: |
-          sudo apt update
-          sudo apt install clang-12 libxrandr-dev libgl-dev
-          echo "CC=clang-12" >> $GITHUB_ENV
-          echo "CXX=clang++-12" >> $GITHUB_ENV
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
-    - name: Build
-      run: bazel build //... --config clang --config asan
-    - name: Test
-      run: bazel test //... --config clang --config asan
-    - name: Run
-      run: bazel run browser:tui --config clang --config asan
+          - name: clang-12
+            bazel: --config clang
+            cc: clang-12
+            cxx: clang++-12
+            apt: clang-12
 
-  linux-clang-ubsan:
-    runs-on: ubuntu-20.04
+          - name: clang-asan
+            bazel: --config clang --config asan
+            cc: clang-12
+            cxx: clang++-12
+            apt: clang-12
+
+          - name: clang-ubsan
+            bazel: --config clang --config ubsan
+            cc: clang-12
+            cxx: clang++-12
+            apt: clang-12
+
     steps:
     - uses: actions/checkout@v2
     - name: Install
       run: |
           sudo apt update
-          sudo apt install clang-12 libxrandr-dev libgl-dev
-          echo "CC=clang-12" >> $GITHUB_ENV
-          echo "CXX=clang++-12" >> $GITHUB_ENV
+          sudo apt install libxrandr-dev libgl-dev ${{ matrix.apt }}
+          echo "CC=${{ matrix.cc }}" >> $GITHUB_ENV
+          echo "CXX=${{ matrix.cxx }}" >> $GITHUB_ENV
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
-      run: bazel build //... --config clang --config ubsan
+      run: bazel build //... ${{ matrix.bazel }}
     - name: Test
-      run: bazel test //... --config clang --config ubsan
+      run: bazel test //... ${{ matrix.bazel }}
     - name: Run
-      run: bazel run browser:tui --config clang --config ubsan
+      run: bazel run browser:tui ${{ matrix.bazel }}
 
   windows-msvc:
     runs-on: windows-2019
