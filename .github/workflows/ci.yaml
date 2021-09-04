@@ -1,4 +1,5 @@
 on: [push, pull_request]
+name: ci
 jobs:
   linux-ci:
     name: linux-${{ matrix.name }}
