@@ -45,7 +45,7 @@ jobs:
           sudo apt install libxrandr-dev libgl-dev ${{ matrix.apt }}
           echo "CC=${{ matrix.cc }}" >> $GITHUB_ENV
           echo "CXX=${{ matrix.cxx }}" >> $GITHUB_ENV
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64 --output-document=bazel
+          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
       run: bazel build //... ${{ matrix.bazel }}
     - name: Test
@@ -61,7 +61,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: curl --output bazel.exe https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-windows-amd64.exe
+      run: curl --output bazel.exe https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-windows-amd64.exe
     - name: Build
       run: bazel build ///... --config msvc
     - name: Test
