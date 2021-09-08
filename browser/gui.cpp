@@ -15,6 +15,16 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+// MSVC gl.h doesn't include everything it uses.
+#ifdef _MSC_VER
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif // WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif // _MSC_VER
+
+#include <GL/gl.h>
+
 #include <iterator>
 #include <optional>
 
@@ -59,7 +69,7 @@ int main(int argc, char **argv) {
 
     bool layout_needed{};
 
-    int scroll_offset{};
+    float scroll_offset{};
 
     render::render_setup(window.getSize().x, window.getSize().y);
 
@@ -81,16 +91,19 @@ int main(int argc, char **argv) {
                 case sf::Event::KeyPressed: {
                     switch (event.key.code) {
                         case sf::Keyboard::Key::J: {
-                            scroll_offset += event.key.shift ? 20 : 5;
+                            float scroll = event.key.shift ? -20.f : -5.f;
+                            glTranslatef(0, scroll, 0);
+                            scroll_offset += scroll;
                             break;
                         }
                         case sf::Keyboard::Key::K: {
-                            scroll_offset -= event.key.shift ? 20 : 5;
+                            float scroll = event.key.shift ? 20.f : 5.f;
+                            glTranslatef(0, scroll, 0);
+                            scroll_offset += scroll;
                             break;
                         }
                         default: break;
                     }
-                    scroll_offset = std::max(0, scroll_offset);
                     break;
                 }
                 default: break;
@@ -190,6 +203,7 @@ int main(int argc, char **argv) {
         }
 
         if (layout_needed && styled) {
+            glTranslatef(0, -scroll_offset, 0);
             scroll_offset = 0;
             layout = layout::create_layout(*styled, window.getSize().x);
             layout_str = layout::to_string(*layout);
@@ -223,7 +237,7 @@ int main(int argc, char **argv) {
 
         window.clear();
         if (layout) {
-            render::render_layout(*layout, scroll_offset);
+            render::render_layout(*layout);
         }
         window.pushGLStates();
         ImGui::SFML::Render(window);

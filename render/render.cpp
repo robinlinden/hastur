@@ -13,16 +13,16 @@
 namespace render {
 namespace {
 
-void render_layout_impl(layout::LayoutBox const &layout, int scroll_offset, int depth) {
+void render_layout_impl(layout::LayoutBox const &layout, int depth) {
     auto const &dimensions = layout.dimensions.content;
     float color = 1.f / depth;
     glColor3f(color, color, color);
     glRectf(dimensions.x,
-            dimensions.y - scroll_offset,
+            dimensions.y,
             dimensions.x + dimensions.width,
-            dimensions.y + dimensions.height - scroll_offset);
+            dimensions.y + dimensions.height);
     for (auto const &child : layout.children) {
-        render_layout_impl(child, scroll_offset, depth + 1);
+        render_layout_impl(child, depth + 1);
     }
 }
 
@@ -35,8 +35,8 @@ void render_setup(int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void render_layout(layout::LayoutBox const &layout, int scroll_offset) {
-    render_layout_impl(layout, scroll_offset, 1);
+void render_layout(layout::LayoutBox const &layout) {
+    render_layout_impl(layout, 1);
 }
 
 } // namespace render
