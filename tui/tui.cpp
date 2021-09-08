@@ -43,7 +43,7 @@ ftxui::Element element_from_node(layout::LayoutBox const &box) {
 std::string render(layout::LayoutBox const &root) {
     auto document = element_from_node(root);
     document = document | ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 80);
-    auto screen = ftxui::Screen::Create(ftxui::Dimension{80, 10});
+    auto screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(80), ftxui::Dimension::Fixed(10));
     ftxui::Render(screen, document);
     return screen.ToString();
 }

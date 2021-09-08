@@ -22,17 +22,17 @@ http_archive(
 
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    sha256 = "e06c3984d087297d0e5514b407d0385eca8b37a2f07ecfb60501be8786ad2500",
-    strip_prefix = "boringssl-5ba39c1948c20827c027ebca6400127edbb313e7",
-    url = "https://github.com/google/boringssl/archive/5ba39c1948c20827c027ebca6400127edbb313e7.tar.gz",
+    sha256 = "6f640262999cd1fb33cf705922e453e835d2d20f3f06fe0d77f6426c19257308",
+    strip_prefix = "boringssl-fc44652a42b396e1645d5e72aba053349992136a",
+    url = "https://github.com/google/boringssl/archive/fc44652a42b396e1645d5e72aba053349992136a.tar.gz",
 )
 
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "5cae7072042b3043e12d53d50ef404bbb76949dad1de368d7f993a15c8c05ecc",
-    strip_prefix = "fmt-7.1.3",
-    url = "https://github.com/fmtlib/fmt/archive/7.1.3.tar.gz",
+    sha256 = "b06ca3130158c625848f3fb7418f235155a4d389b2abc3a6245fb01cb0eb1e01",
+    strip_prefix = "fmt-8.0.1",
+    url = "https://github.com/fmtlib/fmt/archive/8.0.1.tar.gz",
 )
 
 http_archive(
@@ -49,17 +49,17 @@ http_archive(
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "ec9d7688007bc7c8ef9cefd4ceec359d383c13d6b3efd978484a063183d79154",
-    strip_prefix = "FTXUI-21d746e8586a59a39ed5c73317812f17264e68d5",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/21d746e8586a59a39ed5c73317812f17264e68d5.tar.gz",
+    sha256 = "6aaa8ec03c0dbbc371bc73afa1959e088846245e378256c631a0933469d2fee6",
+    strip_prefix = "FTXUI-4d50dadb4167f356583cc2bb7b4257b340ba6275",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/4d50dadb4167f356583cc2bb7b4257b340ba6275.tar.gz",
 )
 
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "ccf3e54b8d1fa30dd35682fc4f50f5d2fe340b8e29e08de71287d0452d8cc3ff",
-    strip_prefix = "imgui-1.83",
-    url = "https://github.com/ocornut/imgui/archive/v1.83.tar.gz",
+    sha256 = "35cb5ca0fb42cb77604d4f908553f6ef3346ceec4fcd0189675bdfb764f62b9b",
+    strip_prefix = "imgui-1.84.2",
+    url = "https://github.com/ocornut/imgui/archive/v1.84.2.tar.gz",
 )
 
 http_archive(
@@ -89,25 +89,25 @@ http_archive(
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "944d0bd7c763ac721398dca2bb0f3b5ed16f67cef36810ede5061f35a543b4b8",
-    strip_prefix = "spdlog-1.8.5",
-    url = "https://github.com/gabime/spdlog/archive/v1.8.5.tar.gz",
+    sha256 = "6fff9215f5cb81760be4cc16d033526d1080427d236e86d70bb02994f85e3d38",
+    strip_prefix = "spdlog-1.9.2",
+    url = "https://github.com/gabime/spdlog/archive/v1.9.2.tar.gz",
 )
 
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "7e1dfff854ca68ed324f6b1fcb55f8d365d41e23e931ef16057221f305a52b1d",
-    strip_prefix = "stb-3a1174060a7dd4eb652d4e6854bc4cd98c159200",
-    url = "https://github.com/nothings/stb/archive/3a1174060a7dd4eb652d4e6854bc4cd98c159200.tar.gz",
+    sha256 = "daeab82422dfdb1642278d74a24c3594b7a8ca782c53a6df0783d884a0f05c47",
+    strip_prefix = "stb-c0c982601f40183e74d84a61237e968dca08380e",
+    url = "https://github.com/nothings/stb/archive/c0c982601f40183e74d84a61237e968dca08380e.tar.gz",
 )
 
 http_archive(
     name = "udev-zero",  # ISC
     build_file = "//third_party:udev-zero.BUILD",
-    sha256 = "23f1046f13403ec217665193e78dad6cdb0af54e105a9aaf8440a846e66a1d62",
-    strip_prefix = "libudev-zero-0.5.2",
-    url = "https://github.com/illiliti/libudev-zero/archive/0.5.2.tar.gz",
+    sha256 = "68c20aefd7aa89abe446cf5ec76f5846315ded719f0665eabed9261cc3c7f47a",
+    strip_prefix = "libudev-zero-1.0.0",
+    url = "https://github.com/illiliti/libudev-zero/archive/1.0.0.tar.gz",
 )
 
 http_archive(

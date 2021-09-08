@@ -4,7 +4,10 @@ cc_library(
     name = "ftxui",
     srcs = glob(
         include = ["src/**"],
-        exclude = ["src/**/*_test.cpp"],
+        exclude = [
+            "src/**/*_test.cpp",
+            "src/**/*_fuzzer.cpp",
+        ],
     ),
     hdrs = glob(["include/**/*.hpp"]),
     copts = ["-Iexternal/ftxui/src"] + select({
