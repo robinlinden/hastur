@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
                     dom = html::parse(response.body);
                     dom_str += dom::to_string(dom);
 
-                    if (auto title = try_get_text_content(dom, "html.head.title"sv); title) {
+                    if (auto title = try_get_text_content(dom, "html.head.title"sv)) {
                         window.setTitle(fmt::format("{} - {}", *title, kBrowserTitle));
                     } else {
                         window.setTitle(kBrowserTitle);
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
                         {{"head"}, {{"display", "none"}}},
                     };
 
-                    if (auto style = try_get_text_content(dom, "html.head.style"sv); style) {
+                    if (auto style = try_get_text_content(dom, "html.head.style"sv)) {
                         auto new_rules = css::parse(*style);
                         stylesheet.reserve(stylesheet.size() + new_rules.size());
                         stylesheet.insert(

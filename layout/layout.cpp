@@ -40,7 +40,7 @@ std::string_view get_property_or(
         style::StyledNode const &node,
         std::string_view property,
         std::string_view fallback) {
-    if (auto prop = get_property(node, property); prop) {
+    if (auto prop = get_property(node, property)) {
         return *prop;
     }
     return fallback;
@@ -98,11 +98,11 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
     auto width = get_property_or(*box.node, "width", "auto");
     int width_px = width == "auto" ? static_cast<int>(parent.width) : to_px(width);
 
-    if (auto min = get_property(*box.node, "min-width"); min) {
+    if (auto min = get_property(*box.node, "min-width")) {
         width_px = std::max(width_px, to_px(*min));
     }
 
-    if (auto max = get_property(*box.node, "max-width"); max) {
+    if (auto max = get_property(*box.node, "max-width")) {
         width_px = std::min(width_px, to_px(*max));
     }
 
@@ -128,15 +128,15 @@ void calculate_height(LayoutBox &box) {
         box.dimensions.content.height = static_cast<float>(to_px(font_size));
     }
 
-    if (auto height = get_property(*box.node, "height"); height) {
+    if (auto height = get_property(*box.node, "height")) {
         box.dimensions.content.height = static_cast<float>(to_px(*height));
     }
 
-    if (auto min = get_property(*box.node, "min-height"); min) {
+    if (auto min = get_property(*box.node, "min-height")) {
         box.dimensions.content.height = std::max(box.dimensions.content.height, static_cast<float>(to_px(*min)));
     }
 
-    if (auto max = get_property(*box.node, "max-height"); max) {
+    if (auto max = get_property(*box.node, "max-height")) {
         box.dimensions.content.height = std::min(box.dimensions.content.height, static_cast<float>(to_px(*max)));
     }
 }
