@@ -33,6 +33,8 @@ void render_setup(int width, int height) {
     glLoadIdentity();
     glOrtho(0, width, height, 0, -1.0, 1.0);
     glViewport(0, 0, width, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void render_layout(layout::LayoutBox const &layout) {

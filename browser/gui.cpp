@@ -69,8 +69,6 @@ int main(int argc, char **argv) {
 
     bool layout_needed{};
 
-    float scroll_offset{};
-
     render::render_setup(window.getSize().x, window.getSize().y);
 
     while (window.isOpen()) {
@@ -93,13 +91,11 @@ int main(int argc, char **argv) {
                         case sf::Keyboard::Key::J: {
                             float scroll = event.key.shift ? -20.f : -5.f;
                             glTranslatef(0, scroll, 0);
-                            scroll_offset += scroll;
                             break;
                         }
                         case sf::Keyboard::Key::K: {
                             float scroll = event.key.shift ? 20.f : 5.f;
                             glTranslatef(0, scroll, 0);
-                            scroll_offset += scroll;
                             break;
                         }
                         default: break;
@@ -203,8 +199,7 @@ int main(int argc, char **argv) {
         }
 
         if (layout_needed && styled) {
-            glTranslatef(0, -scroll_offset, 0);
-            scroll_offset = 0;
+            render::render_setup(window.getSize().x, window.getSize().y);
             layout = layout::create_layout(*styled, window.getSize().x);
             layout_str = layout::to_string(*layout);
             layout_needed = false;
