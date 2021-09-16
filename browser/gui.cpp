@@ -122,7 +122,24 @@ int main(int argc, char **argv) {
                 uri->path = "/";
             }
 
+            auto is_redirect = [](int status_code) {
+                return status_code == 301 || status_code == 302;
+            };
+
             response = http::get(*uri);
+            while (response.err == http::Error::Ok && is_redirect(response.status_line.status_code)) {
+                spdlog::info("Following {} redirect from {} to {}",
+                        response.status_line.status_code,
+                        uri->uri,
+                        response.headers.at("Location"));
+                url_buf = response.headers.at("Location");
+                uri = uri::Uri::parse(url_buf);
+                if (uri->path.empty()) {
+                    uri->path = "/";
+                }
+                response = http::get(*uri);
+            }
+
             status_line_str = fmt::format("{} {} {}",
                     response.status_line.version,
                     response.status_line.status_code,
