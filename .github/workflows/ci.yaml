@@ -10,48 +10,57 @@ jobs:
       matrix:
         include:
           - name: gcc
-            bazel: --config gcc
-            cc: gcc-10
-            cxx: g++-10
+            compiler: gcc
+            version: 10
 
           - name: clang-10
-            bazel: --config clang
-            cc: clang-10
-            cxx: clang++-10
+            compiler: clang
+            version: 10
 
           - name: clang-12
-            bazel: --config clang
-            cc: clang-12
-            cxx: clang++-12
-            apt: clang-12
+            compiler: clang
+            version: 12
 
           - name: clang-asan
-            bazel: --config clang --config asan
-            cc: clang-12
-            cxx: clang++-12
-            apt: clang-12
+            compiler: clang
+            version: 12
+            bazel-extra: --config asan
 
           - name: clang-ubsan
-            bazel: --config clang --config ubsan
-            cc: clang-12
-            cxx: clang++-12
-            apt: clang-12
+            compiler: clang
+            version: 12
+            bazel-extra: --config ubsan
 
     steps:
+    - name: Prepare clang install
+      if: startsWith(matrix.compiler, 'clang')
+      uses: myci-actions/add-deb-repo@10
+      with:
+        repo: deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${{ matrix.version }} main
+        repo-name: llvm-toolchain-focal-${{ matrix.version }}
+        keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+    - name: Setup gcc
+      if: startsWith(matrix.compiler, 'gcc')
+      run: |
+        echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
+        echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
+    - name: Setup clang
+      if: startsWith(matrix.compiler, 'clang')
+      run: |
+        echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+        echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev ${{ matrix.apt }}
-          echo "CC=${{ matrix.cc }}" >> $GITHUB_ENV
-          echo "CXX=${{ matrix.cxx }}" >> $GITHUB_ENV
+          sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }}
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
-      run: bazel build //... ${{ matrix.bazel }}
+      run: bazel build //... --config ${{ matrix.compiler }} ${{ matrix.bazel-extra }}
     - name: Test
-      run: bazel test //... ${{ matrix.bazel }}
+      run: bazel test //... --config ${{ matrix.compiler }} ${{ matrix.bazel-extra }}
     - name: Run
-      run: bazel run browser:tui ${{ matrix.bazel }}
+      run: bazel run browser:tui --config ${{ matrix.compiler }} ${{ matrix.bazel-extra }}
 
   windows-msvc:
     runs-on: windows-2019
