@@ -54,6 +54,10 @@ build:clang --config=gnulike
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-extra-semi'
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
 
+build:clang13 --config=clang
+build:clang13 --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
+build:clang13 --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
+
 build:gcc --config=gnulike
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-pedantic'

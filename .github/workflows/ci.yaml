@@ -12,24 +12,32 @@ jobs:
           - name: gcc
             compiler: gcc
             version: 10
+            bazel: --config gcc
 
           - name: clang-10
             compiler: clang
             version: 10
+            bazel: --config clang
 
           - name: clang-12
             compiler: clang
             version: 12
+            bazel: --config clang
+
+          - name: clang-13
+            compiler: clang
+            version: 13
+            bazel: --config clang13
 
           - name: clang-asan
             compiler: clang
-            version: 12
-            bazel-extra: --config asan
+            version: 13
+            bazel: --config clang13 --config asan
 
           - name: clang-ubsan
             compiler: clang
-            version: 12
-            bazel-extra: --config ubsan
+            version: 13
+            bazel: --config clang13 --config ubsan
 
     steps:
     - name: Prepare clang install
@@ -56,11 +64,11 @@ jobs:
           sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }}
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
-      run: bazel build //... --config ${{ matrix.compiler }} ${{ matrix.bazel-extra }}
+      run: bazel build //... ${{ matrix.bazel }}
     - name: Test
-      run: bazel test //... --config ${{ matrix.compiler }} ${{ matrix.bazel-extra }}
+      run: bazel test //... ${{ matrix.bazel }}
     - name: Run
-      run: bazel run browser:tui --config ${{ matrix.compiler }} ${{ matrix.bazel-extra }}
+      run: bazel run browser:tui ${{ matrix.bazel }}
 
   windows-msvc:
     runs-on: windows-2019
