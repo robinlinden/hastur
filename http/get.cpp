@@ -5,6 +5,8 @@
 #include <fmt/format.h>
 
 #include <charconv>
+#include <filesystem>
+#include <fstream>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -127,6 +129,23 @@ Response get(uri::Uri const &uri) {
         }
 
         return parse_response(data);
+    }
+
+    if (uri.scheme == "file"sv) {
+        auto path = std::filesystem::path(uri.path);
+        if (!exists(path)) {
+            return {Error::Unresolved};
+        }
+
+        if (!is_regular_file(path)) {
+            return {Error::InvalidResponse};
+        }
+
+        auto file = std::ifstream(path, std::ios::in | std::ios::binary);
+        auto size = file_size(path);
+        auto content = std::string(size, '\0');
+        file.read(content.data(), size);
+        return {Error::Ok, {}, {}, std::move(content)};
     }
 
     return {Error::Unhandled};
