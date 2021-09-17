@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef HTTP_GET_H_
 #define HTTP_GET_H_
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include "render/render.h"
 
 // MSVC gl.h doesn't include everything it uses.

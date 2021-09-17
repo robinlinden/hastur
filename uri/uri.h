@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef URI_URI_H_
 #define URI_URI_H_
 

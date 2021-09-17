@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef STYLE_STYLE_H_
 #define STYLE_STYLE_H_
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef HTML_PARSER_H_
 #define HTML_PARSER_H_
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef ETEST_CXX_COMPAT_H_
 #define ETEST_CXX_COMPAT_H_
 
