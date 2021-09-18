@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTTP_GET_H_
-#define HTTP_GET_H_
+#ifndef PROTOCOL_GET_H_
+#define PROTOCOL_GET_H_
 
 #include "uri/uri.h"
 
@@ -11,7 +11,7 @@
 #include <string>
 #include <string_view>
 
-namespace http {
+namespace protocol {
 
 enum class Error {
     Ok,
@@ -37,6 +37,6 @@ Response get(uri::Uri const &uri);
 
 std::string to_string(std::map<std::string, std::string> const &headers);
 
-} // namespace http
+} // namespace protocol
 
 #endif

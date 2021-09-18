@@ -4,8 +4,8 @@
 
 #include "dom/dom.h"
 #include "html/parse.h"
-#include "http/get.h"
 #include "layout/layout.h"
+#include "protocol/get.h"
 #include "style/style.h"
 #include "tui/tui.h"
 
@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
     }
 
     spdlog::info("Fetching HTML from {}", uri->uri);
-    auto response = http::get(*uri);
-    if (response.err != http::Error::Ok) {
+    auto response = protocol::get(*uri);
+    if (response.err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", response.err, uri->uri);
         return 1;
     }

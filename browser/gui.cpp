@@ -4,8 +4,8 @@
 
 #include "css/parse.h"
 #include "html/parse.h"
-#include "http/get.h"
 #include "layout/layout.h"
+#include "protocol/get.h"
 #include "render/render.h"
 #include "style/style.h"
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     std::string url_buf{argc > 1 ? argv[1] : kDefaultUrl};
     bool url_from_argv = argc > 1;
     sf::Clock clock;
-    http::Response response{};
+    protocol::Response response{};
     dom::Document dom{};
     std::optional<style::StyledNode> styled{};
     std::optional<layout::LayoutBox> layout{};
@@ -130,8 +130,8 @@ int main(int argc, char **argv) {
                 return status_code == 301 || status_code == 302;
             };
 
-            response = http::get(*uri);
-            while (response.err == http::Error::Ok && is_redirect(response.status_line.status_code)) {
+            response = protocol::get(*uri);
+            while (response.err == protocol::Error::Ok && is_redirect(response.status_line.status_code)) {
                 spdlog::info("Following {} redirect from {} to {}",
                         response.status_line.status_code,
                         uri->uri,
@@ -141,18 +141,18 @@ int main(int argc, char **argv) {
                 if (uri->path.empty()) {
                     uri->path = "/";
                 }
-                response = http::get(*uri);
+                response = protocol::get(*uri);
             }
 
             status_line_str = fmt::format("{} {} {}",
                     response.status_line.version,
                     response.status_line.status_code,
                     response.status_line.reason);
-            response_headers_str = http::to_string(response.headers);
+            response_headers_str = protocol::to_string(response.headers);
             dom_str.clear();
 
             switch (response.err) {
-                case http::Error::Ok: {
+                case protocol::Error::Ok: {
                     dom = html::parse(response.body);
                     dom_str += dom::to_string(dom);
 
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
                         auto const &elem = std::get<dom::Element>(link->data);
                         auto stylesheet_url = fmt::format("{}{}", url_buf, elem.attributes.at("href"));
                         spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-                        auto style_data = http::get(*uri::Uri::parse(stylesheet_url));
+                        auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
 
                         auto new_rules = css::parse(style_data.body);
                         stylesheet.reserve(stylesheet.size() + new_rules.size());
@@ -201,17 +201,17 @@ int main(int argc, char **argv) {
                     layout_needed = true;
                     break;
                 }
-                case http::Error::Unresolved: {
+                case protocol::Error::Unresolved: {
                     err_str = fmt::format("Unable to resolve endpoint for '{}'", url_buf);
                     spdlog::error(err_str);
                     break;
                 }
-                case http::Error::Unhandled: {
+                case protocol::Error::Unhandled: {
                     err_str = fmt::format("Unhandled protocol for '{}'", url_buf);
                     spdlog::error(err_str);
                     break;
                 }
-                case http::Error::InvalidResponse: {
+                case protocol::Error::InvalidResponse: {
                     err_str = fmt::format("Invalid response from '{}'", url_buf);
                     spdlog::error(err_str);
                     break;
@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
             layout_needed = false;
         }
 
-        if (response.err != http::Error::Ok) {
+        if (response.err != protocol::Error::Ok) {
             ImGui::TextUnformatted(err_str.c_str());
         }
         ImGui::End();

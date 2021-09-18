@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "http/get.h"
+#include "protocol/get.h"
 
 #include <asio.hpp>
 #include <asio/ssl.hpp>
@@ -19,7 +19,7 @@
 
 using namespace std::string_view_literals;
 
-namespace http {
+namespace protocol {
 namespace {
 
 std::pair<std::string_view, std::string_view> split(std::string_view str, std::string_view sep) {
@@ -163,4 +163,4 @@ std::string to_string(std::map<std::string, std::string> const &headers) {
     return ss.str();
 }
 
-} // namespace http
+} // namespace protocol
