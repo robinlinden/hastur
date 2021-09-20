@@ -73,7 +73,8 @@ private:
         skip_whitespace();
 
         while (peek() != '}') {
-            rule.declarations.insert(parse_declaration());
+            auto [name, value] = parse_declaration();
+            add_declaration(rule.declarations, name, value);
             skip_whitespace();
         }
 
@@ -82,13 +83,69 @@ private:
         return rule;
     }
 
-    std::pair<std::string, std::string> parse_declaration() {
+    std::pair<std::string_view, std::string_view> parse_declaration() {
         auto name = consume_while([](char c) { return c != ':'; });
         consume_char(); // :
         skip_whitespace();
         auto value = consume_while([](char c) { return c != ';' && c != '}'; });
         skip_if_neq('}'); // ;
-        return {std::string{name}, std::string{value}};
+        return {name, value};
+    }
+
+    void add_declaration(std::map<std::string, std::string>& declarations,
+                         std::string_view name,
+                         std::string_view value) {
+        if (name == "padding") {
+            expand_padding(declarations, value);
+        } else {
+            declarations.insert_or_assign(std::string{name}, std::string{value});
+        }
+    }
+
+    void expand_padding(std::map<std::string, std::string>& declarations, std::string_view value) {
+        std::string_view top = "", bottom = "", left = "", right = "";
+        auto values = split(value, ' ');
+        switch (values.size()) {
+            case 1:
+                top = bottom = left = right = values[0];
+                break;
+            case 2:
+                top = bottom = values[0];
+                left = right = values[1];
+                break;
+            case 3:
+                top = values[0];
+                left = right = values[1];
+                bottom = values[2];
+                break;
+            case 4:
+                top = values[0];
+                right = values[1];
+                bottom = values[2];
+                left = values[3];
+                break;
+            default:
+                break;
+        }
+        declarations.insert_or_assign("padding-top", std::string{top});
+        declarations.insert_or_assign("padding-bottom", std::string{bottom});
+        declarations.insert_or_assign("padding-left", std::string{left});
+        declarations.insert_or_assign("padding-right", std::string{right});
+    }
+
+    std::vector<std::string_view> split(std::string_view str, char delimiter) {
+        std::vector<std::string_view> result;
+        std::size_t pos = 0, loc = 0;
+        while ((loc = str.find(delimiter, pos)) != std::string_view::npos) {
+            if (auto substr = str.substr(pos, loc-pos); !substr.empty()) {
+                result.push_back(substr);
+            }
+            pos = loc+1;
+        }
+        if (pos < str.size()) {
+            result.push_back(str.substr(pos, str.size()-pos));
+        }
+        return result;
     }
 };
 

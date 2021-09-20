@@ -134,5 +134,85 @@ int main() {
         expect(a.media_query.empty());
     });
 
+    etest::test("parser: shorthand padding, one value", [] {
+        auto rules = css::parse("p { padding: 10px; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 4);
+        expect(body.declarations.at("padding-top"s) == "10px"s);
+        expect(body.declarations.at("padding-bottom"s) == "10px"s);
+        expect(body.declarations.at("padding-left"s) == "10px"s);
+        expect(body.declarations.at("padding-right"s) == "10px"s);
+    });
+
+    etest::test("parser: shorthand padding, two values", [] {
+        auto rules = css::parse("p { padding: 12em 36em; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 4);
+        expect(body.declarations.at("padding-top"s) == "12em"s);
+        expect(body.declarations.at("padding-bottom"s) == "12em"s);
+        expect(body.declarations.at("padding-left"s) == "36em"s);
+        expect(body.declarations.at("padding-right"s) == "36em"s);
+    });
+
+    etest::test("parser: shorthand padding, three values", [] {
+        auto rules = css::parse("p { padding: 12px 36px 52px; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 4);
+        expect(body.declarations.at("padding-top"s) == "12px"s);
+        expect(body.declarations.at("padding-bottom"s) == "52px"s);
+        expect(body.declarations.at("padding-left"s) == "36px"s);
+        expect(body.declarations.at("padding-right"s) == "36px"s);
+    });
+
+    etest::test("parser: shorthand padding, four values", [] {
+        auto rules = css::parse("p { padding: 12px 36px 52px 2px; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 4);
+        expect(body.declarations.at("padding-top"s) == "12px"s);
+        expect(body.declarations.at("padding-right"s) == "36px"s);
+        expect(body.declarations.at("padding-bottom"s) == "52px"s);
+        expect(body.declarations.at("padding-left"s) == "2px"s);
+    });
+
+    etest::test("parser: shorthand padding overridden", [] {
+        auto rules = css::parse("p {\n"
+            "padding: 10px;\n"
+            "padding-top: 15px;\n"
+            "padding-left: 25px;\n"
+        "}\n"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 4);
+        expect(body.declarations.at("padding-top"s) == "15px"s);
+        expect(body.declarations.at("padding-bottom"s) == "10px"s);
+        expect(body.declarations.at("padding-left"s) == "25px"s);
+        expect(body.declarations.at("padding-right"s) == "10px"s);
+    });
+
+    etest::test("parser: override padding with shorthand", [] {
+        auto rules = css::parse("p {\n"
+            "padding-bottom: 5px;\n"
+            "padding-left: 25px;\n"
+            "padding: 12px 40px;\n"
+        "}\n"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 4);
+        expect(body.declarations.at("padding-top"s) == "12px"s);
+        expect(body.declarations.at("padding-bottom"s) == "12px"s);
+        expect(body.declarations.at("padding-left"s) == "40px"s);
+        expect(body.declarations.at("padding-right"s) == "40px"s);
+    });
+
     return etest::run_all_tests();
 }
