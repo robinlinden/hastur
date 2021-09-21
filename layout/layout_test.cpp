@@ -11,6 +11,11 @@ using etest::expect;
 using etest::require;
 using layout::LayoutType;
 
+// TODO(robinlinden): clang-format doesn't get along well with how I structured
+// the trees in these test cases.
+
+// clang-format off
+
 int main() {
     etest::test("simple tree", [] {
         auto dom_root = dom::create_element_node("html", {}, {

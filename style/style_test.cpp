@@ -12,6 +12,11 @@ using namespace std::literals;
 using etest::expect;
 using etest::require;
 
+// TODO(robinlinden): clang-format doesn't get along well with how I structured
+// the trees in these test cases.
+
+// clang-format off
+
 int main() {
     etest::test("is_match: simple names", [] {
         expect(style::is_match(dom::Element{"div"}, "div"sv));

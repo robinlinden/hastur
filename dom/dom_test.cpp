@@ -9,6 +9,11 @@
 using etest::expect;
 using etest::require;
 
+// TODO(robinlinden): clang-format doesn't get along well with how I structured
+// the trees in these test cases.
+
+// clang-format off
+
 int main() {
     etest::test("no matches", [] {
         auto const dom_root = dom::create_element_node("html", {}, {
