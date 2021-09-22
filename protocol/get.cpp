@@ -54,9 +54,9 @@ std::optional<StatusLine> parse_status_line(std::string_view headers) {
     }
 
     return StatusLine{
-        std::string{headers.substr(0, sep1)},
-        status_code,
-        std::string{headers.substr(sep2 + 1, headers.size())},
+            std::string{headers.substr(0, sep1)},
+            status_code,
+            std::string{headers.substr(sep2 + 1, headers.size())},
     };
 }
 
@@ -77,10 +77,10 @@ Response parse_response(std::string_view data) {
     headers.emplace(split(header, ": "));
 
     return {
-        Error::Ok,
-        std::move(*status_line),
-        std::move(headers),
-        std::string{body},
+            Error::Ok,
+            std::move(*status_line),
+            std::move(headers),
+            std::string{body},
     };
 }
 
@@ -128,7 +128,9 @@ Response get(uri::Uri const &uri) {
         while (true) {
             char buf[1024];
             std::size_t received = ssock.read_some(asio::buffer(buf), ec);
-            if (ec) { break; }
+            if (ec) {
+                break;
+            }
             data.append(buf, buf + received);
         }
 

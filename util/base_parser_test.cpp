@@ -13,8 +13,8 @@ namespace {
 
 template<bool B>
 bool static_test() {
-  static_assert(B);
-  return B;
+    static_assert(B);
+    return B;
 }
 
 } // namespace
@@ -44,7 +44,9 @@ int main() {
         expect(static_test<[] {
             auto p = BaseParser("abcd");
             p.advance(3);
-            if (p.is_eof()) { return false; }
+            if (p.is_eof()) {
+                return false;
+            }
             p.advance(1);
             return p.is_eof();
         }()>());
@@ -53,10 +55,18 @@ int main() {
     etest::test("consume_char", [] {
         expect(static_test<[] {
             auto p = BaseParser("abcd");
-            if (p.consume_char() != 'a') { return false; }
-            if (p.consume_char() != 'b') { return false; }
-            if (p.consume_char() != 'c') { return false; }
-            if (p.consume_char() != 'd') { return false; }
+            if (p.consume_char() != 'a') {
+                return false;
+            }
+            if (p.consume_char() != 'b') {
+                return false;
+            }
+            if (p.consume_char() != 'c') {
+                return false;
+            }
+            if (p.consume_char() != 'd') {
+                return false;
+            }
             return true;
         }()>());
     });
@@ -64,8 +74,12 @@ int main() {
     etest::test("consume_while", [] {
         expect(static_test<[] {
             auto p = BaseParser("abcd");
-            if (p.consume_while([](char c) { return c != 'c'; }) != "ab") { return false; }
-            if (p.consume_while([](char c) { return c != 'd'; }) != "c") { return false; }
+            if (p.consume_while([](char c) { return c != 'c'; }) != "ab") {
+                return false;
+            }
+            if (p.consume_while([](char c) { return c != 'd'; }) != "c") {
+                return false;
+            }
             return true;
         }()>());
     });
@@ -74,9 +88,13 @@ int main() {
         expect(static_test<[] {
             auto p = BaseParser("      \t       \n         h          \n\n\ni");
             p.skip_whitespace();
-            if (p.consume_char() != 'h') { return false; }
+            if (p.consume_char() != 'h') {
+                return false;
+            }
             p.skip_whitespace();
-            if (p.consume_char() != 'i') { return false; }
+            if (p.consume_char() != 'i') {
+                return false;
+            }
             return true;
         }()>());
     });

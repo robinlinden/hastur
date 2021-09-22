@@ -57,7 +57,9 @@ public:
 
 private:
     constexpr void skip_if_neq(char c) {
-        if (peek() != c) { advance(1); }
+        if (peek() != c) {
+            advance(1);
+        }
     }
 
     css::Rule parse_rule() {
@@ -92,9 +94,8 @@ private:
         return {name, value};
     }
 
-    void add_declaration(std::map<std::string, std::string>& declarations,
-                         std::string_view name,
-                         std::string_view value) {
+    void add_declaration(
+            std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) {
         if (name == "padding") {
             expand_padding(declarations, value);
         } else {
@@ -102,7 +103,7 @@ private:
         }
     }
 
-    void expand_padding(std::map<std::string, std::string>& declarations, std::string_view value) {
+    void expand_padding(std::map<std::string, std::string> &declarations, std::string_view value) {
         std::string_view top = "", bottom = "", left = "", right = "";
         auto values = split(value, ' ');
         switch (values.size()) {
@@ -137,13 +138,13 @@ private:
         std::vector<std::string_view> result;
         std::size_t pos = 0, loc = 0;
         while ((loc = str.find(delimiter, pos)) != std::string_view::npos) {
-            if (auto substr = str.substr(pos, loc-pos); !substr.empty()) {
+            if (auto substr = str.substr(pos, loc - pos); !substr.empty()) {
                 result.push_back(substr);
             }
-            pos = loc+1;
+            pos = loc + 1;
         }
         if (pos < str.size()) {
-            result.push_back(str.substr(pos, str.size()-pos));
+            result.push_back(str.substr(pos, str.size() - pos));
         }
         return result;
     }

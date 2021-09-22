@@ -13,11 +13,12 @@ int main() {
     etest::test("https: simple uri", [] {
         auto uri = *Uri::parse("https://example.com");
         Uri expected{
-            .uri = "https://example.com",
-            .scheme = "https",
-            .authority = {
-                .host = "example.com",
-            },
+                .uri = "https://example.com",
+                .scheme = "https",
+                .authority =
+                        {
+                                .host = "example.com",
+                        },
         };
 
         expect(uri == expected);
@@ -26,18 +27,20 @@ int main() {
     etest::test("https: short uri", [] {
         auto uri = *Uri::parse("https://gr.ht");
         Uri expected{
-            .uri = "https://gr.ht",
-            .scheme = "https",
-            .authority = {
-                .host = "gr.ht",
-            },
+                .uri = "https://gr.ht",
+                .scheme = "https",
+                .authority =
+                        {
+                                .host = "gr.ht",
+                        },
         };
 
         expect(uri == expected);
     });
 
     etest::test("https: user, pass, port, path, query", [] {
-        auto https_uri = *Uri::parse("https://zero-one:muh_password@example-domain.net:8080/muh/long/path.html?foo=bar");
+        auto https_uri =
+                *Uri::parse("https://zero-one:muh_password@example-domain.net:8080/muh/long/path.html?foo=bar");
 
         expect(https_uri.scheme == "https");
         expect(https_uri.authority.user == "zero-one");

@@ -26,7 +26,9 @@ public:
         constexpr auto doctype_prefix = "<!doctype"sv;
         auto peeked = peek(doctype_prefix.size());
         auto doctype = [&]() {
-            if (no_case_compare(doctype_prefix, peeked)) { return parse_doctype(); }
+            if (no_case_compare(doctype_prefix, peeked)) {
+                return parse_doctype();
+            }
             return "quirks"sv;
         }();
 
@@ -40,10 +42,20 @@ public:
 
 private:
     // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
-    static constexpr auto void_elements = std::array{
-            "area", "base", "br", "col", "embed",
-            "hr", "img", "input", "link", "meta",
-            "param", "source", "track", "wbr"};
+    static constexpr auto void_elements = std::array{"area",
+            "base",
+            "br",
+            "col",
+            "embed",
+            "hr",
+            "img",
+            "input",
+            "link",
+            "meta",
+            "param",
+            "source",
+            "track",
+            "wbr"};
 
     constexpr bool is_void_element(std::string_view tag) {
         return find(begin(void_elements), end(void_elements), tag) != end(void_elements);
@@ -55,18 +67,17 @@ private:
         std::vector<dom::Node> nodes;
         while (!is_eof()) {
             skip_whitespace();
-            if (is_eof() || starts_with("</"sv)) { break; }
+            if (is_eof() || starts_with("</"sv)) {
+                break;
+            }
             nodes.push_back(parse_node());
         }
         return nodes;
     }
 
     std::string_view parse_tag_name() {
-        return consume_while([](char c) {
-            return (c >= 'a' && c <= 'z')
-                    || (c >= 'A' && c <= 'Z')
-                    || (c >= '0' && c <= '9');
-        });
+        return consume_while(
+                [](char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'); });
     }
 
     std::string_view parse_attr_value() {
@@ -87,7 +98,9 @@ private:
         dom::AttrMap attrs;
         while (true) {
             skip_whitespace();
-            if (peek() == '>' || starts_with("/>")) { break; }
+            if (peek() == '>' || starts_with("/>")) {
+                break;
+            }
             attrs.insert(parse_attr());
         }
 
@@ -128,7 +141,9 @@ private:
     }
 
     static constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-        if (a.size() != b.size()) { return false; }
+        if (a.size() != b.size()) {
+            return false;
+        }
         for (size_t i = 0; i < a.size(); ++i) {
             if (std::tolower(a[i]) != std::tolower(b[i])) {
                 return false;
@@ -139,11 +154,13 @@ private:
     }
 
     dom::Node parse_node() {
-        if (peek() == '<') { return parse_element(); }
+        if (peek() == '<') {
+            return parse_element();
+        }
         return parse_text();
     }
 };
 
-} // namespace parser
+} // namespace html
 
 #endif

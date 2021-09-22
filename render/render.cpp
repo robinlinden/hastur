@@ -21,10 +21,7 @@ void render_layout_impl(layout::LayoutBox const &layout, int depth) {
     auto const &dimensions = layout.dimensions.content;
     float color = 1.f / depth;
     glColor3f(color, color, color);
-    glRectf(dimensions.x,
-            dimensions.y,
-            dimensions.x + dimensions.width,
-            dimensions.y + dimensions.height);
+    glRectf(dimensions.x, dimensions.y, dimensions.x + dimensions.width, dimensions.y + dimensions.height);
     for (auto const &child : layout.children) {
         render_layout_impl(child, depth + 1);
     }

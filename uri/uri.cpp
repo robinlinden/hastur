@@ -9,7 +9,7 @@
 
 namespace uri {
 
-std::optional<Uri> Uri::parse(std::string uristr){
+std::optional<Uri> Uri::parse(std::string uristr) {
     std::smatch match;
 
     // Regex taken from RFC 3986.
@@ -48,12 +48,12 @@ std::optional<Uri> Uri::parse(std::string uristr){
         authority.host = hostport;
     }
 
-    auto uri = Uri {
-        .scheme{match.str(2)},
-        .authority{std::move(authority)},
-        .path{match.str(5)},
-        .query{match.str(7)},
-        .fragment{match.str(9)},
+    auto uri = Uri{
+            .scheme{match.str(2)},
+            .authority{std::move(authority)},
+            .path{match.str(5)},
+            .query{match.str(7)},
+            .fragment{match.str(9)},
     };
     uri.uri = std::move(uristr);
     return uri;

@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "tui/tui.h"
 #include "dom/dom.h"
 #include "html/parse.h"
 #include "layout/layout.h"
 #include "protocol/get.h"
 #include "style/style.h"
-#include "tui/tui.h"
 
-#include <spdlog/spdlog.h>
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include <iostream>
 

@@ -34,8 +34,9 @@ std::stringstream test_log{};
 
 int run_all_tests() noexcept {
     std::cout << registry().size() << " test(s) registered." << std::endl;
-    auto const longest_name = std::max_element(registry().begin(), registry().end(),
-            [](auto const &a, auto const &b) { return a.name.size() < b.name.size(); });
+    auto const longest_name = std::max_element(registry().begin(), registry().end(), [](auto const &a, auto const &b) {
+        return a.name.size() < b.name.size();
+    });
 
     for (auto const &test : registry()) {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": ";
@@ -70,10 +71,8 @@ void expect(bool b, etest::source_location const &loc) noexcept {
         ++assertion_failures;
         // Check if we're using the real source_location by checking for line == 0.
         if (loc.line() != 0) {
-            test_log << "  expectation failure at "
-                    << loc.file_name() << "("
-                    << loc.line() << ":"
-                    << loc.column() << ")\n";
+            test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column()
+                     << ")\n";
         }
     }
 }
@@ -81,10 +80,8 @@ void expect(bool b, etest::source_location const &loc) noexcept {
 void require(bool b, etest::source_location const &loc) {
     if (!b) {
         if (loc.line() != 0) {
-            test_log << "  requirement failure at "
-                    << loc.file_name() << "("
-                    << loc.line() << ":"
-                    << loc.column() << ")\n";
+            test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column()
+                     << ")\n";
         }
         throw test_failure{};
     }

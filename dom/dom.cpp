@@ -15,20 +15,27 @@ namespace dom {
 namespace {
 
 template<class... Ts>
-struct Overloaded : Ts... { using Ts::operator()...; };
+struct Overloaded : Ts... {
+    using Ts::operator()...;
+};
 
 // Not needed as of C++20, but gcc 10 won't work without it.
 template<class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
 void print_node(dom::Node const &node, std::ostream &os, uint8_t depth = 0) {
-    for (int8_t i = 0; i < depth; ++i) { os << "  "; }
-    std::visit(Overloaded {
-        [&os](dom::Element const &element) { os << "tag: " << element.name << '\n'; },
-        [&os](dom::Text const &text) { os << "value: " << text.text << '\n'; },
-    }, node.data);
+    for (int8_t i = 0; i < depth; ++i) {
+        os << "  ";
+    }
+    std::visit(Overloaded{
+                       [&os](dom::Element const &element) { os << "tag: " << element.name << '\n'; },
+                       [&os](dom::Text const &text) { os << "value: " << text.text << '\n'; },
+               },
+            node.data);
 
-    for (auto const &child : node.children) { print_node(child, os, depth + 1); }
+    for (auto const &child : node.children) {
+        print_node(child, os, depth + 1);
+    }
 }
 
 } // namespace
@@ -61,8 +68,8 @@ std::vector<Node const *> nodes_by_path(Node const &root, std::string_view path)
             }
 
             if (path.starts_with(data->name + ".")) {
-                std::transform(
-                        cbegin(node->children), cend(node->children),
+                std::transform(cbegin(node->children),
+                        cend(node->children),
                         back_inserter(next_search),
                         [](Node const &n) -> Node const * { return &n; });
             }

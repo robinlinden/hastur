@@ -20,39 +20,31 @@ class BaseParser {
 public:
     constexpr BaseParser(std::string_view input) : input_{input} {}
 
-    constexpr char peek() const {
-        return input_[pos_];
-    }
+    constexpr char peek() const { return input_[pos_]; }
 
-    constexpr std::string_view peek(std::size_t chars) const {
-        return input_.substr(pos_, chars);
-    }
+    constexpr std::string_view peek(std::size_t chars) const { return input_.substr(pos_, chars); }
 
-    constexpr bool starts_with(std::string_view prefix) const {
-        return peek(prefix.size()) == prefix;
-    }
+    constexpr bool starts_with(std::string_view prefix) const { return peek(prefix.size()) == prefix; }
 
-    constexpr bool is_eof() const {
-        return pos_ >= input_.size();
-    }
+    constexpr bool is_eof() const { return pos_ >= input_.size(); }
 
-    constexpr char consume_char() {
-        return input_[pos_++];
-    }
+    constexpr char consume_char() { return input_[pos_++]; }
 
-    constexpr void advance(std::size_t n) {
-        pos_ += n;
-    }
+    constexpr void advance(std::size_t n) { pos_ += n; }
 
     template<Predicate T>
     constexpr std::string_view consume_while(T const &pred) {
         std::size_t start = pos_;
-        while (pred(input_[pos_])) { ++pos_; }
+        while (pred(input_[pos_])) {
+            ++pos_;
+        }
         return input_.substr(start, pos_ - start);
     }
 
     constexpr void skip_whitespace() {
-        while (!is_eof() && is_space(peek())) { advance(1); }
+        while (!is_eof() && is_space(peek())) {
+            advance(1);
+        }
     }
 
 private:

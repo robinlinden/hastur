@@ -5,8 +5,8 @@
 #ifndef CSS_RULE_H_
 #define CSS_RULE_H_
 
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace css {

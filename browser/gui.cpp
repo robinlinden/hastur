@@ -9,15 +9,15 @@
 #include "render/render.h"
 #include "style/style.h"
 
-#include <fmt/format.h>
-#include <imgui.h>
-#include <imgui_stdlib.h>
-#include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
-#include <spdlog/spdlog.h>
+#include <fmt/format.h>
+#include <imgui-SFML.h>
+#include <imgui.h>
+#include <imgui_stdlib.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 // MSVC gl.h doesn't include everything it uses.
 #ifdef _MSC_VER
@@ -41,9 +41,7 @@ auto const kDefaultUrl = "http://example.com";
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
     auto nodes = dom::nodes_by_path(doc.html, path);
-    if (nodes.empty()
-            || nodes[0]->children.empty()
-            || !std::holds_alternative<dom::Text>(nodes[0]->children[0].data)) {
+    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0].data)) {
         return std::nullopt;
     }
     return std::get<dom::Text>(nodes[0]->children[0].data).text;
@@ -102,11 +100,13 @@ int main(int argc, char **argv) {
                             glTranslatef(0, scroll, 0);
                             break;
                         }
-                        default: break;
+                        default:
+                            break;
                     }
                     break;
                 }
-                default: break;
+                default:
+                    break;
             }
         }
 
@@ -163,23 +163,26 @@ int main(int argc, char **argv) {
                     }
 
                     std::vector<css::Rule> stylesheet{
-                        {{"head"}, {{"display", "none"}}},
+                            {{"head"}, {{"display", "none"}}},
                     };
 
                     if (auto style = try_get_text_content(dom, "html.head.style"sv)) {
                         auto new_rules = css::parse(*style);
                         stylesheet.reserve(stylesheet.size() + new_rules.size());
-                        stylesheet.insert(
-                                end(stylesheet),
+                        stylesheet.insert(end(stylesheet),
                                 std::make_move_iterator(begin(new_rules)),
                                 std::make_move_iterator(end(new_rules)));
                     }
 
                     auto head_links = dom::nodes_by_path(dom.html, "html.head.link");
-                    head_links.erase(std::remove_if(begin(head_links), end(head_links), [](auto const &n) {
-                        auto elem = std::get<dom::Element>(n->data);
-                        return elem.attributes.contains("rel") && elem.attributes.at("rel") != "stylesheet";
-                    }), end(head_links));
+                    head_links.erase(std::remove_if(begin(head_links),
+                                             end(head_links),
+                                             [](auto const &n) {
+                                                 auto elem = std::get<dom::Element>(n->data);
+                                                 return elem.attributes.contains("rel")
+                                                         && elem.attributes.at("rel") != "stylesheet";
+                                             }),
+                            end(head_links));
 
                     spdlog::info("Loading {} stylesheets", head_links.size());
                     for (auto link : head_links) {
@@ -190,8 +193,7 @@ int main(int argc, char **argv) {
 
                         auto new_rules = css::parse(style_data.body);
                         stylesheet.reserve(stylesheet.size() + new_rules.size());
-                        stylesheet.insert(
-                                end(stylesheet),
+                        stylesheet.insert(end(stylesheet),
                                 std::make_move_iterator(begin(new_rules)),
                                 std::make_move_iterator(end(new_rules)));
                     }
@@ -235,8 +237,12 @@ int main(int argc, char **argv) {
         ImGui::SetNextWindowSize(ImVec2(window.getSize().x / 2.f, window.getSize().y / 2.f), ImGuiCond_FirstUseEver);
         ImGui::Begin("HTTP Response");
         ImGui::TextUnformatted(status_line_str.c_str());
-        if (ImGui::CollapsingHeader("Headers")) { ImGui::TextUnformatted(response_headers_str.c_str()); }
-        if (ImGui::CollapsingHeader("Body")) { ImGui::TextUnformatted(response.body.c_str()); }
+        if (ImGui::CollapsingHeader("Headers")) {
+            ImGui::TextUnformatted(response_headers_str.c_str());
+        }
+        if (ImGui::CollapsingHeader("Body")) {
+            ImGui::TextUnformatted(response.body.c_str());
+        }
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(0, 50), ImGuiCond_FirstUseEver);

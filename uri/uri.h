@@ -32,6 +32,6 @@ struct Uri {
     bool operator==(Uri const &) const = default;
 };
 
-} //namespace uri
+} // namespace uri
 
 #endif

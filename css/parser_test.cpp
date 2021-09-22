@@ -108,11 +108,12 @@ int main() {
     });
 
     etest::test("parser: media query", [] {
-        auto rules = css::parse("@media screen and (min-width: 900px) {\n"
-            "article { width: 50px; }\n"
-            "p { font-size: 9em; }\n"
-        "}\n"
-        "a { background-color: indigo; }");
+        auto rules = css::parse(
+                "@media screen and (min-width: 900px) {\n"
+                "article { width: 50px; }\n"
+                "p { font-size: 9em; }\n"
+                "}\n"
+                "a { background-color: indigo; }");
         require(rules.size() == 3);
 
         auto article = rules[0];
@@ -183,11 +184,12 @@ int main() {
     });
 
     etest::test("parser: shorthand padding overridden", [] {
-        auto rules = css::parse("p {\n"
-            "padding: 10px;\n"
-            "padding-top: 15px;\n"
-            "padding-left: 25px;\n"
-        "}\n"sv);
+        auto rules = css::parse(
+                "p {\n"
+                "padding: 10px;\n"
+                "padding-top: 15px;\n"
+                "padding-left: 25px;\n"
+                "}\n"sv);
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -199,11 +201,12 @@ int main() {
     });
 
     etest::test("parser: override padding with shorthand", [] {
-        auto rules = css::parse("p {\n"
-            "padding-bottom: 5px;\n"
-            "padding-left: 25px;\n"
-            "padding: 12px 40px;\n"
-        "}\n"sv);
+        auto rules = css::parse(
+                "p {\n"
+                "padding-bottom: 5px;\n"
+                "padding-left: 25px;\n"
+                "padding: 12px 40px;\n"
+                "}\n"sv);
         require(rules.size() == 1);
 
         auto body = rules[0];
