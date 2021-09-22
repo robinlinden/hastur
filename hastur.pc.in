@@ -1,0 +1,11 @@
+prefix=@DEST_DIR@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libhastur
+Description: An experimental browser engine.
+Version: 1.0
+
+Libs: -L${libdir} -lhastur_css -lhastur_dom -lhastur_html -lhastur_http -lhastur_render -lhastur_style -lhastur_layout -lhastur_uri
+Cflags: -I${includedir}

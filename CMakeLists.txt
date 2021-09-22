@@ -91,6 +91,25 @@ set_target_properties(hastur_http
         CXX_EXTENSIONS NO
 )
 
+# layout
+add_library(hastur_layout
+    layout/layout.cpp
+    layout/layout.h
+)
+
+target_include_directories(hastur_layout PUBLIC .)
+target_link_libraries(hastur_layout
+    PUBLIC
+        hastur_style
+)
+
+target_compile_features(hastur_layout PUBLIC cxx_std_20)
+set_target_properties(hastur_layout
+    PROPERTIES
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
+
 # style
 add_library(hastur_style
     style/style.cpp
@@ -120,4 +139,17 @@ set_target_properties(hastur_util
     PROPERTIES
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
+)
+
+set(DEST_DIR ${CMAKE_INSTALL_PREFIX})
+configure_file(hastur.pc.in lib/hastur.pc @ONLY)
+
+install(
+    TARGETS hastur_css hastur_dom hastur_html hastur_http hastur_style
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/lib/hastur.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )

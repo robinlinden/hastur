@@ -5,6 +5,7 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 /lib
+install_manifest.txt
 
 # Work-in-progress directory.
 /wip
