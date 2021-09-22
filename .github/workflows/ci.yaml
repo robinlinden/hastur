@@ -86,6 +86,17 @@ jobs:
     - name: Run
       run: bazel run browser:tui --config msvc
 
+  clang-format:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: sudo apt install clang-format-12
+    - name: Format
+      run: find . -name *.h -o -name *.cpp | xargs clang-format-12 -style=file -i
+    - name: Check
+      run: git diff --exit-code
+
   buildifier:
     runs-on: ubuntu-20.04
     steps:
