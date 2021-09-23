@@ -103,7 +103,7 @@ int main() {
     });
 
     etest::test("double-quoted attribute", [] {
-        auto nodes = html::parse("<meta charset=\"utf-8\"/>"sv).html.children;
+        auto nodes = html::parse(R"(<meta charset="utf-8"/>)"sv).html.children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
@@ -116,7 +116,7 @@ int main() {
     });
 
     etest::test("multiple attributes", [] {
-        auto nodes = html::parse("<meta name=\"viewport\" content=\"width=100em, initial-scale=1\"/>"sv).html.children;
+        auto nodes = html::parse(R"(<meta name="viewport" content="width=100em, initial-scale=1"/>)"sv).html.children;
         require(nodes.size() == 1);
 
         auto meta = nodes[0];
