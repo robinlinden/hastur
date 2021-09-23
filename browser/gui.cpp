@@ -68,6 +68,11 @@ int main(int argc, char **argv) {
     std::string dom_str{};
     std::string err_str{};
     std::string layout_str{};
+    std::string mouse_over_str{};
+
+    // The scroll offset is the opposite of the current translation of the web page.
+    // When we scroll "down", the web page is translated "up".
+    float scroll_offset_y{};
 
     bool layout_needed{};
 
@@ -91,18 +96,48 @@ int main(int argc, char **argv) {
                 case sf::Event::KeyPressed: {
                     switch (event.key.code) {
                         case sf::Keyboard::Key::J: {
-                            float scroll = event.key.shift ? -20.f : -5.f;
-                            glTranslatef(0, scroll, 0);
+                            float translation = event.key.shift ? -20.f : -5.f;
+                            glTranslatef(0, translation, 0);
+                            scroll_offset_y -= translation;
                             break;
                         }
                         case sf::Keyboard::Key::K: {
-                            float scroll = event.key.shift ? 20.f : 5.f;
-                            glTranslatef(0, scroll, 0);
+                            float translation = event.key.shift ? 20.f : 5.f;
+                            glTranslatef(0, translation, 0);
+                            scroll_offset_y -= translation;
                             break;
                         }
                         default:
                             break;
                     }
+                    break;
+                }
+                case sf::Event::MouseMoved: {
+                    if (!layout) {
+                        break;
+                    }
+
+                    layout::Position p{static_cast<float>(event.mouseMove.x),
+                            static_cast<float>(event.mouseMove.y) + scroll_offset_y};
+                    mouse_over_str = [&] {
+                        auto const *moused_over = layout::box_at_position(*layout, p);
+                        if (!moused_over) {
+                            return ""s;
+                        }
+
+                        auto const &dom_node = moused_over->node->node.get();
+                        if (std::holds_alternative<dom::Text>(dom_node.data)) {
+                            return std::get<dom::Text>(dom_node.data).text;
+                        }
+
+                        // Special handling of <a> because I want to see what link I'm hovering.
+                        auto const &element = std::get<dom::Element>(dom_node.data);
+                        if (element.name == "a"s && element.attributes.contains("href")) {
+                            return element.name + ": " + element.attributes.at("href");
+                        }
+
+                        return element.name;
+                    }();
                     break;
                 }
                 default:
@@ -222,6 +257,8 @@ int main(int argc, char **argv) {
         }
 
         if (layout_needed && styled) {
+            scroll_offset_y = 0;
+            mouse_over_str.clear();
             render::render_setup(window.getSize().x, window.getSize().y);
             layout = layout::create_layout(*styled, window.getSize().x);
             layout_str = layout::to_string(*layout);
@@ -230,6 +267,8 @@ int main(int argc, char **argv) {
 
         if (response.err != protocol::Error::Ok) {
             ImGui::TextUnformatted(err_str.c_str());
+        } else {
+            ImGui::TextUnformatted(mouse_over_str.c_str());
         }
         ImGui::End();
 
