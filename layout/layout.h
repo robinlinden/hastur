@@ -25,9 +25,9 @@ struct EdgeSize {
 struct BoxModel {
     Rect content{};
 
-    EdgeSize margin{};
-    EdgeSize border{};
     EdgeSize padding{};
+    EdgeSize border{};
+    EdgeSize margin{};
 
     bool operator==(BoxModel const &) const = default;
 };
