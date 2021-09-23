@@ -221,6 +221,24 @@ LayoutBox create_layout(style::StyledNode const &node, int width) {
     return *tree;
 }
 
+LayoutBox const *box_at_position(LayoutBox const &box, Position p) {
+    if (!box.dimensions.contains(p)) {
+        return nullptr;
+    }
+
+    for (auto const &child : box.children) {
+        if (auto maybe = box_at_position(child, p)) {
+            return maybe;
+        }
+    }
+
+    if (box.type == LayoutType::AnonymousBlock) {
+        return nullptr;
+    }
+
+    return &box;
+}
+
 std::string to_string(LayoutBox const &box) {
     std::stringstream ss;
     print_box(box, ss);

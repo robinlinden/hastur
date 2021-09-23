@@ -468,6 +468,32 @@ int main() {
         expect(!box.contains({90, 90})); // Outside margin.
     });
 
+    etest::test("box_at_position", [] {
+        auto layout = layout::LayoutBox{
+            .node = nullptr,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 100, 100}},
+            .children = {
+                {nullptr, LayoutType::Block, {{25, 25, 50, 50}}, {
+                    {nullptr, LayoutType::AnonymousBlock, {{30, 30, 5, 5}}, {}},
+                    {nullptr, LayoutType::Block, {{45, 45, 5, 5}}, {}},
+                }},
+            }
+        };
+
+        expect(box_at_position(layout, {-1.f, -1.f}) == nullptr);
+        expect(box_at_position(layout, {101.f, 101.f}) == nullptr);
+
+        expect(box_at_position(layout, {100.f, 100.f}) == &layout);
+        expect(box_at_position(layout, {0.f, 0.f}) == &layout);
+
+        // We don't want to end up in anonymous blocks, so this should return its parent.
+        expect(box_at_position(layout, {31.f, 31.f}) == &layout.children[0]);
+
+        expect(box_at_position(layout, {75.f, 75.f}) == &layout.children[0]);
+        expect(box_at_position(layout, {47.f, 47.f}) == &layout.children[0].children[1]);
+    });
+
     etest::test("to_string", [] {
         auto dom_root = dom::create_element_node("html", {}, {
             dom::create_element_node("body", {}, {

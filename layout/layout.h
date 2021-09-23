@@ -60,6 +60,8 @@ struct LayoutBox {
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
 
+LayoutBox const *box_at_position(LayoutBox const &, Position);
+
 std::string to_string(LayoutBox const &box);
 
 } // namespace layout
