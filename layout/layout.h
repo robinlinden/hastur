@@ -12,6 +12,10 @@
 
 namespace layout {
 
+struct Position {
+    float x{}, y{};
+};
+
 struct Rect {
     float x{}, y{}, width{}, height{};
     bool operator==(Rect const &) const = default;
@@ -30,6 +34,14 @@ struct BoxModel {
     EdgeSize margin{};
 
     bool operator==(BoxModel const &) const = default;
+
+    constexpr bool contains(Position p) const {
+        bool right_of_left_edge = p.x >= content.x - padding.left - border.left;
+        bool left_of_right_edge = p.x <= content.x + content.width + padding.right + border.right;
+        bool below_top = p.y >= content.y - padding.top - border.top;
+        bool above_bottom = p.y <= content.y + content.height + padding.bottom + border.bottom;
+        return right_of_left_edge && left_of_right_edge && below_top && above_bottom;
+    }
 };
 
 enum class LayoutType {
