@@ -97,6 +97,16 @@ int to_px(std::string_view property) {
 
 void calculate_width(LayoutBox &box, Rect const &parent) {
     assert(box.node != nullptr);
+
+    if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
+        // TODO(robinlinden): Measure the text for real.
+        auto text_node = std::get<dom::Text>(box.node->node.get().data);
+        auto font_size = get_property_or(*box.node, "font-size", "10px");
+        box.dimensions.content.width =
+                std::min(static_cast<float>(parent.width), text_node.text.size() * to_px(font_size) / 2.f);
+        return;
+    }
+
     auto width = get_property_or(*box.node, "width", "auto");
     int width_px = width == "auto" ? static_cast<int>(parent.width) : to_px(width);
 
@@ -157,7 +167,9 @@ void layout(LayoutBox &box, Rect const &bounds) {
             return;
         }
         // TODO(robinlinden): This needs to place its children side-by-side.
+        // TODO(robinlinden): Children wider than the available area need to be split across multiple lines.
         case LayoutType::AnonymousBlock: {
+            box.dimensions.content.width = bounds.width;
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
