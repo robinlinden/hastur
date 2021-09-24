@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "tui/tui.h"
+#include "css/default.h"
 #include "dom/dom.h"
 #include "html/parse.h"
 #include "layout/layout.h"
@@ -45,8 +46,7 @@ int main(int argc, char **argv) {
     std::cout << dom::to_string(dom);
 
     spdlog::info("Styling tree");
-    std::vector<css::Rule> stylesheet{{{"head"}, {{"display", "none"}}}};
-    auto styled = style::style_tree(dom.html, stylesheet);
+    auto styled = style::style_tree(dom.html, css::default_style());
 
     spdlog::info("Creating layout");
     // 0 as the width is fine as we don't use the measurements when rendering the tui.

@@ -2,12 +2,17 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "css",
-    srcs = ["parse.cpp"],
+    srcs = [
+        "default.cpp",
+        "parse.cpp",
+    ],
     hdrs = [
+        "default.h",
         "parse.h",
         "parser.h",
         "rule.h",
     ],
+    data = ["default.css"],
     visibility = ["//visibility:public"],
     deps = ["//util"],
 )

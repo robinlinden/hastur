@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "css/default.h"
 #include "css/parse.h"
 #include "html/parse.h"
 #include "layout/layout.h"
@@ -197,9 +198,7 @@ int main(int argc, char **argv) {
                         window.setTitle(kBrowserTitle);
                     }
 
-                    std::vector<css::Rule> stylesheet{
-                            {{"head"}, {{"display", "none"}}},
-                    };
+                    auto stylesheet{css::default_style()};
 
                     if (auto style = try_get_text_content(dom, "html.head.style"sv)) {
                         auto new_rules = css::parse(*style);
