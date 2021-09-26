@@ -39,12 +39,11 @@ struct BoxModel {
     Rect border_box() const;
     Rect margin_box() const;
 
-    constexpr bool contains(Position p) const {
-        bool right_of_left_edge = p.x >= content.x - padding.left - border.left;
-        bool left_of_right_edge = p.x <= content.x + content.width + padding.right + border.right;
-        bool below_top = p.y >= content.y - padding.top - border.top;
-        bool above_bottom = p.y <= content.y + content.height + padding.bottom + border.bottom;
-        return right_of_left_edge && left_of_right_edge && below_top && above_bottom;
+    bool contains(Position p) const {
+        auto bounds = border_box();
+        bool inside_horizontal = p.x >= bounds.x && p.x <= bounds.x + bounds.width;
+        bool inside_vertical = p.y >= bounds.y && p.y <= bounds.y + bounds.height;
+        return inside_horizontal && inside_vertical;
     }
 };
 
