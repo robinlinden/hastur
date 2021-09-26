@@ -103,7 +103,7 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
     int underflow = static_cast<int>(parent.width) - width_px;
     if (underflow < 0) {
         // Overflow, this should adjust the right margin, but for now...
-        width_px += underflow;
+        width_px = std::max(width_px + underflow, 0);
     }
 
     box.dimensions.content.width = static_cast<float>(width_px);
