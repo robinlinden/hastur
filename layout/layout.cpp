@@ -28,28 +28,10 @@ bool last_node_was_anonymous(LayoutBox const &box) {
     return !box.children.empty() && box.children.back().type == LayoutType::AnonymousBlock;
 }
 
-std::optional<std::string_view> get_property(style::StyledNode const &node, std::string_view property) {
-    auto it = std::find_if(
-            cbegin(node.properties), cend(node.properties), [=](auto const &p) { return p.first == property; });
-
-    if (it == cend(node.properties)) {
-        return std::nullopt;
-    }
-
-    return it->second;
-}
-
-std::string_view get_property_or(style::StyledNode const &node, std::string_view property, std::string_view fallback) {
-    if (auto prop = get_property(node, property)) {
-        return *prop;
-    }
-    return fallback;
-}
-
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     return std::visit(Overloaded{
                               [&node](dom::Element const &) -> std::optional<LayoutBox> {
-                                  auto display = get_property(node, "display");
+                                  auto display = style::get_property(node, "display");
                                   if (display && *display == "none") {
                                       return std::nullopt;
                                   }
@@ -101,20 +83,20 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
     if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
         // TODO(robinlinden): Measure the text for real.
         auto text_node = std::get<dom::Text>(box.node->node.get().data);
-        auto font_size = get_property_or(*box.node, "font-size", "10px");
+        auto font_size = style::get_property_or(*box.node, "font-size", "10px");
         box.dimensions.content.width =
                 std::min(static_cast<float>(parent.width), text_node.text.size() * to_px(font_size) / 2.f);
         return;
     }
 
-    auto width = get_property_or(*box.node, "width", "auto");
+    auto width = style::get_property_or(*box.node, "width", "auto");
     int width_px = width == "auto" ? static_cast<int>(parent.width) : to_px(width);
 
-    if (auto min = get_property(*box.node, "min-width")) {
+    if (auto min = style::get_property(*box.node, "min-width")) {
         width_px = std::max(width_px, to_px(*min));
     }
 
-    if (auto max = get_property(*box.node, "max-width")) {
+    if (auto max = style::get_property(*box.node, "max-width")) {
         width_px = std::min(width_px, to_px(*max));
     }
 
@@ -136,19 +118,19 @@ void calculate_position(LayoutBox &box, Rect const &parent) {
 void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
     if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
-        auto font_size = get_property_or(*box.node, "font-size", "10px");
+        auto font_size = style::get_property_or(*box.node, "font-size", "10px");
         box.dimensions.content.height = static_cast<float>(to_px(font_size));
     }
 
-    if (auto height = get_property(*box.node, "height")) {
+    if (auto height = style::get_property(*box.node, "height")) {
         box.dimensions.content.height = static_cast<float>(to_px(*height));
     }
 
-    if (auto min = get_property(*box.node, "min-height")) {
+    if (auto min = style::get_property(*box.node, "min-height")) {
         box.dimensions.content.height = std::max(box.dimensions.content.height, static_cast<float>(to_px(*min)));
     }
 
-    if (auto max = get_property(*box.node, "max-height")) {
+    if (auto max = style::get_property(*box.node, "max-height")) {
         box.dimensions.content.height = std::min(box.dimensions.content.height, static_cast<float>(to_px(*max)));
     }
 }
