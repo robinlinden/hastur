@@ -35,6 +35,10 @@ struct BoxModel {
 
     bool operator==(BoxModel const &) const = default;
 
+    Rect padding_box() const;
+    Rect border_box() const;
+    Rect margin_box() const;
+
     constexpr bool contains(Position p) const {
         bool right_of_left_edge = p.x >= content.x - padding.left - border.left;
         bool left_of_right_edge = p.x <= content.x + content.width + padding.right + border.right;
