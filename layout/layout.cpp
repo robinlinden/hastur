@@ -64,7 +64,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 }
 
 // TODO(robinlinden):
-// * margin, border, padding, etc.
+// * margin, border, etc.
 // * Not all measurements have to be in pixels.
 int to_px(std::string_view property) {
     int res{};
@@ -77,6 +77,7 @@ int to_px(std::string_view property) {
     return res;
 }
 
+// https://www.w3.org/TR/CSS2/visudet.html#blockwidth
 void calculate_width(LayoutBox &box, Rect const &parent) {
     assert(box.node != nullptr);
 
@@ -100,7 +101,16 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
         width_px = std::min(width_px, to_px(*max));
     }
 
-    int underflow = static_cast<int>(parent.width) - width_px;
+    if (auto padding_left = style::get_property(*box.node, "padding-left")) {
+        box.dimensions.padding.left = static_cast<float>(to_px(*padding_left));
+    }
+
+    if (auto padding_right = style::get_property(*box.node, "padding-right")) {
+        box.dimensions.padding.right = static_cast<float>(to_px(*padding_right));
+    }
+
+    auto padding_width = static_cast<int>(box.dimensions.padding.left + box.dimensions.padding.right);
+    int underflow = static_cast<int>(parent.width) - width_px - padding_width;
     if (underflow < 0) {
         // Overflow, this should adjust the right margin, but for now...
         width_px = std::max(width_px + underflow, 0);
@@ -133,6 +143,14 @@ void calculate_height(LayoutBox &box) {
     if (auto max = style::get_property(*box.node, "max-height")) {
         box.dimensions.content.height = std::min(box.dimensions.content.height, static_cast<float>(to_px(*max)));
     }
+
+    if (auto padding_top = style::get_property(*box.node, "padding-top")) {
+        box.dimensions.padding.top = static_cast<float>(to_px(*padding_top));
+    }
+
+    if (auto padding_bottom = style::get_property(*box.node, "padding-bottom")) {
+        box.dimensions.padding.bottom = static_cast<float>(to_px(*padding_bottom));
+    }
 }
 
 void layout(LayoutBox &box, Rect const &bounds) {
@@ -143,7 +161,7 @@ void layout(LayoutBox &box, Rect const &bounds) {
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
-                box.dimensions.content.height += child.dimensions.content.height;
+                box.dimensions.content.height += child.dimensions.margin_box().height;
             }
             calculate_height(box);
             return;
@@ -155,7 +173,7 @@ void layout(LayoutBox &box, Rect const &bounds) {
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
-                box.dimensions.content.height += child.dimensions.content.height;
+                box.dimensions.content.height += child.dimensions.margin_box().height;
             }
             return;
         }
@@ -189,6 +207,12 @@ std::string to_str(Rect const &rect) {
     return ss.str();
 }
 
+std::string to_str(EdgeSize const &edge) {
+    std::stringstream ss;
+    ss << "{" << edge.top << "," << edge.right << "," << edge.bottom << "," << edge.left << "}";
+    return ss.str();
+}
+
 void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
     for (int8_t i = 0; i < depth; ++i) {
         os << "  ";
@@ -201,7 +225,7 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
         }
     }
 
-    os << to_str(box.type) << " " << to_str(box.dimensions.content) << '\n';
+    os << to_str(box.type) << " " << to_str(box.dimensions.content) << " " << to_str(box.dimensions.padding) << '\n';
     for (auto const &child : box.children) {
         print_box(child, os, depth + 1);
     }
