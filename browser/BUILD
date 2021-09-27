@@ -25,7 +25,7 @@ cc_binary(
 
 cc_binary(
     name = "gui",
-    srcs = ["gui.cpp"],
+    srcs = ["gui.cpp"] + glob(["gui/*"]),
     deps = [
         "//css",
         "//dom",
