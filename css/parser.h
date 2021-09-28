@@ -9,6 +9,7 @@
 
 #include "util/base_parser.h"
 
+#include <array>
 #include <cstring>
 #include <optional>
 #include <string_view>
@@ -57,6 +58,13 @@ public:
     }
 
 private:
+    static constexpr auto absolute_sizes =
+            std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
+
+    static constexpr auto relative_sizes = std::array{"larger", "smaller"};
+
+    static constexpr std::string_view dot_and_digits = ".0123456789";
+
     class Tokenizer {
     public:
         Tokenizer(std::string_view str, char delimiter) {
@@ -136,15 +144,17 @@ private:
     }
 
     void add_declaration(
-            std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) {
+            std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) const {
         if (name == "padding") {
             expand_padding(declarations, value);
+        } else if (name == "font") {
+            expand_font(declarations, value);
         } else {
             declarations.insert_or_assign(std::string{name}, std::string{value});
         }
     }
 
-    void expand_padding(std::map<std::string, std::string> &declarations, std::string_view value) {
+    void expand_padding(std::map<std::string, std::string> &declarations, std::string_view value) const {
         std::string_view top = "", bottom = "", left = "", right = "";
         Tokenizer tokenizer(value, ' ');
         switch (tokenizer.size()) {
@@ -173,6 +183,87 @@ private:
         declarations.insert_or_assign("padding-bottom", std::string{bottom});
         declarations.insert_or_assign("padding-left", std::string{left});
         declarations.insert_or_assign("padding-right", std::string{right});
+    }
+
+    void expand_font(std::map<std::string, std::string> &declarations, std::string_view value) const {
+        std::string_view font_stretch = "normal";
+        std::string_view font_style = "normal";
+        std::string_view font_variant = "normal";
+        std::string_view font_weight = "normal";
+        std::string_view line_height = "normal";
+
+        Tokenizer tokenizer(value, ' ');
+        if (tokenizer.size() == 1) {
+            // TODO(mkiael): Handle system properties correctly. Just forward it for now.
+            declarations.insert_or_assign("font", std::string{tokenizer.get().value()});
+            return;
+        }
+
+        std::string_view font_size = "";
+        std::string font_family = "";
+        while (!tokenizer.empty()) {
+            if (auto maybe_font_size = try_parse_font_size(tokenizer)) {
+                auto [fs, lh] = maybe_font_size.value();
+                font_size = fs;
+                line_height = lh.value_or(line_height);
+                if (auto maybe_font_family = try_parse_font_family(tokenizer.next())) {
+                    font_family = maybe_font_family.value();
+                }
+            } else {
+                // TODO(mkiael): Handle remaining properties
+                tokenizer.next();
+            }
+        }
+
+        declarations.insert_or_assign("font-style", std::string{font_style});
+        declarations.insert_or_assign("font-variant", std::string{font_variant});
+        declarations.insert_or_assign("font-weight", std::string{font_weight});
+        declarations.insert_or_assign("font-stretch", std::string{font_stretch});
+        declarations.insert_or_assign("font-size", std::string{font_size});
+        declarations.insert_or_assign("line-height", std::string{line_height});
+        declarations.insert_or_assign("font-family", font_family);
+    }
+
+    std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_parse_font_size(
+            Tokenizer &tokenizer) const {
+        if (auto token = tokenizer.get()) {
+            std::string_view str = token.value();
+            if (std::size_t loc = str.find('/'); loc != std::string_view::npos) {
+                std::string_view font_size = str.substr(0, loc);
+                std::string_view line_height = str.substr(loc + 1, str.size() - loc);
+                return std::pair(std::move(font_size), std::move(line_height));
+            } else if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
+                return std::pair(std::move(str), std::nullopt);
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::string> try_parse_font_family(Tokenizer &tokenizer) const {
+        std::string font_family = "";
+        while (auto str = tokenizer.get()) {
+            if (!font_family.empty()) {
+                font_family += ' ';
+            }
+            font_family += str.value();
+            tokenizer.next();
+        }
+        return font_family;
+    }
+
+    template<auto const &array>
+    constexpr bool is_in_array(std::string_view str) const {
+        return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
+    }
+
+    constexpr bool is_absolute_size(std::string_view str) const { return is_in_array<absolute_sizes>(str); }
+
+    constexpr bool is_relative_size(std::string_view str) const { return is_in_array<relative_sizes>(str); }
+
+    constexpr bool is_length_or_percentage(std::string_view str) const {
+        // TODO(mkiael): Make this check more reliable.
+        std::size_t pos = str.find_first_not_of(dot_and_digits);
+        return pos > 0 && pos != std::string_view::npos;
     }
 };
 
