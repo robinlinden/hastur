@@ -10,6 +10,7 @@
 #include "util/base_parser.h"
 
 #include <cstring>
+#include <optional>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -56,6 +57,46 @@ public:
     }
 
 private:
+    class Tokenizer {
+    public:
+        Tokenizer(std::string_view str, char delimiter) {
+            std::size_t pos = 0, loc = 0;
+            while ((loc = str.find(delimiter, pos)) != std::string_view::npos) {
+                if (auto substr = str.substr(pos, loc - pos); !substr.empty()) {
+                    tokens.push_back(substr);
+                }
+                pos = loc + 1;
+            }
+            if (pos < str.size()) {
+                tokens.push_back(str.substr(pos, str.size() - pos));
+            }
+            token_iter = cbegin(tokens);
+        }
+
+        std::optional<std::string_view> get() const {
+            if (empty()) {
+                return std::nullopt;
+            } else {
+                return *token_iter;
+            }
+        }
+
+        Tokenizer &next() {
+            if (!empty()) {
+                ++token_iter;
+            }
+            return *this;
+        }
+
+        bool empty() const { return token_iter == cend(tokens); }
+
+        std::size_t size() const { return tokens.size(); }
+
+    private:
+        std::vector<std::string_view> tokens;
+        std::vector<std::string_view>::const_iterator token_iter;
+    };
+
     constexpr void skip_if_neq(char c) {
         if (peek() != c) {
             advance(1);
@@ -105,25 +146,25 @@ private:
 
     void expand_padding(std::map<std::string, std::string> &declarations, std::string_view value) {
         std::string_view top = "", bottom = "", left = "", right = "";
-        auto values = split(value, ' ');
-        switch (values.size()) {
+        Tokenizer tokenizer(value, ' ');
+        switch (tokenizer.size()) {
             case 1:
-                top = bottom = left = right = values[0];
+                top = bottom = left = right = tokenizer.get().value();
                 break;
             case 2:
-                top = bottom = values[0];
-                left = right = values[1];
+                top = bottom = tokenizer.get().value();
+                left = right = tokenizer.next().get().value();
                 break;
             case 3:
-                top = values[0];
-                left = right = values[1];
-                bottom = values[2];
+                top = tokenizer.get().value();
+                left = right = tokenizer.next().get().value();
+                bottom = tokenizer.next().get().value();
                 break;
             case 4:
-                top = values[0];
-                right = values[1];
-                bottom = values[2];
-                left = values[3];
+                top = tokenizer.get().value();
+                right = tokenizer.next().get().value();
+                bottom = tokenizer.next().get().value();
+                left = tokenizer.next().get().value();
                 break;
             default:
                 break;
@@ -132,21 +173,6 @@ private:
         declarations.insert_or_assign("padding-bottom", std::string{bottom});
         declarations.insert_or_assign("padding-left", std::string{left});
         declarations.insert_or_assign("padding-right", std::string{right});
-    }
-
-    std::vector<std::string_view> split(std::string_view str, char delimiter) {
-        std::vector<std::string_view> result;
-        std::size_t pos = 0, loc = 0;
-        while ((loc = str.find(delimiter, pos)) != std::string_view::npos) {
-            if (auto substr = str.substr(pos, loc - pos); !substr.empty()) {
-                result.push_back(substr);
-            }
-            pos = loc + 1;
-        }
-        if (pos < str.size()) {
-            result.push_back(str.substr(pos, str.size() - pos));
-        }
-        return result;
     }
 };
 
