@@ -217,5 +217,65 @@ int main() {
         expect(body.declarations.at("padding-right"s) == "40px"s);
     });
 
+    etest::test("parser: shorthand font with only size and generic font family", [] {
+        auto rules = css::parse("p { font: 1.5em sans-serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "sans-serif"s);
+        expect(body.declarations.at("font-size"s) == "1.5em"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with size, line height, and generic font family", [] {
+        auto rules = css::parse("p { font: 10%/2.5 monospace; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "monospace"s);
+        expect(body.declarations.at("font-size"s) == "10%"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "2.5"s);
+    });
+
+    etest::test("parser: shorthand font with size, line height, and generic font family", [] {
+        auto rules = css::parse("p { font: 10%/2.5 monospace; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "monospace"s);
+        expect(body.declarations.at("font-size"s) == "10%"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "2.5"s);
+    });
+
+    etest::test("parser: shorthand font with absolute size, line height, and font family", [] {
+        auto rules = css::parse(R"(p { font: x-large/110% "New Century Schoolbook", serif; })"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "\"New Century Schoolbook\", serif"s);
+        expect(body.declarations.at("font-size"s) == "x-large"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "110%"s);
+    });
+
     return etest::run_all_tests();
 }
