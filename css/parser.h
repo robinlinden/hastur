@@ -90,6 +90,14 @@ private:
             }
         }
 
+        std::optional<std::string_view> peek() const {
+            if (empty() || ((token_iter + 1) == cend(tokens))) {
+                return std::nullopt;
+            } else {
+                return *(token_iter + 1);
+            }
+        }
+
         Tokenizer &next() {
             if (!empty()) {
                 ++token_iter;
