@@ -196,10 +196,10 @@ private:
 
     void expand_font(std::map<std::string, std::string> &declarations, std::string_view value) const {
         std::string_view font_stretch = "normal";
-        std::string_view font_style = "normal";
         std::string_view font_variant = "normal";
         std::string_view font_weight = "normal";
         std::string_view line_height = "normal";
+        std::string font_style = "normal";
 
         Tokenizer tokenizer(value, ' ');
         if (tokenizer.size() == 1) {
@@ -218,13 +218,16 @@ private:
                 if (auto maybe_font_family = try_parse_font_family(tokenizer.next())) {
                     font_family = maybe_font_family.value();
                 }
+            } else if (auto maybe_font_style = try_parse_font_style(tokenizer)) {
+                font_style = maybe_font_style.value();
+                tokenizer.next();
             } else {
                 // TODO(mkiael): Handle remaining properties
                 tokenizer.next();
             }
         }
 
-        declarations.insert_or_assign("font-style", std::string{font_style});
+        declarations.insert_or_assign("font-style", font_style);
         declarations.insert_or_assign("font-variant", std::string{font_variant});
         declarations.insert_or_assign("font-weight", std::string{font_weight});
         declarations.insert_or_assign("font-stretch", std::string{font_stretch});
@@ -258,6 +261,25 @@ private:
             tokenizer.next();
         }
         return font_family;
+    }
+
+    std::optional<std::string> try_parse_font_style(Tokenizer &tokenizer) const {
+        std::string font_style = "";
+        if (auto maybe_font_style = tokenizer.get()) {
+            if (maybe_font_style->starts_with("italic")) {
+                font_style = maybe_font_style.value();
+                return font_style;
+            } else if (maybe_font_style->starts_with("oblique")) {
+                font_style = maybe_font_style.value();
+                if (auto maybe_angle = tokenizer.peek(); maybe_angle->find("deg") != std::string_view::npos) {
+                    font_style += ' ';
+                    font_style += maybe_angle.value();
+                    tokenizer.next();
+                }
+                return font_style;
+            }
+        }
+        return std::nullopt;
     }
 
     template<auto const &array>
