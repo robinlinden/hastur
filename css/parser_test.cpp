@@ -278,5 +278,50 @@ int main() {
         expect(body.declarations.at("line-height"s) == "110%"s);
     });
 
+    etest::test("parser: shorthand font with italic font style", [] {
+        auto rules = css::parse(R"(p { font: italic 120% "Helvetica Neue", serif; })"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "\"Helvetica Neue\", serif"s);
+        expect(body.declarations.at("font-size"s) == "120%"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "italic"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with oblique font style", [] {
+        auto rules = css::parse(R"(p { font: oblique 12pt "Helvetica Neue", serif; })"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "\"Helvetica Neue\", serif"s);
+        expect(body.declarations.at("font-size"s) == "12pt"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "oblique"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with font style oblique with angle", [] {
+        auto rules = css::parse("p { font: oblique 25deg 10px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "10px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "oblique 25deg"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "normal"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
     return etest::run_all_tests();
 }
