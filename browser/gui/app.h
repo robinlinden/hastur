@@ -43,7 +43,7 @@ private:
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".
-    float scroll_offset_y_{};
+    int scroll_offset_y_{};
 
     void navigate();
     void layout();
@@ -52,7 +52,7 @@ private:
     layout::Position to_document_position(layout::Position window_position) const;
 
     void reset_scroll();
-    void scroll(float pixels);
+    void scroll(int pixels);
 
     void run_overlay();
     void run_nav_widget();

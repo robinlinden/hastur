@@ -536,17 +536,17 @@ int main() {
             }
         };
 
-        expect(box_at_position(layout, {-1.f, -1.f}) == nullptr);
-        expect(box_at_position(layout, {101.f, 101.f}) == nullptr);
+        expect(box_at_position(layout, {-1, -1}) == nullptr);
+        expect(box_at_position(layout, {101, 101}) == nullptr);
 
-        expect(box_at_position(layout, {100.f, 100.f}) == &layout);
-        expect(box_at_position(layout, {0.f, 0.f}) == &layout);
+        expect(box_at_position(layout, {100, 100}) == &layout);
+        expect(box_at_position(layout, {0, 0}) == &layout);
 
         // We don't want to end up in anonymous blocks, so this should return its parent.
-        expect(box_at_position(layout, {31.f, 31.f}) == &layout.children[0]);
+        expect(box_at_position(layout, {31, 31}) == &layout.children[0]);
 
-        expect(box_at_position(layout, {75.f, 75.f}) == &layout.children[0]);
-        expect(box_at_position(layout, {47.f, 47.f}) == &layout.children[0].children[1]);
+        expect(box_at_position(layout, {75, 75}) == &layout.children[0]);
+        expect(box_at_position(layout, {47, 47}) == &layout.children[0].children[1]);
     });
 
     etest::test("to_string", [] {

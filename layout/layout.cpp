@@ -86,12 +86,12 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
         auto text_node = std::get<dom::Text>(box.node->node.get().data);
         auto font_size = style::get_property_or(*box.node, "font-size", "10px");
         box.dimensions.content.width =
-                std::min(static_cast<float>(parent.width), text_node.text.size() * to_px(font_size) / 2.f);
+                std::min(parent.width, static_cast<int>(text_node.text.size()) * to_px(font_size) / 2);
         return;
     }
 
     auto width = style::get_property_or(*box.node, "width", "auto");
-    int width_px = width == "auto" ? static_cast<int>(parent.width) : to_px(width);
+    int width_px = width == "auto" ? parent.width : to_px(width);
 
     if (auto min = style::get_property(*box.node, "min-width")) {
         width_px = std::max(width_px, to_px(*min));
@@ -102,21 +102,21 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
     }
 
     if (auto padding_left = style::get_property(*box.node, "padding-left")) {
-        box.dimensions.padding.left = static_cast<float>(to_px(*padding_left));
+        box.dimensions.padding.left = to_px(*padding_left);
     }
 
     if (auto padding_right = style::get_property(*box.node, "padding-right")) {
-        box.dimensions.padding.right = static_cast<float>(to_px(*padding_right));
+        box.dimensions.padding.right = to_px(*padding_right);
     }
 
-    auto padding_width = static_cast<int>(box.dimensions.padding.left + box.dimensions.padding.right);
-    int underflow = static_cast<int>(parent.width) - width_px - padding_width;
+    auto padding_width = box.dimensions.padding.left + box.dimensions.padding.right;
+    int underflow = parent.width - width_px - padding_width;
     if (underflow < 0) {
         // Overflow, this should adjust the right margin, but for now...
         width_px = std::max(width_px + underflow, 0);
     }
 
-    box.dimensions.content.width = static_cast<float>(width_px);
+    box.dimensions.content.width = width_px;
 }
 
 void calculate_position(LayoutBox &box, Rect const &parent) {
@@ -129,27 +129,27 @@ void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
     if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
         auto font_size = style::get_property_or(*box.node, "font-size", "10px");
-        box.dimensions.content.height = static_cast<float>(to_px(font_size));
+        box.dimensions.content.height = to_px(font_size);
     }
 
     if (auto height = style::get_property(*box.node, "height")) {
-        box.dimensions.content.height = static_cast<float>(to_px(*height));
+        box.dimensions.content.height = to_px(*height);
     }
 
     if (auto min = style::get_property(*box.node, "min-height")) {
-        box.dimensions.content.height = std::max(box.dimensions.content.height, static_cast<float>(to_px(*min)));
+        box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(*min));
     }
 
     if (auto max = style::get_property(*box.node, "max-height")) {
-        box.dimensions.content.height = std::min(box.dimensions.content.height, static_cast<float>(to_px(*max)));
+        box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(*max));
     }
 
     if (auto padding_top = style::get_property(*box.node, "padding-top")) {
-        box.dimensions.padding.top = static_cast<float>(to_px(*padding_top));
+        box.dimensions.padding.top = to_px(*padding_top);
     }
 
     if (auto padding_bottom = style::get_property(*box.node, "padding-bottom")) {
-        box.dimensions.padding.bottom = static_cast<float>(to_px(*padding_bottom));
+        box.dimensions.padding.bottom = to_px(*padding_bottom);
     }
 }
 
@@ -256,7 +256,7 @@ Rect BoxModel::margin_box() const {
 
 LayoutBox create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
-    layout(*tree, {0, 0, static_cast<float>(width), 0});
+    layout(*tree, {0, 0, width, 0});
     return *tree;
 }
 

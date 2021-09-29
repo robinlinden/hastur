@@ -13,16 +13,16 @@
 namespace layout {
 
 struct Position {
-    float x{}, y{};
+    int x{}, y{};
 };
 
 struct Rect {
-    float x{}, y{}, width{}, height{};
+    int x{}, y{}, width{}, height{};
     bool operator==(Rect const &) const = default;
 };
 
 struct EdgeSize {
-    float left{}, right{}, top{}, bottom{};
+    int left{}, right{}, top{}, bottom{};
     bool operator==(EdgeSize const &) const = default;
 };
 

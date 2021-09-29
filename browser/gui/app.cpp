@@ -79,11 +79,11 @@ int App::run() {
                 case sf::Event::KeyPressed: {
                     switch (event.key.code) {
                         case sf::Keyboard::Key::J: {
-                            scroll(event.key.shift ? -20.f : -5.f);
+                            scroll(event.key.shift ? -20 : -5);
                             break;
                         }
                         case sf::Keyboard::Key::K: {
-                            scroll(event.key.shift ? 20.f : 5.f);
+                            scroll(event.key.shift ? 20 : 5);
                             break;
                         }
                         default:
@@ -92,8 +92,7 @@ int App::run() {
                     break;
                 }
                 case sf::Event::MouseMoved: {
-                    auto window_position = layout::Position{
-                            static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y)};
+                    auto window_position = layout::Position{event.mouseMove.x, event.mouseMove.y};
                     auto document_position = to_document_position(std::move(window_position));
                     mouse_over_str_ = get_hovered_element_text(std::move(document_position));
                     break;
@@ -262,8 +261,8 @@ void App::reset_scroll() {
     render::render_setup(window_.getSize().x, window_.getSize().y);
 }
 
-void App::scroll(float pixels) {
-    glTranslatef(0, pixels, 0);
+void App::scroll(int pixels) {
+    glTranslatef(0, static_cast<float>(pixels), 0);
     scroll_offset_y_ -= pixels;
 }
 
