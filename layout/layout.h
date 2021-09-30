@@ -5,6 +5,7 @@
 #ifndef LAYOUT_LAYOUT_H_
 #define LAYOUT_LAYOUT_H_
 
+#include "geom/geom.h"
 #include "style/styled_node.h"
 
 #include <string>
@@ -12,19 +13,9 @@
 
 namespace layout {
 
-struct Position {
-    int x{}, y{};
-};
-
-struct Rect {
-    int x{}, y{}, width{}, height{};
-    bool operator==(Rect const &) const = default;
-};
-
-struct EdgeSize {
-    int left{}, right{}, top{}, bottom{};
-    bool operator==(EdgeSize const &) const = default;
-};
+using geom::EdgeSize;
+using geom::Position;
+using geom::Rect;
 
 struct BoxModel {
     Rect content{};

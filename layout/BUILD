@@ -5,7 +5,10 @@ cc_library(
     srcs = ["layout.cpp"],
     hdrs = ["layout.h"],
     visibility = ["//visibility:public"],
-    deps = ["//style"],
+    deps = [
+        "//geom",
+        "//style",
+    ],
 )
 
 cc_test(
