@@ -13,12 +13,12 @@ struct Position {
 
 struct EdgeSize {
     int left{}, right{}, top{}, bottom{};
-    bool operator==(EdgeSize const &) const = default;
+    [[nodiscard]] bool operator==(EdgeSize const &) const = default;
 };
 
 struct Rect {
     int x{}, y{}, width{}, height{};
-    bool operator==(Rect const &) const = default;
+    [[nodiscard]] bool operator==(Rect const &) const = default;
 
     [[nodiscard]] constexpr Rect expanded(EdgeSize const &edges) const {
         return Rect{

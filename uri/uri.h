@@ -16,7 +16,7 @@ struct Authority {
     std::string host;
     std::string port;
 
-    bool operator==(Authority const &) const = default;
+    [[nodiscard]] bool operator==(Authority const &) const = default;
 };
 
 struct Uri {
@@ -29,7 +29,7 @@ struct Uri {
     std::string query;
     std::string fragment;
 
-    bool operator==(Uri const &) const = default;
+    [[nodiscard]] bool operator==(Uri const &) const = default;
 };
 
 } // namespace uri

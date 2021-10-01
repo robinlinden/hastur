@@ -18,25 +18,25 @@ using AttrMap = std::map<std::string, std::string>;
 
 struct Text {
     std::string text;
-    bool operator==(Text const &) const = default;
+    [[nodiscard]] bool operator==(Text const &) const = default;
 };
 
 struct Element {
     std::string name;
     AttrMap attributes;
-    bool operator==(Element const &) const = default;
+    [[nodiscard]] bool operator==(Element const &) const = default;
 };
 
 struct Node {
     std::vector<Node> children;
     std::variant<Text, Element> data;
-    bool operator==(Node const &) const = default;
+    [[nodiscard]] bool operator==(Node const &) const = default;
 };
 
 struct Document {
     std::string doctype;
     Node html;
-    bool operator==(Document const &) const = default;
+    [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
 inline Document create_document(std::string_view doctype, Node html) {

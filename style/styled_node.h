@@ -23,7 +23,7 @@ struct StyledNode {
     std::vector<StyledNode> children;
 };
 
-inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
+[[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
     return a.node.get() == b.node.get() && a.properties == b.properties && a.children == b.children;
 }
 

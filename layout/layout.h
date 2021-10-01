@@ -24,7 +24,7 @@ struct BoxModel {
     EdgeSize border{};
     EdgeSize margin{};
 
-    bool operator==(BoxModel const &) const = default;
+    [[nodiscard]] bool operator==(BoxModel const &) const = default;
 
     Rect padding_box() const;
     Rect border_box() const;
@@ -44,7 +44,7 @@ struct LayoutBox {
     LayoutType type;
     BoxModel dimensions;
     std::vector<LayoutBox> children;
-    bool operator==(LayoutBox const &) const = default;
+    [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 };
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
