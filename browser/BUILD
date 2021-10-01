@@ -29,6 +29,7 @@ cc_binary(
     deps = [
         "//css",
         "//dom",
+        "//gfx",
         "//html",
         "//layout",
         "//protocol",

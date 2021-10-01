@@ -9,5 +9,8 @@ cc_library(
         "@platforms//os:windows": ["-DEFAULTLIB:opengl32"],
     }),
     visibility = ["//visibility:public"],
-    deps = ["//layout"],
+    deps = [
+        "//gfx",
+        "//layout",
+    ],
 )

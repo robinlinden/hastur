@@ -6,6 +6,7 @@
 #define BROWSER_GUI_APP_H_
 
 #include "dom/dom.h"
+#include "gfx/gfx.h"
 #include "layout/layout.h"
 #include "protocol/get.h"
 #include "style/style.h"
@@ -40,6 +41,8 @@ private:
     std::string err_str_{};
     std::string layout_str_{};
     std::string mouse_over_str_{};
+
+    gfx::OpenGLPainter painter_{};
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".

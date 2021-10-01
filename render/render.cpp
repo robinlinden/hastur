@@ -17,13 +17,11 @@
 namespace render {
 namespace {
 
-void render_layout_impl(layout::LayoutBox const &layout, int depth) {
-    auto const &dimensions = layout.dimensions.content;
-    float color = 1.f / depth;
-    glColor3f(color, color, color);
-    glRecti(dimensions.x, dimensions.y, dimensions.x + dimensions.width, dimensions.y + dimensions.height);
+void render_layout_impl(gfx::IPainter &painter, layout::LayoutBox const &layout, int depth) {
+    auto color = static_cast<std::uint8_t>(255 / depth);
+    painter.fill_rect(layout.dimensions.content, {color, color, color});
     for (auto const &child : layout.children) {
-        render_layout_impl(child, depth + 1);
+        render_layout_impl(painter, child, depth + 1);
     }
 }
 
@@ -38,8 +36,8 @@ void render_setup(int width, int height) {
     glLoadIdentity();
 }
 
-void render_layout(layout::LayoutBox const &layout) {
-    render_layout_impl(layout, 1);
+void render_layout(gfx::IPainter &painter, layout::LayoutBox const &layout) {
+    render_layout_impl(painter, layout, 1);
 }
 
 } // namespace render

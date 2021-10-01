@@ -322,7 +322,7 @@ void App::clear_render_surface() {
 
 void App::render_layout() {
     if (layout_) {
-        render::render_layout(*layout_);
+        render::render_layout(painter_, *layout_);
     }
 }
 
