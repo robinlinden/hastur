@@ -19,6 +19,21 @@ struct EdgeSize {
 struct Rect {
     int x{}, y{}, width{}, height{};
     bool operator==(Rect const &) const = default;
+
+    [[nodiscard]] constexpr Rect expanded(EdgeSize const &edges) const {
+        return Rect{
+                x - edges.left,
+                y - edges.top,
+                edges.left + width + edges.right,
+                edges.top + height + edges.bottom,
+        };
+    }
+
+    [[nodiscard]] constexpr bool contains(Position const &p) const {
+        bool inside_horizontally = p.x >= x && p.x <= x + width;
+        bool inside_vertically = p.y >= y && p.y <= y + height;
+        return inside_vertically && inside_horizontally;
+    }
 };
 
 } // namespace geom

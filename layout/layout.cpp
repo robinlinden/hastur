@@ -231,27 +231,18 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
     }
 }
 
-constexpr Rect add(Rect rect, EdgeSize edge) {
-    return {
-            rect.x - edge.left,
-            rect.y - edge.top,
-            edge.left + rect.width + edge.right,
-            edge.top + rect.height + edge.bottom,
-    };
-}
-
 } // namespace
 
 Rect BoxModel::padding_box() const {
-    return add(content, padding);
+    return content.expanded(padding);
 }
 
 Rect BoxModel::border_box() const {
-    return add(padding_box(), border);
+    return padding_box().expanded(border);
 }
 
 Rect BoxModel::margin_box() const {
-    return add(border_box(), margin);
+    return border_box().expanded(margin);
 }
 
 LayoutBox create_layout(style::StyledNode const &node, int width) {

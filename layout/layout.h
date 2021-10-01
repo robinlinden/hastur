@@ -30,12 +30,7 @@ struct BoxModel {
     Rect border_box() const;
     Rect margin_box() const;
 
-    bool contains(Position p) const {
-        auto bounds = border_box();
-        bool inside_horizontal = p.x >= bounds.x && p.x <= bounds.x + bounds.width;
-        bool inside_vertical = p.y >= bounds.y && p.y <= bounds.y + bounds.height;
-        return inside_horizontal && inside_vertical;
-    }
+    bool contains(Position p) const { return border_box().contains(p); }
 };
 
 enum class LayoutType {
