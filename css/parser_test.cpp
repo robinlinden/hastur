@@ -323,5 +323,95 @@ int main() {
         expect(body.declarations.at("line-height"s) == "normal"s);
     });
 
+    etest::test("parser: shorthand font with bold font weight", [] {
+        auto rules = css::parse("p { font: italic bold 20em/50% serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "20em"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "italic"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "bold"s);
+        expect(body.declarations.at("line-height"s) == "50%"s);
+    });
+
+    etest::test("parser: shorthand font with bolder font weight", [] {
+        auto rules = css::parse("p { font: normal bolder 100px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "100px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "bolder"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with lighter font weight", [] {
+        auto rules = css::parse("p { font: lighter 100px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "100px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "lighter"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with 1000 font weight", [] {
+        auto rules = css::parse("p { font: 1000 oblique 100px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "100px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "oblique"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "1000"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with 550 font weight", [] {
+        auto rules = css::parse("p { font: italic 550 100px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "100px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "italic"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "550"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with 1 font weight", [] {
+        auto rules = css::parse("p { font: oblique 1 100px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "100px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "oblique"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "1"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
     return etest::run_all_tests();
 }
