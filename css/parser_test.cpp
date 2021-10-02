@@ -413,5 +413,20 @@ int main() {
         expect(body.declarations.at("line-height"s) == "normal"s);
     });
 
+    etest::test("parser: shorthand font with smal1-caps font variant", [] {
+        auto rules = css::parse("p { font: small-caps 900 100px serif; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "serif"s);
+        expect(body.declarations.at("font-size"s) == "100px"s);
+        expect(body.declarations.at("font-stretch"s) == "normal"s);
+        expect(body.declarations.at("font-style"s) == "normal"s);
+        expect(body.declarations.at("font-variant"s) == "small-caps"s);
+        expect(body.declarations.at("font-weight"s) == "900"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
     return etest::run_all_tests();
 }
