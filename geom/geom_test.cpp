@@ -25,6 +25,13 @@ int main() {
         expect(Rect{-10, -10, 30, 30} == r.expanded(EdgeSize{10, 10, 10, 10}));
     });
 
+    etest::test("Rect::translated", [] {
+        Rect r{0, 0, 10, 10};
+        expect(Rect{10, 0, 10, 10} == r.translated(10, 0));
+        expect(Rect{0, 10, 10, 10} == r.translated(0, 10));
+        expect(Rect{-10, -10, 10, 10} == r.translated(-10, -10));
+    });
+
     etest::test("Rect::contains", [] {
         Rect r{0, 0, 10, 10};
         expect(r.contains({0, 0}));

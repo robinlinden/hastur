@@ -29,6 +29,8 @@ struct Rect {
         };
     }
 
+    [[nodiscard]] constexpr Rect translated(int dx, int dy) const { return {x + dx, y + dy, width, height}; }
+
     [[nodiscard]] constexpr bool contains(Position const &p) const {
         bool inside_horizontally = p.x >= x && p.x <= x + width;
         bool inside_vertically = p.y >= y && p.y <= y + height;
