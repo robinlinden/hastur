@@ -13,6 +13,7 @@
 #include <array>
 #include <cstring>
 #include <optional>
+#include <stdexcept>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -63,6 +64,8 @@ private:
             std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
 
     static constexpr auto relative_sizes = std::array{"larger", "smaller"};
+
+    static constexpr auto weights = std::array{"bold", "bolder", "lighter"};
 
     static constexpr std::string_view dot_and_digits = ".0123456789";
 
@@ -221,6 +224,9 @@ private:
             } else if (auto maybe_font_style = try_parse_font_style(tokenizer)) {
                 font_style = maybe_font_style.value();
                 tokenizer.next();
+            } else if (auto maybe_font_weight = try_parse_font_weight(tokenizer)) {
+                font_weight = maybe_font_weight.value();
+                tokenizer.next();
             } else {
                 // TODO(mkiael): Handle remaining properties
                 tokenizer.next();
@@ -282,6 +288,25 @@ private:
         return std::nullopt;
     }
 
+    std::optional<std::string_view> try_parse_font_weight(Tokenizer &tokenizer) const {
+        if (auto maybe_font_weight = tokenizer.get()) {
+            if (is_weight(*maybe_font_weight)) {
+                return *maybe_font_weight;
+            } else if (auto maybe_int = to_int(*maybe_font_weight); *maybe_int >= 1 && *maybe_int <= 1000) {
+                return *maybe_font_weight;
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<int> to_int(std::string_view str) const {
+        try {
+            return std::stoi(std::string{str});
+        } catch (std::invalid_argument const &) {
+            return std::nullopt;
+        }
+    }
+
     template<auto const &array>
     constexpr bool is_in_array(std::string_view str) const {
         return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
@@ -290,6 +315,8 @@ private:
     constexpr bool is_absolute_size(std::string_view str) const { return is_in_array<absolute_sizes>(str); }
 
     constexpr bool is_relative_size(std::string_view str) const { return is_in_array<relative_sizes>(str); }
+
+    constexpr bool is_weight(std::string_view str) const { return is_in_array<weights>(str); }
 
     constexpr bool is_length_or_percentage(std::string_view str) const {
         // TODO(mkiael): Make this check more reliable.
