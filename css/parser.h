@@ -227,6 +227,9 @@ private:
             } else if (auto maybe_font_weight = try_parse_font_weight(tokenizer)) {
                 font_weight = maybe_font_weight.value();
                 tokenizer.next();
+            } else if (auto maybe_font_variant = try_parse_font_variant(tokenizer)) {
+                font_variant = maybe_font_variant.value();
+                tokenizer.next();
             } else {
                 // TODO(mkiael): Handle remaining properties
                 tokenizer.next();
@@ -294,6 +297,15 @@ private:
                 return *maybe_font_weight;
             } else if (auto maybe_int = to_int(*maybe_font_weight); *maybe_int >= 1 && *maybe_int <= 1000) {
                 return *maybe_font_weight;
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::string_view> try_parse_font_variant(Tokenizer &tokenizer) const {
+        if (auto maybe_font_variant = tokenizer.get()) {
+            if (*maybe_font_variant == "small-caps") {
+                return *maybe_font_variant;
             }
         }
         return std::nullopt;
