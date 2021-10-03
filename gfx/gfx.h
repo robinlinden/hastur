@@ -19,12 +19,22 @@ class IPainter {
 public:
     virtual ~IPainter() = default;
 
+    virtual void add_translation(int dx, int dy) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
 };
 
 class OpenGLPainter final : public IPainter {
 public:
+    constexpr void add_translation(int dx, int dy) override {
+        translation_x += dx;
+        translation_y += dy;
+    }
+
     void fill_rect(geom::Rect const &, Color) override;
+
+private:
+    int translation_x{};
+    int translation_y{};
 };
 
 } // namespace gfx

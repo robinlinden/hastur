@@ -17,8 +17,9 @@
 namespace gfx {
 
 void OpenGLPainter::fill_rect(geom::Rect const &rect, Color color) {
+    auto translated{rect.translated(translation_x, translation_y)};
     glColor3ub(color.r, color.g, color.b);
-    glRecti(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
+    glRecti(translated.x, translated.y, translated.x + translated.width, translated.y + translated.height);
 }
 
 } // namespace gfx
