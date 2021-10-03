@@ -16,16 +16,6 @@
 #include <imgui_stdlib.h>
 #include <spdlog/spdlog.h>
 
-// MSVC gl.h doesn't include everything it uses.
-#ifdef _MSC_VER
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif // WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif // _MSC_VER
-
-#include <GL/gl.h>
-
 #include <iterator>
 #include <string_view>
 #include <utility>
@@ -257,13 +247,14 @@ layout::Position App::to_document_position(layout::Position window_position) con
 }
 
 void App::reset_scroll() {
+    painter_.add_translation(0, -scroll_offset_y_);
     scroll_offset_y_ = 0;
     render::render_setup(window_.getSize().x, window_.getSize().y);
 }
 
 void App::scroll(int pixels) {
-    glTranslatef(0, static_cast<float>(pixels), 0);
-    scroll_offset_y_ -= pixels;
+    painter_.add_translation(0, pixels);
+    scroll_offset_y_ += pixels;
 }
 
 void App::run_overlay() {
