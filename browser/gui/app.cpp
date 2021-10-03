@@ -243,7 +243,7 @@ std::string App::get_hovered_element_text(layout::Position p) const {
 }
 
 layout::Position App::to_document_position(layout::Position window_position) const {
-    return {window_position.x, window_position.y + scroll_offset_y_};
+    return {window_position.x, window_position.y - scroll_offset_y_};
 }
 
 void App::reset_scroll() {
