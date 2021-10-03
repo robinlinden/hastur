@@ -60,12 +60,12 @@ public:
     }
 
 private:
-    static constexpr auto absolute_sizes =
+    static constexpr auto absolute_size_keywords =
             std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
 
-    static constexpr auto relative_sizes = std::array{"larger", "smaller"};
+    static constexpr auto relative_size_keywords = std::array{"larger", "smaller"};
 
-    static constexpr auto weights = std::array{"bold", "bolder", "lighter"};
+    static constexpr auto weight_keywords = std::array{"bold", "bolder", "lighter"};
 
     static constexpr std::string_view dot_and_digits = ".0123456789";
 
@@ -324,11 +324,11 @@ private:
         return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
     }
 
-    constexpr bool is_absolute_size(std::string_view str) const { return is_in_array<absolute_sizes>(str); }
+    constexpr bool is_absolute_size(std::string_view str) const { return is_in_array<absolute_size_keywords>(str); }
 
-    constexpr bool is_relative_size(std::string_view str) const { return is_in_array<relative_sizes>(str); }
+    constexpr bool is_relative_size(std::string_view str) const { return is_in_array<relative_size_keywords>(str); }
 
-    constexpr bool is_weight(std::string_view str) const { return is_in_array<weights>(str); }
+    constexpr bool is_weight(std::string_view str) const { return is_in_array<weight_keywords>(str); }
 
     constexpr bool is_length_or_percentage(std::string_view str) const {
         // TODO(mkiael): Make this check more reliable.
