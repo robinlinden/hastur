@@ -215,20 +215,20 @@ private:
         std::string font_family = "";
         while (!tokenizer.empty()) {
             if (auto maybe_font_size = try_parse_font_size(tokenizer)) {
-                auto [fs, lh] = maybe_font_size.value();
+                auto [fs, lh] = *maybe_font_size;
                 font_size = fs;
                 line_height = lh.value_or(line_height);
                 if (auto maybe_font_family = try_parse_font_family(tokenizer.next())) {
-                    font_family = maybe_font_family.value();
+                    font_family = *maybe_font_family;
                 }
             } else if (auto maybe_font_style = try_parse_font_style(tokenizer)) {
-                font_style = maybe_font_style.value();
+                font_style = *maybe_font_style;
                 tokenizer.next();
             } else if (auto maybe_font_weight = try_parse_font_weight(tokenizer)) {
-                font_weight = maybe_font_weight.value();
+                font_weight = *maybe_font_weight;
                 tokenizer.next();
             } else if (auto maybe_font_variant = try_parse_font_variant(tokenizer)) {
-                font_variant = maybe_font_variant.value();
+                font_variant = *maybe_font_variant;
                 tokenizer.next();
             } else {
                 // TODO(mkiael): Handle remaining properties
@@ -248,7 +248,7 @@ private:
     std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_parse_font_size(
             Tokenizer &tokenizer) const {
         if (auto token = tokenizer.get()) {
-            std::string_view str = token.value();
+            std::string_view str = *token;
             if (std::size_t loc = str.find('/'); loc != std::string_view::npos) {
                 std::string_view font_size = str.substr(0, loc);
                 std::string_view line_height = str.substr(loc + 1, str.size() - loc);
@@ -266,7 +266,7 @@ private:
             if (!font_family.empty()) {
                 font_family += ' ';
             }
-            font_family += str.value();
+            font_family += *str;
             tokenizer.next();
         }
         return font_family;
@@ -276,14 +276,16 @@ private:
         std::string font_style = "";
         if (auto maybe_font_style = tokenizer.get()) {
             if (maybe_font_style->starts_with("italic")) {
-                font_style = maybe_font_style.value();
+                font_style = *maybe_font_style;
                 return font_style;
             } else if (maybe_font_style->starts_with("oblique")) {
-                font_style = maybe_font_style.value();
-                if (auto maybe_angle = tokenizer.peek(); maybe_angle->find("deg") != std::string_view::npos) {
-                    font_style += ' ';
-                    font_style += maybe_angle.value();
-                    tokenizer.next();
+                font_style = *maybe_font_style;
+                if (auto maybe_angle = tokenizer.peek()) {
+                    if (maybe_angle->find("deg") != std::string_view::npos) {
+                        font_style += ' ';
+                        font_style += *maybe_angle;
+                        tokenizer.next();
+                    }
                 }
                 return font_style;
             }
