@@ -221,19 +221,17 @@ private:
                 if (auto maybe_font_family = try_parse_font_family(tokenizer.next())) {
                     font_family = *maybe_font_family;
                 }
+                // Lets break here since font size and family should be last
+                break;
             } else if (auto maybe_font_style = try_parse_font_style(tokenizer)) {
                 font_style = *maybe_font_style;
-                tokenizer.next();
             } else if (auto maybe_font_weight = try_parse_font_weight(tokenizer)) {
                 font_weight = *maybe_font_weight;
-                tokenizer.next();
             } else if (auto maybe_font_variant = try_parse_font_variant(tokenizer)) {
                 font_variant = *maybe_font_variant;
-                tokenizer.next();
-            } else {
-                // TODO(mkiael): Handle remaining properties
-                tokenizer.next();
             }
+            // TODO(mkiael): Handle remaining properties
+            tokenizer.next();
         }
 
         declarations.insert_or_assign("font-style", font_style);
