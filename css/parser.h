@@ -67,6 +67,15 @@ private:
 
     static constexpr auto weight_keywords = std::array{"bold", "bolder", "lighter"};
 
+    static constexpr auto stretch_keywords = std::array{"ultra-condensed",
+            "extra-condensed",
+            "condensed",
+            "semi-condensed",
+            "semi-expanded",
+            "expanded",
+            "extra-expanded",
+            "ultra-expanded"};
+
     static constexpr std::string_view dot_and_digits = ".0123456789";
 
     class Tokenizer {
@@ -229,6 +238,8 @@ private:
                 font_weight = *maybe_font_weight;
             } else if (auto maybe_font_variant = try_parse_font_variant(tokenizer)) {
                 font_variant = *maybe_font_variant;
+            } else if (auto maybe_font_stretch = try_parse_font_stretch(tokenizer)) {
+                font_stretch = *maybe_font_stretch;
             }
             // TODO(mkiael): Handle remaining properties
             tokenizer.next();
@@ -311,6 +322,15 @@ private:
         return std::nullopt;
     }
 
+    std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) const {
+        if (auto maybe_font_stretch = tokenizer.get()) {
+            if (is_stretch(*maybe_font_stretch)) {
+                return *maybe_font_stretch;
+            }
+        }
+        return std::nullopt;
+    }
+
     std::optional<int> to_int(std::string_view str) const {
         try {
             return std::stoi(std::string{str});
@@ -329,6 +349,8 @@ private:
     constexpr bool is_relative_size(std::string_view str) const { return is_in_array<relative_size_keywords>(str); }
 
     constexpr bool is_weight(std::string_view str) const { return is_in_array<weight_keywords>(str); }
+
+    constexpr bool is_stretch(std::string_view str) const { return is_in_array<stretch_keywords>(str); }
 
     constexpr bool is_length_or_percentage(std::string_view str) const {
         // TODO(mkiael): Make this check more reliable.

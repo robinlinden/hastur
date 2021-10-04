@@ -428,5 +428,50 @@ int main() {
         expect(body.declarations.at("line-height"s) == "normal"s);
     });
 
+    etest::test("parser: shorthand font with condensed font stretch", [] {
+        auto rules = css::parse(R"(p { font: condensed oblique 25deg 753 12pt "Helvetica Neue", serif; })"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "\"Helvetica Neue\", serif"s);
+        expect(body.declarations.at("font-size"s) == "12pt"s);
+        expect(body.declarations.at("font-stretch"s) == "condensed"s);
+        expect(body.declarations.at("font-style"s) == "oblique 25deg"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "753"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
+    etest::test("parser: shorthand font with exapnded font stretch", [] {
+        auto rules = css::parse("p { font: italic expanded bold xx-smal/80% monospace; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "monospace"s);
+        expect(body.declarations.at("font-size"s) == "xx-smal"s);
+        expect(body.declarations.at("font-stretch"s) == "expanded"s);
+        expect(body.declarations.at("font-style"s) == "italic"s);
+        expect(body.declarations.at("font-variant"s) == "normal"s);
+        expect(body.declarations.at("font-weight"s) == "bold"s);
+        expect(body.declarations.at("line-height"s) == "80%"s);
+    });
+
+    etest::test("parser: shorthand font with ultra-exapnded font stretch", [] {
+        auto rules = css::parse("p { font: small-caps italic ultra-expanded bold medium Arial, monospace; }"sv);
+        require(rules.size() == 1);
+
+        auto body = rules[0];
+        expect(body.declarations.size() == 7);
+        expect(body.declarations.at("font-family"s) == "Arial, monospace"s);
+        expect(body.declarations.at("font-size"s) == "medium"s);
+        expect(body.declarations.at("font-stretch"s) == "ultra-expanded"s);
+        expect(body.declarations.at("font-style"s) == "italic"s);
+        expect(body.declarations.at("font-variant"s) == "small-caps"s);
+        expect(body.declarations.at("font-weight"s) == "bold"s);
+        expect(body.declarations.at("line-height"s) == "normal"s);
+    });
+
     return etest::run_all_tests();
 }
