@@ -4,6 +4,7 @@
 
 #include "browser/gui/app.h"
 
+#include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
@@ -14,6 +15,7 @@ auto const kStartpage{"http://example.com"};
 
 int main(int argc, char **argv) {
     spdlog::set_default_logger(spdlog::stderr_color_mt(kBrowserTitle));
+    spdlog::cfg::load_env_levels();
 
     bool load_page = argc > 1; // Load page right away if provided on the cmdline.
     browser::gui::App app{kBrowserTitle, argc > 1 ? argv[1] : kStartpage, load_page};
