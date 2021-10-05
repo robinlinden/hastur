@@ -306,8 +306,10 @@ private:
         if (auto maybe_font_weight = tokenizer.get()) {
             if (is_weight(*maybe_font_weight)) {
                 return *maybe_font_weight;
-            } else if (auto maybe_int = to_int(*maybe_font_weight); *maybe_int >= 1 && *maybe_int <= 1000) {
-                return *maybe_font_weight;
+            } else if (auto maybe_int = to_int(*maybe_font_weight)) {
+                if (*maybe_int >= 1 && *maybe_int <= 1000) {
+                    return *maybe_font_weight;
+                }
             }
         }
         return std::nullopt;
