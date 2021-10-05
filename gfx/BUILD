@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "gfx",
@@ -10,4 +10,14 @@ cc_library(
     }),
     visibility = ["//visibility:public"],
     deps = ["//geom"],
+)
+
+cc_test(
+    name = "gfx_test",
+    size = "small",
+    srcs = ["gfx_test.cpp"],
+    deps = [
+        ":gfx",
+        "//etest",
+    ],
 )

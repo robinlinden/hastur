@@ -12,7 +12,17 @@
 namespace gfx {
 
 struct Color {
+    constexpr static Color from_rgb(std::int32_t rgb) {
+        return Color{
+                .r = static_cast<std::uint8_t>((rgb & 0xFF0000) >> 16),
+                .g = static_cast<std::uint8_t>((rgb & 0x00FF00) >> 8),
+                .b = static_cast<std::uint8_t>(rgb & 0x0000FF),
+        };
+    }
+
     std::uint8_t r, g, b;
+
+    [[nodiscard]] constexpr bool operator==(Color const &) const = default;
 };
 
 class IPainter {
