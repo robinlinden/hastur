@@ -15,17 +15,6 @@
 #include <GL/gl.h>
 
 namespace render {
-namespace {
-
-void render_layout_impl(gfx::IPainter &painter, layout::LayoutBox const &layout, int depth) {
-    auto color = static_cast<std::uint8_t>(255 / depth);
-    painter.fill_rect(layout.dimensions.content, {color, color, color});
-    for (auto const &child : layout.children) {
-        render_layout_impl(painter, child, depth + 1);
-    }
-}
-
-} // namespace
 
 void render_setup(int width, int height) {
     glMatrixMode(GL_PROJECTION);
@@ -36,8 +25,20 @@ void render_setup(int width, int height) {
     glLoadIdentity();
 }
 
-void render_layout(gfx::IPainter &painter, layout::LayoutBox const &layout) {
-    render_layout_impl(painter, layout, 1);
+namespace debug {
+namespace {
+void render_layout_depth_impl(gfx::IPainter &painter, layout::LayoutBox const &layout, int depth) {
+    auto color = static_cast<std::uint8_t>(255 / depth);
+    painter.fill_rect(layout.dimensions.content, {color, color, color});
+    for (auto const &child : layout.children) {
+        render_layout_depth_impl(painter, child, depth + 1);
+    }
+}
+} // namespace
+
+void render_layout_depth(gfx::IPainter &painter, layout::LayoutBox const &layout) {
+    render_layout_depth_impl(painter, layout, 1);
 }
 
+} // namespace debug
 } // namespace render
