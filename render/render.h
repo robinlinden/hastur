@@ -11,6 +11,7 @@
 namespace render {
 
 void render_setup(int width, int height);
+void render_layout(gfx::IPainter &, layout::LayoutBox const &);
 
 namespace debug {
 void render_layout_depth(gfx::IPainter &, layout::LayoutBox const &);

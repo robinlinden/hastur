@@ -12,5 +12,6 @@ cc_library(
     deps = [
         "//gfx",
         "//layout",
+        "@spdlog",
     ],
 )
