@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - name: Prepare clang install
-      if: startsWith(matrix.compiler, 'clang')
+      if: startsWith(matrix.compiler, 'clang') && matrix.version == 13
       uses: myci-actions/add-deb-repo@10
       with:
         repo: deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${{ matrix.version }} main
