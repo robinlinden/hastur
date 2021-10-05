@@ -48,6 +48,8 @@ private:
     // When we scroll "down", the web page is translated "up".
     int scroll_offset_y_{};
 
+    bool render_debug_{};
+
     void navigate();
     void layout();
 

@@ -76,6 +76,10 @@ int App::run() {
                             scroll(event.key.shift ? 20 : 5);
                             break;
                         }
+                        case sf::Keyboard::Key::F1: {
+                            render_debug_ = !render_debug_;
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -313,7 +317,11 @@ void App::clear_render_surface() {
 
 void App::render_layout() {
     if (layout_) {
-        render::render_layout(painter_, *layout_);
+        if (render_debug_) {
+            render::debug::render_layout_depth(painter_, *layout_);
+        } else {
+            render::render_layout(painter_, *layout_);
+        }
     }
 }
 
