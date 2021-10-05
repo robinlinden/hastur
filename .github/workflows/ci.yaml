@@ -14,11 +14,6 @@ jobs:
             version: 10
             bazel: --config gcc
 
-          - name: clang-10
-            compiler: clang
-            version: 10
-            bazel: --config clang
-
           - name: clang-12
             compiler: clang
             version: 12
