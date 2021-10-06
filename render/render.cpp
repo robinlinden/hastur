@@ -45,7 +45,7 @@ gfx::Color parse_color(std::string_view str) {
 
 void do_render(gfx::IPainter &painter, layout::LayoutBox const &layout) {
     if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
-        painter.fill_rect(layout.dimensions.content, parse_color(*maybe_color));
+        painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
     }
 }
 
@@ -78,7 +78,7 @@ namespace debug {
 namespace {
 void render_layout_depth_impl(gfx::IPainter &painter, layout::LayoutBox const &layout, int depth) {
     auto color = static_cast<std::uint8_t>(255 / depth);
-    painter.fill_rect(layout.dimensions.content, {color, color, color});
+    painter.fill_rect(layout.dimensions.padding_box(), {color, color, color});
     for (auto const &child : layout.children) {
         render_layout_depth_impl(painter, child, depth + 1);
     }
