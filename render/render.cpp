@@ -4,6 +4,7 @@
 
 #include "render/render.h"
 
+#include "dom/dom.h"
 #include "style/style.h"
 
 // MSVC gl.h doesn't include everything it uses.
@@ -19,12 +20,17 @@
 
 #include <charconv>
 #include <cstdint>
+#include <variant>
 
 namespace render {
 namespace {
 
 bool looks_like_hex(std::string_view str) {
     return str.starts_with('#') && str.length() == 7;
+}
+
+bool contains_text(layout::LayoutBox const &layout) {
+    return std::holds_alternative<dom::Text>(layout.node->node.get().data);
 }
 
 gfx::Color from_hex_chars(std::string_view hex_chars) {
@@ -44,8 +50,13 @@ gfx::Color parse_color(std::string_view str) {
 }
 
 void do_render(gfx::IPainter &painter, layout::LayoutBox const &layout) {
-    if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
-        painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
+    if (contains_text(layout)) {
+        auto color = style::get_property_or(*layout.node, "color", "#000000");
+        painter.fill_rect(layout.dimensions.padding_box(), parse_color(color));
+    } else {
+        if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
+            painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
+        }
     }
 }
 
