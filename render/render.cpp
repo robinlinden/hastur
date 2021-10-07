@@ -20,13 +20,14 @@
 
 #include <charconv>
 #include <cstdint>
+#include <sstream>
 #include <variant>
 
 namespace render {
 namespace {
 
 bool looks_like_hex(std::string_view str) {
-    return str.starts_with('#') && str.length() == 7;
+    return str.starts_with('#') && (str.length() == 7 || str.length() == 4);
 }
 
 bool contains_text(layout::LayoutBox const &layout) {
@@ -36,7 +37,15 @@ bool contains_text(layout::LayoutBox const &layout) {
 gfx::Color from_hex_chars(std::string_view hex_chars) {
     hex_chars.remove_prefix(1);
     std::int32_t hex{};
-    std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
+    if (hex_chars.length() == 6) {
+        std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
+    } else {
+        std::ostringstream ss;
+        ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2];
+        auto expanded = ss.str();
+        std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
+    }
+
     return gfx::Color::from_rgb(hex);
 }
 
