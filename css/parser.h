@@ -207,12 +207,6 @@ private:
     }
 
     void expand_font(std::map<std::string, std::string> &declarations, std::string_view value) const {
-        std::string_view font_stretch = "normal";
-        std::string_view font_variant = "normal";
-        std::string_view font_weight = "normal";
-        std::string_view line_height = "normal";
-        std::string font_style = "normal";
-
         Tokenizer tokenizer(value, ' ');
         if (tokenizer.size() == 1) {
             // TODO(mkiael): Handle system properties correctly. Just forward it for now.
@@ -220,8 +214,13 @@ private:
             return;
         }
 
-        std::string_view font_size = "";
         std::string font_family = "";
+        std::string font_style = "normal";
+        std::string_view font_size = "";
+        std::string_view font_stretch = "normal";
+        std::string_view font_variant = "normal";
+        std::string_view font_weight = "normal";
+        std::string_view line_height = "normal";
         while (!tokenizer.empty()) {
             if (auto maybe_font_size = try_parse_font_size(tokenizer)) {
                 auto [fs, lh] = *maybe_font_size;
@@ -241,7 +240,6 @@ private:
             } else if (auto maybe_font_stretch = try_parse_font_stretch(tokenizer)) {
                 font_stretch = *maybe_font_stretch;
             }
-            // TODO(mkiael): Handle remaining properties
             tokenizer.next();
         }
 
@@ -252,6 +250,21 @@ private:
         declarations.insert_or_assign("font-size", std::string{font_size});
         declarations.insert_or_assign("line-height", std::string{line_height});
         declarations.insert_or_assign("font-family", font_family);
+
+        // Reset all values that can't be specified in shorthand
+        declarations.insert_or_assign("font-feature-settings", "normal");
+        declarations.insert_or_assign("font-kerning", "auto");
+        declarations.insert_or_assign("font-language-override", "normal");
+        declarations.insert_or_assign("font-optical-sizing", "auto");
+        declarations.insert_or_assign("font-palette", "normal");
+        declarations.insert_or_assign("font-size-adjust", "none");
+        declarations.insert_or_assign("font-variation-settings", "normal");
+        declarations.insert_or_assign("font-variant-alternates", "normal");
+        declarations.insert_or_assign("font-variant-caps", "normal");
+        declarations.insert_or_assign("font-variant-ligatures", "normal");
+        declarations.insert_or_assign("font-variant-numeric", "normal");
+        declarations.insert_or_assign("font-variant-position", "normal");
+        declarations.insert_or_assign("font-variant-east-asian", "normal");
     }
 
     std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_parse_font_size(
