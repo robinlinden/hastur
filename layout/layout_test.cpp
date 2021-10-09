@@ -486,7 +486,7 @@ int main() {
             .dimensions = {{0, 0, 100, 120}},
             .children = {
                 {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 120}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 80, 100}, {10, 10, 10, 10}}, {}},
+                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 80, 100}, {10, 10, 10, 10}}, {}},
                     {&style_root.children[0].children[1], LayoutType::Block, {{0, 120, 100, 0}}, {}},
                 }},
             }
@@ -576,7 +576,7 @@ int main() {
                 "    p\n"
                 "    block {0,0,0,25} {0,0,0,0}\n"
                 "    p\n"
-                "    block {0,25,0,0} {5,15,0,0}\n";
+                "    block {0,30,0,0} {5,15,0,0}\n";
         expect(to_string(layout::create_layout(style_root, 0)) == expected);
     });
 

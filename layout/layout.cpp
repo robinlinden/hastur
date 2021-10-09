@@ -101,28 +101,14 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
         width_px = std::min(width_px, to_px(*max));
     }
 
-    if (auto padding_left = style::get_property(*box.node, "padding-left")) {
-        box.dimensions.padding.left = to_px(*padding_left);
-    }
-
-    if (auto padding_right = style::get_property(*box.node, "padding-right")) {
-        box.dimensions.padding.right = to_px(*padding_right);
-    }
-
-    auto padding_width = box.dimensions.padding.left + box.dimensions.padding.right;
-    int underflow = parent.width - width_px - padding_width;
-    if (underflow < 0) {
-        // Overflow, this should adjust the right margin, but for now...
-        width_px = std::max(width_px + underflow, 0);
-    }
-
     box.dimensions.content.width = width_px;
 }
 
 void calculate_position(LayoutBox &box, Rect const &parent) {
-    box.dimensions.content.x = parent.x;
+    auto const &d = box.dimensions;
+    box.dimensions.content.x = parent.x + d.padding.left;
     // Position below previous content in parent.
-    box.dimensions.content.y = parent.y + parent.height;
+    box.dimensions.content.y = parent.y + parent.height + d.padding.top;
 }
 
 void calculate_height(LayoutBox &box) {
@@ -143,6 +129,16 @@ void calculate_height(LayoutBox &box) {
     if (auto max = style::get_property(*box.node, "max-height")) {
         box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(*max));
     }
+}
+
+void calculate_padding(LayoutBox &box) {
+    if (auto padding_left = style::get_property(*box.node, "padding-left")) {
+        box.dimensions.padding.left = to_px(*padding_left);
+    }
+
+    if (auto padding_right = style::get_property(*box.node, "padding-right")) {
+        box.dimensions.padding.right = to_px(*padding_right);
+    }
 
     if (auto padding_top = style::get_property(*box.node, "padding-top")) {
         box.dimensions.padding.top = to_px(*padding_top);
@@ -153,11 +149,21 @@ void calculate_height(LayoutBox &box) {
     }
 }
 
+void calculate_overflow(LayoutBox &box, Rect const &parent) {
+    int underflow = parent.width - box.dimensions.padding_box().width;
+    if (underflow < 0) {
+        // Overflow, this should adjust the right margin, but for now...
+        box.dimensions.content.width = std::max(box.dimensions.content.width + underflow, 0);
+    }
+}
+
 void layout(LayoutBox &box, Rect const &bounds) {
     switch (box.type) {
         case LayoutType::Inline:
         case LayoutType::Block: {
             calculate_width(box, bounds);
+            calculate_padding(box);
+            calculate_overflow(box, bounds);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
