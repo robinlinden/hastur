@@ -11,6 +11,46 @@ using namespace std::literals;
 using etest::expect;
 using etest::require;
 
+namespace {
+
+const auto initial_font_values = std::map<std::string, std::string>{{"font-stretch", "normal"},
+        {"font-variant", "normal"},
+        {"font-weight", "normal"},
+        {"line-height", "normal"},
+        {"font-style", "normal"},
+        {"font-size-adjust", "none"},
+        {"font-kerning", "auto"},
+        {"font-feature-settings", "normal"},
+        {"font-language-override", "normal"},
+        {"font-optical-sizing", "auto"},
+        {"font-variation-settings", "normal"},
+        {"font-palette", "normal"},
+        {"font-variant-alternates", "normal"},
+        {"font-variant-caps", "normal"},
+        {"font-variant-ligatures", "normal"},
+        {"font-variant-numeric", "normal"},
+        {"font-variant-position", "normal"},
+        {"font-variant-east-asian", "normal"}};
+
+bool check_initial_font_values(std::map<std::string, std::string> declarations) {
+    for (auto [property, value] : declarations) {
+        auto it = initial_font_values.find(property);
+        if (it != cend(initial_font_values) && it->second != value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<class KeyT, class ValueT>
+ValueT get_and_erase(std::map<KeyT, ValueT> &map, KeyT key) {
+    ValueT value = map[key];
+    map.erase(key);
+    return value;
+}
+
+} // namespace
+
 int main() {
     etest::test("parser: simple rule", [] {
         auto rules = css::parse("body { width: 50px; }"sv);
@@ -223,14 +263,10 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "sans-serif"s);
-        expect(body.declarations.at("font-size"s) == "1.5em"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "sans-serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "1.5em"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with size, line height, and generic font family", [] {
@@ -238,29 +274,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "monospace"s);
-        expect(body.declarations.at("font-size"s) == "10%"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "2.5"s);
-    });
-
-    etest::test("parser: shorthand font with size, line height, and generic font family", [] {
-        auto rules = css::parse("p { font: 10%/2.5 monospace; }"sv);
-        require(rules.size() == 1);
-
-        auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "monospace"s);
-        expect(body.declarations.at("font-size"s) == "10%"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "2.5"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "monospace"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "10%"s);
+        expect(get_and_erase(body.declarations, "line-height"s) == "2.5"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with absolute size, line height, and font family", [] {
@@ -268,14 +286,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "\"New Century Schoolbook\", serif"s);
-        expect(body.declarations.at("font-size"s) == "x-large"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "110%"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "\"New Century Schoolbook\", serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "x-large"s);
+        expect(get_and_erase(body.declarations, "line-height"s) == "110%"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with italic font style", [] {
@@ -283,14 +298,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "\"Helvetica Neue\", serif"s);
-        expect(body.declarations.at("font-size"s) == "120%"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "italic"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "120%"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with oblique font style", [] {
@@ -298,14 +310,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "\"Helvetica Neue\", serif"s);
-        expect(body.declarations.at("font-size"s) == "12pt"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "oblique"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "12pt"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "oblique"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with font style oblique with angle", [] {
@@ -313,14 +322,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "10px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "oblique 25deg"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "normal"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "10px"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "oblique 25deg"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with bold font weight", [] {
@@ -328,14 +334,13 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "20em"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "italic"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "bold"s);
-        expect(body.declarations.at("line-height"s) == "50%"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "20em"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "bold"s);
+        expect(get_and_erase(body.declarations, "line-height"s) == "50%"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with bolder font weight", [] {
@@ -343,14 +348,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "100px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "bolder"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "bolder"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with lighter font weight", [] {
@@ -358,14 +360,11 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "100px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "lighter"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "lighter"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with 1000 font weight", [] {
@@ -373,14 +372,12 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "100px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "oblique"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "1000"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "oblique"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "1000"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with 550 font weight", [] {
@@ -388,14 +385,12 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "100px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "italic"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "550"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "550"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with 1 font weight", [] {
@@ -403,14 +398,12 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "100px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "oblique"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "1"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "oblique"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "1"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with smal1-caps font variant", [] {
@@ -418,14 +411,12 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "serif"s);
-        expect(body.declarations.at("font-size"s) == "100px"s);
-        expect(body.declarations.at("font-stretch"s) == "normal"s);
-        expect(body.declarations.at("font-style"s) == "normal"s);
-        expect(body.declarations.at("font-variant"s) == "small-caps"s);
-        expect(body.declarations.at("font-weight"s) == "900"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
+        expect(get_and_erase(body.declarations, "font-variant"s) == "small-caps"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "900"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with condensed font stretch", [] {
@@ -433,14 +424,13 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "\"Helvetica Neue\", serif"s);
-        expect(body.declarations.at("font-size"s) == "12pt"s);
-        expect(body.declarations.at("font-stretch"s) == "condensed"s);
-        expect(body.declarations.at("font-style"s) == "oblique 25deg"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "753"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "12pt"s);
+        expect(get_and_erase(body.declarations, "font-stretch"s) == "condensed"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "oblique 25deg"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "753"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with exapnded font stretch", [] {
@@ -448,14 +438,14 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "monospace"s);
-        expect(body.declarations.at("font-size"s) == "xx-smal"s);
-        expect(body.declarations.at("font-stretch"s) == "expanded"s);
-        expect(body.declarations.at("font-style"s) == "italic"s);
-        expect(body.declarations.at("font-variant"s) == "normal"s);
-        expect(body.declarations.at("font-weight"s) == "bold"s);
-        expect(body.declarations.at("line-height"s) == "80%"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "monospace"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "xx-smal"s);
+        expect(get_and_erase(body.declarations, "font-stretch"s) == "expanded"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "bold"s);
+        expect(get_and_erase(body.declarations, "line-height"s) == "80%"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     etest::test("parser: shorthand font with ultra-exapnded font stretch", [] {
@@ -463,14 +453,14 @@ int main() {
         require(rules.size() == 1);
 
         auto body = rules[0];
-        expect(body.declarations.size() == 7);
-        expect(body.declarations.at("font-family"s) == "Arial, monospace"s);
-        expect(body.declarations.at("font-size"s) == "medium"s);
-        expect(body.declarations.at("font-stretch"s) == "ultra-expanded"s);
-        expect(body.declarations.at("font-style"s) == "italic"s);
-        expect(body.declarations.at("font-variant"s) == "small-caps"s);
-        expect(body.declarations.at("font-weight"s) == "bold"s);
-        expect(body.declarations.at("line-height"s) == "normal"s);
+        expect(body.declarations.size() == 20);
+        expect(get_and_erase(body.declarations, "font-family"s) == "Arial, monospace"s);
+        expect(get_and_erase(body.declarations, "font-size"s) == "medium"s);
+        expect(get_and_erase(body.declarations, "font-stretch"s) == "ultra-expanded"s);
+        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
+        expect(get_and_erase(body.declarations, "font-variant"s) == "small-caps"s);
+        expect(get_and_erase(body.declarations, "font-weight"s) == "bold"s);
+        expect(check_initial_font_values(body.declarations));
     });
 
     return etest::run_all_tests();
