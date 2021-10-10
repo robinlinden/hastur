@@ -24,16 +24,12 @@ cc_test(
     deps = [":etest_with_main"],
 )
 
-cc_test(
-    name = "etest_expect_failure_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["expect_failure_test.cpp"],
+    srcs = [src],
     deps = [":etest"],
-)
-
-cc_test(
-    name = "etest_require_failure_test",
-    size = "small",
-    srcs = ["require_failure_test.cpp"],
-    deps = [":etest"],
-)
+) for src in glob(
+    include = ["*_test.cpp"],
+    exclude = ["etest_test.cpp"],
+)]
