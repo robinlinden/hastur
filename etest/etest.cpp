@@ -87,4 +87,8 @@ void require(bool b, etest::source_location const &loc) {
     }
 }
 
+std::ostream &log() {
+    return test_log;
+}
+
 } // namespace etest
