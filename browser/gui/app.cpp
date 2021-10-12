@@ -16,6 +16,7 @@
 #include <imgui_stdlib.h>
 #include <spdlog/spdlog.h>
 
+#include <future>
 #include <iterator>
 #include <string_view>
 #include <utility>
@@ -175,18 +176,26 @@ void App::navigate() {
                                      }),
                     end(head_links));
 
+            // Start downloading all stylesheets.
             spdlog::info("Loading {} stylesheets", head_links.size());
+            std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
             for (auto link : head_links) {
-                auto const &elem = std::get<dom::Element>(link->data);
-                auto stylesheet_url = fmt::format("{}{}", url_buf_, elem.attributes.at("href"));
-                spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-                auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
+                future_new_rules.push_back(std::async(std::launch::async, [=, this] {
+                    auto const &elem = std::get<dom::Element>(link->data);
+                    auto stylesheet_url = fmt::format("{}{}", url_buf_, elem.attributes.at("href"));
+                    spdlog::info("Downloading stylesheet from {}", stylesheet_url);
+                    auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
 
-                auto new_rules = css::parse(style_data.body);
-                stylesheet.reserve(stylesheet.size() + new_rules.size());
-                stylesheet.insert(end(stylesheet),
-                        std::make_move_iterator(begin(new_rules)),
-                        std::make_move_iterator(end(new_rules)));
+                    return css::parse(style_data.body);
+                }));
+            }
+
+            // In order, wait for the download to finish and merge with the big stylesheet.
+            for (auto &future_rules : future_new_rules) {
+                auto rules = future_rules.get();
+                stylesheet.reserve(stylesheet.size() + rules.size());
+                stylesheet.insert(
+                        end(stylesheet), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
             }
 
             spdlog::info("Styling dom w/ {} rules", stylesheet.size());
