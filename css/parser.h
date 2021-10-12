@@ -167,7 +167,7 @@ private:
     void add_declaration(
             std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) const {
         if (name == "padding") {
-            expand_padding(declarations, value);
+            expand_edge_values(declarations, std::string{name}, value);
         } else if (name == "font") {
             expand_font(declarations, value);
         } else {
@@ -175,7 +175,8 @@ private:
         }
     }
 
-    void expand_padding(std::map<std::string, std::string> &declarations, std::string_view value) const {
+    void expand_edge_values(
+            std::map<std::string, std::string> &declarations, std::string property, std::string_view value) const {
         std::string_view top = "", bottom = "", left = "", right = "";
         Tokenizer tokenizer(value, ' ');
         switch (tokenizer.size()) {
@@ -200,10 +201,10 @@ private:
             default:
                 break;
         }
-        declarations.insert_or_assign("padding-top", std::string{top});
-        declarations.insert_or_assign("padding-bottom", std::string{bottom});
-        declarations.insert_or_assign("padding-left", std::string{left});
-        declarations.insert_or_assign("padding-right", std::string{right});
+        declarations.insert_or_assign(property + "-top", std::string{top});
+        declarations.insert_or_assign(property + "-bottom", std::string{bottom});
+        declarations.insert_or_assign(property + "-left", std::string{left});
+        declarations.insert_or_assign(property + "-right", std::string{right});
     }
 
     void expand_font(std::map<std::string, std::string> &declarations, std::string_view value) const {
