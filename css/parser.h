@@ -166,7 +166,7 @@ private:
 
     void add_declaration(
             std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) const {
-        if (name == "padding") {
+        if (name == "padding" || name == "margin") {
             expand_edge_values(declarations, std::string{name}, value);
         } else if (name == "font") {
             expand_font(declarations, value);
