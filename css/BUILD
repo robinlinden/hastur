@@ -24,5 +24,6 @@ cc_test(
     deps = [
         ":css",
         "//etest",
+        "@fmt",
     ],
 )

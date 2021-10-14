@@ -7,6 +7,8 @@
 
 #include "etest/etest.h"
 
+#include <fmt/format.h>
+
 using namespace std::literals;
 using etest::expect;
 using etest::require;
@@ -176,87 +178,119 @@ int main() {
         expect(a.media_query.empty());
     });
 
-    etest::test("parser: shorthand padding, one value", [] {
-        auto rules = css::parse("p { padding: 10px; }"sv);
-        require(rules.size() == 1);
+    auto box_shorthand_one_value = [](std::string property) {
+        return [=] {
+            auto rules = css::parse(fmt::format("p {{ {}: 10px; }}"sv, property));
+            require(rules.size() == 1);
 
-        auto body = rules[0];
-        expect(body.declarations.size() == 4);
-        expect(body.declarations.at("padding-top"s) == "10px"s);
-        expect(body.declarations.at("padding-bottom"s) == "10px"s);
-        expect(body.declarations.at("padding-left"s) == "10px"s);
-        expect(body.declarations.at("padding-right"s) == "10px"s);
-    });
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(fmt::format("{}-top", property)) == "10px"s);
+            expect(body.declarations.at(fmt::format("{}-bottom", property)) == "10px"s);
+            expect(body.declarations.at(fmt::format("{}-left", property)) == "10px"s);
+            expect(body.declarations.at(fmt::format("{}-right", property)) == "10px"s);
+        };
+    };
 
-    etest::test("parser: shorthand padding, two values", [] {
-        auto rules = css::parse("p { padding: 12em 36em; }"sv);
-        require(rules.size() == 1);
+    etest::test("parser: shorthand padding, one value", box_shorthand_one_value("padding"));
+    etest::test("parser: shorthand margin, one value", box_shorthand_one_value("margin"));
 
-        auto body = rules[0];
-        expect(body.declarations.size() == 4);
-        expect(body.declarations.at("padding-top"s) == "12em"s);
-        expect(body.declarations.at("padding-bottom"s) == "12em"s);
-        expect(body.declarations.at("padding-left"s) == "36em"s);
-        expect(body.declarations.at("padding-right"s) == "36em"s);
-    });
+    auto box_shorthand_two_values = [](std::string property) {
+        return [=] {
+            auto rules = css::parse(fmt::format("p {{ {}: 12em 36em; }}"sv, property));
+            require(rules.size() == 1);
 
-    etest::test("parser: shorthand padding, three values", [] {
-        auto rules = css::parse("p { padding: 12px 36px 52px; }"sv);
-        require(rules.size() == 1);
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(fmt::format("{}-top", property)) == "12em"s);
+            expect(body.declarations.at(fmt::format("{}-bottom", property)) == "12em"s);
+            expect(body.declarations.at(fmt::format("{}-left", property)) == "36em"s);
+            expect(body.declarations.at(fmt::format("{}-right", property)) == "36em"s);
+        };
+    };
 
-        auto body = rules[0];
-        expect(body.declarations.size() == 4);
-        expect(body.declarations.at("padding-top"s) == "12px"s);
-        expect(body.declarations.at("padding-bottom"s) == "52px"s);
-        expect(body.declarations.at("padding-left"s) == "36px"s);
-        expect(body.declarations.at("padding-right"s) == "36px"s);
-    });
+    etest::test("parser: shorthand padding, two values", box_shorthand_two_values("padding"));
+    etest::test("parser: shorthand margin, two values", box_shorthand_two_values("margin"));
 
-    etest::test("parser: shorthand padding, four values", [] {
-        auto rules = css::parse("p { padding: 12px 36px 52px 2px; }"sv);
-        require(rules.size() == 1);
+    auto box_shorthand_three_values = [](std::string property) {
+        return [=] {
+            auto rules = css::parse(fmt::format("p {{ {}: 12px 36px 52px; }}"sv, property));
+            require(rules.size() == 1);
 
-        auto body = rules[0];
-        expect(body.declarations.size() == 4);
-        expect(body.declarations.at("padding-top"s) == "12px"s);
-        expect(body.declarations.at("padding-right"s) == "36px"s);
-        expect(body.declarations.at("padding-bottom"s) == "52px"s);
-        expect(body.declarations.at("padding-left"s) == "2px"s);
-    });
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(fmt::format("{}-top", property)) == "12px"s);
+            expect(body.declarations.at(fmt::format("{}-bottom", property)) == "52px"s);
+            expect(body.declarations.at(fmt::format("{}-left", property)) == "36px"s);
+            expect(body.declarations.at(fmt::format("{}-right", property)) == "36px"s);
+        };
+    };
 
-    etest::test("parser: shorthand padding overridden", [] {
-        auto rules = css::parse(R"(
-                p {
-                    padding: 10px;
-                    padding-top: 15px;
-                    padding-left: 25px;
-                })"sv);
-        require(rules.size() == 1);
+    etest::test("parser: shorthand padding, three values", box_shorthand_three_values("padding"));
+    etest::test("parser: shorthand margin, three values", box_shorthand_three_values("margin"));
 
-        auto body = rules[0];
-        expect(body.declarations.size() == 4);
-        expect(body.declarations.at("padding-top"s) == "15px"s);
-        expect(body.declarations.at("padding-bottom"s) == "10px"s);
-        expect(body.declarations.at("padding-left"s) == "25px"s);
-        expect(body.declarations.at("padding-right"s) == "10px"s);
-    });
+    auto box_shorthand_four_values = [](std::string property) {
+        return [=] {
+            auto rules = css::parse(fmt::format("p {{ {}: 12px 36px 52px 2px; }}"sv, property));
+            require(rules.size() == 1);
 
-    etest::test("parser: override padding with shorthand", [] {
-        auto rules = css::parse(R"(
-                p {
-                    padding-bottom: 5px;
-                    padding-left: 25px;
-                    padding: 12px 40px;
-                })"sv);
-        require(rules.size() == 1);
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(fmt::format("{}-top", property)) == "12px"s);
+            expect(body.declarations.at(fmt::format("{}-bottom", property)) == "52px"s);
+            expect(body.declarations.at(fmt::format("{}-left", property)) == "2px"s);
+            expect(body.declarations.at(fmt::format("{}-right", property)) == "36px"s);
+        };
+    };
 
-        auto body = rules[0];
-        expect(body.declarations.size() == 4);
-        expect(body.declarations.at("padding-top"s) == "12px"s);
-        expect(body.declarations.at("padding-bottom"s) == "12px"s);
-        expect(body.declarations.at("padding-left"s) == "40px"s);
-        expect(body.declarations.at("padding-right"s) == "40px"s);
-    });
+    etest::test("parser: shorthand padding, four values", box_shorthand_four_values("padding"));
+    etest::test("parser: shorthand margin, four values", box_shorthand_four_values("margin"));
+
+    auto box_shorthand_overridden = [](std::string property) {
+        return [=] {
+            auto rules = css::parse(fmt::format(R"(
+               p {{
+                  {0}: 10px;
+                  {0}-top: 15px;
+                  {0}-left: 25px;
+               }})"sv,
+                    property));
+            require(rules.size() == 1);
+
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(fmt::format("{}-top", property)) == "15px"s);
+            expect(body.declarations.at(fmt::format("{}-bottom", property)) == "10px"s);
+            expect(body.declarations.at(fmt::format("{}-left", property)) == "25px"s);
+            expect(body.declarations.at(fmt::format("{}-right", property)) == "10px"s);
+        };
+    };
+
+    etest::test("parser: shorthand padding overridden", box_shorthand_overridden("padding"));
+    etest::test("parser: shorthand margin overridden", box_shorthand_overridden("margin"));
+
+    auto box_override_with_shorthand = [](std::string property) {
+        return [=] {
+            auto rules = css::parse(fmt::format(R"(
+               p {{
+                  {0}-bottom: 5px;
+                  {0}-left: 25px;
+                  {0}: 12px 40px;
+               }})"sv,
+                    property));
+            require(rules.size() == 1);
+
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(fmt::format("{}-top", property)) == "12px"s);
+            expect(body.declarations.at(fmt::format("{}-bottom", property)) == "12px"s);
+            expect(body.declarations.at(fmt::format("{}-left", property)) == "40px"s);
+            expect(body.declarations.at(fmt::format("{}-right", property)) == "40px"s);
+        };
+    };
+
+    etest::test("parser: override padding with shorthand", box_override_with_shorthand("padding"));
+    etest::test("parser: override margin with shorthand", box_override_with_shorthand("margin"));
 
     etest::test("parser: shorthand font with only size and generic font family", [] {
         auto rules = css::parse("p { font: 1.5em sans-serif; }"sv);
