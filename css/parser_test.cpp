@@ -150,6 +150,21 @@ int main() {
         expect(rules.size() == 0);
     });
 
+    etest::test("parser: top-level comments", [] {
+        auto rules = css::parse("body { width: 50px; }/* comment. */ p { font-size: 8em; } /* comment. */"sv);
+        require(rules.size() == 2);
+
+        auto body = rules[0];
+        expect(body.selectors == std::vector{"body"s});
+        expect(body.declarations.size() == 1);
+        expect(body.declarations.at("width"s) == "50px"s);
+
+        auto p = rules[1];
+        expect(p.selectors == std::vector{"p"s});
+        expect(p.declarations.size() == 1);
+        expect(p.declarations.at("font-size"s) == "8em"s);
+    });
+
     etest::test("parser: media query", [] {
         auto rules = css::parse(R"(
                 @media screen and (min-width: 900px) {

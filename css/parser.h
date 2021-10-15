@@ -30,6 +30,14 @@ public:
 
         skip_whitespace();
         while (!is_eof()) {
+            if (starts_with("/*")) {
+                advance(2);
+                consume_while([&](char) { return peek(2) != "*/"; });
+                advance(2);
+                skip_whitespace();
+                continue;
+            }
+
             if (starts_with("@media ")) {
                 advance(std::strlen("@media"));
                 skip_whitespace();
