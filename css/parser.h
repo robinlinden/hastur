@@ -74,6 +74,8 @@ private:
         }
     }
 
+    static constexpr auto shorthand_edge_property = std::array{"padding", "margin"};
+
     static constexpr auto absolute_size_keywords =
             std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
 
@@ -180,7 +182,7 @@ private:
 
     void add_declaration(
             std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) const {
-        if (name == "padding" || name == "margin") {
+        if (is_shorthand_edge_property(name)) {
             expand_edge_values(declarations, std::string{name}, value);
         } else if (name == "font") {
             expand_font(declarations, value);
@@ -372,6 +374,10 @@ private:
     template<auto const &array>
     constexpr bool is_in_array(std::string_view str) const {
         return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
+    }
+
+    constexpr bool is_shorthand_edge_property(std::string_view str) const {
+        return is_in_array<shorthand_edge_property>(str);
     }
 
     constexpr bool is_absolute_size(std::string_view str) const { return is_in_array<absolute_size_keywords>(str); }
