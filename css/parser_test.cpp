@@ -7,13 +7,23 @@
 
 #include "etest/etest.h"
 
+#include <algorithm>
+#include <iterator>
+
 #include <fmt/format.h>
 
 using namespace std::literals;
 using etest::expect;
+using etest::expect_eq;
 using etest::require;
+using etest::require_eq;
 
 namespace {
+
+[[maybe_unused]] std::ostream &operator<<(std::ostream &os, std::vector<std::string> const &vec) {
+    std::copy(cbegin(vec), cend(vec), std::ostream_iterator<std::string const &>(os, " "));
+    return os;
+}
 
 const auto initial_font_values = std::map<std::string, std::string>{{"font-stretch", "normal"},
         {"font-variant", "normal"},
@@ -163,6 +173,29 @@ int main() {
         expect(p.selectors == std::vector{"p"s});
         expect(p.declarations.size() == 1);
         expect(p.declarations.at("font-size"s) == "8em"s);
+    });
+
+    etest::test("parser: comments almost everywhere", [] {
+        // body { width: 50px; } p { padding: 8em 4em; } with comments added everywhere currently supported.
+        auto rules = css::parse(R"(/**/body /**/{/**/width:50px;/**/}/*
+                */p /**/{/**/padding:/**/8em 4em;/**//**/}/**/)"sv);
+        // TODO(robinlinden): Support comments in more places.
+        // auto rules = css::parse(R"(/**/body/**/{/**/width/**/:/**/50px/**/;/**/}/*
+        //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"sv);
+        require_eq(rules.size(), 2UL);
+
+        auto body = rules[0];
+        expect_eq(body.selectors, std::vector{"body"s});
+        expect_eq(body.declarations.size(), 1UL);
+        expect_eq(body.declarations.at("width"s), "50px"s);
+
+        auto p = rules[1];
+        expect_eq(p.selectors, std::vector{"p"s});
+        expect_eq(p.declarations.size(), 4UL);
+        expect_eq(p.declarations.at("padding-top"s), "8em"s);
+        expect_eq(p.declarations.at("padding-bottom"s), "8em"s);
+        expect_eq(p.declarations.at("padding-left"s), "4em"s);
+        expect_eq(p.declarations.at("padding-right"s), "4em"s);
     });
 
     etest::test("parser: media query", [] {

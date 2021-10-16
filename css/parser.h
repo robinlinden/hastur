@@ -28,26 +28,18 @@ public:
         std::vector<css::Rule> rules;
         std::string_view media_query;
 
-        skip_whitespace();
+        skip_whitespace_and_comments();
         while (!is_eof()) {
-            if (starts_with("/*")) {
-                advance(2);
-                consume_while([&](char) { return peek(2) != "*/"; });
-                advance(2);
-                skip_whitespace();
-                continue;
-            }
-
             if (starts_with("@media ")) {
                 advance(std::strlen("@media"));
-                skip_whitespace();
+                skip_whitespace_and_comments();
 
                 media_query = consume_while([](char c) { return c != '{'; });
                 if (auto last_char = media_query.find_last_not_of(' '); last_char != std::string_view::npos) {
                     media_query.remove_suffix(media_query.size() - (last_char + 1));
                 }
                 consume_char(); // {
-                skip_whitespace();
+                skip_whitespace_and_comments();
             }
 
             rules.push_back(parse_rule());
@@ -55,12 +47,12 @@ public:
                 rules.back().media_query = std::string{media_query};
             }
 
-            skip_whitespace();
+            skip_whitespace_and_comments();
 
             if (!media_query.empty() && peek() == '}') {
                 media_query = {};
                 consume_char(); // }
-                skip_whitespace();
+                skip_whitespace_and_comments();
             }
         }
 
@@ -68,6 +60,20 @@ public:
     }
 
 private:
+    void skip_whitespace_and_comments() {
+        if (starts_with("/*")) {
+            advance(2);
+            consume_while([&](char) { return peek(2) != "*/"; });
+            advance(2);
+        }
+
+        skip_whitespace();
+
+        if (starts_with("/*")) {
+            skip_whitespace_and_comments();
+        }
+    }
+
     static constexpr auto absolute_size_keywords =
             std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
 
@@ -146,16 +152,16 @@ private:
             auto selector = consume_while([](char c) { return c != ' ' && c != ',' && c != '{'; });
             rule.selectors.push_back(std::string{selector});
             skip_if_neq('{'); // ' ' or ','
-            skip_whitespace();
+            skip_whitespace_and_comments();
         }
 
         consume_char(); // {
-        skip_whitespace();
+        skip_whitespace_and_comments();
 
         while (peek() != '}') {
             auto [name, value] = parse_declaration();
             add_declaration(rule.declarations, name, value);
-            skip_whitespace();
+            skip_whitespace_and_comments();
         }
 
         consume_char(); // }
@@ -166,7 +172,7 @@ private:
     std::pair<std::string_view, std::string_view> parse_declaration() {
         auto name = consume_while([](char c) { return c != ':'; });
         consume_char(); // :
-        skip_whitespace();
+        skip_whitespace_and_comments();
         auto value = consume_while([](char c) { return c != ';' && c != '}'; });
         skip_if_neq('}'); // ;
         return {name, value};
