@@ -10,6 +10,8 @@
 
 #include "util/base_parser.h"
 
+#include <fmt/format.h>
+
 #include <array>
 #include <cstring>
 #include <optional>
@@ -74,7 +76,7 @@ private:
         }
     }
 
-    static constexpr auto shorthand_edge_property = std::array{"padding", "margin"};
+    static constexpr auto shorthand_edge_property = std::array{"padding", "margin", "border-style"};
 
     static constexpr auto absolute_size_keywords =
             std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
@@ -217,10 +219,14 @@ private:
             default:
                 break;
         }
-        declarations.insert_or_assign(property + "-top", std::string{top});
-        declarations.insert_or_assign(property + "-bottom", std::string{bottom});
-        declarations.insert_or_assign(property + "-left", std::string{left});
-        declarations.insert_or_assign(property + "-right", std::string{right});
+        std::string post_fix{""};
+        if (property == "border-style") {
+            post_fix = "-style";
+        }
+        declarations.insert_or_assign(fmt::format("{}-top{}", property, post_fix), std::string{top});
+        declarations.insert_or_assign(fmt::format("{}-bottom{}", property, post_fix), std::string{bottom});
+        declarations.insert_or_assign(fmt::format("{}-left{}", property, post_fix), std::string{left});
+        declarations.insert_or_assign(fmt::format("{}-right{}", property, post_fix), std::string{right});
     }
 
     void expand_font(std::map<std::string, std::string> &declarations, std::string_view value) const {

@@ -14,7 +14,10 @@ cc_library(
     ],
     data = ["default.css"],
     visibility = ["//visibility:public"],
-    deps = ["//util"],
+    deps = [
+        "//util",
+        "@fmt",
+    ],
 )
 
 cc_test(
