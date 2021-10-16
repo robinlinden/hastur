@@ -46,8 +46,14 @@ int run_all_tests() noexcept {
 
         try {
             test.body();
+        } catch (test_failure const &) {
+            ++assertion_failures;
+        } catch (std::exception const &e) {
+            ++assertion_failures;
+            test_log << "Unhandled exception in test body: " << e.what() << '\n';
         } catch (...) {
             ++assertion_failures;
+            test_log << "Unhandled unknown exception in test body.\n";
         }
 
         if (before == assertion_failures) {
