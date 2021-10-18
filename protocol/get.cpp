@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -88,9 +89,14 @@ Response parse_response(std::string_view data) {
 
 Response get(uri::Uri const &uri) {
     if (uri.scheme == "http"sv) {
-        asio::ip::tcp::iostream stream(uri.authority.host, "http"sv);
+        bool use_port = !uri.authority.port.empty() && uri.authority.port != "80";
+        asio::ip::tcp::iostream stream(uri.authority.host, use_port ? uri.authority.port : "http"sv);
         stream << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
-        stream << fmt::format("Host: {}\r\n", uri.authority.host);
+        if (use_port) {
+            stream << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
+        } else {
+            stream << fmt::format("Host: {}\r\n", uri.authority.host);
+        }
         stream << "Accept: text/html\r\n";
         stream << "Connection: close\r\n\r\n";
         stream.flush();
@@ -109,7 +115,8 @@ Response get(uri::Uri const &uri) {
         asio::error_code ec;
 
         asio::ip::tcp::resolver resolver{svc};
-        auto endpoints = resolver.resolve(uri.authority.host, "https"sv, ec);
+        bool use_port = !uri.authority.port.empty() && uri.authority.port != "443";
+        auto endpoints = resolver.resolve(uri.authority.host, use_port ? uri.authority.port : "https"sv, ec);
         if (ec) {
             return {Error::Unresolved};
         }
@@ -119,7 +126,11 @@ Response get(uri::Uri const &uri) {
 
         std::stringstream ss;
         ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
-        ss << fmt::format("Host: {}\r\n", uri.authority.host);
+        if (use_port) {
+            ss << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
+        } else {
+            ss << fmt::format("Host: {}\r\n", uri.authority.host);
+        }
         ss << "Accept: text/html\r\n";
         ss << "Connection: close\r\n\r\n";
         asio::write(ssock, asio::buffer(ss.str()), ec);
