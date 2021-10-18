@@ -9,8 +9,11 @@
 #include <charconv>
 #include <optional>
 #include <sstream>
+#include <string_view>
 #include <utility>
 #include <variant>
+
+using namespace std::literals;
 
 namespace layout {
 namespace {
@@ -106,9 +109,9 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
 
 void calculate_position(LayoutBox &box, Rect const &parent) {
     auto const &d = box.dimensions;
-    box.dimensions.content.x = parent.x + d.padding.left;
+    box.dimensions.content.x = parent.x + d.padding.left + d.margin.left;
     // Position below previous content in parent.
-    box.dimensions.content.y = parent.y + parent.height + d.padding.top;
+    box.dimensions.content.y = parent.y + parent.height + d.padding.top + d.margin.top;
 }
 
 void calculate_height(LayoutBox &box) {
@@ -149,11 +152,34 @@ void calculate_padding(LayoutBox &box) {
     }
 }
 
-void calculate_overflow(LayoutBox &box, Rect const &parent) {
-    int underflow = parent.width - box.dimensions.padding_box().width;
+void calculate_margins_and_overflow(LayoutBox &box, Rect const &parent) {
+    if (auto margin_top = style::get_property(*box.node, "margin-top")) {
+        box.dimensions.margin.top = to_px(*margin_top);
+    }
+
+    if (auto margin_bottom = style::get_property(*box.node, "margin-bottom")) {
+        box.dimensions.margin.bottom = to_px(*margin_bottom);
+    }
+
+    auto margin_left = style::get_property(*box.node, "margin-left");
+    if (margin_left && margin_left != "auto"sv) {
+        box.dimensions.margin.left = to_px(*margin_left);
+    }
+
+    auto margin_right = style::get_property(*box.node, "margin-right");
+    if (margin_right && margin_right != "auto"sv) {
+        box.dimensions.margin.right = to_px(*margin_right);
+    }
+
+    int underflow = parent.width - box.dimensions.margin_box().width;
+
+    if (box.type == LayoutType::Block && margin_left == "auto"sv && margin_right == "auto"sv && underflow > 0) {
+        box.dimensions.margin.left = box.dimensions.margin.right = underflow / 2;
+    }
+
     if (underflow < 0) {
-        // Overflow, this should adjust the right margin, but for now...
-        box.dimensions.content.width = std::max(box.dimensions.content.width + underflow, 0);
+        // Overflow, adjust the right margin.
+        box.dimensions.margin.right += underflow;
     }
 }
 
@@ -163,7 +189,7 @@ void layout(LayoutBox &box, Rect const &bounds) {
         case LayoutType::Block: {
             calculate_width(box, bounds);
             calculate_padding(box);
-            calculate_overflow(box, bounds);
+            calculate_margins_and_overflow(box, bounds);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
@@ -231,7 +257,8 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
         }
     }
 
-    os << to_str(box.type) << " " << to_str(box.dimensions.content) << " " << to_str(box.dimensions.padding) << '\n';
+    auto const &d = box.dimensions;
+    os << to_str(box.type) << " " << to_str(d.content) << " " << to_str(d.padding) << " " << to_str(d.margin) << '\n';
     for (auto const &child : box.children) {
         print_box(child, os, depth + 1);
     }
