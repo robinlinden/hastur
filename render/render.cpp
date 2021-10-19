@@ -95,18 +95,12 @@ void render_layout(gfx::IPainter &painter, layout::LayoutBox const &layout) {
 }
 
 namespace debug {
-namespace {
-void render_layout_depth_impl(gfx::IPainter &painter, layout::LayoutBox const &layout, int depth) {
-    auto color = static_cast<std::uint8_t>(255 / depth);
-    painter.fill_rect(layout.dimensions.padding_box(), {color, color, color});
-    for (auto const &child : layout.children) {
-        render_layout_depth_impl(painter, child, depth + 1);
-    }
-}
-} // namespace
 
 void render_layout_depth(gfx::IPainter &painter, layout::LayoutBox const &layout) {
-    render_layout_depth_impl(painter, layout, 1);
+    painter.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
+    for (auto const &child : layout.children) {
+        render_layout_depth(painter, child);
+    }
 }
 
 } // namespace debug
