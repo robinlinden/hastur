@@ -20,7 +20,7 @@ struct Color {
         };
     }
 
-    std::uint8_t r, g, b;
+    std::uint8_t r, g, b, a{0xFF};
 
     [[nodiscard]] constexpr bool operator==(Color const &) const = default;
 };
@@ -35,6 +35,8 @@ public:
 
 class OpenGLPainter final : public IPainter {
 public:
+    OpenGLPainter();
+
     constexpr void add_translation(int dx, int dy) override {
         translation_x += dx;
         translation_y += dy;
