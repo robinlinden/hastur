@@ -23,6 +23,18 @@ int main() {
         expect(!style::is_match(dom::Element{"div"}, "span"sv));
     });
 
+    etest::test("is_match: class", [] {
+        expect(!style::is_match(dom::Element{"div"}, ".myclass"sv));
+        expect(!style::is_match(dom::Element{"div", {{"id", "myclass"}}}, ".myclass"sv));
+        expect(style::is_match(dom::Element{"div", {{"class", "myclass"}}}, ".myclass"sv));
+    });
+
+    etest::test("is_match: id", [] {
+        expect(!style::is_match(dom::Element{"div"}, "#myid"sv));
+        expect(style::is_match(dom::Element{"div", {{"class", "myid"}}}, ".myid"sv));
+        expect(!style::is_match(dom::Element{"div", {{"id", "myid"}}}, ".myid"sv));
+    });
+
     etest::test("matching_rules: simple names", [] {
         std::vector<css::Rule> stylesheet;
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());

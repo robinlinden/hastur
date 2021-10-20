@@ -10,10 +10,20 @@
 
 namespace style {
 
-// TODO(robinlinden): This only matches simple names right now.
+// TODO(robinlinden): This needs to match more things.
 bool is_match(dom::Element const &element, std::string_view selector) {
     if (element.name == selector) {
         return true;
+    }
+
+    if (selector.starts_with('.') && element.attributes.contains("class")) {
+        selector.remove_prefix(1);
+        return element.attributes.at("class") == selector;
+    }
+
+    if (selector.starts_with('#') && element.attributes.contains("id")) {
+        selector.remove_prefix(1);
+        return element.attributes.at("id") == selector;
     }
 
     return false;
