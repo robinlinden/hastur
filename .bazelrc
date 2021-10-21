@@ -29,12 +29,10 @@ build:gnulike --per_file_copt='external/asio[:/]@-Wno-sign-compare'
 build:gnulike --per_file_copt='external/asio[:/]@-Wno-undef'
 build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
 build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/fmt[:/]@-Wno-shadow' # Fixed in master, but not in 7.1.3
 build:gnulike --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
 build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
 build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
-build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-undef'
-build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-unused-parameter'
+build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-undef' # Can be solved by us defining things.
 build:gnulike --per_file_copt='external/imgui[:/]@-Wno-double-promotion'
 build:gnulike --per_file_copt='external/libpng[:/]@-Wno-undef'
 build:gnulike --per_file_copt='external/sfml[:/]@-Wno-double-promotion'
@@ -83,13 +81,11 @@ build:msvc --per_file_copt='external/freetype2[:/]@/wd4701' # C4701: potentially
 build:msvc --per_file_copt='external/freetype2[:/]@/wd4702' # C4702: unreachable code
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-build:msvc --per_file_copt='external/imgui-sfml[:/]@/wd4100' # C4100: 'bgColor': unreferenced formal parameter
 build:msvc --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
 build:msvc --per_file_copt='external/sfml[:/]@/wd4244' # C4244: 'initializing': conversion from 'sf::Uint32' to 'sf::Uint8', possible loss of data
 build:msvc --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
 build:msvc --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
 build:msvc --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
-build:msvc --per_file_copt='external/spdlog[:/]@/wd4702' # C4702: unreachable code
 build:msvc --per_file_copt='external/zlib[:/]@/wd4127' # C4127: conditional expression is constant
 build:msvc --per_file_copt='external/zlib[:/]@/wd4131' # C4131: 'adler32_z': uses old-style declarator
 build:msvc --per_file_copt='external/zlib[:/]@/wd4244' # C4244: '+=': conversion from 'int' to 'ush', possible loss of data
