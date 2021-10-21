@@ -15,16 +15,16 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "3ac05d4586d4b10afc28ff09017639652fb04feb9e575f9d48410db3ab27f9f2",
-    strip_prefix = "asio-1.18.2",
-    url = "https://downloads.sourceforge.net/project/asio/asio/1.18.2%20(Stable)/asio-1.18.2.tar.bz2",
+    sha256 = "204374d3cadff1b57a63f4c343cbadcee28374c072dc04b549d772dbba9f650c",
+    strip_prefix = "asio-1.20.0",
+    url = "https://downloads.sourceforge.net/project/asio/asio/1.20.0%20(Stable)/asio-1.20.0.tar.bz2",
 )
 
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    sha256 = "6f640262999cd1fb33cf705922e453e835d2d20f3f06fe0d77f6426c19257308",
-    strip_prefix = "boringssl-fc44652a42b396e1645d5e72aba053349992136a",
-    url = "https://github.com/google/boringssl/archive/fc44652a42b396e1645d5e72aba053349992136a.tar.gz",
+    sha256 = "57619c1ae003b560abe044d930bbb7ffe32a52d3abe32284da923865ab5a0dff",
+    strip_prefix = "boringssl-c76e2b1fd16c20cf5908c33e34d392a276dde806",
+    url = "https://github.com/google/boringssl/archive/c76e2b1fd16c20cf5908c33e34d392a276dde806.tar.gz",
 )
 
 http_archive(
@@ -38,28 +38,25 @@ http_archive(
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b",
-    strip_prefix = "freetype-2.8",
-    urls = [
-        "https://mirror.bazel.build/download.savannah.gnu.org/releases/freetype/freetype-2.8.tar.gz",
-        "http://download.savannah.gnu.org/releases/freetype/freetype-2.8.tar.gz",
-    ],
+    sha256 = "a45c6b403413abd5706f3582f04c8339d26397c4304b78fa552f2215df64101f",
+    strip_prefix = "freetype-2.11.0",
+    url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.11.0.tar.gz",
 )
 
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "6aaa8ec03c0dbbc371bc73afa1959e088846245e378256c631a0933469d2fee6",
-    strip_prefix = "FTXUI-4d50dadb4167f356583cc2bb7b4257b340ba6275",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/4d50dadb4167f356583cc2bb7b4257b340ba6275.tar.gz",
+    sha256 = "371fc4224876411b90f2e80aae12c9f894765aaadc9bbffdcd09ac6b373ea93f",
+    strip_prefix = "FTXUI-0.11",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v0.11.tar.gz",
 )
 
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "35cb5ca0fb42cb77604d4f908553f6ef3346ceec4fcd0189675bdfb764f62b9b",
-    strip_prefix = "imgui-1.84.2",
-    url = "https://github.com/ocornut/imgui/archive/v1.84.2.tar.gz",
+    sha256 = "7ed49d1f4573004fa725a70642aaddd3e06bb57fcfe1c1a49ac6574a3e895a77",
+    strip_prefix = "imgui-1.85",
+    url = "https://github.com/ocornut/imgui/archive/v1.85.tar.gz",
 )
 
 http_archive(
@@ -97,9 +94,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "daeab82422dfdb1642278d74a24c3594b7a8ca782c53a6df0783d884a0f05c47",
-    strip_prefix = "stb-c0c982601f40183e74d84a61237e968dca08380e",
-    url = "https://github.com/nothings/stb/archive/c0c982601f40183e74d84a61237e968dca08380e.tar.gz",
+    sha256 = "936b4e506b5f55db178207e528ecdf5a411f67431447767d06c9b7061765cd7e",
+    strip_prefix = "stb-af1a5bc352164740c1cc1354942b1c6b72eacb8a",
+    url = "https://github.com/nothings/stb/archive/af1a5bc352164740c1cc1354942b1c6b72eacb8a.tar.gz",
 )
 
 http_archive(

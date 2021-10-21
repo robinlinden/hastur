@@ -23,7 +23,6 @@ build:gnulike --copt='-fno-common'
 build:gnulike --cxxopt='-Wnon-virtual-dtor'
 build:gnulike --cxxopt='-Woverloaded-virtual'
 build:gnulike --copt='-Wno-missing-field-initializers' # Common idiom for zeroing members.
-build:gnulike --per_file_copt='protocol:get@-Wno-sign-compare' # asio leaks this into our code.
 build:gnulike --per_file_copt='protocol:get@-Wno-undef' # asio leaks this into our code.
 build:gnulike --per_file_copt='protocol:get@-Wno-shadow' # asio leaks this into our code.
 build:gnulike --per_file_copt='external/asio[:/]@-Wno-sign-compare'
@@ -31,8 +30,7 @@ build:gnulike --per_file_copt='external/asio[:/]@-Wno-undef'
 build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
 build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
 build:gnulike --per_file_copt='external/fmt[:/]@-Wno-shadow' # Fixed in master, but not in 7.1.3
-build:gnulike --per_file_copt='external/freetype2[:/]@-Wno-double-promotion'
-build:gnulike --per_file_copt='external/freetype2[:/]@-Wno-unused-parameter'
+build:gnulike --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
 build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
 build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
 build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-undef'
@@ -81,8 +79,8 @@ build:msvc --per_file_copt='external/freetype2[:/]@/wd4100' # C4100: 'msg_tag': 
 build:msvc --per_file_copt='external/freetype2[:/]@/wd4244' # C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
 build:msvc --per_file_copt='external/freetype2[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
 build:msvc --per_file_copt='external/freetype2[:/]@/wd4312' # C4312: 'type cast': conversion from 'unsigned long' to 'void *' of greater size
+build:msvc --per_file_copt='external/freetype2[:/]@/wd4701' # C4701: potentially uninitialized local variable 'cbox' used
 build:msvc --per_file_copt='external/freetype2[:/]@/wd4702' # C4702: unreachable code
-build:msvc --per_file_copt='external/ftxui[:/]@/wd4005' # C4005: 'NOMINMAX': macro redefinition
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
 build:msvc --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 build:msvc --per_file_copt='external/imgui-sfml[:/]@/wd4100' # C4100: 'bgColor': unreferenced formal parameter

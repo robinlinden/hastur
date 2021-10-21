@@ -5,8 +5,11 @@ cc_library(
     srcs = glob(
         include = ["src/**"],
         exclude = [
+            # Tests/fuzzers that shouldn't be part of the library.
             "src/**/*_test.cpp",
             "src/**/*_fuzzer.cpp",
+            # Doesn't build, and not included in the project's CMakeLists.txt.
+            "src/ftxui/component/show.cpp",
         ],
     ),
     hdrs = glob(["include/**/*.hpp"]),
