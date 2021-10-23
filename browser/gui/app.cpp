@@ -4,9 +4,7 @@
 
 #include "browser/gui/app.h"
 
-#include "css/default.h"
-#include "css/parse.h"
-#include "html/parse.h"
+#include "dom/dom.h"
 #include "render/render.h"
 
 #include <SFML/Window/Event.hpp>
@@ -16,8 +14,7 @@
 #include <imgui_stdlib.h>
 #include <spdlog/spdlog.h>
 
-#include <future>
-#include <iterator>
+#include <functional>
 #include <string_view>
 #include <utility>
 
@@ -42,6 +39,12 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     window_.setFramerateLimit(60);
     ImGui::SFML::Init(window_);
     render::render_setup(window_.getSize().x, window_.getSize().y);
+
+    engine_.set_layout_width(window_.getSize().x);
+    engine_.set_on_navigation_failure(std::bind(&App::on_navigation_failure, this, std::placeholders::_1));
+    engine_.set_on_page_loaded(std::bind(&App::on_page_loaded, this));
+    engine_.set_on_layout_updated(std::bind(&App::on_layout_updated, this));
+
     if (load_start_page) {
         navigate();
     }
@@ -64,7 +67,7 @@ int App::run() {
                 }
                 case sf::Event::Resized: {
                     render::render_setup(event.size.width, event.size.height);
-                    layout();
+                    engine_.set_layout_width(event.size.width);
                     break;
                 }
                 case sf::Event::KeyPressed: {
@@ -87,9 +90,13 @@ int App::run() {
                     break;
                 }
                 case sf::Event::MouseMoved: {
+                    if (!page_loaded_) {
+                        break;
+                    }
+
                     auto window_position = layout::Position{event.mouseMove.x, event.mouseMove.y};
                     auto document_position = to_document_position(std::move(window_position));
-                    mouse_over_str_ = get_hovered_element_text(std::move(document_position));
+                    nav_widget_extra_info_ = get_hovered_element_text(std::move(document_position));
                     break;
                 }
                 default:
@@ -104,7 +111,11 @@ int App::run() {
         run_layout_widget();
 
         clear_render_surface();
-        render_layout();
+
+        if (page_loaded_) {
+            render_layout();
+        }
+
         render_overlay();
         show_render_surface();
     }
@@ -113,6 +124,7 @@ int App::run() {
 }
 
 void App::navigate() {
+    page_loaded_ = false;
     auto uri = uri::Uri::parse(url_buf_);
     if (!uri) {
         return;
@@ -122,121 +134,67 @@ void App::navigate() {
         uri->path = "/";
     }
 
-    auto is_redirect = [](int status_code) {
-        return status_code == 301 || status_code == 302;
-    };
+    engine_.navigate(std::move(*uri));
 
-    response_ = protocol::get(*uri);
-    while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
-        spdlog::info("Following {} redirect from {} to {}",
-                response_.status_line.status_code,
-                uri->uri,
-                response_.headers.at("Location"));
-        url_buf_ = response_.headers.at("Location");
-        uri = uri::Uri::parse(url_buf_);
-        if (uri->path.empty()) {
-            uri->path = "/";
-        }
-        response_ = protocol::get(*uri);
-    }
+    // Make sure the displayed url is still correct if we followed any redirects.
+    url_buf_ = engine_.uri().uri;
+}
 
-    status_line_str_ = fmt::format(
-            "{} {} {}", response_.status_line.version, response_.status_line.status_code, response_.status_line.reason);
-    response_headers_str_ = protocol::to_string(response_.headers);
+void App::on_navigation_failure(protocol::Error err) {
+    update_status_line();
+    response_headers_str_ = protocol::to_string(engine_.response().headers);
     dom_str_.clear();
+    layout_str_.clear();
 
-    switch (response_.err) {
-        case protocol::Error::Ok: {
-            dom_ = html::parse(response_.body);
-            dom_str_ += dom::to_string(dom_);
-
-            if (auto page_title = try_get_text_content(dom_, "html.head.title"sv)) {
-                window_.setTitle(fmt::format("{} - {}", *page_title, browser_title_));
-            } else {
-                window_.setTitle(browser_title_);
-            }
-
-            auto stylesheet{css::default_style()};
-
-            if (auto style = try_get_text_content(dom_, "html.head.style"sv)) {
-                auto new_rules = css::parse(*style);
-                stylesheet.reserve(stylesheet.size() + new_rules.size());
-                stylesheet.insert(end(stylesheet),
-                        std::make_move_iterator(begin(new_rules)),
-                        std::make_move_iterator(end(new_rules)));
-            }
-
-            auto head_links = dom::nodes_by_path(dom_.html, "html.head.link");
-            head_links.erase(std::remove_if(begin(head_links),
-                                     end(head_links),
-                                     [](auto const &n) {
-                                         auto elem = std::get<dom::Element>(n->data);
-                                         return elem.attributes.contains("rel")
-                                                 && elem.attributes.at("rel") != "stylesheet";
-                                     }),
-                    end(head_links));
-
-            // Start downloading all stylesheets.
-            spdlog::info("Loading {} stylesheets", head_links.size());
-            std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
-            for (auto link : head_links) {
-                future_new_rules.push_back(std::async(std::launch::async, [=, this] {
-                    auto const &elem = std::get<dom::Element>(link->data);
-                    auto stylesheet_url = fmt::format("{}{}", url_buf_, elem.attributes.at("href"));
-                    spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-                    auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
-
-                    return css::parse(style_data.body);
-                }));
-            }
-
-            // In order, wait for the download to finish and merge with the big stylesheet.
-            for (auto &future_rules : future_new_rules) {
-                auto rules = future_rules.get();
-                stylesheet.reserve(stylesheet.size() + rules.size());
-                stylesheet.insert(
-                        end(stylesheet), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
-            }
-
-            spdlog::info("Styling dom w/ {} rules", stylesheet.size());
-            styled_ = style::style_tree(dom_.html, stylesheet);
-            layout();
-            break;
-        }
+    switch (err) {
         case protocol::Error::Unresolved: {
-            err_str_ = fmt::format("Unable to resolve endpoint for '{}'", url_buf_);
-            spdlog::error(err_str_);
+            nav_widget_extra_info_ = fmt::format("Unable to resolve endpoint for '{}'", url_buf_);
+            spdlog::error(nav_widget_extra_info_);
             break;
         }
         case protocol::Error::Unhandled: {
-            err_str_ = fmt::format("Unhandled protocol for '{}'", url_buf_);
-            spdlog::error(err_str_);
+            nav_widget_extra_info_ = fmt::format("Unhandled protocol for '{}'", url_buf_);
+            spdlog::error(nav_widget_extra_info_);
             break;
         }
         case protocol::Error::InvalidResponse: {
-            err_str_ = fmt::format("Invalid response from '{}'", url_buf_);
-            spdlog::error(err_str_);
+            nav_widget_extra_info_ = fmt::format("Invalid response from '{}'", url_buf_);
+            spdlog::error(nav_widget_extra_info_);
             break;
         }
+        case protocol::Error::Ok:
+        default:
+            spdlog::error("This should never happen: {}", static_cast<int>(err));
+            break;
     }
 }
 
-void App::layout() {
-    if (!styled_) {
-        return;
+void App::on_page_loaded() {
+    page_loaded_ = true;
+    if (auto page_title = try_get_text_content(engine_.dom(), "html.head.title"sv)) {
+        window_.setTitle(fmt::format("{} - {}", *page_title, browser_title_));
+    } else {
+        window_.setTitle(browser_title_);
     }
+
+    update_status_line();
+    response_headers_str_ = protocol::to_string(engine_.response().headers);
+    dom_str_ = dom::to_string(engine_.dom());
+    on_layout_updated();
+}
+
+void App::on_layout_updated() {
     reset_scroll();
-    mouse_over_str_.clear();
-    layout_ = layout::create_layout(*styled_, window_.getSize().x);
-    layout_str_ = layout::to_string(*layout_);
+    nav_widget_extra_info_.clear();
+    layout_str_ = layout::to_string(engine_.layout());
 }
 
 std::string App::get_hovered_element_text(layout::Position p) const {
-    if (!layout_) {
+    if (!page_loaded_) {
         return ""s;
     }
 
-    auto const *moused_over = layout::box_at_position(*layout_, p);
+    auto const *moused_over = layout::box_at_position(engine_.layout(), p);
     if (!moused_over) {
         return ""s;
     }
@@ -270,6 +228,11 @@ void App::scroll(int pixels) {
     scroll_offset_y_ += pixels;
 }
 
+void App::update_status_line() {
+    auto const &r = engine_.response();
+    status_line_str_ = fmt::format("{} {} {}", r.status_line.version, r.status_line.status_code, r.status_line.reason);
+}
+
 void App::run_overlay() {
     ImGui::SFML::Update(window_, clock_.restart());
 }
@@ -282,11 +245,7 @@ void App::run_nav_widget() {
         navigate();
     }
 
-    if (response_.err != protocol::Error::Ok) {
-        ImGui::TextUnformatted(err_str_.c_str());
-    } else {
-        ImGui::TextUnformatted(mouse_over_str_.c_str());
-    }
+    ImGui::TextUnformatted(nav_widget_extra_info_.c_str());
     ImGui::End();
 }
 
@@ -299,7 +258,7 @@ void App::run_http_response_widget() const {
         ImGui::TextUnformatted(response_headers_str_.c_str());
     }
     if (ImGui::CollapsingHeader("Body")) {
-        ImGui::TextUnformatted(response_.body.c_str());
+        ImGui::TextUnformatted(engine_.response().body.c_str());
     }
     ImGui::End();
 }
@@ -325,12 +284,10 @@ void App::clear_render_surface() {
 }
 
 void App::render_layout() {
-    if (layout_) {
-        if (render_debug_) {
-            render::debug::render_layout_depth(painter_, *layout_);
-        } else {
-            render::render_layout(painter_, *layout_);
-        }
+    if (render_debug_) {
+        render::debug::render_layout_depth(painter_, engine_.layout());
+    } else {
+        render::render_layout(painter_, engine_.layout());
     }
 }
 

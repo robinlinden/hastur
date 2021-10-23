@@ -5,16 +5,13 @@
 #ifndef BROWSER_GUI_APP_H_
 #define BROWSER_GUI_APP_H_
 
-#include "dom/dom.h"
+#include "browser/gui/engine.h"
 #include "gfx/gfx.h"
 #include "layout/layout.h"
-#include "protocol/get.h"
-#include "style/style.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 
-#include <optional>
 #include <string>
 
 namespace browser::gui {
@@ -27,20 +24,18 @@ public:
     int run();
 
 private:
+    browser::gui::Engine engine_{};
+    bool page_loaded_{};
+
     std::string browser_title_{};
     sf::RenderWindow window_{};
     sf::Clock clock_{};
     std::string url_buf_{};
-    protocol::Response response_{};
-    dom::Document dom_{};
-    std::optional<style::StyledNode> styled_{};
-    std::optional<layout::LayoutBox> layout_{};
     std::string status_line_str_{};
     std::string response_headers_str_{};
     std::string dom_str_{};
-    std::string err_str_{};
     std::string layout_str_{};
-    std::string mouse_over_str_{};
+    std::string nav_widget_extra_info_{};
 
     gfx::OpenGLPainter painter_{};
 
@@ -50,6 +45,10 @@ private:
 
     bool render_debug_{};
 
+    void on_navigation_failure(protocol::Error);
+    void on_page_loaded();
+    void on_layout_updated();
+
     void navigate();
     void layout();
 
@@ -58,6 +57,8 @@ private:
 
     void reset_scroll();
     void scroll(int pixels);
+
+    void update_status_line();
 
     void run_overlay();
     void run_nav_widget();
