@@ -6,6 +6,7 @@
 
 #include "dom/dom.h"
 #include "render/render.h"
+#include "uri/uri.h"
 
 #include <SFML/Window/Event.hpp>
 #include <fmt/format.h>
