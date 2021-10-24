@@ -5,7 +5,7 @@
 #ifndef BROWSER_GUI_APP_H_
 #define BROWSER_GUI_APP_H_
 
-#include "browser/gui/engine.h"
+#include "browser/engine.h"
 #include "gfx/gfx.h"
 #include "layout/layout.h"
 
@@ -24,7 +24,7 @@ public:
     int run();
 
 private:
-    browser::gui::Engine engine_{};
+    browser::Engine engine_{};
     bool page_loaded_{};
 
     std::string browser_title_{};

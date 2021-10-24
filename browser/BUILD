@@ -1,4 +1,21 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_library(
+    name = "engine",
+    srcs = ["engine.cpp"],
+    hdrs = ["engine.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//css",
+        "//dom",
+        "//html",
+        "//layout",
+        "//protocol",
+        "//style",
+        "//uri",
+        "@spdlog",
+    ],
+)
 
 alias(
     name = "browser",
@@ -27,14 +44,11 @@ cc_binary(
     name = "gui",
     srcs = ["gui.cpp"] + glob(["gui/*"]),
     deps = [
-        "//css",
+        ":engine",
         "//dom",
         "//gfx",
-        "//html",
         "//layout",
-        "//protocol",
         "//render",
-        "//style",
         "//uri",
         "@imgui",
         "@imgui-sfml",

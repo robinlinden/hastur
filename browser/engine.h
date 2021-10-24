@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSER_GUI_ENGINE_H_
-#define BROWSER_GUI_ENGINE_H_
+#ifndef BROWSER_ENGINE_H_
+#define BROWSER_ENGINE_H_
 
 #include "dom/dom.h"
 #include "layout/layout.h"
@@ -15,7 +15,7 @@
 #include <optional>
 #include <utility>
 
-namespace browser::gui {
+namespace browser {
 
 class Engine {
 public:
@@ -51,6 +51,6 @@ private:
     void on_navigation_success();
 };
 
-} // namespace browser::gui
+} // namespace browser
 
 #endif

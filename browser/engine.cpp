@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "browser/gui/engine.h"
+#include "browser/engine.h"
 
 #include "css/default.h"
 #include "css/parse.h"
@@ -17,7 +17,7 @@
 
 using namespace std::literals;
 
-namespace browser::gui {
+namespace browser {
 namespace {
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
@@ -116,4 +116,4 @@ void Engine::on_navigation_success() {
     on_page_loaded_();
 }
 
-} // namespace browser::gui
+} // namespace browser
