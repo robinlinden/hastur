@@ -85,67 +85,71 @@ Response parse_response(std::string_view data) {
     };
 }
 
+bool use_port(uri::Uri const &uri) {
+    if (uri.scheme == "http"sv) {
+        if (!uri.authority.port.empty() && uri.authority.port != "80") {
+            return true;
+        }
+    } else if (uri.scheme == "https"sv) {
+        if (!uri.authority.port.empty() && uri.authority.port != "443") {
+            return true;
+        }
+    }
+    return false;
+}
+
+auto resolve_endpoints(asio::ip::tcp::resolver &resolver, uri::Uri const &uri, asio::error_code &ec) {
+    if (use_port(uri)) {
+        return resolver.resolve(uri.authority.host, uri.authority.port, ec);
+    } else {
+        return resolver.resolve(uri.authority.host, uri.scheme, ec);
+    }
+}
+
+Response do_get(uri::Uri const &uri, auto &socket) {
+    std::stringstream ss;
+    ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
+    if (use_port(uri)) {
+        ss << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
+    } else {
+        ss << fmt::format("Host: {}\r\n", uri.authority.host);
+    }
+    ss << "Accept: text/html\r\n";
+    ss << "Connection: close\r\n\r\n";
+
+    asio::error_code ec;
+    asio::write(socket, asio::buffer(ss.str()), ec);
+
+    std::string data;
+    asio::read(socket, asio::dynamic_buffer(data), ec);
+
+    return parse_response(data);
+}
+
 } // namespace
 
 Response get(uri::Uri const &uri) {
+    asio::io_service svc;
+    asio::ip::tcp::resolver resolver{svc};
+    asio::error_code ec;
+
+    auto endpoints = resolve_endpoints(resolver, uri, ec);
+    if (ec) {
+        return {Error::Unresolved};
+    }
+
     if (uri.scheme == "http"sv) {
-        bool use_port = !uri.authority.port.empty() && uri.authority.port != "80";
-        asio::ip::tcp::iostream stream(uri.authority.host, use_port ? uri.authority.port : "http"sv);
-        stream << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
-        if (use_port) {
-            stream << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
-        } else {
-            stream << fmt::format("Host: {}\r\n", uri.authority.host);
-        }
-        stream << "Accept: text/html\r\n";
-        stream << "Connection: close\r\n\r\n";
-        stream.flush();
-
-        std::stringstream ss;
-        ss << stream.rdbuf();
-        std::string data{ss.str()};
-
-        return parse_response(data);
+        asio::ip::tcp::socket ssock(svc);
+        asio::connect(ssock, endpoints);
+        return do_get(uri, ssock);
     }
 
     if (uri.scheme == "https"sv) {
-        asio::io_service svc;
         asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
         asio::ssl::stream<asio::ip::tcp::socket> ssock(svc, ctx);
-        asio::error_code ec;
-
-        asio::ip::tcp::resolver resolver{svc};
-        bool use_port = !uri.authority.port.empty() && uri.authority.port != "443";
-        auto endpoints = resolver.resolve(uri.authority.host, use_port ? uri.authority.port : "https"sv, ec);
-        if (ec) {
-            return {Error::Unresolved};
-        }
-
-        ssock.lowest_layer().connect(*endpoints.begin());
+        asio::connect(ssock.next_layer(), endpoints);
         ssock.handshake(asio::ssl::stream_base::handshake_type::client);
-
-        std::stringstream ss;
-        ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
-        if (use_port) {
-            ss << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
-        } else {
-            ss << fmt::format("Host: {}\r\n", uri.authority.host);
-        }
-        ss << "Accept: text/html\r\n";
-        ss << "Connection: close\r\n\r\n";
-        asio::write(ssock, asio::buffer(ss.str()), ec);
-
-        std::string data;
-        while (true) {
-            char buf[1024];
-            std::size_t received = ssock.read_some(asio::buffer(buf), ec);
-            if (ec) {
-                break;
-            }
-            data.append(buf, buf + received);
-        }
-
-        return parse_response(data);
+        return do_get(uri, ssock);
     }
 
     if (uri.scheme == "file"sv) {
