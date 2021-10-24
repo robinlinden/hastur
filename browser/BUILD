@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "engine",
@@ -14,6 +14,16 @@ cc_library(
         "//style",
         "//uri",
         "@spdlog",
+    ],
+)
+
+cc_test(
+    name = "engine_test",
+    size = "small",
+    srcs = ["engine_test.cpp"],
+    deps = [
+        ":engine",
+        "//etest",
     ],
 )
 
