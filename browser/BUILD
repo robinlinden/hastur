@@ -30,10 +30,8 @@ cc_binary(
         "@platforms//os:windows": [],
     }),
     deps = [
-        "//html",
-        "//layout",
-        "//protocol",
-        "//style",
+        ":engine",
+        "//dom",
         "//tui",
         "//uri",
         "@spdlog",

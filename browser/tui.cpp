@@ -3,17 +3,14 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "tui/tui.h"
-#include "css/default.h"
+#include "browser/engine.h"
 #include "dom/dom.h"
-#include "html/parse.h"
-#include "layout/layout.h"
-#include "protocol/get.h"
-#include "style/style.h"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <cstdlib>
 #include <iostream>
 
 namespace {
@@ -34,26 +31,19 @@ int main(int argc, char **argv) {
         uri->path = "/";
     }
 
-    spdlog::info("Fetching HTML from {}", uri->uri);
-    auto response = protocol::get(*uri);
-    if (response.err != protocol::Error::Ok) {
-        spdlog::error("Got error {} from {}", response.err, uri->uri);
-        return 1;
-    }
+    browser::Engine engine;
+    engine.set_on_navigation_failure([&](protocol::Error e) {
+        spdlog::error("Got error {} from {}", e, uri->uri);
+        std::exit(1);
+    });
 
-    spdlog::info("Parsing HTML");
-    auto dom = html::parse(response.body);
-    std::cout << dom::to_string(dom);
+    engine.set_on_page_loaded([&] {
+        std::cout << dom::to_string(engine.dom());
+        spdlog::info("Building TUI");
+        std::cout << tui::render(engine.layout()) << '\n';
+    });
 
-    spdlog::info("Styling tree");
-    auto styled = style::style_tree(dom.html, css::default_style());
-
-    spdlog::info("Creating layout");
-    // 0 as the width is fine as we don't use the measurements when rendering the tui.
-    auto layout = layout::create_layout(styled, 0);
-
-    spdlog::info("Building TUI");
-    std::cout << tui::render(layout) << '\n';
+    engine.navigate(*uri);
 
     spdlog::info("Done");
 }
