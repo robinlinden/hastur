@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -34,6 +35,8 @@ struct Response {
 };
 
 Response get(uri::Uri const &uri);
+
+Response parse(std::string_view data);
 
 std::string to_string(std::map<std::string, std::string> const &headers);
 

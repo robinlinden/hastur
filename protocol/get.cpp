@@ -123,7 +123,7 @@ Response do_get(uri::Uri const &uri, auto &socket) {
     std::string data;
     asio::read(socket, asio::dynamic_buffer(data), ec);
 
-    return parse_response(data);
+    return parse(data);
 }
 
 } // namespace
@@ -170,6 +170,10 @@ Response get(uri::Uri const &uri) {
     }
 
     return {Error::Unhandled};
+}
+
+Response parse(std::string_view data) {
+    return parse_response(data);
 }
 
 std::string to_string(std::map<std::string, std::string> const &headers) {
