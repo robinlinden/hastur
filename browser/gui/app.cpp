@@ -95,7 +95,7 @@ int App::run() {
                         break;
                     }
 
-                    auto window_position = layout::Position{event.mouseMove.x, event.mouseMove.y};
+                    auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
                     auto document_position = to_document_position(std::move(window_position));
                     nav_widget_extra_info_ = get_hovered_element_text(std::move(document_position));
                     break;
@@ -190,7 +190,7 @@ void App::on_layout_updated() {
     layout_str_ = layout::to_string(engine_.layout());
 }
 
-std::string App::get_hovered_element_text(layout::Position p) const {
+std::string App::get_hovered_element_text(geom::Position p) const {
     if (!page_loaded_) {
         return ""s;
     }
@@ -214,7 +214,7 @@ std::string App::get_hovered_element_text(layout::Position p) const {
     return element.name;
 }
 
-layout::Position App::to_document_position(layout::Position window_position) const {
+geom::Position App::to_document_position(geom::Position window_position) const {
     return {window_position.x, window_position.y - scroll_offset_y_};
 }
 

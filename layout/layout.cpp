@@ -81,7 +81,7 @@ int to_px(std::string_view property) {
 }
 
 // https://www.w3.org/TR/CSS2/visudet.html#blockwidth
-void calculate_width(LayoutBox &box, Rect const &parent) {
+void calculate_width(LayoutBox &box, geom::Rect const &parent) {
     assert(box.node != nullptr);
 
     if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
@@ -107,7 +107,7 @@ void calculate_width(LayoutBox &box, Rect const &parent) {
     box.dimensions.content.width = width_px;
 }
 
-void calculate_position(LayoutBox &box, Rect const &parent) {
+void calculate_position(LayoutBox &box, geom::Rect const &parent) {
     auto const &d = box.dimensions;
     box.dimensions.content.x = parent.x + d.padding.left + d.margin.left;
     // Position below previous content in parent.
@@ -152,7 +152,7 @@ void calculate_padding(LayoutBox &box) {
     }
 }
 
-void calculate_margins_and_overflow(LayoutBox &box, Rect const &parent) {
+void calculate_margins_and_overflow(LayoutBox &box, geom::Rect const &parent) {
     if (auto margin_top = style::get_property(*box.node, "margin-top")) {
         box.dimensions.margin.top = to_px(*margin_top);
     }
@@ -183,7 +183,7 @@ void calculate_margins_and_overflow(LayoutBox &box, Rect const &parent) {
     }
 }
 
-void layout(LayoutBox &box, Rect const &bounds) {
+void layout(LayoutBox &box, geom::Rect const &bounds) {
     switch (box.type) {
         case LayoutType::Inline:
         case LayoutType::Block: {
@@ -233,13 +233,13 @@ std::string_view to_str(dom::Node const &node) {
             node.data);
 }
 
-std::string to_str(Rect const &rect) {
+std::string to_str(geom::Rect const &rect) {
     std::stringstream ss;
     ss << "{" << rect.x << "," << rect.y << "," << rect.width << "," << rect.height << "}";
     return ss.str();
 }
 
-std::string to_str(EdgeSize const &edge) {
+std::string to_str(geom::EdgeSize const &edge) {
     std::stringstream ss;
     ss << "{" << edge.top << "," << edge.right << "," << edge.bottom << "," << edge.left << "}";
     return ss.str();
@@ -266,15 +266,15 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
 
 } // namespace
 
-Rect BoxModel::padding_box() const {
+geom::Rect BoxModel::padding_box() const {
     return content.expanded(padding);
 }
 
-Rect BoxModel::border_box() const {
+geom::Rect BoxModel::border_box() const {
     return padding_box().expanded(border);
 }
 
-Rect BoxModel::margin_box() const {
+geom::Rect BoxModel::margin_box() const {
     return border_box().expanded(margin);
 }
 
@@ -284,7 +284,7 @@ LayoutBox create_layout(style::StyledNode const &node, int width) {
     return *tree;
 }
 
-LayoutBox const *box_at_position(LayoutBox const &box, Position p) {
+LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
     if (!box.dimensions.contains(p)) {
         return nullptr;
     }

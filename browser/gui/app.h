@@ -52,8 +52,8 @@ private:
     void navigate();
     void layout();
 
-    std::string get_hovered_element_text(layout::Position document_position) const;
-    layout::Position to_document_position(layout::Position window_position) const;
+    std::string get_hovered_element_text(geom::Position document_position) const;
+    geom::Position to_document_position(geom::Position window_position) const;
 
     void reset_scroll();
     void scroll(int pixels);

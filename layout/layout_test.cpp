@@ -545,9 +545,9 @@ int main() {
             .margin{.left = 100, .right = 100, .top = 100, .bottom = 100}, // x: 100-800, y: 100-800
         };
 
-        expect(box.padding_box() == layout::Rect{300, 300, 300, 300});
-        expect(box.border_box() == layout::Rect{200, 200, 500, 500});
-        expect(box.margin_box() == layout::Rect{100, 100, 700, 700});
+        expect(box.padding_box() == geom::Rect{300, 300, 300, 300});
+        expect(box.border_box() == geom::Rect{200, 200, 500, 500});
+        expect(box.margin_box() == geom::Rect{100, 100, 700, 700});
     });
 
     etest::test("BoxModel::contains", [] {

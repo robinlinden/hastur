@@ -13,24 +13,20 @@
 
 namespace layout {
 
-using geom::EdgeSize;
-using geom::Position;
-using geom::Rect;
-
 struct BoxModel {
-    Rect content{};
+    geom::Rect content{};
 
-    EdgeSize padding{};
-    EdgeSize border{};
-    EdgeSize margin{};
+    geom::EdgeSize padding{};
+    geom::EdgeSize border{};
+    geom::EdgeSize margin{};
 
     [[nodiscard]] bool operator==(BoxModel const &) const = default;
 
-    Rect padding_box() const;
-    Rect border_box() const;
-    Rect margin_box() const;
+    geom::Rect padding_box() const;
+    geom::Rect border_box() const;
+    geom::Rect margin_box() const;
 
-    bool contains(Position p) const { return border_box().contains(p); }
+    bool contains(geom::Position p) const { return border_box().contains(p); }
 };
 
 enum class LayoutType {
@@ -49,7 +45,7 @@ struct LayoutBox {
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
 
-LayoutBox const *box_at_position(LayoutBox const &, Position);
+LayoutBox const *box_at_position(LayoutBox const &, geom::Position);
 
 std::string to_string(LayoutBox const &box);
 
