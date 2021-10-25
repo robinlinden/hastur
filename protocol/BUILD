@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "protocol",
@@ -9,5 +9,15 @@ cc_library(
         "//uri",
         "@asio",
         "@fmt",
+    ],
+)
+
+cc_test(
+    name = "protocol_test",
+    size = "small",
+    srcs = ["get_test.cpp"],
+    deps = [
+        ":protocol",
+        "//etest",
     ],
 )
