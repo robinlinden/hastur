@@ -14,23 +14,8 @@
 #include <vector>
 
 using namespace std::literals;
-using etest::expect;
+using etest::expect_eq;
 using etest::require;
-
-namespace {
-bool contains_in_sequence(std::vector<html2::Token> const &haystack, std::vector<html2::Token> const &needles) {
-    auto needle = cbegin(needles);
-    for (auto const &candidate : haystack) {
-        if (candidate == *needle) {
-            ++needle;
-        }
-        if (needle == cend(needles)) {
-            return true;
-        }
-    }
-    return false;
-}
-} // namespace
 
 int main() {
     etest::test("simple_page", [] {
@@ -43,10 +28,13 @@ int main() {
                                    }};
         tokenizer.run();
 
-        expect(contains_in_sequence(tokens,
-                {html2::DoctypeToken{.name = "html"s},
+        expect_eq(tokens,
+                std::vector<html2::Token>{html2::DoctypeToken{.name = "html"s},
+                        html2::CharacterToken{'\n'},
                         html2::StartTagToken{.tag_name = "html"s},
-                        html2::EndTagToken{.tag_name = "html"s}}));
+                        html2::CharacterToken{'\n'},
+                        html2::EndTagToken{.tag_name = "html"s},
+                        html2::CharacterToken{'\n'}});
     });
 
     return etest::run_all_tests();
