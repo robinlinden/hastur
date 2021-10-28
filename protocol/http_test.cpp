@@ -2,17 +2,42 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "protocol/get.h"
+#include "protocol/http.h"
 
 #include "etest/etest.h"
 
-using namespace std::literals;
 using etest::expect_eq;
 using etest::require;
 
+namespace {
+
+struct FakeSocket {
+    bool connect(std::string_view h, std::string_view s) {
+        host = h;
+        service = s;
+        return connect_result;
+    }
+
+    std::size_t write(std::string_view data) {
+        write_data = data;
+        return write_data.size();
+    }
+
+    std::string read() { return read_data; }
+
+    std::string host{};
+    std::string service{};
+    std::string write_data{};
+    std::string read_data{};
+    bool connect_result{true};
+};
+
+} // namespace
+
 int main() {
     etest::test("200 response", [] {
-        auto response = protocol::parse(
+        FakeSocket socket;
+        socket.read_data =
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Encoding: gzip\r\n"
                 "Accept-Ranges: bytes\r\n"
@@ -33,9 +58,13 @@ int main() {
                 "<head>\n"
                 "<title>Example Domain</title>\n"
                 "</head>\n"
-                "</html>\n"sv);
+                "</html>\n";
+
+        auto response = protocol::Http::get(socket, uri::Uri::parse("http://example.com").value());
 
         require(response.headers.size() == 13);
+        expect_eq(socket.host, "example.com");
+        expect_eq(socket.service, "http");
         expect_eq(response.status_line.version, "HTTP/1.1");
         expect_eq(response.status_line.status_code, 200);
         expect_eq(response.status_line.reason, "OK");
@@ -62,7 +91,8 @@ int main() {
     });
 
     etest::test("google 301", [] {
-        auto response = protocol::parse(
+        FakeSocket socket;
+        socket.read_data =
                 "HTTP/1.1 301 Moved Permanently\r\n"
                 "Location: http://www.google.com/\r\n"
                 "Content-Type: text/html; charset=UTF-8\r\n"
@@ -77,9 +107,13 @@ int main() {
                 "<H1>301 Moved</H1>\n"
                 "The document has moved\n"
                 "<A HREF=\"http://www.google.com/\">here</A>.\r\n"
-                "</BODY></HTML>\r\n"sv);
+                "</BODY></HTML>\r\n";
+
+        auto response = protocol::Http::get(socket, uri::Uri::parse("http://google.com").value());
 
         require(response.headers.size() == 7);
+        expect_eq(socket.host, "google.com");
+        expect_eq(socket.service, "http");
         expect_eq(response.status_line.version, "HTTP/1.1");
         expect_eq(response.status_line.status_code, 301);
         expect_eq(response.status_line.reason, "Moved Permanently");

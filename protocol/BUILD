@@ -2,12 +2,18 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "protocol",
-    srcs = ["get.cpp"],
-    hdrs = ["get.h"],
+    srcs = [
+        "get.cpp",
+        "http.cpp",
+    ],
+    hdrs = [
+        "get.h",
+        "http.h",
+    ],
     visibility = ["//visibility:public"],
     deps = [
+        "//net",
         "//uri",
-        "@asio",
         "@fmt",
     ],
 )
@@ -15,7 +21,7 @@ cc_library(
 cc_test(
     name = "protocol_test",
     size = "small",
-    srcs = ["get_test.cpp"],
+    srcs = ["http_test.cpp"],
     deps = [
         ":protocol",
         "//etest",
