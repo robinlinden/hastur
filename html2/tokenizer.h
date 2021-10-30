@@ -161,6 +161,9 @@ private:
     void emit(Token &&) const;
     std::optional<char> consume_next_input_character();
     bool is_eof() const;
+
+    void start_attribute_in_current_tag_token(Attribute);
+    Attribute &current_attribute();
 };
 
 } // namespace html2

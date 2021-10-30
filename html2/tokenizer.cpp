@@ -171,6 +171,220 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::BeforeAttributeName: {
+                auto c = consume_next_input_character();
+                if (!c || *c == '/' || *c == '>') {
+                    --pos_;
+                    state_ = State::AfterAttributeName;
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '=':
+                        // This is an unexpected-equals-sign-before-attribute-name parse error.
+                        start_attribute_in_current_tag_token({.name = "="});
+                        state_ = State::AttributeName;
+                        continue;
+                    default:
+                        start_attribute_in_current_tag_token({});
+                        --pos_;
+                        state_ = State::AttributeName;
+                        continue;
+                }
+            }
+
+            case State::AttributeName: {
+                auto c = consume_next_input_character();
+                if (!c || *c == '\t' || *c == '\n' || *c == '\f' || *c == ' ' || *c == '/' || *c == '>') {
+                    --pos_;
+                    state_ = State::AfterAttributeName;
+                    continue;
+                }
+
+                auto append_to_current_attribute_name = [&](auto text) {
+                    if (std::holds_alternative<StartTagToken>(current_token_)) {
+                        std::get<StartTagToken>(current_token_).attributes.back().name += text;
+                    } else {
+                        std::get<EndTagToken>(current_token_).attributes.back().name += text;
+                    }
+                };
+
+                if (is_ascii_upper_alpha(*c)) {
+                    append_to_current_attribute_name(*c);
+                }
+
+                switch (*c) {
+                    case '=':
+                        state_ = State::BeforeAttributeValue;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        append_to_current_attribute_name("\xFF\xFD");
+                        continue;
+                    case '"':
+                    case '\'':
+                    case '<':
+                        // This is an unexpected-character-in-attribute-name parse error.
+                    default:
+                        append_to_current_attribute_name(*c);
+                        continue;
+                }
+            }
+
+            case State::AfterAttributeName: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-tag parse error.
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '/':
+                        state_ = State::SelfClosingStartTag;
+                        continue;
+                    case '=':
+                        state_ = State::BeforeAttributeValue;
+                        continue;
+                    case '>':
+                        state_ = State::Data;
+                        continue;
+                    default:
+                        start_attribute_in_current_tag_token({});
+                        --pos_;
+                        state_ = State::AttributeName;
+                        continue;
+                }
+            }
+
+            case State::BeforeAttributeValue: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    --pos_;
+                    state_ = AttributeValueUnquoted;
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '"':
+                        state_ = State::AttributeValueDoubleQuoted;
+                        continue;
+                    case '\'':
+                        state_ = State::AttributeValueSingleQuoted;
+                        continue;
+                    case '>':
+                        // This is a missing-attribute-value parse error.
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        --pos_;
+                        state_ = State::AttributeValueUnquoted;
+                        continue;
+                }
+            }
+
+            case State::AttributeValueDoubleQuoted: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-tag parse error.
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '"':
+                        state_ = State::AfterAttributeValueQuoted;
+                        continue;
+                    case '&':
+                        return_state_ = State::AttributeValueDoubleQuoted;
+                        state_ = State::CharacterReference;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        current_attribute().name += "\xFF\xFD";
+                        continue;
+                    default:
+                        current_attribute().name += *c;
+                        continue;
+                }
+            }
+
+            case State::AfterAttributeValueQuoted: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-tag parse error.
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        state_ = State::BeforeAttributeName;
+                        continue;
+                    case '/':
+                        state_ = State::SelfClosingStartTag;
+                        continue;
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        current_attribute().name += "\xFF\xFD";
+                        continue;
+                    default:
+                        // This is a missing-whitespace-between-attributes parse error.
+                        --pos_;
+                        state_ = State::BeforeAttributeName;
+                        continue;
+                }
+            }
+
+            case State::SelfClosingStartTag: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-tag parse error.
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '>':
+                        if (std::holds_alternative<StartTagToken>(current_token_)) {
+                            std::get<StartTagToken>(current_token_).self_closing = true;
+                        } else {
+                            std::get<EndTagToken>(current_token_).self_closing = true;
+                        }
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        // This is a missing-whitespace-between-attributes parse error.
+                        --pos_;
+                        state_ = State::BeforeAttributeName;
+                        continue;
+                }
+            }
+
             case State::MarkupDeclarationOpen:
                 if (no_case_compare(input_.substr(pos_, std::strlen("DOCTYPE")), "doctype"sv)) {
                     pos_ += std::strlen("DOCTYPE");
@@ -298,6 +512,22 @@ std::optional<char> Tokenizer::consume_next_input_character() {
 
 bool Tokenizer::is_eof() const {
     return pos_ >= input_.size();
+}
+
+void Tokenizer::start_attribute_in_current_tag_token(Attribute attr) {
+    if (std::holds_alternative<StartTagToken>(current_token_)) {
+        std::get<StartTagToken>(current_token_).attributes.push_back(std::move(attr));
+    } else {
+        std::get<EndTagToken>(current_token_).attributes.push_back(std::move(attr));
+    }
+}
+
+Attribute &Tokenizer::current_attribute() {
+    if (std::holds_alternative<StartTagToken>(current_token_)) {
+        return std::get<StartTagToken>(current_token_).attributes.back();
+    } else {
+        return std::get<EndTagToken>(current_token_).attributes.back();
+    }
 }
 
 } // namespace html2
