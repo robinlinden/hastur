@@ -6,12 +6,12 @@
 #define HTML2_TOKENIZER_H_
 
 #include <functional>
-#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace html2 {
 
@@ -107,17 +107,23 @@ struct DoctypeToken {
     [[nodiscard]] bool operator==(DoctypeToken const &) const = default;
 };
 
+struct Attribute {
+    std::string name{};
+    std::string value{};
+    [[nodiscard]] bool operator==(Attribute const &) const = default;
+};
+
 struct StartTagToken {
     std::string tag_name{};
     bool self_closing{false};
-    std::map<std::string, std::string> attributes{};
+    std::vector<Attribute> attributes{};
     [[nodiscard]] bool operator==(StartTagToken const &) const = default;
 };
 
 struct EndTagToken {
     std::string tag_name{};
     bool self_closing{false};
-    std::map<std::string, std::string> attributes{};
+    std::vector<Attribute> attributes{};
     [[nodiscard]] bool operator==(EndTagToken const &) const = default;
 };
 
