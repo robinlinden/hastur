@@ -5,10 +5,8 @@
 #ifndef NET_SOCKET_H_
 #define NET_SOCKET_H_
 
-#include <asio.hpp>
-#include <asio/ssl.hpp>
-
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -16,31 +14,36 @@ namespace net {
 
 class Socket {
 public:
-    Socket() : resolver_(svc_), socket_(svc_) {}
+    Socket();
+    ~Socket();
+
+    Socket(Socket &&);
+    Socket &operator=(Socket &&);
 
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
     std::string read();
 
 private:
-    asio::io_service svc_{};
-    asio::ip::tcp::resolver resolver_;
-    asio::ip::tcp::socket socket_;
+    class Impl;
+    std::unique_ptr<Impl> impl_;
 };
 
 class SecureSocket {
 public:
-    SecureSocket() : resolver_(svc_), ctx_(asio::ssl::context::method::sslv23_client), socket_(svc_, ctx_) {}
+    SecureSocket();
+    ~SecureSocket();
+
+    SecureSocket(SecureSocket &&);
+    SecureSocket &operator=(SecureSocket &&);
 
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
     std::string read();
 
 private:
-    asio::io_service svc_{};
-    asio::ip::tcp::resolver resolver_;
-    asio::ssl::context ctx_;
-    asio::ssl::stream<asio::ip::tcp::socket> socket_;
+    class Impl;
+    std::unique_ptr<Impl> impl_;
 };
 
 } // namespace net

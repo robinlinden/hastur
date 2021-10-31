@@ -4,6 +4,9 @@
 
 #include "net/socket.h"
 
+#include <asio.hpp>
+#include <asio/ssl.hpp>
+
 namespace net {
 namespace {
 
@@ -31,32 +34,84 @@ std::string read_impl(auto &socket) {
 
 } // namespace
 
+class Socket::Impl {
+public:
+    Impl() : resolver_(svc_), socket_(svc_) {}
+
+    bool connect(std::string_view host, std::string_view service) {
+        return connect_impl(resolver_, socket_, host, service);
+    }
+    std::size_t write(std::string_view data) { return write_impl(socket_, data); }
+
+    std::string read() { return read_impl(socket_); }
+
+private:
+    asio::io_service svc_{};
+    asio::ip::tcp::resolver resolver_;
+    asio::ip::tcp::socket socket_;
+};
+
+Socket::Socket() : impl_(std::make_unique<Impl>()) {}
+
+Socket::~Socket() = default;
+
+Socket::Socket(Socket &&) = default;
+
+Socket &Socket::operator=(Socket &&) = default;
+
 bool Socket::connect(std::string_view host, std::string_view service) {
-    return connect_impl(resolver_, socket_, host, service);
+    return impl_->connect(host, service);
 }
 
 std::size_t Socket::write(std::string_view data) {
-    return write_impl(socket_, data);
+    return impl_->write(data);
 }
 
 std::string Socket::read() {
-    return read_impl(socket_);
+    return impl_->read();
 }
 
-bool SecureSocket::connect(std::string_view host, std::string_view service) {
-    if (connect_impl(resolver_, socket_.next_layer(), host, service)) {
-        socket_.handshake(asio::ssl::stream_base::handshake_type::client);
-        return true;
+class SecureSocket::Impl {
+public:
+    Impl() : resolver_(svc_), ctx_(asio::ssl::context::method::sslv23_client), socket_(svc_, ctx_) {}
+
+    bool connect(std::string_view host, std::string_view service) {
+        if (connect_impl(resolver_, socket_.next_layer(), host, service)) {
+            socket_.handshake(asio::ssl::stream_base::handshake_type::client);
+            return true;
+        }
+        return false;
     }
-    return false;
+
+    std::size_t write(std::string_view data) { return write_impl(socket_, data); }
+
+    std::string read() { return read_impl(socket_); }
+
+private:
+    asio::io_service svc_{};
+    asio::ip::tcp::resolver resolver_;
+    asio::ssl::context ctx_;
+    asio::ssl::stream<asio::ip::tcp::socket> socket_;
+};
+
+SecureSocket::SecureSocket() : impl_(std::make_unique<Impl>()) {}
+
+SecureSocket::~SecureSocket() = default;
+
+SecureSocket::SecureSocket(SecureSocket &&) = default;
+
+SecureSocket &SecureSocket::operator=(SecureSocket &&) = default;
+
+bool SecureSocket::connect(std::string_view host, std::string_view service) {
+    return impl_->connect(host, service);
 }
 
 std::size_t SecureSocket::write(std::string_view data) {
-    return write_impl(socket_, data);
+    return impl_->write(data);
 }
 
 std::string SecureSocket::read() {
-    return read_impl(socket_);
+    return impl_->read();
 }
 
 } // namespace net
