@@ -42,7 +42,7 @@ public:
     static Response get(SocketType &&socket, uri::Uri const &uri) {
         if (socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
             socket.write(Http::create_get_request(uri));
-            return Http::parse_response(socket.read());
+            return Http::parse_response(socket.read_all());
         }
 
         return {Error::Unresolved};

@@ -25,7 +25,7 @@ std::size_t write_impl(auto &socket, std::string_view data) {
     return asio::write(socket, asio::buffer(data), ec);
 }
 
-std::string read_impl(auto &socket) {
+std::string read_all_impl(auto &socket) {
     std::string data;
     asio::error_code ec;
     asio::read(socket, asio::dynamic_buffer(data), ec);
@@ -43,7 +43,7 @@ public:
     }
     std::size_t write(std::string_view data) { return write_impl(socket_, data); }
 
-    std::string read() { return read_impl(socket_); }
+    std::string read_all() { return read_all_impl(socket_); }
 
 private:
     asio::io_service svc_{};
@@ -67,8 +67,8 @@ std::size_t Socket::write(std::string_view data) {
     return impl_->write(data);
 }
 
-std::string Socket::read() {
-    return impl_->read();
+std::string Socket::read_all() {
+    return impl_->read_all();
 }
 
 class SecureSocket::Impl {
@@ -85,7 +85,7 @@ public:
 
     std::size_t write(std::string_view data) { return write_impl(socket_, data); }
 
-    std::string read() { return read_impl(socket_); }
+    std::string read_all() { return read_all_impl(socket_); }
 
 private:
     asio::io_service svc_{};
@@ -110,8 +110,8 @@ std::size_t SecureSocket::write(std::string_view data) {
     return impl_->write(data);
 }
 
-std::string SecureSocket::read() {
-    return impl_->read();
+std::string SecureSocket::read_all() {
+    return impl_->read_all();
 }
 
 } // namespace net

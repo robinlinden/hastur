@@ -22,7 +22,7 @@ public:
 
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
-    std::string read();
+    std::string read_all();
 
 private:
     class Impl;
@@ -39,7 +39,7 @@ public:
 
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
-    std::string read();
+    std::string read_all();
 
 private:
     class Impl;
