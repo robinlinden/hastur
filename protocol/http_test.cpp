@@ -23,7 +23,7 @@ struct FakeSocket {
         return write_data.size();
     }
 
-    std::string read() { return read_data; }
+    std::string read_all() { return read_data; }
 
     std::string host{};
     std::string service{};
