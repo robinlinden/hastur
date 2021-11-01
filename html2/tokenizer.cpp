@@ -88,8 +88,7 @@ void Tokenizer::run() {
 
                 if (is_ascii_alpha(*c)) {
                     current_token_ = StartTagToken{};
-                    --pos_;
-                    state_ = State::TagName;
+                    reconsume_in(State::TagName);
                     continue;
                 }
 
@@ -118,8 +117,7 @@ void Tokenizer::run() {
 
                 if (is_ascii_alpha(*c)) {
                     current_token_ = EndTagToken{};
-                    --pos_;
-                    state_ = State::TagName;
+                    reconsume_in(State::TagName);
                     continue;
                 }
 
@@ -174,8 +172,7 @@ void Tokenizer::run() {
             case State::BeforeAttributeName: {
                 auto c = consume_next_input_character();
                 if (!c || *c == '/' || *c == '>') {
-                    --pos_;
-                    state_ = State::AfterAttributeName;
+                    reconsume_in(State::AfterAttributeName);
                     continue;
                 }
 
@@ -192,8 +189,7 @@ void Tokenizer::run() {
                         continue;
                     default:
                         start_attribute_in_current_tag_token({});
-                        --pos_;
-                        state_ = State::AttributeName;
+                        reconsume_in(State::AttributeName);
                         continue;
                 }
             }
@@ -201,8 +197,7 @@ void Tokenizer::run() {
             case State::AttributeName: {
                 auto c = consume_next_input_character();
                 if (!c || *c == '\t' || *c == '\n' || *c == '\f' || *c == ' ' || *c == '/' || *c == '>') {
-                    --pos_;
-                    state_ = State::AfterAttributeName;
+                    reconsume_in(State::AfterAttributeName);
                     continue;
                 }
 
@@ -261,8 +256,7 @@ void Tokenizer::run() {
                         continue;
                     default:
                         start_attribute_in_current_tag_token({});
-                        --pos_;
-                        state_ = State::AttributeName;
+                        reconsume_in(State::AttributeName);
                         continue;
                 }
             }
@@ -270,8 +264,7 @@ void Tokenizer::run() {
             case State::BeforeAttributeValue: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    --pos_;
-                    state_ = AttributeValueUnquoted;
+                    reconsume_in(AttributeValueUnquoted);
                     continue;
                 }
 
@@ -293,8 +286,7 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        --pos_;
-                        state_ = State::AttributeValueUnquoted;
+                        reconsume_in(State::AttributeValueUnquoted);
                         continue;
                 }
             }
@@ -353,8 +345,7 @@ void Tokenizer::run() {
                         continue;
                     default:
                         // This is a missing-whitespace-between-attributes parse error.
-                        --pos_;
-                        state_ = State::BeforeAttributeName;
+                        reconsume_in(State::BeforeAttributeName);
                         continue;
                 }
             }
@@ -379,8 +370,7 @@ void Tokenizer::run() {
                         continue;
                     default:
                         // This is a missing-whitespace-between-attributes parse error.
-                        --pos_;
-                        state_ = State::BeforeAttributeName;
+                        reconsume_in(State::BeforeAttributeName);
                         continue;
                 }
             }
@@ -528,6 +518,11 @@ Attribute &Tokenizer::current_attribute() {
     } else {
         return std::get<EndTagToken>(current_token_).attributes.back();
     }
+}
+
+void Tokenizer::reconsume_in(State state) {
+    --pos_;
+    state_ = state;
 }
 
 } // namespace html2

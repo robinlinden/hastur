@@ -164,6 +164,7 @@ private:
 
     void start_attribute_in_current_tag_token(Attribute);
     Attribute &current_attribute();
+    void reconsume_in(State);
 };
 
 } // namespace html2
