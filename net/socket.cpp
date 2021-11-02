@@ -34,21 +34,12 @@ std::string read_all_impl(auto &socket) {
 
 } // namespace
 
-class Socket::Impl {
-public:
-    Impl() : resolver_(svc_), socket_(svc_) {}
+struct Socket::Impl {
+    Impl() : resolver(svc), socket(svc) {}
 
-    bool connect(std::string_view host, std::string_view service) {
-        return connect_impl(resolver_, socket_, host, service);
-    }
-    std::size_t write(std::string_view data) { return write_impl(socket_, data); }
-
-    std::string read_all() { return read_all_impl(socket_); }
-
-private:
-    asio::io_service svc_{};
-    asio::ip::tcp::resolver resolver_;
-    asio::ip::tcp::socket socket_;
+    asio::io_service svc{};
+    asio::ip::tcp::resolver resolver;
+    asio::ip::tcp::socket socket;
 };
 
 Socket::Socket() : impl_(std::make_unique<Impl>()) {}
@@ -60,38 +51,32 @@ Socket::Socket(Socket &&) = default;
 Socket &Socket::operator=(Socket &&) = default;
 
 bool Socket::connect(std::string_view host, std::string_view service) {
-    return impl_->connect(host, service);
+    return connect_impl(impl_->resolver, impl_->socket, host, service);
 }
 
 std::size_t Socket::write(std::string_view data) {
-    return impl_->write(data);
+    return write_impl(impl_->socket, data);
 }
 
 std::string Socket::read_all() {
-    return impl_->read_all();
+    return read_all_impl(impl_->socket);
 }
 
-class SecureSocket::Impl {
-public:
-    Impl() : resolver_(svc_), ctx_(asio::ssl::context::method::sslv23_client), socket_(svc_, ctx_) {}
+struct SecureSocket::Impl {
+    Impl() : resolver(svc), ctx(asio::ssl::context::method::sslv23_client), socket(svc, ctx) {}
 
     bool connect(std::string_view host, std::string_view service) {
-        if (connect_impl(resolver_, socket_.next_layer(), host, service)) {
-            socket_.handshake(asio::ssl::stream_base::handshake_type::client);
+        if (connect_impl(resolver, socket.next_layer(), host, service)) {
+            socket.handshake(asio::ssl::stream_base::handshake_type::client);
             return true;
         }
         return false;
     }
 
-    std::size_t write(std::string_view data) { return write_impl(socket_, data); }
-
-    std::string read_all() { return read_all_impl(socket_); }
-
-private:
-    asio::io_service svc_{};
-    asio::ip::tcp::resolver resolver_;
-    asio::ssl::context ctx_;
-    asio::ssl::stream<asio::ip::tcp::socket> socket_;
+    asio::io_service svc{};
+    asio::ip::tcp::resolver resolver;
+    asio::ssl::context ctx;
+    asio::ssl::stream<asio::ip::tcp::socket> socket;
 };
 
 SecureSocket::SecureSocket() : impl_(std::make_unique<Impl>()) {}
@@ -107,11 +92,11 @@ bool SecureSocket::connect(std::string_view host, std::string_view service) {
 }
 
 std::size_t SecureSocket::write(std::string_view data) {
-    return impl_->write(data);
+    return write_impl(impl_->socket, data);
 }
 
 std::string SecureSocket::read_all() {
-    return impl_->read_all();
+    return read_all_impl(impl_->socket);
 }
 
 } // namespace net

@@ -25,7 +25,7 @@ public:
     std::string read_all();
 
 private:
-    class Impl;
+    struct Impl;
     std::unique_ptr<Impl> impl_;
 };
 
@@ -42,7 +42,7 @@ public:
     std::string read_all();
 
 private:
-    class Impl;
+    struct Impl;
     std::unique_ptr<Impl> impl_;
 };
 
