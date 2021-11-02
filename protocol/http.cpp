@@ -9,8 +9,6 @@
 
 #include <charconv>
 #include <sstream>
-#include <string_view>
-#include <utility>
 
 using namespace std::string_view_literals;
 
@@ -22,37 +20,6 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
         return {str.substr(0, it), str.substr(it + sep.size(), str.size() - it - sep.size())};
     }
     return {str, ""sv};
-}
-
-std::optional<StatusLine> parse_status_line(std::string_view headers) {
-    auto first_line_end = headers.find("\r\n");
-    if (first_line_end == std::string_view::npos) {
-        return std::nullopt;
-    }
-
-    headers.remove_suffix(headers.size() - first_line_end);
-    auto sep1 = headers.find(' ');
-    if (sep1 == std::string_view::npos) {
-        return std::nullopt;
-    }
-
-    auto sep2 = headers.find(' ', sep1 + 1);
-    if (sep2 == std::string_view::npos) {
-        return std::nullopt;
-    }
-
-    int status_code = -1;
-    auto status_str = headers.substr(sep1 + 1, sep1 + 4);
-    std::from_chars(status_str.data(), status_str.data() + status_str.size(), status_code);
-    if (status_code == -1) {
-        return std::nullopt;
-    }
-
-    return StatusLine{
-            std::string{headers.substr(0, sep1)},
-            status_code,
-            std::string{headers.substr(sep2 + 1, headers.size())},
-    };
 }
 
 } // namespace
@@ -92,15 +59,32 @@ std::string Http::create_get_request(uri::Uri const &uri) {
     return ss.str();
 }
 
-Response Http::parse_response(std::string_view data) {
-    auto [header, body] = split(data, "\r\n\r\n");
-    auto status_line = parse_status_line(header);
-    if (!status_line) {
-        return {Error::InvalidResponse};
+std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) {
+    auto sep1 = status_line.find(' ');
+    if (sep1 == status_line.npos) {
+        return std::nullopt;
     }
 
-    header.remove_prefix(header.find("\r\n") + 2);
+    auto sep2 = status_line.find(' ', sep1 + 1);
+    if (sep2 == status_line.npos) {
+        return std::nullopt;
+    }
 
+    int status_code = -1;
+    auto status_str = status_line.substr(sep1 + 1, sep1 + 4);
+    std::from_chars(status_str.data(), status_str.data() + status_str.size(), status_code);
+    if (status_code == -1) {
+        return std::nullopt;
+    }
+
+    return StatusLine{
+            std::string{status_line.substr(0, sep1)},
+            status_code,
+            std::string{status_line.substr(sep2 + 1, status_line.size())},
+    };
+}
+
+std::map<std::string, std::string> Http::parse_headers(std::string_view header) {
     std::map<std::string, std::string> headers{};
     for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
         headers.emplace(split(header.substr(0, sep), ": "));
@@ -108,12 +92,7 @@ Response Http::parse_response(std::string_view data) {
     }
     headers.emplace(split(header, ": "));
 
-    return {
-            Error::Ok,
-            std::move(*status_line),
-            std::move(headers),
-            std::string{body},
-    };
+    return headers;
 }
 
 } // namespace protocol

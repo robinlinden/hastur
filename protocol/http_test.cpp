@@ -27,8 +27,13 @@ struct FakeSocket {
 
     std::size_t read_until(std::string &data, std::string_view d) {
         delimiter = d;
-        data = read_data;
-        return read_until_pos;
+        if (auto pos = read_data.find(d); pos != std::string::npos) {
+            pos += d.size();
+            data = read_data.substr(0, pos);
+            read_data.erase(0, pos);
+            return pos;
+        }
+        return 0;
     }
 
     std::string host{};
@@ -36,7 +41,6 @@ struct FakeSocket {
     std::string write_data{};
     std::string read_data{};
     std::string delimiter{};
-    std::size_t read_until_pos{};
     bool connect_result{true};
 };
 

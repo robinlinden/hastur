@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace protocol {
 
@@ -42,7 +43,27 @@ public:
     static Response get(SocketType &&socket, uri::Uri const &uri) {
         if (socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
             socket.write(Http::create_get_request(uri));
-            return Http::parse_response(socket.read_all());
+            std::string data{};
+            auto n = socket.read_until(data, "\r\n");
+            if (n == 0) {
+                return {Error::Unresolved};
+            }
+            auto status_line = Http::parse_status_line(data.substr(0, n - 2));
+            if (!status_line) {
+                return {Error::InvalidResponse};
+            }
+            data.erase(0, n);
+            n = socket.read_until(data, "\r\n\r\n");
+            if (n == 0) {
+                return {Error::InvalidResponse};
+            }
+            auto headers = Http::parse_headers(data.substr(0, n - 4));
+            if (headers.empty()) {
+                return {Error::InvalidResponse};
+            }
+            data.erase(0, n);
+            data += socket.read_all();
+            return {Error::Ok, std::move(*status_line), std::move(headers), std::move(data)};
         }
 
         return {Error::Unresolved};
@@ -51,7 +72,8 @@ public:
 private:
     static bool use_port(uri::Uri const &uri);
     static std::string create_get_request(uri::Uri const &uri);
-    static Response parse_response(std::string_view data);
+    static std::optional<StatusLine> parse_status_line(std::string_view status_line);
+    static std::map<std::string, std::string> parse_headers(std::string_view header);
 };
 
 } // namespace protocol
