@@ -32,6 +32,11 @@ std::string read_all_impl(auto &socket) {
     return data;
 }
 
+std::size_t read_until_impl(auto &socket, std::string &data, std::string_view delimiter) {
+    asio::error_code ec;
+    return asio::read_until(socket, asio::dynamic_buffer(data), delimiter, ec);
+}
+
 } // namespace
 
 struct Socket::Impl {
@@ -60,6 +65,10 @@ std::size_t Socket::write(std::string_view data) {
 
 std::string Socket::read_all() {
     return read_all_impl(impl_->socket);
+}
+
+std::size_t Socket::read_until(std::string &data, std::string_view delimiter) {
+    return read_until_impl(impl_->socket, data, delimiter);
 }
 
 struct SecureSocket::Impl {
@@ -97,6 +106,10 @@ std::size_t SecureSocket::write(std::string_view data) {
 
 std::string SecureSocket::read_all() {
     return read_all_impl(impl_->socket);
+}
+
+std::size_t SecureSocket::read_until(std::string &data, std::string_view delimiter) {
+    return read_until_impl(impl_->socket, data, delimiter);
 }
 
 } // namespace net

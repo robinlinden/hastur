@@ -25,10 +25,18 @@ struct FakeSocket {
 
     std::string read_all() { return read_data; }
 
+    std::size_t read_until(std::string &data, std::string_view d) {
+        delimiter = d;
+        data = read_data;
+        return read_until_pos;
+    }
+
     std::string host{};
     std::string service{};
     std::string write_data{};
     std::string read_data{};
+    std::string delimiter{};
+    std::size_t read_until_pos{};
     bool connect_result{true};
 };
 
