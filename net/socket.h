@@ -23,6 +23,7 @@ public:
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
     std::string read_all();
+    std::size_t read_until(std::string &data, std::string_view delimiter);
 
 private:
     struct Impl;
@@ -40,6 +41,7 @@ public:
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
     std::string read_all();
+    std::size_t read_until(std::string &data, std::string_view delimiter);
 
 private:
     struct Impl;
