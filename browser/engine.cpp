@@ -35,6 +35,10 @@ protocol::Error Engine::navigate(uri::Uri uri) {
         return status_code == 301 || status_code == 302;
     };
 
+    if (uri.path.empty()) {
+        uri.path = "/";
+    }
+
     uri_ = uri;
     response_ = protocol::get(uri_);
     while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {

@@ -131,10 +131,6 @@ void App::navigate() {
         return;
     }
 
-    if (uri->path.empty()) {
-        uri->path = "/";
-    }
-
     engine_.navigate(std::move(*uri));
 
     // Make sure the displayed url is still correct if we followed any redirects.

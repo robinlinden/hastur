@@ -27,10 +27,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (uri->path.empty()) {
-        uri->path = "/";
-    }
-
     browser::Engine engine;
     if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", err, uri->uri);
