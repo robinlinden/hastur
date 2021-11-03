@@ -7,6 +7,8 @@
 #include <asio.hpp>
 #include <asio/ssl.hpp>
 
+#include <utility>
+
 namespace net {
 namespace {
 
@@ -27,16 +29,24 @@ struct BaseSocketImpl {
     }
 
     std::string read_all(auto &socket) {
-        std::string data;
         asio::error_code ec;
-        asio::read(socket, asio::dynamic_buffer(data), ec);
-        return data;
+        asio::read(socket, asio::dynamic_buffer(buffer), ec);
+        std::string result(std::move(buffer));
+        buffer.clear();
+        return result;
     }
 
-    std::size_t read_until(auto &socket, std::string &data, std::string_view delimiter) {
+    std::string read_until(auto &socket, std::string_view delimiter) {
         asio::error_code ec;
-        return asio::read_until(socket, asio::dynamic_buffer(data), delimiter, ec);
+        auto n = asio::read_until(socket, asio::dynamic_buffer(buffer), delimiter, ec);
+        std::string result{};
+        if (n > 0) {
+            result = buffer.substr(0, n);
+            buffer.erase(0, n);
+        }
+        return result;
     }
+    std::string buffer{};
 };
 
 } // namespace
@@ -69,8 +79,8 @@ std::string Socket::read_all() {
     return impl_->read_all(impl_->socket);
 }
 
-std::size_t Socket::read_until(std::string &data, std::string_view delimiter) {
-    return impl_->read_until(impl_->socket, data, delimiter);
+std::string Socket::read_until(std::string_view delimiter) {
+    return impl_->read_until(impl_->socket, delimiter);
 }
 
 struct SecureSocket::Impl : public BaseSocketImpl {
@@ -110,8 +120,8 @@ std::string SecureSocket::read_all() {
     return impl_->read_all(impl_->socket);
 }
 
-std::size_t SecureSocket::read_until(std::string &data, std::string_view delimiter) {
-    return impl_->read_until(impl_->socket, data, delimiter);
+std::string SecureSocket::read_until(std::string_view delimiter) {
+    return impl_->read_until(impl_->socket, delimiter);
 }
 
 } // namespace net

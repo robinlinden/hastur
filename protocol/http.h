@@ -43,26 +43,23 @@ public:
     static Response get(SocketType &&socket, uri::Uri const &uri) {
         if (socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
             socket.write(Http::create_get_request(uri));
-            std::string data{};
-            auto n = socket.read_until(data, "\r\n");
-            if (n == 0) {
+            auto data = socket.read_until("\r\n");
+            if (data.empty()) {
                 return {Error::Unresolved};
             }
-            auto status_line = Http::parse_status_line(data.substr(0, n - 2));
+            auto status_line = Http::parse_status_line(data.substr(0, data.size() - 2));
             if (!status_line) {
                 return {Error::InvalidResponse};
             }
-            data.erase(0, n);
-            n = socket.read_until(data, "\r\n\r\n");
-            if (n == 0) {
+            data = socket.read_until("\r\n\r\n");
+            if (data.empty()) {
                 return {Error::InvalidResponse};
             }
-            auto headers = Http::parse_headers(data.substr(0, n - 4));
+            auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
             if (headers.empty()) {
                 return {Error::InvalidResponse};
             }
-            data.erase(0, n);
-            data += socket.read_all();
+            data = socket.read_all();
             return {Error::Ok, std::move(*status_line), std::move(headers), std::move(data)};
         }
 
