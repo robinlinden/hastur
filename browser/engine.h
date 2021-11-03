@@ -19,7 +19,7 @@ namespace browser {
 
 class Engine {
 public:
-    void navigate(uri::Uri uri);
+    protocol::Error navigate(uri::Uri uri);
 
     void set_layout_width(int width);
 

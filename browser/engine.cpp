@@ -30,7 +30,7 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 
 } // namespace
 
-void Engine::navigate(uri::Uri uri) {
+protocol::Error Engine::navigate(uri::Uri uri) {
     auto is_redirect = [](int status_code) {
         return status_code == 301 || status_code == 302;
     };
@@ -57,6 +57,8 @@ void Engine::navigate(uri::Uri uri) {
             on_navigation_failure_(response_.err);
             break;
     }
+
+    return response_.err;
 }
 
 void Engine::set_layout_width(int width) {
