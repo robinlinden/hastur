@@ -32,18 +32,13 @@ int main(int argc, char **argv) {
     }
 
     browser::Engine engine;
-    engine.set_on_navigation_failure([&](protocol::Error e) {
-        spdlog::error("Got error {} from {}", e, uri->uri);
+    if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
+        spdlog::error("Got error {} from {}", err, uri->uri);
         std::exit(1);
-    });
+    }
 
-    engine.set_on_page_loaded([&] {
-        std::cout << dom::to_string(engine.dom());
-        spdlog::info("Building TUI");
-        std::cout << tui::render(engine.layout()) << '\n';
-    });
-
-    engine.navigate(*uri);
-
+    std::cout << dom::to_string(engine.dom());
+    spdlog::info("Building TUI");
+    std::cout << tui::render(engine.layout()) << '\n';
     spdlog::info("Done");
 }
