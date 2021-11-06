@@ -7,6 +7,7 @@
 
 #include "dom/dom.h"
 #include "util/base_parser.h"
+#include "util/string.h"
 
 #include <array>
 #include <cstddef>
@@ -26,7 +27,7 @@ public:
         constexpr auto doctype_prefix = "<!doctype"sv;
         auto peeked = peek(doctype_prefix.size());
         auto doctype = [&]() {
-            if (no_case_compare(doctype_prefix, peeked)) {
+            if (util::no_case_compare(doctype_prefix, peeked)) {
                 return parse_doctype();
             }
             return "quirks"sv;
@@ -138,19 +139,6 @@ private:
         parse_tag_name();
         consume_char(); // >
         return dom::create_element_node(name, std::move(attrs), std::move(children));
-    }
-
-    static constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-        if (a.size() != b.size()) {
-            return false;
-        }
-        for (size_t i = 0; i < a.size(); ++i) {
-            if (std::tolower(a[i]) != std::tolower(b[i])) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     dom::Node parse_node() {
