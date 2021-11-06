@@ -5,7 +5,10 @@ cc_library(
     srcs = ["tokenizer.cpp"],
     hdrs = ["tokenizer.h"],
     visibility = ["//visibility:public"],
-    deps = ["@spdlog"],
+    deps = [
+        "//util",
+        "@spdlog",
+    ],
 )
 
 cc_test(

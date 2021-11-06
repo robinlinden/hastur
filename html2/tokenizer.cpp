@@ -4,9 +4,10 @@
 
 #include "html2/tokenizer.h"
 
+#include "util/string.h"
+
 #include <spdlog/spdlog.h>
 
-#include <cctype>
 #include <cstring>
 #include <exception>
 
@@ -14,20 +15,6 @@ using namespace std::literals;
 
 namespace html2 {
 namespace {
-
-constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-    if (a.size() != b.size()) {
-        return false;
-    }
-
-    for (size_t i = 0; i < a.size(); ++i) {
-        if (std::tolower(a[i]) != std::tolower(b[i])) {
-            return false;
-        }
-    }
-
-    return true;
-}
 
 constexpr bool is_ascii_upper_alpha(char c) {
     return c >= 'A' && c <= 'Z';
@@ -376,7 +363,7 @@ void Tokenizer::run() {
             }
 
             case State::MarkupDeclarationOpen:
-                if (no_case_compare(input_.substr(pos_, std::strlen("DOCTYPE")), "doctype"sv)) {
+                if (util::no_case_compare(input_.substr(pos_, std::strlen("DOCTYPE")), "doctype"sv)) {
                     pos_ += std::strlen("DOCTYPE");
                     state_ = State::Doctype;
                     continue;
