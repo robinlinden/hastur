@@ -90,6 +90,8 @@ build:linux --per_file_copt='external/zlib[:/]@-Wno-missing-declarations'
 # See: https://bugs.kde.org/show_bug.cgi?id=452758
 build:linux --copt='-gdwarf-4'
 
+build:gcc10 --cxxopt='-fcoroutines'
+
 build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
 build:gcc12 --config=gcc11
