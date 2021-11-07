@@ -34,6 +34,12 @@ jobs:
             version: 13
             bazel: --config clang13 --config ubsan
 
+          - name: clang-libc++
+            compiler: clang
+            version: 13
+            bazel: --config clang13 --config libc++
+            apt: libc++abi-13-dev libc++-13-dev
+
     steps:
     - name: Prepare clang install
       if: startsWith(matrix.compiler, 'clang') && matrix.version == 13
@@ -56,7 +62,7 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }}
+          sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
           wget https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
       run: bazel build //... ${{ matrix.bazel }}
