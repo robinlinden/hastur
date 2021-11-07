@@ -94,6 +94,10 @@ build:msvc --per_file_copt='external/zlib[:/]@/wd4267' # C4267: '=': conversion 
 # Special build options
 # =========================================================
 
+# Currently only supported for Clang 13 and newer.
+build:libc++ --cxxopt=-stdlib=libc++
+build:libc++ --linkopt=-stdlib=libc++
+
 # Some of this is from "Can I run AddressSanitizer with more aggressive diagnostics enabled?"
 # on https://github.com/google/sanitizers/wiki/AddressSanitizer#faq and some is from
 # https://chromium.googlesource.com/external/github.com/grpc/grpc/+/4e9206f48c91e17f43856b016b12f59dd5118293/tools/bazel.rc
