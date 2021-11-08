@@ -13,9 +13,9 @@
 #include <fmt/format.h>
 
 #include <array>
+#include <charconv>
 #include <cstring>
 #include <optional>
-#include <stdexcept>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -370,11 +370,11 @@ private:
     }
 
     std::optional<int> to_int(std::string_view str) const {
-        try {
-            return std::stoi(std::string{str});
-        } catch (std::invalid_argument const &) {
+        int result{};
+        if (std::from_chars(str.data(), str.data() + str.size(), result).ec != std::errc{}) {
             return std::nullopt;
         }
+        return result;
     }
 
     template<auto const &array>
