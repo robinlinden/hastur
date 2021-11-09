@@ -7,6 +7,7 @@ cc_library(
         "string.h",
     ],
     visibility = ["//visibility:public"],
+    deps = ["@range-v3"],
 )
 
 cc_test(
