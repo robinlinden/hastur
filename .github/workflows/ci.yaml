@@ -17,7 +17,8 @@ jobs:
           - name: clang-12
             compiler: clang
             version: 12
-            bazel: --config clang
+            bazel: --config clang --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
+            apt: valgrind
 
           - name: clang-13
             compiler: clang
