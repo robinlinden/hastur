@@ -52,6 +52,14 @@ http_archive(
 )
 
 http_archive(
+    name = "glew",  # BSD-3-Clause
+    build_file = "//third_party:glew.BUILD",
+    sha256 = "d4fc82893cfb00109578d0a1a2337fb8ca335b3ceccf97b97e5cc7f08e4353e1",
+    strip_prefix = "glew-2.2.0",
+    url = "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz",
+)
+
+http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
     sha256 = "7ed49d1f4573004fa725a70642aaddd3e06bb57fcfe1c1a49ac6574a3e895a77",
