@@ -7,15 +7,7 @@
 #include "dom/dom.h"
 #include "style/style.h"
 
-// MSVC gl.h doesn't include everything it uses.
-#ifdef _MSC_VER
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif // WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif // _MSC_VER
-
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <spdlog/spdlog.h>
 
 #include <charconv>
