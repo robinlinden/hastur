@@ -84,6 +84,13 @@ http_archive(
 )
 
 http_archive(
+    name = "range-v3",
+    sha256 = "3575e4645cd1a7d42fa42a6b016e75a7c72d31d13f72ee4e5bb9773d36303258",
+    strip_prefix = "range-v3-83783f578e0e6666d68a3bf17b0038a80e62530e",
+    url = "https://github.com/ericniebler/range-v3/archive/83783f578e0e6666d68a3bf17b0038a80e62530e.tar.gz",
+)
+
+http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
     sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
