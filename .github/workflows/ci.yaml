@@ -9,10 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: gcc
+          - name: gcc-10
             compiler: gcc
             version: 10
             bazel: --config gcc
+
+          - name: gcc-11
+            compiler: gcc
+            version: 11
+            bazel: --config gcc11
+            apt: g++-11
 
           - name: clang-12
             compiler: clang
@@ -42,6 +48,9 @@ jobs:
             apt: libc++abi-13-dev libc++-13-dev
 
     steps:
+    - name: Prepare gcc install
+      if: startsWith(matrix.compiler, 'gcc') && matrix.version == 11
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
     - name: Prepare clang install
       if: startsWith(matrix.compiler, 'clang') && matrix.version == 13
       uses: myci-actions/add-deb-repo@10

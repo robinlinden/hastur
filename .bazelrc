@@ -62,6 +62,11 @@ build:gcc --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
 build:gcc --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
 build:gcc --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
 
+build:gcc11 --config=gcc
+build:gcc11 --per_file_copt='net:socket@-Wno-nonnull' # asio leaks this into our code.
+build:gcc11 --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
+build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
+
 build:msvc --enable_runfiles
 build:msvc --cxxopt='/std:c++20'
 build:msvc --copt='/W4' # More warnings.
