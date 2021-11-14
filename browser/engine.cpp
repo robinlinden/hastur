@@ -45,8 +45,8 @@ protocol::Error Engine::navigate(uri::Uri uri) {
         spdlog::info("Following {} redirect from {} to {}",
                 response_.status_line.status_code,
                 uri_.uri,
-                response_.headers.at("Location"));
-        uri_ = *uri::Uri::parse(response_.headers.at("Location"));
+                response_.headers.get("Location").value());
+        uri_ = *uri::Uri::parse(std::string(response_.headers.get("Location").value()));
         if (uri_.path.empty()) {
             uri_.path = "/";
         }

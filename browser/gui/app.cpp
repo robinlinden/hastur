@@ -139,7 +139,7 @@ void App::navigate() {
 
 void App::on_navigation_failure(protocol::Error err) {
     update_status_line();
-    response_headers_str_ = protocol::to_string(engine_.response().headers);
+    response_headers_str_ = engine_.response().headers.to_string();
     dom_str_.clear();
     layout_str_.clear();
 
@@ -175,7 +175,7 @@ void App::on_page_loaded() {
     }
 
     update_status_line();
-    response_headers_str_ = protocol::to_string(engine_.response().headers);
+    response_headers_str_ = engine_.response().headers.to_string();
     dom_str_ = dom::to_string(engine_.dom());
     on_layout_updated();
 }

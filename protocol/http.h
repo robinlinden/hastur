@@ -8,7 +8,9 @@
 
 #include "uri/uri.h"
 
+#include <cstddef>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -28,14 +30,27 @@ struct StatusLine {
     std::string reason;
 };
 
+class Headers {
+public:
+    void add(std::pair<std::string_view, std::string_view> nv);
+    std::optional<std::string_view> get(std::string_view name) const;
+    std::string to_string() const;
+    std::size_t size() const;
+
+private:
+    struct CaseInsensitiveLess {
+        using is_transparent = void;
+        bool operator()(std::string_view s1, std::string_view s2) const;
+    };
+    std::map<std::string, std::string, CaseInsensitiveLess> headers_;
+};
+
 struct Response {
     Error err;
     StatusLine status_line;
-    std::map<std::string, std::string> headers;
+    Headers headers;
     std::string body;
 };
-
-std::string to_string(std::map<std::string, std::string> const &headers);
 
 class Http {
 public:
@@ -56,7 +71,7 @@ public:
                 return {Error::InvalidResponse};
             }
             auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
-            if (headers.empty()) {
+            if (headers.size() == 0) {
                 return {Error::InvalidResponse};
             }
             data = socket.read_all();
@@ -70,7 +85,7 @@ private:
     static bool use_port(uri::Uri const &uri);
     static std::string create_get_request(uri::Uri const &uri);
     static std::optional<StatusLine> parse_status_line(std::string_view status_line);
-    static std::map<std::string, std::string> parse_headers(std::string_view header);
+    static Headers parse_headers(std::string_view header);
 };
 
 } // namespace protocol

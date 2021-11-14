@@ -6,6 +6,9 @@
 
 #include "etest/etest.h"
 
+using namespace std::string_view_literals;
+
+using etest::expect;
 using etest::expect_eq;
 using etest::require;
 
@@ -47,6 +50,19 @@ struct FakeSocket {
 } // namespace
 
 int main() {
+    etest::test("headers", [] {
+        protocol::Headers headers;
+
+        headers.add({"Transfer-Encoding", "chunked"});
+        headers.add({"Content-Type", "text/html"});
+
+        expect(!headers.get("foo"sv));
+        expect_eq(headers.get("Transfer-Encoding"sv).value(), "chunked");
+        expect_eq(headers.get("transfer-encoding"sv).value(), "chunked");
+        expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
+        expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
+    });
+
     etest::test("200 response", [] {
         FakeSocket socket;
         socket.read_data =
@@ -80,19 +96,19 @@ int main() {
         expect_eq(response.status_line.version, "HTTP/1.1");
         expect_eq(response.status_line.status_code, 200);
         expect_eq(response.status_line.reason, "OK");
-        expect_eq(response.headers["Content-Encoding"], "gzip");
-        expect_eq(response.headers["Accept-Ranges"], "bytes");
-        expect_eq(response.headers["Age"], "367849");
-        expect_eq(response.headers["Cache-Control"], "max-age=604800");
-        expect_eq(response.headers["Content-Type"], "text/html; charset=UTF-8");
-        expect_eq(response.headers["Date"], "Mon, 25 Oct 2021 19:48:04 GMT");
-        expect_eq(response.headers["Etag"], "\"3147526947\"");
-        expect_eq(response.headers["Expires"], "Mon, 01 Nov 2021 19:48:04 GMT");
-        expect_eq(response.headers["Last-Modified"], "Thu, 17 Oct 2019 07:18:26 GMT");
-        expect_eq(response.headers["Server"], "ECS (nyb/1D2A)");
-        expect_eq(response.headers["Vary"], "Accept-Encoding");
-        expect_eq(response.headers["X-Cache"], "HIT");
-        expect_eq(response.headers["Content-Length"], "123");
+        expect_eq(response.headers.get("Content-Encoding"sv).value(), "gzip");
+        expect_eq(response.headers.get("Accept-Ranges"sv).value(), "bytes");
+        expect_eq(response.headers.get("Age"sv).value(), "367849");
+        expect_eq(response.headers.get("Cache-Control"sv).value(), "max-age=604800");
+        expect_eq(response.headers.get("Content-Type"sv).value(), "text/html; charset=UTF-8");
+        expect_eq(response.headers.get("Date"sv).value(), "Mon, 25 Oct 2021 19:48:04 GMT");
+        expect_eq(response.headers.get("Etag"sv).value(), "\"3147526947\"");
+        expect_eq(response.headers.get("Expires"sv).value(), "Mon, 01 Nov 2021 19:48:04 GMT");
+        expect_eq(response.headers.get("Last-Modified"sv).value(), "Thu, 17 Oct 2019 07:18:26 GMT");
+        expect_eq(response.headers.get("Server"sv).value(), "ECS (nyb/1D2A)");
+        expect_eq(response.headers.get("Vary"sv).value(), "Accept-Encoding");
+        expect_eq(response.headers.get("X-Cache"sv).value(), "HIT");
+        expect_eq(response.headers.get("Content-Length"sv).value(), "123");
         expect_eq(response.body,
                 "<!doctype html>\n"
                 "<html>\n"
