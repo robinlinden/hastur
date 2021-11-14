@@ -20,12 +20,12 @@ constexpr bool no_case_compare(std::string_view a, std::string_view b) {
 }
 
 inline std::string trim_start(std::string s) {
-    s.erase(begin(s), std::find_if(begin(s), end(s), [](auto ch) { return !std::isspace(ch); }));
+    s.erase(begin(s), std::find_if(begin(s), end(s), [](unsigned char ch) { return !std::isspace(ch); }));
     return s;
 }
 
 inline std::string trim_end(std::string s) {
-    s.erase(std::find_if(rbegin(s), rend(s), [](auto ch) { return !std::isspace(ch); }).base(), end(s));
+    s.erase(std::find_if(rbegin(s), rend(s), [](unsigned char ch) { return !std::isspace(ch); }).base(), end(s));
     return s;
 }
 

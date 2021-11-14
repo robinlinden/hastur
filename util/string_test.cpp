@@ -54,5 +54,12 @@ int main() {
         expect_eq(trim("\r\n"), "");
     });
 
+    etest::test("trim with non-ascii characters", [] {
+        expect_eq(trim("Ö"), "Ö");
+        expect_eq(trim(" Ö "), "Ö");
+        expect_eq(trim_start(" Ö "), "Ö ");
+        expect_eq(trim_end(" Ö "), " Ö");
+    });
+
     return etest::run_all_tests();
 }
