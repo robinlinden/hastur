@@ -6,6 +6,7 @@
 #include "protocol/http.h"
 
 #include <fmt/format.h>
+#include <range/v3/algorithm/lexicographical_compare.hpp>
 
 #include <charconv>
 #include <sstream>
@@ -24,12 +25,32 @@ std::pair<std::string_view, std::string_view> split(std::string_view str, std::s
 
 } // namespace
 
-std::string to_string(std::map<std::string, std::string> const &headers) {
+void Headers::add(std::pair<std::string_view, std::string_view> nv) {
+    headers_.emplace(nv);
+}
+
+std::optional<std::string_view> Headers::get(std::string_view name) const {
+    auto it = headers_.find(name);
+    if (it != cend(headers_)) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+std::string Headers::to_string() const {
     std::stringstream ss{};
-    for (auto const &header : headers) {
-        ss << header.first << ": " << header.second << "\n";
+    for (auto const &[name, value] : headers_) {
+        ss << name << ": " << value << "\n";
     }
     return ss.str();
+}
+
+std::size_t Headers::size() const {
+    return headers_.size();
+}
+
+bool Headers::CaseInsensitiveLess::operator()(std::string_view s1, std::string_view s2) const {
+    return ranges::lexicographical_compare(
+            s1, s2, [](unsigned char c1, unsigned char c2) { return std::tolower(c1) < std::tolower(c2); });
 }
 
 bool Http::use_port(uri::Uri const &uri) {
@@ -84,13 +105,13 @@ std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) 
     };
 }
 
-std::map<std::string, std::string> Http::parse_headers(std::string_view header) {
-    std::map<std::string, std::string> headers{};
+Headers Http::parse_headers(std::string_view header) {
+    Headers headers;
     for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
-        headers.emplace(split(header.substr(0, sep), ": "));
+        headers.add(split(header.substr(0, sep), ": "));
         header.remove_prefix(sep + 2);
     }
-    headers.emplace(split(header, ": "));
+    headers.add(split(header, ": "));
 
     return headers;
 }

@@ -15,6 +15,7 @@ cc_library(
         "//net",
         "//uri",
         "@fmt",
+        "@range-v3",
     ],
 )
 
