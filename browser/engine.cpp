@@ -32,7 +32,7 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 
 protocol::Error Engine::navigate(uri::Uri uri) {
     auto is_redirect = [](int status_code) {
-        return status_code == 301 || status_code == 302;
+        return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
     };
 
     if (uri.path.empty()) {
