@@ -39,6 +39,12 @@ struct FakeSocket {
         return result;
     }
 
+    std::string read_bytes(std::size_t bytes) {
+        std::string result = read_data.substr(0, bytes);
+        read_data.erase(0, bytes);
+        return read_data;
+    }
+
     std::string host{};
     std::string service{};
     std::string write_data{};
