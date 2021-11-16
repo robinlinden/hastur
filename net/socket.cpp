@@ -46,6 +46,21 @@ struct BaseSocketImpl {
         }
         return result;
     }
+
+    std::string read_bytes(auto &socket, std::size_t bytes) {
+        asio::error_code ec;
+        std::string result{};
+        if (buffer.size() >= bytes) {
+            result = buffer.substr(0, bytes);
+            buffer.erase(0, bytes);
+        } else {
+            auto bytes_to_transfer = bytes - buffer.size();
+            asio::read(socket, asio::dynamic_buffer(buffer), asio::transfer_at_least(bytes_to_transfer), ec);
+            result = buffer.substr(0, bytes);
+            buffer.erase(0, bytes);
+        }
+        return result;
+    }
     std::string buffer{};
 };
 
@@ -81,6 +96,10 @@ std::string Socket::read_all() {
 
 std::string Socket::read_until(std::string_view delimiter) {
     return impl_->read_until(impl_->socket, delimiter);
+}
+
+std::string Socket::read_bytes(std::size_t bytes) {
+    return impl_->read_bytes(impl_->socket, bytes);
 }
 
 struct SecureSocket::Impl : public BaseSocketImpl {
@@ -122,6 +141,10 @@ std::string SecureSocket::read_all() {
 
 std::string SecureSocket::read_until(std::string_view delimiter) {
     return impl_->read_until(impl_->socket, delimiter);
+}
+
+std::string SecureSocket::read_bytes(std::size_t bytes) {
+    return impl_->read_bytes(impl_->socket, bytes);
 }
 
 } // namespace net

@@ -24,6 +24,7 @@ public:
     std::size_t write(std::string_view data);
     std::string read_all();
     std::string read_until(std::string_view delimiter);
+    std::string read_bytes(std::size_t bytes);
 
 private:
     struct Impl;
@@ -42,6 +43,7 @@ public:
     std::size_t write(std::string_view data);
     std::string read_all();
     std::string read_until(std::string_view delimiter);
+    std::string read_bytes(std::size_t bytes);
 
 private:
     struct Impl;
