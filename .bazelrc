@@ -103,6 +103,7 @@ build:msvc --per_file_copt='external/zlib[:/]@/wd4267' # C4267: '=': conversion 
 # Currently only supported for Clang 13 and newer.
 build:libc++ --cxxopt=-stdlib=libc++
 build:libc++ --linkopt=-stdlib=libc++
+build:libc++ --copt=-D_LIBCPP_ENABLE_NODISCARD
 
 # Some of this is from "Can I run AddressSanitizer with more aggressive diagnostics enabled?"
 # on https://github.com/google/sanitizers/wiki/AddressSanitizer#faq and some is from
