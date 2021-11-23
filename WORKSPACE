@@ -84,7 +84,7 @@ http_archive(
 )
 
 http_archive(
-    name = "range-v3",
+    name = "range-v3",  # BSL-1.0
     sha256 = "3575e4645cd1a7d42fa42a6b016e75a7c72d31d13f72ee4e5bb9773d36303258",
     strip_prefix = "range-v3-83783f578e0e6666d68a3bf17b0038a80e62530e",
     url = "https://github.com/ericniebler/range-v3/archive/83783f578e0e6666d68a3bf17b0038a80e62530e.tar.gz",
