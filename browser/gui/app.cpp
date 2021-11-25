@@ -100,6 +100,27 @@ int App::run() {
                     nav_widget_extra_info_ = get_hovered_element_text(std::move(document_position));
                     break;
                 }
+                case sf::Event::MouseButtonReleased: {
+                    if (event.mouseButton.button != sf::Mouse::Left) {
+                        break;
+                    }
+
+                    auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
+                    auto document_position = to_document_position(std::move(window_position));
+                    auto const *dom_node = get_hovered_node(std::move(document_position));
+                    if (!dom_node) {
+                        break;
+                    }
+
+                    auto const *element = std::get_if<dom::Element>(&dom_node->data);
+                    if (!element || element->name != "a"s || !element->attributes.contains("href")) {
+                        break;
+                    }
+
+                    url_buf_ = element->attributes.at("href");
+                    navigate();
+                    break;
+                }
                 default:
                     break;
             }
