@@ -186,23 +186,31 @@ void App::on_layout_updated() {
     layout_str_ = layout::to_string(engine_.layout());
 }
 
-std::string App::get_hovered_element_text(geom::Position p) const {
+dom::Node const *App::get_hovered_node(geom::Position p) const {
     if (!page_loaded_) {
-        return ""s;
+        return nullptr;
     }
 
     auto const *moused_over = layout::box_at_position(engine_.layout(), p);
     if (!moused_over) {
+        return nullptr;
+    }
+
+    return &moused_over->node->node.get();
+}
+
+std::string App::get_hovered_element_text(geom::Position p) const {
+    auto const *dom_node = get_hovered_node(p);
+    if (dom_node == nullptr) {
         return ""s;
     }
 
-    auto const &dom_node = moused_over->node->node.get();
-    if (std::holds_alternative<dom::Text>(dom_node.data)) {
-        return std::get<dom::Text>(dom_node.data).text;
+    if (std::holds_alternative<dom::Text>(dom_node->data)) {
+        return std::get<dom::Text>(dom_node->data).text;
     }
 
     // Special handling of <a> because I want to see what link I'm hovering.
-    auto const &element = std::get<dom::Element>(dom_node.data);
+    auto const &element = std::get<dom::Element>(dom_node->data);
     if (element.name == "a"s && element.attributes.contains("href")) {
         return element.name + ": " + element.attributes.at("href");
     }
