@@ -143,6 +143,8 @@ struct EndOfFileToken {
 
 using Token = std::variant<DoctypeToken, StartTagToken, EndTagToken, CommentToken, CharacterToken, EndOfFileToken>;
 
+std::string to_string(Token const &);
+
 class Tokenizer {
 public:
     Tokenizer(std::string_view input, std::function<void(Token &&)> on_emit)
