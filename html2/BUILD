@@ -2,10 +2,14 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "html2",
-    srcs = ["tokenizer.cpp"],
-    hdrs = ["tokenizer.h"],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
     deps = [
+        "//dom2",
         "//util",
         "@spdlog",
     ],
