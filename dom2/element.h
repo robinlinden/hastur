@@ -7,12 +7,23 @@
 
 #include "dom2/node.h"
 
+#include <string>
+#include <utility>
+
 namespace dom2 {
 
 // https://dom.spec.whatwg.org/#interface-element
+// TODO(robinlinden): This is only partially implemented.
 class Element final : public Node {
 public:
+    Element(std::string local_name) : local_name_{std::move(local_name)} {}
+
     NodeType type() const override { return NodeType::Element; }
+
+    std::string const &local_name() const { return local_name_; }
+
+private:
+    std::string local_name_{};
 };
 
 } // namespace dom2
