@@ -246,7 +246,6 @@ geom::Position App::to_document_position(geom::Position window_position) const {
 void App::reset_scroll() {
     painter_.add_translation(0, -scroll_offset_y_);
     scroll_offset_y_ = 0;
-    painter_.set_viewport_size(window_.getSize().x, window_.getSize().y);
 }
 
 void App::scroll(int pixels) {
