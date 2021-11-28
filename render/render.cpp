@@ -7,7 +7,6 @@
 #include "dom/dom.h"
 #include "style/style.h"
 
-#include <GL/glew.h>
 #include <spdlog/spdlog.h>
 
 #include <charconv>
@@ -66,15 +65,6 @@ bool should_render(layout::LayoutBox const &layout) {
 }
 
 } // namespace
-
-void render_setup(int width, int height) {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, width, height, 0, -1.0, 1.0);
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-}
 
 void render_layout(gfx::IPainter &painter, layout::LayoutBox const &layout) {
     if (should_render(layout)) {

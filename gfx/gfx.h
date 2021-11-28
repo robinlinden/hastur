@@ -29,6 +29,7 @@ class IPainter {
 public:
     virtual ~IPainter() = default;
 
+    virtual void set_viewport_size(int width, int height) = 0;
     virtual void add_translation(int dx, int dy) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
 };
@@ -36,6 +37,8 @@ public:
 class OpenGLPainter final : public IPainter {
 public:
     OpenGLPainter();
+
+    void set_viewport_size(int width, int height) override;
 
     constexpr void add_translation(int dx, int dy) override {
         translation_x += dx;

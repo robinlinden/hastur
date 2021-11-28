@@ -39,7 +39,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
       url_buf_{std::move(start_page_hint)} {
     window_.setFramerateLimit(60);
     ImGui::SFML::Init(window_);
-    render::render_setup(window_.getSize().x, window_.getSize().y);
+    painter_.set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     engine_.set_layout_width(window_.getSize().x);
     engine_.set_on_navigation_failure(std::bind(&App::on_navigation_failure, this, std::placeholders::_1));
@@ -67,7 +67,7 @@ int App::run() {
                     break;
                 }
                 case sf::Event::Resized: {
-                    render::render_setup(event.size.width, event.size.height);
+                    painter_.set_viewport_size(event.size.width, event.size.height);
                     engine_.set_layout_width(event.size.width);
                     break;
                 }
@@ -246,7 +246,7 @@ geom::Position App::to_document_position(geom::Position window_position) const {
 void App::reset_scroll() {
     painter_.add_translation(0, -scroll_offset_y_);
     scroll_offset_y_ = 0;
-    render::render_setup(window_.getSize().x, window_.getSize().y);
+    painter_.set_viewport_size(window_.getSize().x, window_.getSize().y);
 }
 
 void App::scroll(int pixels) {

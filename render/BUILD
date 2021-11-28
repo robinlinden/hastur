@@ -8,7 +8,6 @@ cc_library(
     deps = [
         "//gfx",
         "//layout",
-        "@glew",
         "@spdlog",
     ],
 )
