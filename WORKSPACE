@@ -123,6 +123,14 @@ http_archive(
 )
 
 http_archive(
+    name = "vulkan",  # Apache-2.0
+    build_file = "//third_party:vulkan.BUILD",
+    sha256 = "2fa518da0614a45ca473cd3f5efa72e101fa88549da14a9cbef3ff6cb3e7280b",
+    strip_prefix = "Vulkan-Headers-1.2.200",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.200.tar.gz",
+)
+
+http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
     sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",
