@@ -7,12 +7,21 @@
 
 #include "dom2/character_data.h"
 
+#include <string>
+
 namespace dom2 {
 
 // https://dom.spec.whatwg.org/#interface-processinginstruction
 class ProcessingInstruction final : public CharacterData {
 public:
+    ProcessingInstruction() : CharacterData(std::string{""}) {}
+
     NodeType type() const override { return NodeType::ProcessingInstruction; }
+
+    std::string const &target() const { return target_; }
+
+private:
+    std::string target_{};
 };
 
 } // namespace dom2
