@@ -53,6 +53,19 @@ struct FakeSocket {
     bool connect_result{true};
 };
 
+uri::Uri create_uri(std::string url = "http://example.com") {
+    return uri::Uri::parse(url).value();
+}
+
+FakeSocket create_chunked_socket(std::string body) {
+    FakeSocket socket;
+    socket.read_data =
+            "HTTP/1.1 200 OK\r\n"
+            "Transfer-Encoding: chunked\r\n\r\n"
+            + body;
+    return socket;
+}
+
 } // namespace
 
 int main() {
@@ -94,7 +107,7 @@ int main() {
                 "</head>\n"
                 "</html>\n";
 
-        auto response = protocol::Http::get(socket, uri::Uri::parse("http://example.com").value());
+        auto response = protocol::Http::get(socket, create_uri());
 
         require(response.headers.size() == 13);
         expect_eq(socket.host, "example.com");
@@ -143,7 +156,7 @@ int main() {
                 "<A HREF=\"http://www.google.com/\">here</A>.\r\n"
                 "</BODY></HTML>\r\n";
 
-        auto response = protocol::Http::get(socket, uri::Uri::parse("http://google.com").value());
+        auto response = protocol::Http::get(socket, create_uri("http://google.com"));
 
         require(response.headers.size() == 7);
         expect_eq(socket.host, "google.com");
@@ -151,6 +164,102 @@ int main() {
         expect_eq(response.status_line.version, "HTTP/1.1");
         expect_eq(response.status_line.status_code, 301);
         expect_eq(response.status_line.reason, "Moved Permanently");
+    });
+
+    etest::test("transfer-encoding chunked, real body", [] {
+        auto socket = create_chunked_socket(
+                "7f\r\n"
+                "<!DOCTYPE html>\r\n"
+                "<html lang=en>\r\n"
+                "<head>\r\n"
+                "<meta charset='utf-8'>\r\n"
+                "<title>Chunked transfer encoding test</title>\r\n"
+                "</head>\r\n"
+                "<body>\r\n"
+                "27\r\n"
+                "<h1>Chunked transfer encoding test</h1>\r\n"
+                "31\r\n"
+                "<h5>This is a chunked response after 100 ms.</h5>\r\n"
+                "82\r\n"
+                "<h5>This is a chunked response after 1 second. The server should not close the stream before all "
+                "chunks are sent to a client.</h5>\r\n"
+                "e\r\n"
+                "</body></html>\r\n"
+                "0\r\n"
+                "\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.body,
+                "<!DOCTYPE html>\r\n"
+                "<html lang=en>\r\n"
+                "<head>\r\n"
+                "<meta charset='utf-8'>\r\n"
+                "<title>Chunked transfer encoding test</title>\r\n"
+                "</head>\r\n"
+                "<body><h1>Chunked transfer encoding test</h1><h5>This is a chunked response after 100 ms.</h5>"
+                "<h5>This is a chunked response after 1 second. The server should not close the stream before all "
+                "chunks are sent to a client.</h5></body></html>"sv);
+    });
+
+    etest::test("transfer-encoding chunked, space before size", [] {
+        auto socket = create_chunked_socket(
+                "  5\r\nhello\r\n"
+                " 0\r\n\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.body, "hello");
+    });
+
+    etest::test("transfer-encoding chunked, space after size", [] {
+        auto socket = create_chunked_socket(
+                "5  \r\nhello\r\n"
+                "0  \r\n\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.body, "hello");
+    });
+
+    etest::test("transfer-encoding chunked, invalid size", [] {
+        auto socket = create_chunked_socket(
+                "8684838388283847263674\r\nhello\r\n"
+                "0\r\n\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.err, protocol::Error::InvalidResponse);
+    });
+
+    etest::test("transfer-encoding chunked, no separator between chunk", [] {
+        auto socket = create_chunked_socket(
+                "5\r\nhello"
+                "0\r\n\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.err, protocol::Error::InvalidResponse);
+    });
+
+    etest::test("transfer-encoding chunked, chunk too short", [] {
+        auto socket = create_chunked_socket(
+                "6\r\nhello\r\n"
+                "0\r\n\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.err, protocol::Error::InvalidResponse);
+    });
+
+    etest::test("transfer-encoding chunked, chunk too long", [] {
+        auto socket = create_chunked_socket(
+                "3\r\nhello\r\n"
+                "0\r\n\r\n");
+
+        auto response = protocol::Http::get(socket, create_uri());
+
+        expect_eq(response.err, protocol::Error::InvalidResponse);
     });
 
     // TODO(mkiael): Fix so that this test passes

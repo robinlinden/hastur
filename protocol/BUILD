@@ -14,6 +14,7 @@ cc_library(
     deps = [
         "//net",
         "//uri",
+        "//util",
         "@fmt",
         "@range-v3",
     ],
