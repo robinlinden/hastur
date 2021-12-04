@@ -5,6 +5,7 @@
 #ifndef DOM_DOM_H_
 #define DOM_DOM_H_
 
+#include <functional>
 #include <map>
 #include <string>
 #include <string_view>
@@ -14,7 +15,11 @@
 
 namespace dom {
 
+struct Text;
+struct Element;
+
 using AttrMap = std::map<std::string, std::string>;
+using Node = std::variant<Element, Text>;
 
 struct Text {
     std::string text;
@@ -24,34 +29,33 @@ struct Text {
 struct Element {
     std::string name;
     AttrMap attributes;
-    [[nodiscard]] bool operator==(Element const &) const = default;
-};
-
-struct Node {
     std::vector<Node> children;
-    std::variant<Text, Element> data;
-    [[nodiscard]] bool operator==(Node const &) const = default;
+    [[nodiscard]] bool operator==(Element const &) const = default;
 };
 
 struct Document {
     std::string doctype;
-    Node html;
+    Node html_node;
+    Element const &html() const { return std::get<Element>(html_node); }
+    Element &html() { return std::get<Element>(html_node); }
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
-inline Document create_document(std::string_view doctype, Node html) {
+inline Document create_document(std::string_view doctype, Element html) {
     return {std::string{doctype}, std::move(html)};
 }
 
 inline Node create_text_node(std::string_view data) {
-    return {{}, Text{std::string(data)}};
+    return Text{std::string(data)};
 }
 
 inline Node create_element_node(std::string_view name, AttrMap attrs, std::vector<Node> children) {
-    return {std::move(children), Element{std::string{name}, std::move(attrs)}};
+    return Element{std::string{name}, std::move(attrs), std::move(children)};
 }
 
-std::vector<Node const *> nodes_by_path(Node const &root, std::string_view path);
+// reference_wrapper to ensure that the argument isn't a temporary since we return pointers into it.
+std::vector<Element const *> nodes_by_path(std::reference_wrapper<Node const>, std::string_view path);
+std::vector<Element const *> nodes_by_path(std::reference_wrapper<Element const>, std::string_view path);
 
 std::string to_string(Document const &node);
 

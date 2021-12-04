@@ -63,7 +63,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
                                   return LayoutBox{&node, LayoutType::Inline};
                               },
                       },
-            node.node.get().data);
+            node.node.get());
 }
 
 // TODO(robinlinden):
@@ -84,9 +84,9 @@ int to_px(std::string_view property) {
 void calculate_width(LayoutBox &box, geom::Rect const &parent) {
     assert(box.node != nullptr);
 
-    if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
+    if (std::holds_alternative<dom::Text>(box.node->node.get())) {
         // TODO(robinlinden): Measure the text for real.
-        auto text_node = std::get<dom::Text>(box.node->node.get().data);
+        auto text_node = std::get<dom::Text>(box.node->node.get());
         auto font_size = style::get_property_or(*box.node, "font-size", "10px");
         box.dimensions.content.width =
                 std::min(parent.width, static_cast<int>(text_node.text.size()) * to_px(font_size) / 2);
@@ -116,7 +116,7 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
 
 void calculate_height(LayoutBox &box) {
     assert(box.node != nullptr);
-    if (std::holds_alternative<dom::Text>(box.node->node.get().data)) {
+    if (std::holds_alternative<dom::Text>(box.node->node.get())) {
         auto font_size = style::get_property_or(*box.node, "font-size", "10px");
         box.dimensions.content.height = to_px(font_size);
     }
@@ -230,7 +230,7 @@ std::string_view to_str(dom::Node const &node) {
                               [](dom::Element const &element) -> std::string_view { return element.name; },
                               [](dom::Text const &text) -> std::string_view { return text.text; },
                       },
-            node.data);
+            node);
 }
 
 std::string to_str(geom::Rect const &rect) {

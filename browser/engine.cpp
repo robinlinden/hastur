@@ -21,11 +21,11 @@ namespace browser {
 namespace {
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
-    auto nodes = dom::nodes_by_path(doc.html, path);
-    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0].data)) {
+    auto nodes = dom::nodes_by_path(doc.html(), path);
+    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
         return std::nullopt;
     }
-    return std::get<dom::Text>(nodes[0]->children[0].data).text;
+    return std::get<dom::Text>(nodes[0]->children[0]).text;
 }
 
 } // namespace
@@ -86,12 +86,11 @@ void Engine::on_navigation_success() {
                 end(stylesheet), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
     }
 
-    auto head_links = dom::nodes_by_path(dom_.html, "html.head.link");
+    auto head_links = dom::nodes_by_path(dom_.html(), "html.head.link");
     head_links.erase(std::remove_if(begin(head_links),
                              end(head_links),
-                             [](auto const &n) {
-                                 auto elem = std::get<dom::Element>(n->data);
-                                 return elem.attributes.contains("rel") && elem.attributes.at("rel") != "stylesheet";
+                             [](auto const *link) {
+                                 return link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet";
                              }),
             end(head_links));
 
@@ -100,9 +99,8 @@ void Engine::on_navigation_success() {
     std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
     for (auto link : head_links) {
         future_new_rules.push_back(std::async(std::launch::async, [=, this] {
-            auto const &elem = std::get<dom::Element>(link->data);
             auto stylesheet_url =
-                    fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, elem.attributes.at("href"));
+                    fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, link->attributes.at("href"));
             spdlog::info("Downloading stylesheet from {}", stylesheet_url);
             auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
             return css::parse(style_data.body);
@@ -117,7 +115,7 @@ void Engine::on_navigation_success() {
     }
 
     spdlog::info("Styling dom w/ {} rules", stylesheet.size());
-    styled_ = style::style_tree(dom_.html, stylesheet);
+    styled_ = style::style_tree(dom_.html_node, stylesheet);
     layout_ = layout::create_layout(*styled_, layout_width_);
     on_page_loaded_();
 }

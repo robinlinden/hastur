@@ -22,7 +22,7 @@ bool looks_like_hex(std::string_view str) {
 }
 
 bool contains_text(layout::LayoutBox const &layout) {
-    return std::holds_alternative<dom::Text>(layout.node->node.get().data);
+    return std::holds_alternative<dom::Text>(layout.node->node.get());
 }
 
 gfx::Color from_hex_chars(std::string_view hex_chars) {

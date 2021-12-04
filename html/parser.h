@@ -34,11 +34,11 @@ public:
         }();
 
         auto children = parse_nodes();
-        if (children.size() == 1 && std::get<dom::Element>(children[0].data).name == "html") {
-            return dom::create_document(doctype, std::move(children[0]));
+        if (children.size() == 1 && std::get<dom::Element>(children[0]).name == "html") {
+            return dom::create_document(doctype, std::move(std::get<dom::Element>(children[0])));
         }
 
-        return dom::create_document(doctype, dom::create_element_node("html", {}, std::move(children)));
+        return dom::create_document(doctype, dom::Element{"html", {}, std::move(children)});
     }
 
 private:

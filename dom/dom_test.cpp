@@ -37,7 +37,7 @@ int main() {
 
         auto const nodes = nodes_by_path(dom_root, "html");
         require(nodes.size() == 1);
-        expect(std::get<dom::Element>(nodes[0]->data).name == "html");
+        expect(nodes[0]->name == "html");
     });
 
     etest::test("path with one element node", [] {
@@ -50,7 +50,7 @@ int main() {
 
         auto const nodes = nodes_by_path(dom_root, "html.body.p");
         require(nodes.size() == 1);
-        expect(std::get<dom::Element>(nodes[0]->data).name == "p");
+        expect(nodes[0]->name == "p");
     });
 
     etest::test("path with multiple element nodes", [] {
@@ -65,11 +65,11 @@ int main() {
         auto const nodes = nodes_by_path(dom_root, "html.body.p");
         require(nodes.size() == 2);
 
-        auto const first = std::get<dom::Element>(nodes[0]->data);
+        auto const first = *nodes[0];
         expect(first.name == "p");
         expect(first.attributes.size() == 0);
 
-        auto const second = std::get<dom::Element>(nodes[1]->data);
+        auto const second = *nodes[1];
         expect(second.name == "p");
         expect(second.attributes.size() == 1);
         expect(second.attributes.at("display") == "none");
@@ -94,12 +94,12 @@ int main() {
         auto const nodes = nodes_by_path(dom_root, "html.body.div.p");
         require(nodes.size() == 2);
 
-        auto const first = std::get<dom::Element>(nodes[0]->data);
+        auto const first = *nodes[0];
         expect(first.name == "p");
         expect(first.attributes.size() == 1);
         expect(first.attributes.at("display") == "none");
 
-        auto const second = std::get<dom::Element>(nodes[1]->data);
+        auto const second = *nodes[1];
         expect(second.name == "p");
         expect(second.attributes.size() == 1);
         expect(second.attributes.at("display") == "block");

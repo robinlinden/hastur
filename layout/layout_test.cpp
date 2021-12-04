@@ -26,13 +26,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {}, {}},
-                {dom_root.children[1], {}, {
-                    {dom_root.children[1].children[0], {}, {}},
+                {children[0], {}, {}},
+                {children[1], {}, {
+                    {std::get<dom::Element>(children[1]).children[0], {}, {}},
                 }},
             },
         };
@@ -61,13 +62,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {{"display", "none"}}, {}},
-                {dom_root.children[1], {}, {
-                    {dom_root.children[1].children[0], {}, {}},
+                {children[0], {{"display", "none"}}, {}},
+                {children[1], {}, {
+                    {std::get<dom::Element>(children[1]).children[0], {}, {}},
                 }},
             },
         };
@@ -95,13 +97,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {{"display", "inline"}}, {}},
-                {dom_root.children[1], {{"display", "inline"}}, {
-                    {dom_root.children[1].children[0], {}, {}},
+                {children[0], {{"display", "inline"}}, {}},
+                {children[1], {{"display", "inline"}}, {
+                    {std::get<dom::Element>(children[1]).children[0], {}, {}},
                 }},
             },
         };
@@ -135,13 +138,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {}, {}},
-                    {dom_root.children[0].children[1], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
             },
         };
@@ -171,12 +175,13 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"width", "100px"}},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
                 }},
             },
         };
@@ -202,12 +207,13 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"min-width", "100px"}},
             .children = {
-                {dom_root.children[0], {{"min-width", "50px"}}, {
-                    {dom_root.children[0].children[0], {}, {}},
+                {children[0], {{"min-width", "50px"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
                 }},
             },
         };
@@ -235,12 +241,13 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"max-width", "100px"}},
             .children = {
-                {dom_root.children[0], {{"max-width", "50px"}}, {
-                    {dom_root.children[0].children[0], {}, {}},
+                {children[0], {{"max-width", "50px"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
                 }},
             },
         };
@@ -266,12 +273,13 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"width", "100px"}},
             .children = {
-                {dom_root.children[0], {{"width", "50px"}}, {
-                    {dom_root.children[0].children[0], {{"width", "25px"}}, {}},
+                {children[0], {{"width", "50px"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{"width", "25px"}}, {}},
                 }},
             },
         };
@@ -297,12 +305,13 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"width", "100px"}},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
                 }},
             },
         };
@@ -328,12 +337,13 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"height", "100px"}},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
                 }},
             },
         };
@@ -360,13 +370,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {{"height", "25px"}}, {}},
-                    {dom_root.children[0].children[1], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
             },
         };
@@ -394,13 +405,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"min-height", "400px"}},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {{"height", "25px"}}, {}},
-                    {dom_root.children[0].children[1], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
             },
         };
@@ -428,13 +440,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {{"max-height", "10px"}},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {{"height", "400px"}}, {}},
-                    {dom_root.children[0].children[1], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{"height", "400px"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
             },
         };
@@ -470,13 +483,14 @@ int main() {
                 std::pair{"padding-left"s, "10px"s},
         };
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], std::move(properties), {}},
-                    {dom_root.children[0].children[1], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
             },
         };
@@ -511,13 +525,14 @@ int main() {
                 std::pair{"margin-left"s, "10px"s},
         };
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], std::move(properties), {}},
-                    {dom_root.children[0].children[1], {}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
             },
         };
@@ -599,13 +614,14 @@ int main() {
             }),
         });
 
+        auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {},
             .children = {
-                {dom_root.children[0], {}, {
-                    {dom_root.children[0].children[0], {{"height", "25px"}}, {}},
-                    {dom_root.children[0].children[1], {{"padding-top", "5px"}, {"padding-right", "15px"}}, {}},
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{"padding-top", "5px"}, {"padding-right", "15px"}}, {}},
                 }},
             },
         };

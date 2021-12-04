@@ -44,14 +44,17 @@ std::vector<std::pair<std::string, std::string>> matching_rules(
     return matched_rules;
 }
 
-StyledNode style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
+StyledNode style_tree(std::reference_wrapper<dom::Node const> root, std::vector<css::Rule> const &stylesheet) {
     std::vector<StyledNode> children{};
-    for (auto const &child : root.children) {
-        children.push_back(style_tree(child, stylesheet));
+
+    if (auto const *element = std::get_if<dom::Element>(&root.get())) {
+        for (auto const &child : element->children) {
+            children.push_back(style_tree(child, stylesheet));
+        }
     }
 
-    auto properties = std::holds_alternative<dom::Element>(root.data)
-            ? matching_rules(std::get<dom::Element>(root.data), stylesheet)
+    auto properties = std::holds_alternative<dom::Element>(root.get())
+            ? matching_rules(std::get<dom::Element>(root.get()), stylesheet)
             : std::vector<std::pair<std::string, std::string>>{};
 
     return {

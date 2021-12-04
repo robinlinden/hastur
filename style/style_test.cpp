@@ -101,13 +101,14 @@ int main() {
             }
         );
 
+        auto const &root_as_elem = std::get<dom::Element>(root);
         style::StyledNode expected{
             .node = root,
             .properties = {},
             .children = {
-                {root.children[0], {}, {}},
-                {root.children[1], {}, {
-                    {root.children[1].children[0], {}, {}},
+                {root_as_elem.children[0], {}, {}},
+                {root_as_elem.children[1], {}, {
+                    {std::get<dom::Element>(root_as_elem.children[1]).children[0], {}, {}},
                 }},
             },
         };
@@ -142,13 +143,14 @@ int main() {
             },
         };
 
+        auto const &root_as_elem = std::get<dom::Element>(root);
         style::StyledNode expected{
             .node = root,
             .properties = {},
             .children = {
-                {root.children[0], {}, {}},
-                {root.children[1], {{"text-size", "500em"}}, {
-                    {root.children[1].children[0], {{"height", "100px"}}, {}},
+                {root_as_elem.children[0], {}, {}},
+                {root_as_elem.children[1], {{"text-size", "500em"}}, {
+                    {std::get<dom::Element>(root_as_elem.children[1]).children[0], {{"height", "100px"}}, {}},
                 }},
             },
         };

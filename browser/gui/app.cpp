@@ -25,11 +25,11 @@ namespace browser::gui {
 namespace {
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
-    auto nodes = dom::nodes_by_path(doc.html, path);
-    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0].data)) {
+    auto nodes = dom::nodes_by_path(doc.html(), path);
+    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
         return std::nullopt;
     }
-    return std::get<dom::Text>(nodes[0]->children[0].data).text;
+    return std::get<dom::Text>(nodes[0]->children[0]).text;
 }
 
 } // namespace
@@ -112,7 +112,7 @@ int App::run() {
                         break;
                     }
 
-                    auto const *element = std::get_if<dom::Element>(&dom_node->data);
+                    auto const *element = std::get_if<dom::Element>(dom_node);
                     if (!element || element->name != "a"s || !element->attributes.contains("href")) {
                         break;
                     }
@@ -226,12 +226,12 @@ std::string App::get_hovered_element_text(geom::Position p) const {
         return ""s;
     }
 
-    if (std::holds_alternative<dom::Text>(dom_node->data)) {
-        return std::get<dom::Text>(dom_node->data).text;
+    if (std::holds_alternative<dom::Text>(*dom_node)) {
+        return std::get<dom::Text>(*dom_node).text;
     }
 
     // Special handling of <a> because I want to see what link I'm hovering.
-    auto const &element = std::get<dom::Element>(dom_node->data);
+    auto const &element = std::get<dom::Element>(*dom_node);
     if (element.name == "a"s && element.attributes.contains("href")) {
         return element.name + ": " + element.attributes.at("href");
     }
