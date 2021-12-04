@@ -5,6 +5,7 @@ cc_library(
     srcs = ["dom.cpp"],
     hdrs = ["dom.h"],
     visibility = ["//visibility:public"],
+    deps = ["@range-v3"],
 )
 
 cc_test(

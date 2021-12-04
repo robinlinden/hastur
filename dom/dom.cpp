@@ -4,6 +4,10 @@
 
 #include "dom/dom.h"
 
+#include <range/v3/action/push_back.hpp>
+#include <range/v3/view/remove_if.hpp>
+#include <range/v3/view/transform.hpp>
+
 #include <algorithm>
 #include <iterator>
 #include <ostream>
@@ -73,21 +77,10 @@ std::vector<Element const *> nodes_by_path(std::reference_wrapper<Element const>
             }
 
             if (path.starts_with(node->name + ".")) {
-                // TODO(robinlinden): This would be so much better with ranges.
-                std::vector<Node const *> node_pointers{};
-                std::transform(cbegin(node->children),
-                        cend(node->children),
-                        back_inserter(node_pointers),
-                        [](Node const &n) -> Node const * { return &n; });
-                std::vector<Node const *> only_elements{};
-                std::remove_copy_if(cbegin(node_pointers),
-                        cend(node_pointers),
-                        back_inserter(only_elements),
-                        [](Node const *n) -> bool { return !std::holds_alternative<Element>(*n); });
-                std::transform(cbegin(only_elements),
-                        cend(only_elements),
-                        back_inserter(next_search),
-                        [](Node const *n) -> Element const * { return std::get_if<Element>(n); });
+                auto view = node->children
+                        | ranges::views::transform([](Node const &n) { return std::get_if<Element>(&n); })
+                        | ranges::views::remove_if([](Element const *n) { return n == nullptr; });
+                next_search |= ranges::actions::push_back(view);
             }
         }
 
