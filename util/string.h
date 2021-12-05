@@ -12,11 +12,30 @@
 #include <cctype>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 namespace util {
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
     return ranges::equal(a, b, [](auto c1, auto c2) { return std::tolower(c1) == std::tolower(c2); });
+}
+
+inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
+    std::vector<std::string_view> result{};
+    for (auto p = str.find(sep); p != str.npos; p = str.find(sep)) {
+        result.push_back(str.substr(0, p));
+        str.remove_prefix(std::min(p + sep.size(), str.size()));
+    }
+    result.push_back(str);
+    return result;
+}
+
+inline std::pair<std::string_view, std::string_view> split_once(std::string_view str, std::string_view sep) {
+    if (auto p = str.find(sep); p != str.npos) {
+        return {str.substr(0, p), str.substr(p + sep.size(), str.size() - p - sep.size())};
+    }
+    return {str, ""};
 }
 
 inline std::string trim_start(std::string s) {
