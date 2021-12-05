@@ -363,10 +363,6 @@ void Tokenizer::run() {
                         state_ = State::Data;
                         emit(std::move(current_token_));
                         continue;
-                    case '\0':
-                        // This is an unexpected-null-character parse error.
-                        current_attribute().name += "\xFF\xFD";
-                        continue;
                     default:
                         // This is a missing-whitespace-between-attributes parse error.
                         reconsume_in(State::BeforeAttributeName);
