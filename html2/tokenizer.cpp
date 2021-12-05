@@ -333,10 +333,10 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         // This is an unexpected-null-character parse error.
-                        current_attribute().name += "\xFF\xFD";
+                        current_attribute().value += "\xFF\xFD";
                         continue;
                     default:
-                        current_attribute().name += *c;
+                        current_attribute().value += *c;
                         continue;
                 }
             }
