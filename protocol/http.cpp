@@ -5,6 +5,8 @@
 
 #include "protocol/http.h"
 
+#include "util/string.h"
+
 #include <fmt/format.h>
 #include <range/v3/algorithm/lexicographical_compare.hpp>
 
@@ -14,16 +16,6 @@
 using namespace std::string_view_literals;
 
 namespace protocol {
-namespace {
-
-std::pair<std::string_view, std::string_view> split(std::string_view str, std::string_view sep) {
-    if (auto it = str.find(sep); it != std::string::npos) {
-        return {str.substr(0, it), str.substr(it + sep.size(), str.size() - it - sep.size())};
-    }
-    return {str, ""sv};
-}
-
-} // namespace
 
 void Headers::add(std::pair<std::string_view, std::string_view> nv) {
     headers_.emplace(nv);
@@ -108,10 +100,10 @@ std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) 
 Headers Http::parse_headers(std::string_view header) {
     Headers headers;
     for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
-        headers.add(split(header.substr(0, sep), ": "));
+        headers.add(util::split_once(header.substr(0, sep), ": "));
         header.remove_prefix(sep + 2);
     }
-    headers.add(split(header, ": "));
+    headers.add(util::split_once(header, ": "));
 
     return headers;
 }
