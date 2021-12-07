@@ -7,16 +7,11 @@
 #include "etest/etest.h"
 
 using namespace std::literals;
+using namespace util;
 
 using etest::expect;
 using etest::expect_eq;
 using etest::require;
-using util::no_case_compare;
-using util::split;
-using util::split_once;
-using util::trim;
-using util::trim_end;
-using util::trim_start;
 
 int main() {
     etest::test("no case compare", [] {
