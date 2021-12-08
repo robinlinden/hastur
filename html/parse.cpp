@@ -9,7 +9,7 @@
 namespace html {
 
 dom::Document parse(std::string_view input) {
-    return Parser{input}.parse_document();
+    return Parser::parse_document(input);
 }
 
 } // namespace html

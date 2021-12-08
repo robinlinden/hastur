@@ -2,7 +2,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "html",
-    srcs = ["parse.cpp"],
+    srcs = [
+        "parse.cpp",
+        "parser.cpp",
+    ],
     hdrs = [
         "parse.h",
         "parser.h",
@@ -10,7 +13,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//dom",
-        "//util",
+        "//html2",
+        "@spdlog",
     ],
 )
 
