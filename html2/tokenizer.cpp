@@ -341,6 +341,32 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::AttributeValueSingleQuoted: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-tag parse error.
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\'':
+                        state_ = State::AfterAttributeValueQuoted;
+                        continue;
+                    case '&':
+                        return_state_ = State::AttributeValueSingleQuoted;
+                        state_ = State::CharacterReference;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        current_attribute().value += "\xFF\xFD";
+                        continue;
+                    default:
+                        current_attribute().value += *c;
+                        continue;
+                }
+            }
+
             case State::AfterAttributeValueQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {

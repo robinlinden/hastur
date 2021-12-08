@@ -84,17 +84,16 @@ int main() {
         expect(body.attributes.size() == 0);
     });
 
-    // TODO(robinlinden): The new tokenizer doesn't support single-quoted attributes yet.
-    // etest::test("single-quoted attribute", [] {
-    //     auto nodes = html::parse("<meta charset='utf-8'/>"sv).html().children;
-    //     require(nodes.size() == 1);
+    etest::test("single-quoted attribute", [] {
+        auto nodes = html::parse("<meta charset='utf-8'/>"sv).html().children;
+        require(nodes.size() == 1);
 
-    //     auto meta = std::get<dom::Element>(nodes[0]);
-    //     expect(meta.children.size() == 0);
-    //     expect(meta.name == "meta"s);
-    //     expect(meta.attributes.size() == 1);
-    //     expect(meta.attributes.at("charset") == "utf-8"s);
-    // });
+        auto meta = std::get<dom::Element>(nodes[0]);
+        expect(meta.children.size() == 0);
+        expect(meta.name == "meta"s);
+        expect(meta.attributes.size() == 1);
+        expect(meta.attributes.at("charset") == "utf-8"s);
+    });
 
     etest::test("double-quoted attribute", [] {
         auto nodes = html::parse(R"(<meta charset="utf-8"/>)"sv).html().children;
@@ -119,19 +118,18 @@ int main() {
         expect(meta.attributes.at("content"s) == "width=100em, initial-scale=1"s);
     });
 
-    // TODO(robinlinden): The new tokenizer doesn't support single-quoted attributes yet.
-    // etest::test("multiple nodes with attributes", [] {
-    //     auto html = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv).html();
-    //     require(html.children.size() == 1);
-    //     expect(html.name == "html"s);
-    //     expect(html.attributes.size() == 1);
-    //     expect(html.attributes.at("bonus"s) == "hello"s);
+    etest::test("multiple nodes with attributes", [] {
+        auto html = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv).html();
+        require(html.children.size() == 1);
+        expect(html.name == "html"s);
+        expect(html.attributes.size() == 1);
+        expect(html.attributes.at("bonus"s) == "hello"s);
 
-    //     auto body = std::get<dom::Element>(html.children[0]);
-    //     expect(body.name == "body"s);
-    //     expect(body.attributes.size() == 1);
-    //     expect(body.attributes.at("style"s) == "fancy"s);
-    // });
+        auto body = std::get<dom::Element>(html.children[0]);
+        expect(body.name == "body"s);
+        expect(body.attributes.size() == 1);
+        expect(body.attributes.at("style"s) == "fancy"s);
+    });
 
     etest::test("text node", [] {
         auto html = html::parse("<html>fantastic, the future is now</html>"sv).html();
