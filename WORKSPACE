@@ -22,9 +22,9 @@ http_archive(
 
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    sha256 = "57619c1ae003b560abe044d930bbb7ffe32a52d3abe32284da923865ab5a0dff",
-    strip_prefix = "boringssl-c76e2b1fd16c20cf5908c33e34d392a276dde806",
-    url = "https://github.com/google/boringssl/archive/c76e2b1fd16c20cf5908c33e34d392a276dde806.tar.gz",
+    sha256 = "e168777eb0fc14ea5a65749a2f53c095935a6ea65f38899a289808fb0c221dc4",
+    strip_prefix = "boringssl-4fb158925f7753d80fb858cb0239dff893ef9f15",
+    url = "https://github.com/google/boringssl/archive/4fb158925f7753d80fb858cb0239dff893ef9f15.tar.gz",
 )
 
 http_archive(
@@ -70,9 +70,9 @@ http_archive(
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    sha256 = "94817346d5d0a96ab69d62451c19a8c24299264fcd9704cc130060bb051a8761",
-    strip_prefix = "imgui-sfml-2.4",
-    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.4.tar.gz",
+    sha256 = "3775c9303f656297f2392e91ffae2021e874ee319b4139c60076d6f757ede109",
+    strip_prefix = "imgui-sfml-2.5",
+    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.5.tar.gz",
 )
 
 http_archive(
@@ -125,9 +125,9 @@ http_archive(
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "2fa518da0614a45ca473cd3f5efa72e101fa88549da14a9cbef3ff6cb3e7280b",
-    strip_prefix = "Vulkan-Headers-1.2.200",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.200.tar.gz",
+    sha256 = "df8748ba3073be032f78c97994798c3c2b52b1812e506cc58855faf10f031226",
+    strip_prefix = "Vulkan-Headers-1.2.202",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.202.tar.gz",
 )
 
 http_archive(
