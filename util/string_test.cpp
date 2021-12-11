@@ -139,6 +139,18 @@ int main() {
         expect_eq(p.second, "");
     });
 
+    etest::test("is whitespace", [] {
+        expect(is_whitespace(' '));
+        expect(is_whitespace('\n'));
+        expect(is_whitespace('\r'));
+        expect(is_whitespace('\f'));
+        expect(is_whitespace('\v'));
+        expect(is_whitespace('\t'));
+
+        expect(!is_whitespace('a'));
+        expect(!is_whitespace('\0'));
+    });
+
     etest::test("trim start", [] {
         expect_eq(trim_start(" abc "), "abc ");
         expect_eq(trim_start("\t431\r\n"), "431\r\n");
