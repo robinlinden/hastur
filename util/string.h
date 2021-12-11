@@ -9,10 +9,10 @@
 #include <range/v3/algorithm/equal.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cctype>
-#include <string>
+#include <iterator>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 namespace util {
@@ -43,19 +43,21 @@ constexpr bool is_whitespace(char ch) {
     return std::any_of(cbegin(ws_chars), cend(ws_chars), [ch](char ws_ch) { return ch == ws_ch; });
 }
 
-inline std::string trim_start(std::string s) {
-    s.erase(begin(s), std::find_if(begin(s), end(s), [](unsigned char ch) { return !std::isspace(ch); }));
+constexpr std::string_view trim_start(std::string_view s) {
+    auto it = std::find_if(cbegin(s), cend(s), [](char ch) { return !is_whitespace(ch); });
+    s.remove_prefix(std::distance(cbegin(s), it));
     return s;
 }
 
-inline std::string trim_end(std::string s) {
-    s.erase(std::find_if(rbegin(s), rend(s), [](unsigned char ch) { return !std::isspace(ch); }).base(), end(s));
+constexpr std::string_view trim_end(std::string_view s) {
+    auto it = std::find_if(crbegin(s), crend(s), [](char ch) { return !is_whitespace(ch); });
+    s.remove_suffix(std::distance(crbegin(s), it));
     return s;
 }
 
-inline std::string trim(std::string s) {
-    s = trim_start(std::move(s));
-    s = trim_end(std::move(s));
+constexpr std::string_view trim(std::string_view s) {
+    s = trim_start(s);
+    s = trim_end(s);
     return s;
 }
 
