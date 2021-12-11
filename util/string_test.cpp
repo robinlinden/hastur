@@ -152,35 +152,35 @@ int main() {
     });
 
     etest::test("trim start", [] {
-        expect_eq(trim_start(" abc "), "abc ");
-        expect_eq(trim_start("\t431\r\n"), "431\r\n");
-        expect_eq(trim_start("  hello world!"), "hello world!");
-        expect_eq(trim_start("word "), "word ");
-        expect_eq(trim_start("\r\n"), "");
+        expect_eq(trim_start(" abc "sv), "abc "sv);
+        expect_eq(trim_start("\t431\r\n"sv), "431\r\n"sv);
+        expect_eq(trim_start("  hello world!"sv), "hello world!"sv);
+        expect_eq(trim_start("word "sv), "word "sv);
+        expect_eq(trim_start("\r\n"sv), ""sv);
     });
 
     etest::test("trim end", [] {
-        expect_eq(trim_end("abc "), "abc");
-        expect_eq(trim_end("53 \r\n"), "53");
-        expect_eq(trim_end("hello world!\t"), "hello world!");
-        expect_eq(trim_end(" word"), " word");
-        expect_eq(trim_end("\r\n"), "");
+        expect_eq(trim_end("abc "sv), "abc"sv);
+        expect_eq(trim_end("53 \r\n"sv), "53"sv);
+        expect_eq(trim_end("hello world!\t"sv), "hello world!"sv);
+        expect_eq(trim_end(" word"sv), " word"sv);
+        expect_eq(trim_end("\r\n"sv), ""sv);
     });
 
     etest::test("trim", [] {
-        expect_eq(trim("abc"), "abc");
-        expect_eq(trim("\t431"), "431");
-        expect_eq(trim("53 \r\n"), "53");
-        expect_eq(trim("\t\thello world\n"), "hello world");
-        expect_eq(trim(" a b c d "), "a b c d");
-        expect_eq(trim("\r\n"), "");
+        expect_eq(trim("abc"sv), "abc"sv);
+        expect_eq(trim("\t431"sv), "431"sv);
+        expect_eq(trim("53 \r\n"sv), "53"sv);
+        expect_eq(trim("\t\thello world\n"sv), "hello world"sv);
+        expect_eq(trim(" a b c d "sv), "a b c d"sv);
+        expect_eq(trim("\r\n"sv), ""sv);
     });
 
     etest::test("trim with non-ascii characters", [] {
-        expect_eq(trim("Ö"), "Ö");
-        expect_eq(trim(" Ö "), "Ö");
-        expect_eq(trim_start(" Ö "), "Ö ");
-        expect_eq(trim_end(" Ö "), " Ö");
+        expect_eq(trim("Ö"sv), "Ö"sv);
+        expect_eq(trim(" Ö "sv), "Ö"sv);
+        expect_eq(trim_start(" Ö "sv), "Ö "sv);
+        expect_eq(trim_end(" Ö "sv), " Ö"sv);
     });
 
     return etest::run_all_tests();
