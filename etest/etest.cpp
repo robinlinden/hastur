@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 namespace etest {
@@ -68,7 +69,8 @@ int run_all_tests() noexcept {
 }
 
 void test(std::string_view name, std::function<void()> body) noexcept {
-    registry().push_back({name, body});
+    // TODO(robinlinden): push_back -> emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 13.
+    registry().push_back({name, std::move(body)});
 }
 
 void expect(bool b, etest::source_location const &loc) noexcept {
