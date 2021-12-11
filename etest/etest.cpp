@@ -67,9 +67,8 @@ int run_all_tests() noexcept {
     return assertion_failures > 0 ? 1 : 0;
 }
 
-int test(std::string_view name, std::function<void()> body) noexcept {
+void test(std::string_view name, std::function<void()> body) noexcept {
     registry().push_back({name, body});
-    return 0;
 }
 
 void expect(bool b, etest::source_location const &loc) noexcept {

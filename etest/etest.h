@@ -20,7 +20,7 @@ concept Printable = requires(std::ostream &os, T t) {
 };
 
 int run_all_tests() noexcept;
-int test(std::string_view name, std::function<void()> body) noexcept;
+void test(std::string_view name, std::function<void()> body) noexcept;
 
 // Weak test requirement. Allows the test to continue even if the check fails.
 void expect(bool, etest::source_location const &loc = etest::source_location::current()) noexcept;
