@@ -38,6 +38,11 @@ inline std::pair<std::string_view, std::string_view> split_once(std::string_view
     return {str, ""};
 }
 
+constexpr bool is_whitespace(char ch) {
+    constexpr std::array ws_chars = {' ', '\n', '\r', '\f', '\v', '\t'};
+    return std::any_of(cbegin(ws_chars), cend(ws_chars), [ch](char ws_ch) { return ch == ws_ch; });
+}
+
 inline std::string trim_start(std::string s) {
     s.erase(begin(s), std::find_if(begin(s), end(s), [](unsigned char ch) { return !std::isspace(ch); }));
     return s;
