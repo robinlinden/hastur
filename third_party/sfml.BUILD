@@ -8,10 +8,7 @@ SFML_DEFINES = [
 
 cc_library(
     name = "system",
-    srcs = glob([
-        "src/SFML/System/*.cpp",
-        "src/SFML/System/*.hpp",
-    ]) + select({
+    srcs = glob(["src/SFML/System/*.cpp"]) + select({
         "@platforms//os:linux": glob([
             "src/SFML/System/Unix/**/*.cpp",
             "src/SFML/System/Unix/**/*.hpp",
@@ -94,16 +91,7 @@ cc_library(
             "src/SFML/Graphics/*.cpp",
             "src/SFML/Graphics/*.hpp",
         ],
-    ) + select({
-        "@platforms//os:linux": glob([
-            "src/SFML/Graphics/Unix/*.cpp",
-            "src/SFML/Graphics/Unix/*.hpp",
-        ]),
-        "@platforms//os:windows": glob([
-            "src/SFML/Graphics/Win32/*.cpp",
-            "src/SFML/Graphics/Win32/*.hpp",
-        ]),
-    }),
+    ),
     hdrs = glob(["include/SFML/Graphics/*"]),
     copts = ["-Iexternal/sfml/src/"],
     defines = SFML_DEFINES,

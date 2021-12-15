@@ -4,6 +4,12 @@
 build:debug -c dbg
 build:release -c opt
 
+# Bazel deprecations
+# =========================================================
+# See: https://docs.bazel.build/versions/main/backward-compatibility.html
+
+build --incompatible_disallow_empty_glob
+
 # Compiler configuration
 # =========================================================
 
