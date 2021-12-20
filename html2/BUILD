@@ -10,7 +10,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//dom2",
-        "//util",
+        "//util:string",
         "@spdlog",
     ],
 )

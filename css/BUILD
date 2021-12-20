@@ -15,7 +15,7 @@ cc_library(
     data = ["default.css"],
     visibility = ["//visibility:public"],
     deps = [
-        "//util",
+        "//util:base_parser",
         "@fmt",
     ],
 )
