@@ -1,34 +1,25 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
-cc_library(
-    name = "base_parser",
-    hdrs = ["base_parser.h"],
-    visibility = ["//visibility:public"],
-)
+dependencies = {
+    "string": ["@range-v3"],
+}
 
-cc_test(
-    name = "base_parser_test",
+[cc_library(
+    name = hdr[:-2],
+    hdrs = [hdr],
+    visibility = ["//visibility:public"],
+    deps = dependencies.get(
+        hdr[:-2],
+        [],
+    ),
+) for hdr in glob(["*.h"])]
+
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["base_parser_test.cpp"],
+    srcs = [src],
     deps = [
-        ":base_parser",
+        ":%s" % src[:-9],
         "//etest",
     ],
-)
-
-cc_library(
-    name = "string",
-    hdrs = ["string.h"],
-    visibility = ["//visibility:public"],
-    deps = ["@range-v3"],
-)
-
-cc_test(
-    name = "string_test",
-    size = "small",
-    srcs = ["string_test.cpp"],
-    deps = [
-        ":string",
-        "//etest",
-    ],
-)
+) for src in glob(["*_test.cpp"])]
