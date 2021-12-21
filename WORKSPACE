@@ -70,9 +70,9 @@ http_archive(
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    sha256 = "3775c9303f656297f2392e91ffae2021e874ee319b4139c60076d6f757ede109",
-    strip_prefix = "imgui-sfml-2.5",
-    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.5.tar.gz",
+    sha256 = "848315ec333c8d2e1f5cf0722408f2f5e2fb0de49936d1e9cd23c591193b8905",
+    strip_prefix = "imgui-sfml-3dd9b4d35c7caf21c81231410e2c4785d40d418d",
+    url = "https://github.com/eliasdaler/imgui-sfml/archive/3dd9b4d35c7caf21c81231410e2c4785d40d418d.tar.gz",
 )
 
 http_archive(
