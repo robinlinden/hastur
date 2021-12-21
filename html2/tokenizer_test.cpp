@@ -14,28 +14,128 @@
 #include <vector>
 
 using namespace std::literals;
+
 using etest::expect_eq;
 using etest::require;
+
+using namespace html2;
+
+namespace {
+std::vector<Token> run_tokenizer(std::string_view input) {
+    std::vector<Token> tokens;
+    Tokenizer tokenizer{input, [&](Token &&t) {
+                            tokens.push_back(std::move(t));
+                        }};
+    tokenizer.run();
+    return tokens;
+}
+} // namespace
 
 int main() {
     etest::test("simple_page", [] {
         std::ifstream page{"html2/test/simple_page.html", std::ios::binary};
         require(page.is_open());
         std::string page_str{std::istreambuf_iterator<char>{page}, std::istreambuf_iterator<char>{}};
-        std::vector<html2::Token> tokens;
-        html2::Tokenizer tokenizer{page_str, [&](html2::Token &&t) {
-                                       tokens.push_back(std::move(t));
-                                   }};
-        tokenizer.run();
+        auto tokens = run_tokenizer(page_str);
 
         expect_eq(tokens,
-                std::vector<html2::Token>{html2::DoctypeToken{.name = "html"s},
-                        html2::CharacterToken{'\n'},
-                        html2::StartTagToken{.tag_name = "html"s},
-                        html2::CharacterToken{'\n'},
-                        html2::EndTagToken{.tag_name = "html"s},
-                        html2::CharacterToken{'\n'}});
+                std::vector<Token>{DoctypeToken{.name = "html"s},
+                        CharacterToken{'\n'},
+                        StartTagToken{.tag_name = "html"s},
+                        CharacterToken{'\n'},
+                        EndTagToken{.tag_name = "html"s},
+                        CharacterToken{'\n'}});
     });
+
+    etest::test("comment, simple", [] {
+        auto tokens = run_tokenizer("<!-- Hello -->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = " Hello "}});
+    });
+
+    etest::test("comment, empty", [] {
+        auto tokens = run_tokenizer("<!---->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}});
+    });
+
+    etest::test("comment, with dashes and bang", [] {
+        auto tokens = run_tokenizer("<!--!-->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "!"}});
+    });
+
+    etest::test("comment, with new lines", [] {
+        auto tokens = run_tokenizer("<!--\nOne\nTwo\n-->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "\nOne\nTwo\n"}});
+    });
+
+    etest::test("comment, multiple with new lines", [] {
+        auto tokens = run_tokenizer("<!--a-->\n<!--b-->\n<!--c-->");
+
+        expect_eq(tokens,
+                std::vector<Token>{CommentToken{.data = "a"},
+                        CharacterToken{'\n'},
+                        CommentToken{.data = "b"},
+                        CharacterToken{'\n'},
+                        CommentToken{.data = "c"}});
+    });
+
+    etest::test("comment, allowed to end with <!", [] {
+        auto tokens = run_tokenizer("<!--My favorite operators are > and <!-->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "My favorite operators are > and <!"}});
+    });
+
+    etest::test("comment, nested comment", [] {
+        auto tokens = run_tokenizer("<!--<!---->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "<!--"}});
+    });
+
+    etest::test("comment, nested comment closed", [] {
+        auto tokens = run_tokenizer("<!-- <!-- nested --> -->");
+
+        expect_eq(tokens,
+                std::vector<Token>{CommentToken{.data = " <!-- nested "},
+                        CharacterToken{' '},
+                        CharacterToken{'-'},
+                        CharacterToken{'-'},
+                        CharacterToken{'>'}});
+    });
+
+    etest::test("comment, abrupt closing in comment start", [] {
+        auto tokens = run_tokenizer("<!-->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}});
+    });
+
+    etest::test("comment, abrupt closing in comment start dash", [] {
+        auto tokens = run_tokenizer("<!--->");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}});
+    });
+
+    etest::test("comment, incorrectly closed comment", [] {
+        auto tokens = run_tokenizer("<!--abc--!>");
+
+        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "abc"}});
+    });
+
+    // TODO(mkiael): Enable when eof check is fixed
+    // etest::test("comment, end before comment", [] {
+    //    auto tokens = run_tokenizer("<!--");
+    //
+    //    expect_eq(tokens, std::vector<Token>{EndOfFileToken{}});
+    //});
+
+    // TODO(mkiael): Enable when eof check is fixed
+    // etest::test("comment, eof before comment is closed", [] {
+    //    auto tokens = run_tokenizer("<!--abc");
+    //
+    //    expect_eq(tokens, std::vector<Token>{CommentToken{.data = "abc"}, EndOfFileToken{}});
+    //});
 
     return etest::run_all_tests();
 }

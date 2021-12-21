@@ -422,12 +422,239 @@ void Tokenizer::run() {
             }
 
             case State::MarkupDeclarationOpen:
+                if (input_.substr(pos_, 2) == "--") {
+                    pos_ += 2;
+                    current_token_ = CommentToken{.data = std::string{}};
+                    state_ = State::CommentStart;
+                    continue;
+                }
+
                 if (util::no_case_compare(input_.substr(pos_, std::strlen("DOCTYPE")), "doctype"sv)) {
                     pos_ += std::strlen("DOCTYPE");
                     state_ = State::Doctype;
                     continue;
                 }
                 break;
+
+            case State::CommentStart: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::Comment);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::CommentStartDash;
+                        continue;
+                    case '>':
+                        // This is an abrupt closing of empty comment parse error.
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
+
+            case State::CommentStartDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-comment parse error.
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::CommentEnd;
+                        continue;
+                    case '>':
+                        // This is an abrupt closing of empty comment parse error.
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        std::get<CommentToken>(current_token_).data.append("-");
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
+
+            case State::Comment: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-comment parse error.
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '<':
+                        std::get<CommentToken>(current_token_).data.append(1, *c);
+                        state_ = State::CommentLessThanSign;
+                        continue;
+                    case '-':
+                        state_ = State::CommentEndDash;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        std::get<CommentToken>(current_token_).data.append("\xFF\xFD");
+                        continue;
+                    default:
+                        std::get<CommentToken>(current_token_).data.append(1, *c);
+                        continue;
+                }
+            }
+
+            case State::CommentLessThanSign: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::Comment);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '!':
+                        std::get<CommentToken>(current_token_).data.append(1, *c);
+                        state_ = State::CommentLessThanSignBang;
+                        continue;
+                    case '<':
+                        std::get<CommentToken>(current_token_).data.append(1, *c);
+                        continue;
+                    default:
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
+
+            case State::CommentLessThanSignBang: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::Comment);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::CommentLessThanSignBangDash;
+                        continue;
+                    default:
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
+
+            case State::CommentLessThanSignBangDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::CommentEndDash);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::CommentLessThanSignBangDashDash;
+                        continue;
+                    default:
+                        reconsume_in(State::CommentEndDash);
+                        continue;
+                }
+            }
+
+            case State::CommentLessThanSignBangDashDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::CommentEnd);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '>':
+                        reconsume_in(State::CommentEnd);
+                        continue;
+                    default:
+                        // This is a nested-comment parse error.
+                        reconsume_in(State::CommentEnd);
+                        continue;
+                }
+            }
+
+            case State::CommentEndDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-comment parse error.
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::CommentEnd;
+                        continue;
+                    default:
+                        std::get<CommentToken>(current_token_).data.append("-");
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
+
+            case State::CommentEnd: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-comment parse error.
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    case '!':
+                        state_ = State::CommentEndBang;
+                        continue;
+                    case '-':
+                        std::get<CommentToken>(current_token_).data.append("-");
+                        continue;
+                    default:
+                        std::get<CommentToken>(current_token_).data.append("--");
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
+
+            case State::CommentEndBang: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-comment parse error.
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        std::get<CommentToken>(current_token_).data.append("--!");
+                        state_ = State::CommentEndDash;
+                        continue;
+                    case '>':
+                        // This is an incorrectly-closed-comment parse error.
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        std::get<CommentToken>(current_token_).data.append("--!");
+                        reconsume_in(State::Comment);
+                        continue;
+                }
+            }
 
             case State::Doctype: {
                 auto c = consume_next_input_character();
