@@ -22,6 +22,7 @@ public:
     App(std::string browser_title, std::string start_page_hint, bool load_start_page);
     ~App();
 
+    void set_scale(unsigned scale);
     int run();
 
 private:
@@ -45,6 +46,8 @@ private:
     int scroll_offset_y_{};
 
     bool render_debug_{};
+
+    unsigned scale_{1};
 
     void on_navigation_failure(protocol::Error);
     void on_page_loaded();

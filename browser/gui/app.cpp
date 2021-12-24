@@ -24,6 +24,9 @@ using namespace std::literals;
 namespace browser::gui {
 namespace {
 
+auto constexpr kDefaultResolutionX = 640;
+auto constexpr kDefaultResolutionY = 480;
+
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
     auto nodes = dom::nodes_by_path(doc.html(), path);
     if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
@@ -35,13 +38,14 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
-    : browser_title_{std::move(browser_title)}, window_{sf::VideoMode(640, 480), browser_title_},
+    : browser_title_{std::move(browser_title)}, window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY),
+                                                        browser_title_},
       url_buf_{std::move(start_page_hint)} {
     window_.setFramerateLimit(60);
     ImGui::SFML::Init(window_);
     painter_.set_viewport_size(window_.getSize().x, window_.getSize().y);
 
-    engine_.set_layout_width(window_.getSize().x);
+    engine_.set_layout_width(window_.getSize().x / scale_);
     engine_.set_on_navigation_failure(std::bind(&App::on_navigation_failure, this, std::placeholders::_1));
     engine_.set_on_page_loaded(std::bind(&App::on_page_loaded, this));
     engine_.set_on_layout_updated(std::bind(&App::on_layout_updated, this));
@@ -53,6 +57,21 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
 
 App::~App() {
     ImGui::SFML::Shutdown();
+}
+
+void App::set_scale(unsigned scale) {
+    scale_ = scale;
+    ImGui::GetIO().FontGlobalScale = static_cast<float>(scale_);
+    painter_.set_scale(scale_);
+    auto windowSize = window_.getSize();
+
+    // Only resize the window if the user hasn't resized it.
+    if (windowSize.x == kDefaultResolutionX && windowSize.y == kDefaultResolutionY) {
+        window_.setSize({kDefaultResolutionX * scale_, kDefaultResolutionY * scale_});
+        painter_.set_viewport_size(window_.getSize().x, window_.getSize().y);
+    }
+
+    engine_.set_layout_width(windowSize.x / scale_);
 }
 
 int App::run() {
@@ -68,7 +87,7 @@ int App::run() {
                 }
                 case sf::Event::Resized: {
                     painter_.set_viewport_size(event.size.width, event.size.height);
-                    engine_.set_layout_width(event.size.width);
+                    engine_.set_layout_width(event.size.width / scale_);
                     break;
                 }
                 case sf::Event::KeyPressed: {
@@ -240,7 +259,8 @@ std::string App::get_hovered_element_text(geom::Position p) const {
 }
 
 geom::Position App::to_document_position(geom::Position window_position) const {
-    return {window_position.x, window_position.y - scroll_offset_y_};
+    return {window_position.x / static_cast<int>(scale_),
+            window_position.y / static_cast<int>(scale_) - scroll_offset_y_};
 }
 
 void App::reset_scroll() {
@@ -289,7 +309,7 @@ void App::run_http_response_widget() const {
 }
 
 void App::run_dom_widget() const {
-    ImGui::SetNextWindowPos(ImVec2(0, 50), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 50 * static_cast<float>(scale_)), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
     ImGui::Begin("DOM");
     ImGui::TextUnformatted(dom_str_.c_str());
