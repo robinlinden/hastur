@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
     std::optional<std::string> page_provided{std::nullopt};
     unsigned scale{1};
-    for (int i = 0; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         auto arg = std::string_view{argv[i]};
 
         if (arg == "--scale"sv) {
@@ -49,6 +49,9 @@ int main(int argc, char **argv) {
             page_provided = std::string{arg};
             break;
         }
+
+        spdlog::error("Unhandled arg {} at position {}", arg, i);
+        return 1;
     }
 
     browser::gui::App app{kBrowserTitle, page_provided ? *page_provided : kStartpage, page_provided.has_value()};
