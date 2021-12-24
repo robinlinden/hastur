@@ -8,21 +8,23 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <optional>
+#include <string>
 #include <string_view>
 
 using namespace std::literals;
 
 namespace {
 auto const kBrowserTitle{"hastur"};
-auto const kStartpage{"http://example.com"};
+auto const kStartpage{"http://example.com"s};
 } // namespace
 
 int main(int argc, char **argv) {
     spdlog::set_default_logger(spdlog::stderr_color_mt(kBrowserTitle));
     spdlog::cfg::load_env_levels();
 
-    bool load_page = argc > 1; // Load page right away if provided on the cmdline.
-    browser::gui::App app{kBrowserTitle, argc > 1 ? argv[1] : kStartpage, load_page};
+    std::optional<std::string> page_provided{std::nullopt};
+    unsigned scale{1};
     for (int i = 0; i < argc; ++i) {
         auto arg = std::string_view{argv[i]};
 
@@ -38,10 +40,18 @@ int main(int argc, char **argv) {
                 return 1;
             }
 
-            app.set_scale(maybe_scale[0] - '0');
+            scale = maybe_scale[0] - '0';
+            i += 1;
+            continue;
+        }
+
+        if (i == argc - 1) {
+            page_provided = std::string{arg};
             break;
         }
     }
 
+    browser::gui::App app{kBrowserTitle, page_provided ? *page_provided : kStartpage, page_provided.has_value()};
+    app.set_scale(scale);
     return app.run();
 }
