@@ -24,8 +24,9 @@ void OpenGLPainter::set_viewport_size(int width, int height) {
 
 void OpenGLPainter::fill_rect(geom::Rect const &rect, Color color) {
     auto translated{rect.translated(translation_x, translation_y)};
+    auto scaled{translated.scaled(scale_)};
     glColor4ub(color.r, color.g, color.b, color.a);
-    glRecti(translated.x, translated.y, translated.x + translated.width, translated.y + translated.height);
+    glRecti(scaled.x, scaled.y, scaled.x + scaled.width, scaled.y + scaled.height);
 }
 
 } // namespace gfx

@@ -30,6 +30,7 @@ public:
     virtual ~IPainter() = default;
 
     virtual void set_viewport_size(int width, int height) = 0;
+    virtual void set_scale(int scale) = 0;
     virtual void add_translation(int dx, int dy) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
 };
@@ -39,6 +40,7 @@ public:
     OpenGLPainter();
 
     void set_viewport_size(int width, int height) override;
+    constexpr void set_scale(int scale) override { scale_ = scale; }
 
     constexpr void add_translation(int dx, int dy) override {
         translation_x += dx;
@@ -50,6 +52,7 @@ public:
 private:
     int translation_x{};
     int translation_y{};
+    int scale_{1};
 };
 
 } // namespace gfx
