@@ -25,6 +25,30 @@ int main() {
         expect(Rect{-10, -10, 30, 30} == r.expanded(EdgeSize{10, 10, 10, 10}));
     });
 
+    etest::test("Rect::scaled", [] {
+        Rect r{0, 0, 10, 10};
+
+        expect(Rect{} == r.scaled(0));
+        expect(r == r.scaled(1));
+        expect(Rect{0, 0, 20, 20} == r.scaled(2));
+        expect(Rect{0, 0, 30, 30} == r.scaled(3));
+
+        Rect r1{1, 1, 10, 10};
+        expect(r1 == r1.scaled(1));
+        expect(Rect{2, 2, 20, 20} == r1.scaled(2));
+        expect(Rect{3, 3, 30, 30} == r1.scaled(3));
+
+        Rect r2{1, 1, 10, 10};
+        expect(r2 == r2.scaled(1, {1, 1}));
+        expect(Rect{1, 1, 20, 20} == r2.scaled(2, {1, 1}));
+        expect(Rect{1, 1, 30, 30} == r2.scaled(3, {1, 1}));
+
+        Rect r3{0, 0, 10, 10};
+        expect(r3 == r3.scaled(1, {5, 5}));
+        expect(Rect{-5, -5, 20, 20} == r3.scaled(2, {5, 5}));
+        expect(Rect{-10, -10, 30, 30} == r3.scaled(3, {5, 5}));
+    });
+
     etest::test("Rect::translated", [] {
         Rect r{0, 0, 10, 10};
         expect(Rect{10, 0, 10, 10} == r.translated(10, 0));

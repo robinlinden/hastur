@@ -29,6 +29,15 @@ struct Rect {
         };
     }
 
+    [[nodiscard]] constexpr Rect scaled(unsigned scale, Position origin = {0, 0}) const {
+        return Rect{
+                origin.x + (x - origin.x) * static_cast<int>(scale),
+                origin.y + (y - origin.y) * static_cast<int>(scale),
+                static_cast<int>(width * scale),
+                static_cast<int>(height * scale),
+        };
+    }
+
     [[nodiscard]] constexpr Rect translated(int dx, int dy) const { return {x + dx, y + dy, width, height}; }
 
     [[nodiscard]] constexpr bool contains(Position const &p) const {
