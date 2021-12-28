@@ -72,14 +72,14 @@ std::string to_string(Token const &token) {
 }
 
 void Tokenizer::run() {
-    while (!is_eof()) {
+    while (true) {
         spdlog::trace("Running state {} w/ next char {}", state_, input_[pos_]);
         switch (state_) {
             case State::Data: {
                 auto c = consume_next_input_character();
                 if (!c) {
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -107,7 +107,7 @@ void Tokenizer::run() {
                     // This is an eof-before-tag-name parse error.
                     emit(CharacterToken{'<'});
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 if (is_ascii_alpha(*c)) {
@@ -136,7 +136,7 @@ void Tokenizer::run() {
                     emit(CharacterToken{'<'});
                     emit(CharacterToken{'/'});
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 if (is_ascii_alpha(*c)) {
@@ -153,7 +153,7 @@ void Tokenizer::run() {
                 if (!c) {
                     // This is an eof-in-tag parse error.
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 auto append_to_tag_name = [&](auto text) {
@@ -260,7 +260,7 @@ void Tokenizer::run() {
                 if (!c) {
                     // This is an eof-in-tag parse error.
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -320,7 +320,7 @@ void Tokenizer::run() {
                 if (!c) {
                     // This is an eof-in-tag parse error.
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -346,7 +346,7 @@ void Tokenizer::run() {
                 if (!c) {
                     // This is an eof-in-tag parse error.
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -372,7 +372,7 @@ void Tokenizer::run() {
                 if (!c) {
                     // This is an eof-in-tag parse error.
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -401,7 +401,7 @@ void Tokenizer::run() {
                 if (!c) {
                     // This is an eof-in-tag parse error.
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -464,7 +464,7 @@ void Tokenizer::run() {
                     // This is an eof-in-comment parse error.
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -489,7 +489,7 @@ void Tokenizer::run() {
                     // This is an eof-in-comment parse error.
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -589,7 +589,7 @@ void Tokenizer::run() {
                     // This is an eof-in-comment parse error.
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -609,7 +609,7 @@ void Tokenizer::run() {
                     // This is an eof-in-comment parse error.
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -636,7 +636,7 @@ void Tokenizer::run() {
                     // This is an eof-in-comment parse error.
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -662,7 +662,7 @@ void Tokenizer::run() {
                     // This is an eof-in-doctype parse error.
                     emit(DoctypeToken{.force_quirks = true});
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 switch (*c) {
@@ -726,7 +726,7 @@ void Tokenizer::run() {
                     std::get<DoctypeToken>(current_token_).force_quirks = true;
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
-                    continue;
+                    return;
                 }
 
                 if (is_ascii_upper_alpha(*c)) {
