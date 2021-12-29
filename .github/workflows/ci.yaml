@@ -9,11 +9,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: gcc-10
-            compiler: gcc
-            version: 10
-            bazel: --config gcc
-
           - name: gcc-11
             compiler: gcc
             version: 11
@@ -80,6 +75,28 @@ jobs:
       run: bazel test //... ${{ matrix.bazel }}
     - name: Run
       run: bazel run browser:tui ${{ matrix.bazel }}
+
+  linux-gcc-10-coverage:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: |
+          sudo apt update
+          sudo apt install libxrandr-dev libgl-dev gcc-10 lcov
+          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-amd64 --output-document=bazel
+          wget https://codecov.io/bash --output-document=codecov
+          chmod +x codecov
+    - name: Setup
+      run: |
+        echo "CC=gcc-10" >> $GITHUB_ENV
+        echo "CXX=g++-10" >> $GITHUB_ENV
+    - name: Coverage
+      run: bazel coverage --combined_report=lcov --config=gcc //...
+    - name: Summary
+      run: lcov --summary bazel-out/_coverage/_coverage_report.dat
+    - name: Upload
+      run: ./codecov -f bazel-out/_coverage/_coverage_report.dat
 
   windows-msvc:
     runs-on: windows-2019
