@@ -68,7 +68,6 @@ jobs:
       run: |
           sudo apt update
           sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-amd64 --output-document=bazel
     - name: Build
       run: bazel build //... ${{ matrix.bazel }}
     - name: Test
@@ -83,8 +82,7 @@ jobs:
     - name: Install
       run: |
           sudo apt update
-          sudo apt install libxrandr-dev libgl-dev gcc-10 lcov
-          wget https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-amd64 --output-document=bazel
+          sudo apt install libxrandr-dev libgl-dev lcov
           wget https://codecov.io/bash --output-document=codecov
           chmod +x codecov
     - name: Setup
@@ -105,8 +103,6 @@ jobs:
         shell: bash
     steps:
     - uses: actions/checkout@v2
-    - name: Install
-      run: curl --output bazel.exe https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-windows-amd64.exe
     - name: Build
       run: bazel build ///... --config msvc
     - name: Test
@@ -118,8 +114,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
-    - name: Install
-      run: sudo apt install clang-format-12
     - name: Format
       run: find . -name *.h -o -name *.cpp | xargs clang-format-12 -style=file -i
     - name: Check
