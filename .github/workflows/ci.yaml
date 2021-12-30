@@ -97,7 +97,7 @@ jobs:
       run: ./codecov -f bazel-out/_coverage/_coverage_report.dat
 
   windows-msvc:
-    runs-on: windows-2019
+    runs-on: windows-2022
     defaults:
       run:
         shell: bash
