@@ -73,7 +73,12 @@ std::string to_string(Token const &token) {
 
 void Tokenizer::run() {
     while (true) {
-        spdlog::trace("Running state {} w/ next char {}", state_, input_[pos_]);
+        if (input_.size() > pos_) {
+            spdlog::trace("Running state {} w/ next char {}", state_, input_[pos_]);
+        } else {
+            spdlog::trace("Running state {} after input end", state_);
+        }
+
         switch (state_) {
             case State::Data: {
                 auto c = consume_next_input_character();
