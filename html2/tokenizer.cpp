@@ -772,6 +772,7 @@ void Tokenizer::emit(Token &&token) const {
 
 std::optional<char> Tokenizer::consume_next_input_character() {
     if (is_eof()) {
+        pos_ += 1;
         return std::nullopt;
     }
 
