@@ -293,7 +293,7 @@ void Tokenizer::run() {
             case State::BeforeAttributeValue: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    reconsume_in(AttributeValueUnquoted);
+                    reconsume_in(State::AttributeValueUnquoted);
                     continue;
                 }
 

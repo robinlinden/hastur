@@ -16,7 +16,7 @@
 namespace html2 {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#tokenization
-enum State {
+enum class State {
     Data = 1, // So the state enum values match the number in the spec.
     Rcdata,
     Rawtext,
