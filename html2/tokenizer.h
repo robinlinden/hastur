@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -158,15 +158,22 @@ private:
     State return_state_{};
     Token current_token_{};
 
+    std::string temporary_buffer_{};
+
     std::function<void(Token &&)> on_emit_{};
 
     void emit(Token &&) const;
     std::optional<char> consume_next_input_character();
+    std::optional<char> peek_next_input_character() const;
     bool is_eof() const;
 
     void start_attribute_in_current_tag_token(Attribute);
     Attribute &current_attribute();
     void reconsume_in(State);
+
+    bool consumed_as_part_of_an_attribute() const;
+    void flush_code_points_consumed_as_a_character_reference();
+    void emit_temporary_buffer_as_character_tokens();
 };
 
 } // namespace html2

@@ -141,5 +141,21 @@ int main() {
         expect(text.text == "fantastic, the future is now"s);
     });
 
+    etest::test("character reference in attribute", [] {
+        auto html = html::parse("<html test='&lt;3'></html>"sv).html();
+        expect(html.children.size() == 0);
+        expect(html.name == "html"s);
+        expect(html.attributes.size() == 1);
+        expect(html.attributes.at("test") == "<3");
+    });
+
+    etest::test("character reference in attribute, no semicolon", [] {
+        auto html = html::parse("<html test='&lt3'></html>"sv).html();
+        expect(html.children.size() == 0);
+        expect(html.name == "html"s);
+        expect(html.attributes.size() == 1);
+        expect(html.attributes.at("test") == "&lt3");
+    });
+
     return etest::run_all_tests();
 }

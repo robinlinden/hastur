@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -137,6 +137,21 @@ int main() {
         auto tokens = run_tokenizer("<!--abc");
 
         expect_eq(tokens, std::vector<Token>{CommentToken{.data = "abc"}, EndOfFileToken{}});
+    });
+
+    etest::test("character entity reference, simple", [] {
+        auto tokens = run_tokenizer("&lt;");
+        expect_eq(tokens, std::vector<Token>{CharacterToken{'<'}, EndOfFileToken{}});
+    });
+
+    etest::test("character entity reference, only &", [] {
+        auto tokens = run_tokenizer("&");
+        expect_eq(tokens, std::vector<Token>{CharacterToken{'&'}, EndOfFileToken{}});
+    });
+
+    etest::test("character entity reference, not ascii alphanumeric", [] {
+        auto tokens = run_tokenizer("&@");
+        expect_eq(tokens, std::vector<Token>{CharacterToken{'&'}, CharacterToken{'@'}, EndOfFileToken{}});
     });
 
     return etest::run_all_tests();

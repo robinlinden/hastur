@@ -15,13 +15,20 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "tokenizer_test",
+data_files = {
+    "tokenizer": ["test/simple_page.html"],
+}
+
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["tokenizer_test.cpp"],
-    data = ["test/simple_page.html"],
+    srcs = [src],
+    data = data_files.get(
+        src[:-9],
+        [],
+    ),
     deps = [
         ":html2",
         "//etest",
     ],
-)
+) for src in glob(["*_test.cpp"])]

@@ -1,15 +1,18 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "html2/tokenizer.h"
 
+#include "html2/character_reference.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
 
+#include <cstdint>
 #include <cstring>
 #include <exception>
+#include <limits>
 #include <sstream>
 
 using namespace std::literals;
@@ -27,6 +30,14 @@ constexpr bool is_ascii_lower_alpha(char c) {
 
 constexpr bool is_ascii_alpha(char c) {
     return is_ascii_upper_alpha(c) || is_ascii_lower_alpha(c);
+}
+
+constexpr bool is_numeric(char c) {
+    return c >= '0' && c <= '9';
+}
+
+constexpr bool is_ascii_alphanumeric(char c) {
+    return is_numeric(c) || is_ascii_alpha(c);
 }
 
 constexpr char to_lower(char c) {
@@ -760,6 +771,74 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::CharacterReference: {
+                temporary_buffer_ = "&"s;
+
+                auto c = consume_next_input_character();
+                if (!c) {
+                    flush_code_points_consumed_as_a_character_reference();
+                    reconsume_in(return_state_);
+                    continue;
+                }
+
+                if (is_ascii_alphanumeric(*c)) {
+                    reconsume_in(State::NamedCharacterReference);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '#':
+                        temporary_buffer_.append(1, *c);
+                        state_ = State::NumericCharacterReference;
+                        continue;
+                    default:
+                        flush_code_points_consumed_as_a_character_reference();
+                        reconsume_in(return_state_);
+                        continue;
+                }
+            }
+
+            case State::NamedCharacterReference: {
+                // TODO(robinlinden): -1 here isn't great, but it works right now.
+                auto maybe_reference = find_named_character_reference_for(input_.substr(pos_ - 1));
+                if (!maybe_reference) {
+                    flush_code_points_consumed_as_a_character_reference();
+                    state_ = State::AmbiguousAmpersand;
+                    continue;
+                }
+
+                // -1 because of the TODO above.
+                pos_ += maybe_reference->name.size() - 1;
+                // Should be appending, but again, the TODO.
+                temporary_buffer_ = maybe_reference->name;
+
+                auto c = peek_next_input_character();
+                if (c.has_value() && consumed_as_part_of_an_attribute() && temporary_buffer_.back() != ';'
+                        && (c == '=' || is_ascii_alphanumeric(*c))) {
+                    flush_code_points_consumed_as_a_character_reference();
+                    state_ = return_state_;
+                    continue;
+                }
+
+                if (temporary_buffer_.back() != ';') {
+                    // This is a missing-semicolon-after-character-reference parse error.
+                }
+
+                temporary_buffer_.clear();
+                if (maybe_reference->first_codepoint > static_cast<std::uint32_t>(std::numeric_limits<char>::max())) {
+                    std::terminate();
+                }
+
+                if (maybe_reference->second_codepoint) {
+                    std::terminate();
+                }
+
+                temporary_buffer_.append(1, static_cast<char>(maybe_reference->first_codepoint));
+                flush_code_points_consumed_as_a_character_reference();
+                state_ = return_state_;
+                continue;
+            }
+
             default:
                 std::terminate();
         }
@@ -777,6 +856,14 @@ std::optional<char> Tokenizer::consume_next_input_character() {
     }
 
     return input_[pos_++];
+}
+
+std::optional<char> Tokenizer::peek_next_input_character() const {
+    if (is_eof()) {
+        return std::nullopt;
+    }
+
+    return input_[pos_];
 }
 
 bool Tokenizer::is_eof() const {
@@ -802,6 +889,26 @@ Attribute &Tokenizer::current_attribute() {
 void Tokenizer::reconsume_in(State state) {
     --pos_;
     state_ = state;
+}
+
+bool Tokenizer::consumed_as_part_of_an_attribute() const {
+    return return_state_ == State::AttributeValueDoubleQuoted || return_state_ == State::AttributeValueSingleQuoted
+            || return_state_ == State::AttributeValueUnquoted;
+}
+
+void Tokenizer::flush_code_points_consumed_as_a_character_reference() {
+    if (consumed_as_part_of_an_attribute()) {
+        current_attribute().value += temporary_buffer_;
+        return;
+    }
+
+    emit_temporary_buffer_as_character_tokens();
+}
+
+void Tokenizer::emit_temporary_buffer_as_character_tokens() {
+    for (char c : temporary_buffer_) {
+        emit(CharacterToken{c});
+    }
 }
 
 } // namespace html2
