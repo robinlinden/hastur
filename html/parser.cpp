@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,14 +6,22 @@
 
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cctype>
 #include <string>
+#include <string_view>
 
 using namespace std::literals;
 
 namespace html {
 namespace {
+
+template<auto const &array>
+constexpr bool is_in_array(std::string_view str) {
+    return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
+}
 
 dom::AttrMap into_dom_attributes(std::vector<html2::Attribute> const &attributes) {
     dom::AttrMap attrs{};
@@ -23,6 +31,8 @@ dom::AttrMap into_dom_attributes(std::vector<html2::Attribute> const &attributes
 
     return attrs;
 }
+
+constexpr auto kImmediatelyPopped = std::to_array({"br"sv, "hr"sv, "img"sv, "link"sv, "meta"sv, "wbr"sv});
 
 } // namespace
 
@@ -61,6 +71,12 @@ void Parser::on_token(html2::Token &&token) {
             // top-most element in the stack, so this pointer will be valid
             // until it's been popped from the stack and we add its siblings.
             open_elements_.push(std::get_if<dom::Element>(&new_element));
+        }
+
+        // Special cases from https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+        // Immediately popped off the stack of open elements special cases.
+        if (!start_tag->self_closing && is_in_array<kImmediatelyPopped>(start_tag->tag_name)) {
+            open_elements_.pop();
         }
     } else if (auto end_tag = std::get_if<html2::EndTagToken>(&token)) {
         if (open_elements_.empty()) {

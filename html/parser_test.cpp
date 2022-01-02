@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -155,6 +155,19 @@ int main() {
         expect(html.name == "html"s);
         expect(html.attributes.size() == 1);
         expect(html.attributes.at("test") == "&lt3");
+    });
+
+    etest::test("br shouldn't open a new scope", [] {
+        auto html = html::parse("<br><p></p>"sv).html();
+        require(html.children.size() == 2);
+
+        auto br = std::get<dom::Element>(html.children[0]);
+        expect(br.name == "br"sv);
+        expect(br.children.empty());
+
+        auto p = std::get<dom::Element>(html.children[1]);
+        expect(p.name == "p"sv);
+        expect(p.children.empty());
     });
 
     return etest::run_all_tests();
