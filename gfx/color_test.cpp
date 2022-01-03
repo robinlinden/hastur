@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "gfx/gfx.h"
+#include "gfx/color.h"
 
 #include "etest/etest.h"
 

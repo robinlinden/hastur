@@ -2,8 +2,8 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "gfx",
-    srcs = ["gfx.cpp"],
-    hdrs = ["gfx.h"],
+    srcs = ["opengl_painter.cpp"],
+    hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
     deps = [
         "//geom",
@@ -12,9 +12,9 @@ cc_library(
 )
 
 cc_test(
-    name = "gfx_test",
+    name = "color_test",
     size = "small",
-    srcs = ["gfx_test.cpp"],
+    srcs = ["color_test.cpp"],
     deps = [
         ":gfx",
         "//etest",

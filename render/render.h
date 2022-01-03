@@ -5,7 +5,7 @@
 #ifndef RENDER_RENDER_H_
 #define RENDER_RENDER_H_
 
-#include "gfx/gfx.h"
+#include "gfx/ipainter.h"
 #include "layout/layout.h"
 
 namespace render {

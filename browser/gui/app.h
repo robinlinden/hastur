@@ -7,7 +7,7 @@
 
 #include "browser/engine.h"
 #include "dom/dom.h"
-#include "gfx/gfx.h"
+#include "gfx/opengl_painter.h"
 #include "layout/layout.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
