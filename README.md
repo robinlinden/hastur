@@ -1,5 +1,7 @@
 # Toy browser engine
 
+[![codecov](https://codecov.io/gh/robinlinden/hastur/branch/master/graph/badge.svg?token=1H16FDJ3ML)][codecov]
+
 ## Building
 
 ### Requirements
@@ -47,3 +49,4 @@ The following assumes that you either have Bazel or Bazelisk under the name
 
 [bazel]: https://bazel.build
 [bazelisk]: https://github.com/bazelbuild/bazelisk
+[codecov]: https://codecov.io/gh/robinlinden/hastur
