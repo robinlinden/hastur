@@ -11,15 +11,15 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "color_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["color_test.cpp"],
+    srcs = [src],
     deps = [
         ":gfx",
         "//etest",
     ],
-)
+) for src in glob(["*_test.cpp"])]
 
 cc_binary(
     name = "gfx_example",
