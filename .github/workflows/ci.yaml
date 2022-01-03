@@ -83,8 +83,6 @@ jobs:
       run: |
           sudo apt update
           sudo apt install libxrandr-dev libgl-dev lcov
-          wget https://codecov.io/bash --output-document=codecov
-          chmod +x codecov
     - name: Setup
       run: |
         echo "CC=gcc-10" >> $GITHUB_ENV
@@ -94,7 +92,7 @@ jobs:
     - name: Summary
       run: lcov --summary bazel-out/_coverage/_coverage_report.dat
     - name: Upload
-      run: ./codecov -f bazel-out/_coverage/_coverage_report.dat
+      run: bash <(curl -s https://codecov.io/bash) -f bazel-out/_coverage/_coverage_report.dat
 
   windows-msvc:
     runs-on: windows-2022
