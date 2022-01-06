@@ -161,6 +161,7 @@ private:
     Token current_token_{};
 
     std::string temporary_buffer_{};
+    std::string last_start_tag_name_{};
 
     std::function<void(Token &&, Tokenizer &)> on_emit_{};
 
@@ -176,6 +177,7 @@ private:
     bool consumed_as_part_of_an_attribute() const;
     void flush_code_points_consumed_as_a_character_reference();
     void emit_temporary_buffer_as_character_tokens();
+    bool is_appropriate_end_tag_token(Token const &) const;
 };
 
 } // namespace html2

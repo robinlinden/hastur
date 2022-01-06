@@ -122,6 +122,28 @@ void Tokenizer::run() {
                 break;
             }
 
+            case State::ScriptData: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '<':
+                        state_ = State::ScriptDataLessThanSign;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
             case State::TagOpen: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -214,6 +236,503 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::ScriptDataLessThanSign: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(CharacterToken{'<'});
+                    reconsume_in(State::ScriptData);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '/':
+                        temporary_buffer_ = "";
+                        state_ = State::ScriptDataEndTagOpen;
+                        continue;
+                    case '!':
+                        state_ = State::ScriptDataEscapeStart;
+                        emit(CharacterToken{'<'});
+                        emit(CharacterToken{'!'});
+                        continue;
+                    default:
+                        emit(CharacterToken{'<'});
+                        reconsume_in(State::ScriptData);
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEndTagOpen: {
+                auto c = consume_next_input_character();
+                if (c && is_ascii_alpha(*c)) {
+                    current_token_ = EndTagToken{};
+                    reconsume_in(State::ScriptDataEndTagName);
+                    continue;
+                }
+
+                emit(CharacterToken{'<'});
+                emit(CharacterToken{'/'});
+                reconsume_in(State::ScriptData);
+                continue;
+            }
+
+            case State::ScriptDataEndTagName: {
+                auto c = consume_next_input_character();
+
+                auto anything_else = [this] {
+                    emit(CharacterToken{'<'});
+                    emit(CharacterToken{'/'});
+                    emit_temporary_buffer_as_character_tokens();
+                    reconsume_in(State::ScriptData);
+                };
+
+                if (!c) {
+                    anything_else();
+                    continue;
+                }
+
+                if (is_ascii_upper_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, to_lower(*c));
+                    temporary_buffer_.append(1, *c);
+                    continue;
+                }
+
+                if (is_ascii_lower_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, *c);
+                    temporary_buffer_.append(1, *c);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::BeforeAttributeName;
+                        } else {
+                            anything_else();
+                        }
+                        continue;
+                    case '/':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::SelfClosingStartTag;
+                        } else {
+                            anything_else();
+                        }
+                        continue;
+                    case '>':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::Data;
+                            emit(std::move(current_token_));
+                        } else {
+                            anything_else();
+                        }
+                        continue;
+                    default:
+                        anything_else();
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEscapeStart: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::ScriptData);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::ScriptDataEscapeStartDash;
+                        emit(CharacterToken{*c});
+                        continue;
+                    default:
+                        reconsume_in(State::ScriptData);
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEscapeStartDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::ScriptData);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::ScriptDataEscapedDashDash;
+                        emit(CharacterToken{*c});
+                        continue;
+                    default:
+                        reconsume_in(State::ScriptData);
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEscaped: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::ScriptDataEscapedDash;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '<':
+                        state_ = State::ScriptDataEscapedLessThanSign;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEscapedDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::ScriptDataEscapedDashDash;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '<':
+                        state_ = State::ScriptDataEscapedLessThanSign;
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        state_ = State::ScriptDataEscaped;
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        state_ = State::ScriptDataEscaped;
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEscapedDashDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '-':
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '<':
+                        state_ = State::ScriptDataEscapedLessThanSign;
+                        continue;
+                    case '>':
+                        state_ = State::ScriptData;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        state_ = State::ScriptDataEscaped;
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        state_ = State::ScriptDataEscaped;
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            case State::ScriptDataEscapedLessThanSign: {
+                auto c = consume_next_input_character();
+                if (c == '/') {
+                    temporary_buffer_ = "";
+                    state_ = State::ScriptDataEscapedEndTagOpen;
+                    continue;
+                }
+
+                if (c && is_ascii_alpha(*c)) {
+                    temporary_buffer_ = "";
+                    emit(CharacterToken{'<'});
+                    reconsume_in(State::ScriptDataDoubleEscapeStart);
+                    continue;
+                }
+
+                emit(CharacterToken{'<'});
+                reconsume_in(State::ScriptDataEscaped);
+                continue;
+            }
+
+            case State::ScriptDataEscapedEndTagOpen: {
+                auto c = consume_next_input_character();
+                if (c && is_ascii_alpha(*c)) {
+                    current_token_ = EndTagToken{};
+                    reconsume_in(State::ScriptDataEscapedEndTagName);
+                    continue;
+                }
+
+                emit(CharacterToken{'<'});
+                emit(CharacterToken{'/'});
+                reconsume_in(State::ScriptDataEscaped);
+                continue;
+            }
+
+            case State::ScriptDataEscapedEndTagName: {
+                auto c = consume_next_input_character();
+
+                auto anything_else = [this] {
+                    emit(CharacterToken{'<'});
+                    emit(CharacterToken{'/'});
+                    emit_temporary_buffer_as_character_tokens();
+                    reconsume_in(State::ScriptDataEscaped);
+                };
+
+                if (!c) {
+                    anything_else();
+                    continue;
+                }
+
+                if (is_ascii_upper_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, to_lower(*c));
+                    temporary_buffer_.append(1, *c);
+                    continue;
+                }
+
+                if (is_ascii_lower_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, *c);
+                    temporary_buffer_.append(1, *c);
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::BeforeAttributeName;
+                        } else {
+                            anything_else();
+                        }
+                        continue;
+                    case '/':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::SelfClosingStartTag;
+                        } else {
+                            anything_else();
+                        }
+                        continue;
+                    case '>':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::Data;
+                            emit(std::move(current_token_));
+                        } else {
+                            anything_else();
+                        }
+                        continue;
+                    default:
+                        anything_else();
+                        continue;
+                }
+            }
+
+            case State::ScriptDataDoubleEscapeStart: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::ScriptDataEscaped);
+                    continue;
+                }
+
+                if (is_ascii_upper_alpha(*c)) {
+                    temporary_buffer_.append(1, to_lower(*c));
+                    emit(CharacterToken{*c});
+                    continue;
+                }
+
+                if (is_ascii_lower_alpha(*c)) {
+                    temporary_buffer_.append(1, *c);
+                    emit(CharacterToken{*c});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                    case '/':
+                    case '>':
+                        if (temporary_buffer_ == "script"sv) {
+                            state_ = State::ScriptDataDoubleEscaped;
+                        } else {
+                            state_ = State::ScriptDataEscaped;
+                        }
+                        emit(CharacterToken{*c});
+                        continue;
+                    default:
+                        reconsume_in(State::ScriptDataEscaped);
+                        continue;
+                }
+            }
+
+            case State::ScriptDataDoubleEscaped: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::ScriptDataDoubleEscapedDash;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '<':
+                        state_ = State::ScriptDataDoubleEscapedLessThanSign;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            case State::ScriptDataDoubleEscapedDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '-':
+                        state_ = State::ScriptDataDoubleEscapedDashDash;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '<':
+                        state_ = State::ScriptDataDoubleEscapedLessThanSign;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        state_ = State::ScriptDataDoubleEscaped;
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        state_ = State::ScriptDataDoubleEscaped;
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            case State::ScriptDataDoubleEscapedDashDash: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '-':
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '<':
+                        state_ = State::ScriptDataDoubleEscapedLessThanSign;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '>':
+                        state_ = State::ScriptData;
+                        emit(CharacterToken{*c});
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        state_ = State::ScriptDataDoubleEscaped;
+                        // TODO(mkiael): Emit replacement character for null
+                        // emit(CharacterToken("\xFF\xFD"));
+                        continue;
+                    default:
+                        state_ = State::ScriptDataDoubleEscaped;
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            case State::ScriptDataDoubleEscapedLessThanSign: {
+                auto c = consume_next_input_character();
+                if (c == '/') {
+                    temporary_buffer_ = "";
+                    state_ = State::ScriptDataDoubleEscapeEnd;
+                    emit(CharacterToken{*c});
+                    continue;
+                }
+
+                reconsume_in(State::ScriptDataDoubleEscaped);
+                continue;
+            }
+
+            case State::ScriptDataDoubleEscapeEnd: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::ScriptDataDoubleEscaped);
+                    continue;
+                }
+
+                if (is_ascii_upper_alpha(*c)) {
+                    temporary_buffer_.append(1, to_lower(*c));
+                    emit(CharacterToken{*c});
+                    continue;
+                }
+
+                if (is_ascii_lower_alpha(*c)) {
+                    temporary_buffer_.append(1, *c);
+                    emit(CharacterToken{*c});
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                    case '/':
+                    case '>':
+                        if (temporary_buffer_ == "script"sv) {
+                            state_ = State::ScriptDataEscaped;
+                        } else {
+                            state_ = State::ScriptDataDoubleEscaped;
+                        }
+                        emit(CharacterToken{*c});
+                        continue;
+                    default:
+                        reconsume_in(State::ScriptDataDoubleEscaped);
+                        continue;
+                }
+            }
+
             case State::BeforeAttributeName: {
                 auto c = consume_next_input_character();
                 if (!c || *c == '/' || *c == '>') {
@@ -246,6 +765,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
+                // TODO(mkiael): Should append lower case!
                 auto append_to_current_attribute_name = [&](auto text) {
                     if (std::holds_alternative<StartTagToken>(current_token_)) {
                         std::get<StartTagToken>(current_token_).attributes.back().name += text;
@@ -847,6 +1367,9 @@ void Tokenizer::run() {
 }
 
 void Tokenizer::emit(Token &&token) {
+    if (std::holds_alternative<StartTagToken>(token)) {
+        last_start_tag_name_ = std::get<StartTagToken>(token).tag_name;
+    }
     on_emit_(std::move(token), *this);
 }
 
@@ -910,6 +1433,13 @@ void Tokenizer::emit_temporary_buffer_as_character_tokens() {
     for (char c : temporary_buffer_) {
         emit(CharacterToken{c});
     }
+}
+
+bool Tokenizer::is_appropriate_end_tag_token(Token const &token) const {
+    if (std::holds_alternative<EndTagToken>(token)) {
+        return std::get<EndTagToken>(token).tag_name == last_start_tag_name_;
+    }
+    return false;
 }
 
 } // namespace html2

@@ -23,12 +23,30 @@ using namespace html2;
 namespace {
 std::vector<Token> run_tokenizer(std::string_view input) {
     std::vector<Token> tokens;
-    Tokenizer tokenizer{input, [&](Token &&t, Tokenizer &) {
-                            tokens.push_back(std::move(t));
-                        }};
-    tokenizer.run();
+    Tokenizer{input,
+            [&](Token &&t, Tokenizer &tokenizer) {
+                if (std::holds_alternative<StartTagToken>(t)) {
+                    if (std::get<StartTagToken>(t).tag_name == "script") {
+                        tokenizer.set_state(State::ScriptData);
+                    }
+                }
+                tokens.push_back(std::move(t));
+            }}
+            .run();
     return tokens;
 }
+
+void expect_token(std::vector<Token> &tokens, Token t) {
+    expect_eq(tokens.front(), t);
+    tokens.erase(begin(tokens));
+}
+
+void expect_text(std::vector<Token> &tokens, std::string_view text) {
+    for (auto c : text) {
+        expect_token(tokens, CharacterToken{c});
+    }
+}
+
 } // namespace
 
 int main() {
@@ -46,6 +64,265 @@ int main() {
                         EndTagToken{.tag_name = "html"s},
                         CharacterToken{'\n'},
                         EndOfFileToken{}});
+    });
+
+    etest::test("script, empty", [] {
+        auto tokens = run_tokenizer("<script></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, upper case tag", [] {
+        auto tokens = run_tokenizer("<SCRIPT></SCRIPT>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, with code", [] {
+        auto tokens = run_tokenizer("<script>code</script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "code"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, with source file attribute", [] {
+        auto tokens = run_tokenizer("<script src=\"/foo.js\"></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script", .attributes = {{"src", "/foo.js"}}});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, end tag as text", [] {
+        auto tokens = run_tokenizer("<script></</script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "</"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, misspelled end tag", [] {
+        auto tokens = run_tokenizer("<script></scropt>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "</scropt>"sv);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, almost escaped", [] {
+        auto tokens = run_tokenizer("<script><!</script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, almost escaped dash", [] {
+        auto tokens = run_tokenizer("<script><!-<</script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-<"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped", [] {
+        auto tokens = run_tokenizer("<script><!-- </script> --></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- "sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_text(tokens, " -->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped one dash", [] {
+        auto tokens = run_tokenizer("<script><!-- -<</script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- -<"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped one dash and back to escaped", [] {
+        auto tokens = run_tokenizer("<script><!-- -x</script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- -x"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped upper case", [] {
+        auto tokens = run_tokenizer("<script><!--- </SCRIPT> ---></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--- "sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_text(tokens, " --->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped dummy tags", [] {
+        auto tokens = run_tokenizer("<script><!-- <</xyz>> --></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- <</xyz>> -->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped", [] {
+        auto tokens = run_tokenizer("<script><!--<script>code</script>--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>code</script>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped dash", [] {
+        auto tokens = run_tokenizer("<script><!--<script>---</script>--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>---</script>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped less than", [] {
+        auto tokens = run_tokenizer("<script><!--<script><</xyz>></script>--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script><</xyz>></script>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped dash less than", [] {
+        auto tokens = run_tokenizer("<SCRIPT><!--<SCRIPT>-<</SCRIPT>--></SCRIPT>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<SCRIPT>-<</SCRIPT>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped dash less than", [] {
+        auto tokens = run_tokenizer("<SCRIPT><!--<SCRIPT>-->--></SCRIPT>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<SCRIPT>-->-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, end tag with attribute", [] {
+        auto tokens = run_tokenizer("<script></script src=\"/foo.js\">");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_token(tokens, EndTagToken{.tag_name = "script", .attributes = {{"src", "/foo.js"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, misspelled end tag with attribute", [] {
+        auto tokens = run_tokenizer("<script></scropt src=\"/foo.js\">");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "</scropt src=\"/foo.js\">"sv);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, self closing end tag", [] {
+        auto tokens = run_tokenizer("<script></script/>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_token(tokens, EndTagToken{.tag_name = "script", .self_closing = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, misspelled self closing end tag", [] {
+        auto tokens = run_tokenizer("<script></scropt/>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "</scropt/>"sv);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped end tag open", [] {
+        auto tokens = run_tokenizer("<script><!--</>--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--</>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped end tag with attributes", [] {
+        auto tokens = run_tokenizer("<script><!--</script src=\"/bar.js\">--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script", .attributes = {{"src", "/bar.js"}}});
+        expect_text(tokens, "-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, misspelled escaped end tag with attributes", [] {
+        auto tokens = run_tokenizer("<script><!--</scropt src=\"/bar.js\">--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--</scropt src=\"/bar.js\">-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped self closing end tag", [] {
+        auto tokens = run_tokenizer("<script><!--</script/>--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script", .self_closing = true});
+        expect_text(tokens, "-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, misspelled escaped self closing end tag", [] {
+        auto tokens = run_tokenizer("<script><!--</scropt/>--></script>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--</scropt/>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, eof in less than sign", [] {
+        auto tokens = run_tokenizer("<script><");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<"sv);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, eof in end tag open", [] {
+        auto tokens = run_tokenizer("<script></scr");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "</scr"sv);
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, simple", [] {
