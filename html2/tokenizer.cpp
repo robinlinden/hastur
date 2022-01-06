@@ -6,6 +6,7 @@
 
 #include "html2/character_reference.h"
 #include "util/string.h"
+#include "util/unicode.h"
 
 #include <spdlog/spdlog.h>
 
@@ -825,15 +826,11 @@ void Tokenizer::run() {
                 }
 
                 temporary_buffer_.clear();
-                if (maybe_reference->first_codepoint > static_cast<std::uint32_t>(std::numeric_limits<char>::max())) {
-                    std::terminate();
-                }
-
+                temporary_buffer_.append(util::unicode_to_utf8(maybe_reference->first_codepoint));
                 if (maybe_reference->second_codepoint) {
-                    std::terminate();
+                    temporary_buffer_.append(util::unicode_to_utf8(*maybe_reference->second_codepoint));
                 }
 
-                temporary_buffer_.append(1, static_cast<char>(maybe_reference->first_codepoint));
                 flush_code_points_consumed_as_a_character_reference();
                 state_ = return_state_;
                 continue;

@@ -11,6 +11,7 @@ cc_library(
     deps = [
         "//dom2",
         "//util:string",
+        "//util:unicode",
         "@spdlog",
     ],
 )

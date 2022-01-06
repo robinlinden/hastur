@@ -154,5 +154,32 @@ int main() {
         expect_eq(tokens, std::vector<Token>{CharacterToken{'&'}, CharacterToken{'@'}, EndOfFileToken{}});
     });
 
+    etest::test("character entity reference, reference to non-ascii glyph", [] {
+        auto tokens = run_tokenizer("&div;");
+        expect_eq(tokens, std::vector<Token>{CharacterToken{'\xc3'}, CharacterToken{'\xb7'}, EndOfFileToken{}});
+        std::string glyph{};
+        glyph += std::get<CharacterToken>(tokens[0]).data;
+        glyph += std::get<CharacterToken>(tokens[1]).data;
+        expect_eq(glyph, "÷"sv);
+    });
+
+    etest::test("character entity reference, two unicode code points required", [] {
+        auto tokens = run_tokenizer("&acE;");
+        expect_eq(tokens,
+                std::vector<Token>{CharacterToken{'\xe2'},
+                        CharacterToken{'\x88'},
+                        CharacterToken{'\xbe'},
+                        CharacterToken{'\xcc'},
+                        CharacterToken{'\xb3'},
+                        EndOfFileToken{}});
+        std::string glyph{};
+        glyph += std::get<CharacterToken>(tokens[0]).data;
+        glyph += std::get<CharacterToken>(tokens[1]).data;
+        glyph += std::get<CharacterToken>(tokens[2]).data;
+        glyph += std::get<CharacterToken>(tokens[3]).data;
+        glyph += std::get<CharacterToken>(tokens[4]).data;
+        expect_eq(glyph, "∾̳"sv);
+    });
+
     return etest::run_all_tests();
 }
