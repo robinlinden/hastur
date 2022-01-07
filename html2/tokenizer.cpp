@@ -83,6 +83,10 @@ std::string to_string(Token const &token) {
     return ss.str();
 }
 
+void Tokenizer::set_state(State state) {
+    state_ = state;
+}
+
 void Tokenizer::run() {
     while (true) {
         if (input_.size() > pos_) {
