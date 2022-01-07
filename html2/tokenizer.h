@@ -149,6 +149,8 @@ class Tokenizer {
 public:
     Tokenizer(std::string_view input, std::function<void(Token &&)> on_emit)
         : input_{input}, on_emit_{std::move(on_emit)} {}
+
+    void set_state(State);
     void run();
 
 private:
