@@ -846,8 +846,8 @@ void Tokenizer::run() {
     }
 }
 
-void Tokenizer::emit(Token &&token) const {
-    on_emit_(std::move(token));
+void Tokenizer::emit(Token &&token) {
+    on_emit_(std::move(token), *this);
 }
 
 std::optional<char> Tokenizer::consume_next_input_character() {

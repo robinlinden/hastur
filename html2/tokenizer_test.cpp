@@ -23,7 +23,7 @@ using namespace html2;
 namespace {
 std::vector<Token> run_tokenizer(std::string_view input) {
     std::vector<Token> tokens;
-    Tokenizer tokenizer{input, [&](Token &&t) {
+    Tokenizer tokenizer{input, [&](Token &&t, Tokenizer &) {
                             tokens.push_back(std::move(t));
                         }};
     tokenizer.run();
