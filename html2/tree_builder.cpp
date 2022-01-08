@@ -14,11 +14,11 @@
 namespace html2 {
 
 void TreeBuilder::run(std::string_view input) {
-    Tokenizer tokenizer{input, std::bind(&TreeBuilder::on_token, this, std::placeholders::_1)};
+    Tokenizer tokenizer{input, std::bind(&TreeBuilder::on_token, this, std::placeholders::_1, std::placeholders::_2)};
     tokenizer.run();
 }
 
-void TreeBuilder::on_token(Token &&token) {
+void TreeBuilder::on_token(Token &&token, Tokenizer &) {
     spdlog::error("{}: {}", mode_, to_string(token));
     switch (mode_) {
         // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode

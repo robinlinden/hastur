@@ -147,7 +147,7 @@ std::string to_string(Token const &);
 
 class Tokenizer {
 public:
-    Tokenizer(std::string_view input, std::function<void(Token &&)> on_emit)
+    Tokenizer(std::string_view input, std::function<void(Token &&, Tokenizer &)> on_emit)
         : input_{input}, on_emit_{std::move(on_emit)} {}
 
     void set_state(State);
@@ -162,9 +162,9 @@ private:
 
     std::string temporary_buffer_{};
 
-    std::function<void(Token &&)> on_emit_{};
+    std::function<void(Token &&, Tokenizer &)> on_emit_{};
 
-    void emit(Token &&) const;
+    void emit(Token &&);
     std::optional<char> consume_next_input_character();
     std::optional<char> peek_next_input_character() const;
     bool is_eof() const;

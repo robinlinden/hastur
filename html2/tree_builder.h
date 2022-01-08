@@ -56,7 +56,7 @@ private:
     std::unique_ptr<dom2::Document> document_{std::make_unique<dom2::Document>()};
     std::stack<std::shared_ptr<dom2::Node>> open_elements_{};
 
-    void on_token(Token &&);
+    void on_token(Token &&, Tokenizer &);
 
     std::shared_ptr<dom2::Element> create_element_for_token(
             Token const &, std::string_view given_namespace, dom2::Node const &intended_parent) const;
