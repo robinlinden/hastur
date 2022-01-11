@@ -23,6 +23,7 @@ cc_test(
     srcs = ["style_test.cpp"],
     deps = [
         ":style",
+        "//css",
         "//etest",
     ],
 )

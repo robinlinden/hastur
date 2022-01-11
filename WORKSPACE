@@ -20,8 +20,10 @@ http_archive(
     url = "https://downloads.sourceforge.net/project/asio/asio/1.20.0%20(Stable)/asio-1.20.0.tar.bz2",
 )
 
+# boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
+    patch_cmds = ["sed -i '32i package(features=[\"-layering_check\"])' BUILD"],
     sha256 = "e168777eb0fc14ea5a65749a2f53c095935a6ea65f38899a289808fb0c221dc4",
     strip_prefix = "boringssl-4fb158925f7753d80fb858cb0239dff893ef9f15",
     url = "https://github.com/google/boringssl/archive/4fb158925f7753d80fb858cb0239dff893ef9f15.tar.gz",

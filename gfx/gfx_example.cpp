@@ -5,7 +5,8 @@
 #include "gfx/color.h"
 #include "gfx/opengl_painter.h"
 
-#include <SFML/Window.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Window.hpp>
 
 int main() {
     sf::Window window{sf::VideoMode{800, 600}, "gfx"};

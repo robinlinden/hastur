@@ -57,6 +57,9 @@ build:clang --per_file_copt='external/boringssl[:/]@-Wno-extra-semi'
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
 
 build:clang13 --config=clang
+# Newer Bazel + Clang supports this really cool features where it checks that
+# you're not relying on transitive dependencies, so let's enable that!
+build:clang13 --features layering_check
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
 

@@ -105,6 +105,7 @@ cc_library(
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
     deps = [
+        ":system",
         ":window",
         "@freetype2",
         "@stb//:image",

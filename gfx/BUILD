@@ -26,6 +26,6 @@ cc_binary(
     srcs = ["gfx_example.cpp"],
     deps = [
         ":gfx",
-        "@sfml//:graphics",
+        "@sfml//:window",
     ],
 )

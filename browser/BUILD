@@ -24,6 +24,8 @@ cc_test(
     deps = [
         ":engine",
         "//etest",
+        "//protocol",
+        "//uri",
     ],
 )
 
@@ -58,9 +60,11 @@ cc_binary(
         "//layout",
         "//render",
         "//uri",
+        "@fmt",
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",
+        "@sfml//:window",
         "@spdlog",
     ],
 )

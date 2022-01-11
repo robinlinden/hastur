@@ -6,8 +6,10 @@ cc_library(
     hdrs = ["render.h"],
     visibility = ["//visibility:public"],
     deps = [
+        "//dom",
         "//gfx",
         "//layout",
+        "//style",
         "@spdlog",
     ],
 )
