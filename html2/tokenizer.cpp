@@ -765,7 +765,6 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                // TODO(mkiael): Should append lower case!
                 auto append_to_current_attribute_name = [&](auto text) {
                     if (std::holds_alternative<StartTagToken>(current_token_)) {
                         std::get<StartTagToken>(current_token_).attributes.back().name += text;
@@ -775,7 +774,8 @@ void Tokenizer::run() {
                 };
 
                 if (is_ascii_upper_alpha(*c)) {
-                    append_to_current_attribute_name(*c);
+                    append_to_current_attribute_name(to_lower(*c));
+                    continue;
                 }
 
                 switch (*c) {
