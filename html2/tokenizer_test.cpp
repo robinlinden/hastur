@@ -458,5 +458,34 @@ int main() {
         expect_eq(glyph, "∾̳"sv);
     });
 
+    etest::test("attribute, one attribute single quoted", [] {
+        auto tokens = run_tokenizer("<tag a='b'>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, one attribute double quoted", [] {
+        auto tokens = run_tokenizer("<tag a=\"b\">");
+
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, one uppercase attribute", [] {
+        auto tokens = run_tokenizer("<tag ATTRIB=\"ABC123\">");
+
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"attrib", "ABC123"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, multiple attributes", [] {
+        auto tokens = run_tokenizer("<tag  foo=\"bar\" A='B'  value='321'>");
+
+        expect_token(
+                tokens, StartTagToken{.tag_name = "tag", .attributes = {{"foo", "bar"}, {"a", "B"}, {"value", "321"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     return etest::run_all_tests();
 }
