@@ -68,6 +68,11 @@ jobs:
       run: |
           sudo apt update
           sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/bazel
+        key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+        restore-keys: ${{ matrix.name }}-
     - name: Build
       run: bazel build //... ${{ matrix.bazel }}
     - name: Test
@@ -79,6 +84,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/bazel
+        key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+        restore-keys: ${{ matrix.name }}-
     - name: Install
       run: |
           sudo apt update
