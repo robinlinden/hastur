@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/tree_builder.h"
+#include "html2/tree_constructor.h"
 
 #include "dom2/document_type.h"
 
@@ -13,12 +13,13 @@
 
 namespace html2 {
 
-void TreeBuilder::run(std::string_view input) {
-    Tokenizer tokenizer{input, std::bind(&TreeBuilder::on_token, this, std::placeholders::_1, std::placeholders::_2)};
+void TreeConstructor::run(std::string_view input) {
+    Tokenizer tokenizer{
+            input, std::bind(&TreeConstructor::on_token, this, std::placeholders::_1, std::placeholders::_2)};
     tokenizer.run();
 }
 
-void TreeBuilder::on_token(Token &&token, Tokenizer &) {
+void TreeConstructor::on_token(Token &&token, Tokenizer &) {
     spdlog::error("{}: {}", mode_, to_string(token));
     switch (mode_) {
         // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
@@ -141,7 +142,7 @@ void TreeBuilder::on_token(Token &&token, Tokenizer &) {
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#create-an-element-for-the-token
-std::shared_ptr<dom2::Element> TreeBuilder::create_element_for_token(
+std::shared_ptr<dom2::Element> TreeConstructor::create_element_for_token(
         Token const &token, std::string_view given_namespace, dom2::Node const &intended_parent) const {
     (void)intended_parent;
     // TODO(robinlinden): Everything.
@@ -160,7 +161,7 @@ std::shared_ptr<dom2::Element> TreeBuilder::create_element_for_token(
 }
 
 // https://dom.spec.whatwg.org/#concept-create-element
-std::shared_ptr<dom2::Element> TreeBuilder::create_element([[maybe_unused]] dom2::Document const &document,
+std::shared_ptr<dom2::Element> TreeConstructor::create_element([[maybe_unused]] dom2::Document const &document,
         std::string local_name,
         [[maybe_unused]] std::string_view ns,
         [[maybe_unused]] std::optional<std::string_view> prefix,
@@ -178,7 +179,7 @@ std::shared_ptr<dom2::Element> TreeBuilder::create_element([[maybe_unused]] dom2
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
-std::shared_ptr<dom2::Element> TreeBuilder::insert_foreign_element(Token const &token, std::string_view ns) {
+std::shared_ptr<dom2::Element> TreeConstructor::insert_foreign_element(Token const &token, std::string_view ns) {
     // 1. Let the adjusted insertion location be the appropriate place for inserting a node.
     auto &adjusted_insertion_location = appropriate_place_for_inserting_a_node();
 
@@ -217,7 +218,7 @@ std::shared_ptr<dom2::Element> TreeBuilder::insert_foreign_element(Token const &
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#appropriate-place-for-inserting-a-node
-dom2::Node &TreeBuilder::appropriate_place_for_inserting_a_node(
+dom2::Node &TreeConstructor::appropriate_place_for_inserting_a_node(
         std::optional<std::reference_wrapper<dom2::Node>> override_target) {
     // 1. If there was an override target specified, then let target be the override target.
     // Otherwise, let target be the current node.

@@ -47,7 +47,7 @@ enum class InsertionMode {
     AfterAfterFrameset,
 };
 
-class TreeBuilder {
+class TreeConstructor {
 public:
     void run(std::string_view input);
 
