@@ -21,14 +21,14 @@ public:
     }
 
 private:
-    Parser(std::string_view input) : tokenizer_{input, std::bind(&Parser::on_token, this, std::placeholders::_1)} {}
+    Parser(std::string_view input) : tokenizer_{input, std::bind_front(&Parser::on_token, this)} {}
 
     [[nodiscard]] dom::Document run() {
         tokenizer_.run();
         return std::move(doc_);
     }
 
-    void on_token(html2::Token &&token);
+    void on_token(html2::Tokenizer &, html2::Token &&token);
 
     void generate_text_node_if_needed();
 

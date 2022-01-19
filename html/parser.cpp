@@ -36,7 +36,7 @@ constexpr auto kImmediatelyPopped = std::to_array({"br"sv, "hr"sv, "img"sv, "lin
 
 } // namespace
 
-void Parser::on_token(html2::Token &&token) {
+void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
     if (auto doctype = std::get_if<html2::DoctypeToken>(&token)) {
         if (doctype->name.has_value()) {
             doc_.doctype = *(doctype->name);

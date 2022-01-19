@@ -1334,7 +1334,7 @@ void Tokenizer::emit(Token &&token) {
     if (std::holds_alternative<StartTagToken>(token)) {
         last_start_tag_name_ = std::get<StartTagToken>(token).tag_name;
     }
-    on_emit_(std::move(token), *this);
+    on_emit_(*this, std::move(token));
 }
 
 std::optional<char> Tokenizer::consume_next_input_character() {

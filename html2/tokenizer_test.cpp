@@ -24,7 +24,7 @@ namespace {
 std::vector<Token> run_tokenizer(std::string_view input) {
     std::vector<Token> tokens;
     Tokenizer{input,
-            [&](Token &&t, Tokenizer &tokenizer) {
+            [&](Tokenizer &tokenizer, Token &&t) {
                 if (std::holds_alternative<StartTagToken>(t)) {
                     if (std::get<StartTagToken>(t).tag_name == "script") {
                         tokenizer.set_state(State::ScriptData);
