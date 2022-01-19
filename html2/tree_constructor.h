@@ -8,6 +8,7 @@
 #include "dom2/document.h"
 #include "dom2/element.h"
 #include "dom2/node.h"
+#include "html2/token.h"
 #include "html2/tokenizer.h"
 
 #include <functional>
@@ -15,6 +16,7 @@
 #include <optional>
 #include <stack>
 #include <string_view>
+#include <vector>
 
 namespace html2 {
 namespace ns {
@@ -50,6 +52,11 @@ enum class InsertionMode {
 class TreeConstructor {
 public:
     void run(std::string_view input);
+    void run(std::vector<html2::Token>);
+
+    std::unique_ptr<dom2::Document> take_document() {
+        return std::exchange(document_, std::make_unique<dom2::Document>());
+    }
 
 private:
     InsertionMode mode_{InsertionMode::Initial};

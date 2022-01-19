@@ -20,6 +20,10 @@ data_files = {
     "tokenizer": ["test/simple_page.html"],
 }
 
+dependencies = {
+    "tree_constructor": ["//dom2"],
+}
+
 [cc_test(
     name = src[:-4],
     size = "small",
@@ -28,7 +32,10 @@ data_files = {
         src[:-9],
         [],
     ),
-    deps = [
+    deps = dependencies.get(
+        src[:-9],
+        [],
+    ) + [
         ":html2",
         "//etest",
     ],

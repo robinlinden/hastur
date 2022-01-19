@@ -10,12 +10,22 @@
 
 #include <exception>
 #include <functional>
+#include <string_view>
+
+using namespace std::literals;
 
 namespace html2 {
 
 void TreeConstructor::run(std::string_view input) {
     Tokenizer tokenizer{input, std::bind_front(&TreeConstructor::on_token, this)};
     tokenizer.run();
+}
+
+void TreeConstructor::run(std::vector<Token> tokens) {
+    auto dummy = Tokenizer(""sv, [](auto &, auto &&) {});
+    for (auto &token : tokens) {
+        on_token(dummy, std::move(token));
+    }
 }
 
 void TreeConstructor::on_token(Tokenizer &, Token &&token) {
