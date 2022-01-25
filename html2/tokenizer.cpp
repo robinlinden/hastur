@@ -54,9 +54,9 @@ void Tokenizer::set_state(State state) {
 void Tokenizer::run() {
     while (true) {
         if (input_.size() > pos_) {
-            spdlog::trace("Running state {} w/ next char {}", state_, input_[pos_]);
+            spdlog::trace("Running state {} w/ next char {}", static_cast<int>(state_), input_[pos_]);
         } else {
-            spdlog::trace("Running state {} after input end", state_);
+            spdlog::trace("Running state {} after input end", static_cast<int>(state_));
         }
 
         switch (state_) {

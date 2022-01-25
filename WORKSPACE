@@ -32,9 +32,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "b06ca3130158c625848f3fb7418f235155a4d389b2abc3a6245fb01cb0eb1e01",
-    strip_prefix = "fmt-8.0.1",
-    url = "https://github.com/fmtlib/fmt/archive/8.0.1.tar.gz",
+    sha256 = "3d794d3cf67633b34b2771eb9f073bde87e846e0d395d254df7b211ef1ec7346",
+    strip_prefix = "fmt-8.1.1",
+    url = "https://github.com/fmtlib/fmt/archive/8.1.1.tar.gz",
 )
 
 http_archive(
@@ -48,9 +48,9 @@ http_archive(
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "371fc4224876411b90f2e80aae12c9f894765aaadc9bbffdcd09ac6b373ea93f",
-    strip_prefix = "FTXUI-0.11",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v0.11.tar.gz",
+    sha256 = "d891695ef22176f0c09f8261a37af9ad5b262dd670a81e6b83661a23abc2c54f",
+    strip_prefix = "FTXUI-2.0.0",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v2.0.0.tar.gz",
 )
 
 http_archive(
@@ -64,9 +64,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "7ed49d1f4573004fa725a70642aaddd3e06bb57fcfe1c1a49ac6574a3e895a77",
-    strip_prefix = "imgui-1.85",
-    url = "https://github.com/ocornut/imgui/archive/v1.85.tar.gz",
+    sha256 = "6ba6ae8425a19bc52c5e067702c48b70e4403cd339cba02073a462730a63e825",
+    strip_prefix = "imgui-1.86",
+    url = "https://github.com/ocornut/imgui/archive/v1.86.tar.gz",
 )
 
 http_archive(

@@ -30,7 +30,7 @@ ftxui::Element element_from_node(layout::LayoutBox const &box) {
     switch (box.type) {
         case layout::LayoutType::Inline: {
             if (auto text = std::get_if<dom::Text>(&box.node->node.get())) {
-                return hflow(ftxui::paragraph(text->text));
+                return ftxui::paragraph(text->text);
             }
             return hbox(parse_children(box));
         }

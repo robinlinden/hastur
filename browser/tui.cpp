@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     browser::Engine engine;
     if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
-        spdlog::error("Got error {} from {}", err, uri->uri);
+        spdlog::error("Got error {} from {}", static_cast<int>(err), uri->uri);
         std::exit(1);
     }
 

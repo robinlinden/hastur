@@ -29,7 +29,7 @@ void TreeConstructor::run(std::vector<Token> tokens) {
 }
 
 void TreeConstructor::on_token(Tokenizer &, Token &&token) {
-    spdlog::error("{}: {}", mode_, to_string(token));
+    spdlog::error("{}: {}", static_cast<int>(mode_), to_string(token));
     switch (mode_) {
         // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
         case InsertionMode::Initial: {
