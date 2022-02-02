@@ -66,8 +66,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install
       run: |
-          sudo apt update
-          sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
+        sudo apt update
+        sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
     - uses: actions/cache@v2
       with:
         path: ~/.cache/bazel
@@ -91,8 +91,8 @@ jobs:
         restore-keys: ${{ matrix.name }}-
     - name: Install
       run: |
-          sudo apt update
-          sudo apt install libxrandr-dev libgl-dev lcov
+        sudo apt update
+        sudo apt install libxrandr-dev libgl-dev lcov
     - name: Setup
       run: |
         echo "CC=gcc-10" >> $GITHUB_ENV
@@ -133,8 +133,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install
       run: |
-          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/4.2.5/buildifier-linux-amd64
-          sudo chmod +x buildifier
+        wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/4.2.5/buildifier-linux-amd64
+        sudo chmod +x buildifier
     - name: Check
       run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname *.BUILD -or -iname BUILD)
 
