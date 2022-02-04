@@ -22,10 +22,15 @@ struct Rect {
     int x{}, y{}, width{}, height{};
     [[nodiscard]] bool operator==(Rect const &) const = default;
 
+    [[nodiscard]] constexpr int left() const { return x; }
+    [[nodiscard]] constexpr int right() const { return x + width; }
+    [[nodiscard]] constexpr int top() const { return y; }
+    [[nodiscard]] constexpr int bottom() const { return y + height; }
+
     [[nodiscard]] constexpr Rect expanded(EdgeSize const &edges) const {
         return Rect{
-                x - edges.left,
-                y - edges.top,
+                left() - edges.left,
+                top() - edges.top,
                 edges.left + width + edges.right,
                 edges.top + height + edges.bottom,
         };
@@ -43,25 +48,25 @@ struct Rect {
     [[nodiscard]] constexpr Rect translated(int dx, int dy) const { return {x + dx, y + dy, width, height}; }
 
     [[nodiscard]] constexpr Rect intersected(Rect const &other) const {
-        auto left = std::max(x, other.x);
-        auto right = std::min(x + width, other.x + other.width);
-        auto top = std::max(y, other.y);
-        auto bottom = std::min(y + height, other.y + other.height);
-        if (left > right || top > bottom) {
+        auto new_left = std::max(left(), other.left());
+        auto new_right = std::min(right(), other.right());
+        auto new_top = std::max(top(), other.top());
+        auto new_bottom = std::min(bottom(), other.bottom());
+        if (new_left > new_right || new_top > new_bottom) {
             return {};
         }
 
         return Rect{
-                left,
-                top,
-                right - left,
-                bottom - top,
+                new_left,
+                new_top,
+                new_right - new_left,
+                new_bottom - new_top,
         };
     }
 
     [[nodiscard]] constexpr bool contains(Position const &p) const {
-        bool inside_horizontally = p.x >= x && p.x <= x + width;
-        bool inside_vertically = p.y >= y && p.y <= y + height;
+        bool inside_horizontally = p.x >= left() && p.x <= right();
+        bool inside_vertically = p.y >= top() && p.y <= bottom();
         return inside_vertically && inside_horizontally;
     }
 };
