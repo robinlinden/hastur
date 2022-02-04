@@ -7,6 +7,7 @@
 #include "etest/etest.h"
 
 using etest::expect;
+using etest::expect_eq;
 using geom::EdgeSize;
 using geom::Rect;
 
@@ -54,6 +55,24 @@ int main() {
         expect(Rect{10, 0, 10, 10} == r.translated(10, 0));
         expect(Rect{0, 10, 10, 10} == r.translated(0, 10));
         expect(Rect{-10, -10, 10, 10} == r.translated(-10, -10));
+    });
+
+    etest::test("Rect::intersected", [] {
+        Rect r{0, 0, 10, 10};
+
+        // Intersect with self should be a no-op.
+        expect_eq(r, r.intersected(r));
+
+        expect_eq(Rect{3, 4, 5, 5}, r.intersected({3, 4, 5, 5}));
+        expect_eq(Rect{0, 0, 1, 2}, r.intersected({0, 0, 1, 2}));
+        expect_eq(Rect{8, 5, 2, 5}, r.intersected({8, 5, 10, 10}));
+        expect_eq(Rect{0, 0, 2, 2}, r.intersected({-2, -2, 4, 4}));
+
+        expect_eq(Rect{-10, -10, 5, 5}, Rect{-20, -20, 15, 15}.intersected({-10, -10, 100, 100}));
+
+        // Intersect with a non-overlapping rect should yield an empty rect.
+        expect_eq(Rect{}, r.intersected({-1, -1, 1, 1}));
+        expect_eq(Rect{}, r.intersected({11, 11, 1, 1}));
     });
 
     etest::test("Rect::contains", [] {
