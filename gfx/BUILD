@@ -48,6 +48,8 @@ cc_binary(
     deps = [
         ":gfx",
         ":opengl",
+        ":sfml",
+        "@sfml//:graphics",
         "@sfml//:window",
     ],
 )
