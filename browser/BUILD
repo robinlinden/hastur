@@ -57,6 +57,7 @@ cc_binary(
         ":engine",
         "//dom",
         "//gfx",
+        "//gfx:opengl",
         "//layout",
         "//render",
         "//uri",

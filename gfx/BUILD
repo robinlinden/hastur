@@ -2,11 +2,21 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "gfx",
+    hdrs = glob(
+        include = ["*.h"],
+        exclude = ["*_painter.h"],
+    ),
+    visibility = ["//visibility:public"],
+    deps = ["//geom"],
+)
+
+cc_library(
+    name = "opengl",
     srcs = ["opengl_painter.cpp"],
-    hdrs = glob(["*.h"]),
+    hdrs = ["opengl_painter.h"],
     visibility = ["//visibility:public"],
     deps = [
-        "//geom",
+        ":gfx",
         "@glew",
     ],
 )
@@ -26,6 +36,7 @@ cc_binary(
     srcs = ["gfx_example.cpp"],
     deps = [
         ":gfx",
+        ":opengl",
         "@sfml//:window",
     ],
 )
