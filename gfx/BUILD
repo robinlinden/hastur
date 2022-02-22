@@ -21,6 +21,17 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "sfml",
+    srcs = ["sfml_painter.cpp"],
+    hdrs = ["sfml_painter.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":gfx",
+        "@sfml//:graphics",
+    ],
+)
+
 [cc_test(
     name = src[:-4],
     size = "small",
