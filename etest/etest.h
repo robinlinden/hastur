@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -19,7 +19,7 @@ concept Printable = requires(std::ostream &os, T t) {
     { os << t } -> std::same_as<std::ostream &>;
 };
 
-int run_all_tests() noexcept;
+[[nodiscard]] int run_all_tests() noexcept;
 void test(std::string_view name, std::function<void()> body) noexcept;
 
 // Weak test requirement. Allows the test to continue even if the check fails.
@@ -29,7 +29,7 @@ void expect(bool, etest::source_location const &loc = etest::source_location::cu
 void require(bool, etest::source_location const &loc = etest::source_location::current());
 
 // Access the internal test log.
-std::ostream &log();
+[[nodiscard]] std::ostream &log();
 
 // Weak test requirement. Prints the types compared on failure (if printable).
 template<Printable T, Printable U>
