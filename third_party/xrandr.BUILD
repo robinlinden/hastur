@@ -8,11 +8,11 @@ cc_library(
         "-Iexternal/xrandr/src/",
         "-Iexternal/xrandr/include/X11/extensions/",
     ],
-    linkopts = [
-        "-lX11",
-        "-lXrender",
-    ],
+    linkopts = ["-lX11"],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
-    deps = ["@xext"],
+    deps = [
+        "@xext",
+        "@xrender",
+    ],
 )

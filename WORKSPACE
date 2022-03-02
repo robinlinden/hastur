@@ -149,6 +149,15 @@ http_archive(
 )
 
 http_archive(
+    name = "xrender",  # MIT
+    build_file = "//third_party:xrender.BUILD",
+    patch_cmds = ["sed -i '/config/d' src/Xrenderint.h"],
+    sha256 = "8be927e04cf7bc5a7ce3af24dc6905e05fcf29142f17304b1f4d224a2ca350b1",
+    strip_prefix = "xorg-libXrender-libXrender-0.9.10",
+    url = "https://github.com/freedesktop/xorg-libXrender/archive/libXrender-0.9.10.tar.gz",
+)
+
+http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
     sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",

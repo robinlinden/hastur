@@ -53,6 +53,8 @@ build:gnulike --per_file_copt='external/udev-zero[:/]@-Wno-unused-parameter'
 build:gnulike --per_file_copt='external/xext[:/]@-Wno-unused-parameter'
 build:gnulike --per_file_copt='external/xext[:/]@-Wno-sign-compare'
 build:gnulike --per_file_copt='external/xrandr[:/]@-Wno-unused-parameter'
+build:gnulike --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
+build:gnulike --per_file_copt='external/xrender[:/]@-Wno-sign-compare'
 build:gnulike --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
 
 build:clang --config=gnulike
