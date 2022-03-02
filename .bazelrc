@@ -50,6 +50,7 @@ build:gnulike --per_file_copt='external/sfml[:/]@-Wno-undef'
 build:gnulike --per_file_copt='external/sfml[:/]@-Wno-unused-parameter'
 build:gnulike --per_file_copt='external/udev-zero[:/]@-Wno-format-nonliteral'
 build:gnulike --per_file_copt='external/udev-zero[:/]@-Wno-unused-parameter'
+build:gnulike --per_file_copt='external/xrandr[:/]@-Wno-unused-parameter'
 build:gnulike --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
 
 build:clang --config=gnulike
@@ -69,6 +70,7 @@ build:gcc --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
 build:gcc --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
 build:gcc --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
 build:gcc --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
+build:gcc --per_file_copt='external/xrandr[:/]@-Wno-type-limits'
 build:gcc --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
 
 build:gcc11 --config=gcc

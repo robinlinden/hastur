@@ -133,6 +133,14 @@ http_archive(
 )
 
 http_archive(
+    name = "xrandr",  # MIT
+    build_file = "//third_party:xrandr.BUILD",
+    sha256 = "55cd6a2797cb79823b8a611dbc695d93262fd0d6a663d9f52422d7d25b81b4b1",
+    strip_prefix = "xorg-libXrandr-libXrandr-1.5.2",
+    url = "https://github.com/freedesktop/xorg-libXrandr/archive/libXrandr-1.5.2.tar.gz",
+)
+
+http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
     sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",

@@ -66,7 +66,6 @@ cc_library(
         "@platforms//os:linux": [
             "-lGL",
             "-lX11",
-            "-lXrandr",
         ],
         "@platforms//os:windows": [
             "-DEFAULTLIB:advapi32",
@@ -79,7 +78,10 @@ cc_library(
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
     deps = [":system"] + select({
-        "@platforms//os:linux": ["@udev-zero"],
+        "@platforms//os:linux": [
+            "@udev-zero",
+            "@xrandr",
+        ],
         "@platforms//os:windows": [],
     }),
 )

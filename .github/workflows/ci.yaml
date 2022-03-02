@@ -67,7 +67,7 @@ jobs:
     - name: Install
       run: |
         sudo apt update
-        sudo apt install libxrandr-dev libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
+        sudo apt install libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
     - uses: actions/cache@v2
       with:
         path: ~/.cache/bazel
@@ -92,7 +92,7 @@ jobs:
     - name: Install
       run: |
         sudo apt update
-        sudo apt install libxrandr-dev libgl-dev lcov
+        sudo apt install libgl-dev lcov
     - name: Setup
       run: |
         echo "CC=gcc-10" >> $GITHUB_ENV
