@@ -10,9 +10,9 @@ cc_library(
     ],
     linkopts = [
         "-lX11",
-        "-lXext",
         "-lXrender",
     ],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
+    deps = ["@xext"],
 )

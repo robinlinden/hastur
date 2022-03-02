@@ -133,6 +133,14 @@ http_archive(
 )
 
 http_archive(
+    name = "xext",  # MIT
+    build_file = "//third_party:xext.BUILD",
+    sha256 = "1a0f56d602100e320e553a799ef3fec626515bbe5e04f376bc44566d71dde288",
+    strip_prefix = "libxext-libXext-1.3.4",
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.4/libxext-libXext-1.3.4.tar.gz",
+)
+
+http_archive(
     name = "xrandr",  # MIT
     build_file = "//third_party:xrandr.BUILD",
     sha256 = "55cd6a2797cb79823b8a611dbc695d93262fd0d6a663d9f52422d7d25b81b4b1",
