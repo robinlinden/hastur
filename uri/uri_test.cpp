@@ -49,7 +49,7 @@ int main() {
         expect(https_uri.authority.port == "8080");
         expect(https_uri.path == "/muh/long/path.html");
         expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment == "");
+        expect(https_uri.fragment.empty());
     });
 
     etest::test("https: user, pass, path, query", [] {
@@ -59,10 +59,10 @@ int main() {
         expect(https_uri.authority.user == "zero-one");
         expect(https_uri.authority.passwd == "muh_password");
         expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port == "");
+        expect(https_uri.authority.port.empty());
         expect(https_uri.path == "/muh/long/path.html");
         expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment == "");
+        expect(https_uri.fragment.empty());
     });
 
     etest::test("https: user, path, query", [] {
@@ -70,37 +70,37 @@ int main() {
 
         expect(https_uri.scheme == "https");
         expect(https_uri.authority.user == "zero-one");
-        expect(https_uri.authority.passwd == "");
+        expect(https_uri.authority.passwd.empty());
         expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port == "");
+        expect(https_uri.authority.port.empty());
         expect(https_uri.path == "/muh/long/path.html");
         expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment == "");
+        expect(https_uri.fragment.empty());
     });
 
     etest::test("https: path, query", [] {
         auto https_uri = *Uri::parse("https://example-domain.net/muh/long/path.html?foo=bar");
 
         expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user == "");
-        expect(https_uri.authority.passwd == "");
+        expect(https_uri.authority.user.empty());
+        expect(https_uri.authority.passwd.empty());
         expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port == "");
+        expect(https_uri.authority.port.empty());
         expect(https_uri.path == "/muh/long/path.html");
         expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment == "");
+        expect(https_uri.fragment.empty());
     });
 
     etest::test("https: path, fragment", [] {
         auto https_uri = *Uri::parse("https://example-domain.net/muh/long/path.html#About");
 
         expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user == "");
-        expect(https_uri.authority.passwd == "");
+        expect(https_uri.authority.user.empty());
+        expect(https_uri.authority.passwd.empty());
         expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port == "");
+        expect(https_uri.authority.port.empty());
         expect(https_uri.path == "/muh/long/path.html");
-        expect(https_uri.query == "");
+        expect(https_uri.query.empty());
         expect(https_uri.fragment == "About");
     });
 
@@ -108,26 +108,26 @@ int main() {
         auto mailto_uri = *Uri::parse("mailto:example@example.net");
 
         expect(mailto_uri.scheme == "mailto");
-        expect(mailto_uri.authority.user == "");
-        expect(mailto_uri.authority.passwd == "");
-        expect(mailto_uri.authority.host == "");
-        expect(mailto_uri.authority.port == "");
+        expect(mailto_uri.authority.user.empty());
+        expect(mailto_uri.authority.passwd.empty());
+        expect(mailto_uri.authority.host.empty());
+        expect(mailto_uri.authority.port.empty());
         expect(mailto_uri.path == "example@example.net");
-        expect(mailto_uri.query == "");
-        expect(mailto_uri.fragment == "");
+        expect(mailto_uri.query.empty());
+        expect(mailto_uri.fragment.empty());
     });
 
     etest::test("tel: path", [] {
         auto tel_uri = *Uri::parse("tel:+1-830-476-5664");
 
         expect(tel_uri.scheme == "tel");
-        expect(tel_uri.authority.user == "");
-        expect(tel_uri.authority.passwd == "");
-        expect(tel_uri.authority.host == "");
-        expect(tel_uri.authority.port == "");
+        expect(tel_uri.authority.user.empty());
+        expect(tel_uri.authority.passwd.empty());
+        expect(tel_uri.authority.host.empty());
+        expect(tel_uri.authority.port.empty());
         expect(tel_uri.path == "+1-830-476-5664");
-        expect(tel_uri.query == "");
-        expect(tel_uri.fragment == "");
+        expect(tel_uri.query.empty());
+        expect(tel_uri.fragment.empty());
     });
 
     // TODO(Zer0-One): Test for parsing failure.
