@@ -24,7 +24,7 @@ int main() {
         });
 
         auto const nodes = nodes_by_path(dom_root, "html.body.a");
-        expect(nodes.size() == 0);
+        expect(nodes.empty());
     });
 
     etest::test("root match", [] {
@@ -67,7 +67,7 @@ int main() {
 
         auto const first = *nodes[0];
         expect(first.name == "p");
-        expect(first.attributes.size() == 0);
+        expect(first.attributes.empty());
 
         auto const second = *nodes[1];
         expect(second.name == "p");

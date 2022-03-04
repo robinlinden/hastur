@@ -154,12 +154,12 @@ int main() {
 
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
-        expect(body.declarations.size() == 0);
+        expect(body.declarations.empty());
     });
 
     etest::test("parser: no rules", [] {
         auto rules = css::parse(""sv);
-        expect(rules.size() == 0);
+        expect(rules.empty());
     });
 
     etest::test("parser: top-level comments", [] {
