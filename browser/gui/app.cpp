@@ -337,9 +337,7 @@ void App::render_layout() {
 }
 
 void App::render_overlay() {
-    window_.pushGLStates();
     ImGui::SFML::Render(window_);
-    window_.popGLStates();
 }
 
 void App::show_render_surface() {
