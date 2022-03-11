@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
-// SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -74,12 +74,12 @@ std::string Http::create_get_request(uri::Uri const &uri) {
 
 std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) {
     auto sep1 = status_line.find(' ');
-    if (sep1 == status_line.npos) {
+    if (sep1 == std::string_view::npos) {
         return std::nullopt;
     }
 
     auto sep2 = status_line.find(' ', sep1 + 1);
-    if (sep2 == status_line.npos) {
+    if (sep2 == std::string_view::npos) {
         return std::nullopt;
     }
 
