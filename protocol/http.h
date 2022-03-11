@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
-// SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -36,9 +36,9 @@ struct StatusLine {
 class Headers {
 public:
     void add(std::pair<std::string_view, std::string_view> nv);
-    std::optional<std::string_view> get(std::string_view name) const;
-    std::string to_string() const;
-    std::size_t size() const;
+    [[nodiscard]] std::optional<std::string_view> get(std::string_view name) const;
+    [[nodiscard]] std::string to_string() const;
+    [[nodiscard]] std::size_t size() const;
 
 private:
     struct CaseInsensitiveLess {
