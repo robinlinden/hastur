@@ -11,6 +11,7 @@ namespace geom {
 
 struct Position {
     int x{}, y{};
+    [[nodiscard]] bool operator==(Position const &) const = default;
 };
 
 struct EdgeSize {
@@ -26,6 +27,8 @@ struct Rect {
     [[nodiscard]] constexpr int right() const { return x + width; }
     [[nodiscard]] constexpr int top() const { return y; }
     [[nodiscard]] constexpr int bottom() const { return y + height; }
+
+    [[nodiscard]] constexpr Position position() const { return {x, y}; }
 
     [[nodiscard]] constexpr Rect expanded(EdgeSize const &edges) const {
         return Rect{

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,9 +9,16 @@
 using etest::expect;
 using etest::expect_eq;
 using geom::EdgeSize;
+using geom::Position;
 using geom::Rect;
 
 int main() {
+    etest::test("Rect::position", [] {
+        expect_eq(Rect{-10, 0, 20, 10}.position(), Position{-10, 0});
+        expect_eq(Rect{0, 0, 20, 10}.position(), Position{0, 0});
+        expect_eq(Rect{10, 10, 5, 5}.position(), Position{10, 10});
+    });
+
     etest::test("Rect::expanded", [] {
         Rect r{0, 0, 10, 10};
         expect(Rect{-10, 0, 20, 10} == r.expanded(EdgeSize{10, 0, 0, 0}));
