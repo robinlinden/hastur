@@ -40,9 +40,9 @@ http_archive(
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "a45c6b403413abd5706f3582f04c8339d26397c4304b78fa552f2215df64101f",
-    strip_prefix = "freetype-2.11.0",
-    url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.11.0.tar.gz",
+    sha256 = "f8db94d307e9c54961b39a1cc799a67d46681480696ed72ecf78d4473770f09b",
+    strip_prefix = "freetype-2.11.1",
+    url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.11.1.tar.gz",
 )
 
 http_archive(
