@@ -1,10 +1,12 @@
-// SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "protocol/http.h"
 
 #include "etest/etest.h"
+
+#include <utility>
 
 using namespace std::string_view_literals;
 
@@ -54,10 +56,10 @@ struct FakeSocket {
 };
 
 uri::Uri create_uri(std::string url = "http://example.com") {
-    return uri::Uri::parse(url).value();
+    return uri::Uri::parse(std::move(url)).value();
 }
 
-FakeSocket create_chunked_socket(std::string body) {
+FakeSocket create_chunked_socket(std::string const &body) {
     FakeSocket socket;
     socket.read_data =
             "HTTP/1.1 200 OK\r\n"
