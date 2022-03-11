@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -19,6 +19,8 @@ struct Color {
     }
 
     std::uint8_t r, g, b, a{0xFF};
+
+    [[nodiscard]] constexpr std::uint32_t as_rgba_u32() const { return r << 24 | g << 16 | b << 8 | a; }
 
     [[nodiscard]] constexpr bool operator==(Color const &) const = default;
 };
