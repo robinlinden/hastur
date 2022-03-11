@@ -7,12 +7,14 @@
 
 #include "browser/engine.h"
 #include "dom/dom.h"
+#include "gfx/ipainter.h"
 #include "gfx/opengl_painter.h"
 #include "layout/layout.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 
+#include <memory>
 #include <string>
 
 namespace browser::gui {
@@ -39,7 +41,13 @@ private:
     std::string layout_str_{};
     std::string nav_widget_extra_info_{};
 
-    gfx::OpenGLPainter painter_{};
+    enum class Painter {
+        OpenGL,
+        Sfml,
+    };
+
+    Painter selected_painter_{Painter::OpenGL};
+    std::unique_ptr<gfx::IPainter> painter_{std::make_unique<gfx::OpenGLPainter>()};
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".
@@ -75,6 +83,8 @@ private:
     void render_layout();
     void render_overlay();
     void show_render_surface();
+
+    void switch_painter();
 };
 
 } // namespace browser::gui

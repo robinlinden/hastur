@@ -58,6 +58,7 @@ cc_binary(
         "//dom",
         "//gfx",
         "//gfx:opengl",
+        "//gfx:sfml",
         "//layout",
         "//render",
         "//uri",
