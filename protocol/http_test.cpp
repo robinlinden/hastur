@@ -28,7 +28,7 @@ struct FakeSocket {
         return write_data.size();
     }
 
-    std::string read_all() { return read_data; }
+    std::string read_all() const { return read_data; }
 
     std::string read_until(std::string_view d) {
         delimiter = d;
