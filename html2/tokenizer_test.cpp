@@ -459,6 +459,25 @@ int main() {
         expect_eq(glyph, "∾̳"sv);
     });
 
+    etest::test("ambiguous ampersand", [] {
+        auto tokens = run_tokenizer("&blah;");
+        expect_token(tokens, CharacterToken{'&'});
+        expect_token(tokens, CharacterToken{'b'});
+        expect_token(tokens, CharacterToken{'l'});
+        expect_token(tokens, CharacterToken{'a'});
+        expect_token(tokens, CharacterToken{'h'});
+        expect_token(tokens, CharacterToken{';'});
+        expect_token(tokens, EndOfFileToken{});
+        expect(tokens.empty());
+    });
+
+    etest::test("ambiguous ampersand in attribute", [] {
+        auto tokens = run_tokenizer("<p attr='&blah;'>");
+        expect_token(tokens, StartTagToken{.tag_name = "p", .attributes = {{"attr", "&blah;"}}});
+        expect_token(tokens, EndOfFileToken{});
+        expect(tokens.empty());
+    });
+
     etest::test("attribute, one attribute single quoted", [] {
         auto tokens = run_tokenizer("<tag a='b'>");
 

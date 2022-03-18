@@ -1394,6 +1394,30 @@ void Tokenizer::run() {
                 continue;
             }
 
+            case State::AmbiguousAmpersand: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(return_state_);
+                    continue;
+                }
+
+                if (is_ascii_alphanumeric(*c)) {
+                    if (consumed_as_part_of_an_attribute()) {
+                        current_attribute().value += *c;
+                    } else {
+                        emit(CharacterToken{*c});
+                    }
+                    continue;
+                }
+
+                if (*c == ';') {
+                    // This is an unknown-named-character-reference parse error.
+                }
+
+                reconsume_in(return_state_);
+                continue;
+            }
+
             case State::NumericCharacterReference: {
                 character_reference_code_ = 0;
                 auto c = consume_next_input_character();
