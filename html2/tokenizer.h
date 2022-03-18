@@ -7,6 +7,7 @@
 
 #include "html2/token.h"
 
+#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>
@@ -116,6 +117,8 @@ private:
 
     std::string temporary_buffer_{};
     std::string last_start_tag_name_{};
+
+    std::uint32_t character_reference_code_{};
 
     std::function<void(Tokenizer &, Token &&)> on_emit_{};
 

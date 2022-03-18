@@ -14,12 +14,30 @@
 #include <cstring>
 #include <exception>
 #include <limits>
+#include <map>
 #include <sstream>
 
 using namespace std::literals;
 
 namespace html2 {
 namespace {
+
+constexpr bool is_control(int code_point) {
+    return code_point >= 0x7F && code_point <= 0x9F;
+}
+
+constexpr bool is_ascii_whitespace(int code_point) {
+    switch (code_point) {
+        case 0x09:
+        case 0x0A:
+        case 0x0C:
+        case 0x0D:
+        case 0x20:
+            return true;
+        default:
+            return false;
+    }
+}
 
 constexpr bool is_ascii_upper_alpha(char c) {
     return c >= 'A' && c <= 'Z';
@@ -43,6 +61,58 @@ constexpr bool is_ascii_alphanumeric(char c) {
 
 constexpr char to_lower(char c) {
     return c + 0x20;
+}
+
+// https://infra.spec.whatwg.org/#surrogate
+constexpr bool is_unicode_surrogate(int code_point) {
+    return code_point >= 0xD800 && code_point <= 0xDFFF;
+}
+
+// https://infra.spec.whatwg.org/#noncharacter
+constexpr bool is_unicode_noncharacter(int code_point) {
+    if (code_point >= 0xFDD0 && code_point <= 0xFDEF) {
+        return true;
+    }
+
+    switch (code_point) {
+        case 0xFFFE:
+        case 0xFFFF:
+        case 0x1FFF:
+        case 0x1FFFF:
+        case 0x2FFFE:
+        case 0x2FFFF:
+        case 0x3FFFE:
+        case 0x3FFFF:
+        case 0x4FFFE:
+        case 0x4FFFF:
+        case 0x5FFFE:
+        case 0x5FFFF:
+        case 0x6FFFE:
+        case 0x6FFFF:
+        case 0x7FFFE:
+        case 0x7FFFF:
+        case 0x8FFFE:
+        case 0x8FFFF:
+        case 0x9FFFE:
+        case 0x9FFFF:
+        case 0xAFFFE:
+        case 0xAFFFF:
+        case 0xBFFFE:
+        case 0xBFFFF:
+        case 0xCFFFE:
+        case 0xCFFFF:
+        case 0xDFFFE:
+        case 0xDFFFF:
+        case 0xEFFFE:
+        case 0xEFFFF:
+        case 0xFFFFE:
+        case 0xFFFFF:
+        case 0x10FFFE:
+        case 0x10FFFF:
+            return true;
+        default:
+            return false;
+    }
 }
 
 } // namespace
@@ -1319,6 +1389,127 @@ void Tokenizer::run() {
                     temporary_buffer_.append(util::unicode_to_utf8(*maybe_reference->second_codepoint));
                 }
 
+                flush_code_points_consumed_as_a_character_reference();
+                state_ = return_state_;
+                continue;
+            }
+
+            case State::NumericCharacterReference: {
+                character_reference_code_ = 0;
+                auto c = consume_next_input_character();
+                if (!c) {
+                    reconsume_in(State::DecimalCharacterReferenceStart);
+                    continue;
+                }
+
+                switch (*c) {
+                    case 'x':
+                    case 'X':
+                        temporary_buffer_ += *c;
+                        state_ = State::HexadecimalCharacterReferenceStart;
+                        continue;
+                    default:
+                        reconsume_in(State::DecimalCharacterReferenceStart);
+                        continue;
+                }
+            }
+
+            case State::DecimalCharacterReferenceStart: {
+                auto c = consume_next_input_character();
+                if (!c || !is_ascii_digit(*c)) {
+                    // This is an absence-of-digits-in-numeric-character-reference parse error.
+                    flush_code_points_consumed_as_a_character_reference();
+                    reconsume_in(return_state_);
+                    continue;
+                }
+
+                reconsume_in(State::DecimalCharacterReference);
+                continue;
+            }
+
+            case State::DecimalCharacterReference: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is a missing-semicolon-after-character-reference parse error.
+                    reconsume_in(State::NumericCharacterReferenceEnd);
+                    continue;
+                }
+
+                if (is_ascii_digit(*c)) {
+                    character_reference_code_ *= 10;
+                    character_reference_code_ += *c - 0x30;
+                    continue;
+                }
+
+                if (*c == ';') {
+                    state_ = State::NumericCharacterReferenceEnd;
+                    continue;
+                }
+
+                // This is a missing-semicolon-after-character-reference parse error.
+                reconsume_in(State::NumericCharacterReferenceEnd);
+                continue;
+            }
+
+            case State::NumericCharacterReferenceEnd: {
+                if (character_reference_code_ == 0) {
+                    // This is a null-character-reference parse error.
+                    character_reference_code_ = 0xFFFD;
+                }
+
+                if (character_reference_code_ > 0x10FFFF) {
+                    // This is a character-reference-outside-unicode-range parse error.
+                    character_reference_code_ = 0xFFFD;
+                }
+
+                if (is_unicode_surrogate(character_reference_code_)) {
+                    // This is a surrogate-character-reference parse error.
+                    character_reference_code_ = 0xFFFD;
+                }
+
+                if (is_unicode_noncharacter(character_reference_code_)) {
+                    // This is a noncharacter-character-reference parse error.
+                    character_reference_code_ = 0xFFFD;
+                }
+
+                if (character_reference_code_ == 0x0D
+                        || (is_control(character_reference_code_) && !is_ascii_whitespace(character_reference_code_))) {
+                    // This is a control-character-reference parse error.
+                }
+
+                static std::map<std::uint32_t, std::uint32_t> const replacements{{0x80, 0x20AC},
+                        {0x82, 0x201A},
+                        {0x83, 0x0192},
+                        {0x84, 0x201E},
+                        {0x85, 0x2026},
+                        {0x86, 0x2020},
+                        {0x87, 0x2021},
+                        {0x88, 0x02C6},
+                        {0x89, 0x2030},
+                        {0x8A, 0x0160},
+                        {0x8B, 0x2039},
+                        {0x8C, 0x0152},
+                        {0x8E, 0x017D},
+                        {0x91, 0x2018},
+                        {0x92, 0x2019},
+                        {0x93, 0x201C},
+                        {0x94, 0x201D},
+                        {0x95, 0x2022},
+                        {0x96, 0x2013},
+                        {0x97, 0x2014},
+                        {0x98, 0x02DC},
+                        {0x99, 0x2122},
+                        {0x9A, 0x0161},
+                        {0x9B, 0x203A},
+                        {0x9C, 0x0153},
+                        {0x9E, 0x017E},
+                        {0x9F, 0x0178}};
+
+                if (replacements.contains(character_reference_code_)) {
+                    character_reference_code_ = replacements.at(character_reference_code_);
+                }
+
+                temporary_buffer_ = util::unicode_to_utf8(character_reference_code_);
                 flush_code_points_consumed_as_a_character_reference();
                 state_ = return_state_;
                 continue;

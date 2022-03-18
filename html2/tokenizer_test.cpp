@@ -15,6 +15,7 @@
 
 using namespace std::literals;
 
+using etest::expect;
 using etest::expect_eq;
 using etest::require;
 
@@ -485,6 +486,15 @@ int main() {
         expect_token(
                 tokens, StartTagToken{.tag_name = "tag", .attributes = {{"foo", "bar"}, {"a", "B"}, {"value", "321"}}});
         expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("numeric character reference", [] {
+        auto tokens = run_tokenizer("&#9731;"); // U+2603: SNOWMAN
+        expect_token(tokens, CharacterToken{'\xe2'});
+        expect_token(tokens, CharacterToken{'\x98'});
+        expect_token(tokens, CharacterToken{'\x83'});
+        expect_token(tokens, EndOfFileToken{});
+        expect(tokens.empty());
     });
 
     return etest::run_all_tests();
