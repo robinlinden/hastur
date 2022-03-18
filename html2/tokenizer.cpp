@@ -33,12 +33,12 @@ constexpr bool is_ascii_alpha(char c) {
     return is_ascii_upper_alpha(c) || is_ascii_lower_alpha(c);
 }
 
-constexpr bool is_numeric(char c) {
+constexpr bool is_ascii_digit(char c) {
     return c >= '0' && c <= '9';
 }
 
 constexpr bool is_ascii_alphanumeric(char c) {
-    return is_numeric(c) || is_ascii_alpha(c);
+    return is_ascii_digit(c) || is_ascii_alpha(c);
 }
 
 constexpr char to_lower(char c) {
