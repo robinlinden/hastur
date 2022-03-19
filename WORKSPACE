@@ -5,8 +5,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "platforms",  # Apache-2.0
-    sha256 = "079945598e4b6cc075846f7fd6a9d0857c33a7afc0de868c2ccb96405225135d",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.4/platforms-0.0.4.tar.gz",
+    sha256 = "379113459b0feaf6bfbb584a91874c065078aa673222846ac765f86661c27407",
+    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.5/platforms-0.0.5.tar.gz",
 )
 
 # Third-party
@@ -15,18 +15,18 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "204374d3cadff1b57a63f4c343cbadcee28374c072dc04b549d772dbba9f650c",
-    strip_prefix = "asio-1.20.0",
-    url = "https://downloads.sourceforge.net/project/asio/asio/1.20.0%20(Stable)/asio-1.20.0.tar.bz2",
+    sha256 = "6874d81a863d800ee53456b1cafcdd1abf38bbbf54ecf295056b053c0d7115ce",
+    strip_prefix = "asio-1.22.1",
+    url = "https://downloads.sourceforge.net/project/asio/asio/1.22.1%20(Stable)/asio-1.22.1.tar.bz2",
 )
 
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    patch_cmds = ["sed -i '32i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "e168777eb0fc14ea5a65749a2f53c095935a6ea65f38899a289808fb0c221dc4",
-    strip_prefix = "boringssl-4fb158925f7753d80fb858cb0239dff893ef9f15",
-    url = "https://github.com/google/boringssl/archive/4fb158925f7753d80fb858cb0239dff893ef9f15.tar.gz",
+    patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
+    sha256 = "6f2b0390dc23be79268da435b276b0ecfffd1adeaf9868d6a68860f9b9adbcb7",
+    strip_prefix = "boringssl-ae0ce154470dc7d1e3073ba8adb1ef2b669c6471",
+    url = "https://github.com/google/boringssl/archive/ae0ce154470dc7d1e3073ba8adb1ef2b669c6471.tar.gz",
 )
 
 http_archive(
@@ -64,9 +64,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "6ba6ae8425a19bc52c5e067702c48b70e4403cd339cba02073a462730a63e825",
-    strip_prefix = "imgui-1.86",
-    url = "https://github.com/ocornut/imgui/archive/v1.86.tar.gz",
+    sha256 = "b54ceb35bda38766e36b87c25edf7a1cd8fd2cb8c485b245aedca6fb85645a20",
+    strip_prefix = "imgui-1.87",
+    url = "https://github.com/ocornut/imgui/archive/v1.87.tar.gz",
 )
 
 http_archive(
@@ -119,17 +119,17 @@ http_archive(
 http_archive(
     name = "udev-zero",  # ISC
     build_file = "//third_party:udev-zero.BUILD",
-    sha256 = "68c20aefd7aa89abe446cf5ec76f5846315ded719f0665eabed9261cc3c7f47a",
-    strip_prefix = "libudev-zero-1.0.0",
-    url = "https://github.com/illiliti/libudev-zero/archive/1.0.0.tar.gz",
+    sha256 = "c4cf149ea96295c1e6e86038d10c725344c751982ed4a790b06c76776923e0ea",
+    strip_prefix = "libudev-zero-1.0.1",
+    url = "https://github.com/illiliti/libudev-zero/archive/1.0.1.tar.gz",
 )
 
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "df8748ba3073be032f78c97994798c3c2b52b1812e506cc58855faf10f031226",
-    strip_prefix = "Vulkan-Headers-1.2.202",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.2.202.tar.gz",
+    sha256 = "15050e9748633484957a166150f680a0ba8030074db599aad7c2d432191712af",
+    strip_prefix = "Vulkan-Headers-1.3.208",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.208.tar.gz",
 )
 
 http_archive(
