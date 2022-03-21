@@ -63,12 +63,12 @@ jobs:
       run: |
         echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
         echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install
       run: |
         sudo apt update
         sudo apt install libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: ~/.cache/bazel
         key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
@@ -83,8 +83,8 @@ jobs:
   linux-gcc-10-coverage:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
+    - uses: actions/checkout@v3
+    - uses: actions/cache@v3
       with:
         path: ~/.cache/bazel
         key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
@@ -110,7 +110,7 @@ jobs:
       run:
         shell: bash
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build
       run: bazel build ///... --config debug
     - name: Test
@@ -121,7 +121,7 @@ jobs:
   clang-format:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Format
       run: find . -name *.h -o -name *.cpp | xargs clang-format-12 -style=file -i
     - name: Check
@@ -130,7 +130,7 @@ jobs:
   buildifier:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install
       run: |
         wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/5.0.1/buildifier-linux-amd64
