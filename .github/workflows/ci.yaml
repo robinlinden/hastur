@@ -48,11 +48,9 @@ jobs:
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
     - name: Prepare clang install
       if: startsWith(matrix.compiler, 'clang') && matrix.version == 13
-      uses: myci-actions/add-deb-repo@10
-      with:
-        repo: deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${{ matrix.version }} main
-        repo-name: llvm-toolchain-focal-${{ matrix.version }}
-        keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      run: |
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${{ matrix.version }} main"
     - name: Setup gcc
       if: startsWith(matrix.compiler, 'gcc')
       run: |
