@@ -9,7 +9,6 @@ build --config debug
 # Choose a compiler
 build --config clang
 # build --config gcc
-# build --config msvc
 
 # Other interesting build options
 # build --config asan

@@ -112,11 +112,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: bazel build ///... --config msvc --config debug
+      run: bazel build ///... --config debug
     - name: Test
-      run: bazel test ///... --config msvc --config debug
+      run: bazel test ///... --config debug
     - name: Run
-      run: bazel run browser:tui --config msvc --config debug
+      run: bazel run browser:tui --config debug
 
   clang-format:
     runs-on: ubuntu-20.04

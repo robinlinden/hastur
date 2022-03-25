@@ -4,6 +4,11 @@
 build:debug -c dbg
 build:release -c opt
 
+# Bazel configuration
+# =========================================================
+
+build --enable_platform_specific_config
+
 # Bazel deprecations
 # =========================================================
 # See: https://docs.bazel.build/versions/main/backward-compatibility.html
@@ -13,51 +18,50 @@ build --incompatible_disallow_empty_glob
 # Compiler configuration
 # =========================================================
 
-build:gnulike --cxxopt='-std=c++2a'
-build:gnulike --copt='-Wall'
-build:gnulike --copt='-Wextra'
-build:gnulike --copt='-pedantic-errors'
-build:gnulike --copt='-Werror'
-build:gnulike --copt='-Wdouble-promotion'
-build:gnulike --copt='-Wformat=2'
-build:gnulike --copt='-Wmissing-declarations'
-build:gnulike --copt='-Wnull-dereference'
-build:gnulike --copt='-Wshadow'
-build:gnulike --copt='-Wsign-compare'
-build:gnulike --copt='-Wundef'
-build:gnulike --copt='-fno-common'
-build:gnulike --cxxopt='-Wnon-virtual-dtor'
-build:gnulike --cxxopt='-Woverloaded-virtual'
-build:gnulike --copt='-Wno-missing-field-initializers' # Common idiom for zeroing members.
-build:gnulike --per_file_copt='net:socket@-Wno-undef' # asio leaks this into our code.
-build:gnulike --per_file_copt='net:socket@-Wno-shadow' # asio leaks this into our code.
-build:gnulike --per_file_copt='external/asio[:/]@-Wno-sign-compare'
-build:gnulike --per_file_copt='external/asio[:/]@-Wno-undef'
-build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
-build:gnulike --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
-build:gnulike --per_file_copt='external/glew[:/]@-Wno-undef'
-build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
-build:gnulike --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
-build:gnulike --per_file_copt='external/imgui[:/]@-Wno-double-promotion'
-build:gnulike --per_file_copt='external/libpng[:/]@-Wno-undef'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-double-promotion'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-implicit-fallthrough'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-missing-declarations'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-shadow'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-sign-compare'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-undef'
-build:gnulike --per_file_copt='external/sfml[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/udev-zero[:/]@-Wno-format-nonliteral'
-build:gnulike --per_file_copt='external/udev-zero[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/xext[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/xext[:/]@-Wno-sign-compare'
-build:gnulike --per_file_copt='external/xrandr[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
-build:gnulike --per_file_copt='external/xrender[:/]@-Wno-sign-compare'
-build:gnulike --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
+build:linux --cxxopt='-std=c++2a'
+build:linux --copt='-Wall'
+build:linux --copt='-Wextra'
+build:linux --copt='-pedantic-errors'
+build:linux --copt='-Werror'
+build:linux --copt='-Wdouble-promotion'
+build:linux --copt='-Wformat=2'
+build:linux --copt='-Wmissing-declarations'
+build:linux --copt='-Wnull-dereference'
+build:linux --copt='-Wshadow'
+build:linux --copt='-Wsign-compare'
+build:linux --copt='-Wundef'
+build:linux --copt='-fno-common'
+build:linux --cxxopt='-Wnon-virtual-dtor'
+build:linux --cxxopt='-Woverloaded-virtual'
+build:linux --copt='-Wno-missing-field-initializers' # Common idiom for zeroing members.
+build:linux --per_file_copt='net:socket@-Wno-undef' # asio leaks this into our code.
+build:linux --per_file_copt='net:socket@-Wno-shadow' # asio leaks this into our code.
+build:linux --per_file_copt='external/asio[:/]@-Wno-sign-compare'
+build:linux --per_file_copt='external/asio[:/]@-Wno-undef'
+build:linux --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
+build:linux --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
+build:linux --per_file_copt='external/glew[:/]@-Wno-undef'
+build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
+build:linux --per_file_copt='external/imgui[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/libpng[:/]@-Wno-undef'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-implicit-fallthrough'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-missing-declarations'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-shadow'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-sign-compare'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-undef'
+build:linux --per_file_copt='external/sfml[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/udev-zero[:/]@-Wno-format-nonliteral'
+build:linux --per_file_copt='external/udev-zero[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/xext[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/xext[:/]@-Wno-sign-compare'
+build:linux --per_file_copt='external/xrandr[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/xrender[:/]@-Wno-sign-compare'
+build:linux --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
 
-build:clang --config=gnulike
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-extra-semi'
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
 
@@ -68,7 +72,6 @@ build:clang13 --features layering_check
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
 
-build:gcc --config=gnulike
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
 build:gcc --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
@@ -83,35 +86,35 @@ build:gcc11 --per_file_copt='net:socket@-Wno-nonnull' # asio leaks this into our
 build:gcc11 --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
 build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
-build:msvc --enable_runfiles
-build:msvc --cxxopt='/std:c++20'
-build:msvc --copt='/W4' # More warnings.
-build:msvc --copt='/WX' # Treat warnings as errors.
-build:msvc --copt='/permissive-' # Conform to the standard.
-build:msvc --per_file_copt='external/boringssl[:/]@/wd4100' # C4100: 'out_public_key': unreferenced formal parameter
-build:msvc --per_file_copt='external/boringssl[:/]@/wd4127' # C4127: conditional expression is constant
-build:msvc --per_file_copt='external/boringssl[:/]@/wd4244' # C4244: '=': conversion from 'unsigned int' to 'uint8_t', possible loss of data
-build:msvc --per_file_copt='external/boringssl[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-build:msvc --per_file_copt='external/boringssl[:/]@/wd4706' # C4706: assignment within conditional expression
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4018' # C4018: '>': signed/unsigned mismatch
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4100' # C4100: 'msg_tag': unreferenced formal parameter
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4244' # C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4312' # C4312: 'type cast': conversion from 'unsigned long' to 'void *' of greater size
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4701' # C4701: potentially uninitialized local variable 'cbox' used
-build:msvc --per_file_copt='external/freetype2[:/]@/wd4702' # C4702: unreachable code
-build:msvc --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
-build:msvc --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-build:msvc --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
-build:msvc --per_file_copt='external/sfml[:/]@/wd4244' # C4244: 'initializing': conversion from 'sf::Uint32' to 'sf::Uint8', possible loss of data
-build:msvc --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
-build:msvc --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
-build:msvc --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
-build:msvc --per_file_copt='external/zlib[:/]@/wd4127' # C4127: conditional expression is constant
-build:msvc --per_file_copt='external/zlib[:/]@/wd4131' # C4131: 'adler32_z': uses old-style declarator
-build:msvc --per_file_copt='external/zlib[:/]@/wd4244' # C4244: '+=': conversion from 'int' to 'ush', possible loss of data
-build:msvc --per_file_copt='external/zlib[:/]@/wd4245' # C4245: '=': conversion from 'int' to 'unsigned int', signed/unsigned mismatch
-build:msvc --per_file_copt='external/zlib[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+build:windows --enable_runfiles
+build:windows --cxxopt='/std:c++20'
+build:windows --copt='/W4' # More warnings.
+build:windows --copt='/WX' # Treat warnings as errors.
+build:windows --copt='/permissive-' # Conform to the standard.
+build:windows --per_file_copt='external/boringssl[:/]@/wd4100' # C4100: 'out_public_key': unreferenced formal parameter
+build:windows --per_file_copt='external/boringssl[:/]@/wd4127' # C4127: conditional expression is constant
+build:windows --per_file_copt='external/boringssl[:/]@/wd4244' # C4244: '=': conversion from 'unsigned int' to 'uint8_t', possible loss of data
+build:windows --per_file_copt='external/boringssl[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+build:windows --per_file_copt='external/boringssl[:/]@/wd4706' # C4706: assignment within conditional expression
+build:windows --per_file_copt='external/freetype2[:/]@/wd4018' # C4018: '>': signed/unsigned mismatch
+build:windows --per_file_copt='external/freetype2[:/]@/wd4100' # C4100: 'msg_tag': unreferenced formal parameter
+build:windows --per_file_copt='external/freetype2[:/]@/wd4244' # C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
+build:windows --per_file_copt='external/freetype2[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+build:windows --per_file_copt='external/freetype2[:/]@/wd4312' # C4312: 'type cast': conversion from 'unsigned long' to 'void *' of greater size
+build:windows --per_file_copt='external/freetype2[:/]@/wd4701' # C4701: potentially uninitialized local variable 'cbox' used
+build:windows --per_file_copt='external/freetype2[:/]@/wd4702' # C4702: unreachable code
+build:windows --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
+build:windows --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+build:windows --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
+build:windows --per_file_copt='external/sfml[:/]@/wd4244' # C4244: 'initializing': conversion from 'sf::Uint32' to 'sf::Uint8', possible loss of data
+build:windows --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
+build:windows --per_file_copt='external/sfml[:/]@/wd4701' # C4701: potentially uninitialized local variable 'shape' used
+build:windows --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially uninitialized local pointer variable 'shape' used
+build:windows --per_file_copt='external/zlib[:/]@/wd4127' # C4127: conditional expression is constant
+build:windows --per_file_copt='external/zlib[:/]@/wd4131' # C4131: 'adler32_z': uses old-style declarator
+build:windows --per_file_copt='external/zlib[:/]@/wd4244' # C4244: '+=': conversion from 'int' to 'ush', possible loss of data
+build:windows --per_file_copt='external/zlib[:/]@/wd4245' # C4245: '=': conversion from 'int' to 'unsigned int', signed/unsigned mismatch
+build:windows --per_file_copt='external/zlib[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 
 # Special build options
 # =========================================================
