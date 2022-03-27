@@ -18,6 +18,9 @@ using namespace std::literals;
 namespace layout {
 namespace {
 
+constexpr int kDefaultFontSizePx = 10;
+constexpr std::string_view kDefaultFontSize{"10px"};
+
 template<class... Ts>
 struct Overloaded : Ts... {
     using Ts::operator()...;
@@ -69,39 +72,37 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 // TODO(robinlinden):
 // * margin, border, etc.
 // * Not all measurements have to be in pixels.
-int to_px(std::string_view property) {
+// * %, rem
+int to_px(std::string_view property, int const font_size) {
     int res{};
     std::from_chars(property.data(), property.data() + property.size(), res);
     if (property.ends_with("em")) {
-        // TODO(robinlinden): Value based on font-size for current node.
-        res *= 10;
+        res *= font_size;
     }
 
     return res;
 }
 
 // https://www.w3.org/TR/CSS2/visudet.html#blockwidth
-void calculate_width(LayoutBox &box, geom::Rect const &parent) {
+void calculate_width(LayoutBox &box, geom::Rect const &parent, int const font_size) {
     assert(box.node != nullptr);
 
     if (std::holds_alternative<dom::Text>(box.node->node.get())) {
         // TODO(robinlinden): Measure the text for real.
         auto text_node = std::get<dom::Text>(box.node->node.get());
-        auto font_size = style::get_property_or(*box.node, "font-size", "10px");
-        box.dimensions.content.width =
-                std::min(parent.width, static_cast<int>(text_node.text.size()) * to_px(font_size) / 2);
+        box.dimensions.content.width = std::min(parent.width, static_cast<int>(text_node.text.size()) * font_size / 2);
         return;
     }
 
     auto width = style::get_property_or(*box.node, "width", "auto");
-    int width_px = width == "auto" ? parent.width : to_px(width);
+    int width_px = width == "auto" ? parent.width : to_px(width, font_size);
 
     if (auto min = style::get_property(*box.node, "min-width")) {
-        width_px = std::max(width_px, to_px(*min));
+        width_px = std::max(width_px, to_px(*min, font_size));
     }
 
     if (auto max = style::get_property(*box.node, "max-width")) {
-        width_px = std::min(width_px, to_px(*max));
+        width_px = std::min(width_px, to_px(*max, font_size));
     }
 
     box.dimensions.content.width = width_px;
@@ -114,61 +115,60 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
     box.dimensions.content.y = parent.y + parent.height + d.padding.top + d.margin.top;
 }
 
-void calculate_height(LayoutBox &box) {
+void calculate_height(LayoutBox &box, int const font_size) {
     assert(box.node != nullptr);
     if (std::holds_alternative<dom::Text>(box.node->node.get())) {
-        auto font_size = style::get_property_or(*box.node, "font-size", "10px");
-        box.dimensions.content.height = to_px(font_size);
+        box.dimensions.content.height = font_size;
     }
 
     if (auto height = style::get_property(*box.node, "height")) {
-        box.dimensions.content.height = to_px(*height);
+        box.dimensions.content.height = to_px(*height, font_size);
     }
 
     if (auto min = style::get_property(*box.node, "min-height")) {
-        box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(*min));
+        box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(*min, font_size));
     }
 
     if (auto max = style::get_property(*box.node, "max-height")) {
-        box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(*max));
+        box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(*max, font_size));
     }
 }
 
-void calculate_padding(LayoutBox &box) {
+void calculate_padding(LayoutBox &box, int const font_size) {
     if (auto padding_left = style::get_property(*box.node, "padding-left")) {
-        box.dimensions.padding.left = to_px(*padding_left);
+        box.dimensions.padding.left = to_px(*padding_left, font_size);
     }
 
     if (auto padding_right = style::get_property(*box.node, "padding-right")) {
-        box.dimensions.padding.right = to_px(*padding_right);
+        box.dimensions.padding.right = to_px(*padding_right, font_size);
     }
 
     if (auto padding_top = style::get_property(*box.node, "padding-top")) {
-        box.dimensions.padding.top = to_px(*padding_top);
+        box.dimensions.padding.top = to_px(*padding_top, font_size);
     }
 
     if (auto padding_bottom = style::get_property(*box.node, "padding-bottom")) {
-        box.dimensions.padding.bottom = to_px(*padding_bottom);
+        box.dimensions.padding.bottom = to_px(*padding_bottom, font_size);
     }
 }
 
-void calculate_margins_and_overflow(LayoutBox &box, geom::Rect const &parent) {
+void calculate_margins_and_overflow(LayoutBox &box, geom::Rect const &parent, int const font_size) {
     if (auto margin_top = style::get_property(*box.node, "margin-top")) {
-        box.dimensions.margin.top = to_px(*margin_top);
+        box.dimensions.margin.top = to_px(*margin_top, font_size);
     }
 
     if (auto margin_bottom = style::get_property(*box.node, "margin-bottom")) {
-        box.dimensions.margin.bottom = to_px(*margin_bottom);
+        box.dimensions.margin.bottom = to_px(*margin_bottom, font_size);
     }
 
     auto margin_left = style::get_property(*box.node, "margin-left");
     if (margin_left && margin_left != "auto"sv) {
-        box.dimensions.margin.left = to_px(*margin_left);
+        box.dimensions.margin.left = to_px(*margin_left, font_size);
     }
 
     auto margin_right = style::get_property(*box.node, "margin-right");
     if (margin_right && margin_right != "auto"sv) {
-        box.dimensions.margin.right = to_px(*margin_right);
+        box.dimensions.margin.right = to_px(*margin_right, font_size);
     }
 
     int underflow = parent.width - box.dimensions.margin_box().width;
@@ -187,15 +187,18 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
     switch (box.type) {
         case LayoutType::Inline:
         case LayoutType::Block: {
-            calculate_width(box, bounds);
-            calculate_padding(box);
-            calculate_margins_and_overflow(box, bounds);
+            // TODO(robinlinden): font-size should be inherited.
+            auto font_size =
+                    to_px(style::get_property_or(*box.node, "font-size", kDefaultFontSize), kDefaultFontSizePx);
+            calculate_width(box, bounds, font_size);
+            calculate_padding(box, font_size);
+            calculate_margins_and_overflow(box, bounds, font_size);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
                 box.dimensions.content.height += child.dimensions.margin_box().height;
             }
-            calculate_height(box);
+            calculate_height(box, font_size);
             return;
         }
         // TODO(robinlinden): This needs to place its children side-by-side.
