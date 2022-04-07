@@ -103,9 +103,9 @@ http_archive(
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "6fff9215f5cb81760be4cc16d033526d1080427d236e86d70bb02994f85e3d38",
-    strip_prefix = "spdlog-1.9.2",
-    url = "https://github.com/gabime/spdlog/archive/v1.9.2.tar.gz",
+    sha256 = "697f91700237dbae2326b90469be32b876b2b44888302afbc7aceb68bcfe8224",
+    strip_prefix = "spdlog-1.10.0",
+    url = "https://github.com/gabime/spdlog/archive/v1.10.0.tar.gz",
 )
 
 http_archive(
