@@ -12,7 +12,7 @@ namespace dom2 {
 // https://dom.spec.whatwg.org/#interface-cdatasection
 class CdataSection final : public Text {
 public:
-    NodeType type() const override { return NodeType::CdataSection; }
+    [[nodiscard]] NodeType type() const override { return NodeType::CdataSection; }
 };
 
 } // namespace dom2

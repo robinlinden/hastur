@@ -16,9 +16,9 @@ class ProcessingInstruction final : public CharacterData {
 public:
     ProcessingInstruction() : CharacterData(std::string{""}) {}
 
-    NodeType type() const override { return NodeType::ProcessingInstruction; }
+    [[nodiscard]] NodeType type() const override { return NodeType::ProcessingInstruction; }
 
-    std::string const &target() const { return target_; }
+    [[nodiscard]] std::string const &target() const { return target_; }
 
 private:
     std::string target_{};

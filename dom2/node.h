@@ -32,14 +32,18 @@ class Node {
 public:
     virtual ~Node() = default;
 
-    virtual NodeType type() const = 0;
+    [[nodiscard]] virtual NodeType type() const = 0;
 
-    bool has_child_nodes() const { return !child_nodes_.empty(); }
-    std::vector<std::shared_ptr<Node>> const &child_nodes() const { return child_nodes_; }
-    Node const *first_child() const { return child_nodes().empty() ? nullptr : child_nodes().front().get(); }
-    Node const *last_child() const { return child_nodes().empty() ? nullptr : child_nodes().back().get(); }
-    Node const *previous_sibling() const { std::terminate(); }
-    Node const *next_sibling() const { std::terminate(); }
+    [[nodiscard]] bool has_child_nodes() const { return !child_nodes_.empty(); }
+    [[nodiscard]] std::vector<std::shared_ptr<Node>> const &child_nodes() const { return child_nodes_; }
+    [[nodiscard]] Node const *first_child() const {
+        return child_nodes().empty() ? nullptr : child_nodes().front().get();
+    }
+    [[nodiscard]] Node const *last_child() const {
+        return child_nodes().empty() ? nullptr : child_nodes().back().get();
+    }
+    [[nodiscard]] Node const *previous_sibling() const { std::terminate(); }
+    [[nodiscard]] Node const *next_sibling() const { std::terminate(); }
 
     std::shared_ptr<Node> append_child(std::shared_ptr<Node> child);
 

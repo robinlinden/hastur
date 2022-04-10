@@ -17,7 +17,7 @@ class Comment final : public CharacterData {
 public:
     explicit Comment(std::string data = std::string{""}) : CharacterData(std::move(data)) {}
 
-    NodeType type() const override { return NodeType::Comment; }
+    [[nodiscard]] NodeType type() const override { return NodeType::Comment; }
 };
 
 } // namespace dom2

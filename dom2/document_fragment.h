@@ -12,7 +12,7 @@ namespace dom2 {
 // https://dom.spec.whatwg.org/#interface-documentfragment
 class DocumentFragment : public Node {
 public:
-    NodeType type() const final { return NodeType::DocumentFragment; }
+    [[nodiscard]] NodeType type() const final { return NodeType::DocumentFragment; }
 };
 
 } // namespace dom2

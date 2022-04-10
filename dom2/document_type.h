@@ -18,11 +18,11 @@ public:
     DocumentType(std::string name, std::string public_id = std::string{""}, std::string system_id = std::string{""})
         : name_{std::move(name)}, public_id_{std::move(public_id)}, system_id_{std::move(system_id)} {}
 
-    NodeType type() const override { return NodeType::DocumentType; }
+    [[nodiscard]] NodeType type() const override { return NodeType::DocumentType; }
 
-    std::string const &name() const { return name_; }
-    std::string const &public_id() const { return public_id_; }
-    std::string const &system_id() const { return system_id_; }
+    [[nodiscard]] std::string const &name() const { return name_; }
+    [[nodiscard]] std::string const &public_id() const { return public_id_; }
+    [[nodiscard]] std::string const &system_id() const { return system_id_; }
 
 private:
     std::string name_{};

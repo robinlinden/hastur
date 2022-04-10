@@ -16,11 +16,11 @@ namespace dom2 {
 // TODO(robinlinden): This is only partially implemented.
 class Element final : public Node {
 public:
-    Element(std::string local_name) : local_name_{std::move(local_name)} {}
+    explicit Element(std::string local_name) : local_name_{std::move(local_name)} {}
 
-    NodeType type() const override { return NodeType::Element; }
+    [[nodiscard]] NodeType type() const override { return NodeType::Element; }
 
-    std::string const &local_name() const { return local_name_; }
+    [[nodiscard]] std::string const &local_name() const { return local_name_; }
 
 private:
     std::string local_name_{};

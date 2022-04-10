@@ -17,7 +17,7 @@ class Text : public CharacterData {
 public:
     explicit Text(std::string data = std::string{""}) : CharacterData(std::move(data)) {}
 
-    NodeType type() const override { return NodeType::Text; }
+    [[nodiscard]] NodeType type() const override { return NodeType::Text; }
 };
 
 } // namespace dom2

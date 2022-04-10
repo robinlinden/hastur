@@ -22,10 +22,10 @@ protected:
     explicit CharacterData(std::string data) : data_{std::move(data)} {}
 
 public:
-    std::string const &data() const { return data_; }
-    std::size_t length() const { return data_.length(); }
+    [[nodiscard]] std::string const &data() const { return data_; }
+    [[nodiscard]] std::size_t length() const { return data_.length(); }
 
-    std::string substring_data(std::size_t offset, std::size_t count) const {
+    [[nodiscard]] std::string substring_data(std::size_t offset, std::size_t count) const {
         if (offset > length()) {
             // TODO(robinlinden): then throw an "IndexSizeError" DOMException.
             std::terminate();

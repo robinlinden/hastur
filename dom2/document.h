@@ -12,7 +12,7 @@ namespace dom2 {
 // https://dom.spec.whatwg.org/#interface-document
 class Document final : public Node {
 public:
-    NodeType type() const override { return NodeType::Document; }
+    [[nodiscard]] NodeType type() const override { return NodeType::Document; }
 };
 
 } // namespace dom2

@@ -12,7 +12,7 @@ namespace dom2 {
 // https://dom.spec.whatwg.org/#interface-attr
 class Attr final : public Node {
 public:
-    NodeType type() const override { return NodeType::Attribute; }
+    [[nodiscard]] NodeType type() const override { return NodeType::Attribute; }
 };
 
 } // namespace dom2

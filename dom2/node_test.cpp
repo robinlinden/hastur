@@ -15,8 +15,8 @@ using namespace dom2;
 
 namespace {
 struct TestNode final : Node {
-    TestNode(NodeType type) : type_{type} {}
-    NodeType type() const override { return type_; }
+    explicit TestNode(NodeType type) : type_{type} {}
+    [[nodiscard]] NodeType type() const override { return type_; }
 
 private:
     NodeType type_;
