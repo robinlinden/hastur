@@ -22,6 +22,9 @@ using etest::require;
 using namespace html2;
 
 namespace {
+
+static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
+
 std::vector<Token> run_tokenizer(std::string_view input) {
     std::vector<Token> tokens;
     Tokenizer{input,
@@ -504,6 +507,47 @@ int main() {
 
         expect_token(
                 tokens, StartTagToken{.tag_name = "tag", .attributes = {{"foo", "bar"}, {"a", "B"}, {"value", "321"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, one attribute unquoted", [] {
+        auto tokens = run_tokenizer("<tag a=b>");
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, multiple attributes unquoted", [] {
+        auto tokens = run_tokenizer("<tag a=b c=d>");
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}, {"c", "d"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, multiple attributes unquoted", [] {
+        auto tokens = run_tokenizer("<tag a=b c=d>");
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}, {"c", "d"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, unexpected-character-in-unquoted-attribute", [] {
+        auto tokens = run_tokenizer("<tag a=b=c>");
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b=c"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, unquoted, eof-in-tag", [] {
+        auto tokens = run_tokenizer("<tag a=b");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, unquoted, with character reference", [] {
+        auto tokens = run_tokenizer("<tag a=&amp>");
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "&"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute, unquoted, unexpected-null-character", [] {
+        auto tokens = run_tokenizer("<tag a=\0>"sv);
+        expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", kReplacementCharacter}}});
         expect_token(tokens, EndOfFileToken{});
     });
 

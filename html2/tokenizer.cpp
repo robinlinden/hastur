@@ -943,6 +943,46 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::AttributeValueUnquoted: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    // This is an eof-in-tag parse error.
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        state_ = State::BeforeAttributeName;
+                        continue;
+                    case '&':
+                        return_state_ = State::AttributeValueUnquoted;
+                        state_ = State::CharacterReference;
+                        continue;
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    case '\0':
+                        // This is an unexpected-null-character parse error.
+                        current_attribute().value.append(util::unicode_to_utf8(0xFFFD));
+                        continue;
+                    case '"':
+                    case '\'':
+                    case '<':
+                    case '=':
+                    case '`':
+                        // This is an unexpected-character-in-unquoted-attribute-value parse error.
+                        [[fallthrough]];
+                    default:
+                        current_attribute().value += *c;
+                        continue;
+                }
+            }
+
             case State::AfterAttributeValueQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
