@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -92,6 +92,10 @@ int App::run() {
                     break;
                 }
                 case sf::Event::KeyPressed: {
+                    if (ImGui::GetIO().WantCaptureKeyboard) {
+                        break;
+                    }
+
                     switch (event.key.code) {
                         case sf::Keyboard::Key::J: {
                             scroll(event.key.shift ? -20 : -5);
@@ -125,7 +129,7 @@ int App::run() {
                     break;
                 }
                 case sf::Event::MouseButtonReleased: {
-                    if (event.mouseButton.button != sf::Mouse::Left) {
+                    if (ImGui::GetIO().WantCaptureMouse || event.mouseButton.button != sf::Mouse::Left) {
                         break;
                     }
 
