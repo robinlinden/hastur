@@ -32,7 +32,8 @@ dom::AttrMap into_dom_attributes(std::vector<html2::Attribute> const &attributes
     return attrs;
 }
 
-constexpr auto kImmediatelyPopped = std::to_array({"br"sv, "hr"sv, "img"sv, "link"sv, "meta"sv, "wbr"sv});
+constexpr auto kImmediatelyPopped = std::to_array(
+        {"br"sv, "hr"sv, "img"sv, "input"sv, "link"sv, "meta"sv, "param"sv, "source"sv, "track"sv, "wbr"sv});
 
 } // namespace
 
