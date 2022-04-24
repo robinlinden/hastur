@@ -101,11 +101,16 @@ void Engine::on_navigation_success() {
     spdlog::info("Loading {} stylesheets", head_links.size());
     std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
     for (auto link : head_links) {
-        future_new_rules.push_back(std::async(std::launch::async, [=, this] {
+        future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
             auto stylesheet_url =
                     fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, link->attributes.at("href"));
             spdlog::info("Downloading stylesheet from {}", stylesheet_url);
             auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
+            if (style_data.err != protocol::Error::Ok) {
+                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url);
+                return {};
+            }
+
             return css::parse(style_data.body);
         }));
     }
