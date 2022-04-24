@@ -852,6 +852,7 @@ void Tokenizer::run() {
                         continue;
                     case '>':
                         state_ = State::Data;
+                        emit(std::move(current_token_));
                         continue;
                     default:
                         start_attribute_in_current_tag_token({});

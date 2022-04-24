@@ -516,5 +516,13 @@ int main() {
         expect(tokens.empty());
     });
 
+    etest::test("tag closed after attribute name", [] {
+        auto tokens = run_tokenizer("<one a><two b>");
+        expect_token(tokens, StartTagToken{.tag_name = "one", .attributes = {{"a", ""}}});
+        expect_token(tokens, StartTagToken{.tag_name = "two", .attributes = {{"b", ""}}});
+        expect_token(tokens, EndOfFileToken{});
+        expect(tokens.empty());
+    });
+
     return etest::run_all_tests();
 }
