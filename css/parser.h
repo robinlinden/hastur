@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -32,7 +32,7 @@ public:
 
         skip_whitespace_and_comments();
         while (!is_eof()) {
-            if (starts_with("@media ")) {
+            if (starts_with("@media ") || starts_with("@media(")) {
                 advance(std::strlen("@media"));
                 skip_whitespace_and_comments();
 

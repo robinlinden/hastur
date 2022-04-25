@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -226,6 +226,16 @@ int main() {
         require(a.declarations.contains("background-color"));
         expect(a.declarations.at("background-color"s) == "indigo"s);
         expect(a.media_query.empty());
+    });
+
+    etest::test("parser: minified media query", [] {
+        auto rules = css::parse("@media(prefers-color-scheme: dark){p{font-size:10px;}}");
+        require_eq(rules.size(), std::size_t{1});
+        auto const &rule = rules[0];
+        expect_eq(rule.media_query, "(prefers-color-scheme: dark)");
+        expect_eq(rule.selectors, std::vector{"p"s});
+        require_eq(rule.declarations.size(), std::size_t{1});
+        expect_eq(rule.declarations.at("font-size"), "10px");
     });
 
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {
