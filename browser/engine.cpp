@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -102,8 +102,15 @@ void Engine::on_navigation_success() {
     std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
     for (auto link : head_links) {
         future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
-            auto stylesheet_url =
-                    fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, link->attributes.at("href"));
+            auto const &href = link->attributes.at("href");
+            auto stylesheet_url = [&] {
+                if (href.starts_with("http://") || href.starts_with("https://")) {
+                    return href;
+                }
+
+                return fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, link->attributes.at("href"));
+            }();
+
             spdlog::info("Downloading stylesheet from {}", stylesheet_url);
             auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
             if (style_data.err != protocol::Error::Ok) {
