@@ -68,7 +68,7 @@ build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
 build:clang13 --config=clang
 # Newer Bazel + Clang supports this really cool features where it checks that
 # you're not relying on transitive dependencies, so let's enable that!
-build:clang13 --features layering_check
+build:clang13 --features=layering_check
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
 
@@ -136,10 +136,10 @@ build:asan --action_env=ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1:detec
 build:asan --action_env=LSAN_OPTIONS=report_objects=1
 
 build:ubsan --strip=never
-build:ubsan --copt -fsanitize=undefined
+build:ubsan --copt=-fsanitize=undefined
 build:ubsan --copt=-fno-omit-frame-pointer
-build:ubsan --linkopt -fsanitize=undefined
-build:ubsan --linkopt -fsanitize-link-c++-runtime
+build:ubsan --linkopt=-fsanitize=undefined
+build:ubsan --linkopt=-fsanitize-link-c++-runtime
 build:ubsan --action_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
 
 # Misc configuration
