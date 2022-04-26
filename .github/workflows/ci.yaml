@@ -21,10 +21,10 @@ jobs:
             bazel: --config clang --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: valgrind
 
-          - name: clang-13
+          - name: clang-13-tsan
             compiler: clang
             version: 13
-            bazel: --config clang13
+            bazel: --config clang13 --config tsan
 
           - name: clang-asan
             compiler: clang
