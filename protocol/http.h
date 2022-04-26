@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -72,18 +72,18 @@ public:
             }
             data = socket.read_until("\r\n\r\n"sv);
             if (data.empty()) {
-                return {Error::InvalidResponse};
+                return {Error::InvalidResponse, std::move(*status_line)};
             }
             auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
             if (headers.size() == 0) {
-                return {Error::InvalidResponse};
+                return {Error::InvalidResponse, std::move(*status_line)};
             }
             auto encoding = headers.get("transfer-encoding"sv);
             if (encoding == "chunked"sv) {
                 if (auto body = Http::get_chunked_body(socket)) {
                     data = *body;
                 } else {
-                    return {Error::InvalidResponse};
+                    return {Error::InvalidResponse, std::move(*status_line)};
                 }
             } else {
                 data = socket.read_all();

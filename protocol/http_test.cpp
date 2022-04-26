@@ -264,15 +264,16 @@ int main() {
         expect_eq(response.err, protocol::Error::InvalidResponse);
     });
 
-    // TODO(mkiael): Fix so that this test passes
-    // etest::test("404 no headers no body", [] {
-    //    auto response = protocol::parse("HTTP/1.1 404 Not Found\r\n\r\n"sv);
-    //
-    //    require(response.headers.size() == 0);
-    //    expect_eq(response.status_line.version, "HTTP/1.1"sv);
-    //    expect_eq(response.status_line.status_code, 404);
-    //    expect_eq(response.status_line.reason, "Not Found");
-    //});
+    etest::test("404 no headers no body", [] {
+        FakeSocket socket;
+        socket.read_data = "HTTP/1.1 404 Not Found\r\n\r\n";
+        auto response = protocol::Http::get(socket, create_uri());
+
+        require(response.headers.size() == 0);
+        expect_eq(response.status_line.version, "HTTP/1.1"sv);
+        expect_eq(response.status_line.status_code, 404);
+        expect_eq(response.status_line.reason, "Not Found");
+    });
 
     return etest::run_all_tests();
 }
