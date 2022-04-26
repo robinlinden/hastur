@@ -135,6 +135,10 @@ build:asan --linkopt=-fsanitize=address
 build:asan --action_env=ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
 build:asan --action_env=LSAN_OPTIONS=report_objects=1
 
+build:tsan --strip=never
+build:tsan --copt=-fsanitize=thread
+build:tsan --linkopt=-fsanitize=thread
+
 build:ubsan --strip=never
 build:ubsan --copt=-fsanitize=undefined
 build:ubsan --copt=-fno-omit-frame-pointer
