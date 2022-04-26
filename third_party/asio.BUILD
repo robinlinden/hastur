@@ -7,11 +7,7 @@ cc_library(
         "include/**/*.hpp",
         "include/**/*.ipp",
     ]),
-    defines = [
-        "ASIO_SEPARATE_COMPILATION",
-        # TODO(robinlinden): Delete once https://github.com/chriskohlhoff/asio/pull/910 is merged.
-        "ASIO_HAS_STD_INVOKE_RESULT",
-    ],
+    defines = ["ASIO_SEPARATE_COMPILATION"],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
     deps = ["@boringssl//:ssl"],
