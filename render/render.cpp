@@ -1,21 +1,58 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "render/render.h"
 
 #include "dom/dom.h"
+#include "gfx/color.h"
 #include "style/style.h"
 
+#include <range/v3/algorithm/lexicographical_compare.hpp>
 #include <spdlog/spdlog.h>
 
+#include <cctype>
 #include <charconv>
 #include <cstdint>
+#include <map>
 #include <sstream>
+#include <string_view>
 #include <variant>
 
 namespace render {
 namespace {
+
+struct CaseInsensitiveLess {
+    using is_transparent = void;
+    bool operator()(std::string_view s1, std::string_view s2) const {
+        return ranges::lexicographical_compare(
+                s1, s2, [](unsigned char c1, unsigned char c2) { return std::tolower(c1) < std::tolower(c2); });
+    }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color_keywords#list_of_all_color_keywords
+std::map<std::string_view, gfx::Color, CaseInsensitiveLess> named_colors{
+        // Special.
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#transparent_keyword
+        {"transparent", {0x00, 0x00, 0x00, 0x00}},
+        // CSS Level 1.
+        {"black", gfx::Color::from_rgb(0)},
+        {"silver", gfx::Color::from_rgb(0xc0'c0'c0)},
+        {"gray", gfx::Color::from_rgb(0x80'80'80)},
+        {"white", gfx::Color::from_rgb(0xff'ff'ff)},
+        {"maroon", gfx::Color::from_rgb(0x80'00'00)},
+        {"red", gfx::Color::from_rgb(0xff'00'00)},
+        {"purple", gfx::Color::from_rgb(0x80'00'80)},
+        {"fuchsia", gfx::Color::from_rgb(0xff'00'ff)},
+        {"green", gfx::Color::from_rgb(0x00'80'00)},
+        {"lime", gfx::Color::from_rgb(0x00'ff'00)},
+        {"olive", gfx::Color::from_rgb(0x80'80'00)},
+        {"yellow", gfx::Color::from_rgb(0xff'ff'00)},
+        {"navy", gfx::Color::from_rgb(0x00'00'80)},
+        {"blue", gfx::Color::from_rgb(0x00'00'ff)},
+        {"teal", gfx::Color::from_rgb(0x00'80'80)},
+        {"aqua", gfx::Color::from_rgb(0x00'ff'ff)},
+};
 
 bool looks_like_hex(std::string_view str) {
     return str.starts_with('#') && (str.length() == 7 || str.length() == 4);
@@ -43,6 +80,10 @@ gfx::Color from_hex_chars(std::string_view hex_chars) {
 gfx::Color parse_color(std::string_view str) {
     if (looks_like_hex(str)) {
         return from_hex_chars(str);
+    }
+
+    if (named_colors.contains(str)) {
+        return named_colors.at(str);
     }
 
     spdlog::warn("Unrecognized color format: {}", str);
