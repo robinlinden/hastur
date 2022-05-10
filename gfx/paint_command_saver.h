@@ -7,6 +7,7 @@
 
 #include "gfx/ipainter.h"
 
+#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -40,7 +41,17 @@ struct FillRectCmd {
     [[nodiscard]] constexpr bool operator==(FillRectCmd const &) const = default;
 };
 
-using PaintCommand = std::variant<SetViewportSizeCmd, SetScaleCmd, AddTranslationCmd, FillRectCmd>;
+struct DrawTextCmd {
+    geom::Position position{};
+    std::string text{};
+    std::string font{};
+    int size{};
+    Color color{};
+
+    [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;
+};
+
+using PaintCommand = std::variant<SetViewportSizeCmd, SetScaleCmd, AddTranslationCmd, FillRectCmd, DrawTextCmd>;
 
 class PaintCommandSaver : public IPainter {
 public:
@@ -49,6 +60,9 @@ public:
     void set_scale(int scale) override { cmds_.emplace_back(SetScaleCmd{scale}); }
     void add_translation(int dx, int dy) override { cmds_.emplace_back(AddTranslationCmd{dx, dy}); }
     void fill_rect(geom::Rect const &rect, Color color) override { cmds_.emplace_back(FillRectCmd{rect, color}); }
+    void draw_text(geom::Position position, std::string_view text, Font font, FontSize size, Color color) override {
+        cmds_.emplace_back(DrawTextCmd{position, std::string{text}, std::string{font.font}, size.px, color});
+    }
 
     //
     [[nodiscard]] std::vector<PaintCommand> take_commands() { return std::exchange(cmds_, {}); }
@@ -65,6 +79,10 @@ public:
     constexpr void operator()(SetScaleCmd const &cmd) { painter_.set_scale(cmd.scale); }
     constexpr void operator()(AddTranslationCmd const &cmd) { painter_.add_translation(cmd.dx, cmd.dy); }
     constexpr void operator()(FillRectCmd const &cmd) { painter_.fill_rect(cmd.rect, cmd.color); }
+
+    void operator()(DrawTextCmd const &cmd) {
+        painter_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.color);
+    }
 
 private:
     IPainter &painter_;

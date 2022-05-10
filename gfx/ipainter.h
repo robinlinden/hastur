@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,7 +8,17 @@
 #include "geom/geom.h"
 #include "gfx/color.h"
 
+#include <string_view>
+
 namespace gfx {
+
+struct Font {
+    std::string_view font;
+};
+
+struct FontSize {
+    int px{10};
+};
 
 class IPainter {
 public:
@@ -18,6 +28,7 @@ public:
     virtual void set_scale(int scale) = 0;
     virtual void add_translation(int dx, int dy) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
+    virtual void draw_text(geom::Position, std::string_view, Font, FontSize, Color) = 0;
 };
 
 } // namespace gfx

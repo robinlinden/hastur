@@ -6,7 +6,11 @@
 
 #include "etest/etest.h"
 
+#include <string>
+#include <string_view>
+
 using namespace gfx;
+using namespace std::literals;
 
 using etest::expect_eq;
 
@@ -51,6 +55,12 @@ int main() {
         expect_eq(saver.take_commands(), PaintCommands{FillRectCmd{{1, 2, 3, 4}, {0xab, 0xcd, 0xef}}});
     });
 
+    etest::test("PaintCommandSaver::draw_text", [] {
+        PaintCommandSaver saver;
+        saver.draw_text({1, 2}, "hello!"sv, {"comic sans"}, {11}, {1, 2, 3});
+        expect_eq(saver.take_commands(), PaintCommands{DrawTextCmd{{1, 2}, "hello!"s, {"comic sans"}, 11, {1, 2, 3}}});
+    });
+
     etest::test("replay_commands", [] {
         PaintCommandSaver saver;
         saver.set_scale(10);
@@ -59,6 +69,7 @@ int main() {
         saver.set_scale(1);
         saver.add_translation(1234, 5678);
         saver.fill_rect({9, 9, 9, 9}, {0x12, 0x34, 0x56});
+        saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, {3, 2, 1});
         auto cmds = saver.take_commands();
 
         PaintCommandSaver replayed;
