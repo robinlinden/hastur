@@ -19,6 +19,8 @@
 #include <string_view>
 #include <variant>
 
+using namespace std::literals;
+
 namespace render {
 namespace {
 
@@ -58,8 +60,8 @@ bool looks_like_hex(std::string_view str) {
     return str.starts_with('#') && (str.length() == 7 || str.length() == 4);
 }
 
-bool contains_text(layout::LayoutBox const &layout) {
-    return std::holds_alternative<dom::Text>(layout.node->node.get());
+dom::Text const *try_get_text(layout::LayoutBox const &layout) {
+    return std::get_if<dom::Text>(&layout.node->node.get());
 }
 
 gfx::Color from_hex_chars(std::string_view hex_chars) {
@@ -91,9 +93,14 @@ gfx::Color parse_color(std::string_view str) {
 }
 
 void do_render(gfx::IPainter &painter, layout::LayoutBox const &layout) {
-    if (contains_text(layout)) {
-        auto color = style::get_property_or(*layout.node, "color", "#000000");
-        painter.fill_rect(layout.dimensions.padding_box(), parse_color(color));
+    if (auto const *text = try_get_text(layout)) {
+        // TODO(robinlinden):
+        // * We need to grab properties from the parent for this to work.
+        // * This shouldn't be done here.
+        auto font = gfx::Font{"arial"sv};
+        auto font_size = gfx::FontSize{.px = 10};
+        auto color = parse_color(style::get_property_or(*layout.node, "color"sv, "#000000"sv));
+        painter.draw_text(layout.dimensions.content.position(), text->text, font, font_size, color);
     } else {
         if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
             painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
