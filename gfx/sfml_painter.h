@@ -7,7 +7,11 @@
 
 #include "gfx/ipainter.h"
 
+#include <map>
+#include <memory>
+
 namespace sf {
+class Font;
 class RenderTarget;
 } // namespace sf
 
@@ -30,6 +34,7 @@ public:
 
 private:
     sf::RenderTarget &target_;
+    std::map<std::string, std::shared_ptr<sf::Font>, std::less<>> font_cache_;
 
     int scale_{1};
     int tx_{0};

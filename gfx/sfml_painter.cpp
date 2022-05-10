@@ -26,6 +26,7 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
         for (auto const &entry : std::filesystem::recursive_directory_iterator(path)) {
             auto name = entry.path().filename().string();
             if (name.find(font_filename) != std::string::npos) {
+                std::cerr << "Found font " << entry.path().string() << " for \"" << font_filename << "\"\n";
                 return std::make_optional(entry.path().string());
             }
         }
@@ -62,16 +63,30 @@ void SfmlPainter::fill_rect(geom::Rect const &rect, Color color) {
     target_.draw(drawable);
 }
 
+// TODO(robinlinden): Fonts are never evicted from the cache.
 void SfmlPainter::draw_text(geom::Position p, std::string_view text, Font font, FontSize size, Color color) {
-    auto font_path = find_path_to_font(font.font);
-    sf::Font sf_font;
-    if (!font_path || !sf_font.loadFromFile(*font_path)) {
+    auto const *sf_font = [&]() -> sf::Font const * {
+        if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
+            return &*it->second;
+        }
+
+        auto font_path = find_path_to_font(font.font);
+        auto entry = std::make_shared<sf::Font>();
+        if (!font_path || !entry->loadFromFile(*font_path)) {
+            return nullptr;
+        }
+
+        font_cache_[std::string{font.font}] = std::move(entry);
+        return &*font_cache_.find(font.font)->second;
+    }();
+
+    if (!sf_font) {
         std::cerr << "Unable to find font, not drawing text\n";
         return;
     }
 
     sf::Text drawable;
-    drawable.setFont(sf_font);
+    drawable.setFont(*sf_font);
     drawable.setString(std::string{text});
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px);
