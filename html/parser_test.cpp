@@ -6,9 +6,13 @@
 
 #include "etest/etest.h"
 
+#include <cstddef>
+
 using namespace std::literals;
 using etest::expect;
+using etest::expect_eq;
 using etest::require;
+using etest::require_eq;
 
 int main() {
     etest::test("doctype", [] {
@@ -168,6 +172,18 @@ int main() {
         auto p = std::get<dom::Element>(html.children[1]);
         expect(p.name == "p"sv);
         expect(p.children.empty());
+    });
+
+    etest::test("script is handled correctly", [] {
+        auto html = html::parse("<script><hello></script>"sv).html();
+        require_eq(html.children.size(), std::size_t{1});
+
+        auto script = std::get<dom::Element>(html.children[0]);
+        expect_eq(script.name, "script"sv);
+        expect_eq(script.children.size(), std::size_t{1});
+
+        auto script_content = std::get<dom::Text>(script.children[0]);
+        expect_eq(script_content.text, "<hello>"sv);
     });
 
     return etest::run_all_tests();

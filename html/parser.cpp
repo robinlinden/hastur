@@ -37,7 +37,7 @@ constexpr auto kImmediatelyPopped = std::to_array(
 
 } // namespace
 
-void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
+void Parser::on_token(html2::Tokenizer &tokenizer, html2::Token &&token) {
     if (auto doctype = std::get_if<html2::DoctypeToken>(&token)) {
         if (doctype->name.has_value()) {
             doc_.doctype = *(doctype->name);
@@ -49,6 +49,10 @@ void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
             open_elements_.push(&doc_.html());
             seen_html_tag_ = true;
             return;
+        }
+
+        if (start_tag->tag_name == "script"sv) {
+            tokenizer.set_state(html2::State::ScriptData);
         }
 
         if (open_elements_.empty() && !seen_html_tag_) {
