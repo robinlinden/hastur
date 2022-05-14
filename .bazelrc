@@ -87,6 +87,10 @@ build:gcc11 --per_file_copt='net:socket@-Wno-nonnull' # asio leaks this into our
 build:gcc11 --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
 build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
+build:gcc12 --config=gcc11
+build:gcc12 --per_file_copt='external/freetype2[:/]@-Wno-dangling-pointer'
+build:gcc12 --per_file_copt='external/glew[:/]@-Wno-address'
+
 build:windows --enable_runfiles
 build:windows --cxxopt='/std:c++20'
 build:windows --copt='/W4' # More warnings.
