@@ -29,12 +29,14 @@ http_archive(
     url = "https://github.com/google/boringssl/archive/ae0ce154470dc7d1e3073ba8adb1ef2b669c6471.tar.gz",
 )
 
+# https://github.com/fmtlib/fmt/commit/3e28dc021cf38b14ac0e2b1a046f783e094bfffc
+# needed to fix compilation with MSVC 2022.
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "3d794d3cf67633b34b2771eb9f073bde87e846e0d395d254df7b211ef1ec7346",
-    strip_prefix = "fmt-8.1.1",
-    url = "https://github.com/fmtlib/fmt/archive/8.1.1.tar.gz",
+    sha256 = "6f8a430aceced385c1ddc95a146a1cc4315b13c90bc060eadf074dc8b5f7346e",
+    strip_prefix = "fmt-3e28dc021cf38b14ac0e2b1a046f783e094bfffc",
+    url = "https://github.com/fmtlib/fmt/archive/3e28dc021cf38b14ac0e2b1a046f783e094bfffc.tar.gz",
 )
 
 http_archive(
