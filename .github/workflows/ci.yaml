@@ -115,6 +115,8 @@ jobs:
       run: bazel test ///... --config debug
     - name: Run
       run: bazel run browser:tui --config debug
+    - run: bazel run refresh_compile_commands
+    - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
   clang-format:
     runs-on: ubuntu-20.04
@@ -135,6 +137,13 @@ jobs:
         sudo chmod +x buildifier
     - name: Check
       run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD)
+
+  linux-compile-commands:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - run: CC=gcc-10 CXX=g++-10 bazel run refresh_compile_commands
+    - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
