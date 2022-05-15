@@ -27,12 +27,18 @@ static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 
 class TokenizerOutput {
 public:
-    ~TokenizerOutput() { expect(tokens.empty()); }
+    ~TokenizerOutput() {
+        expect(tokens.empty());
+        expect(errors.empty());
+    }
+
     std::vector<Token> tokens;
+    std::vector<ParseError> errors;
 };
 
 TokenizerOutput run_tokenizer(std::string_view input) {
     std::vector<Token> tokens;
+    std::vector<ParseError> errors;
     Tokenizer{input,
             [&](Tokenizer &tokenizer, Token &&t) {
                 if (std::holds_alternative<StartTagToken>(t)) {
@@ -41,9 +47,12 @@ TokenizerOutput run_tokenizer(std::string_view input) {
                     }
                 }
                 tokens.push_back(std::move(t));
+            },
+            [&](auto &, ParseError e) {
+                errors.push_back(e);
             }}
             .run();
-    return {std::move(tokens)};
+    return {std::move(tokens), std::move(errors)};
 }
 
 void expect_token(TokenizerOutput &output, Token t) {
@@ -56,6 +65,12 @@ void expect_text(TokenizerOutput &output, std::string_view text) {
     for (auto c : text) {
         expect_token(output, CharacterToken{c});
     }
+}
+
+void expect_error(TokenizerOutput &output, ParseError e) {
+    require(!output.errors.empty());
+    expect_eq(output.errors.front(), e);
+    output.errors.erase(begin(output.errors));
 }
 
 } // namespace
@@ -494,12 +509,14 @@ int main() {
 
     etest::test("attribute, unexpected-character-in-unquoted-attribute", [] {
         auto tokens = run_tokenizer("<tag a=b=c>");
+        expect_error(tokens, ParseError::UnexpectedCharacterInUnquotedAttributeValue);
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b=c"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("attribute, unquoted, eof-in-tag", [] {
         auto tokens = run_tokenizer("<tag a=b");
+        expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 
@@ -511,6 +528,7 @@ int main() {
 
     etest::test("attribute, unquoted, unexpected-null-character", [] {
         auto tokens = run_tokenizer("<tag a=\0>"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", kReplacementCharacter}}});
         expect_token(tokens, EndOfFileToken{});
     });

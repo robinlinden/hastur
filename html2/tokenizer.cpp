@@ -946,7 +946,7 @@ void Tokenizer::run() {
             case State::AttributeValueUnquoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -967,7 +967,7 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         current_attribute().value.append(util::unicode_to_utf8(0xFFFD));
                         continue;
                     case '"':
@@ -975,7 +975,7 @@ void Tokenizer::run() {
                     case '<':
                     case '=':
                     case '`':
-                        // This is an unexpected-character-in-unquoted-attribute-value parse error.
+                        emit(ParseError::UnexpectedCharacterInUnquotedAttributeValue);
                         [[fallthrough]];
                     default:
                         current_attribute().value += *c;
@@ -1584,6 +1584,10 @@ void Tokenizer::run() {
                 std::terminate();
         }
     }
+}
+
+void Tokenizer::emit(ParseError error) {
+    on_error_(*this, error);
 }
 
 void Tokenizer::emit(Token &&token) {

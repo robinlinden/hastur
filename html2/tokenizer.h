@@ -100,10 +100,19 @@ enum class State {
     NumericCharacterReferenceEnd,
 };
 
+enum class ParseError {
+    EofInTag,
+    UnexpectedCharacterInUnquotedAttributeValue,
+    UnexpectedNullCharacter,
+};
+
 class Tokenizer {
 public:
-    Tokenizer(std::string_view input, std::function<void(Tokenizer &, Token &&)> on_emit)
-        : input_{input}, on_emit_{std::move(on_emit)} {}
+    Tokenizer(
+            std::string_view input,
+            std::function<void(Tokenizer &, Token &&)> on_emit,
+            std::function<void(Tokenizer &, ParseError)> on_error = [](auto &, auto) {})
+        : input_{input}, on_emit_{std::move(on_emit)}, on_error_{std::move(on_error)} {}
 
     void set_state(State);
     void run();
@@ -121,7 +130,9 @@ private:
     std::uint32_t character_reference_code_{};
 
     std::function<void(Tokenizer &, Token &&)> on_emit_{};
+    std::function<void(Tokenizer &, ParseError)> on_error_{};
 
+    void emit(ParseError);
     void emit(Token &&);
     std::optional<char> consume_next_input_character();
     std::optional<char> peek_next_input_character() const;
