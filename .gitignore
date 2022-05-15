@@ -1,8 +1,14 @@
 # Build artifacts.
 /bazel-*
+/compile_commands.json
+/external
 
 # Work-in-progress directory.
 /wip
 
 # Local settings.
 /.bazelrc.local
+
+# For clangd, required to be here by hedronvision/bazel-compile-commands-extractor.
+# IDE files in general should go in .git/info/exclude.
+/.cache/
