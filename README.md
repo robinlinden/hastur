@@ -47,6 +47,10 @@ The following assumes that you either have Bazel or Bazelisk under the name
 
 `bazel run //browser`
 
+#### Generate json compilation database
+
+`bazel run refresh_compile_commands`
+
 [bazel]: https://bazel.build
 [bazelisk]: https://github.com/bazelbuild/bazelisk
 [codecov]: https://codecov.io/gh/robinlinden/hastur
