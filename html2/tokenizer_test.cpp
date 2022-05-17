@@ -384,10 +384,7 @@ int main() {
     etest::test("comment, nested comment closed", [] {
         auto tokens = run_tokenizer("<!-- <!-- nested --> -->");
         expect_token(tokens, CommentToken{.data = " <!-- nested "});
-        expect_token(tokens, CharacterToken{' '});
-        expect_token(tokens, CharacterToken{'-'});
-        expect_token(tokens, CharacterToken{'-'});
-        expect_token(tokens, CharacterToken{'>'});
+        expect_text(tokens, " -->");
         expect_token(tokens, EndOfFileToken{});
     });
 
@@ -435,8 +432,7 @@ int main() {
 
     etest::test("character entity reference, not ascii alphanumeric", [] {
         auto tokens = run_tokenizer("&@");
-        expect_token(tokens, CharacterToken{'&'});
-        expect_token(tokens, CharacterToken{'@'});
+        expect_text(tokens, "&@");
         expect_token(tokens, EndOfFileToken{});
     });
 
@@ -454,12 +450,7 @@ int main() {
 
     etest::test("ambiguous ampersand", [] {
         auto tokens = run_tokenizer("&blah;");
-        expect_token(tokens, CharacterToken{'&'});
-        expect_token(tokens, CharacterToken{'b'});
-        expect_token(tokens, CharacterToken{'l'});
-        expect_token(tokens, CharacterToken{'a'});
-        expect_token(tokens, CharacterToken{'h'});
-        expect_token(tokens, CharacterToken{';'});
+        expect_text(tokens, "&blah;");
         expect_token(tokens, EndOfFileToken{});
     });
 
@@ -541,9 +532,7 @@ int main() {
 
     etest::test("numeric character reference", [] {
         auto tokens = run_tokenizer("&#9731;"); // U+2603: SNOWMAN
-        expect_token(tokens, CharacterToken{'\xe2'});
-        expect_token(tokens, CharacterToken{'\x98'});
-        expect_token(tokens, CharacterToken{'\x83'});
+        expect_text(tokens, "\xe2\x98\x83");
         expect_token(tokens, EndOfFileToken{});
     });
 
