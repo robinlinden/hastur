@@ -61,21 +61,6 @@ void expect_text(TokenizerOutput &output, std::string_view text) {
 } // namespace
 
 int main() {
-    etest::test("simple_page", [] {
-        std::ifstream page{"html2/test/simple_page.html", std::ios::binary};
-        require(page.is_open());
-        std::string page_str{std::istreambuf_iterator<char>{page}, std::istreambuf_iterator<char>{}};
-        auto tokens = run_tokenizer(page_str);
-
-        expect_token(tokens, DoctypeToken{.name = "html"s});
-        expect_token(tokens, CharacterToken{'\n'});
-        expect_token(tokens, StartTagToken{.tag_name = "html"s});
-        expect_token(tokens, CharacterToken{'\n'});
-        expect_token(tokens, EndTagToken{.tag_name = "html"s});
-        expect_token(tokens, CharacterToken{'\n'});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");
 

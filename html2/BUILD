@@ -16,10 +16,6 @@ cc_library(
     ],
 )
 
-data_files = {
-    "tokenizer": ["test/simple_page.html"],
-}
-
 dependencies = {
     "tree_constructor": ["//dom2"],
 }
@@ -28,10 +24,6 @@ dependencies = {
     name = src[:-4],
     size = "small",
     srcs = [src],
-    data = data_files.get(
-        src[:-9],
-        [],
-    ),
     deps = dependencies.get(
         src[:-9],
         [],
