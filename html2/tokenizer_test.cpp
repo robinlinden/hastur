@@ -61,14 +61,13 @@ int main() {
         std::string page_str{std::istreambuf_iterator<char>{page}, std::istreambuf_iterator<char>{}};
         auto tokens = run_tokenizer(page_str);
 
-        expect_eq(tokens,
-                std::vector<Token>{DoctypeToken{.name = "html"s},
-                        CharacterToken{'\n'},
-                        StartTagToken{.tag_name = "html"s},
-                        CharacterToken{'\n'},
-                        EndTagToken{.tag_name = "html"s},
-                        CharacterToken{'\n'},
-                        EndOfFileToken{}});
+        expect_token(tokens, DoctypeToken{.name = "html"s});
+        expect_token(tokens, CharacterToken{'\n'});
+        expect_token(tokens, StartTagToken{.tag_name = "html"s});
+        expect_token(tokens, CharacterToken{'\n'});
+        expect_token(tokens, EndTagToken{.tag_name = "html"s});
+        expect_token(tokens, CharacterToken{'\n'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("script, empty", [] {
@@ -332,128 +331,127 @@ int main() {
 
     etest::test("comment, simple", [] {
         auto tokens = run_tokenizer("<!-- Hello -->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = " Hello "}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = " Hello "});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, empty", [] {
         auto tokens = run_tokenizer("<!---->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = ""});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, with dashes and bang", [] {
         auto tokens = run_tokenizer("<!--!-->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "!"}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "!"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, with new lines", [] {
         auto tokens = run_tokenizer("<!--\nOne\nTwo\n-->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "\nOne\nTwo\n"}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "\nOne\nTwo\n"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, multiple with new lines", [] {
         auto tokens = run_tokenizer("<!--a-->\n<!--b-->\n<!--c-->");
-
-        expect_eq(tokens,
-                std::vector<Token>{CommentToken{.data = "a"},
-                        CharacterToken{'\n'},
-                        CommentToken{.data = "b"},
-                        CharacterToken{'\n'},
-                        CommentToken{.data = "c"},
-                        EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "a"});
+        expect_token(tokens, CharacterToken{'\n'});
+        expect_token(tokens, CommentToken{.data = "b"});
+        expect_token(tokens, CharacterToken{'\n'});
+        expect_token(tokens, CommentToken{.data = "c"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, allowed to end with <!", [] {
         auto tokens = run_tokenizer("<!--My favorite operators are > and <!-->");
-
-        expect_eq(tokens,
-                std::vector<Token>{CommentToken{.data = "My favorite operators are > and <!"}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "My favorite operators are > and <!"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, nested comment", [] {
         auto tokens = run_tokenizer("<!--<!---->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "<!--"}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "<!--"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, nested comment closed", [] {
         auto tokens = run_tokenizer("<!-- <!-- nested --> -->");
-
-        expect_eq(tokens,
-                std::vector<Token>{CommentToken{.data = " <!-- nested "},
-                        CharacterToken{' '},
-                        CharacterToken{'-'},
-                        CharacterToken{'-'},
-                        CharacterToken{'>'},
-                        EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = " <!-- nested "});
+        expect_token(tokens, CharacterToken{' '});
+        expect_token(tokens, CharacterToken{'-'});
+        expect_token(tokens, CharacterToken{'-'});
+        expect_token(tokens, CharacterToken{'>'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, abrupt closing in comment start", [] {
         auto tokens = run_tokenizer("<!-->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = ""});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, abrupt closing in comment start dash", [] {
         auto tokens = run_tokenizer("<!--->");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = ""});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, incorrectly closed comment", [] {
         auto tokens = run_tokenizer("<!--abc--!>");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "abc"}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "abc"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, end before comment", [] {
         auto tokens = run_tokenizer("<!--");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = ""}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = ""});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, eof before comment is closed", [] {
         auto tokens = run_tokenizer("<!--abc");
-
-        expect_eq(tokens, std::vector<Token>{CommentToken{.data = "abc"}, EndOfFileToken{}});
+        expect_token(tokens, CommentToken{.data = "abc"});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("character entity reference, simple", [] {
         auto tokens = run_tokenizer("&lt;");
-        expect_eq(tokens, std::vector<Token>{CharacterToken{'<'}, EndOfFileToken{}});
+        expect_token(tokens, CharacterToken{'<'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("character entity reference, only &", [] {
         auto tokens = run_tokenizer("&");
-        expect_eq(tokens, std::vector<Token>{CharacterToken{'&'}, EndOfFileToken{}});
+        expect_token(tokens, CharacterToken{'&'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("character entity reference, not ascii alphanumeric", [] {
         auto tokens = run_tokenizer("&@");
-        expect_eq(tokens, std::vector<Token>{CharacterToken{'&'}, CharacterToken{'@'}, EndOfFileToken{}});
+        expect_token(tokens, CharacterToken{'&'});
+        expect_token(tokens, CharacterToken{'@'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("character entity reference, reference to non-ascii glyph", [] {
         auto tokens = run_tokenizer("&div;");
-        expect_eq(tokens, std::vector<Token>{CharacterToken{'\xc3'}, CharacterToken{'\xb7'}, EndOfFileToken{}});
+
+        expect(tokens.size() >= 2);
         std::string glyph{};
         glyph += std::get<CharacterToken>(tokens[0]).data;
         glyph += std::get<CharacterToken>(tokens[1]).data;
         expect_eq(glyph, "÷"sv);
+
+        expect_token(tokens, CharacterToken{'\xc3'});
+        expect_token(tokens, CharacterToken{'\xb7'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("character entity reference, two unicode code points required", [] {
         auto tokens = run_tokenizer("&acE;");
-        expect_eq(tokens,
-                std::vector<Token>{CharacterToken{'\xe2'},
-                        CharacterToken{'\x88'},
-                        CharacterToken{'\xbe'},
-                        CharacterToken{'\xcc'},
-                        CharacterToken{'\xb3'},
-                        EndOfFileToken{}});
+
+        expect(tokens.size() >= 5);
         std::string glyph{};
         glyph += std::get<CharacterToken>(tokens[0]).data;
         glyph += std::get<CharacterToken>(tokens[1]).data;
@@ -461,6 +459,13 @@ int main() {
         glyph += std::get<CharacterToken>(tokens[3]).data;
         glyph += std::get<CharacterToken>(tokens[4]).data;
         expect_eq(glyph, "∾̳"sv);
+
+        expect_token(tokens, CharacterToken{'\xe2'});
+        expect_token(tokens, CharacterToken{'\x88'});
+        expect_token(tokens, CharacterToken{'\xbe'});
+        expect_token(tokens, CharacterToken{'\xcc'});
+        expect_token(tokens, CharacterToken{'\xb3'});
+        expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("ambiguous ampersand", [] {
