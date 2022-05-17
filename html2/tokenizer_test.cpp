@@ -442,35 +442,13 @@ int main() {
 
     etest::test("character entity reference, reference to non-ascii glyph", [] {
         auto tokens = run_tokenizer("&div;");
-
-        expect(tokens.tokens.size() >= 2);
-        std::string glyph{};
-        glyph += std::get<CharacterToken>(tokens.tokens[0]).data;
-        glyph += std::get<CharacterToken>(tokens.tokens[1]).data;
-        expect_eq(glyph, "÷"sv);
-
-        expect_token(tokens, CharacterToken{'\xc3'});
-        expect_token(tokens, CharacterToken{'\xb7'});
+        expect_text(tokens, "\xc3\xb7"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("character entity reference, two unicode code points required", [] {
         auto tokens = run_tokenizer("&acE;");
-
-        expect(tokens.tokens.size() >= 5);
-        std::string glyph{};
-        glyph += std::get<CharacterToken>(tokens.tokens[0]).data;
-        glyph += std::get<CharacterToken>(tokens.tokens[1]).data;
-        glyph += std::get<CharacterToken>(tokens.tokens[2]).data;
-        glyph += std::get<CharacterToken>(tokens.tokens[3]).data;
-        glyph += std::get<CharacterToken>(tokens.tokens[4]).data;
-        expect_eq(glyph, "∾̳"sv);
-
-        expect_token(tokens, CharacterToken{'\xe2'});
-        expect_token(tokens, CharacterToken{'\x88'});
-        expect_token(tokens, CharacterToken{'\xbe'});
-        expect_token(tokens, CharacterToken{'\xcc'});
-        expect_token(tokens, CharacterToken{'\xb3'});
+        expect_text(tokens, "\xe2\x88\xbe\xcc\xb3"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
