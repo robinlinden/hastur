@@ -25,7 +25,13 @@ namespace {
 
 static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 
-std::vector<Token> run_tokenizer(std::string_view input) {
+class TokenizerOutput {
+public:
+    ~TokenizerOutput() { expect(tokens.empty()); }
+    std::vector<Token> tokens;
+};
+
+TokenizerOutput run_tokenizer(std::string_view input) {
     std::vector<Token> tokens;
     Tokenizer{input,
             [&](Tokenizer &tokenizer, Token &&t) {
@@ -37,18 +43,18 @@ std::vector<Token> run_tokenizer(std::string_view input) {
                 tokens.push_back(std::move(t));
             }}
             .run();
-    return tokens;
+    return {std::move(tokens)};
 }
 
-void expect_token(std::vector<Token> &tokens, Token t) {
-    require(!tokens.empty());
-    expect_eq(tokens.front(), t);
-    tokens.erase(begin(tokens));
+void expect_token(TokenizerOutput &output, Token t) {
+    require(!output.tokens.empty());
+    expect_eq(output.tokens.front(), t);
+    output.tokens.erase(begin(output.tokens));
 }
 
-void expect_text(std::vector<Token> &tokens, std::string_view text) {
+void expect_text(TokenizerOutput &output, std::string_view text) {
     for (auto c : text) {
-        expect_token(tokens, CharacterToken{c});
+        expect_token(output, CharacterToken{c});
     }
 }
 
@@ -437,10 +443,10 @@ int main() {
     etest::test("character entity reference, reference to non-ascii glyph", [] {
         auto tokens = run_tokenizer("&div;");
 
-        expect(tokens.size() >= 2);
+        expect(tokens.tokens.size() >= 2);
         std::string glyph{};
-        glyph += std::get<CharacterToken>(tokens[0]).data;
-        glyph += std::get<CharacterToken>(tokens[1]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[0]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[1]).data;
         expect_eq(glyph, "÷"sv);
 
         expect_token(tokens, CharacterToken{'\xc3'});
@@ -451,13 +457,13 @@ int main() {
     etest::test("character entity reference, two unicode code points required", [] {
         auto tokens = run_tokenizer("&acE;");
 
-        expect(tokens.size() >= 5);
+        expect(tokens.tokens.size() >= 5);
         std::string glyph{};
-        glyph += std::get<CharacterToken>(tokens[0]).data;
-        glyph += std::get<CharacterToken>(tokens[1]).data;
-        glyph += std::get<CharacterToken>(tokens[2]).data;
-        glyph += std::get<CharacterToken>(tokens[3]).data;
-        glyph += std::get<CharacterToken>(tokens[4]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[0]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[1]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[2]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[3]).data;
+        glyph += std::get<CharacterToken>(tokens.tokens[4]).data;
         expect_eq(glyph, "∾̳"sv);
 
         expect_token(tokens, CharacterToken{'\xe2'});
@@ -477,14 +483,12 @@ int main() {
         expect_token(tokens, CharacterToken{'h'});
         expect_token(tokens, CharacterToken{';'});
         expect_token(tokens, EndOfFileToken{});
-        expect(tokens.empty());
     });
 
     etest::test("ambiguous ampersand in attribute", [] {
         auto tokens = run_tokenizer("<p attr='&blah;'>");
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes = {{"attr", "&blah;"}}});
         expect_token(tokens, EndOfFileToken{});
-        expect(tokens.empty());
     });
 
     etest::test("attribute, one attribute single quoted", [] {
@@ -563,7 +567,6 @@ int main() {
         expect_token(tokens, CharacterToken{'\x98'});
         expect_token(tokens, CharacterToken{'\x83'});
         expect_token(tokens, EndOfFileToken{});
-        expect(tokens.empty());
     });
 
     etest::test("tag closed after attribute name", [] {
@@ -571,7 +574,6 @@ int main() {
         expect_token(tokens, StartTagToken{.tag_name = "one", .attributes = {{"a", ""}}});
         expect_token(tokens, StartTagToken{.tag_name = "two", .attributes = {{"b", ""}}});
         expect_token(tokens, EndOfFileToken{});
-        expect(tokens.empty());
     });
 
     return etest::run_all_tests();
