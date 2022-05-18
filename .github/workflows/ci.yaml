@@ -3,54 +3,52 @@ name: ci
 jobs:
   linux-ci:
     name: linux-${{ matrix.name }}
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: gcc-11
+          - name: gcc-12
+            os: ubuntu-22.04
             compiler: gcc
-            version: 11
-            bazel: --config gcc11
-            apt: g++-11
+            version: 12
+            bazel: --config gcc12
+            apt: g++-12
 
           - name: clang-12
+            os: ubuntu-20.04
             compiler: clang
             version: 12
             bazel: --config clang --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: valgrind
 
-          - name: clang-13-tsan
+          - name: clang-14-tsan
+            os: ubuntu-22.04
             compiler: clang
-            version: 13
+            version: 14
             bazel: --config clang13 --config tsan
 
           - name: clang-asan
+            os: ubuntu-22.04
             compiler: clang
-            version: 13
+            version: 14
             bazel: --config clang13 --config asan
 
           - name: clang-ubsan
+            os: ubuntu-22.04
             compiler: clang
-            version: 13
+            version: 14
             bazel: --config clang13 --config ubsan
 
           - name: clang-libc++
+            os: ubuntu-22.04
             compiler: clang
-            version: 13
+            version: 14
             bazel: --config clang13 --config libc++
-            apt: libc++abi-13-dev libc++-13-dev
+            apt: libc++abi-14-dev libc++-14-dev
 
     steps:
-    - name: Prepare gcc install
-      if: startsWith(matrix.compiler, 'gcc') && matrix.version == 11
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-    - name: Prepare clang install
-      if: startsWith(matrix.compiler, 'clang') && matrix.version == 13
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${{ matrix.version }} main"
     - name: Setup gcc
       if: startsWith(matrix.compiler, 'gcc')
       run: |
