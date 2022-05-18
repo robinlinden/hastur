@@ -43,7 +43,7 @@ int run_all_tests() noexcept {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": ";
         test_log = std::stringstream{};
 
-        const int before = assertion_failures;
+        int const before = assertion_failures;
 
         try {
             test.body();

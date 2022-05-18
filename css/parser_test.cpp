@@ -27,7 +27,7 @@ namespace {
     return os;
 }
 
-const auto initial_font_values = std::map<std::string, std::string>{{"font-stretch", "normal"},
+auto const initial_font_values = std::map<std::string, std::string>{{"font-stretch", "normal"},
         {"font-variant", "normal"},
         {"font-weight", "normal"},
         {"line-height", "normal"},
