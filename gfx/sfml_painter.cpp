@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -20,10 +21,16 @@
 namespace gfx {
 namespace {
 
+auto get_font_dir_iterator(std::filesystem::path const &path) try {
+    return std::filesystem::recursive_directory_iterator(path);
+} catch (std::filesystem::filesystem_error const &) {
+    return std::filesystem::recursive_directory_iterator();
+}
+
 // TODO(robinlinden): We should be looking at font names rather than filenames.
 std::optional<std::string> find_path_to_font(std::string_view font_filename) {
     for (auto const &path : os::font_paths()) {
-        for (auto const &entry : std::filesystem::recursive_directory_iterator(path)) {
+        for (auto const &entry : get_font_dir_iterator(path)) {
             auto name = entry.path().filename().string();
             if (name.find(font_filename) != std::string::npos) {
                 std::cerr << "Found font " << entry.path().string() << " for \"" << font_filename << "\"\n";
@@ -34,7 +41,7 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
 
     std::cerr << "Unable to find font " << font_filename << ", looking for literally any font\n";
     for (auto const &path : os::font_paths()) {
-        for (auto const &entry : std::filesystem::recursive_directory_iterator(path)) {
+        for (auto const &entry : get_font_dir_iterator(path)) {
             if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
                 std::cerr << "Using fallback " << entry.path().string() << '\n';
                 return std::make_optional(entry.path().string());
