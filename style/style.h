@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,6 +10,7 @@
 #include "style/styled_node.h"
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -22,7 +23,8 @@ bool is_match(dom::Element const &element, std::string_view selector);
 std::vector<std::pair<std::string, std::string>> matching_rules(
         dom::Element const &element, std::vector<css::Rule> const &stylesheet);
 
-StyledNode style_tree(std::reference_wrapper<dom::Node const> root, std::vector<css::Rule> const &stylesheet);
+std::unique_ptr<StyledNode> style_tree(
+        std::reference_wrapper<dom::Node const> root, std::vector<css::Rule> const &stylesheet);
 
 } // namespace style
 

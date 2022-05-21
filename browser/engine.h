@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -12,6 +12,7 @@
 #include "uri/uri.h"
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <utility>
 
@@ -45,7 +46,7 @@ private:
     uri::Uri uri_{};
     protocol::Response response_{};
     dom::Document dom_{};
-    std::optional<style::StyledNode> styled_{};
+    std::unique_ptr<style::StyledNode> styled_{};
     std::optional<layout::LayoutBox> layout_{};
 
     void on_navigation_success();

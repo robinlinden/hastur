@@ -113,7 +113,7 @@ int main() {
             },
         };
 
-        expect(style::style_tree(root, {}) == expected);
+        expect(*style::style_tree(root, {}) == expected);
     });
 
     etest::test("style_tree: style is applied", [] {
@@ -155,7 +155,7 @@ int main() {
             },
         };
 
-        expect(style::style_tree(root, stylesheet) == expected);
+        expect(*style::style_tree(root, stylesheet) == expected);
     });
 
     return etest::run_all_tests();
