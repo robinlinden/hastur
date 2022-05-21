@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,7 +8,7 @@
 #include "browser/engine.h"
 #include "dom/dom.h"
 #include "gfx/ipainter.h"
-#include "gfx/opengl_painter.h"
+#include "gfx/sfml_painter.h"
 #include "layout/layout.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -46,8 +46,8 @@ private:
         Sfml,
     };
 
-    Painter selected_painter_{Painter::OpenGL};
-    std::unique_ptr<gfx::IPainter> painter_{std::make_unique<gfx::OpenGLPainter>()};
+    Painter selected_painter_{Painter::Sfml};
+    std::unique_ptr<gfx::IPainter> painter_{std::make_unique<gfx::SfmlPainter>(window_)};
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".

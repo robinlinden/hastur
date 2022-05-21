@@ -5,7 +5,7 @@
 #include "browser/gui/app.h"
 
 #include "dom/dom.h"
-#include "gfx/sfml_painter.h"
+#include "gfx/opengl_painter.h"
 #include "render/render.h"
 #include "uri/uri.h"
 
