@@ -15,3 +15,33 @@ fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header,
 hgroup, hr, li, main, nav, ol, p, pre, section, table, ul {
     display: block;
 }
+
+h1 {
+  display: block;
+  font-size: 2em;
+}
+
+h2 {
+  display: block;
+  font-size: 1.5em;
+}
+
+h3 {
+  display: block;
+  font-size: 1.17em;
+}
+
+h4 {
+  display: block;
+  font-size: 1.00em;
+}
+
+h5 {
+  display: block;
+  font-size: 0.83em;
+}
+
+h6 {
+  display: block;
+  font-size: 0.67em;
+}
