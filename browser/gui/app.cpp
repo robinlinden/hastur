@@ -245,7 +245,7 @@ dom::Node const *App::get_hovered_node(geom::Position p) const {
         return nullptr;
     }
 
-    return &moused_over->node->node.get();
+    return &moused_over->node->node;
 }
 
 std::string App::get_hovered_element_text(geom::Position p) const {

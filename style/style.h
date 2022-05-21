@@ -9,7 +9,6 @@
 #include "dom/dom.h"
 #include "style/styled_node.h"
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -23,8 +22,7 @@ bool is_match(dom::Element const &element, std::string_view selector);
 std::vector<std::pair<std::string, std::string>> matching_rules(
         dom::Element const &element, std::vector<css::Rule> const &stylesheet);
 
-std::unique_ptr<StyledNode> style_tree(
-        std::reference_wrapper<dom::Node const> root, std::vector<css::Rule> const &stylesheet);
+std::unique_ptr<StyledNode> style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet);
 
 } // namespace style
 

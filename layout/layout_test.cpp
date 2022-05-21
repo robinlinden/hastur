@@ -554,27 +554,29 @@ int main() {
 
     etest::test("em sizes depend on the font-size", [] {
         auto dom_root = dom::create_element_node("html", {}, {});
-        auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {
-                    std::pair{"font-size", "10px"},
-                    std::pair{"height", "10em"},
-                    std::pair{"width", "10em"},
-            },
-            .children = {},
-        };
+        {
+            auto style_root = style::StyledNode{
+                .node = dom_root,
+                .properties = {
+                        std::pair{"font-size", "10px"},
+                        std::pair{"height", "10em"},
+                        std::pair{"width", "10em"},
+                },
+                .children = {},
+            };
 
-        auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .type = LayoutType::Block,
-            .dimensions = {{0, 0, 100, 100}},
-            .children = {}
-        };
+            auto expected_layout = layout::LayoutBox{
+                .node = &style_root,
+                .type = LayoutType::Block,
+                .dimensions = {{0, 0, 100, 100}},
+                .children = {}
+            };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+            expect(layout::create_layout(style_root, 1000) == expected_layout);
+        }
 
         // Doubling the font-size should double the width/height.
-        style_root = style::StyledNode{
+        auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {
                     std::pair{"font-size", "20px"},
@@ -584,7 +586,7 @@ int main() {
             .children = {},
         };
 
-        expected_layout = layout::LayoutBox{
+        auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
             .dimensions = {{0, 0, 200, 200}},
@@ -596,27 +598,29 @@ int main() {
 
     etest::test("px sizes don't depend on the font-size", [] {
         auto dom_root = dom::create_element_node("html", {}, {});
-        auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {
-                    std::pair{"font-size", "10px"},
-                    std::pair{"height", "10px"},
-                    std::pair{"width", "10px"},
-            },
-            .children = {},
-        };
+        {
+            auto style_root = style::StyledNode{
+                .node = dom_root,
+                .properties = {
+                        std::pair{"font-size", "10px"},
+                        std::pair{"height", "10px"},
+                        std::pair{"width", "10px"},
+                },
+                .children = {},
+            };
 
-        auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .type = LayoutType::Block,
-            .dimensions = {{0, 0, 10, 10}},
-            .children = {}
-        };
+            auto expected_layout = layout::LayoutBox{
+                .node = &style_root,
+                .type = LayoutType::Block,
+                .dimensions = {{0, 0, 10, 10}},
+                .children = {}
+            };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+            expect(layout::create_layout(style_root, 1000) == expected_layout);
+        }
 
         // Doubling the font-size shouldn't change the width/height.
-        style_root = style::StyledNode{
+        auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {
                     std::pair{"font-size", "20px"},
@@ -626,7 +630,7 @@ int main() {
             .children = {},
         };
 
-        expected_layout = layout::LayoutBox{
+        auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
             .dimensions = {{0, 0, 10, 10}},

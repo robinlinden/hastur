@@ -61,7 +61,7 @@ bool looks_like_hex(std::string_view str) {
 }
 
 dom::Text const *try_get_text(layout::LayoutBox const &layout) {
-    return std::get_if<dom::Text>(&layout.node->node.get());
+    return std::get_if<dom::Text>(&layout.node->node);
 }
 
 gfx::Color from_hex_chars(std::string_view hex_chars) {

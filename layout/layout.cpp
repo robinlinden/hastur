@@ -66,7 +66,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
                                   return LayoutBox{&node, LayoutType::Inline};
                               },
                       },
-            node.node.get());
+            node.node);
 }
 
 // TODO(robinlinden):
@@ -87,9 +87,9 @@ int to_px(std::string_view property, int const font_size) {
 void calculate_width(LayoutBox &box, geom::Rect const &parent, int const font_size) {
     assert(box.node != nullptr);
 
-    if (std::holds_alternative<dom::Text>(box.node->node.get())) {
+    if (std::holds_alternative<dom::Text>(box.node->node)) {
         // TODO(robinlinden): Measure the text for real.
-        auto text_node = std::get<dom::Text>(box.node->node.get());
+        auto text_node = std::get<dom::Text>(box.node->node);
         box.dimensions.content.width = std::min(parent.width, static_cast<int>(text_node.text.size()) * font_size / 2);
         return;
     }
@@ -117,7 +117,7 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
 
 void calculate_height(LayoutBox &box, int const font_size) {
     assert(box.node != nullptr);
-    if (std::holds_alternative<dom::Text>(box.node->node.get())) {
+    if (std::holds_alternative<dom::Text>(box.node->node)) {
         box.dimensions.content.height = font_size;
     }
 
@@ -254,7 +254,7 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
     }
 
     if (box.node != nullptr) {
-        os << to_str(box.node->node.get()) << '\n';
+        os << to_str(box.node->node) << '\n';
         for (int8_t i = 0; i < depth; ++i) {
             os << "  ";
         }

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -45,17 +45,17 @@ std::vector<std::pair<std::string, std::string>> matching_rules(
 }
 
 namespace {
-StyledNode style_tree_impl(std::reference_wrapper<dom::Node const> root, std::vector<css::Rule> const &stylesheet) {
+StyledNode style_tree_impl(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
     std::vector<StyledNode> children{};
 
-    if (auto const *element = std::get_if<dom::Element>(&root.get())) {
+    if (auto const *element = std::get_if<dom::Element>(&root)) {
         for (auto const &child : element->children) {
             children.push_back(style_tree_impl(child, stylesheet));
         }
     }
 
-    auto properties = std::holds_alternative<dom::Element>(root.get())
-            ? matching_rules(std::get<dom::Element>(root.get()), stylesheet)
+    auto properties = std::holds_alternative<dom::Element>(root)
+            ? matching_rules(std::get<dom::Element>(root), stylesheet)
             : std::vector<std::pair<std::string, std::string>>{};
 
     return {
@@ -66,8 +66,7 @@ StyledNode style_tree_impl(std::reference_wrapper<dom::Node const> root, std::ve
 }
 } // namespace
 
-std::unique_ptr<StyledNode> style_tree(
-        std::reference_wrapper<dom::Node const> root, std::vector<css::Rule> const &stylesheet) {
+std::unique_ptr<StyledNode> style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
     return std::make_unique<StyledNode>(style_tree_impl(root, stylesheet));
 }
 
