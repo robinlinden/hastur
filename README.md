@@ -17,7 +17,7 @@ of C++20 features, so a reasonably recent compiler is required.
 [Bazelisk][bazelisk] as that will pick up the Bazel version to use from the
 `.bazelversion` file in the repository root.
 
-Per-developer configuration (e.g.  compiler used and build type) is managed in
+Per-developer configuration (e.g. compiler used and build type) is managed in
 a gitignored `.bazelrc.local` file. To set this up for your environment, copy
 `.bazelrc.local.example` to `.bazelrc.local` and edit to suit your compiler of
 choice.

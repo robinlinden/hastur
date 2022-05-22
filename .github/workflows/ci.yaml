@@ -49,56 +49,56 @@ jobs:
             apt: libc++abi-14-dev libc++-14-dev
 
     steps:
-    - name: Setup gcc
-      if: startsWith(matrix.compiler, 'gcc')
-      run: |
-        echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
-        echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
-    - name: Setup clang
-      if: startsWith(matrix.compiler, 'clang')
-      run: |
-        echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
-        echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
-    - uses: actions/checkout@v3
-    - name: Install
-      run: |
-        sudo apt update
-        sudo apt install libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
-    - uses: actions/cache@v3
-      with:
-        path: ~/.cache/bazel
-        key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-        restore-keys: ${{ matrix.name }}-
-    - name: Build
-      run: bazel build //... ${{ matrix.bazel }}
-    - name: Test
-      run: bazel test //... ${{ matrix.bazel }}
-    - name: Run
-      run: bazel run browser:tui ${{ matrix.bazel }}
+      - name: Setup gcc
+        if: startsWith(matrix.compiler, 'gcc')
+        run: |
+          echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
+      - name: Setup clang
+        if: startsWith(matrix.compiler, 'clang')
+        run: |
+          echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - name: Install
+        run: |
+          sudo apt update
+          sudo apt install libgl-dev ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+          restore-keys: ${{ matrix.name }}-
+      - name: Build
+        run: bazel build //... ${{ matrix.bazel }}
+      - name: Test
+        run: bazel test //... ${{ matrix.bazel }}
+      - name: Run
+        run: bazel run browser:tui ${{ matrix.bazel }}
 
   linux-gcc-10-coverage:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/cache@v3
-      with:
-        path: ~/.cache/bazel
-        key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-        restore-keys: ${{ matrix.name }}-
-    - name: Install
-      run: |
-        sudo apt update
-        sudo apt install libgl-dev lcov
-    - name: Setup
-      run: |
-        echo "CC=gcc-10" >> $GITHUB_ENV
-        echo "CXX=g++-10" >> $GITHUB_ENV
-    - name: Coverage
-      run: bazel coverage --combined_report=lcov --config=gcc //...
-    - name: Summary
-      run: lcov --summary bazel-out/_coverage/_coverage_report.dat
-    - name: Upload
-      run: bash <(curl -s https://codecov.io/bash) -f bazel-out/_coverage/_coverage_report.dat
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+          restore-keys: ${{ matrix.name }}-
+      - name: Install
+        run: |
+          sudo apt update
+          sudo apt install libgl-dev lcov
+      - name: Setup
+        run: |
+          echo "CC=gcc-10" >> $GITHUB_ENV
+          echo "CXX=g++-10" >> $GITHUB_ENV
+      - name: Coverage
+        run: bazel coverage --combined_report=lcov --config=gcc //...
+      - name: Summary
+        run: lcov --summary bazel-out/_coverage/_coverage_report.dat
+      - name: Upload
+        run: bash <(curl -s https://codecov.io/bash) -f bazel-out/_coverage/_coverage_report.dat
 
   windows-msvc:
     runs-on: windows-2022
@@ -106,43 +106,43 @@ jobs:
       run:
         shell: bash
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: bazel build ///... --config debug
-    - name: Test
-      run: bazel test ///... --config debug
-    - name: Run
-      run: bazel run browser:tui --config debug
-    - run: bazel run refresh_compile_commands
-    - run: wc -l compile_commands.json && head -n 100 compile_commands.json
+      - uses: actions/checkout@v3
+      - name: Build
+        run: bazel build ///... --config debug
+      - name: Test
+        run: bazel test ///... --config debug
+      - name: Run
+        run: bazel run browser:tui --config debug
+      - run: bazel run refresh_compile_commands
+      - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
   clang-format:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
-    - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-14
-    - name: Format
-      run: find . -name *.h -o -name *.cpp | xargs clang-format-14 -style=file -i
-    - name: Check
-      run: git diff --exit-code
+      - uses: actions/checkout@v3
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-14
+      - name: Format
+        run: find . -name *.h -o -name *.cpp | xargs clang-format-14 -style=file -i
+      - name: Check
+        run: git diff --exit-code
 
   buildifier:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - name: Install
-      run: |
-        wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/5.1.0/buildifier-linux-amd64
-        sudo chmod +x buildifier
-    - name: Check
-      run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD)
+      - uses: actions/checkout@v3
+      - name: Install
+        run: |
+          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/5.1.0/buildifier-linux-amd64
+          sudo chmod +x buildifier
+      - name: Check
+        run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD)
 
   linux-compile-commands:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - run: CC=gcc-10 CXX=g++-10 bazel run refresh_compile_commands
-    - run: wc -l compile_commands.json && head -n 100 compile_commands.json
+      - uses: actions/checkout@v3
+      - run: CC=gcc-10 CXX=g++-10 bazel run refresh_compile_commands
+      - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
