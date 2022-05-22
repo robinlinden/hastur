@@ -137,6 +137,14 @@ jobs:
       - name: Check
         run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD)
 
+  prettier:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install --global prettier@2.6.2
+      - run: npx prettier --ignore-path .gitignore --write .
+      - run: git diff --exit-code
+
   linux-compile-commands:
     runs-on: ubuntu-20.04
     steps:
