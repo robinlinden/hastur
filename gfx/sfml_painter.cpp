@@ -11,9 +11,9 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/View.hpp>
+#include <spdlog/spdlog.h>
 
 #include <filesystem>
-#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -33,23 +33,23 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             auto name = entry.path().filename().string();
             if (name.find(font_filename) != std::string::npos) {
-                std::cerr << "Found font " << entry.path().string() << " for \"" << font_filename << "\"\n";
+                spdlog::info("Found font {} for {}", entry.path().string(), font_filename);
                 return std::make_optional(entry.path().string());
             }
         }
     }
 
-    std::cerr << "Unable to find font " << font_filename << ", looking for literally any font\n";
+    spdlog::warn("Unable to find font {}, looking for literally any font", font_filename);
     for (auto const &path : os::font_paths()) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
-                std::cerr << "Using fallback " << entry.path().string() << '\n';
+                spdlog::info("Using fallback {}", entry.path().string());
                 return std::make_optional(entry.path().string());
             }
         }
     }
 
-    std::cerr << "Unable to find fallback font\n";
+    spdlog::error("Unable to find fallback font");
     return std::nullopt;
 }
 
@@ -88,7 +88,7 @@ void SfmlPainter::draw_text(geom::Position p, std::string_view text, Font font, 
     }();
 
     if (!sf_font) {
-        std::cerr << "Unable to find font, not drawing text\n";
+        spdlog::error("Unable to find font, not drawing text");
         return;
     }
 

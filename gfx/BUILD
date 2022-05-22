@@ -30,6 +30,7 @@ cc_library(
         ":gfx",
         "//os",
         "@sfml//:graphics",
+        "@spdlog",
     ],
 )
 
