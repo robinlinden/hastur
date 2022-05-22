@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -229,9 +230,7 @@ int main() {
             }
         };
 
-        // TOOD(robinlinden): This test breaks if the width here is less than the min width due
-        //                    to the hack that reduces the width instead of the right margin.
-        expect(layout::create_layout(style_root, 100) == expected_layout);
+        expect(layout::create_layout(style_root, 20) == expected_layout);
     });
 
     etest::test("max-width", [] {
@@ -501,7 +500,7 @@ int main() {
             .dimensions = {{0, 0, 100, 120}},
             .children = {
                 {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 120}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 100, 100}, {10, 10, 10, 10}, {}, {0, -20, 0, 0}}, {}},
+                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 80, 100}, {10, 10, 10, 10}, {}, {0, 0, 0, 0}}, {}},
                     {&style_root.children[0].children[1], LayoutType::Block, {{0, 120, 100, 0}}, {}},
                 }},
             }
@@ -543,13 +542,127 @@ int main() {
             .dimensions = {{0, 0, 100, 20}},
             .children = {
                 {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 20}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 100, 0}, {}, {}, {10, -10, 10, 10}}, {}},
+                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 80, 0}, {}, {}, {10, 10, 10, 10}}, {}},
                     {&style_root.children[0].children[1], LayoutType::Block, {{0, 20, 100, 0}}, {}},
                 }},
             }
         };
 
         expect(layout::create_layout(style_root, 100) == expected_layout);
+    });
+
+    etest::test("auto margin is handled", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto properties = std::vector{
+                std::pair{"width"s, "100px"s},
+                std::pair{"margin-left"s, "auto"s},
+                std::pair{"margin-right"s, "auto"s},
+        };
+
+        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 200, 0}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 200, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{50, 0, 100, 0}, {}, {}, {50, 50, 0, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 200) == expected_layout);
+    });
+
+    etest::test("auto left margin and fixed right margin is handled", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto properties = std::vector{
+                std::pair{"width"s, "100px"s},
+                std::pair{"margin-left"s, "auto"s},
+                std::pair{"margin-right"s, "20px"s},
+        };
+
+        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 200, 0}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 200, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{80, 0, 100, 0}, {}, {}, {80, 20, 0, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 200) == expected_layout);
+    });
+
+    etest::test("fixed left margin and auto right margin is handled", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto properties = std::vector{
+                std::pair{"width"s, "100px"s},
+                std::pair{"margin-left"s, "75px"s},
+                std::pair{"margin-right"s, "auto"s},
+        };
+
+        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 200, 0}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 200, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{75, 0, 100, 0}, {}, {}, {75, 25, 0, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 200) == expected_layout);
     });
 
     etest::test("em sizes depend on the font-size", [] {
@@ -707,7 +820,7 @@ int main() {
             .node = dom_root,
             .properties = {},
             .children = {
-                {children[0], {}, {
+                {children[0], {{"width", "50px"}}, {
                     {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}}, {}},
                     {std::get<dom::Element>(children[0]).children[1], {{"padding-top", "5px"}, {"padding-right", "15px"}}, {}},
                 }},
@@ -718,11 +831,11 @@ int main() {
                 "html\n"
                 "block {0,0,0,30} {0,0,0,0} {0,0,0,0}\n"
                 "  body\n"
-                "  block {0,0,0,30} {0,0,0,0} {0,0,0,0}\n"
+                "  block {0,0,50,30} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
-                "    block {0,0,0,25} {0,0,0,0} {0,0,0,0}\n"
+                "    block {0,0,50,25} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
-                "    block {0,30,0,0} {5,15,0,0} {0,-15,0,0}\n";
+                "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
         expect_eq(to_string(layout::create_layout(style_root, 0)), expected);
     });
 

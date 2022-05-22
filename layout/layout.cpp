@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -83,8 +84,27 @@ int to_px(std::string_view property, int const font_size) {
     return res;
 }
 
+void calculate_left_and_right_margin(LayoutBox &box,
+        geom::Rect const &parent,
+        std::string_view margin_left,
+        std::string_view margin_right,
+        int const font_size) {
+    if (margin_left == "auto" && margin_right == "auto") {
+        int margin_px = (parent.width - box.dimensions.border_box().width) / 2;
+        box.dimensions.margin.left = box.dimensions.margin.right = margin_px;
+    } else if (margin_left == "auto" && margin_right != "auto") {
+        box.dimensions.margin.right = to_px(margin_right, font_size);
+        box.dimensions.margin.left = parent.width - box.dimensions.margin_box().width;
+    } else if (margin_left != "auto" && margin_right == "auto") {
+        box.dimensions.margin.left = to_px(margin_left, font_size);
+        box.dimensions.margin.right = parent.width - box.dimensions.margin_box().width;
+    } else {
+        // TODO(mkiael): Compute margin depending on direction property
+    }
+}
+
 // https://www.w3.org/TR/CSS2/visudet.html#blockwidth
-void calculate_width(LayoutBox &box, geom::Rect const &parent, int const font_size) {
+void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) {
     assert(box.node != nullptr);
 
     if (std::holds_alternative<dom::Text>(box.node->node)) {
@@ -94,18 +114,45 @@ void calculate_width(LayoutBox &box, geom::Rect const &parent, int const font_si
         return;
     }
 
+    if (auto margin_top = style::get_property(*box.node, "margin-top")) {
+        box.dimensions.margin.top = to_px(*margin_top, font_size);
+    }
+
+    if (auto margin_bottom = style::get_property(*box.node, "margin-bottom")) {
+        box.dimensions.margin.bottom = to_px(*margin_bottom, font_size);
+    }
+
     auto width = style::get_property_or(*box.node, "width", "auto");
-    int width_px = width == "auto" ? parent.width : to_px(width, font_size);
+    auto margin_left = style::get_property_or(*box.node, "margin-left", "0");
+    auto margin_right = style::get_property_or(*box.node, "margin-right", "0");
+    if (width == "auto") {
+        if (margin_left != "auto") {
+            box.dimensions.margin.left = to_px(margin_left, font_size);
+        }
+        if (margin_right != "auto") {
+            box.dimensions.margin.right = to_px(margin_right, font_size);
+        }
+        box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
+    } else {
+        box.dimensions.content.width = to_px(width, font_size);
+        calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+    }
 
     if (auto min = style::get_property(*box.node, "min-width")) {
-        width_px = std::max(width_px, to_px(*min, font_size));
+        int min_width_px = to_px(*min, font_size);
+        if (box.dimensions.content.width < min_width_px) {
+            box.dimensions.content.width = min_width_px;
+            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+        }
     }
 
     if (auto max = style::get_property(*box.node, "max-width")) {
-        width_px = std::min(width_px, to_px(*max, font_size));
+        int max_width_px = to_px(*max, font_size);
+        if (box.dimensions.content.width > max_width_px) {
+            box.dimensions.content.width = max_width_px;
+            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+        }
     }
-
-    box.dimensions.content.width = width_px;
 }
 
 void calculate_position(LayoutBox &box, geom::Rect const &parent) {
@@ -152,37 +199,6 @@ void calculate_padding(LayoutBox &box, int const font_size) {
     }
 }
 
-void calculate_margins_and_overflow(LayoutBox &box, geom::Rect const &parent, int const font_size) {
-    if (auto margin_top = style::get_property(*box.node, "margin-top")) {
-        box.dimensions.margin.top = to_px(*margin_top, font_size);
-    }
-
-    if (auto margin_bottom = style::get_property(*box.node, "margin-bottom")) {
-        box.dimensions.margin.bottom = to_px(*margin_bottom, font_size);
-    }
-
-    auto margin_left = style::get_property(*box.node, "margin-left");
-    if (margin_left && margin_left != "auto"sv) {
-        box.dimensions.margin.left = to_px(*margin_left, font_size);
-    }
-
-    auto margin_right = style::get_property(*box.node, "margin-right");
-    if (margin_right && margin_right != "auto"sv) {
-        box.dimensions.margin.right = to_px(*margin_right, font_size);
-    }
-
-    int underflow = parent.width - box.dimensions.margin_box().width;
-
-    if (box.type == LayoutType::Block && margin_left == "auto"sv && margin_right == "auto"sv && underflow > 0) {
-        box.dimensions.margin.left = box.dimensions.margin.right = underflow / 2;
-    }
-
-    if (underflow < 0) {
-        // Overflow, adjust the right margin.
-        box.dimensions.margin.right += underflow;
-    }
-}
-
 void layout(LayoutBox &box, geom::Rect const &bounds) {
     switch (box.type) {
         case LayoutType::Inline:
@@ -190,9 +206,8 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
             // TODO(robinlinden): font-size should be inherited.
             auto font_size =
                     to_px(style::get_property_or(*box.node, "font-size", kDefaultFontSize), kDefaultFontSizePx);
-            calculate_width(box, bounds, font_size);
             calculate_padding(box, font_size);
-            calculate_margins_and_overflow(box, bounds, font_size);
+            calculate_width_and_margin(box, bounds, font_size);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
                 layout(child, box.dimensions.content);
