@@ -201,7 +201,10 @@ void Tokenizer::run() {
                         state_ = State::EndTagOpen;
                         continue;
                     default:
-                        std::terminate();
+                        emit(ParseError::InvalidFirstCharacterOfTagName);
+                        emit(CharacterToken{'<'});
+                        reconsume_in(State::Data);
+                        continue;
                 }
                 break;
             }

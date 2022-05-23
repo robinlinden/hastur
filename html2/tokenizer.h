@@ -102,6 +102,7 @@ enum class State {
 
 enum class ParseError {
     EofInTag,
+    InvalidFirstCharacterOfTagName,
     UnexpectedCharacterInUnquotedAttributeValue,
     UnexpectedNullCharacter,
 };

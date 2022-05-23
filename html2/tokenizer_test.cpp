@@ -546,5 +546,13 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("pages served as xml don't break everything", [] {
+        auto tokens = run_tokenizer("<?xml?><!DOCTYPE HTML>");
+        expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
+        expect_text(tokens, "<?xml?>");
+        expect_token(tokens, DoctypeToken{.name = "html"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     return etest::run_all_tests();
 }
