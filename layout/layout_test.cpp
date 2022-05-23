@@ -509,6 +509,93 @@ int main() {
         expect(layout::create_layout(style_root, 100) == expected_layout);
     });
 
+    etest::test("border is taken into account", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto properties = std::vector{
+                std::pair{"height"s, "100px"s},
+                std::pair{"border-left-style"s, "solid"s},
+                std::pair{"border-right-style"s, "solid"s},
+                std::pair{"border-top-style"s, "solid"s},
+                std::pair{"border-bottom-style"s, "solid"s},
+                std::pair{"border-left-width"s, "10px"s},
+                std::pair{"border-right-width"s, "12px"s},
+                std::pair{"border-top-width"s, "14px"s},
+                std::pair{"border-bottom-width"s, "16px"s},
+        };
+
+        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 100, 130}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 130}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 14, 78, 100}, {}, {10, 12, 14, 16}, {}}, {}},
+                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 130, 100, 0}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 100) == expected_layout);
+    });
+
+    etest::test("border is not added if border style is none", [] {
+        auto dom_root = dom::create_element_node("html", {}, {
+            dom::create_element_node("body", {}, {
+                dom::create_element_node("p", {}, {}),
+            }),
+        });
+
+        auto properties = std::vector{
+                std::pair{"height"s, "100px"s},
+                std::pair{"border-left-width"s, "10px"s},
+                std::pair{"border-right-width"s, "12px"s},
+                std::pair{"border-top-width"s, "14px"s},
+                std::pair{"border-bottom-width"s, "16px"s},
+        };
+
+        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto style_root = style::StyledNode{
+            .node = dom_root,
+            .properties = {},
+            .children = {
+                {children[0], {}, {
+                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                }},
+            },
+        };
+
+        auto expected_layout = layout::LayoutBox{
+            .node = &style_root,
+            .type = LayoutType::Block,
+            .dimensions = {{0, 0, 100, 100}},
+            .children = {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 100}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 100}, {}, {}, {}}, {}},
+                }},
+            }
+        };
+
+        expect(layout::create_layout(style_root, 100) == expected_layout);
+    });
+
     etest::test("margin is taken into account", [] {
         auto dom_root = dom::create_element_node("html", {}, {
             dom::create_element_node("body", {}, {

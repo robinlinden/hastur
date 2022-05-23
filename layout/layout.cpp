@@ -157,9 +157,9 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
 
 void calculate_position(LayoutBox &box, geom::Rect const &parent) {
     auto const &d = box.dimensions;
-    box.dimensions.content.x = parent.x + d.padding.left + d.margin.left;
+    box.dimensions.content.x = parent.x + d.padding.left + d.border.left + d.margin.left;
     // Position below previous content in parent.
-    box.dimensions.content.y = parent.y + parent.height + d.padding.top + d.margin.top;
+    box.dimensions.content.y = parent.y + parent.height + d.border.top + d.padding.top + d.margin.top;
 }
 
 void calculate_height(LayoutBox &box, int const font_size) {
@@ -199,6 +199,33 @@ void calculate_padding(LayoutBox &box, int const font_size) {
     }
 }
 
+void calculate_border(LayoutBox &box, int const font_size) {
+    std::string_view default_style = "none";
+
+    // TODO(mkiael): Change to "meduim" when this is supported
+    std::string_view default_width = "3px";
+
+    if (style::get_property_or(*box.node, "border-left-style", default_style) != default_style) {
+        auto border_width = style::get_property_or(*box.node, "border-left-width", default_width);
+        box.dimensions.border.left = to_px(border_width, font_size);
+    }
+
+    if (style::get_property_or(*box.node, "border-right-style", default_style) != default_style) {
+        auto border_width = style::get_property_or(*box.node, "border-right-width", default_width);
+        box.dimensions.border.right = to_px(border_width, font_size);
+    }
+
+    if (style::get_property_or(*box.node, "border-top-style", default_style) != default_style) {
+        auto border_width = style::get_property_or(*box.node, "border-top-width", default_width);
+        box.dimensions.border.top = to_px(border_width, font_size);
+    }
+
+    if (style::get_property_or(*box.node, "border-bottom-style", default_style) != default_style) {
+        auto border_width = style::get_property_or(*box.node, "border-bottom-width", default_width);
+        box.dimensions.border.bottom = to_px(border_width, font_size);
+    }
+}
+
 void layout(LayoutBox &box, geom::Rect const &bounds) {
     switch (box.type) {
         case LayoutType::Inline:
@@ -207,6 +234,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
             auto font_size =
                     to_px(style::get_property_or(*box.node, "font-size", kDefaultFontSize), kDefaultFontSizePx);
             calculate_padding(box, font_size);
+            calculate_border(box, font_size);
             calculate_width_and_margin(box, bounds, font_size);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
