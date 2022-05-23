@@ -19,6 +19,7 @@ struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<std::string, std::string>> properties;
     std::vector<StyledNode> children;
+    StyledNode const *parent{nullptr};
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

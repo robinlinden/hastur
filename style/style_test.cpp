@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,9 +8,25 @@
 #include "css/rule.h"
 #include "etest/etest.h"
 
+#include <algorithm>
+
 using namespace std::literals;
 using etest::expect;
 using etest::require;
+
+namespace {
+bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {
+    if (!std::equal(cbegin(a.children), cend(a.children), cbegin(b.children), cend(b.children), &check_parents)) {
+        return false;
+    }
+
+    if (a.parent == nullptr || b.parent == nullptr) {
+        return a.parent == b.parent;
+    }
+
+    return *a.parent == *b.parent;
+}
+} // namespace
 
 // TODO(robinlinden): clang-format doesn't get along well with how I structured
 // the trees in these test cases.
@@ -101,19 +117,19 @@ int main() {
             }
         );
 
+        // clang-format on
+        // TODO(robinlinden): Nicer abstraction for building these trees.
         auto const &root_as_elem = std::get<dom::Element>(root);
-        style::StyledNode expected{
-            .node = root,
-            .properties = {},
-            .children = {
-                {root_as_elem.children[0], {}, {}},
-                {root_as_elem.children[1], {}, {
-                    {std::get<dom::Element>(root_as_elem.children[1]).children[0], {}, {}},
-                }},
-            },
-        };
+        style::StyledNode expected{root};
+        expected.children.push_back({root_as_elem.children[0], {}, {}, &expected});
+        expected.children.push_back({root_as_elem.children[1], {}, {}, &expected});
+
+        auto &body = expected.children.back();
+        body.children.push_back({std::get<dom::Element>(root_as_elem.children[1]).children[0], {}, {}, &body});
 
         expect(*style::style_tree(root, {}) == expected);
+        expect(check_parents(*style::style_tree(root, {}), expected));
+        // clang-format off
     });
 
     etest::test("style_tree: style is applied", [] {
@@ -143,19 +159,19 @@ int main() {
             },
         };
 
+        // clang-format on
         auto const &root_as_elem = std::get<dom::Element>(root);
-        style::StyledNode expected{
-            .node = root,
-            .properties = {},
-            .children = {
-                {root_as_elem.children[0], {}, {}},
-                {root_as_elem.children[1], {{"text-size", "500em"}}, {
-                    {std::get<dom::Element>(root_as_elem.children[1]).children[0], {{"height", "100px"}}, {}},
-                }},
-            },
-        };
+        style::StyledNode expected{root};
+        expected.children.push_back({root_as_elem.children[0], {}, {}, &expected});
+        expected.children.push_back({root_as_elem.children[1], {{"text-size", "500em"}}, {}, &expected});
+        auto &body = expected.children.back();
+
+        body.children.push_back(
+                {std::get<dom::Element>(root_as_elem.children[1]).children[0], {{"height", "100px"}}, {}, &body});
 
         expect(*style::style_tree(root, stylesheet) == expected);
+        expect(check_parents(*style::style_tree(root, stylesheet), expected));
+        // clang-format off
     });
 
     return etest::run_all_tests();

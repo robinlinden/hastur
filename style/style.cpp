@@ -45,29 +45,29 @@ std::vector<std::pair<std::string, std::string>> matching_rules(
 }
 
 namespace {
-StyledNode style_tree_impl(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
-    std::vector<StyledNode> children{};
-
+void style_tree_impl(StyledNode &current, dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
     if (auto const *element = std::get_if<dom::Element>(&root)) {
+        current.children.reserve(element->children.size());
         for (auto const &child : element->children) {
-            children.push_back(style_tree_impl(child, stylesheet));
+            // TODO(robinlinden): emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 14.
+            current.children.push_back({child});
+            auto &child_node = current.children.back();
+            style_tree_impl(child_node, child, stylesheet);
+            child_node.parent = &current;
         }
     }
 
-    auto properties = std::holds_alternative<dom::Element>(root)
+    current.properties = std::holds_alternative<dom::Element>(root)
             ? matching_rules(std::get<dom::Element>(root), stylesheet)
             : std::vector<std::pair<std::string, std::string>>{};
-
-    return {
-            .node = root,
-            .properties = std::move(properties),
-            .children = std::move(children),
-    };
 }
 } // namespace
 
 std::unique_ptr<StyledNode> style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
-    return std::make_unique<StyledNode>(style_tree_impl(root, stylesheet));
+    // TODO(robinlinden): std::make_unique once Clang supports it (C++20/p0960). Not supported as of Clang 14.
+    auto tree_root = std::unique_ptr<StyledNode>(new StyledNode{root});
+    style_tree_impl(*tree_root, root, stylesheet);
+    return tree_root;
 }
 
 } // namespace style
