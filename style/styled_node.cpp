@@ -31,11 +31,4 @@ std::optional<std::string_view> get_property(style::StyledNode const &node, std:
     return it->second;
 }
 
-std::string_view get_property_or(style::StyledNode const &node, std::string_view property, std::string_view fallback) {
-    if (auto prop = get_property(node, property)) {
-        return *prop;
-    }
-    return fallback;
-}
-
 } // namespace style

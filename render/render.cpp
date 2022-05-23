@@ -99,7 +99,7 @@ void do_render(gfx::IPainter &painter, layout::LayoutBox const &layout) {
         // * This shouldn't be done here.
         auto font = gfx::Font{"arial"sv};
         auto font_size = gfx::FontSize{.px = 10};
-        auto color = parse_color(style::get_property_or(*layout.node, "color"sv, "#000000"sv));
+        auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or("#000000"sv));
         painter.draw_text(layout.dimensions.content.position(), text->text, font, font_size, color);
     } else {
         if (auto maybe_color = style::get_property(*layout.node, "background-color")) {

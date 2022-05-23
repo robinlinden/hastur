@@ -22,8 +22,6 @@ int main() {
 
         expect(style::get_property(styled_node, "bad_property"sv) == std::nullopt);
         expect(style::get_property(styled_node, "good_property"sv).value() == "fantastic_value"sv);
-        expect(style::get_property_or(styled_node, "bad_property"sv, "fallback"sv) == "fallback"sv);
-        expect(style::get_property_or(styled_node, "good_property"sv, "fallback"sv) == "fantastic_value"sv);
     });
 
     etest::test("property inheritance"sv, [] {

@@ -122,9 +122,9 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
         box.dimensions.margin.bottom = to_px(*margin_bottom, font_size);
     }
 
-    auto width = style::get_property_or(*box.node, "width", "auto");
-    auto margin_left = style::get_property_or(*box.node, "margin-left", "0");
-    auto margin_right = style::get_property_or(*box.node, "margin-right", "0");
+    auto width = style::get_property(*box.node, "width").value_or("auto");
+    auto margin_left = style::get_property(*box.node, "margin-left").value_or("0");
+    auto margin_right = style::get_property(*box.node, "margin-right").value_or("0");
     if (width == "auto") {
         if (margin_left != "auto") {
             box.dimensions.margin.left = to_px(margin_left, font_size);
@@ -205,23 +205,23 @@ void calculate_border(LayoutBox &box, int const font_size) {
     // TODO(mkiael): Change to "meduim" when this is supported
     std::string_view default_width = "3px";
 
-    if (style::get_property_or(*box.node, "border-left-style", default_style) != default_style) {
-        auto border_width = style::get_property_or(*box.node, "border-left-width", default_width);
+    if (style::get_property(*box.node, "border-left-style").value_or(default_style) != default_style) {
+        auto border_width = style::get_property(*box.node, "border-left-width").value_or(default_width);
         box.dimensions.border.left = to_px(border_width, font_size);
     }
 
-    if (style::get_property_or(*box.node, "border-right-style", default_style) != default_style) {
-        auto border_width = style::get_property_or(*box.node, "border-right-width", default_width);
+    if (style::get_property(*box.node, "border-right-style").value_or(default_style) != default_style) {
+        auto border_width = style::get_property(*box.node, "border-right-width").value_or(default_width);
         box.dimensions.border.right = to_px(border_width, font_size);
     }
 
-    if (style::get_property_or(*box.node, "border-top-style", default_style) != default_style) {
-        auto border_width = style::get_property_or(*box.node, "border-top-width", default_width);
+    if (style::get_property(*box.node, "border-top-style").value_or(default_style) != default_style) {
+        auto border_width = style::get_property(*box.node, "border-top-width").value_or(default_width);
         box.dimensions.border.top = to_px(border_width, font_size);
     }
 
-    if (style::get_property_or(*box.node, "border-bottom-style", default_style) != default_style) {
-        auto border_width = style::get_property_or(*box.node, "border-bottom-width", default_width);
+    if (style::get_property(*box.node, "border-bottom-style").value_or(default_style) != default_style) {
+        auto border_width = style::get_property(*box.node, "border-bottom-width").value_or(default_width);
         box.dimensions.border.bottom = to_px(border_width, font_size);
     }
 }
@@ -232,7 +232,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
         case LayoutType::Block: {
             // TODO(robinlinden): font-size should be inherited.
             auto font_size =
-                    to_px(style::get_property_or(*box.node, "font-size", kDefaultFontSize), kDefaultFontSizePx);
+                    to_px(style::get_property(*box.node, "font-size").value_or(kDefaultFontSize), kDefaultFontSizePx);
             calculate_padding(box, font_size);
             calculate_border(box, font_size);
             calculate_width_and_margin(box, bounds, font_size);

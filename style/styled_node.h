@@ -27,7 +27,6 @@ struct StyledNode {
 }
 
 std::optional<std::string_view> get_property(StyledNode const &node, std::string_view property);
-std::string_view get_property_or(StyledNode const &node, std::string_view property, std::string_view fallback);
 
 } // namespace style
 
