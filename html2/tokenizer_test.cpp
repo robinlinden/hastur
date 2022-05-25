@@ -543,6 +543,34 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("doctype, eof after name", [] {
+        auto tokens = run_tokenizer("<!doctype html ");
+        expect_error(tokens, ParseError::EofInDoctype);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype, closing tag after whitespace", [] {
+        auto tokens = run_tokenizer("<!doctype html  >");
+        expect_token(tokens, DoctypeToken{.name = "html"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype, bogus doctype", [] {
+        auto tokens = run_tokenizer("<!doctype html bogus>");
+        expect_error(tokens, ParseError::InvalidCharacterSequenceAfterDoctypeName);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype, bogus doctype, null character and eof", [] {
+        auto tokens = run_tokenizer("<!doctype html b\0gus"sv);
+        expect_error(tokens, ParseError::InvalidCharacterSequenceAfterDoctypeName);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("tag closed after attribute name", [] {
         auto tokens = run_tokenizer("<one a><two b>");
         expect_token(tokens, StartTagToken{.tag_name = "one", .attributes = {{"a", ""}}});

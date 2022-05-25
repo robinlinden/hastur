@@ -1374,6 +1374,63 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::AfterDoctypeName: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        if (util::no_case_compare(input_.substr(pos_ - 1, std::strlen("PUBLIC")), "public"sv)) {
+                            std::terminate();
+                        }
+
+                        if (util::no_case_compare(input_.substr(pos_ - 1, std::strlen("SYSTEM")), "system"sv)) {
+                            std::terminate();
+                        }
+
+                        emit(ParseError::InvalidCharacterSequenceAfterDoctypeName);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        reconsume_in(State::BogusDoctype);
+                        continue;
+                }
+            }
+
+            case State::BogusDoctype: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    case '\0':
+                        emit(ParseError::UnexpectedNullCharacter);
+                        continue;
+                    default:
+                        continue;
+                }
+            }
+
             case State::CharacterReference: {
                 temporary_buffer_ = "&"s;
 
