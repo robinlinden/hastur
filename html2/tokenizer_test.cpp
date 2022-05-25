@@ -55,21 +55,25 @@ TokenizerOutput run_tokenizer(std::string_view input) {
     return {std::move(tokens), std::move(errors)};
 }
 
-void expect_token(TokenizerOutput &output, Token t) {
-    require(!output.tokens.empty());
-    expect_eq(output.tokens.front(), t);
+void expect_token(
+        TokenizerOutput &output, Token t, etest::source_location const &loc = etest::source_location::current()) {
+    require(!output.tokens.empty(), loc);
+    expect_eq(output.tokens.front(), t, loc);
     output.tokens.erase(begin(output.tokens));
 }
 
-void expect_text(TokenizerOutput &output, std::string_view text) {
+void expect_text(TokenizerOutput &output,
+        std::string_view text,
+        etest::source_location const &loc = etest::source_location::current()) {
     for (auto c : text) {
-        expect_token(output, CharacterToken{c});
+        expect_token(output, CharacterToken{c}, loc);
     }
 }
 
-void expect_error(TokenizerOutput &output, ParseError e) {
-    require(!output.errors.empty());
-    expect_eq(output.errors.front(), e);
+void expect_error(
+        TokenizerOutput &output, ParseError e, etest::source_location const &loc = etest::source_location::current()) {
+    require(!output.errors.empty(), loc);
+    expect_eq(output.errors.front(), e, loc);
     output.errors.erase(begin(output.errors));
 }
 
