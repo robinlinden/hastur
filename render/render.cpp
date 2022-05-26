@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -92,19 +93,27 @@ gfx::Color parse_color(std::string_view str) {
     return gfx::Color{0xFF, 0, 0};
 }
 
+void render_text(gfx::IPainter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
+    // TODO(robinlinden):
+    // * We need to grab properties from the parent for this to work.
+    // * This shouldn't be done here.
+    auto font = gfx::Font{"arial"sv};
+    auto font_size = gfx::FontSize{.px = 10};
+    auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or("#000000"sv));
+    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
+}
+
+void render_background(gfx::IPainter &painter, layout::LayoutBox const &layout) {
+    if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
+        painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
+    }
+}
+
 void do_render(gfx::IPainter &painter, layout::LayoutBox const &layout) {
     if (auto const *text = try_get_text(layout)) {
-        // TODO(robinlinden):
-        // * We need to grab properties from the parent for this to work.
-        // * This shouldn't be done here.
-        auto font = gfx::Font{"arial"sv};
-        auto font_size = gfx::FontSize{.px = 10};
-        auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or("#000000"sv));
-        painter.draw_text(layout.dimensions.content.position(), text->text, font, font_size, color);
+        render_text(painter, layout, *text);
     } else {
-        if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
-            painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
-        }
+        render_background(painter, layout);
     }
 }
 
