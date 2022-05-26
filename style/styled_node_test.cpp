@@ -12,7 +12,7 @@ using etest::expect_eq;
 using etest::require;
 
 int main() {
-    etest::test("get_property"sv, [] {
+    etest::test("get_property", [] {
         dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
         style::StyledNode styled_node{
                 .node = dom_node,
@@ -24,7 +24,7 @@ int main() {
         expect(style::get_property(styled_node, "good_property"sv).value() == "fantastic_value"sv);
     });
 
-    etest::test("property inheritance"sv, [] {
+    etest::test("property inheritance", [] {
         dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
         style::StyledNode root{
                 .node = dom_node,
