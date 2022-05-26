@@ -1435,7 +1435,10 @@ void Tokenizer::run() {
                         state_ = State::DoctypePublicIdentifierDoubleQuoted;
                         continue;
                     case '\'':
-                        std::terminate();
+                        emit(ParseError::MissingWhitespaceAfterDoctypePublicKeyword);
+                        std::get<DoctypeToken>(current_token_).public_identifier = ""s;
+                        state_ = State::DoctypePublicIdentifierSingleQuoted;
+                        continue;
                     case '>':
                         emit(ParseError::MissingDoctypePublicIdentifier);
                         std::get<DoctypeToken>(current_token_).force_quirks = true;
@@ -1471,7 +1474,9 @@ void Tokenizer::run() {
                         state_ = State::DoctypePublicIdentifierDoubleQuoted;
                         continue;
                     case '\'':
-                        std::terminate();
+                        std::get<DoctypeToken>(current_token_).public_identifier = ""s;
+                        state_ = State::DoctypePublicIdentifierSingleQuoted;
+                        continue;
                     case '>':
                         emit(ParseError::MissingDoctypePublicIdentifier);
                         std::get<DoctypeToken>(current_token_).force_quirks = true;
@@ -1498,6 +1503,36 @@ void Tokenizer::run() {
 
                 switch (*c) {
                     case '"':
+                        state_ = State::AfterDoctypePublicIdentifier;
+                        continue;
+                    case '\0':
+                        emit(ParseError::UnexpectedNullCharacter);
+                        *std::get<DoctypeToken>(current_token_).public_identifier += util::unicode_to_utf8(0xFFFD);
+                        continue;
+                    case '>':
+                        emit(ParseError::AbruptDoctypePublicIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        *std::get<DoctypeToken>(current_token_).public_identifier += *c;
+                        continue;
+                }
+            }
+
+            case State::DoctypePublicIdentifierSingleQuoted: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\'':
                         state_ = State::AfterDoctypePublicIdentifier;
                         continue;
                     case '\0':
