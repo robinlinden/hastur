@@ -25,6 +25,8 @@ using namespace std::literals;
 namespace render {
 namespace {
 
+constexpr std::string_view kDefaultColor{"#000000"};
+
 struct CaseInsensitiveLess {
     using is_transparent = void;
     bool operator()(std::string_view s1, std::string_view s2) const {
@@ -99,7 +101,7 @@ void render_text(gfx::IPainter &painter, layout::LayoutBox const &layout, dom::T
     // * This shouldn't be done here.
     auto font = gfx::Font{"arial"sv};
     auto font_size = gfx::FontSize{.px = 10};
-    auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or("#000000"sv));
+    auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or(kDefaultColor));
     painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
 }
 
