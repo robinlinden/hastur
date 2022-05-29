@@ -30,5 +30,6 @@ dependencies = {
     ) + [
         ":html2",
         "//etest",
+        "@fmt",
     ],
 ) for src in glob(["*_test.cpp"])]
