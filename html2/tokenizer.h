@@ -155,6 +155,7 @@ private:
     void flush_code_points_consumed_as_a_character_reference();
     void emit_temporary_buffer_as_character_tokens();
     bool is_appropriate_end_tag_token(Token const &) const;
+    void emit_replacement_character();
 };
 
 } // namespace html2

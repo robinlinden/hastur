@@ -168,9 +168,8 @@ void Tokenizer::run() {
                         state_ = State::ScriptDataLessThanSign;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit(ParseError::UnexpectedNullCharacter);
+                        emit_replacement_character();
                         continue;
                     default:
                         emit(CharacterToken{*c});
@@ -424,9 +423,8 @@ void Tokenizer::run() {
                         state_ = State::ScriptDataEscapedLessThanSign;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit(ParseError::UnexpectedNullCharacter);
+                        emit_replacement_character();
                         continue;
                     default:
                         emit(CharacterToken{*c});
@@ -451,10 +449,9 @@ void Tokenizer::run() {
                         state_ = State::ScriptDataEscapedLessThanSign;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         state_ = State::ScriptDataEscaped;
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit_replacement_character();
                         continue;
                     default:
                         state_ = State::ScriptDataEscaped;
@@ -483,10 +480,9 @@ void Tokenizer::run() {
                         emit(CharacterToken{*c});
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         state_ = State::ScriptDataEscaped;
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit_replacement_character();
                         continue;
                     default:
                         state_ = State::ScriptDataEscaped;
@@ -645,9 +641,8 @@ void Tokenizer::run() {
                         emit(CharacterToken{*c});
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit(ParseError::UnexpectedNullCharacter);
+                        emit_replacement_character();
                         continue;
                     default:
                         emit(CharacterToken{*c});
@@ -673,10 +668,9 @@ void Tokenizer::run() {
                         emit(CharacterToken{*c});
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         state_ = State::ScriptDataDoubleEscaped;
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit_replacement_character();
                         continue;
                     default:
                         state_ = State::ScriptDataDoubleEscaped;
@@ -706,10 +700,9 @@ void Tokenizer::run() {
                         emit(CharacterToken{*c});
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         state_ = State::ScriptDataDoubleEscaped;
-                        // TODO(mkiael): Emit replacement character for null
-                        // emit(CharacterToken("\xFF\xFD"));
+                        emit_replacement_character();
                         continue;
                     default:
                         state_ = State::ScriptDataDoubleEscaped;
@@ -1897,6 +1890,12 @@ bool Tokenizer::is_appropriate_end_tag_token(Token const &token) const {
         return std::get<EndTagToken>(token).tag_name == last_start_tag_name_;
     }
     return false;
+}
+
+void Tokenizer::emit_replacement_character() {
+    for (char c : util::unicode_to_utf8(0xFFFD)) {
+        emit(CharacterToken{c});
+    }
 }
 
 } // namespace html2

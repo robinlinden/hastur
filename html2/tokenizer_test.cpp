@@ -108,6 +108,16 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("script, unexpected null", [] {
+        auto tokens = run_tokenizer("<script>\0</script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, kReplacementCharacter);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("script, with source file attribute", [] {
         auto tokens = run_tokenizer("<script src=\"/foo.js\"></script>");
 
@@ -162,11 +172,41 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("script, escaped null", [] {
+        auto tokens = run_tokenizer("<script><!-- \0 --></script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- "s + kReplacementCharacter + " -->");
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("script, escaped one dash", [] {
         auto tokens = run_tokenizer("<script><!-- -<</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!-- -<"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped dash null", [] {
+        auto tokens = run_tokenizer("<script><!-- -\0</script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- -"s + kReplacementCharacter);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, escaped dash dash null", [] {
+        auto tokens = run_tokenizer("<script><!-- --\0</script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!-- --"s + kReplacementCharacter);
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
     });
@@ -209,11 +249,41 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("script, double escaped null", [] {
+        auto tokens = run_tokenizer("<script><!--<script>\0</script>--></script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>"s + kReplacementCharacter + "</script>-->");
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("script, double escaped dash", [] {
         auto tokens = run_tokenizer("<script><!--<script>---</script>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script>---</script>-->"sv);
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped dash null", [] {
+        auto tokens = run_tokenizer("<script><!--<script>-\0</script>--></script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>-"s + kReplacementCharacter + "</script>-->");
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("script, double escaped dash dash null", [] {
+        auto tokens = run_tokenizer("<script><!--<script>--\0</script>--></script>"sv);
+
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>--"s + kReplacementCharacter + "</script>-->");
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
     });
