@@ -6,8 +6,6 @@
 #ifndef UTIL_STRING_H_
 #define UTIL_STRING_H_
 
-#include <range/v3/algorithm/equal.hpp>
-
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -18,7 +16,7 @@
 namespace util {
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-    return ranges::equal(a, b, [](auto c1, auto c2) { return std::tolower(c1) == std::tolower(c2); });
+    return std::ranges::equal(a, b, [](auto c1, auto c2) { return std::tolower(c1) == std::tolower(c2); });
 }
 
 inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
