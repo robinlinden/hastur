@@ -92,7 +92,7 @@ build:gcc12 --per_file_copt='external/freetype2[:/]@-Wno-dangling-pointer'
 build:gcc12 --per_file_copt='external/glew[:/]@-Wno-address'
 
 build:windows --enable_runfiles
-build:windows --cxxopt='/std:c++20'
+build:windows --cxxopt='/std:c++latest' # We're using parts of C++20 that aren't ABI-stable yet. See: https://github.com/microsoft/STL/issues/1814#issuecomment-845572895
 build:windows --copt='/W4' # More warnings.
 build:windows --copt='/WX' # Treat warnings as errors.
 build:windows --copt='/permissive-' # Conform to the standard.

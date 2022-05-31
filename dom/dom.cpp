@@ -1,16 +1,13 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "dom/dom.h"
 
-#include <range/v3/action/push_back.hpp>
-#include <range/v3/view/remove_if.hpp>
-#include <range/v3/view/transform.hpp>
-
 #include <algorithm>
 #include <iterator>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <variant>
 #include <vector>
@@ -78,9 +75,9 @@ std::vector<Element const *> nodes_by_path(std::reference_wrapper<Element const>
 
             if (path.starts_with(node->name + ".")) {
                 auto view = node->children
-                        | ranges::views::transform([](Node const &n) { return std::get_if<Element>(&n); })
-                        | ranges::views::remove_if([](Element const *n) { return n == nullptr; });
-                next_search |= ranges::actions::push_back(view);
+                        | std::ranges::views::transform([](Node const &n) { return std::get_if<Element>(&n); })
+                        | std::ranges::views::filter([](Element const *n) { return n != nullptr; });
+                std::ranges::copy(view, std::back_inserter(next_search));
             }
         }
 
