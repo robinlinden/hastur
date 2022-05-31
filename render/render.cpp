@@ -9,9 +9,9 @@
 #include "gfx/color.h"
 #include "style/style.h"
 
-#include <range/v3/algorithm/lexicographical_compare.hpp>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <cctype>
 #include <charconv>
 #include <cstdint>
@@ -30,7 +30,7 @@ constexpr std::string_view kDefaultColor{"#000000"};
 struct CaseInsensitiveLess {
     using is_transparent = void;
     bool operator()(std::string_view s1, std::string_view s2) const {
-        return ranges::lexicographical_compare(
+        return std::ranges::lexicographical_compare(
                 s1, s2, [](unsigned char c1, unsigned char c2) { return std::tolower(c1) < std::tolower(c2); });
     }
 };
