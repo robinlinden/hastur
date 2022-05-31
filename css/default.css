@@ -96,32 +96,51 @@ ul {
   display: block;
 }
 
+/* TODO(robinlinden): margin-top/bottom -> margin-block-start/end once handled. */
+p {
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
 h1 {
   display: block;
   font-size: 2em;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
 }
 
 h2 {
   display: block;
   font-size: 1.5em;
+  margin-top: 0.83em;
+  margin-bottom: 0.83em;
 }
 
 h3 {
   display: block;
   font-size: 1.17em;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 h4 {
   display: block;
   font-size: 1em;
+  margin-top: 1.33em;
+  margin-bottom: 1.33em;
 }
 
 h5 {
   display: block;
   font-size: 0.83em;
+  margin-top: 1.67em;
+  margin-bottom: 1.67em;
 }
 
 h6 {
   display: block;
   font-size: 0.67em;
+  margin-top: 2.33em;
+  margin-bottom: 2.33em;
 }
