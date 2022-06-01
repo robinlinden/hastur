@@ -19,6 +19,7 @@ build --incompatible_disallow_empty_glob
 # =========================================================
 
 build:linux --cxxopt='-std=c++20'
+build:linux --cxxopt='-fno-rtti'
 build:linux --copt='-Wall'
 build:linux --copt='-Wextra'
 build:linux --copt='-pedantic-errors'
@@ -93,6 +94,7 @@ build:gcc12 --per_file_copt='external/glew[:/]@-Wno-address'
 
 build:windows --enable_runfiles
 build:windows --cxxopt='/std:c++20'
+build:windows --cxxopt='/GR-' # Disable rtti.
 build:windows --copt='/W4' # More warnings.
 build:windows --copt='/WX' # Treat warnings as errors.
 build:windows --copt='/permissive-' # Conform to the standard.

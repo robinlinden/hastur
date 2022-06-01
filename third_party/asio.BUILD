@@ -7,7 +7,10 @@ cc_library(
         "include/**/*.hpp",
         "include/**/*.ipp",
     ]),
-    defines = ["ASIO_SEPARATE_COMPILATION"],
+    defines = [
+        "ASIO_NO_TYPEID",
+        "ASIO_SEPARATE_COMPILATION",
+    ],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
     deps = ["@boringssl//:ssl"],
