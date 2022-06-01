@@ -47,9 +47,9 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     painter_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     engine_.set_layout_width(window_.getSize().x / scale_);
-    engine_.set_on_navigation_failure(std::bind(&App::on_navigation_failure, this, std::placeholders::_1));
-    engine_.set_on_page_loaded(std::bind(&App::on_page_loaded, this));
-    engine_.set_on_layout_updated(std::bind(&App::on_layout_updated, this));
+    engine_.set_on_navigation_failure(std::bind_front(&App::on_navigation_failure, this));
+    engine_.set_on_page_loaded(std::bind_front(&App::on_page_loaded, this));
+    engine_.set_on_layout_updated(std::bind_front(&App::on_layout_updated, this));
 
     if (load_start_page) {
         navigate();

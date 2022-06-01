@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    browser::gui::App app{kBrowserTitle, page_provided ? *page_provided : kStartpage, page_provided.has_value()};
+    browser::gui::App app{kBrowserTitle, page_provided.value_or(kStartpage), page_provided.has_value()};
     app.set_scale(scale);
     return app.run();
 }

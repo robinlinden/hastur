@@ -87,15 +87,11 @@ void Engine::on_navigation_success() {
     }
 
     auto head_links = dom::nodes_by_path(dom_.html(), "html.head.link");
-    head_links.erase(
-            std::remove_if(begin(head_links),
-                    end(head_links),
-                    [](auto const *link) {
-                        return !link->attributes.contains("rel")
-                                || (link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet")
-                                || !link->attributes.contains("href");
-                    }),
-            end(head_links));
+    std::erase_if(head_links, [](auto const *link) {
+        return !link->attributes.contains("rel")
+                || (link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet")
+                || !link->attributes.contains("href");
+    });
 
     // Start downloading all stylesheets.
     spdlog::info("Loading {} stylesheets", head_links.size());
