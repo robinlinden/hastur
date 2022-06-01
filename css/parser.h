@@ -44,6 +44,28 @@ public:
                 skip_whitespace_and_comments();
             }
 
+            // https://developer.mozilla.org/en-US/docs/Web/CSS/@keyframes
+            // Not saved or anything yet, but stops us from crashing when encountering it.
+            if (starts_with("@keyframes ")) {
+                advance(std::strlen("@keyframes "));
+                skip_whitespace_and_comments();
+                [[maybe_unused]] auto keyframes_name = consume_while([](char c) { return c != '{'; });
+                consume_char(); // {
+                skip_whitespace_and_comments();
+
+                while (peek() != '}') {
+                    [[maybe_unused]] auto rule = parse_rule();
+                    skip_whitespace_and_comments();
+                }
+
+                consume_char(); // }
+                skip_whitespace_and_comments();
+
+                if (is_eof()) {
+                    break;
+                }
+            }
+
             rules.push_back(parse_rule());
             if (!media_query.empty()) {
                 rules.back().media_query = std::string{media_query};

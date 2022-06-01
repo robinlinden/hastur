@@ -615,5 +615,22 @@ int main() {
         expect(check_initial_font_values(body.declarations));
     });
 
+    etest::test("parser: @keyframes doesn't crash the parser", [] {
+        auto css = R"(
+            @keyframes toast-spinner {
+                from {
+                    transform: rotate(0deg)
+                }
+
+                to {
+                    transform: rotate(360deg)
+                }
+            })"sv;
+
+        // No rules produced (yet!) since this isn't handled aside from not crashing.
+        auto rules = css::parse(css);
+        expect(rules.empty());
+    });
+
     return etest::run_all_tests();
 }
