@@ -318,7 +318,7 @@ void App::run_http_response_widget() const {
 }
 
 void App::run_dom_widget() const {
-    ImGui::SetNextWindowPos(ImVec2(0, 50 * static_cast<float>(scale_)), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 70 * static_cast<float>(scale_)), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
     ImGui::Begin("DOM");
     ImGui::TextUnformatted(dom_str_.c_str());
