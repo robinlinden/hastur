@@ -114,6 +114,15 @@ void Engine::on_navigation_success() {
                 return {};
             }
 
+            if ((stylesheet_url.starts_with("http://") || stylesheet_url.starts_with("https://"))
+                    && style_data.status_line.status_code != 200) {
+                spdlog::warn("Error {}: {} downloading {}",
+                        style_data.status_line.status_code,
+                        style_data.status_line.reason,
+                        stylesheet_url);
+                return {};
+            }
+
             return css::parse(style_data.body);
         }));
     }
