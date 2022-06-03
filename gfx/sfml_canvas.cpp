@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "gfx/sfml_painter.h"
+#include "gfx/sfml_canvas.h"
 
 #include "os/os.h"
 
@@ -55,12 +55,12 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
 
 } // namespace
 
-void SfmlPainter::set_viewport_size(int width, int height) {
+void SfmlCanvas::set_viewport_size(int width, int height) {
     sf::View viewport{sf::FloatRect{0, 0, static_cast<float>(width), static_cast<float>(height)}};
     target_.setView(viewport);
 }
 
-void SfmlPainter::fill_rect(geom::Rect const &rect, Color color) {
+void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
     auto translated{rect.translated(tx_, ty_)};
     auto scaled{translated.scaled(scale_)};
 
@@ -71,7 +71,7 @@ void SfmlPainter::fill_rect(geom::Rect const &rect, Color color) {
 }
 
 // TODO(robinlinden): Fonts are never evicted from the cache.
-void SfmlPainter::draw_text(geom::Position p, std::string_view text, Font font, FontSize size, Color color) {
+void SfmlCanvas::draw_text(geom::Position p, std::string_view text, Font font, FontSize size, Color color) {
     auto const *sf_font = [&]() -> sf::Font const * {
         if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
             return &*it->second;

@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef GFX_PAINT_COMMAND_SAVER_H_
-#define GFX_PAINT_COMMAND_SAVER_H_
+#ifndef GFX_CANVAS_COMMAND_SAVER_H_
+#define GFX_CANVAS_COMMAND_SAVER_H_
 
-#include "gfx/ipainter.h"
+#include "gfx/icanvas.h"
 
 #include <string>
 #include <utility>
@@ -51,11 +51,11 @@ struct DrawTextCmd {
     [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;
 };
 
-using PaintCommand = std::variant<SetViewportSizeCmd, SetScaleCmd, AddTranslationCmd, FillRectCmd, DrawTextCmd>;
+using CanvasCommand = std::variant<SetViewportSizeCmd, SetScaleCmd, AddTranslationCmd, FillRectCmd, DrawTextCmd>;
 
-class PaintCommandSaver : public IPainter {
+class CanvasCommandSaver : public ICanvas {
 public:
-    // IPainter
+    // ICanvas
     void set_viewport_size(int width, int height) override { cmds_.emplace_back(SetViewportSizeCmd{width, height}); }
     void set_scale(int scale) override { cmds_.emplace_back(SetScaleCmd{scale}); }
     void add_translation(int dx, int dy) override { cmds_.emplace_back(AddTranslationCmd{dx, dy}); }
@@ -65,31 +65,31 @@ public:
     }
 
     //
-    [[nodiscard]] std::vector<PaintCommand> take_commands() { return std::exchange(cmds_, {}); }
+    [[nodiscard]] std::vector<CanvasCommand> take_commands() { return std::exchange(cmds_, {}); }
 
 private:
-    std::vector<PaintCommand> cmds_{};
+    std::vector<CanvasCommand> cmds_{};
 };
 
-class PaintCommandVisitor {
+class CanvasCommandVisitor {
 public:
-    constexpr PaintCommandVisitor(IPainter &painter) : painter_{painter} {}
+    constexpr CanvasCommandVisitor(ICanvas &canvas) : canvas_{canvas} {}
 
-    constexpr void operator()(SetViewportSizeCmd const &cmd) { painter_.set_viewport_size(cmd.width, cmd.height); }
-    constexpr void operator()(SetScaleCmd const &cmd) { painter_.set_scale(cmd.scale); }
-    constexpr void operator()(AddTranslationCmd const &cmd) { painter_.add_translation(cmd.dx, cmd.dy); }
-    constexpr void operator()(FillRectCmd const &cmd) { painter_.fill_rect(cmd.rect, cmd.color); }
+    constexpr void operator()(SetViewportSizeCmd const &cmd) { canvas_.set_viewport_size(cmd.width, cmd.height); }
+    constexpr void operator()(SetScaleCmd const &cmd) { canvas_.set_scale(cmd.scale); }
+    constexpr void operator()(AddTranslationCmd const &cmd) { canvas_.add_translation(cmd.dx, cmd.dy); }
+    constexpr void operator()(FillRectCmd const &cmd) { canvas_.fill_rect(cmd.rect, cmd.color); }
 
     void operator()(DrawTextCmd const &cmd) {
-        painter_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.color);
+        canvas_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.color);
     }
 
 private:
-    IPainter &painter_;
+    ICanvas &canvas_;
 };
 
-inline void replay_commands(IPainter &painter, std::vector<PaintCommand> const &commands) {
-    PaintCommandVisitor visitor{painter};
+inline void replay_commands(ICanvas &canvas, std::vector<CanvasCommand> const &commands) {
+    CanvasCommandVisitor visitor{canvas};
     for (auto const &command : commands) {
         std::visit(visitor, command);
     }

@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef GFX_OPENGL_PAINTER_H_
-#define GFX_OPENGL_PAINTER_H_
+#ifndef GFX_OPENGL_CANVAS_H_
+#define GFX_OPENGL_CANVAS_H_
 
-#include "gfx/ipainter.h"
+#include "gfx/icanvas.h"
 
 namespace gfx {
 
-class OpenGLPainter final : public IPainter {
+class OpenGLCanvas final : public ICanvas {
 public:
-    OpenGLPainter();
+    OpenGLCanvas();
 
     void set_viewport_size(int width, int height) override;
     constexpr void set_scale(int scale) override { scale_ = scale; }

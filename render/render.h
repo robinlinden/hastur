@@ -5,15 +5,15 @@
 #ifndef RENDER_RENDER_H_
 #define RENDER_RENDER_H_
 
-#include "gfx/ipainter.h"
+#include "gfx/icanvas.h"
 #include "layout/layout.h"
 
 namespace render {
 
-void render_layout(gfx::IPainter &, layout::LayoutBox const &);
+void render_layout(gfx::ICanvas &, layout::LayoutBox const &);
 
 namespace debug {
-void render_layout_depth(gfx::IPainter &, layout::LayoutBox const &);
+void render_layout_depth(gfx::ICanvas &, layout::LayoutBox const &);
 } // namespace debug
 } // namespace render
 
