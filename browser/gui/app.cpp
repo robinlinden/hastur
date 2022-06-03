@@ -5,7 +5,7 @@
 #include "browser/gui/app.h"
 
 #include "dom/dom.h"
-#include "gfx/opengl_painter.h"
+#include "gfx/opengl_canvas.h"
 #include "render/render.h"
 #include "uri/uri.h"
 
@@ -44,7 +44,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
       url_buf_{std::move(start_page_hint)} {
     window_.setFramerateLimit(60);
     ImGui::SFML::Init(window_);
-    painter_->set_viewport_size(window_.getSize().x, window_.getSize().y);
+    canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     engine_.set_layout_width(window_.getSize().x / scale_);
     engine_.set_on_navigation_failure(std::bind_front(&App::on_navigation_failure, this));
@@ -63,13 +63,13 @@ App::~App() {
 void App::set_scale(unsigned scale) {
     scale_ = scale;
     ImGui::GetIO().FontGlobalScale = static_cast<float>(scale_);
-    painter_->set_scale(scale_);
+    canvas_->set_scale(scale_);
     auto windowSize = window_.getSize();
 
     // Only resize the window if the user hasn't resized it.
     if (windowSize.x == kDefaultResolutionX && windowSize.y == kDefaultResolutionY) {
         window_.setSize({kDefaultResolutionX * scale_, kDefaultResolutionY * scale_});
-        painter_->set_viewport_size(window_.getSize().x, window_.getSize().y);
+        canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
     }
 
     engine_.set_layout_width(windowSize.x / scale_);
@@ -87,7 +87,7 @@ int App::run() {
                     break;
                 }
                 case sf::Event::Resized: {
-                    painter_->set_viewport_size(event.size.width, event.size.height);
+                    canvas_->set_viewport_size(event.size.width, event.size.height);
                     engine_.set_layout_width(event.size.width / scale_);
                     break;
                 }
@@ -110,7 +110,7 @@ int App::run() {
                             break;
                         }
                         case sf::Keyboard::Key::F2: {
-                            switch_painter();
+                            switch_canvas();
                             break;
                         }
                         default:
@@ -273,12 +273,12 @@ geom::Position App::to_document_position(geom::Position window_position) const {
 }
 
 void App::reset_scroll() {
-    painter_->add_translation(0, -scroll_offset_y_);
+    canvas_->add_translation(0, -scroll_offset_y_);
     scroll_offset_y_ = 0;
 }
 
 void App::scroll(int pixels) {
-    painter_->add_translation(0, pixels);
+    canvas_->add_translation(0, pixels);
     scroll_offset_y_ += pixels;
 }
 
@@ -339,9 +339,9 @@ void App::clear_render_surface() {
 
 void App::render_layout() {
     if (render_debug_) {
-        render::debug::render_layout_depth(*painter_, engine_.layout());
+        render::debug::render_layout_depth(*canvas_, engine_.layout());
     } else {
-        render::render_layout(*painter_, engine_.layout());
+        render::render_layout(*canvas_, engine_.layout());
     }
 }
 
@@ -353,14 +353,14 @@ void App::show_render_surface() {
     window_.display();
 }
 
-void App::switch_painter() {
+void App::switch_canvas() {
     reset_scroll();
-    if (selected_painter_ == Painter::OpenGL) {
-        selected_painter_ = Painter::Sfml;
-        painter_ = std::make_unique<gfx::SfmlPainter>(window_);
+    if (selected_canvas_ == Canvas::OpenGL) {
+        selected_canvas_ = Canvas::Sfml;
+        canvas_ = std::make_unique<gfx::SfmlCanvas>(window_);
     } else {
-        selected_painter_ = Painter::OpenGL;
-        painter_ = std::make_unique<gfx::OpenGLPainter>();
+        selected_canvas_ = Canvas::OpenGL;
+        canvas_ = std::make_unique<gfx::OpenGLCanvas>();
     }
 }
 

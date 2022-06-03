@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef GFX_SFML_PAINTER_H_
-#define GFX_SFML_PAINTER_H_
+#ifndef GFX_SFML_CANVAS_H_
+#define GFX_SFML_CANVAS_H_
 
-#include "gfx/ipainter.h"
+#include "gfx/icanvas.h"
 
 #include <map>
 #include <memory>
@@ -17,9 +17,9 @@ class RenderTarget;
 
 namespace gfx {
 
-class SfmlPainter : public IPainter {
+class SfmlCanvas : public ICanvas {
 public:
-    SfmlPainter(sf::RenderTarget &target) : target_{target} {}
+    SfmlCanvas(sf::RenderTarget &target) : target_{target} {}
 
     void set_viewport_size(int width, int height) override;
     constexpr void set_scale(int scale) override { scale_ = scale; }

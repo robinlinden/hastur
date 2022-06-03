@@ -2,18 +2,18 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "gfx/opengl_painter.h"
+#include "gfx/opengl_canvas.h"
 
 #include <GL/glew.h>
 
 namespace gfx {
 
-OpenGLPainter::OpenGLPainter() {
+OpenGLCanvas::OpenGLCanvas() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void OpenGLPainter::set_viewport_size(int width, int height) {
+void OpenGLCanvas::set_viewport_size(int width, int height) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, width, height, 0, -1.0, 1.0);
@@ -22,7 +22,7 @@ void OpenGLPainter::set_viewport_size(int width, int height) {
     glLoadIdentity();
 }
 
-void OpenGLPainter::fill_rect(geom::Rect const &rect, Color color) {
+void OpenGLCanvas::fill_rect(geom::Rect const &rect, Color color) {
     auto translated{rect.translated(translation_x, translation_y)};
     auto scaled{translated.scaled(scale_)};
     glColor4ub(color.r, color.g, color.b, color.a);

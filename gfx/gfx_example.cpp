@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "gfx/color.h"
-#include "gfx/opengl_painter.h"
-#include "gfx/sfml_painter.h"
+#include "gfx/opengl_canvas.h"
+#include "gfx/sfml_canvas.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
@@ -19,14 +19,14 @@ int main(int argc, char **argv) {
     window.setVerticalSyncEnabled(true);
     window.setActive(true);
 
-    auto painter = [&]() -> std::unique_ptr<gfx::IPainter> {
+    auto canvas = [&]() -> std::unique_ptr<gfx::ICanvas> {
         if (argc == 2 && argv[1] == "--sf"sv) {
-            return std::make_unique<gfx::SfmlPainter>(window);
+            return std::make_unique<gfx::SfmlCanvas>(window);
         }
-        return std::make_unique<gfx::OpenGLPainter>();
+        return std::make_unique<gfx::OpenGLCanvas>();
     }();
 
-    painter->set_viewport_size(window.getSize().x, window.getSize().y);
+    canvas->set_viewport_size(window.getSize().x, window.getSize().y);
 
     bool running = true;
     while (running) {
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
                     running = false;
                     break;
                 case sf::Event::Resized:
-                    painter->set_viewport_size(event.size.width, event.size.height);
+                    canvas->set_viewport_size(event.size.width, event.size.height);
                     break;
                 default:
                     break;
@@ -48,12 +48,12 @@ int main(int argc, char **argv) {
         auto x = static_cast<int>(size.x);
         auto y = static_cast<int>(size.y);
 
-        painter->fill_rect({0, 0, x, y}, gfx::Color{0xFF, 0xFF, 0xFF});
+        canvas->fill_rect({0, 0, x, y}, gfx::Color{0xFF, 0xFF, 0xFF});
 
-        painter->fill_rect({200, 200, 100, 100}, gfx::Color{0, 0, 0xAA});
-        painter->fill_rect({x / 4 + 50, y / 3 + 50, x / 2, y / 3}, gfx::Color{0xAA, 0, 0, 0x33});
+        canvas->fill_rect({200, 200, 100, 100}, gfx::Color{0, 0, 0xAA});
+        canvas->fill_rect({x / 4 + 50, y / 3 + 50, x / 2, y / 3}, gfx::Color{0xAA, 0, 0, 0x33});
 
-        painter->draw_text({100, 50}, "hello!"sv, {"arial"}, {16}, gfx::Color{});
+        canvas->draw_text({100, 50}, "hello!"sv, {"arial"}, {16}, gfx::Color{});
 
         window.display();
     }

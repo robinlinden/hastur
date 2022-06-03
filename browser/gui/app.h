@@ -7,8 +7,8 @@
 
 #include "browser/engine.h"
 #include "dom/dom.h"
-#include "gfx/ipainter.h"
-#include "gfx/sfml_painter.h"
+#include "gfx/icanvas.h"
+#include "gfx/sfml_canvas.h"
 #include "layout/layout.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -41,13 +41,13 @@ private:
     std::string layout_str_{};
     std::string nav_widget_extra_info_{};
 
-    enum class Painter {
+    enum class Canvas {
         OpenGL,
         Sfml,
     };
 
-    Painter selected_painter_{Painter::Sfml};
-    std::unique_ptr<gfx::IPainter> painter_{std::make_unique<gfx::SfmlPainter>(window_)};
+    Canvas selected_canvas_{Canvas::Sfml};
+    std::unique_ptr<gfx::ICanvas> canvas_{std::make_unique<gfx::SfmlCanvas>(window_)};
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".
@@ -84,7 +84,7 @@ private:
     void render_overlay();
     void show_render_surface();
 
-    void switch_painter();
+    void switch_canvas();
 };
 
 } // namespace browser::gui

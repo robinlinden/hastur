@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef GFX_IPAINTER_H_
-#define GFX_IPAINTER_H_
+#ifndef GFX_ICANVAS_H_
+#define GFX_ICANVAS_H_
 
 #include "geom/geom.h"
 #include "gfx/color.h"
@@ -20,9 +20,9 @@ struct FontSize {
     int px{10};
 };
 
-class IPainter {
+class ICanvas {
 public:
-    virtual ~IPainter() = default;
+    virtual ~ICanvas() = default;
 
     virtual void set_viewport_size(int width, int height) = 0;
     virtual void set_scale(int scale) = 0;

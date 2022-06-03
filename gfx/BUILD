@@ -4,7 +4,7 @@ cc_library(
     name = "gfx",
     hdrs = glob(
         include = ["*.h"],
-        exclude = ["*_painter.h"],
+        exclude = ["*_canvas.h"],
     ),
     visibility = ["//visibility:public"],
     deps = ["//geom"],
@@ -12,8 +12,8 @@ cc_library(
 
 cc_library(
     name = "opengl",
-    srcs = ["opengl_painter.cpp"],
-    hdrs = ["opengl_painter.h"],
+    srcs = ["opengl_canvas.cpp"],
+    hdrs = ["opengl_canvas.h"],
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
@@ -23,8 +23,8 @@ cc_library(
 
 cc_library(
     name = "sfml",
-    srcs = ["sfml_painter.cpp"],
-    hdrs = ["sfml_painter.h"],
+    srcs = ["sfml_canvas.cpp"],
+    hdrs = ["sfml_canvas.h"],
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
