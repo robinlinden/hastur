@@ -2,10 +2,13 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "gfx",
-    hdrs = glob(
-        include = ["*.h"],
-        exclude = ["*_canvas.h"],
-    ),
+    hdrs = [
+        "canvas_command_saver.h",
+        "color.h",
+        "font.h",
+        "icanvas.h",
+        "painter.h",
+    ],
     visibility = ["//visibility:public"],
     deps = ["//geom"],
 )
