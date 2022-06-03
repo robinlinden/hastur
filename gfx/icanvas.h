@@ -7,18 +7,11 @@
 
 #include "geom/geom.h"
 #include "gfx/color.h"
+#include "gfx/font.h"
 
 #include <string_view>
 
 namespace gfx {
-
-struct Font {
-    std::string_view font;
-};
-
-struct FontSize {
-    int px{10};
-};
 
 class ICanvas {
 public:
