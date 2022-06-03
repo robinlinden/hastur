@@ -6,6 +6,7 @@
 
 #include "dom/dom.h"
 #include "gfx/opengl_canvas.h"
+#include "gfx/painter.h"
 #include "render/render.h"
 #include "uri/uri.h"
 
@@ -338,10 +339,11 @@ void App::clear_render_surface() {
 }
 
 void App::render_layout() {
+    gfx::Painter painter(*canvas_);
     if (render_debug_) {
-        render::debug::render_layout_depth(*canvas_, engine_.layout());
+        render::debug::render_layout_depth(painter, engine_.layout());
     } else {
-        render::render_layout(*canvas_, engine_.layout());
+        render::render_layout(painter, engine_.layout());
     }
 }
 

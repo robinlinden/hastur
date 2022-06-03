@@ -99,17 +99,17 @@ gfx::Color parse_color(std::string_view str) {
     return gfx::Color{0xFF, 0, 0};
 }
 
-void render_text(gfx::ICanvas &canvas, layout::LayoutBox const &layout, dom::Text const &text) {
+void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
     // TODO(robinlinden):
     // * We need to grab properties from the parent for this to work.
     // * This shouldn't be done here.
     auto font = gfx::Font{"arial"sv};
     auto font_size = gfx::FontSize{.px = 10};
     auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or(kDefaultColor));
-    canvas.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
+    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
 }
 
-void render_borders(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
+void render_borders(gfx::Painter &painter, layout::LayoutBox const &layout) {
     // TODO(mkiael): Handle a lot more border styles
     auto color = style::get_property(*layout.node, "color"sv).value_or(kDefaultColor);
     auto border_box = layout.dimensions.border_box();
@@ -120,7 +120,7 @@ void render_borders(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
                 border_size.left,
                 border_box.height - border_size.top - border_size.bottom};
         auto border_color = style::get_property(*layout.node, "border-left-color"sv).value_or(color);
-        canvas.fill_rect(border, parse_color(border_color));
+        painter.fill_rect(border, parse_color(border_color));
     }
     if (border_size.right > 0) {
         geom::Rect border{border_box.right() - border_size.right,
@@ -128,35 +128,35 @@ void render_borders(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
                 border_size.right,
                 border_box.height - border_size.top - border_size.bottom};
         auto border_color = style::get_property(*layout.node, "border-right-color"sv).value_or(color);
-        canvas.fill_rect(border, parse_color(border_color));
+        painter.fill_rect(border, parse_color(border_color));
     }
     if (border_size.top > 0) {
         geom::Rect border{border_box.left(), border_box.top(), border_box.width, border_size.top};
         auto border_color = style::get_property(*layout.node, "border-top-color"sv).value_or(color);
-        canvas.fill_rect(border, parse_color(border_color));
+        painter.fill_rect(border, parse_color(border_color));
     }
     if (border_size.bottom > 0) {
         geom::Rect border{
                 border_box.left(), border_box.bottom() - border_size.bottom, border_box.width, border_size.bottom};
         auto border_color = style::get_property(*layout.node, "border-bottom-color"sv).value_or(color);
-        canvas.fill_rect(border, parse_color(border_color));
+        painter.fill_rect(border, parse_color(border_color));
     }
 }
 
-void render_background(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
+void render_background(gfx::Painter &painter, layout::LayoutBox const &layout) {
     if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
-        canvas.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
+        painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
     }
 }
 
-void do_render(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
+void do_render(gfx::Painter &painter, layout::LayoutBox const &layout) {
     if (auto const *text = try_get_text(layout)) {
-        render_text(canvas, layout, *text);
+        render_text(painter, layout, *text);
     } else {
         if (has_any_border(layout)) {
-            render_borders(canvas, layout);
+            render_borders(painter, layout);
         }
-        render_background(canvas, layout);
+        render_background(painter, layout);
     }
 }
 
@@ -166,22 +166,22 @@ bool should_render(layout::LayoutBox const &layout) {
 
 } // namespace
 
-void render_layout(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
+void render_layout(gfx::Painter &painter, layout::LayoutBox const &layout) {
     if (should_render(layout)) {
-        do_render(canvas, layout);
+        do_render(painter, layout);
     }
 
     for (auto const &child : layout.children) {
-        render_layout(canvas, child);
+        render_layout(painter, child);
     }
 }
 
 namespace debug {
 
-void render_layout_depth(gfx::ICanvas &canvas, layout::LayoutBox const &layout) {
-    canvas.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
+void render_layout_depth(gfx::Painter &painter, layout::LayoutBox const &layout) {
+    painter.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
     for (auto const &child : layout.children) {
-        render_layout_depth(canvas, child);
+        render_layout_depth(painter, child);
     }
 }
 
