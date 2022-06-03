@@ -28,11 +28,6 @@ bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {
 }
 } // namespace
 
-// TODO(robinlinden): clang-format doesn't get along well with how I structured
-// the trees in these test cases.
-
-// clang-format off
-
 int main() {
     etest::test("is_match: simple names", [] {
         expect(style::is_match(dom::Element{"div"}, "div"sv));
@@ -55,12 +50,7 @@ int main() {
         std::vector<css::Rule> stylesheet;
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
 
-        stylesheet.push_back(css::Rule{
-            .selectors = {"span", "p"},
-            .declarations = {
-                {"width", "80px"},
-            }
-        });
+        stylesheet.push_back(css::Rule{.selectors = {"span", "p"}, .declarations = {{"width", "80px"}}});
 
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
 
@@ -76,12 +66,7 @@ int main() {
             expect(p_rules[0] == std::pair{"width"s, "80px"s});
         }
 
-        stylesheet.push_back(css::Rule{
-            .selectors = {"span", "hr"},
-            .declarations = {
-                {"height", "auto"},
-            }
-        });
+        stylesheet.push_back(css::Rule{.selectors = {"span", "hr"}, .declarations = {{"height", "auto"}}});
 
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
 
@@ -106,72 +91,41 @@ int main() {
     });
 
     etest::test("style_tree: structure", [] {
-        dom::Node root = dom::create_element_node(
-            "html",
-            {},
-            {
-                dom::create_element_node("head", {}, {}),
-                dom::create_element_node("body", {}, {
-                    dom::create_element_node("p", {}, {}),
-                }),
-            }
-        );
+        auto root = dom::Element{"html", {}, {}};
+        root.children.emplace_back(dom::create_element_node("head", {}, {}));
+        root.children.emplace_back(dom::create_element_node("body", {}, {dom::create_element_node("p", {}, {})}));
 
-        // clang-format on
-        // TODO(robinlinden): Nicer abstraction for building these trees.
-        auto const &root_as_elem = std::get<dom::Element>(root);
         style::StyledNode expected{root};
-        expected.children.push_back({root_as_elem.children[0], {}, {}, &expected});
-        expected.children.push_back({root_as_elem.children[1], {}, {}, &expected});
+        expected.children.push_back({root.children[0], {}, {}, &expected});
+        expected.children.push_back({root.children[1], {}, {}, &expected});
 
         auto &body = expected.children.back();
-        body.children.push_back({std::get<dom::Element>(root_as_elem.children[1]).children[0], {}, {}, &body});
+        body.children.push_back({std::get<dom::Element>(root.children[1]).children[0], {}, {}, &body});
 
         expect(*style::style_tree(root, {}) == expected);
         expect(check_parents(*style::style_tree(root, {}), expected));
-        // clang-format off
     });
 
     etest::test("style_tree: style is applied", [] {
-        dom::Node root = dom::create_element_node(
-            "html",
-            {},
-            {
-                dom::create_element_node("head", {}, {}),
-                dom::create_element_node("body", {}, {
-                    dom::create_element_node("p", {}, {}),
-                }),
-            }
-        );
+        auto root = dom::Element{"html", {}, {}};
+        root.children.emplace_back(dom::create_element_node("head", {}, {}));
+        root.children.emplace_back(dom::create_element_node("body", {}, {dom::create_element_node("p", {}, {})}));
 
         std::vector<css::Rule> stylesheet{
-            {
-                .selectors = {"p"},
-                .declarations = {
-                    {"height", "100px"},
-                }
-            },
-            {
-                .selectors = {"body"},
-                .declarations = {
-                    {"text-size", "500em"},
-                }
-            },
+                {.selectors = {"p"}, .declarations = {{"height", "100px"}}},
+                {.selectors = {"body"}, .declarations = {{"text-size", "500em"}}},
         };
 
-        // clang-format on
-        auto const &root_as_elem = std::get<dom::Element>(root);
         style::StyledNode expected{root};
-        expected.children.push_back({root_as_elem.children[0], {}, {}, &expected});
-        expected.children.push_back({root_as_elem.children[1], {{"text-size", "500em"}}, {}, &expected});
+        expected.children.push_back({root.children[0], {}, {}, &expected});
+        expected.children.push_back({root.children[1], {{"text-size", "500em"}}, {}, &expected});
         auto &body = expected.children.back();
 
         body.children.push_back(
-                {std::get<dom::Element>(root_as_elem.children[1]).children[0], {{"height", "100px"}}, {}, &body});
+                {std::get<dom::Element>(root.children[1]).children[0], {{"height", "100px"}}, {}, &body});
 
         expect(*style::style_tree(root, stylesheet) == expected);
         expect(check_parents(*style::style_tree(root, stylesheet), expected));
-        // clang-format off
     });
 
     return etest::run_all_tests();
