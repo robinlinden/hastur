@@ -74,6 +74,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
                                                         browser_title_},
       url_buf_{std::move(start_page_hint)} {
     window_.setFramerateLimit(60);
+    window_.setMouseCursor(cursor_);
     ImGui::SFML::Init(window_);
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
@@ -159,6 +160,23 @@ int App::run() {
                     auto document_position = to_document_position(std::move(window_position));
                     auto const *dom_node = get_hovered_node(std::move(document_position));
                     nav_widget_extra_info_ = element_text(dom_node);
+
+                    // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
+                    if (ImGui::GetIO().WantCaptureMouse) {
+                        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+                        break;
+                    }
+
+                    // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
+                    // currently hovering over.
+                    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+                    if (can_navigate_to(dom_node)) {
+                        cursor_.loadFromSystem(sf::Cursor::Hand);
+                    } else {
+                        cursor_.loadFromSystem(sf::Cursor::Arrow);
+                    }
+                    window_.setMouseCursor(cursor_);
+
                     break;
                 }
                 case sf::Event::MouseButtonReleased: {

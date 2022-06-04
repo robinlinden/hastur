@@ -13,6 +13,7 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
+#include <SFML/Window/Cursor.hpp>
 
 #include <memory>
 #include <string>
@@ -32,6 +33,7 @@ private:
     bool page_loaded_{};
 
     std::string browser_title_{};
+    sf::Cursor cursor_{};
     sf::RenderWindow window_{};
     sf::Clock clock_{};
     std::string url_buf_{};
