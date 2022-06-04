@@ -62,6 +62,11 @@ std::string element_text(dom::Node const *dom_node) {
     return element.name;
 }
 
+bool can_navigate_to(dom::Node const *node) {
+    auto const *element = std::get_if<dom::Element>(node);
+    return element && element->name == "a"sv && element->attributes.contains("href");
+}
+
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
@@ -164,16 +169,11 @@ int App::run() {
                     auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
                     auto document_position = to_document_position(std::move(window_position));
                     auto const *dom_node = get_hovered_node(std::move(document_position));
-                    if (!dom_node) {
+                    if (!dom_node || !can_navigate_to(dom_node)) {
                         break;
                     }
 
-                    auto const *element = std::get_if<dom::Element>(dom_node);
-                    if (!element || element->name != "a"s || !element->attributes.contains("href")) {
-                        break;
-                    }
-
-                    url_buf_ = element->attributes.at("href");
+                    url_buf_ = std::get<dom::Element>(*dom_node).attributes.at("href");
                     navigate();
                     break;
                 }
