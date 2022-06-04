@@ -14,6 +14,7 @@ build --enable_platform_specific_config
 # See: https://docs.bazel.build/versions/main/backward-compatibility.html
 
 build --incompatible_disallow_empty_glob
+build --incompatible_enable_cc_toolchain_resolution
 
 # Compiler configuration
 # =========================================================
@@ -125,6 +126,16 @@ build:windows --per_file_copt='external/zlib[:/]@/wd4267' # C4267: '=': conversi
 
 # Special build options
 # =========================================================
+
+# TODO(robinlinden): Our compilation flag management needs some cleanup for this
+# to be well-supported.
+# https://bazel.build/docs/windows#clang
+build:clang-cl --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl
+build:clang-cl --extra_execution_platforms=//:x64_windows-clang-cl
+build:clang-cl --platforms=//:x64_windows-clang-cl
+build:clang-cl --copt='-Wno-error'
+build:clang-cl --copt='-Wno-missing-field-initializers'
+build:clang-cl --copt='-Wno-unused-command-line-argument'
 
 # Currently only supported for Clang 13 and newer.
 build:libc++ --cxxopt=-stdlib=libc++
