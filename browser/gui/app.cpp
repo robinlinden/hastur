@@ -44,6 +44,24 @@ void ensure_has_scheme(std::string &url) {
     }
 }
 
+std::string element_text(dom::Node const *dom_node) {
+    if (dom_node == nullptr) {
+        return ""s;
+    }
+
+    if (std::holds_alternative<dom::Text>(*dom_node)) {
+        return std::get<dom::Text>(*dom_node).text;
+    }
+
+    // Special handling of <a> because I want to see what link I'm hovering.
+    auto const &element = std::get<dom::Element>(*dom_node);
+    if (element.name == "a"s && element.attributes.contains("href")) {
+        return element.name + ": " + element.attributes.at("href");
+    }
+
+    return element.name;
+}
+
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
@@ -134,7 +152,8 @@ int App::run() {
 
                     auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
                     auto document_position = to_document_position(std::move(window_position));
-                    nav_widget_extra_info_ = get_hovered_element_text(std::move(document_position));
+                    auto const *dom_node = get_hovered_node(std::move(document_position));
+                    nav_widget_extra_info_ = element_text(dom_node);
                     break;
                 }
                 case sf::Event::MouseButtonReleased: {
@@ -255,25 +274,6 @@ dom::Node const *App::get_hovered_node(geom::Position p) const {
     }
 
     return &moused_over->node->node;
-}
-
-std::string App::get_hovered_element_text(geom::Position p) const {
-    auto const *dom_node = get_hovered_node(p);
-    if (dom_node == nullptr) {
-        return ""s;
-    }
-
-    if (std::holds_alternative<dom::Text>(*dom_node)) {
-        return std::get<dom::Text>(*dom_node).text;
-    }
-
-    // Special handling of <a> because I want to see what link I'm hovering.
-    auto const &element = std::get<dom::Element>(*dom_node);
-    if (element.name == "a"s && element.attributes.contains("href")) {
-        return element.name + ": " + element.attributes.at("href");
-    }
-
-    return element.name;
 }
 
 geom::Position App::to_document_position(geom::Position window_position) const {

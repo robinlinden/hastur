@@ -65,7 +65,6 @@ private:
     void layout();
 
     dom::Node const *get_hovered_node(geom::Position document_position) const;
-    std::string get_hovered_element_text(geom::Position document_position) const;
     geom::Position to_document_position(geom::Position window_position) const;
 
     void reset_scroll();
