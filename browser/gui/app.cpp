@@ -37,6 +37,13 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
     return std::get<dom::Text>(nodes[0]->children[0]).text;
 }
 
+void ensure_has_scheme(std::string &url) {
+    if (url.find("://") == std::string::npos) {
+        spdlog::info("Url missing scheme, assuming https");
+        url = fmt::format("https://{}", url);
+    }
+}
+
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
@@ -53,6 +60,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     engine_.set_on_layout_updated(std::bind_front(&App::on_layout_updated, this));
 
     if (load_start_page) {
+        ensure_has_scheme(url_buf_);
         navigate();
     }
 }
@@ -297,6 +305,7 @@ void App::run_nav_widget() {
     ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
     ImGui::Begin("Navigation");
     if (ImGui::InputText("Url", &url_buf_, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        ensure_has_scheme(url_buf_);
         navigate();
     }
 
