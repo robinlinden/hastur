@@ -31,9 +31,7 @@ struct BaseSocketImpl {
     std::string read_all(auto &socket) {
         asio::error_code ec;
         asio::read(socket, asio::dynamic_buffer(buffer), ec);
-        std::string result(std::move(buffer));
-        buffer.clear();
-        return result;
+        return std::exchange(buffer, {});
     }
 
     std::string read_until(auto &socket, std::string_view delimiter) {
