@@ -75,6 +75,7 @@ build:clang13 --features=layering_check
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
 build:clang13 --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
 
+build:gcc --per_file_copt='gfx:sfml_canvas@-Wno-implicit-fallthrough' # sfml leaks this into our code.
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
 build:gcc --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'

@@ -94,7 +94,7 @@ void SfmlCanvas::draw_text(geom::Position p, std::string_view text, Font font, F
 
     sf::Text drawable;
     drawable.setFont(*sf_font);
-    drawable.setString(std::string{text});
+    drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px);
     drawable.setStyle(sf::Text::Regular);
