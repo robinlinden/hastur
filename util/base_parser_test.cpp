@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,7 @@
 #include "etest/etest.h"
 
 using etest::expect;
+using etest::expect_eq;
 using util::BaseParser;
 
 int main() {
@@ -30,61 +31,35 @@ int main() {
         constexpr auto abcd = BaseParser("abcd");
         expect(!abcd.is_eof());
         expect(BaseParser("").is_eof());
-        expect([] {
-            auto p = BaseParser("abcd");
-            p.advance(3);
-            if (p.is_eof()) {
-                return false;
-            }
-            p.advance(1);
-            return p.is_eof();
-        }());
+
+        auto p = BaseParser("abcd");
+        p.advance(3);
+        expect(!p.is_eof());
+
+        p.advance(1);
+        expect(p.is_eof());
     });
 
     etest::test("consume_char", [] {
-        expect([] {
-            auto p = BaseParser("abcd");
-            if (p.consume_char() != 'a') {
-                return false;
-            }
-            if (p.consume_char() != 'b') {
-                return false;
-            }
-            if (p.consume_char() != 'c') {
-                return false;
-            }
-            if (p.consume_char() != 'd') {
-                return false;
-            }
-            return true;
-        }());
+        auto p = BaseParser("abcd");
+        expect_eq(p.consume_char(), 'a');
+        expect_eq(p.consume_char(), 'b');
+        expect_eq(p.consume_char(), 'c');
+        expect_eq(p.consume_char(), 'd');
     });
 
     etest::test("consume_while", [] {
-        expect([] {
-            auto p = BaseParser("abcd");
-            if (p.consume_while([](char c) { return c != 'c'; }) != "ab") {
-                return false;
-            }
-            if (p.consume_while([](char c) { return c != 'd'; }) != "c") {
-                return false;
-            }
-            return true;
-        }());
+        auto p = BaseParser("abcd");
+        expect_eq(p.consume_while([](char c) { return c != 'c'; }), "ab");
+        expect_eq(p.consume_while([](char c) { return c != 'd'; }), "c");
     });
 
     etest::test("skip_whitespace, consume_char", [] {
-        expect([] {
-            auto p = BaseParser("      \t       \n         h          \n\n\ni");
-            p.skip_whitespace();
-            if (p.consume_char() != 'h') {
-                return false;
-            }
-            p.skip_whitespace();
-            if (p.consume_char() != 'i') {
-                return false;
-            }
-            return true;
-        }());
+        auto p = BaseParser("      \t       \n         h          \n\n\ni");
+        p.skip_whitespace();
+        expect_eq(p.consume_char(), 'h');
+
+        p.skip_whitespace();
+        expect_eq(p.consume_char(), 'i');
     });
 }
