@@ -38,9 +38,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "6f2b0390dc23be79268da435b276b0ecfffd1adeaf9868d6a68860f9b9adbcb7",
-    strip_prefix = "boringssl-ae0ce154470dc7d1e3073ba8adb1ef2b669c6471",
-    url = "https://github.com/google/boringssl/archive/ae0ce154470dc7d1e3073ba8adb1ef2b669c6471.tar.gz",
+    sha256 = "641c62d698e88d838fc8076098645b72ae3dc0ecb791b75282d6618ac424f4b2",
+    strip_prefix = "boringssl-80692b63910ff9f3971412ea509449f73a114e18",
+    url = "https://github.com/google/boringssl/archive/80692b63910ff9f3971412ea509449f73a114e18.tar.gz",
 )
 
 # https://github.com/fmtlib/fmt/commit/3e28dc021cf38b14ac0e2b1a046f783e094bfffc
@@ -56,9 +56,9 @@ http_archive(
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "f8db94d307e9c54961b39a1cc799a67d46681480696ed72ecf78d4473770f09b",
-    strip_prefix = "freetype-2.11.1",
-    url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.11.1.tar.gz",
+    sha256 = "efe71fd4b8246f1b0b1b9bfca13cfff1c9ad85930340c27df469733bbb620938",
+    strip_prefix = "freetype-2.12.1",
+    url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.12.1.tar.gz",
 )
 
 http_archive(
@@ -143,9 +143,9 @@ http_archive(
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "15050e9748633484957a166150f680a0ba8030074db599aad7c2d432191712af",
-    strip_prefix = "Vulkan-Headers-1.3.208",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.208.tar.gz",
+    sha256 = "004b4f7841bd912d1cc3f5ac5694d5dea2f944f10053451233b533874368df87",
+    strip_prefix = "Vulkan-Headers-1.3.217",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.217.tar.gz",
 )
 
 http_archive(
@@ -176,7 +176,7 @@ http_archive(
 http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
-    sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",
-    strip_prefix = "zlib-1.2.11",
-    url = "https://github.com/madler/zlib/archive/v1.2.11.tar.gz",
+    sha256 = "d8688496ea40fb61787500e863cc63c9afcbc524468cedeb478068924eb54932",
+    strip_prefix = "zlib-1.2.12",
+    url = "https://github.com/madler/zlib/archive/v1.2.12.tar.gz",
 )

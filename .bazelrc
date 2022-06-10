@@ -42,6 +42,7 @@ build:linux --per_file_copt='external/asio[:/]@-Wno-sign-compare'
 build:linux --per_file_copt='external/asio[:/]@-Wno-undef'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/freetype2[:/]@-Wno-missing-declarations'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
 build:linux --per_file_copt='external/ftxui[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/glew[:/]@-Wno-undef'
@@ -64,6 +65,7 @@ build:linux --per_file_copt='external/xrandr[:/]@-Wno-unused-parameter'
 build:linux --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
 build:linux --per_file_copt='external/xrender[:/]@-Wno-sign-compare'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
+build:linux --per_file_copt='external/zlib[:/]@-Wno-missing-declarations'
 
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-extra-semi'
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
@@ -106,12 +108,9 @@ build:windows --per_file_copt='external/boringssl[:/]@/wd4244' # C4244: '=': con
 build:windows --per_file_copt='external/boringssl[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 build:windows --per_file_copt='external/boringssl[:/]@/wd4706' # C4706: assignment within conditional expression
 build:windows --per_file_copt='external/freetype2[:/]@/wd4018' # C4018: '>': signed/unsigned mismatch
-build:windows --per_file_copt='external/freetype2[:/]@/wd4100' # C4100: 'msg_tag': unreferenced formal parameter
 build:windows --per_file_copt='external/freetype2[:/]@/wd4244' # C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
 build:windows --per_file_copt='external/freetype2[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
-build:windows --per_file_copt='external/freetype2[:/]@/wd4312' # C4312: 'type cast': conversion from 'unsigned long' to 'void *' of greater size
 build:windows --per_file_copt='external/freetype2[:/]@/wd4701' # C4701: potentially uninitialized local variable 'cbox' used
-build:windows --per_file_copt='external/freetype2[:/]@/wd4702' # C4702: unreachable code
 build:windows --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
 build:windows --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 build:windows --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
@@ -122,8 +121,6 @@ build:windows --per_file_copt='external/sfml[:/]@/wd4703' # C4703: potentially u
 build:windows --per_file_copt='external/zlib[:/]@/wd4127' # C4127: conditional expression is constant
 build:windows --per_file_copt='external/zlib[:/]@/wd4131' # C4131: 'adler32_z': uses old-style declarator
 build:windows --per_file_copt='external/zlib[:/]@/wd4244' # C4244: '+=': conversion from 'int' to 'ush', possible loss of data
-build:windows --per_file_copt='external/zlib[:/]@/wd4245' # C4245: '=': conversion from 'int' to 'unsigned int', signed/unsigned mismatch
-build:windows --per_file_copt='external/zlib[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 
 # Special build options
 # =========================================================
