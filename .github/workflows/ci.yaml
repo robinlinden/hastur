@@ -73,8 +73,10 @@ jobs:
         run: bazel build //... ${{ matrix.bazel }}
       - name: Test
         run: bazel test //... ${{ matrix.bazel }}
-      - name: Run
-        run: bazel run browser:tui ${{ matrix.bazel }}
+      # TODO(robinlinden): This no longer runs in CI due to http://example.com
+      # being inaccessible.
+      # - name: Run
+      #   run: bazel run browser:tui ${{ matrix.bazel }}
 
   linux-gcc-10-coverage:
     runs-on: ubuntu-20.04
@@ -111,8 +113,10 @@ jobs:
         run: bazel build ///... --config debug
       - name: Test
         run: bazel test ///... --config debug
-      - name: Run
-        run: bazel run browser:tui --config debug
+      # TODO(robinlinden): This no longer runs in CI due to http://example.com
+      # being inaccessible.
+      # - name: Run
+      #   run: bazel run browser:tui --config debug
       - run: bazel run refresh_compile_commands
       - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
@@ -127,7 +131,9 @@ jobs:
       - run: choco install llvm -y --force --version 14.0.3
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: bazel test ...
-      - run: bazel run browser:tui
+      # TODO(robinlinden): This no longer runs in CI due to http://example.com
+      # being inaccessible.
+      # - run: bazel run browser:tui
       - run: bazel run refresh_compile_commands
       - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
