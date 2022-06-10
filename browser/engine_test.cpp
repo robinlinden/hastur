@@ -24,7 +24,7 @@ int main() {
         expect(success);
     });
 
-    etest::test("page load", [] {
+    etest::disabled_test("page load", [] {
         bool success{false};
         browser::Engine e;
         e.set_on_navigation_failure([&](protocol::Error) { require(false); });
@@ -35,7 +35,7 @@ int main() {
         expect(success);
     });
 
-    etest::test("layout update", [] {
+    etest::disabled_test("layout update", [] {
         browser::Engine e;
         e.set_on_navigation_failure([&](protocol::Error) { require(false); });
         e.set_on_page_loaded([] { require(false); });
