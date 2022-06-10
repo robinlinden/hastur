@@ -16,6 +16,7 @@ namespace etest {
 namespace {
 
 int assertion_failures = 0;
+int disabled_tests = 0;
 
 struct Test {
     std::string name;
@@ -34,7 +35,13 @@ std::stringstream test_log{};
 } // namespace
 
 int run_all_tests() noexcept {
-    std::cout << registry().size() << " test(s) registered." << std::endl;
+    std::cout << registry().size() + disabled_tests << " test(s) registered";
+    if (disabled_tests == 0) {
+        std::cout << "." << std::endl;
+    } else {
+        std::cout << ", " << disabled_tests << " disabled." << std::endl;
+    }
+
     auto const longest_name = std::max_element(registry().begin(), registry().end(), [](auto const &a, auto const &b) {
         return a.name.size() < b.name.size();
     });
@@ -71,6 +78,11 @@ int run_all_tests() noexcept {
 void test(std::string name, std::function<void()> body) noexcept {
     // TODO(robinlinden): push_back -> emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 13.
     registry().push_back({std::move(name), std::move(body)});
+}
+
+// TODO(robinlinden): Save and allow running these by passing some flag.
+void disabled_test(std::string, std::function<void()>) noexcept {
+    ++disabled_tests;
 }
 
 void expect(bool b, etest::source_location const &loc) noexcept {
