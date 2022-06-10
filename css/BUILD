@@ -5,6 +5,7 @@ cc_library(
     srcs = [
         "default.cpp",
         "parse.cpp",
+        "rule.cpp",
     ],
     hdrs = [
         "default.h",
@@ -21,12 +22,22 @@ cc_library(
 )
 
 cc_test(
-    name = "css_test",
+    name = "css_parser_test",
     size = "small",
     srcs = ["parser_test.cpp"],
     deps = [
         ":css",
         "//etest",
         "@fmt",
+    ],
+)
+
+cc_test(
+    name = "css_rule_test",
+    size = "small",
+    srcs = ["rule_test.cpp"],
+    deps = [
+        ":css",
+        "//etest",
     ],
 )

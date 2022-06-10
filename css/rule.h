@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -16,6 +17,8 @@ struct Rule {
     std::map<std::string, std::string> declarations;
     std::string media_query;
 };
+
+std::string to_string(Rule const &);
 
 } // namespace css
 
