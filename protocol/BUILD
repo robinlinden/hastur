@@ -10,6 +10,8 @@ cc_library(
     hdrs = [
         "get.h",
         "http.h",
+        "iprotocol_handler.h",
+        "multi_protocol_handler.h",
         "response.h",
     ],
     visibility = ["//visibility:public"],
