@@ -71,19 +71,6 @@ FakeSocket create_chunked_socket(std::string const &body) {
 } // namespace
 
 int main() {
-    etest::test("headers", [] {
-        protocol::Headers headers;
-
-        headers.add({"Transfer-Encoding", "chunked"});
-        headers.add({"Content-Type", "text/html"});
-
-        expect(!headers.get("foo"sv));
-        expect_eq(headers.get("Transfer-Encoding"sv).value(), "chunked");
-        expect_eq(headers.get("transfer-encoding"sv).value(), "chunked");
-        expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
-        expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
-    });
-
     etest::test("200 response", [] {
         FakeSocket socket;
         socket.read_data =

@@ -6,7 +6,7 @@
 #ifndef PROTOCOL_GET_H_
 #define PROTOCOL_GET_H_
 
-#include "protocol/http.h"
+#include "protocol/response.h"
 #include "uri/uri.h"
 
 namespace protocol {
