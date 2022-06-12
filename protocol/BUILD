@@ -2,18 +2,11 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "protocol",
-    srcs = [
-        "get.cpp",
-        "http.cpp",
-        "response.cpp",
-    ],
-    hdrs = [
-        "get.h",
-        "http.h",
-        "iprotocol_handler.h",
-        "multi_protocol_handler.h",
-        "response.h",
-    ],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
     deps = [
         "//net",
