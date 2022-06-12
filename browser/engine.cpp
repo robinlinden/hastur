@@ -40,7 +40,7 @@ protocol::Error Engine::navigate(uri::Uri uri) {
     }
 
     uri_ = uri;
-    response_ = protocol::get(uri_);
+    response_ = protocol_handler_->handle(uri_);
     while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
         spdlog::info("Following {} redirect from {} to {}",
                 response_.status_line.status_code,
@@ -50,7 +50,7 @@ protocol::Error Engine::navigate(uri::Uri uri) {
         if (uri_.path.empty()) {
             uri_.path = "/";
         }
-        response_ = protocol::get(uri_);
+        response_ = protocol_handler_->handle(uri_);
     }
 
     switch (response_.err) {
@@ -108,7 +108,7 @@ void Engine::on_navigation_success() {
             }();
 
             spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-            auto style_data = protocol::get(*uri::Uri::parse(stylesheet_url));
+            auto style_data = protocol_handler_->handle(*uri::Uri::parse(stylesheet_url));
             if (style_data.err != protocol::Error::Ok) {
                 spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url);
                 return {};

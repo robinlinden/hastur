@@ -10,6 +10,7 @@
 #include "gfx/icanvas.h"
 #include "gfx/sfml_canvas.h"
 #include "layout/layout.h"
+#include "protocol/handler_factory.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -29,7 +30,7 @@ public:
     int run();
 
 private:
-    browser::Engine engine_{};
+    browser::Engine engine_{protocol::HandlerFactory::create()};
     bool page_loaded_{};
 
     std::string browser_title_{};

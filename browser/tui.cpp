@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "tui/tui.h"
 #include "browser/engine.h"
 #include "dom/dom.h"
+#include "protocol/handler_factory.h"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -27,7 +28,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    browser::Engine engine;
+    browser::Engine engine{protocol::HandlerFactory::create()};
     if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", static_cast<int>(err), uri->uri);
         std::exit(1);

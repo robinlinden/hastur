@@ -44,6 +44,7 @@ cc_binary(
     deps = [
         ":engine",
         "//dom",
+        "//protocol",
         "//tui",
         "//uri",
         "@spdlog",
@@ -60,6 +61,7 @@ cc_binary(
         "//gfx:opengl",
         "//gfx:sfml",
         "//layout",
+        "//protocol",
         "//render",
         "//uri",
         "@fmt",

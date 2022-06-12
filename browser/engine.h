@@ -7,7 +7,7 @@
 
 #include "dom/dom.h"
 #include "layout/layout.h"
-#include "protocol/get.h"
+#include "protocol/iprotocol_handler.h"
 #include "style/styled_node.h"
 #include "uri/uri.h"
 
@@ -20,6 +20,9 @@ namespace browser {
 
 class Engine {
 public:
+    explicit Engine(std::unique_ptr<protocol::IProtocolHandler> protocol_handler)
+        : protocol_handler_{std::move(protocol_handler)} {}
+
     protocol::Error navigate(uri::Uri uri);
 
     void set_layout_width(int width);
@@ -42,6 +45,8 @@ private:
     }};
 
     int layout_width_{};
+
+    std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
 
     uri::Uri uri_{};
     protocol::Response response_{};

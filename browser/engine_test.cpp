@@ -1,42 +1,59 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "browser/engine.h"
 
 #include "etest/etest.h"
-#include "protocol/get.h"
+#include "protocol/iprotocol_handler.h"
+#include "protocol/response.h"
 #include "uri/uri.h"
+
+#include <utility>
 
 using namespace std::literals;
 using etest::expect;
 using etest::require;
 
+namespace {
+
+class FakeProtocolHandler final : public protocol::IProtocolHandler {
+public:
+    explicit FakeProtocolHandler(protocol::Response response) : response_{std::move(response)} {}
+    [[nodiscard]] protocol::Response handle(uri::Uri const &) override { return response_; }
+
+private:
+    protocol::Response response_;
+};
+
+} // namespace
+
 int main() {
     etest::test("navigation failure", [] {
         bool success{false};
-        browser::Engine e;
+        browser::Engine e{
+                std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
         e.set_on_navigation_failure([&](protocol::Error err) { success = err != protocol::Error::Ok; });
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
 
-        e.navigate(*uri::Uri::parse("http://aaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaa"));
+        e.navigate(*uri::Uri::parse("hax://example.com"));
         expect(success);
     });
 
-    etest::disabled_test("page load", [] {
+    etest::test("page load", [] {
         bool success{false};
-        browser::Engine e;
+        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
         e.set_on_navigation_failure([&](protocol::Error) { require(false); });
         e.set_on_page_loaded([&] { success = true; });
         e.set_on_layout_updated([] { require(false); });
 
-        e.navigate(*uri::Uri::parse("http://example.com"));
+        e.navigate(*uri::Uri::parse("hax://example.com"));
         expect(success);
     });
 
-    etest::disabled_test("layout update", [] {
-        browser::Engine e;
+    etest::test("layout update", [] {
+        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
         e.set_on_navigation_failure([&](protocol::Error) { require(false); });
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
@@ -46,7 +63,7 @@ int main() {
         bool success{false};
         e.set_on_page_loaded([&] { success = true; });
 
-        e.navigate(*uri::Uri::parse("http://example.com"));
+        e.navigate(*uri::Uri::parse("hax://example.com"));
 
         expect(success);
 
