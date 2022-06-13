@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -35,6 +35,7 @@ bool last_node_was_anonymous(LayoutBox const &box) {
     return !box.children.empty() && box.children.back().type == LayoutType::AnonymousBlock;
 }
 
+// https://www.w3.org/TR/CSS2/visuren.html#box-gen
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     return std::visit(Overloaded{
                               [&node](dom::Element const &) -> std::optional<LayoutBox> {
@@ -50,7 +51,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
                                       if (!child_box)
                                           continue;
 
-                                      if (child_box->type == LayoutType::Inline) {
+                                      if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
                                           if (!last_node_was_anonymous(box)) {
                                               box.children.push_back(LayoutBox{nullptr, LayoutType::AnonymousBlock});
                                           }

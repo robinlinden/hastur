@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -130,6 +130,29 @@ int main() {
         auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
     });
+
+    // clang-format on
+    etest::test("inline in inline don't get wrapped in anon-blocks", [] {
+        auto dom_root = dom::create_element_node("span", {}, {dom::create_element_node("span", {}, {})});
+
+        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto style_root = style::StyledNode{
+                .node = dom_root,
+                .properties = {{"display", "inline"}},
+                .children = {{children[0], {{"display", "inline"}}, {}}},
+        };
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style_root,
+                .type = LayoutType::Inline,
+                .dimensions = {},
+                .children = {{&style_root.children[0], LayoutType::Inline, {}, {}}},
+        };
+
+        auto layout_root = layout::create_layout(style_root, 0);
+        expect(expected_layout == layout_root);
+    });
+    // clang-format off
 
     etest::test("text", [] {
         auto dom_root = dom::create_element_node("html", {}, {
