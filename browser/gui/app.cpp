@@ -4,6 +4,7 @@
 
 #include "browser/gui/app.h"
 
+#include "css/rule.h"
 #include "dom/dom.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/painter.h"
@@ -18,6 +19,7 @@
 #include <spdlog/spdlog.h>
 
 #include <functional>
+#include <sstream>
 #include <string_view>
 #include <utility>
 
@@ -65,6 +67,14 @@ std::string element_text(dom::Node const *dom_node) {
 bool can_navigate_to(dom::Node const *node) {
     auto const *element = std::get_if<dom::Element>(node);
     return element && element->name == "a"sv && element->attributes.contains("href");
+}
+
+std::string stylesheet_to_string(std::vector<css::Rule> const &stylesheet) {
+    std::stringstream ss;
+    for (auto const &rule : stylesheet) {
+        ss << css::to_string(rule) << std::endl;
+    }
+    return ss.str();
 }
 
 } // namespace
@@ -204,6 +214,7 @@ int App::run() {
         run_nav_widget();
         run_http_response_widget();
         run_dom_widget();
+        run_stylesheet_widget();
         run_layout_widget();
 
         clear_render_surface();
@@ -236,6 +247,7 @@ void App::on_navigation_failure(protocol::Error err) {
     update_status_line();
     response_headers_str_ = engine_.response().headers.to_string();
     dom_str_.clear();
+    stylesheet_str_.clear();
     layout_str_.clear();
 
     switch (err) {
@@ -272,6 +284,7 @@ void App::on_page_loaded() {
     update_status_line();
     response_headers_str_ = engine_.response().headers.to_string();
     dom_str_ = dom::to_string(engine_.dom());
+    stylesheet_str_ = stylesheet_to_string(engine_.stylesheet());
     on_layout_updated();
 }
 
@@ -350,6 +363,15 @@ void App::run_dom_widget() const {
     ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
     ImGui::Begin("DOM");
     ImGui::TextUnformatted(dom_str_.c_str());
+    ImGui::End();
+}
+
+void App::run_stylesheet_widget() const {
+    ImGui::SetNextWindowPos(
+            ImVec2(0, 70 * static_cast<float>(scale_) + window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Stylesheet", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::TextUnformatted(stylesheet_str_.c_str());
     ImGui::End();
 }
 

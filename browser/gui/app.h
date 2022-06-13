@@ -41,6 +41,7 @@ private:
     std::string status_line_str_{};
     std::string response_headers_str_{};
     std::string dom_str_{};
+    std::string stylesheet_str_{};
     std::string layout_str_{};
     std::string nav_widget_extra_info_{};
 
@@ -79,6 +80,7 @@ private:
     void run_nav_widget();
     void run_http_response_widget() const;
     void run_dom_widget() const;
+    void run_stylesheet_widget() const;
     void run_layout_widget() const;
 
     void clear_render_surface();
