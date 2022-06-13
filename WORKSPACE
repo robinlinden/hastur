@@ -111,6 +111,12 @@ http_archive(
 http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
+    # Work around SFML check for enough bytes for a given UTF-8 character crashing
+    # in MSVC debug builds with "cannot seek string_view iterator after end".
+    # See: https://github.com/SFML/SFML/issues/2113
+    patch_cmds = [
+        "sed -i 's/if (begin + trailingBytes < end)/if (trailingBytes < std::distance(begin, end))/' include/SFML/System/Utf.inl",
+    ],
     sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
     strip_prefix = "SFML-2.5.1",
     url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
