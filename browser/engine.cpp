@@ -77,13 +77,13 @@ void Engine::set_layout_width(int width) {
 
 void Engine::on_navigation_success() {
     dom_ = html::parse(response_.body);
-    auto stylesheet{css::default_style()};
+    stylesheet_ = css::default_style();
 
     if (auto style = try_get_text_content(dom_, "html.head.style"sv)) {
         auto new_rules = css::parse(*style);
-        stylesheet.reserve(stylesheet.size() + new_rules.size());
-        stylesheet.insert(
-                end(stylesheet), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
+        stylesheet_.reserve(stylesheet_.size() + new_rules.size());
+        stylesheet_.insert(
+                end(stylesheet_), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
     }
 
     auto head_links = dom::nodes_by_path(dom_.html(), "html.head.link");
@@ -130,12 +130,13 @@ void Engine::on_navigation_success() {
     // In order, wait for the download to finish and merge with the big stylesheet.
     for (auto &future_rules : future_new_rules) {
         auto rules = future_rules.get();
-        stylesheet.reserve(stylesheet.size() + rules.size());
-        stylesheet.insert(end(stylesheet), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
+        stylesheet_.reserve(stylesheet_.size() + rules.size());
+        stylesheet_.insert(
+                end(stylesheet_), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
     }
 
-    spdlog::info("Styling dom w/ {} rules", stylesheet.size());
-    styled_ = style::style_tree(dom_.html_node, stylesheet);
+    spdlog::info("Styling dom w/ {} rules", stylesheet_.size());
+    styled_ = style::style_tree(dom_.html_node, stylesheet_);
     layout_ = layout::create_layout(*styled_, layout_width_);
     on_page_loaded_();
 }
