@@ -4,6 +4,8 @@
 
 #include "style/style.h"
 
+#include "util/string.h"
+
 #include <algorithm>
 #include <iterator>
 #include <utility>
@@ -11,7 +13,15 @@
 namespace style {
 
 // TODO(robinlinden): This needs to match more things.
-bool is_match(dom::Element const &element, std::string_view selector) {
+bool is_match(dom::Element const &element, std::string_view selector_) {
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
+    auto [selector, psuedo_class] = util::split_once(selector_, ":");
+
+    if (!psuedo_class.empty()) {
+        // Unhandled psuedo-classes never match.
+        return false;
+    }
+
     if (element.name == selector) {
         return true;
     }

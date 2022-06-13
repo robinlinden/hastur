@@ -46,6 +46,11 @@ int main() {
         expect(!style::is_match(dom::Element{"div", {{"id", "myid"}}}, ".myid"sv));
     });
 
+    etest::test("is_match: psuedo-class, unhandled", [] {
+        expect(!style::is_match(dom::Element{"div"}, ":hi"sv));
+        expect(!style::is_match(dom::Element{"div"}, "div:hi"sv));
+    });
+
     etest::test("matching_rules: simple names", [] {
         std::vector<css::Rule> stylesheet;
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
