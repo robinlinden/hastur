@@ -8,7 +8,10 @@
 #include "css/rule.h"
 #include "etest/etest.h"
 
+#include <fmt/format.h>
+
 #include <algorithm>
+#include <array>
 
 using namespace std::literals;
 using etest::expect;
@@ -50,6 +53,26 @@ int main() {
         expect(!style::is_match(dom::Element{"div"}, ":hi"sv));
         expect(!style::is_match(dom::Element{"div"}, "div:hi"sv));
     });
+
+    // These are 100% identical right now as we treat all links as unvisited links.
+    for (auto const pc : std::array{"link", "any-link"}) {
+        etest::test(fmt::format("is_match: psuedo-class, {}", pc), [pc] {
+            expect(style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format(":{}", pc)));
+
+            expect(style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("a:{}", pc)));
+            expect(style::is_match(dom::Element{"area", {{"href", ""}}}, fmt::format("area:{}", pc)));
+
+            expect(style::is_match(dom::Element{"a", {{"href", ""}, {"class", "hi"}}}, fmt::format(".hi:{}", pc)));
+            expect(style::is_match(dom::Element{"a", {{"href", ""}, {"id", "hi"}}}, fmt::format("#hi:{}", pc)));
+
+            expect(!style::is_match(dom::Element{"b"}, fmt::format(":{}", pc)));
+            expect(!style::is_match(dom::Element{"a"}, fmt::format("a:{}", pc)));
+            expect(!style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("b:{}", pc)));
+            expect(!style::is_match(dom::Element{"b", {{"href", ""}}}, fmt::format("b:{}", pc)));
+            expect(!style::is_match(dom::Element{"a", {{"href", ""}, {"class", "hi2"}}}, fmt::format(".hi:{}", pc)));
+            expect(!style::is_match(dom::Element{"a", {{"href", ""}, {"id", "hi2"}}}, fmt::format("#hi:{}", pc)));
+        });
+    }
 
     etest::test("matching_rules: simple names", [] {
         std::vector<css::Rule> stylesheet;

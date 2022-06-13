@@ -26,6 +26,7 @@ cc_test(
         ":style",
         "//css",
         "//etest",
+        "@fmt",
     ],
 )
 

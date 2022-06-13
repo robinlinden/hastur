@@ -18,8 +18,26 @@ bool is_match(dom::Element const &element, std::string_view selector_) {
     auto [selector, psuedo_class] = util::split_once(selector_, ":");
 
     if (!psuedo_class.empty()) {
-        // Unhandled psuedo-classes never match.
-        return false;
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/:any-link
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/:link
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/:visited
+        // Ignoring :visited for now as we treat all links as unvisited.
+        if (psuedo_class == "link" || psuedo_class == "any-link") {
+            if (!element.attributes.contains("href")) {
+                return false;
+            }
+
+            if (element.name != "a" && element.name != "area") {
+                return false;
+            }
+
+            if (selector.empty()) {
+                return true;
+            }
+        } else {
+            // Unhandled psuedo-classes never match.
+            return false;
+        }
     }
 
     if (element.name == selector) {
