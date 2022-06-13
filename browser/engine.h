@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef BROWSER_ENGINE_H_
 #define BROWSER_ENGINE_H_
 
+#include "css/rule.h"
 #include "dom/dom.h"
 #include "layout/layout.h"
 #include "protocol/iprotocol_handler.h"
@@ -15,6 +17,7 @@
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 namespace browser {
 
@@ -34,6 +37,7 @@ public:
     uri::Uri const &uri() const { return uri_; }
     protocol::Response const &response() const { return response_; }
     dom::Document const &dom() const { return dom_; }
+    std::vector<css::Rule> const &stylesheet() const { return stylesheet_; }
     layout::LayoutBox const &layout() const { return *layout_; }
 
 private:
@@ -51,6 +55,7 @@ private:
     uri::Uri uri_{};
     protocol::Response response_{};
     dom::Document dom_{};
+    std::vector<css::Rule> stylesheet_{};
     std::unique_ptr<style::StyledNode> styled_{};
     std::optional<layout::LayoutBox> layout_{};
 
