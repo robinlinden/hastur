@@ -56,6 +56,7 @@ cc_binary(
     srcs = ["gui.cpp"] + glob(["gui/*"]),
     deps = [
         ":engine",
+        "//css",
         "//dom",
         "//gfx",
         "//gfx:opengl",
