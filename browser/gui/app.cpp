@@ -70,9 +70,11 @@ std::optional<std::string_view> try_get_uri(std::vector<dom::Node const *> const
         return std::nullopt;
     }
 
-    auto const *element = std::get_if<dom::Element>(nodes[0]);
-    if (element && element->name == "a"sv && element->attributes.contains("href")) {
-        return element->attributes.at("href");
+    for (auto const *node : nodes) {
+        auto const *element = std::get_if<dom::Element>(node);
+        if (element && element->name == "a"sv && element->attributes.contains("href")) {
+            return element->attributes.at("href");
+        }
     }
 
     return std::nullopt;
