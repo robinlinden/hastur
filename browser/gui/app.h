@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace browser::gui {
 
@@ -68,7 +69,7 @@ private:
     void navigate();
     void layout();
 
-    dom::Node const *get_hovered_node(geom::Position document_position) const;
+    std::vector<dom::Node const *> get_hovered_nodes(geom::Position document_position) const;
     geom::Position to_document_position(geom::Position window_position) const;
 
     void reset_scroll();

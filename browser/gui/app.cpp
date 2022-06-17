@@ -47,26 +47,30 @@ void ensure_has_scheme(std::string &url) {
     }
 }
 
-std::string element_text(dom::Node const *dom_node) {
-    if (dom_node == nullptr) {
+std::optional<std::string_view> try_get_uri(std::vector<dom::Node const *> const &);
+std::string element_text(std::vector<dom::Node const *> const &dom_nodes) {
+    if (dom_nodes.empty()) {
         return ""s;
     }
 
-    if (std::holds_alternative<dom::Text>(*dom_node)) {
-        return std::get<dom::Text>(*dom_node).text;
+    if (std::holds_alternative<dom::Text>(*dom_nodes[0])) {
+        return std::get<dom::Text>(*dom_nodes[0]).text;
     }
 
     // Special handling of <a> because I want to see what link I'm hovering.
-    auto const &element = std::get<dom::Element>(*dom_node);
-    if (element.name == "a"s && element.attributes.contains("href")) {
-        return element.name + ": " + element.attributes.at("href");
+    if (auto uri = try_get_uri(dom_nodes); uri.has_value()) {
+        return "a: "s + std::string{*uri};
     }
 
-    return element.name;
+    return std::get<dom::Element>(*dom_nodes[0]).name;
 }
 
-std::optional<std::string_view> try_get_uri(dom::Node const *node) {
-    auto const *element = std::get_if<dom::Element>(node);
+std::optional<std::string_view> try_get_uri(std::vector<dom::Node const *> const &nodes) {
+    if (nodes.empty()) {
+        return std::nullopt;
+    }
+
+    auto const *element = std::get_if<dom::Element>(nodes[0]);
     if (element && element->name == "a"sv && element->attributes.contains("href")) {
         return element->attributes.at("href");
     }
@@ -80,6 +84,15 @@ std::string stylesheet_to_string(std::vector<css::Rule> const &stylesheet) {
         ss << css::to_string(rule) << std::endl;
     }
     return ss.str();
+}
+
+// Returns a vector containing [child, child->parent, child->parent->parent, ...].
+std::vector<dom::Node const *> gather_node_and_parents(style::StyledNode const &child) {
+    std::vector<dom::Node const *> nodes;
+    for (style::StyledNode const *node = &child; node != nullptr; node = node->parent) {
+        nodes.push_back(&node->node);
+    }
+    return nodes;
 }
 
 } // namespace
@@ -173,8 +186,8 @@ int App::run() {
 
                     auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
                     auto document_position = to_document_position(std::move(window_position));
-                    auto const *dom_node = get_hovered_node(std::move(document_position));
-                    nav_widget_extra_info_ = element_text(dom_node);
+                    auto const dom_nodes = get_hovered_nodes(std::move(document_position));
+                    nav_widget_extra_info_ = element_text(dom_nodes);
 
                     // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
                     if (ImGui::GetIO().WantCaptureMouse) {
@@ -185,7 +198,7 @@ int App::run() {
                     // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
                     // currently hovering over.
                     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-                    if (try_get_uri(dom_node).has_value()) {
+                    if (try_get_uri(dom_nodes).has_value()) {
                         cursor_.loadFromSystem(sf::Cursor::Hand);
                     } else {
                         cursor_.loadFromSystem(sf::Cursor::Arrow);
@@ -201,8 +214,8 @@ int App::run() {
 
                     auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
                     auto document_position = to_document_position(std::move(window_position));
-                    auto const *dom_node = get_hovered_node(std::move(document_position));
-                    if (auto uri = try_get_uri(dom_node); uri.has_value()) {
+                    auto const dom_nodes = get_hovered_nodes(std::move(document_position));
+                    if (auto uri = try_get_uri(dom_nodes); uri.has_value()) {
                         url_buf_ = std::string{*uri};
                         navigate();
                     }
@@ -298,17 +311,17 @@ void App::on_layout_updated() {
     layout_str_ = layout::to_string(engine_.layout());
 }
 
-dom::Node const *App::get_hovered_node(geom::Position p) const {
+std::vector<dom::Node const *> App::get_hovered_nodes(geom::Position p) const {
     if (!page_loaded_) {
-        return nullptr;
+        return {};
     }
 
     auto const *moused_over = layout::box_at_position(engine_.layout(), p);
-    if (!moused_over) {
-        return nullptr;
+    if (moused_over == nullptr || moused_over->node == nullptr) {
+        return {};
     }
 
-    return &moused_over->node->node;
+    return gather_node_and_parents(*moused_over->node);
 }
 
 geom::Position App::to_document_position(geom::Position window_position) const {
