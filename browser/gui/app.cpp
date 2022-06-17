@@ -19,6 +19,7 @@
 #include <spdlog/spdlog.h>
 
 #include <functional>
+#include <optional>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -64,9 +65,13 @@ std::string element_text(dom::Node const *dom_node) {
     return element.name;
 }
 
-bool can_navigate_to(dom::Node const *node) {
+std::optional<std::string_view> try_get_uri(dom::Node const *node) {
     auto const *element = std::get_if<dom::Element>(node);
-    return element && element->name == "a"sv && element->attributes.contains("href");
+    if (element && element->name == "a"sv && element->attributes.contains("href")) {
+        return element->attributes.at("href");
+    }
+
+    return std::nullopt;
 }
 
 std::string stylesheet_to_string(std::vector<css::Rule> const &stylesheet) {
@@ -180,7 +185,7 @@ int App::run() {
                     // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
                     // currently hovering over.
                     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-                    if (can_navigate_to(dom_node)) {
+                    if (try_get_uri(dom_node).has_value()) {
                         cursor_.loadFromSystem(sf::Cursor::Hand);
                     } else {
                         cursor_.loadFromSystem(sf::Cursor::Arrow);
@@ -197,12 +202,11 @@ int App::run() {
                     auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
                     auto document_position = to_document_position(std::move(window_position));
                     auto const *dom_node = get_hovered_node(std::move(document_position));
-                    if (!dom_node || !can_navigate_to(dom_node)) {
-                        break;
+                    if (auto uri = try_get_uri(dom_node); uri.has_value()) {
+                        url_buf_ = std::string{*uri};
+                        navigate();
                     }
 
-                    url_buf_ = std::get<dom::Element>(*dom_node).attributes.at("href");
-                    navigate();
                     break;
                 }
                 default:
