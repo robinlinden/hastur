@@ -53,13 +53,13 @@ std::string element_text(std::vector<dom::Node const *> const &dom_nodes) {
         return ""s;
     }
 
-    if (std::holds_alternative<dom::Text>(*dom_nodes[0])) {
-        return std::get<dom::Text>(*dom_nodes[0]).text;
-    }
-
     // Special handling of <a> because I want to see what link I'm hovering.
     if (auto uri = try_get_uri(dom_nodes); uri.has_value()) {
         return "a: "s + std::string{*uri};
+    }
+
+    if (std::holds_alternative<dom::Text>(*dom_nodes[0])) {
+        return std::get<dom::Text>(*dom_nodes[0]).text;
     }
 
     return std::get<dom::Element>(*dom_nodes[0]).name;
