@@ -7,6 +7,8 @@
 
 #include "gfx/icanvas.h"
 
+#include <SFML/Graphics/Shader.hpp>
+
 #include <map>
 #include <memory>
 
@@ -19,7 +21,7 @@ namespace gfx {
 
 class SfmlCanvas : public ICanvas {
 public:
-    SfmlCanvas(sf::RenderTarget &target) : target_{target} {}
+    SfmlCanvas(sf::RenderTarget &target);
 
     void set_viewport_size(int width, int height) override;
     constexpr void set_scale(int scale) override { scale_ = scale; }
@@ -30,11 +32,12 @@ public:
     }
 
     void fill_rect(geom::Rect const &, Color) override;
-    void draw_border(geom::Rect const &, geom::EdgeSize const &, BorderColor const &) override {}
+    void draw_border(geom::Rect const &, geom::EdgeSize const &, BorderColor const &) override;
     void draw_text(geom::Position, std::string_view, Font, FontSize, Color) override;
 
 private:
     sf::RenderTarget &target_;
+    sf::Shader border_shader_{};
     std::map<std::string, std::shared_ptr<sf::Font>, std::less<>> font_cache_;
 
     int scale_{1};
