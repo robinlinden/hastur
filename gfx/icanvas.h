@@ -13,6 +13,11 @@
 
 namespace gfx {
 
+struct BorderColor {
+    Color left{}, right{}, top{}, bottom{};
+    [[nodiscard]] bool operator==(BorderColor const &) const = default;
+};
+
 class ICanvas {
 public:
     virtual ~ICanvas() = default;
@@ -21,6 +26,7 @@ public:
     virtual void set_scale(int scale) = 0;
     virtual void add_translation(int dx, int dy) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
+    virtual void draw_border(geom::Rect const &, geom::EdgeSize const &, BorderColor const &) = 0;
     virtual void draw_text(geom::Position, std::string_view, Font, FontSize, Color) = 0;
 };
 

@@ -15,6 +15,10 @@ public:
 
     void fill_rect(geom::Rect const &rect, Color color) { canvas_.fill_rect(rect, color); }
 
+    void draw_border(geom::Rect const &rect, geom::EdgeSize const &size, BorderColor const &color) {
+        canvas_.draw_border(rect, size, color);
+    }
+
     void draw_text(geom::Position p, std::string_view text, Font font, FontSize size, Color color) {
         canvas_.draw_text(p, text, font, size, color);
     }
