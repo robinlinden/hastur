@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +8,7 @@
 #include "etest/etest.h"
 
 using etest::expect;
+using etest::expect_eq;
 using uri::Uri;
 
 int main() {
@@ -128,6 +130,24 @@ int main() {
         expect(tel_uri.path == "+1-830-476-5664");
         expect(tel_uri.query.empty());
         expect(tel_uri.fragment.empty());
+    });
+
+    etest::test("relative, no host", [] {
+        auto uri = *Uri::parse("hello/there.html");
+        expect_eq(uri, Uri{.uri = "hello/there.html", .path = "hello/there.html"});
+    });
+
+    etest::test("absolute, no host", [] {
+        auto uri = *Uri::parse("/hello/there.html");
+        expect_eq(uri, Uri{.uri = "/hello/there.html", .path = "/hello/there.html"});
+    });
+
+    etest::test("scheme-relative", [] {
+        auto uri = *Uri::parse("//example.com/hello/there.html");
+        expect_eq(uri,
+                Uri{.uri = "//example.com/hello/there.html",
+                        .authority = {.host = "example.com"},
+                        .path = "/hello/there.html"});
     });
 
     // TODO(Zer0-One): Test for parsing failure.
