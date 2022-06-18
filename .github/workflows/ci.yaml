@@ -117,8 +117,6 @@ jobs:
       # being inaccessible.
       # - name: Run
       #   run: bazel run browser:tui --config debug
-      - run: bazel run refresh_compile_commands
-      - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
   windows-clang-cl:
     runs-on: windows-2022
@@ -134,8 +132,6 @@ jobs:
       # TODO(robinlinden): This no longer runs in CI due to http://example.com
       # being inaccessible.
       # - run: bazel run browser:tui
-      - run: bazel run refresh_compile_commands
-      - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
   clang-format:
     runs-on: ubuntu-22.04
@@ -165,13 +161,6 @@ jobs:
       - run: npm install --global prettier@2.7.1
       - run: npx prettier --ignore-path .gitignore --write .
       - run: git diff --exit-code
-
-  linux-compile-commands:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: CC=gcc-10 CXX=g++-10 bazel run refresh_compile_commands
-      - run: wc -l compile_commands.json && head -n 100 compile_commands.json
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
