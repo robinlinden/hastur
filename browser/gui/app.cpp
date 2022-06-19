@@ -403,7 +403,11 @@ void App::run_layout_widget() const {
 }
 
 void App::clear_render_surface() {
-    window_.clear();
+    if (render_debug_) {
+        window_.clear();
+    } else {
+        window_.clear(sf::Color(255, 255, 255));
+    }
 }
 
 void App::render_layout() {
