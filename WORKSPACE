@@ -82,9 +82,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "b54ceb35bda38766e36b87c25edf7a1cd8fd2cb8c485b245aedca6fb85645a20",
-    strip_prefix = "imgui-1.87",
-    url = "https://github.com/ocornut/imgui/archive/v1.87.tar.gz",
+    sha256 = "9f14c788aee15b777051e48f868c5d4d959bd679fc5050e3d2a29de80d8fd32e",
+    strip_prefix = "imgui-1.88",
+    url = "https://github.com/ocornut/imgui/archive/v1.88.tar.gz",
 )
 
 http_archive(
