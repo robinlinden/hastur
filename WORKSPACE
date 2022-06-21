@@ -61,12 +61,14 @@ http_archive(
     url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.12.1.tar.gz",
 )
 
+# 094d8d9d0a3cd19a7258a13d21ccb6acca60b858 contains a workaround for a Clang
+# compiler crash that was affecting us on Windows w/ clang-cl.
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "a8f2539ab95caafb21b0c534e8dfb0aeea4e658688797bb9e5539729d9258cc1",
-    strip_prefix = "FTXUI-3.0.0",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v3.0.0.tar.gz",
+    sha256 = "2fbc119e30d0e236badf6136ac1b672284a861174cad10a7d336487148f08c0d",
+    strip_prefix = "FTXUI-094d8d9d0a3cd19a7258a13d21ccb6acca60b858",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/094d8d9d0a3cd19a7258a13d21ccb6acca60b858.tar.gz",
 )
 
 http_archive(
