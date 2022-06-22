@@ -5,6 +5,7 @@
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <optional>
@@ -68,6 +69,36 @@ public:
 
 private:
     Value value_;
+};
+
+// TODO(robinlinden): Support more operators.
+enum class BinaryOperator {
+    Minus,
+    Plus,
+};
+
+class BinaryExpression : public Expression {
+public:
+    BinaryExpression(BinaryOperator op, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+        : op_{op}, left_{std::move(left)}, right_{std::move(right)} {}
+
+    // TODO(robinlinden): Support values that aren't doubles.
+    Value execute(Context &ctx) const override {
+        auto lhs = left_->execute(ctx);
+        auto rhs = right_->execute(ctx);
+        switch (op_) {
+            case BinaryOperator::Plus:
+                return Value{std::get<double>(lhs.value()) + std::get<double>(rhs.value())};
+            case BinaryOperator::Minus:
+                return Value{std::get<double>(lhs.value()) - std::get<double>(rhs.value())};
+        }
+        std::abort();
+    }
+
+private:
+    BinaryOperator op_{};
+    std::unique_ptr<Expression> left_;
+    std::unique_ptr<Expression> right_;
 };
 
 class Program : public Node {

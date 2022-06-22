@@ -38,5 +38,16 @@ int main() {
         expect_eq(ctx, Context{.variables = {{"a", Value{1.}}}});
     });
 
+    etest::test("binary expression", [] {
+        auto plus_expr = BinaryExpression{
+                BinaryOperator::Plus, std::make_unique<Literal>(Value{11.}), std::make_unique<Literal>(Value{31.})};
+        Context ctx;
+        expect_eq(plus_expr.execute(ctx), Value{42.});
+
+        auto minus_expr = BinaryExpression{
+                BinaryOperator::Minus, std::make_unique<Literal>(Value{11.}), std::make_unique<Literal>(Value{31.})};
+        expect_eq(minus_expr.execute(ctx), Value{-20.});
+    });
+
     return etest::run_all_tests();
 }
