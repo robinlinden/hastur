@@ -22,7 +22,7 @@ public:
     }
 
     void fill_rect(geom::Rect const &, Color) override;
-    void draw_border(geom::Rect const &, geom::EdgeSize const &, BorderColor const &) override {}
+    void draw_border(geom::Rect const &, Borders const &) override {}
     void draw_text(geom::Position, std::string_view, Font, FontSize, Color) override {}
 
 private:
