@@ -57,8 +57,19 @@ int main() {
 
     etest::test("CanvasCommandSaver::draw_border", [] {
         CanvasCommandSaver saver;
-        saver.draw_border({1, 2, 3, 4}, {5, 6, 7, 8}, {});
-        expect_eq(saver.take_commands(), CanvasCommands{DrawBorderCmd{{1, 2, 3, 4}, {5, 6, 7, 8}, {}}});
+
+        Borders borders;
+        borders.left.color = Color::from_rgb(0xFF00FF);
+        borders.left.size = 10;
+        borders.right.color = Color::from_rgb(0xFF00FF);
+        borders.right.size = 10;
+        borders.top.color = Color::from_rgb(0xFF00FF);
+        borders.top.size = 20;
+        borders.bottom.color = Color::from_rgb(0xFF00FF);
+        borders.bottom.size = 10;
+
+        saver.draw_border({1, 2, 3, 4}, borders);
+        expect_eq(saver.take_commands(), CanvasCommands{DrawBorderCmd{{1, 2, 3, 4}, borders}});
     });
 
     etest::test("CanvasCommandSaver::draw_text", [] {
@@ -75,7 +86,7 @@ int main() {
         saver.set_scale(1);
         saver.add_translation(1234, 5678);
         saver.fill_rect({9, 9, 9, 9}, {0x12, 0x34, 0x56});
-        saver.draw_border({9, 9, 9, 9}, {5, 5, 5, 5}, {});
+        saver.draw_border({9, 9, 9, 9}, {});
         saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, {3, 2, 1});
         auto cmds = saver.take_commands();
 

@@ -145,10 +145,11 @@ void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
     target_.draw(drawable);
 }
 
-void SfmlCanvas::draw_border(geom::Rect const &rect, geom::EdgeSize const &edge_size, BorderColor const &color) {
+void SfmlCanvas::draw_border(geom::Rect const &rect, Borders const &borders) {
     auto translated{rect.translated(tx_, ty_)};
     auto inner_rect{translated.scaled(scale_)};
-    auto outer_rect = inner_rect.expanded(edge_size);
+    auto outer_rect =
+            inner_rect.expanded({borders.left.size, borders.right.size, borders.top.size, borders.bottom.size});
 
     sf::RectangleShape drawable{{static_cast<float>(outer_rect.width), static_cast<float>(outer_rect.height)}};
     drawable.setPosition(static_cast<float>(outer_rect.x), static_cast<float>(outer_rect.y));
@@ -165,10 +166,10 @@ void SfmlCanvas::draw_border(geom::Rect const &rect, geom::EdgeSize const &edge_
     border_shader_.setUniform("outer_bottom_left", to_vec3(outer_rect.left(), outer_rect.bottom()));
     border_shader_.setUniform("outer_bottom_right", to_vec3(outer_rect.right(), outer_rect.bottom()));
 
-    border_shader_.setUniform("left_border_color", to_vec4(color.left));
-    border_shader_.setUniform("right_border_color", to_vec4(color.right));
-    border_shader_.setUniform("top_border_color", to_vec4(color.top));
-    border_shader_.setUniform("bottom_border_color", to_vec4(color.bottom));
+    border_shader_.setUniform("left_border_color", to_vec4(borders.left.color));
+    border_shader_.setUniform("right_border_color", to_vec4(borders.right.color));
+    border_shader_.setUniform("top_border_color", to_vec4(borders.top.color));
+    border_shader_.setUniform("bottom_border_color", to_vec4(borders.bottom.color));
 
     target_.draw(drawable, &border_shader_);
 }

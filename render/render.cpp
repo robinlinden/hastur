@@ -114,13 +114,25 @@ void render_borders(gfx::Painter &painter, layout::LayoutBox const &layout) {
     auto color = style::get_property(*layout.node, "color"sv).value_or(kDefaultColor);
     auto const &border_size = layout.dimensions.border;
     if (border_size.left > 0 || border_size.right > 0 || border_size.top > 0 || border_size.bottom > 0) {
-        gfx::BorderColor border_color{
+        gfx::BorderProperties left_prop{
                 parse_color(style::get_property(*layout.node, "border-left-color"sv).value_or(color)),
-                parse_color(style::get_property(*layout.node, "border-right-color"sv).value_or(color)),
-                parse_color(style::get_property(*layout.node, "border-top-color"sv).value_or(color)),
-                parse_color(style::get_property(*layout.node, "border-bottom-color"sv).value_or(color)),
+                border_size.left,
         };
-        painter.draw_border(layout.dimensions.padding_box(), border_size, border_color);
+        gfx::BorderProperties right_prop{
+                parse_color(style::get_property(*layout.node, "border-right-color"sv).value_or(color)),
+                border_size.right,
+        };
+        gfx::BorderProperties top_prop{
+                parse_color(style::get_property(*layout.node, "border-top-color"sv).value_or(color)),
+                border_size.top,
+        };
+        gfx::BorderProperties bottom_prop{
+                parse_color(style::get_property(*layout.node, "border-bottom-color"sv).value_or(color)),
+                border_size.bottom,
+        };
+
+        painter.draw_border(
+                layout.dimensions.padding_box(), gfx::Borders{left_prop, right_prop, top_prop, bottom_prop});
     }
 }
 
