@@ -15,13 +15,13 @@ using etest::expect_eq;
 int main() {
     etest::test("literals", [] {
         js::ast::Context ctx;
-        expect_eq(Literal{Value{5.}}.execute(ctx), Value{5.});
-        expect_eq(Literal{Value{"hello"s}}.execute(ctx), Value{"hello"s});
+        expect_eq(NumericLiteral{5.}.execute(ctx), Value{5.});
+        expect_eq(StringLiteral{"hello"s}.execute(ctx), Value{"hello"s});
     });
 
     etest::test("variable declaration", [] {
         // AST for `var a = 1`
-        auto init = std::make_unique<Literal>(Value{1.});
+        auto init = std::make_unique<NumericLiteral>(1.);
         auto id = std::make_unique<Identifier>("a");
         auto declarator = VariableDeclarator{};
         declarator.id = std::move(id);
@@ -40,12 +40,12 @@ int main() {
 
     etest::test("binary expression", [] {
         auto plus_expr = BinaryExpression{
-                BinaryOperator::Plus, std::make_unique<Literal>(Value{11.}), std::make_unique<Literal>(Value{31.})};
+                BinaryOperator::Plus, std::make_unique<NumericLiteral>(11.), std::make_unique<NumericLiteral>(31.)};
         Context ctx;
         expect_eq(plus_expr.execute(ctx), Value{42.});
 
         auto minus_expr = BinaryExpression{
-                BinaryOperator::Minus, std::make_unique<Literal>(Value{11.}), std::make_unique<Literal>(Value{31.})};
+                BinaryOperator::Minus, std::make_unique<NumericLiteral>(11.), std::make_unique<NumericLiteral>(31.)};
         expect_eq(minus_expr.execute(ctx), Value{-20.});
     });
 

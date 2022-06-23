@@ -62,13 +62,24 @@ private:
     std::string name_;
 };
 
-class Literal : public Expression {
+class Literal : public Expression {};
+
+class NumericLiteral : public Literal {
 public:
-    explicit Literal(Value value) : value_{std::move(value)} {}
-    Value execute(Context &) const override { return value_; }
+    explicit NumericLiteral(double value) : value_{value} {}
+    Value execute(Context &) const override { return Value{value_}; }
 
 private:
-    Value value_;
+    double value_{};
+};
+
+class StringLiteral : public Literal {
+public:
+    explicit StringLiteral(std::string value) : value_{std::move(value)} {}
+    Value execute(Context &) const override { return Value{value_}; }
+
+private:
+    std::string value_{};
 };
 
 // TODO(robinlinden): Support more operators.
