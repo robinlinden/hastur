@@ -67,15 +67,13 @@ build:linux --per_file_copt='external/xrender[:/]@-Wno-sign-compare'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-missing-declarations'
 
+# Bazel + Clang supports this really cool features where it checks that you're
+# not relying on transitive dependencies, so let's enable that!
+build:clang --features=layering_check
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-extra-semi'
 build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
-
-build:clang13 --config=clang
-# Newer Bazel + Clang supports this really cool features where it checks that
-# you're not relying on transitive dependencies, so let's enable that!
-build:clang13 --features=layering_check
-build:clang13 --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
-build:clang13 --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
+build:clang --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
+build:clang --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
 
 build:gcc --per_file_copt='gfx:sfml_canvas@-Wno-implicit-fallthrough' # sfml leaks this into our code.
 build:gcc --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
@@ -135,7 +133,6 @@ build:clang-cl --copt='-Wno-error'
 build:clang-cl --copt='-Wno-missing-field-initializers'
 build:clang-cl --copt='-Wno-unused-command-line-argument'
 
-# Currently only supported for Clang 13 and newer.
 build:libc++ --cxxopt=-stdlib=libc++
 build:libc++ --linkopt=-stdlib=libc++
 build:libc++ --copt=-D_LIBCPP_ENABLE_NODISCARD
