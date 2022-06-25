@@ -35,10 +35,6 @@ protocol::Error Engine::navigate(uri::Uri uri) {
         return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
     };
 
-    if (uri.path.empty()) {
-        uri.path = "/";
-    }
-
     if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
         spdlog::info("Handling origin-relative URL {}", uri.uri);
         uri = uri::Uri::parse(fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, uri.uri)).value();
@@ -53,9 +49,6 @@ protocol::Error Engine::navigate(uri::Uri uri) {
                 uri_.uri,
                 response_.headers.get("Location").value());
         uri_ = *uri::Uri::parse(std::string(response_.headers.get("Location").value()));
-        if (uri_.path.empty()) {
-            uri_.path = "/";
-        }
         response_ = protocol_handler_->handle(uri_);
     }
 
