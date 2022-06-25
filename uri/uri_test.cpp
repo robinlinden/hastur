@@ -17,10 +17,7 @@ int main() {
         Uri expected{
                 .uri = "https://example.com",
                 .scheme = "https",
-                .authority =
-                        {
-                                .host = "example.com",
-                        },
+                .authority = {.host = "example.com"},
         };
 
         expect(uri == expected);
@@ -31,10 +28,7 @@ int main() {
         Uri expected{
                 .uri = "https://gr.ht",
                 .scheme = "https",
-                .authority =
-                        {
-                                .host = "gr.ht",
-                        },
+                .authority = {.host = "gr.ht"},
         };
 
         expect(uri == expected);
