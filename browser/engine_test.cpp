@@ -13,6 +13,7 @@
 
 using namespace std::literals;
 using etest::expect;
+using etest::expect_eq;
 using etest::require;
 
 namespace {
@@ -73,6 +74,20 @@ int main() {
 
         e.set_layout_width(100);
         expect(success);
+    });
+
+    etest::test("origin-relative uri", [] {
+        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+
+        // TOOD(robinlinden)
+        // `/` being included as the path here is important as the uri-parser
+        // currently doesn't do normalization, and the browser engine patches
+        // the uri to work when the path is empty.
+        e.navigate(*uri::Uri::parse("hax://example.com/"));
+        expect_eq(e.uri(), *uri::Uri::parse("hax://example.com/"));
+
+        e.navigate(*uri::Uri::parse("/test"));
+        expect_eq(e.uri(), *uri::Uri::parse("hax://example.com/test"));
     });
 
     return etest::run_all_tests();

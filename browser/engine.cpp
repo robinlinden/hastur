@@ -39,6 +39,12 @@ protocol::Error Engine::navigate(uri::Uri uri) {
         uri.path = "/";
     }
 
+    if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
+        spdlog::info("Handling origin-relative URL {}", uri.uri);
+        uri = uri::Uri::parse(fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, uri.uri)).value();
+        spdlog::info("Transformed origin-relative URL to {}", uri.uri);
+    }
+
     uri_ = uri;
     response_ = protocol_handler_->handle(uri_);
     while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
