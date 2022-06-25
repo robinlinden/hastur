@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +9,18 @@
 #include <utility>
 
 namespace uri {
+namespace {
+
+// https://en.wikipedia.org/wiki/URI_normalization#Normalization_process
+void normalize(Uri &uri) {
+    // In presence of an authority component, an empty path component should be
+    // normalized to a path component of "/".
+    if (!uri.authority.empty() && uri.path.empty()) {
+        uri.path = "/";
+    }
+}
+
+} // namespace
 
 std::optional<Uri> Uri::parse(std::string uristr) {
     std::smatch match;
@@ -53,6 +66,9 @@ std::optional<Uri> Uri::parse(std::string uristr) {
             .fragment{match.str(9)},
     };
     uri.uri = std::move(uristr);
+
+    normalize(uri);
+
     return uri;
 }
 

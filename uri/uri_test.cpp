@@ -18,6 +18,7 @@ int main() {
                 .uri = "https://example.com",
                 .scheme = "https",
                 .authority = {.host = "example.com"},
+                .path = "/",
         };
 
         expect(uri == expected);
@@ -29,6 +30,7 @@ int main() {
                 .uri = "https://gr.ht",
                 .scheme = "https",
                 .authority = {.host = "gr.ht"},
+                .path = "/",
         };
 
         expect(uri == expected);

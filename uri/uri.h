@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -15,6 +16,8 @@ struct Authority {
     std::string passwd;
     std::string host;
     std::string port;
+
+    [[nodiscard]] bool empty() const { return user.empty() && passwd.empty() && host.empty() && port.empty(); }
 
     [[nodiscard]] bool operator==(Authority const &) const = default;
 };
