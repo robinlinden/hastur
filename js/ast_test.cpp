@@ -58,7 +58,7 @@ int main() {
         expect_eq(ctx.variables.size(), std::size_t{1});
 
         // Check that we can call the declared function.
-        expect_eq(std::get<std::shared_ptr<Function>>(ctx.variables.at("a").value())->execute(ctx), Value{});
+        expect_eq(ctx.variables.at("a").as_function()->execute(ctx), Value{});
     });
 
     return etest::run_all_tests();

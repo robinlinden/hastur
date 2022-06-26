@@ -29,14 +29,19 @@ public:
     explicit Value(std::string value) : value_{std::move(value)} {}
     explicit Value(std::shared_ptr<Function> value) : value_{std::move(value)} {}
 
-    // std::monostate -> undefined
-    using ValueT = std::variant<std::monostate, std::string, double, std::shared_ptr<Function>>;
-    [[nodiscard]] ValueT const &value() const { return value_; }
+    bool is_number() const { return std::holds_alternative<double>(value_); }
+    bool is_string() const { return std::holds_alternative<std::string>(value_); }
+    bool is_function() const { return std::holds_alternative<std::shared_ptr<Function>>(value_); }
+
+    double as_number() const { return std::get<double>(value_); }
+    std::string const &as_string() const { return std::get<std::string>(value_); }
+    std::shared_ptr<Function const> as_function() const { return std::get<std::shared_ptr<Function>>(value_); }
 
     [[nodiscard]] bool operator==(Value const &) const = default;
 
 private:
-    ValueT value_;
+    // std::monostate -> undefined
+    std::variant<std::monostate, std::string, double, std::shared_ptr<Function>> value_;
 };
 
 struct Context {
@@ -101,9 +106,9 @@ public:
         auto rhs = right_->execute(ctx);
         switch (op_) {
             case BinaryOperator::Plus:
-                return Value{std::get<double>(lhs.value()) + std::get<double>(rhs.value())};
+                return Value{lhs.as_number() + rhs.as_number()};
             case BinaryOperator::Minus:
-                return Value{std::get<double>(lhs.value()) - std::get<double>(rhs.value())};
+                return Value{lhs.as_number() - rhs.as_number()};
         }
         std::abort();
     }
@@ -172,7 +177,7 @@ public:
         : id_{std::move(id)}, function_{std::make_shared<Function>(std::move(params), std::move(body))} {}
 
     Value execute(Context &ctx) const override {
-        ctx.variables[std::get<std::string>(id_.execute(ctx).value())] = Value{function_};
+        ctx.variables[id_.execute(ctx).as_string()] = Value{function_};
         return Value{};
     }
 
@@ -184,7 +189,7 @@ private:
 class VariableDeclarator : public Node {
 public:
     Value execute(Context &ctx) const override {
-        auto name = std::get<std::string>(id->execute(ctx).value());
+        auto name = id->execute(ctx).as_string();
         ctx.variables[std::move(name)] = init ? (*init)->execute(ctx) : Value{};
         return Value{};
     }
