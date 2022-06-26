@@ -21,14 +21,16 @@ namespace js {
 namespace ast {
 
 // TODO(robinlinden): This needs to support more values.
+class Function;
 class Value {
 public:
     explicit Value() : value_{} {}
     explicit Value(double value) : value_{value} {}
     explicit Value(std::string value) : value_{std::move(value)} {}
+    explicit Value(std::shared_ptr<Function> value) : value_{std::move(value)} {}
 
     // std::monostate -> undefined
-    using ValueT = std::variant<std::monostate, std::string, double>;
+    using ValueT = std::variant<std::monostate, std::string, double, std::shared_ptr<Function>>;
     [[nodiscard]] ValueT const &value() const { return value_; }
 
     [[nodiscard]] bool operator==(Value const &) const = default;
@@ -123,6 +125,60 @@ public:
     }
 
     std::vector<std::unique_ptr<Statement>> body;
+};
+
+class BlockStatement : public Statement {
+public:
+    explicit BlockStatement(std::vector<std::unique_ptr<Statement>> body) : body_{std::move(body)} {}
+
+    Value execute(Context &ctx) const override {
+        Value ret;
+        for (auto const &statement : body_) {
+            ret = statement->execute(ctx);
+        }
+        return ret;
+    }
+
+private:
+    std::vector<std::unique_ptr<Statement>> body_;
+};
+
+class FunctionBody : public BlockStatement {
+public:
+    using BlockStatement::BlockStatement;
+    using BlockStatement::execute;
+};
+
+class Function : public Node {
+public:
+    Function(std::vector<std::unique_ptr<Pattern>> params, FunctionBody body)
+        : params_{std::move(params)}, body_{std::move(body)} {}
+
+    Value execute(Context &ctx) const override {
+        // TODO(robinlinden): Push scope to context, add params as variables.
+        return body_.execute(ctx);
+    }
+
+private:
+    std::vector<std::unique_ptr<Pattern>> params_;
+    FunctionBody body_;
+};
+
+// TODO(robinlinden): es5.md says that this should inherit from Function, but
+// that is weird.
+class FunctionDeclaration : public Declaration {
+public:
+    FunctionDeclaration(Identifier id, std::vector<std::unique_ptr<Pattern>> params, FunctionBody body)
+        : id_{std::move(id)}, function_{std::make_shared<Function>(std::move(params), std::move(body))} {}
+
+    Value execute(Context &ctx) const override {
+        ctx.variables[std::get<std::string>(id_.execute(ctx).value())] = Value{function_};
+        return Value{};
+    }
+
+private:
+    Identifier id_;
+    std::shared_ptr<Function> function_;
 };
 
 class VariableDeclarator : public Node {

@@ -6,6 +6,7 @@
 
 #include "etest/etest.h"
 
+#include <cstddef>
 #include <string>
 
 using namespace js::ast;
@@ -47,6 +48,17 @@ int main() {
         auto minus_expr = BinaryExpression{
                 BinaryOperator::Minus, std::make_unique<NumericLiteral>(11.), std::make_unique<NumericLiteral>(31.)};
         expect_eq(minus_expr.execute(ctx), Value{-20.});
+    });
+
+    etest::test("function declaration", [] {
+        // AST for `function a() {}`
+        auto declaration = FunctionDeclaration{Identifier{"a"}, {}, FunctionBody{{}}};
+        Context ctx;
+        expect_eq(declaration.execute(ctx), Value{});
+        expect_eq(ctx.variables.size(), std::size_t{1});
+
+        // Check that we can call the declared function.
+        expect_eq(std::get<std::shared_ptr<Function>>(ctx.variables.at("a").value())->execute(ctx), Value{});
     });
 
     return etest::run_all_tests();
