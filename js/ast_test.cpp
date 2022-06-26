@@ -11,6 +11,7 @@
 
 using namespace js::ast;
 using namespace std::literals;
+using etest::expect;
 using etest::expect_eq;
 
 int main() {
@@ -35,7 +36,7 @@ int main() {
         program.body.push_back(std::move(declaration));
 
         Context ctx;
-        expect_eq(program.execute(ctx), Value{});
+        expect(program.execute(ctx).is_undefined());
         expect_eq(ctx, Context{.variables = {{"a", Value{1.}}}});
     });
 
@@ -54,11 +55,11 @@ int main() {
         // AST for `function a() {}`
         auto declaration = FunctionDeclaration{Identifier{"a"}, {}, FunctionBody{{}}};
         Context ctx;
-        expect_eq(declaration.execute(ctx), Value{});
+        expect(declaration.execute(ctx).is_undefined());
         expect_eq(ctx.variables.size(), std::size_t{1});
 
         // Check that we can call the declared function.
-        expect_eq(ctx.variables.at("a").as_function()->execute(ctx), Value{});
+        expect(ctx.variables.at("a").as_function()->execute(ctx).is_undefined());
     });
 
     return etest::run_all_tests();

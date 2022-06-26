@@ -24,11 +24,12 @@ namespace ast {
 class Function;
 class Value {
 public:
-    explicit Value() : value_{} {}
+    explicit Value() : value_{Undefined{}} {}
     explicit Value(double value) : value_{value} {}
     explicit Value(std::string value) : value_{std::move(value)} {}
     explicit Value(std::shared_ptr<Function> value) : value_{std::move(value)} {}
 
+    bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
     bool is_number() const { return std::holds_alternative<double>(value_); }
     bool is_string() const { return std::holds_alternative<std::string>(value_); }
     bool is_function() const { return std::holds_alternative<std::shared_ptr<Function>>(value_); }
@@ -40,8 +41,10 @@ public:
     [[nodiscard]] bool operator==(Value const &) const = default;
 
 private:
-    // std::monostate -> undefined
-    std::variant<std::monostate, std::string, double, std::shared_ptr<Function>> value_;
+    struct Undefined {
+        [[nodiscard]] bool operator==(Undefined const &) const = default;
+    };
+    std::variant<Undefined, std::string, double, std::shared_ptr<Function>> value_;
 };
 
 struct Context {
