@@ -59,7 +59,33 @@ int main() {
         expect_eq(ctx.variables.size(), std::size_t{1});
 
         // Check that we can call the declared function.
+        ctx.variables["arguments"] = Value{std::vector<Value>{}};
         expect(ctx.variables.at("a").as_function()->execute(ctx).is_undefined());
+    });
+
+    etest::test("function call", [] {
+        // AST for `function func(arg1, arg2) {}`
+        std::vector<std::unique_ptr<Pattern>> params;
+        params.push_back(std::make_unique<Identifier>("arg1"));
+        params.push_back(std::make_unique<Identifier>("arg2"));
+        auto declaration = FunctionDeclaration{Identifier{"func"}, std::move(params), FunctionBody{{}}};
+        Context ctx;
+        expect(declaration.execute(ctx).is_undefined());
+        expect_eq(ctx.variables.size(), std::size_t{1});
+
+        // AST for `func(1, "hello")`
+        std::vector<std::unique_ptr<Expression>> args;
+        args.push_back(std::make_unique<NumericLiteral>(1));
+        args.push_back(std::make_unique<StringLiteral>("hello"));
+        auto call = CallExpression{std::make_unique<Identifier>("func"), std::move(args)};
+        expect(call.execute(ctx).is_undefined());
+
+        // Abuse the fact that we don't yet support scopes to check that the
+        // arguments were mapped to the correct names. This should break when
+        // scopes are supported.
+        expect_eq(ctx.variables.size(), std::size_t{4}); // func, arg1, arg2, arguments
+        expect_eq(ctx.variables.at("arg1"), Value{1});
+        expect_eq(ctx.variables.at("arg2"), Value{"hello"});
     });
 
     return etest::run_all_tests();
