@@ -17,6 +17,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <system_error>
 
 using namespace std::literals;
 
@@ -81,10 +82,13 @@ constexpr std::string_view border_fragment_shader{
         }
         )"sv};
 
-auto get_font_dir_iterator(std::filesystem::path const &path) try {
-    return std::filesystem::recursive_directory_iterator(path);
-} catch (std::filesystem::filesystem_error const &) {
-    return std::filesystem::recursive_directory_iterator();
+std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesystem::path const &path) {
+    std::error_code errc;
+    if (auto it = std::filesystem::recursive_directory_iterator(path, errc); !errc) {
+        return it;
+    }
+
+    return {};
 }
 
 // TODO(robinlinden): We should be looking at font names rather than filenames.
