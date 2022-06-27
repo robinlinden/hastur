@@ -10,6 +10,7 @@ cc_library(
     defines = [
         "SPDLOG_COMPILED_LIB",
         "SPDLOG_FMT_EXTERNAL",
+        "SPDLOG_NO_EXCEPTIONS",
     ],
     linkopts = select({
         "@platforms//os:linux": ["-lpthread"],
