@@ -24,9 +24,27 @@ cc_library(
     ],
 )
 
+genrule(
+    name = "basic_vertex_shader",
+    srcs = ["basic_shader.vert"],
+    outs = ["basic_vertex_shader.h"],
+    cmd = "xxd -i $< >$@",
+)
+
+genrule(
+    name = "border_fragment_shader",
+    srcs = ["border_shader.frag"],
+    outs = ["border_fragment_shader.h"],
+    cmd = "xxd -i $< >$@",
+)
+
 cc_library(
     name = "sfml",
-    srcs = ["sfml_canvas.cpp"],
+    srcs = [
+        "sfml_canvas.cpp",
+        ":basic_vertex_shader",
+        ":border_fragment_shader",
+    ],
     hdrs = ["sfml_canvas.h"],
     visibility = ["//visibility:public"],
     deps = [
