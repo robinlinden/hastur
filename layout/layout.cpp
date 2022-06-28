@@ -37,38 +37,39 @@ bool last_node_was_anonymous(LayoutBox const &box) {
 
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
-    return std::visit(Overloaded{
-                              [&node](dom::Element const &) -> std::optional<LayoutBox> {
-                                  auto display = style::get_property(node, "display");
-                                  if (display && *display == "none") {
-                                      return std::nullopt;
-                                  }
+    auto visitor = Overloaded{
+            [&node](dom::Element const &) -> std::optional<LayoutBox> {
+                auto display = style::get_property(node, "display");
+                if (display && *display == "none") {
+                    return std::nullopt;
+                }
 
-                                  LayoutBox box{&node, display == "inline" ? LayoutType::Inline : LayoutType::Block};
+                LayoutBox box{&node, display == "inline" ? LayoutType::Inline : LayoutType::Block};
 
-                                  for (auto const &child : node.children) {
-                                      auto child_box = create_tree(child);
-                                      if (!child_box)
-                                          continue;
+                for (auto const &child : node.children) {
+                    auto child_box = create_tree(child);
+                    if (!child_box)
+                        continue;
 
-                                      if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
-                                          if (!last_node_was_anonymous(box)) {
-                                              box.children.push_back(LayoutBox{nullptr, LayoutType::AnonymousBlock});
-                                          }
+                    if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
+                        if (!last_node_was_anonymous(box)) {
+                            box.children.push_back(LayoutBox{nullptr, LayoutType::AnonymousBlock});
+                        }
 
-                                          box.children.back().children.push_back(std::move(*child_box));
-                                      } else {
-                                          box.children.push_back(std::move(*child_box));
-                                      }
-                                  }
+                        box.children.back().children.push_back(std::move(*child_box));
+                    } else {
+                        box.children.push_back(std::move(*child_box));
+                    }
+                }
 
-                                  return box;
-                              },
-                              [&node](dom::Text const &) -> std::optional<LayoutBox> {
-                                  return LayoutBox{&node, LayoutType::Inline};
-                              },
-                      },
-            node.node);
+                return box;
+            },
+            [&node](dom::Text const &) -> std::optional<LayoutBox> {
+                return LayoutBox{&node, LayoutType::Inline};
+            },
+    };
+
+    return std::visit(visitor, node.node);
 }
 
 // TODO(robinlinden):
