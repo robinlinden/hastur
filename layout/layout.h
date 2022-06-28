@@ -22,11 +22,11 @@ struct BoxModel {
 
     [[nodiscard]] bool operator==(BoxModel const &) const = default;
 
-    geom::Rect padding_box() const;
-    geom::Rect border_box() const;
-    geom::Rect margin_box() const;
+    constexpr geom::Rect padding_box() const { return content.expanded(padding); }
+    constexpr geom::Rect border_box() const { return padding_box().expanded(border); }
+    constexpr geom::Rect margin_box() const { return border_box().expanded(margin); }
 
-    bool contains(geom::Position p) const { return border_box().contains(p); }
+    constexpr bool contains(geom::Position p) const { return border_box().contains(p); }
 };
 
 enum class LayoutType {

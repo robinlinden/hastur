@@ -313,18 +313,6 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
 
 } // namespace
 
-geom::Rect BoxModel::padding_box() const {
-    return content.expanded(padding);
-}
-
-geom::Rect BoxModel::border_box() const {
-    return padding_box().expanded(border);
-}
-
-geom::Rect BoxModel::margin_box() const {
-    return border_box().expanded(margin);
-}
-
 LayoutBox create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
     layout(*tree, {0, 0, width, 0});
