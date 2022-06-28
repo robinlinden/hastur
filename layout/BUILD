@@ -3,7 +3,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 cc_library(
     name = "layout",
     srcs = ["layout.cpp"],
-    hdrs = ["layout.h"],
+    hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
     deps = [
         "//geom",
@@ -11,12 +11,12 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "layout_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["layout_test.cpp"],
+    srcs = [src],
     deps = [
         ":layout",
         "//etest",
     ],
-)
+) for src in glob(["*_test.cpp"])]

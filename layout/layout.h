@@ -5,6 +5,8 @@
 #ifndef LAYOUT_LAYOUT_H_
 #define LAYOUT_LAYOUT_H_
 
+#include "layout/box_model.h"
+
 #include "geom/geom.h"
 #include "style/styled_node.h"
 
@@ -12,22 +14,6 @@
 #include <vector>
 
 namespace layout {
-
-struct BoxModel {
-    geom::Rect content{};
-
-    geom::EdgeSize padding{};
-    geom::EdgeSize border{};
-    geom::EdgeSize margin{};
-
-    [[nodiscard]] bool operator==(BoxModel const &) const = default;
-
-    constexpr geom::Rect padding_box() const { return content.expanded(padding); }
-    constexpr geom::Rect border_box() const { return padding_box().expanded(border); }
-    constexpr geom::Rect margin_box() const { return border_box().expanded(margin); }
-
-    constexpr bool contains(geom::Position p) const { return border_box().contains(p); }
-};
 
 enum class LayoutType {
     Inline,
