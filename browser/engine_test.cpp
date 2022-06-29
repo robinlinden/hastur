@@ -86,5 +86,15 @@ int main() {
         expect_eq(e.uri(), *uri::Uri::parse("hax://example.com/test"));
     });
 
+    etest::test("scheme-relative uri", [] {
+        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+
+        e.navigate(*uri::Uri::parse("hax://example.com"));
+        expect_eq(e.uri(), *uri::Uri::parse("hax://example.com"));
+
+        e.navigate(*uri::Uri::parse("//example2.com/test"));
+        expect_eq(e.uri(), *uri::Uri::parse("hax://example2.com/test"));
+    });
+
     return etest::run_all_tests();
 }
