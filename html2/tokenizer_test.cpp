@@ -31,15 +31,16 @@ static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 class TokenizerOutput {
 public:
     ~TokenizerOutput() {
-        expect(tokens.empty());
-        expect(errors.empty());
+        expect(tokens.empty(), loc);
+        expect(errors.empty(), loc);
     }
 
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
+    etest::source_location loc;
 };
 
-TokenizerOutput run_tokenizer(std::string_view input) {
+TokenizerOutput run_tokenizer(std::string_view input, etest::source_location loc = etest::source_location::current()) {
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
     Tokenizer{input,
@@ -55,7 +56,7 @@ TokenizerOutput run_tokenizer(std::string_view input) {
                 errors.push_back(e);
             }}
             .run();
-    return {std::move(tokens), std::move(errors)};
+    return {std::move(tokens), std::move(errors), std::move(loc)};
 }
 
 void expect_token(
