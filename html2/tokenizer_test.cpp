@@ -455,12 +455,14 @@ int main() {
 
     etest::test("comment, nested comment", [] {
         auto tokens = run_tokenizer("<!--<!---->");
+        expect_error(tokens, ParseError::NestedComment);
         expect_token(tokens, CommentToken{.data = "<!--"});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, nested comment closed", [] {
         auto tokens = run_tokenizer("<!-- <!-- nested --> -->");
+        expect_error(tokens, ParseError::NestedComment);
         expect_token(tokens, CommentToken{.data = " <!-- nested "});
         expect_text(tokens, " -->");
         expect_token(tokens, EndOfFileToken{});
@@ -468,30 +470,35 @@ int main() {
 
     etest::test("comment, abrupt closing in comment start", [] {
         auto tokens = run_tokenizer("<!-->");
+        expect_error(tokens, ParseError::AbruptClosingOfEmptyComment);
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, abrupt closing in comment start dash", [] {
         auto tokens = run_tokenizer("<!--->");
+        expect_error(tokens, ParseError::AbruptClosingOfEmptyComment);
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, incorrectly closed comment", [] {
         auto tokens = run_tokenizer("<!--abc--!>");
+        expect_error(tokens, ParseError::IncorrectlyClosedComment);
         expect_token(tokens, CommentToken{.data = "abc"});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, end before comment", [] {
         auto tokens = run_tokenizer("<!--");
+        expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("comment, eof before comment is closed", [] {
         auto tokens = run_tokenizer("<!--abc");
+        expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{.data = "abc"});
         expect_token(tokens, EndOfFileToken{});
     });

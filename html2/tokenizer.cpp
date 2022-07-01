@@ -1060,7 +1060,7 @@ void Tokenizer::run() {
                         state_ = State::CommentStartDash;
                         continue;
                     case '>':
-                        // This is an abrupt closing of empty comment parse error.
+                        emit(ParseError::AbruptClosingOfEmptyComment);
                         state_ = State::Data;
                         emit(std::move(current_token_));
                         continue;
@@ -1084,7 +1084,7 @@ void Tokenizer::run() {
                         state_ = State::CommentEnd;
                         continue;
                     case '>':
-                        // This is an abrupt closing of empty comment parse error.
+                        emit(ParseError::AbruptClosingOfEmptyComment);
                         state_ = State::Data;
                         emit(std::move(current_token_));
                         continue;
@@ -1098,7 +1098,7 @@ void Tokenizer::run() {
             case State::Comment: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-comment parse error.
+                    emit(ParseError::EofInComment);
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
                     return;
@@ -1189,7 +1189,7 @@ void Tokenizer::run() {
                         reconsume_in(State::CommentEnd);
                         continue;
                     default:
-                        // This is a nested-comment parse error.
+                        emit(ParseError::NestedComment);
                         reconsume_in(State::CommentEnd);
                         continue;
                 }
@@ -1257,7 +1257,7 @@ void Tokenizer::run() {
                         state_ = State::CommentEndDash;
                         continue;
                     case '>':
-                        // This is an incorrectly-closed-comment parse error.
+                        emit(ParseError::IncorrectlyClosedComment);
                         state_ = State::Data;
                         emit(std::move(current_token_));
                         continue;
