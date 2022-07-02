@@ -12,6 +12,7 @@
 #include <cctype>
 #include <string>
 #include <string_view>
+#include <variant>
 
 using namespace std::literals;
 
@@ -37,75 +38,87 @@ constexpr auto kImmediatelyPopped = std::to_array(
 
 } // namespace
 
-void Parser::on_token(html2::Tokenizer &tokenizer, html2::Token &&token) {
-    if (auto doctype = std::get_if<html2::DoctypeToken>(&token)) {
-        if (doctype->name.has_value()) {
-            doc_.doctype = *(doctype->name);
-        }
-    } else if (auto start_tag = std::get_if<html2::StartTagToken>(&token)) {
-        if (start_tag->tag_name == "html"sv) {
-            doc_.html().name = start_tag->tag_name;
-            doc_.html().attributes = into_dom_attributes(start_tag->attributes);
-            open_elements_.push(&doc_.html());
-            seen_html_tag_ = true;
-            return;
-        }
+void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
+    std::visit(*this, token);
+}
 
-        if (start_tag->tag_name == "script"sv) {
-            tokenizer.set_state(html2::State::ScriptData);
-        }
+void Parser::operator()(html2::DoctypeToken const &doctype) {
+    if (doctype.name.has_value()) {
+        doc_.doctype = *doctype.name;
+    }
+}
 
-        if (open_elements_.empty() && !seen_html_tag_) {
-            spdlog::warn("Start tag [{}] encountered before html element was opened", start_tag->tag_name);
-            doc_.html().name = "html"s;
-            open_elements_.push(&doc_.html());
-            seen_html_tag_ = true;
-        } else if (open_elements_.empty()) {
-            spdlog::warn("Start tag [{}] encountered with no open elements", start_tag->tag_name);
-            return;
-        }
+void Parser::operator()(html2::StartTagToken const &start_tag) {
+    if (start_tag.tag_name == "html"sv) {
+        doc_.html().name = start_tag.tag_name;
+        doc_.html().attributes = into_dom_attributes(start_tag.attributes);
+        open_elements_.push(&doc_.html());
+        seen_html_tag_ = true;
+        return;
+    }
 
-        generate_text_node_if_needed();
+    if (start_tag.tag_name == "script"sv) {
+        tokenizer_.set_state(html2::State::ScriptData);
+    }
 
-        auto &new_element = open_elements_.top()->children.emplace_back(
-                dom::Element{start_tag->tag_name, into_dom_attributes(start_tag->attributes), {}});
+    if (open_elements_.empty() && !seen_html_tag_) {
+        spdlog::warn("Start tag [{}] encountered before html element was opened", start_tag.tag_name);
+        doc_.html().name = "html"s;
+        open_elements_.push(&doc_.html());
+        seen_html_tag_ = true;
+    } else if (open_elements_.empty()) {
+        spdlog::warn("Start tag [{}] encountered with no open elements", start_tag.tag_name);
+        return;
+    }
 
-        if (!start_tag->self_closing) {
-            // This may seem risky since vectors will move their storage about
-            // if they need it, but we only ever add new children to the
-            // top-most element in the stack, so this pointer will be valid
-            // until it's been popped from the stack and we add its siblings.
-            open_elements_.push(std::get_if<dom::Element>(&new_element));
-        }
+    generate_text_node_if_needed();
 
-        // Special cases from https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
-        // Immediately popped off the stack of open elements special cases.
-        if (!start_tag->self_closing && is_in_array<kImmediatelyPopped>(start_tag->tag_name)) {
-            open_elements_.pop();
-        }
-    } else if (auto end_tag = std::get_if<html2::EndTagToken>(&token)) {
-        if (open_elements_.empty()) {
-            spdlog::warn("End tag [{}] encountered with no elements still open", end_tag->tag_name);
-            return;
-        }
+    auto &new_element = open_elements_.top()->children.emplace_back(
+            dom::Element{start_tag.tag_name, into_dom_attributes(start_tag.attributes), {}});
 
-        generate_text_node_if_needed();
+    if (!start_tag.self_closing) {
+        // This may seem risky since vectors will move their storage about
+        // if they need it, but we only ever add new children to the
+        // top-most element in the stack, so this pointer will be valid
+        // until it's been popped from the stack and we add its siblings.
+        open_elements_.push(std::get_if<dom::Element>(&new_element));
+    }
 
-        auto const &expected_tag = open_elements_.top()->name;
-        if (end_tag->tag_name != expected_tag) {
-            spdlog::warn("Unexpected end_tag name, expected [{}] but got [{}]", expected_tag, end_tag->tag_name);
-            return;
-        }
-
+    // Special cases from https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+    // Immediately popped off the stack of open elements special cases.
+    if (!start_tag.self_closing && is_in_array<kImmediatelyPopped>(start_tag.tag_name)) {
         open_elements_.pop();
-    } else if (std::get_if<html2::CommentToken>(&token) != nullptr) {
-        // Do nothing.
-    } else if (auto character = std::get_if<html2::CharacterToken>(&token)) {
-        current_text_ << character->data;
-    } else if (std::get_if<html2::EndOfFileToken>(&token) != nullptr) {
-        if (!open_elements_.empty()) {
-            spdlog::warn("EOF reached with [{}] elements still open", open_elements_.size());
-        }
+    }
+}
+
+void Parser::operator()(html2::EndTagToken const &end_tag) {
+    if (open_elements_.empty()) {
+        spdlog::warn("End tag [{}] encountered with no elements still open", end_tag.tag_name);
+        return;
+    }
+
+    generate_text_node_if_needed();
+
+    auto const &expected_tag = open_elements_.top()->name;
+    if (end_tag.tag_name != expected_tag) {
+        spdlog::warn("Unexpected end_tag name, expected [{}] but got [{}]", expected_tag, end_tag.tag_name);
+        return;
+    }
+
+    open_elements_.pop();
+}
+
+void Parser::operator()(html2::CommentToken const &) {
+    // Do nothing.
+}
+
+void Parser::operator()(html2::CharacterToken const &character) {
+    current_text_ << character.data;
+}
+
+void Parser::operator()(html2::EndOfFileToken const &) {
+    if (!open_elements_.empty()) {
+        spdlog::warn("EOF reached with [{}] elements still open", open_elements_.size());
     }
 }
 

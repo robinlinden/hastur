@@ -20,6 +20,14 @@ public:
         return parser.run();
     }
 
+    // These must be public for std::visit to be happy with Parser as a visitor.
+    void operator()(html2::DoctypeToken const &);
+    void operator()(html2::StartTagToken const &);
+    void operator()(html2::EndTagToken const &);
+    void operator()(html2::CommentToken const &);
+    void operator()(html2::CharacterToken const &);
+    void operator()(html2::EndOfFileToken const &);
+
 private:
     Parser(std::string_view input) : tokenizer_{input, std::bind_front(&Parser::on_token, this)} {}
 
