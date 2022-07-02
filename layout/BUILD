@@ -8,6 +8,7 @@ cc_library(
     deps = [
         "//geom",
         "//style",
+        "//util:overloaded",
     ],
 )
 

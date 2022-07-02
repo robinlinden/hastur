@@ -5,6 +5,8 @@
 
 #include "layout/layout.h"
 
+#include "util/overloaded.h"
+
 #include <algorithm>
 #include <cassert>
 #include <charconv>
@@ -22,22 +24,13 @@ namespace {
 constexpr int kDefaultFontSizePx = 10;
 constexpr std::string_view kDefaultFontSize{"10px"};
 
-template<class... Ts>
-struct Overloaded : Ts... {
-    using Ts::operator()...;
-};
-
-// Not needed as of C++20, but gcc 10 won't work without it.
-template<class... Ts>
-Overloaded(Ts...) -> Overloaded<Ts...>;
-
 bool last_node_was_anonymous(LayoutBox const &box) {
     return !box.children.empty() && box.children.back().type == LayoutType::AnonymousBlock;
 }
 
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
-    auto visitor = Overloaded{
+    auto visitor = util::Overloaded{
             [&node](dom::Element const &) -> std::optional<LayoutBox> {
                 auto display = style::get_property(node, "display");
                 if (display && *display == "none") {
@@ -274,7 +267,7 @@ std::string_view to_str(LayoutType type) {
 }
 
 std::string_view to_str(dom::Node const &node) {
-    return std::visit(Overloaded{
+    return std::visit(util::Overloaded{
                               [](dom::Element const &element) -> std::string_view { return element.name; },
                               [](dom::Text const &text) -> std::string_view { return text.text; },
                       },

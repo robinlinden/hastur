@@ -4,6 +4,8 @@
 
 #include "html2/token.h"
 
+#include "util/overloaded.h"
+
 #include <optional>
 #include <ostream>
 #include <sstream>
@@ -11,18 +13,6 @@
 #include <variant>
 
 namespace html2 {
-namespace {
-
-template<class... Ts>
-struct Overloaded : Ts... {
-    using Ts::operator()...;
-};
-
-// Not needed as of C++20, but gcc 10 won't work without it.
-template<class... Ts>
-Overloaded(Ts...) -> Overloaded<Ts...>;
-
-} // namespace
 
 std::string to_string(Token const &token) {
     auto try_print = []<typename T>(std::ostream &os, std::optional<T> maybe_value) {
@@ -34,7 +24,7 @@ std::string to_string(Token const &token) {
     };
 
     std::stringstream ss;
-    std::visit(Overloaded{
+    std::visit(util::Overloaded{
                        [&](DoctypeToken const &t) {
                            ss << "Doctype";
                            try_print(ss, t.name);

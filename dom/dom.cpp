@@ -4,6 +4,8 @@
 
 #include "dom/dom.h"
 
+#include "util/overloaded.h"
+
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/view/remove_if.hpp>
 #include <range/v3/view/transform.hpp>
@@ -18,20 +20,11 @@
 namespace dom {
 namespace {
 
-template<class... Ts>
-struct Overloaded : Ts... {
-    using Ts::operator()...;
-};
-
-// Not needed as of C++20, but gcc 10 won't work without it.
-template<class... Ts>
-Overloaded(Ts...) -> Overloaded<Ts...>;
-
 void print_node(dom::Node const &node, std::ostream &os, uint8_t depth = 0) {
     for (int8_t i = 0; i < depth; ++i) {
         os << "  ";
     }
-    std::visit(Overloaded{
+    std::visit(util::Overloaded{
                        [&os, depth](dom::Element const &element) {
                            os << "tag: " << element.name << '\n';
                            for (auto const &child : element.children) {
