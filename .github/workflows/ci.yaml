@@ -20,25 +20,25 @@ jobs:
             os: ubuntu-22.04
             compiler: clang
             version: 14
-            bazel: --config clang --config tsan
+            bazel: --config tsan
 
           - name: clang-asan
             os: ubuntu-22.04
             compiler: clang
             version: 14
-            bazel: --config clang --config asan
+            bazel: --config asan
 
           - name: clang-ubsan
             os: ubuntu-22.04
             compiler: clang
             version: 14
-            bazel: --config clang --config ubsan
+            bazel: --config ubsan
 
           - name: clang-libc++
             os: ubuntu-22.04
             compiler: clang
             version: 14
-            bazel: --config clang --config libc++
+            bazel: --config libc++
             apt: libc++abi-14-dev libc++-14-dev
 
     steps:
@@ -89,7 +89,7 @@ jobs:
           echo "CC=gcc-10" >> $GITHUB_ENV
           echo "CXX=g++-10" >> $GITHUB_ENV
       - name: Coverage
-        run: bazel coverage --combined_report=lcov --config=gcc //...
+        run: bazel coverage --combined_report=lcov //...
       - name: Summary
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload

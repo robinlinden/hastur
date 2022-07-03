@@ -19,6 +19,10 @@ build --incompatible_enable_cc_toolchain_resolution
 # Compiler configuration
 # =========================================================
 
+# Bazel + Clang supports this really cool features where it checks that you're
+# not relying on transitive dependencies, so let's enable that!
+build:linux --features=layering_check
+
 build:linux --cxxopt='-std=c++20'
 build:linux --cxxopt='-fno-rtti'
 build:linux --copt='-Wall'
@@ -36,20 +40,31 @@ build:linux --copt='-fno-common'
 build:linux --cxxopt='-Wnon-virtual-dtor'
 build:linux --cxxopt='-Woverloaded-virtual'
 build:linux --copt='-Wno-missing-field-initializers' # Common idiom for zeroing members.
-build:linux --per_file_copt='net:socket@-Wno-undef' # asio leaks this into our code.
+build:linux --per_file_copt='gfx:sfml_canvas@-Wno-implicit-fallthrough' # sfml leaks this into our code.
+build:linux --per_file_copt='net:socket@-Wno-nonnull' # asio leaks this into our code.
 build:linux --per_file_copt='net:socket@-Wno-shadow' # asio leaks this into our code.
+build:linux --per_file_copt='net:socket@-Wno-undef' # asio leaks this into our code.
 build:linux --per_file_copt='external/asio[:/]@-Wno-sign-compare'
 build:linux --per_file_copt='external/asio[:/]@-Wno-undef'
+build:linux --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
+build:linux --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
+build:linux --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
+build:linux --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-missing-declarations'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
 build:linux --per_file_copt='external/ftxui[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
 build:linux --per_file_copt='external/glew[:/]@-Wno-undef'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
+build:linux --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
 build:linux --per_file_copt='external/imgui[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
 build:linux --per_file_copt='external/libpng[:/]@-Wno-undef'
+build:linux --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-missing-declarations'
@@ -59,35 +74,17 @@ build:linux --per_file_copt='external/sfml[:/]@-Wno-undef'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-unused-parameter'
 build:linux --per_file_copt='external/udev-zero[:/]@-Wno-format-nonliteral'
 build:linux --per_file_copt='external/udev-zero[:/]@-Wno-unused-parameter'
-build:linux --per_file_copt='external/xext[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/xext[:/]@-Wno-missing-declarations'
 build:linux --per_file_copt='external/xext[:/]@-Wno-sign-compare'
+build:linux --per_file_copt='external/xext[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/xrandr[:/]@-Wno-type-limits'
 build:linux --per_file_copt='external/xrandr[:/]@-Wno-unused-parameter'
-build:linux --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
 build:linux --per_file_copt='external/xrender[:/]@-Wno-sign-compare'
+build:linux --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
+build:linux --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-missing-declarations'
 
-# Bazel + Clang supports this really cool features where it checks that you're
-# not relying on transitive dependencies, so let's enable that!
-build:clang --features=layering_check
-build:clang --per_file_copt='external/boringssl[:/]@-Wno-extra-semi'
-build:clang --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
-build:clang --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
-build:clang --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
-
-build:gcc --per_file_copt='gfx:sfml_canvas@-Wno-implicit-fallthrough' # sfml leaks this into our code.
-build:gcc --per_file_copt='external/boringssl[:/]@-Wno-cast-function-type'
-build:gcc --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
-build:gcc --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
-build:gcc --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
-build:gcc --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
-build:gcc --per_file_copt='external/xext[:/]@-Wno-missing-declarations'
-build:gcc --per_file_copt='external/xrandr[:/]@-Wno-type-limits'
-build:gcc --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
-
-build:gcc11 --config=gcc
-build:gcc11 --per_file_copt='net:socket@-Wno-nonnull' # asio leaks this into our code.
-build:gcc11 --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
 build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
 build:gcc12 --config=gcc11
