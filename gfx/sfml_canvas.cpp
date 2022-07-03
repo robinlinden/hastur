@@ -96,9 +96,12 @@ void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
     target_.draw(drawable);
 }
 
-void SfmlCanvas::draw_border(geom::Rect const &rect, Borders const &borders) {
+void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) {
     auto translated{rect.translated(tx_, ty_)};
     auto inner_rect{translated.scaled(scale_)};
+
+    fill_rect(rect, color);
+
     auto outer_rect =
             inner_rect.expanded({borders.left.size, borders.right.size, borders.top.size, borders.bottom.size});
 

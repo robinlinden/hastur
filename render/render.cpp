@@ -25,7 +25,8 @@ using namespace std::literals;
 namespace render {
 namespace {
 
-constexpr std::string_view kDefaultColor{"#000000"};
+constexpr gfx::Color kDefaultColor{0x0, 0x0, 0x0};
+constexpr gfx::Color kTransparentColor{0xFF, 0xFF, 0xFF, 0x0};
 
 struct CaseInsensitiveLess {
     using is_transparent = void;
@@ -63,8 +64,8 @@ bool looks_like_hex(std::string_view str) {
     return str.starts_with('#') && (str.length() == 7 || str.length() == 4);
 }
 
-bool has_any_border(layout::LayoutBox const &layout) {
-    return layout.dimensions.border_box() != layout.dimensions.padding_box();
+bool has_any_border(geom::EdgeSize const &border) {
+    return border != geom::EdgeSize{};
 }
 
 dom::Text const *try_get_text(layout::LayoutBox const &layout) {
@@ -99,46 +100,40 @@ gfx::Color parse_color(std::string_view str) {
     return gfx::Color{0xFF, 0, 0};
 }
 
+std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout, std::string_view color) {
+    if (auto maybe_color = style::get_property(*layout.node, color)) {
+        return parse_color(*maybe_color);
+    }
+    return std::nullopt;
+}
+
 void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
     // TODO(robinlinden):
     // * We need to grab properties from the parent for this to work.
     // * This shouldn't be done here.
     auto font = gfx::Font{"arial"sv};
     auto font_size = gfx::FontSize{.px = 10};
-    auto color = parse_color(style::get_property(*layout.node, "color"sv).value_or(kDefaultColor));
+    auto color = try_get_color(layout, "color"sv).value_or(kDefaultColor);
     painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
 }
 
-void render_borders(gfx::Painter &painter, layout::LayoutBox const &layout) {
-    // TODO(mkiael): Handle a lot more border styles
-    auto color = style::get_property(*layout.node, "color"sv).value_or(kDefaultColor);
+void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
+    auto background_color = try_get_color(layout, "background-color"sv).value_or(kTransparentColor);
     auto const &border_size = layout.dimensions.border;
-    if (border_size.left > 0 || border_size.right > 0 || border_size.top > 0 || border_size.bottom > 0) {
-        gfx::BorderProperties left_prop{
-                parse_color(style::get_property(*layout.node, "border-left-color"sv).value_or(color)),
-                border_size.left,
-        };
-        gfx::BorderProperties right_prop{
-                parse_color(style::get_property(*layout.node, "border-right-color"sv).value_or(color)),
-                border_size.right,
-        };
-        gfx::BorderProperties top_prop{
-                parse_color(style::get_property(*layout.node, "border-top-color"sv).value_or(color)),
-                border_size.top,
-        };
-        gfx::BorderProperties bottom_prop{
-                parse_color(style::get_property(*layout.node, "border-bottom-color"sv).value_or(color)),
-                border_size.bottom,
-        };
+    if (has_any_border(border_size)) {
+        gfx::Borders borders{};
+        borders.left.color = try_get_color(layout, "border-left-color"sv).value_or(kDefaultColor);
+        borders.left.size = border_size.left;
+        borders.right.color = try_get_color(layout, "border-right-color"sv).value_or(kDefaultColor);
+        borders.right.size = border_size.right;
+        borders.top.color = try_get_color(layout, "border-top-color"sv).value_or(kDefaultColor);
+        borders.top.size = border_size.top;
+        borders.bottom.color = try_get_color(layout, "border-bottom-color"sv).value_or(kDefaultColor);
+        borders.bottom.size = border_size.bottom;
 
-        painter.draw_border(
-                layout.dimensions.padding_box(), gfx::Borders{left_prop, right_prop, top_prop, bottom_prop});
-    }
-}
-
-void render_background(gfx::Painter &painter, layout::LayoutBox const &layout) {
-    if (auto maybe_color = style::get_property(*layout.node, "background-color")) {
-        painter.fill_rect(layout.dimensions.padding_box(), parse_color(*maybe_color));
+        painter.draw_rect(layout.dimensions.padding_box(), background_color, borders);
+    } else if (background_color != kTransparentColor) {
+        painter.draw_rect(layout.dimensions.padding_box(), background_color, gfx::Borders{});
     }
 }
 
@@ -146,10 +141,7 @@ void do_render(gfx::Painter &painter, layout::LayoutBox const &layout) {
     if (auto const *text = try_get_text(layout)) {
         render_text(painter, layout, *text);
     } else {
-        if (has_any_border(layout)) {
-            render_borders(painter, layout);
-        }
-        render_background(painter, layout);
+        render_element(painter, layout);
     }
 }
 
