@@ -12,7 +12,9 @@ cc_library(
         "@platforms//os:windows": [
             "-DEFAULTLIB:Kernel32",
             "-DEFAULTLIB:Ole32",
+            "-DEFAULTLIB:Shcore",
             "-DEFAULTLIB:Shell32",
+            "-DEFAULTLIB:User32",
         ],
     }),
     visibility = ["//visibility:public"],

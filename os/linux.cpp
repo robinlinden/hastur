@@ -28,4 +28,8 @@ std::vector<std::string> font_paths() {
     return paths;
 }
 
+unsigned active_window_scale_factor() {
+    return 1;
+}
+
 } // namespace os
