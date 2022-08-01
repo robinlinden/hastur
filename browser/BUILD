@@ -62,6 +62,7 @@ cc_binary(
         "//gfx:opengl",
         "//gfx:sfml",
         "//layout",
+        "//os",
         "//protocol",
         "//render",
         "//uri",

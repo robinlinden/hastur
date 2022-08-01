@@ -4,6 +4,8 @@
 
 #include "browser/gui/app.h"
 
+#include "os/os.h"
+
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
@@ -24,7 +26,7 @@ int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
 
     std::optional<std::string> page_provided{std::nullopt};
-    unsigned scale{1};
+    std::optional<unsigned> scale{std::nullopt};
     for (int i = 1; i < argc; ++i) {
         auto arg = std::string_view{argv[i]};
 
@@ -55,6 +57,6 @@ int main(int argc, char **argv) {
     }
 
     browser::gui::App app{kBrowserTitle, page_provided.value_or(kStartpage), page_provided.has_value()};
-    app.set_scale(scale);
+    app.set_scale(scale.value_or(os::active_window_scale_factor()));
     return app.run();
 }
