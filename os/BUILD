@@ -29,3 +29,14 @@ cc_test(
         "//etest",
     ],
 )
+
+cc_test(
+    name = "linux_test",
+    size = "small",
+    srcs = ["linux_test.cpp"],
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = [
+        ":os",
+        "//etest",
+    ],
+)

@@ -1,10 +1,13 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "os/os.h"
 
+#include <array>
+#include <charconv>
 #include <cstdlib>
+#include <cstring>
 
 using namespace std::literals;
 
@@ -29,6 +32,17 @@ std::vector<std::string> font_paths() {
 }
 
 unsigned active_window_scale_factor() {
+    // Qt, Gnome, and Elementary in that order.
+    // Environment variables from https://wiki.archlinux.org/title/HiDPI#GUI_toolkits
+    for (auto *env_var : std::array{"QT_SCALE_FACTOR", "GDK_SCALE", "ELM_SCALE"}) {
+        if (char const *scale = std::getenv(env_var)) {
+            int result{};
+            if (std::from_chars(scale, scale + std::strlen(scale), result).ec == std::errc{}) {
+                return result;
+            }
+        }
+    }
+
     return 1;
 }
 
