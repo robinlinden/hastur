@@ -30,12 +30,12 @@ namespace os {
 
 std::vector<std::string> font_paths() {
     PWSTR bad_font_path{nullptr};
-    SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &bad_font_path);
+    SHGetKnownFolderPath(FOLDERID_Fonts, 0, nullptr, &bad_font_path);
     auto bad_font_path_len = static_cast<int>(std::wcslen(bad_font_path));
-    auto chars_needed = WideCharToMultiByte(CP_UTF8, 0, bad_font_path, bad_font_path_len, nullptr, 0, NULL, NULL);
+    auto chars_needed = WideCharToMultiByte(CP_UTF8, 0, bad_font_path, bad_font_path_len, nullptr, 0, nullptr, nullptr);
     std::string font_path;
     font_path.resize(chars_needed);
-    WideCharToMultiByte(CP_UTF8, 0, bad_font_path, bad_font_path_len, font_path.data(), chars_needed, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, bad_font_path, bad_font_path_len, font_path.data(), chars_needed, nullptr, nullptr);
     CoTaskMemFree(bad_font_path);
     return {font_path};
 }
