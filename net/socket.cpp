@@ -46,17 +46,14 @@ struct BaseSocketImpl {
     }
 
     std::string read_bytes(auto &socket, std::size_t bytes) {
-        asio::error_code ec;
-        std::string result{};
-        if (buffer.size() >= bytes) {
-            result = buffer.substr(0, bytes);
-            buffer.erase(0, bytes);
-        } else {
+        if (buffer.size() < bytes) {
             auto bytes_to_transfer = bytes - buffer.size();
+            asio::error_code ec;
             asio::read(socket, asio::dynamic_buffer(buffer), asio::transfer_at_least(bytes_to_transfer), ec);
-            result = buffer.substr(0, bytes);
-            buffer.erase(0, bytes);
         }
+
+        std::string result = buffer.substr(0, bytes);
+        buffer.erase(0, bytes);
         return result;
     }
     std::string buffer{};
@@ -65,11 +62,9 @@ struct BaseSocketImpl {
 } // namespace
 
 struct Socket::Impl : public BaseSocketImpl {
-    Impl() : resolver(svc), socket(svc) {}
-
     asio::io_service svc{};
-    asio::ip::tcp::resolver resolver;
-    asio::ip::tcp::socket socket;
+    asio::ip::tcp::resolver resolver{svc};
+    asio::ip::tcp::socket socket{svc};
 };
 
 Socket::Socket() : impl_(std::make_unique<Impl>()) {}
@@ -101,8 +96,6 @@ std::string Socket::read_bytes(std::size_t bytes) {
 }
 
 struct SecureSocket::Impl : public BaseSocketImpl {
-    Impl() : resolver(svc), ctx(asio::ssl::context::method::sslv23_client), socket(svc, ctx) {}
-
     bool connect(std::string_view host, std::string_view service) {
         if (BaseSocketImpl::connect(resolver, socket.next_layer(), host, service)) {
             socket.handshake(asio::ssl::stream_base::handshake_type::client);
@@ -112,9 +105,9 @@ struct SecureSocket::Impl : public BaseSocketImpl {
     }
 
     asio::io_service svc{};
-    asio::ip::tcp::resolver resolver;
-    asio::ssl::context ctx;
-    asio::ssl::stream<asio::ip::tcp::socket> socket;
+    asio::ip::tcp::resolver resolver{svc};
+    asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
+    asio::ssl::stream<asio::ip::tcp::socket> socket{svc, ctx};
 };
 
 SecureSocket::SecureSocket() : impl_(std::make_unique<Impl>()) {}
