@@ -67,6 +67,7 @@ private:
 class NumericLiteral {
 public:
     explicit NumericLiteral(double value) : value_{value} {}
+    [[nodiscard]] double value() const { return value_; }
 
 private:
     double value_{};
@@ -75,6 +76,7 @@ private:
 class StringLiteral {
 public:
     explicit StringLiteral(std::string value) : value_{std::move(value)} {}
+    [[nodiscard]] std::string const &value() const { return value_; }
 
 private:
     std::string value_{};
@@ -170,6 +172,14 @@ public:
 private:
     std::unique_ptr<Expression> callee_;
     std::vector<std::unique_ptr<Expression>> arguments_;
+};
+
+class AstExecutor {
+public:
+    Value execute(auto const &ast) { return (*this)(ast); }
+
+    Value operator()(NumericLiteral const &v) { return Value{v.value()}; }
+    Value operator()(StringLiteral const &v) { return Value{v.value()}; }
 };
 
 } // namespace ast2
