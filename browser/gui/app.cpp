@@ -18,6 +18,7 @@
 #include <imgui_stdlib.h>
 #include <spdlog/spdlog.h>
 
+#include <cmath>
 #include <functional>
 #include <optional>
 #include <sstream>
@@ -31,6 +32,9 @@ namespace {
 
 auto constexpr kDefaultResolutionX = 640;
 auto constexpr kDefaultResolutionY = 480;
+
+// Magic number that felt right during testing.
+auto constexpr kMouseWheelScrollFactor = 10;
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
     auto nodes = dom::nodes_by_path(doc.html(), path);
@@ -222,6 +226,15 @@ int App::run() {
                         navigate();
                     }
 
+                    break;
+                }
+                case sf::Event::MouseWheelScrolled: {
+                    if (ImGui::GetIO().WantCaptureMouse
+                            || event.mouseWheelScroll.wheel != sf::Mouse::Wheel::VerticalWheel) {
+                        break;
+                    }
+
+                    scroll(std::lround(event.mouseWheelScroll.delta) * kMouseWheelScrollFactor);
                     break;
                 }
                 default:
