@@ -109,6 +109,10 @@ public:
     BinaryExpression(BinaryOperator op, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
         : op_{op}, left_{std::move(left)}, right_{std::move(right)} {}
 
+    BinaryOperator op() const { return op_; }
+    std::unique_ptr<Expression> const &lhs() const { return left_; }
+    std::unique_ptr<Expression> const &rhs() const { return right_; }
+
 private:
     BinaryOperator op_;
     std::unique_ptr<Expression> left_;
@@ -178,8 +182,24 @@ class AstExecutor {
 public:
     Value execute(auto const &ast) { return (*this)(ast); }
 
+    Value operator()(Literal const &v) { return std::visit(*this, v); }
     Value operator()(NumericLiteral const &v) { return Value{v.value()}; }
     Value operator()(StringLiteral const &v) { return Value{v.value()}; }
+    Value operator()(Expression const &v) { return std::visit(*this, v); }
+    Value operator()(Identifier const &) { std::abort(); }
+    Value operator()(CallExpression const &) { std::abort(); }
+
+    Value operator()(BinaryExpression const &v) {
+        auto lhs = execute(*v.lhs());
+        auto rhs = execute(*v.rhs());
+        switch (v.op()) {
+            case BinaryOperator::Plus:
+                return Value{lhs.as_number() + rhs.as_number()};
+            case BinaryOperator::Minus:
+                return Value{lhs.as_number() - rhs.as_number()};
+        }
+        std::abort();
+    }
 };
 
 } // namespace ast2
