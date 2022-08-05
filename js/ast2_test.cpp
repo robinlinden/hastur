@@ -6,6 +6,8 @@
 
 #include "etest/etest.h"
 
+#include <tuple>
+
 using namespace js::ast2;
 using etest::expect_eq;
 
@@ -30,6 +32,12 @@ int main() {
                 std::make_unique<Expression>(NumericLiteral{31.})};
         AstExecutor e;
         expect_eq(e.execute(minus_expr), Value{-20.});
+    });
+
+    etest::test("the ast is copyable", [] {
+        Program p1;
+        auto p2 = p1;
+        std::ignore = p2;
     });
 
     return etest::run_all_tests();

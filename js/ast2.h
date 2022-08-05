@@ -92,10 +92,10 @@ private:
 
 class ExpressionStatement {
 public:
-    explicit ExpressionStatement(std::unique_ptr<Expression> expression) : expression_{std::move(expression)} {}
+    explicit ExpressionStatement(std::shared_ptr<Expression> expression) : expression_{std::move(expression)} {}
 
 private:
-    std::unique_ptr<Expression> expression_;
+    std::shared_ptr<Expression> expression_;
 };
 
 // TODO(robinlinden): Support more operators.
@@ -106,30 +106,30 @@ enum class BinaryOperator {
 
 class BinaryExpression {
 public:
-    BinaryExpression(BinaryOperator op, std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+    BinaryExpression(BinaryOperator op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right)
         : op_{op}, left_{std::move(left)}, right_{std::move(right)} {}
 
     BinaryOperator op() const { return op_; }
-    std::unique_ptr<Expression> const &lhs() const { return left_; }
-    std::unique_ptr<Expression> const &rhs() const { return right_; }
+    std::shared_ptr<Expression> const &lhs() const { return left_; }
+    std::shared_ptr<Expression> const &rhs() const { return right_; }
 
 private:
     BinaryOperator op_;
-    std::unique_ptr<Expression> left_;
-    std::unique_ptr<Expression> right_;
+    std::shared_ptr<Expression> left_;
+    std::shared_ptr<Expression> right_;
 };
 
 class Program {
 public:
-    std::vector<std::unique_ptr<Statement>> body;
+    std::vector<std::shared_ptr<Statement>> body;
 };
 
 class BlockStatement {
 public:
-    explicit BlockStatement(std::vector<std::unique_ptr<Statement>> body) : body_{std::move(body)} {}
+    explicit BlockStatement(std::vector<std::shared_ptr<Statement>> body) : body_{std::move(body)} {}
 
 private:
-    std::vector<std::unique_ptr<Statement>> body_;
+    std::vector<std::shared_ptr<Statement>> body_;
 };
 
 using FunctionBody = BlockStatement;
@@ -156,7 +156,7 @@ private:
 class VariableDeclarator {
 public:
     Pattern id;
-    std::optional<std::unique_ptr<Expression>> init;
+    std::optional<std::shared_ptr<Expression>> init;
 };
 
 class VariableDeclaration {
@@ -170,12 +170,12 @@ public:
 
 class CallExpression {
 public:
-    CallExpression(std::unique_ptr<Expression> callee, std::vector<std::unique_ptr<Expression>> arguments)
+    CallExpression(std::shared_ptr<Expression> callee, std::vector<std::shared_ptr<Expression>> arguments)
         : callee_{std::move(callee)}, arguments_{std::move(arguments)} {}
 
 private:
-    std::unique_ptr<Expression> callee_;
-    std::vector<std::unique_ptr<Expression>> arguments_;
+    std::shared_ptr<Expression> callee_;
+    std::vector<std::shared_ptr<Expression>> arguments_;
 };
 
 class AstExecutor {
