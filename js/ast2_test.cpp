@@ -40,5 +40,18 @@ int main() {
         std::ignore = p2;
     });
 
+    etest::test("variable declaration", [] {
+        auto declaration = VariableDeclaration{{
+                VariableDeclarator{
+                        .id = Identifier{"a"},
+                        .init = NumericLiteral{1.},
+                },
+        }};
+
+        AstExecutor e;
+        expect_eq(e.execute(declaration), Value{});
+        expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
+    });
+
     return etest::run_all_tests();
 }

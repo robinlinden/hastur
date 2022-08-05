@@ -5,6 +5,7 @@
 #ifndef JS_AST2_H_
 #define JS_AST2_H_
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -85,6 +86,7 @@ private:
 class Identifier {
 public:
     explicit Identifier(std::string name) : name_{std::move(name)} {}
+    [[nodiscard]] std::string const &name() const { return name_; }
 
 private:
     std::string name_;
@@ -186,8 +188,9 @@ public:
     Value operator()(NumericLiteral const &v) { return Value{v.value()}; }
     Value operator()(StringLiteral const &v) { return Value{v.value()}; }
     Value operator()(Expression const &v) { return std::visit(*this, v); }
-    Value operator()(Identifier const &) { std::abort(); }
+    Value operator()(Identifier const &v) { return Value{v.name()}; }
     Value operator()(CallExpression const &) { std::abort(); }
+    Value operator()(Pattern const &v) { return std::visit(*this, v); }
 
     Value operator()(BinaryExpression const &v) {
         auto lhs = execute(*v.lhs());
@@ -200,6 +203,22 @@ public:
         }
         std::abort();
     }
+
+    Value operator()(VariableDeclaration const &v) {
+        for (auto const &declaration : v.declarations) {
+            execute(declaration);
+        }
+
+        return Value{};
+    }
+
+    Value operator()(VariableDeclarator const &v) {
+        auto name = execute(v.id).as_string();
+        variables[name] = v.init ? execute(*v.init) : Value{};
+        return Value{};
+    }
+
+    std::map<std::string, Value, std::less<>> variables;
 };
 
 } // namespace ast2
