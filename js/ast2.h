@@ -153,10 +153,20 @@ private:
     std::shared_ptr<Function> function_;
 };
 
+class CallExpression {
+public:
+    CallExpression(std::shared_ptr<Expression> callee, std::vector<std::shared_ptr<Expression>> arguments)
+        : callee_{std::move(callee)}, arguments_{std::move(arguments)} {}
+
+private:
+    std::shared_ptr<Expression> callee_;
+    std::vector<std::shared_ptr<Expression>> arguments_;
+};
+
 class VariableDeclarator {
 public:
     Pattern id;
-    std::optional<std::shared_ptr<Expression>> init;
+    std::optional<Expression> init;
 };
 
 class VariableDeclaration {
@@ -166,16 +176,6 @@ public:
         Var,
     };
     Kind kind{Kind::Var};
-};
-
-class CallExpression {
-public:
-    CallExpression(std::shared_ptr<Expression> callee, std::vector<std::shared_ptr<Expression>> arguments)
-        : callee_{std::move(callee)}, arguments_{std::move(arguments)} {}
-
-private:
-    std::shared_ptr<Expression> callee_;
-    std::vector<std::shared_ptr<Expression>> arguments_;
 };
 
 class AstExecutor {
