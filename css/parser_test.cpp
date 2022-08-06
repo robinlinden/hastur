@@ -27,7 +27,7 @@ namespace {
     return os;
 }
 
-auto const initial_font_values = std::map<std::string, std::string>{{"font-stretch", "normal"},
+auto const initial_font_values = std::map<std::string, std::string, std::less<>>{{"font-stretch", "normal"},
         {"font-variant", "normal"},
         {"font-weight", "normal"},
         {"line-height", "normal"},
@@ -46,7 +46,7 @@ auto const initial_font_values = std::map<std::string, std::string>{{"font-stret
         {"font-variant-position", "normal"},
         {"font-variant-east-asian", "normal"}};
 
-bool check_initial_font_values(std::map<std::string, std::string> declarations) {
+bool check_initial_font_values(std::map<std::string, std::string, std::less<>> declarations) {
     for (auto [property, value] : declarations) {
         auto it = initial_font_values.find(property);
         if (it != cend(initial_font_values) && it->second != value) {
@@ -57,7 +57,7 @@ bool check_initial_font_values(std::map<std::string, std::string> declarations) 
 }
 
 template<class KeyT, class ValueT>
-ValueT get_and_erase(std::map<KeyT, ValueT> &map, KeyT key) {
+ValueT get_and_erase(std::map<KeyT, ValueT, std::less<>> &map, KeyT key) {
     ValueT value = map[key];
     map.erase(key);
     return value;

@@ -204,8 +204,9 @@ private:
         return {name, value};
     }
 
-    void add_declaration(
-            std::map<std::string, std::string> &declarations, std::string_view name, std::string_view value) const {
+    void add_declaration(std::map<std::string, std::string, std::less<>> &declarations,
+            std::string_view name,
+            std::string_view value) const {
         if (is_shorthand_edge_property(name)) {
             expand_edge_values(declarations, std::string{name}, value);
         } else if (name == "font") {
@@ -215,8 +216,9 @@ private:
         }
     }
 
-    void expand_edge_values(
-            std::map<std::string, std::string> &declarations, std::string property, std::string_view value) const {
+    void expand_edge_values(std::map<std::string, std::string, std::less<>> &declarations,
+            std::string property,
+            std::string_view value) const {
         std::string_view top = "", bottom = "", left = "", right = "";
         Tokenizer tokenizer(value, ' ');
         switch (tokenizer.size()) {
@@ -251,7 +253,7 @@ private:
         declarations.insert_or_assign(fmt::format("{}-right{}", property, post_fix), std::string{right});
     }
 
-    void expand_font(std::map<std::string, std::string> &declarations, std::string_view value) const {
+    void expand_font(std::map<std::string, std::string, std::less<>> &declarations, std::string_view value) const {
         Tokenizer tokenizer(value, ' ');
         if (tokenizer.size() == 1) {
             // TODO(mkiael): Handle system properties correctly. Just forward it for now.
