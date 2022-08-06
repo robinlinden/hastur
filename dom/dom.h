@@ -18,7 +18,7 @@ namespace dom {
 struct Text;
 struct Element;
 
-using AttrMap = std::map<std::string, std::string>;
+using AttrMap = std::map<std::string, std::string, std::less<>>;
 using Node = std::variant<Element, Text>;
 
 struct Text {
