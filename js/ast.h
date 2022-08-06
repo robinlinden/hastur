@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef JS_AST2_H_
-#define JS_AST2_H_
+#ifndef JS_AST_H_
+#define JS_AST_H_
 
 #include <map>
 #include <memory>
@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace js {
-namespace ast2 {
+namespace ast {
 
 class Function;
 class BinaryExpression;
@@ -221,7 +221,7 @@ public:
     std::map<std::string, Value, std::less<>> variables;
 };
 
-} // namespace ast2
+} // namespace ast
 } // namespace js
 
 #endif

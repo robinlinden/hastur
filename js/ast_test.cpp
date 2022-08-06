@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "js/ast2.h"
+#include "js/ast.h"
 
 #include "etest/etest.h"
 
 #include <tuple>
 
-using namespace js::ast2;
+using namespace js::ast;
 using etest::expect_eq;
 
 int main() {
