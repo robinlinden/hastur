@@ -19,17 +19,23 @@ int main() {
     });
 
     etest::test("binary expression, plus", [] {
-        auto plus_expr = BinaryExpression{BinaryOperator::Plus,
-                std::make_unique<Expression>(NumericLiteral{11.}),
-                std::make_unique<Expression>(NumericLiteral{31.})};
+        auto plus_expr = BinaryExpression{
+                .op = BinaryOperator::Plus,
+                .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
+                .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
+        };
+
         AstExecutor e;
         expect_eq(e.execute(plus_expr), Value{42.});
     });
 
     etest::test("binary expression, minus", [] {
-        auto minus_expr = BinaryExpression{BinaryOperator::Minus,
-                std::make_unique<Expression>(NumericLiteral{11.}),
-                std::make_unique<Expression>(NumericLiteral{31.})};
+        auto minus_expr = BinaryExpression{
+                .op = BinaryOperator::Minus,
+                .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
+                .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
+        };
+
         AstExecutor e;
         expect_eq(e.execute(minus_expr), Value{-20.});
     });
