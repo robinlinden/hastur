@@ -16,18 +16,18 @@
 namespace js {
 namespace ast {
 
-class Function;
-class BinaryExpression;
-class BlockStatement;
-class CallExpression;
-class ExpressionStatement;
-class FunctionDeclaration;
-class Identifier;
-class NumericLiteral;
-class Program;
-class StringLiteral;
-class VariableDeclaration;
-class VariableDeclarator;
+struct Function;
+struct BinaryExpression;
+struct BlockStatement;
+struct CallExpression;
+struct ExpressionStatement;
+struct FunctionDeclaration;
+struct Identifier;
+struct NumericLiteral;
+struct Program;
+struct StringLiteral;
+struct VariableDeclaration;
+struct VariableDeclarator;
 
 using Declaration = std::variant<FunctionDeclaration, VariableDeclaration>;
 using Literal = std::variant<NumericLiteral, StringLiteral>;
@@ -65,39 +65,20 @@ private:
     std::variant<Undefined, std::string, double, std::shared_ptr<Function>, std::vector<Value>> value_;
 };
 
-class NumericLiteral {
-public:
-    explicit NumericLiteral(double value) : value_{value} {}
-    [[nodiscard]] double value() const { return value_; }
-
-private:
-    double value_{};
+struct NumericLiteral {
+    double value{0.};
 };
 
-class StringLiteral {
-public:
-    explicit StringLiteral(std::string value) : value_{std::move(value)} {}
-    [[nodiscard]] std::string const &value() const { return value_; }
-
-private:
-    std::string value_{};
+struct StringLiteral {
+    std::string value;
 };
 
-class Identifier {
-public:
-    explicit Identifier(std::string name) : name_{std::move(name)} {}
-    [[nodiscard]] std::string const &name() const { return name_; }
-
-private:
-    std::string name_;
+struct Identifier {
+    std::string name;
 };
 
-class ExpressionStatement {
-public:
-    explicit ExpressionStatement(std::shared_ptr<Expression> expression) : expression_{std::move(expression)} {}
-
-private:
-    std::shared_ptr<Expression> expression_;
+struct ExpressionStatement {
+    std::shared_ptr<Expression> expression;
 };
 
 // TODO(robinlinden): Support more operators.
@@ -106,73 +87,43 @@ enum class BinaryOperator {
     Plus,
 };
 
-class BinaryExpression {
-public:
-    BinaryExpression(BinaryOperator op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right)
-        : op_{op}, left_{std::move(left)}, right_{std::move(right)} {}
-
-    BinaryOperator op() const { return op_; }
-    std::shared_ptr<Expression> const &lhs() const { return left_; }
-    std::shared_ptr<Expression> const &rhs() const { return right_; }
-
-private:
-    BinaryOperator op_;
-    std::shared_ptr<Expression> left_;
-    std::shared_ptr<Expression> right_;
+struct BinaryExpression {
+    BinaryOperator op;
+    std::shared_ptr<Expression> lhs;
+    std::shared_ptr<Expression> rhs;
 };
 
-class Program {
-public:
+struct Program {
     std::vector<std::shared_ptr<Statement>> body;
 };
 
-class BlockStatement {
-public:
-    explicit BlockStatement(std::vector<std::shared_ptr<Statement>> body) : body_{std::move(body)} {}
-
-private:
-    std::vector<std::shared_ptr<Statement>> body_;
+struct BlockStatement {
+    std::vector<std::shared_ptr<Statement>> body;
 };
 
 using FunctionBody = BlockStatement;
 
-class Function {
-public:
-    Function(std::vector<Pattern> params, FunctionBody body) : params_{std::move(params)}, body_{std::move(body)} {}
-
-private:
-    std::vector<Pattern> params_;
-    FunctionBody body_;
+struct Function {
+    std::vector<Pattern> params;
+    FunctionBody body;
 };
 
-class FunctionDeclaration {
-public:
-    FunctionDeclaration(Identifier id, std::vector<Pattern> params, FunctionBody body)
-        : id_{std::move(id)}, function_{std::make_shared<Function>(std::move(params), std::move(body))} {}
-
-private:
-    Identifier id_;
-    std::shared_ptr<Function> function_;
+struct FunctionDeclaration {
+    Identifier id;
+    std::shared_ptr<Function> function;
 };
 
-class CallExpression {
-public:
-    CallExpression(std::shared_ptr<Expression> callee, std::vector<std::shared_ptr<Expression>> arguments)
-        : callee_{std::move(callee)}, arguments_{std::move(arguments)} {}
-
-private:
-    std::shared_ptr<Expression> callee_;
-    std::vector<std::shared_ptr<Expression>> arguments_;
+struct CallExpression {
+    std::shared_ptr<Expression> callee;
+    std::vector<std::shared_ptr<Expression>> arguments;
 };
 
-class VariableDeclarator {
-public:
+struct VariableDeclarator {
     Pattern id;
     std::optional<Expression> init;
 };
 
-class VariableDeclaration {
-public:
+struct VariableDeclaration {
     std::vector<VariableDeclarator> declarations;
     enum class Kind {
         Var,
@@ -185,17 +136,17 @@ public:
     Value execute(auto const &ast) { return (*this)(ast); }
 
     Value operator()(Literal const &v) { return std::visit(*this, v); }
-    Value operator()(NumericLiteral const &v) { return Value{v.value()}; }
-    Value operator()(StringLiteral const &v) { return Value{v.value()}; }
+    Value operator()(NumericLiteral const &v) { return Value{v.value}; }
+    Value operator()(StringLiteral const &v) { return Value{v.value}; }
     Value operator()(Expression const &v) { return std::visit(*this, v); }
-    Value operator()(Identifier const &v) { return Value{v.name()}; }
+    Value operator()(Identifier const &v) { return Value{v.name}; }
     Value operator()(CallExpression const &) { std::abort(); }
     Value operator()(Pattern const &v) { return std::visit(*this, v); }
 
     Value operator()(BinaryExpression const &v) {
-        auto lhs = execute(*v.lhs());
-        auto rhs = execute(*v.rhs());
-        switch (v.op()) {
+        auto lhs = execute(*v.lhs);
+        auto rhs = execute(*v.rhs);
+        switch (v.op) {
             case BinaryOperator::Plus:
                 return Value{lhs.as_number() + rhs.as_number()};
             case BinaryOperator::Minus:
