@@ -170,13 +170,13 @@ http_archive(
     url = "https://github.com/freedesktop/xorg-libXrandr/archive/libXrandr-1.5.2.tar.gz",
 )
 
+# 0.9.10 + commit adding missing config.h include guard.
 http_archive(
     name = "xrender",  # MIT
     build_file = "//third_party:xrender.BUILD",
-    patch_cmds = ["sed -i '/config/d' src/Xrenderint.h"],
-    sha256 = "8be927e04cf7bc5a7ce3af24dc6905e05fcf29142f17304b1f4d224a2ca350b1",
-    strip_prefix = "xorg-libXrender-libXrender-0.9.10",
-    url = "https://github.com/freedesktop/xorg-libXrender/archive/libXrender-0.9.10.tar.gz",
+    sha256 = "183ad84bd4a3b5460829cdabae4db7b12a3853554f6c7b085df3885de1e41209",
+    strip_prefix = "xorg-libXrender-e314946813bcb96e8baedc1a290c48a2aa6ef162",
+    url = "https://github.com/freedesktop/xorg-libXrender/archive/e314946813bcb96e8baedc1a290c48a2aa6ef162.tar.gz",
 )
 
 http_archive(
