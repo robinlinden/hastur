@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSER_ENGINE_H_
-#define BROWSER_ENGINE_H_
+#ifndef ENGINE_ENGINE_H_
+#define ENGINE_ENGINE_H_
 
 #include "css/rule.h"
 #include "dom/dom.h"
@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-namespace browser {
+namespace engine {
 
 class Engine {
 public:
@@ -62,6 +62,6 @@ private:
     void on_navigation_success();
 };
 
-} // namespace browser
+} // namespace engine
 
 #endif

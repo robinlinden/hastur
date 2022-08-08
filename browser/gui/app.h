@@ -5,8 +5,8 @@
 #ifndef BROWSER_GUI_APP_H_
 #define BROWSER_GUI_APP_H_
 
-#include "browser/engine.h"
 #include "dom/dom.h"
+#include "engine/engine.h"
 #include "gfx/icanvas.h"
 #include "gfx/sfml_canvas.h"
 #include "layout/layout.h"
@@ -31,7 +31,7 @@ public:
     int run();
 
 private:
-    browser::Engine engine_{protocol::HandlerFactory::create()};
+    engine::Engine engine_{protocol::HandlerFactory::create()};
     bool page_loaded_{};
 
     std::string browser_title_{};

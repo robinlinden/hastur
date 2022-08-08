@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "tui/tui.h"
-#include "browser/engine.h"
 #include "dom/dom.h"
+#include "engine/engine.h"
 #include "protocol/handler_factory.h"
 
 #include <spdlog/cfg/env.h>
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    browser::Engine engine{protocol::HandlerFactory::create()};
+    engine::Engine engine{protocol::HandlerFactory::create()};
     if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", static_cast<int>(err), uri->uri);
         std::exit(1);

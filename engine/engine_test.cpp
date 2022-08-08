@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "browser/engine.h"
+#include "engine/engine.h"
 
 #include "etest/etest.h"
 #include "protocol/iprotocol_handler.h"
@@ -32,8 +32,7 @@ private:
 int main() {
     etest::test("navigation failure", [] {
         bool success{false};
-        browser::Engine e{
-                std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
         e.set_on_navigation_failure([&](protocol::Error err) { success = err != protocol::Error::Ok; });
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
@@ -44,7 +43,7 @@ int main() {
 
     etest::test("page load", [] {
         bool success{false};
-        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
         e.set_on_navigation_failure([&](protocol::Error) { require(false); });
         e.set_on_page_loaded([&] { success = true; });
         e.set_on_layout_updated([] { require(false); });
@@ -54,7 +53,7 @@ int main() {
     });
 
     etest::test("layout update", [] {
-        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
         e.set_on_navigation_failure([&](protocol::Error) { require(false); });
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
@@ -77,7 +76,7 @@ int main() {
     });
 
     etest::test("origin-relative uri", [] {
-        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
 
         e.navigate(*uri::Uri::parse("hax://example.com"));
         expect_eq(e.uri(), *uri::Uri::parse("hax://example.com"));
@@ -87,7 +86,7 @@ int main() {
     });
 
     etest::test("scheme-relative uri", [] {
-        browser::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
 
         e.navigate(*uri::Uri::parse("hax://example.com"));
         expect_eq(e.uri(), *uri::Uri::parse("hax://example.com"));
