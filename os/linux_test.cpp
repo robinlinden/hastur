@@ -18,6 +18,7 @@ using etest::expect_eq;
 
 int main() {
     // Ensure that the system's environment doesn't affect the test result.
+    unsetenv("HST_SCALE");
     unsetenv("QT_SCALE_FACTOR");
     unsetenv("GDK_SCALE");
     unsetenv("ELM_SCALE");
@@ -34,6 +35,9 @@ int main() {
 
         setenv("QT_SCALE_FACTOR", "10", false);
         expect_eq(os::active_window_scale_factor(), 10u);
+
+        setenv("HST_SCALE", "50", false);
+        expect_eq(os::active_window_scale_factor(), 50u);
     });
 
     return etest::run_all_tests();

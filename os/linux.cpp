@@ -32,9 +32,9 @@ std::vector<std::string> font_paths() {
 }
 
 unsigned active_window_scale_factor() {
-    // Qt, Gnome, and Elementary in that order.
+    // Hastur, Qt, Gnome, and Elementary in that order.
     // Environment variables from https://wiki.archlinux.org/title/HiDPI#GUI_toolkits
-    for (auto *env_var : std::array{"QT_SCALE_FACTOR", "GDK_SCALE", "ELM_SCALE"}) {
+    for (auto *env_var : std::array{"HST_SCALE", "QT_SCALE_FACTOR", "GDK_SCALE", "ELM_SCALE"}) {
         if (char const *scale = std::getenv(env_var)) {
             int result{};
             if (std::from_chars(scale, scale + std::strlen(scale), result).ec == std::errc{}) {

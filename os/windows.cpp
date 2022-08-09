@@ -23,7 +23,10 @@
 #include <Shlobj.h>
 #include <shellscalingapi.h>
 
+#include <charconv>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include <cwchar>
 
 namespace os {
@@ -41,6 +44,12 @@ std::vector<std::string> font_paths() {
 }
 
 unsigned active_window_scale_factor() {
+    if (auto const *env_var = std::getenv("HST_SCALE")) {
+        if (int result{}; std::from_chars(env_var, env_var + std::strlen(env_var), result).ec == std::errc{}) {
+            return result;
+        }
+    }
+
     DEVICE_SCALE_FACTOR scale_factor{};
     if (GetScaleFactorForMonitor(MonitorFromWindow(GetActiveWindow(), MONITOR_DEFAULTTONEAREST), &scale_factor)
             != S_OK) {
