@@ -17,6 +17,10 @@ cc_library(
             "-DEFAULTLIB:User32",
         ],
     }),
+    local_defines = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:windows": ["WIN32_LEAN_AND_MEAN"],
+    }),
     visibility = ["//visibility:public"],
 )
 
