@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <istream>
 #include <optional>
+#include <utility>
+#include <vector>
 
 #include <png.h>
 
@@ -61,9 +63,24 @@ std::optional<Png> Png::from(std::istream &is) {
 
     png_read_info(png, info);
 
+    png_set_expand(png);
+
+    png_read_update_info(png, info);
+
+    auto height = png_get_image_height(png, info);
+    auto width = png_get_image_width(png, info);
+    auto bytes_per_row = png_get_rowbytes(png, info);
+    std::vector<unsigned char> bytes;
+    bytes.resize(bytes_per_row * height);
+
+    for (std::uint32_t row = 0; row < height; ++row) {
+        png_read_row(png, bytes.data() + row * bytes_per_row, nullptr);
+    }
+
     Png ret{
-            .width = png_get_image_width(png, info),
-            .height = png_get_image_height(png, info),
+            .width = width,
+            .height = height,
+            .bytes = std::move(bytes),
     };
 
     png_destroy_read_struct(&png, &info, nullptr);

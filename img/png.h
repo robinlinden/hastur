@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
+#include <vector>
 
 namespace img {
 
@@ -17,6 +18,7 @@ public:
 
     std::uint32_t width{};
     std::uint32_t height{};
+    std::vector<unsigned char> bytes{};
 
     [[nodiscard]] bool operator==(Png const &) const = default;
 };
