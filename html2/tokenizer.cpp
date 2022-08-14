@@ -57,6 +57,18 @@ constexpr bool is_ascii_alphanumeric(char c) {
     return is_ascii_digit(c) || is_ascii_alpha(c);
 }
 
+constexpr bool is_ascii_upper_hex_digit(char c) {
+    return is_ascii_digit(c) || (c >= 'A' && c <= 'F');
+}
+
+constexpr bool is_ascii_lower_hex_digit(char c) {
+    return is_ascii_digit(c) || (c >= 'a' && c <= 'f');
+}
+
+constexpr bool is_ascii_hex_digit(char c) {
+    return is_ascii_upper_hex_digit(c) || is_ascii_lower_hex_digit(c);
+}
+
 constexpr char to_lower(char c) {
     return c + 0x20;
 }
@@ -1697,6 +1709,19 @@ void Tokenizer::run() {
                 }
             }
 
+            case State::HexadecimalCharacterReferenceStart: {
+                auto c = consume_next_input_character();
+                if (c && is_ascii_hex_digit(*c)) {
+                    reconsume_in(State::HexadecimalCharacterReference);
+                    continue;
+                }
+
+                emit(ParseError::AbsenceOfDigitsInNumericCharacterReference);
+                flush_code_points_consumed_as_a_character_reference();
+                reconsume_in(return_state_);
+                continue;
+            }
+
             case State::DecimalCharacterReferenceStart: {
                 auto c = consume_next_input_character();
                 if (!c || !is_ascii_digit(*c)) {
@@ -1707,6 +1732,42 @@ void Tokenizer::run() {
                 }
 
                 reconsume_in(State::DecimalCharacterReference);
+                continue;
+            }
+
+            case State::HexadecimalCharacterReference: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::MissingSemicolonAfterCharacterReference);
+                    reconsume_in(State::NumericCharacterReferenceEnd);
+                    continue;
+                }
+
+                if (is_ascii_digit(*c)) {
+                    character_reference_code_ *= 16;
+                    character_reference_code_ += *c - 0x30;
+                    continue;
+                }
+
+                if (is_ascii_upper_hex_digit(*c)) {
+                    character_reference_code_ *= 16;
+                    character_reference_code_ += *c - 0x37;
+                    continue;
+                }
+
+                if (is_ascii_lower_hex_digit(*c)) {
+                    character_reference_code_ *= 16;
+                    character_reference_code_ += *c - 0x57;
+                    continue;
+                }
+
+                if (c == ';') {
+                    state_ = State::NumericCharacterReferenceEnd;
+                    continue;
+                }
+
+                emit(ParseError::MissingSemicolonAfterCharacterReference);
+                reconsume_in(State::NumericCharacterReferenceEnd);
                 continue;
             }
 

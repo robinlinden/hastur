@@ -624,6 +624,45 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("hexadecimal character reference", [] {
+        auto tokens = run_tokenizer("&#x2721;"); // U+2721
+        expect_text(tokens, "\xe2\x9c\xa1");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("hexadecimal character reference, upper hex digits", [] {
+        auto tokens = run_tokenizer("&#x27FF;"); // U+27FF
+        expect_text(tokens, "\xe2\x9f\xbf");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("hexadecimal character reference, lower hex digits", [] {
+        auto tokens = run_tokenizer("&#x27ff;"); // U+27FF
+        expect_text(tokens, "\xe2\x9f\xbf");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("hexadecimal character reference, no semicolon", [] {
+        auto tokens = run_tokenizer("&#x27ff "); // U+27FF
+        expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
+        expect_text(tokens, "\xe2\x9f\xbf "); // Note the bonus space.
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("hexadecimal character reference, abrupt end", [] {
+        auto tokens = run_tokenizer("&#x27ff"); // U+27FF
+        expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
+        expect_text(tokens, "\xe2\x9f\xbf");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("hexadecimal character reference, no digits", [] {
+        auto tokens = run_tokenizer("&#xG;");
+        expect_error(tokens, ParseError::AbsenceOfDigitsInNumericCharacterReference);
+        expect_text(tokens, "&#xG;");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("doctype, eof after name", [] {
         auto tokens = run_tokenizer("<!doctype html ");
         expect_error(tokens, ParseError::EofInDoctype);
