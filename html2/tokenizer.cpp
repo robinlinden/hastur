@@ -8,8 +8,6 @@
 #include "util/string.h"
 #include "util/unicode.h"
 
-#include <spdlog/spdlog.h>
-
 #include <cstdint>
 #include <cstring>
 #include <exception>
@@ -123,12 +121,6 @@ void Tokenizer::set_state(State state) {
 
 void Tokenizer::run() {
     while (true) {
-        if (input_.size() > pos_) {
-            spdlog::trace("Running state {} w/ next char {}", static_cast<int>(state_), input_[pos_]);
-        } else {
-            spdlog::trace("Running state {} after input end", static_cast<int>(state_));
-        }
-
         switch (state_) {
             case State::Data: {
                 auto c = consume_next_input_character();
