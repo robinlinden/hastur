@@ -59,5 +59,36 @@ int main() {
         expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
     });
 
+    etest::test("function call", [] {
+        auto declaration = FunctionDeclaration{
+                .id = Identifier{"func"},
+                .function = std::make_shared<Function>(Function{
+                        .params{
+                                Identifier{"one"},
+                                Identifier{"two"},
+                        },
+                        .body{},
+                }),
+        };
+
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"func"}),
+                .arguments{
+                        std::make_shared<Expression>(NumericLiteral{13.}),
+                        std::make_shared<Expression>(StringLiteral{"beep beep boop"}),
+                },
+        };
+
+        AstExecutor e;
+        expect_eq(e.execute(declaration), Value{});
+        expect_eq(e.execute(call), Value{});
+
+        // Abuse the fact that we don't yet support scopes to check that the
+        // arguments were mapped to the correct names. This should break when
+        // scopes are supported.
+        expect_eq(e.variables.at("one"), Value{13.});
+        expect_eq(e.variables.at("two"), Value{"beep beep boop"});
+    });
+
     return etest::run_all_tests();
 }
