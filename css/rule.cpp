@@ -5,6 +5,7 @@
 #include "css/rule.h"
 
 #include <sstream>
+#include <utility>
 
 namespace css {
 
@@ -29,7 +30,7 @@ std::string to_string(Rule const &rule) {
         ss << "Media query:\n";
         ss << "  " << rule.media_query << '\n';
     }
-    return ss.str();
+    return std::move(ss).str();
 }
 
 } // namespace css

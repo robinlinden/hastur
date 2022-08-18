@@ -14,6 +14,7 @@
 #include <iterator>
 #include <ostream>
 #include <sstream>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -42,7 +43,7 @@ std::string to_string(Document const &document) {
     std::stringstream ss;
     ss << "doctype: " << document.doctype << '\n';
     print_node(document.html_node, ss);
-    return ss.str();
+    return std::move(ss).str();
 }
 
 std::vector<Element const *> nodes_by_path(std::reference_wrapper<Node const> root, std::string_view path) {

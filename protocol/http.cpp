@@ -11,6 +11,7 @@
 
 #include <charconv>
 #include <sstream>
+#include <utility>
 
 using namespace std::string_view_literals;
 
@@ -40,7 +41,7 @@ std::string Http::create_get_request(uri::Uri const &uri) {
     ss << "Accept: text/html\r\n";
     ss << "Connection: close\r\n\r\n";
 
-    return ss.str();
+    return std::move(ss).str();
 }
 
 std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) {

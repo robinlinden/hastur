@@ -89,7 +89,7 @@ std::string stylesheet_to_string(std::vector<css::Rule> const &stylesheet) {
     for (auto const &rule : stylesheet) {
         ss << css::to_string(rule) << std::endl;
     }
-    return ss.str();
+    return std::move(ss).str();
 }
 
 // Returns a vector containing [child, child->parent, child->parent->parent, ...].

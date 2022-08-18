@@ -48,7 +48,6 @@ int run_all_tests() noexcept {
 
     for (auto const &test : registry()) {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": ";
-        test_log = std::stringstream{};
 
         int const before = assertion_failures;
 
@@ -68,7 +67,7 @@ int run_all_tests() noexcept {
             std::cout << "\u001b[32mPASSED\u001b[0m\n";
         } else {
             std::cout << "\u001b[31;1mFAILED\u001b[0m\n";
-            std::cout << test_log.str();
+            std::cout << std::exchange(test_log, {}).str();
         }
     }
 

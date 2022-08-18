@@ -124,8 +124,7 @@ void Parser::operator()(html2::EndOfFileToken const &) {
 
 void Parser::generate_text_node_if_needed() {
     assert(!open_elements_.empty());
-    auto text = current_text_.str();
-    current_text_ = std::stringstream{};
+    auto text = std::exchange(current_text_, {}).str();
     bool is_uninteresting = std::all_of(cbegin(text), cend(text), [](unsigned char c) { return std::isspace(c); });
     if (is_uninteresting) {
         return;

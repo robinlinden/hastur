@@ -10,6 +10,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <variant>
 
 namespace html2 {
@@ -38,7 +39,7 @@ std::string to_string(Token const &token) {
                        [&ss](EndOfFileToken const &) { ss << "EndOfFile"; },
                },
             token);
-    return ss.str();
+    return std::move(ss).str();
 }
 
 } // namespace html2

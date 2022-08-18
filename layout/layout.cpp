@@ -277,13 +277,13 @@ std::string_view to_str(dom::Node const &node) {
 std::string to_str(geom::Rect const &rect) {
     std::stringstream ss;
     ss << "{" << rect.x << "," << rect.y << "," << rect.width << "," << rect.height << "}";
-    return ss.str();
+    return std::move(ss).str();
 }
 
 std::string to_str(geom::EdgeSize const &edge) {
     std::stringstream ss;
     ss << "{" << edge.top << "," << edge.right << "," << edge.bottom << "," << edge.left << "}";
-    return ss.str();
+    return std::move(ss).str();
 }
 
 void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
@@ -334,7 +334,7 @@ LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
 std::string to_string(LayoutBox const &box) {
     std::stringstream ss;
     print_box(box, ss);
-    return ss.str();
+    return std::move(ss).str();
 }
 
 } // namespace layout

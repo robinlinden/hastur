@@ -9,6 +9,7 @@
 
 #include <cctype>
 #include <sstream>
+#include <utility>
 
 namespace protocol {
 
@@ -28,7 +29,7 @@ std::string Headers::to_string() const {
     for (auto const &[name, value] : headers_) {
         ss << name << ": " << value << "\n";
     }
-    return ss.str();
+    return std::move(ss).str();
 }
 
 std::size_t Headers::size() const {
