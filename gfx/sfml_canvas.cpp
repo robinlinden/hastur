@@ -25,7 +25,7 @@ namespace gfx {
 namespace {
 
 #include "gfx/basic_vertex_shader.h"
-#include "gfx/border_fragment_shader.h"
+#include "gfx/rect_fragment_shader.h"
 
 std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesystem::path const &path) {
     std::error_code errc;
@@ -62,15 +62,15 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
     return std::nullopt;
 }
 
-sf::Glsl::Vec3 to_vec3(int x, int y) {
-    return sf::Glsl::Vec3(static_cast<float>(x), static_cast<float>(y), 0.0);
+sf::Glsl::Vec2 to_vec2(int x, int y) {
+    return {static_cast<float>(x), static_cast<float>(y)};
 }
 
 sf::Glsl::Vec4 to_vec4(Color const &color) {
-    return sf::Glsl::Vec4(static_cast<float>(color.r) / 0xFF,
+    return {static_cast<float>(color.r) / 0xFF,
             static_cast<float>(color.g) / 0xFF,
             static_cast<float>(color.b) / 0xFF,
-            static_cast<float>(color.a) / 0xFF);
+            static_cast<float>(color.a) / 0xFF};
 }
 
 } // namespace
@@ -78,7 +78,7 @@ sf::Glsl::Vec4 to_vec4(Color const &color) {
 SfmlCanvas::SfmlCanvas(sf::RenderTarget &target) : target_{target} {
     border_shader_.loadFromMemory(
             std::string{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len},
-            std::string{reinterpret_cast<char const *>(gfx_border_shader_frag), gfx_border_shader_frag_len});
+            std::string{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len});
 }
 
 void SfmlCanvas::set_viewport_size(int width, int height) {
@@ -99,31 +99,35 @@ void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
 void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) {
     auto translated{rect.translated(tx_, ty_)};
     auto inner_rect{translated.scaled(scale_)};
-
-    fill_rect(rect, color);
-
-    auto outer_rect =
-            inner_rect.expanded({borders.left.size, borders.right.size, borders.top.size, borders.bottom.size});
+    auto outer_rect{
+            inner_rect.expanded({borders.left.size, borders.right.size, borders.top.size, borders.bottom.size})};
 
     sf::RectangleShape drawable{{static_cast<float>(outer_rect.width), static_cast<float>(outer_rect.height)}};
     drawable.setPosition(static_cast<float>(outer_rect.x), static_cast<float>(outer_rect.y));
 
     border_shader_.setUniform("resolution", target_.getView().getSize());
 
-    border_shader_.setUniform("inner_top_left", to_vec3(inner_rect.left(), inner_rect.top()));
-    border_shader_.setUniform("inner_top_right", to_vec3(inner_rect.right(), inner_rect.top()));
-    border_shader_.setUniform("inner_bottom_left", to_vec3(inner_rect.left(), inner_rect.bottom()));
-    border_shader_.setUniform("inner_bottom_right", to_vec3(inner_rect.right(), inner_rect.bottom()));
+    border_shader_.setUniform("inner_top_left", to_vec2(inner_rect.left(), inner_rect.top()));
+    border_shader_.setUniform("inner_top_right", to_vec2(inner_rect.right(), inner_rect.top()));
+    border_shader_.setUniform("inner_bottom_left", to_vec2(inner_rect.left(), inner_rect.bottom()));
+    border_shader_.setUniform("inner_bottom_right", to_vec2(inner_rect.right(), inner_rect.bottom()));
 
-    border_shader_.setUniform("outer_top_left", to_vec3(outer_rect.left(), outer_rect.top()));
-    border_shader_.setUniform("outer_top_right", to_vec3(outer_rect.right(), outer_rect.top()));
-    border_shader_.setUniform("outer_bottom_left", to_vec3(outer_rect.left(), outer_rect.bottom()));
-    border_shader_.setUniform("outer_bottom_right", to_vec3(outer_rect.right(), outer_rect.bottom()));
+    border_shader_.setUniform("outer_top_left", to_vec2(outer_rect.left(), outer_rect.top()));
+    border_shader_.setUniform("outer_top_right", to_vec2(outer_rect.right(), outer_rect.top()));
+    border_shader_.setUniform("outer_bottom_left", to_vec2(outer_rect.left(), outer_rect.bottom()));
+    border_shader_.setUniform("outer_bottom_right", to_vec2(outer_rect.right(), outer_rect.bottom()));
+
+    // TODO(mkiael): Set radii when support for parsing it from stylesheet has been added
+    border_shader_.setUniform("top_left_radii", to_vec2(0, 0));
+    border_shader_.setUniform("top_right_radii", to_vec2(0, 0));
+    border_shader_.setUniform("bottom_left_radii", to_vec2(0, 0));
+    border_shader_.setUniform("bottom_right_radii", to_vec2(0, 0));
 
     border_shader_.setUniform("left_border_color", to_vec4(borders.left.color));
     border_shader_.setUniform("right_border_color", to_vec4(borders.right.color));
     border_shader_.setUniform("top_border_color", to_vec4(borders.top.color));
     border_shader_.setUniform("bottom_border_color", to_vec4(borders.bottom.color));
+    border_shader_.setUniform("inner_rect_color", to_vec4(color));
 
     target_.draw(drawable, &border_shader_);
 }

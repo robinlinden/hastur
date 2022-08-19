@@ -32,9 +32,9 @@ genrule(
 )
 
 genrule(
-    name = "border_fragment_shader",
-    srcs = ["border_shader.frag"],
-    outs = ["border_fragment_shader.h"],
+    name = "rect_fragment_shader",
+    srcs = ["rect_shader.frag"],
+    outs = ["rect_fragment_shader.h"],
     cmd = "xxd -i $< >$@",
 )
 
@@ -43,7 +43,7 @@ cc_library(
     srcs = [
         "sfml_canvas.cpp",
         ":basic_vertex_shader",
-        ":border_fragment_shader",
+        ":rect_fragment_shader",
     ],
     hdrs = ["sfml_canvas.h"],
     visibility = ["//visibility:public"],
