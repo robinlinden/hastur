@@ -663,6 +663,13 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("character reference, c0 control character", [] {
+        auto tokens = run_tokenizer("&#x01;");
+        expect_error(tokens, ParseError::ControlCharacterReference);
+        expect_text(tokens, "\x01");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("doctype, eof after name", [] {
         auto tokens = run_tokenizer("<!doctype html ");
         expect_error(tokens, ParseError::EofInDoctype);

@@ -20,8 +20,12 @@ using namespace std::literals;
 namespace html2 {
 namespace {
 
+constexpr bool is_c0_control(int code_point) {
+    return code_point >= 0x00 && code_point <= 0x1F;
+}
+
 constexpr bool is_control(int code_point) {
-    return code_point >= 0x7F && code_point <= 0x9F;
+    return is_c0_control(code_point) || (code_point >= 0x7F && code_point <= 0x9F);
 }
 
 constexpr bool is_ascii_whitespace(int code_point) {
@@ -1818,7 +1822,7 @@ void Tokenizer::run() {
 
                 if (character_reference_code_ == 0x0D
                         || (is_control(character_reference_code_) && !is_ascii_whitespace(character_reference_code_))) {
-                    // This is a control-character-reference parse error.
+                    emit(ParseError::ControlCharacterReference);
                 }
 
                 static std::map<std::uint32_t, std::uint32_t> const replacements{{0x80, 0x20AC},

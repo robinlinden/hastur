@@ -104,6 +104,7 @@ enum class ParseError {
     AbruptClosingOfEmptyComment,
     AbruptDoctypePublicIdentifier,
     AbsenceOfDigitsInNumericCharacterReference,
+    ControlCharacterReference,
     EofInComment,
     EofInDoctype,
     EofInTag,
