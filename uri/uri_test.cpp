@@ -146,6 +146,18 @@ int main() {
                         .path = "/hello/there.html"});
     });
 
+    etest::test("normalization, lowercasing scheme+host", [] {
+        auto actual = *Uri::parse("HTTPS://EXAMPLE.COM/");
+        Uri expected{
+                .uri = "HTTPS://EXAMPLE.COM/",
+                .scheme = "https",
+                .authority = {.host = "example.com"},
+                .path = "/",
+        };
+
+        expect_eq(actual, expected);
+    });
+
     // TODO(Zer0-One): Test for parsing failure.
     // etest::test("parse failure", [] {
     //     auto tel_uri = Uri::parse("");

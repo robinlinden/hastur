@@ -5,6 +5,8 @@
 
 #include "uri/uri.h"
 
+#include "util/string.h"
+
 #include <regex>
 #include <utility>
 
@@ -13,6 +15,11 @@ namespace {
 
 // https://en.wikipedia.org/wiki/URI_normalization#Normalization_process
 void normalize(Uri &uri) {
+    // The scheme and host components of the URI are case-insensitive and
+    // therefore should be normalized to lowercase.
+    uri.scheme = util::to_lower(std::move(uri.scheme));
+    uri.authority.host = util::to_lower(std::move(uri.authority.host));
+
     // In presence of an authority component, an empty path component should be
     // normalized to a path component of "/".
     if (!uri.authority.empty() && uri.path.empty()) {
