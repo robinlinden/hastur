@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cctype>
 #include <iterator>
 #include <string_view>
 #include <vector>
@@ -58,7 +57,7 @@ constexpr char to_lower(char c) {
 }
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-    return ranges::equal(a, b, [](auto c1, auto c2) { return std::tolower(c1) == std::tolower(c2); });
+    return ranges::equal(a, b, [](auto c1, auto c2) { return to_lower(c1) == to_lower(c2); });
 }
 
 inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
