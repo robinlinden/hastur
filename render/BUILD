@@ -10,6 +10,7 @@ cc_library(
         "//gfx",
         "//layout",
         "//style",
+        "//util:string",
         "@range-v3",
         "@spdlog",
     ],

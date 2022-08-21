@@ -8,11 +8,11 @@
 #include "dom/dom.h"
 #include "gfx/color.h"
 #include "style/style.h"
+#include "util/string.h"
 
 #include <range/v3/algorithm/lexicographical_compare.hpp>
 #include <spdlog/spdlog.h>
 
-#include <cctype>
 #include <charconv>
 #include <cstdint>
 #include <map>
@@ -31,7 +31,7 @@ struct CaseInsensitiveLess {
     using is_transparent = void;
     bool operator()(std::string_view s1, std::string_view s2) const {
         return ranges::lexicographical_compare(
-                s1, s2, [](unsigned char c1, unsigned char c2) { return std::tolower(c1) < std::tolower(c2); });
+                s1, s2, [](char c1, char c2) { return util::to_lower(c1) < util::to_lower(c2); });
     }
 };
 
