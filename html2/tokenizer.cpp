@@ -41,42 +41,6 @@ constexpr bool is_ascii_whitespace(int code_point) {
     }
 }
 
-constexpr bool is_ascii_upper_alpha(char c) {
-    return c >= 'A' && c <= 'Z';
-}
-
-constexpr bool is_ascii_lower_alpha(char c) {
-    return c >= 'a' && c <= 'z';
-}
-
-constexpr bool is_ascii_alpha(char c) {
-    return is_ascii_upper_alpha(c) || is_ascii_lower_alpha(c);
-}
-
-constexpr bool is_ascii_digit(char c) {
-    return c >= '0' && c <= '9';
-}
-
-constexpr bool is_ascii_alphanumeric(char c) {
-    return is_ascii_digit(c) || is_ascii_alpha(c);
-}
-
-constexpr bool is_ascii_upper_hex_digit(char c) {
-    return is_ascii_digit(c) || (c >= 'A' && c <= 'F');
-}
-
-constexpr bool is_ascii_lower_hex_digit(char c) {
-    return is_ascii_digit(c) || (c >= 'a' && c <= 'f');
-}
-
-constexpr bool is_ascii_hex_digit(char c) {
-    return is_ascii_upper_hex_digit(c) || is_ascii_lower_hex_digit(c);
-}
-
-constexpr char to_lower(char c) {
-    return c + 0x20;
-}
-
 // https://infra.spec.whatwg.org/#surrogate
 constexpr bool is_unicode_surrogate(int code_point) {
     return code_point >= 0xD800 && code_point <= 0xDFFF;
@@ -194,7 +158,7 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (is_ascii_alpha(*c)) {
+                if (util::is_alpha(*c)) {
                     current_token_ = StartTagToken{};
                     reconsume_in(State::TagName);
                     continue;
@@ -226,7 +190,7 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (is_ascii_alpha(*c)) {
+                if (util::is_alpha(*c)) {
                     current_token_ = EndTagToken{};
                     reconsume_in(State::TagName);
                     continue;
@@ -251,8 +215,8 @@ void Tokenizer::run() {
                     }
                 };
 
-                if (is_ascii_upper_alpha(*c)) {
-                    append_to_tag_name(to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    append_to_tag_name(util::to_lower(*c));
                     continue;
                 }
 
@@ -307,7 +271,7 @@ void Tokenizer::run() {
 
             case State::ScriptDataEndTagOpen: {
                 auto c = consume_next_input_character();
-                if (c && is_ascii_alpha(*c)) {
+                if (c && util::is_alpha(*c)) {
                     current_token_ = EndTagToken{};
                     reconsume_in(State::ScriptDataEndTagName);
                     continue;
@@ -334,13 +298,13 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_upper_alpha(*c)) {
-                    std::get<EndTagToken>(current_token_).tag_name.append(1, to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, util::to_lower(*c));
                     temporary_buffer_.append(1, *c);
                     continue;
                 }
 
-                if (is_ascii_lower_alpha(*c)) {
+                if (util::is_lower_alpha(*c)) {
                     std::get<EndTagToken>(current_token_).tag_name.append(1, *c);
                     temporary_buffer_.append(1, *c);
                     continue;
@@ -507,7 +471,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (c && is_ascii_alpha(*c)) {
+                if (c && util::is_alpha(*c)) {
                     temporary_buffer_ = "";
                     emit(CharacterToken{'<'});
                     reconsume_in(State::ScriptDataDoubleEscapeStart);
@@ -521,7 +485,7 @@ void Tokenizer::run() {
 
             case State::ScriptDataEscapedEndTagOpen: {
                 auto c = consume_next_input_character();
-                if (c && is_ascii_alpha(*c)) {
+                if (c && util::is_alpha(*c)) {
                     current_token_ = EndTagToken{};
                     reconsume_in(State::ScriptDataEscapedEndTagName);
                     continue;
@@ -548,13 +512,13 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_upper_alpha(*c)) {
-                    std::get<EndTagToken>(current_token_).tag_name.append(1, to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, util::to_lower(*c));
                     temporary_buffer_.append(1, *c);
                     continue;
                 }
 
-                if (is_ascii_lower_alpha(*c)) {
+                if (util::is_lower_alpha(*c)) {
                     std::get<EndTagToken>(current_token_).tag_name.append(1, *c);
                     temporary_buffer_.append(1, *c);
                     continue;
@@ -599,13 +563,13 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_upper_alpha(*c)) {
-                    temporary_buffer_.append(1, to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    temporary_buffer_.append(1, util::to_lower(*c));
                     emit(CharacterToken{*c});
                     continue;
                 }
 
-                if (is_ascii_lower_alpha(*c)) {
+                if (util::is_lower_alpha(*c)) {
                     temporary_buffer_.append(1, *c);
                     emit(CharacterToken{*c});
                     continue;
@@ -739,13 +703,13 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_upper_alpha(*c)) {
-                    temporary_buffer_.append(1, to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    temporary_buffer_.append(1, util::to_lower(*c));
                     emit(CharacterToken{*c});
                     continue;
                 }
 
-                if (is_ascii_lower_alpha(*c)) {
+                if (util::is_lower_alpha(*c)) {
                     temporary_buffer_.append(1, *c);
                     emit(CharacterToken{*c});
                     continue;
@@ -811,8 +775,8 @@ void Tokenizer::run() {
                     }
                 };
 
-                if (is_ascii_upper_alpha(*c)) {
-                    append_to_current_attribute_name(to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    append_to_current_attribute_name(util::to_lower(*c));
                     continue;
                 }
 
@@ -1306,9 +1270,9 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (is_ascii_upper_alpha(*c)) {
+                if (util::is_upper_alpha(*c)) {
                     current_token_ = DoctypeToken{.name = std::string{}};
-                    std::get<DoctypeToken>(current_token_).name->append(1, to_lower(*c));
+                    std::get<DoctypeToken>(current_token_).name->append(1, util::to_lower(*c));
                     state_ = State::DoctypeName;
                     continue;
                 }
@@ -1349,8 +1313,8 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (is_ascii_upper_alpha(*c)) {
-                    std::get<DoctypeToken>(current_token_).name->append(1, to_lower(*c));
+                if (util::is_upper_alpha(*c)) {
+                    std::get<DoctypeToken>(current_token_).name->append(1, util::to_lower(*c));
                     continue;
                 }
 
@@ -1615,7 +1579,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_alphanumeric(*c)) {
+                if (util::is_alphanumeric(*c)) {
                     reconsume_in(State::NamedCharacterReference);
                     continue;
                 }
@@ -1648,7 +1612,7 @@ void Tokenizer::run() {
 
                 auto c = peek_next_input_character();
                 if (c.has_value() && consumed_as_part_of_an_attribute() && temporary_buffer_.back() != ';'
-                        && (c == '=' || is_ascii_alphanumeric(*c))) {
+                        && (c == '=' || util::is_alphanumeric(*c))) {
                     flush_code_points_consumed_as_a_character_reference();
                     state_ = return_state_;
                     continue;
@@ -1676,7 +1640,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_alphanumeric(*c)) {
+                if (util::is_alphanumeric(*c)) {
                     if (consumed_as_part_of_an_attribute()) {
                         current_attribute().value += *c;
                     } else {
@@ -1715,7 +1679,7 @@ void Tokenizer::run() {
 
             case State::HexadecimalCharacterReferenceStart: {
                 auto c = consume_next_input_character();
-                if (c && is_ascii_hex_digit(*c)) {
+                if (c && util::is_hex_digit(*c)) {
                     reconsume_in(State::HexadecimalCharacterReference);
                     continue;
                 }
@@ -1728,7 +1692,7 @@ void Tokenizer::run() {
 
             case State::DecimalCharacterReferenceStart: {
                 auto c = consume_next_input_character();
-                if (!c || !is_ascii_digit(*c)) {
+                if (!c || !util::is_digit(*c)) {
                     // This is an absence-of-digits-in-numeric-character-reference parse error.
                     flush_code_points_consumed_as_a_character_reference();
                     reconsume_in(return_state_);
@@ -1747,19 +1711,19 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_digit(*c)) {
+                if (util::is_digit(*c)) {
                     character_reference_code_ *= 16;
                     character_reference_code_ += *c - 0x30;
                     continue;
                 }
 
-                if (is_ascii_upper_hex_digit(*c)) {
+                if (util::is_upper_hex_digit(*c)) {
                     character_reference_code_ *= 16;
                     character_reference_code_ += *c - 0x37;
                     continue;
                 }
 
-                if (is_ascii_lower_hex_digit(*c)) {
+                if (util::is_lower_hex_digit(*c)) {
                     character_reference_code_ *= 16;
                     character_reference_code_ += *c - 0x57;
                     continue;
@@ -1783,7 +1747,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                if (is_ascii_digit(*c)) {
+                if (util::is_digit(*c)) {
                     character_reference_code_ *= 10;
                     character_reference_code_ += *c - 0x30;
                     continue;
