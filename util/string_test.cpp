@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +15,51 @@ using etest::expect_eq;
 using etest::require;
 
 int main() {
+    etest::test("is_upper_alpha", [] {
+        expect(is_upper_alpha('A'));
+        expect(!is_upper_alpha('a'));
+    });
+
+    etest::test("is_lower_alpha", [] {
+        expect(is_lower_alpha('a'));
+        expect(!is_lower_alpha('A'));
+    });
+
+    etest::test("is_alpha", [] {
+        expect(is_alpha('a'));
+        expect(!is_alpha('!'));
+    });
+
+    etest::test("is_digit", [] {
+        expect(is_digit('0'));
+        expect(!is_digit('a'));
+    });
+
+    etest::test("is_alphanumeric", [] {
+        expect(is_alphanumeric('a'));
+        expect(!is_alphanumeric('!'));
+    });
+
+    etest::test("is_upper_hex_digit", [] {
+        expect(is_upper_hex_digit('F'));
+        expect(!is_upper_hex_digit('f'));
+    });
+
+    etest::test("is_lower_hex_digit", [] {
+        expect(is_lower_hex_digit('f'));
+        expect(!is_lower_hex_digit('F'));
+    });
+
+    etest::test("is_hex_digit", [] {
+        expect(is_hex_digit('f'));
+        expect(!is_hex_digit('!'));
+    });
+
+    etest::test("to_lower", [] {
+        expect_eq(to_lower('A'), 'a');
+        expect_eq(to_lower('a'), 'a');
+    });
+
     etest::test("no case compare", [] {
         expect(no_case_compare("word"sv, "word"sv));
         expect(no_case_compare("WORD"sv, "WORD"sv));

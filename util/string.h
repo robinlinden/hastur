@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -16,6 +16,46 @@
 #include <vector>
 
 namespace util {
+
+constexpr bool is_upper_alpha(char c) {
+    return c >= 'A' && c <= 'Z';
+}
+
+constexpr bool is_lower_alpha(char c) {
+    return c >= 'a' && c <= 'z';
+}
+
+constexpr bool is_alpha(char c) {
+    return is_upper_alpha(c) || is_lower_alpha(c);
+}
+
+constexpr bool is_digit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+constexpr bool is_alphanumeric(char c) {
+    return is_digit(c) || is_alpha(c);
+}
+
+constexpr bool is_upper_hex_digit(char c) {
+    return is_digit(c) || (c >= 'A' && c <= 'F');
+}
+
+constexpr bool is_lower_hex_digit(char c) {
+    return is_digit(c) || (c >= 'a' && c <= 'f');
+}
+
+constexpr bool is_hex_digit(char c) {
+    return is_upper_hex_digit(c) || is_lower_hex_digit(c);
+}
+
+constexpr char to_lower(char c) {
+    if (!is_upper_alpha(c)) {
+        return c;
+    }
+
+    return c + ('a' - 'A');
+}
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
     return ranges::equal(a, b, [](auto c1, auto c2) { return std::tolower(c1) == std::tolower(c2); });
