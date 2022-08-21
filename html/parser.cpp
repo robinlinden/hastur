@@ -4,12 +4,13 @@
 
 #include "html/parser.h"
 
+#include "util/string.h"
+
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <cctype>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -125,7 +126,7 @@ void Parser::operator()(html2::EndOfFileToken const &) {
 void Parser::generate_text_node_if_needed() {
     assert(!open_elements_.empty());
     auto text = std::exchange(current_text_, {}).str();
-    bool is_uninteresting = std::all_of(cbegin(text), cend(text), [](unsigned char c) { return std::isspace(c); });
+    bool is_uninteresting = std::all_of(cbegin(text), cend(text), [](char c) { return util::is_whitespace(c); });
     if (is_uninteresting) {
         return;
     }
