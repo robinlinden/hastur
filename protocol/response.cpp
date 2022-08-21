@@ -1,13 +1,14 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "protocol/response.h"
 
+#include "util/string.h"
+
 #include <range/v3/algorithm/lexicographical_compare.hpp>
 
-#include <cctype>
 #include <sstream>
 #include <utility>
 
@@ -38,7 +39,7 @@ std::size_t Headers::size() const {
 
 bool Headers::CaseInsensitiveLess::operator()(std::string_view s1, std::string_view s2) const {
     return ranges::lexicographical_compare(
-            s1, s2, [](unsigned char c1, unsigned char c2) { return std::tolower(c1) < std::tolower(c2); });
+            s1, s2, [](char c1, char c2) { return util::to_lower(c1) < util::to_lower(c2); });
 }
 
 } // namespace protocol
