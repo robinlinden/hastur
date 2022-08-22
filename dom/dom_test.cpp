@@ -8,21 +8,17 @@
 
 #include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 using namespace std::literals;
 
+using dom::Element;
+using dom::Text;
 using etest::expect;
 using etest::expect_eq;
 using etest::require;
 
 namespace {
-// TODO(robinlinden): Remove.
-dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::vector<dom::Node> children) {
-    return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
-}
-
 std::vector<dom::Element const *> nodes_by_xpath(dom::Node const &root, std::string_view xpath) {
     return nodes_by_xpath(std::get<dom::Element>(root), xpath);
 }
@@ -128,29 +124,41 @@ int main() {
         expect(nodes.empty());
     });
 
-    // TODO(robinlinden): clang-format doesn't get along well with how I structured
-    // the trees in these test cases.
-    // clang-format off
-
     etest::test("no matches", [] {
-        auto const dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        auto const dom_root = dom::Element{
+                .name{"html"},
+                .attributes{},
+                .children{
+                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{
+                                .name{"body"},
+                                .attributes{},
+                                .children{
+                                        Element{.name{"p"}},
+                                },
+                        },
+                },
+        };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/a");
         expect(nodes.empty());
     });
 
     etest::test("root match", [] {
-        auto const dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        auto const dom_root = dom::Element{
+                .name{"html"},
+                .attributes{},
+                .children{
+                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{
+                                .name{"body"},
+                                .attributes{},
+                                .children{
+                                        Element{.name{"p"}},
+                                },
+                        },
+                },
+        };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html");
         require(nodes.size() == 1);
@@ -158,12 +166,20 @@ int main() {
     });
 
     etest::test("path with one element node", [] {
-        auto const dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        auto const dom_root = dom::Element{
+                .name{"html"},
+                .attributes{},
+                .children{
+                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{
+                                .name{"body"},
+                                .attributes{},
+                                .children{
+                                        Element{.name{"p"}},
+                                },
+                        },
+                },
+        };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
         require(nodes.size() == 1);
@@ -171,13 +187,21 @@ int main() {
     });
 
     etest::test("path with multiple element nodes", [] {
-        auto const dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {{"display", "none"}}, {}),
-            }),
-        });
+        auto const dom_root = dom::Element{
+                .name{"html"},
+                .attributes{},
+                .children{
+                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{
+                                .name{"body"},
+                                .attributes{},
+                                .children{
+                                        Element{.name{"p"}},
+                                        Element{.name{"p"}, .attributes{{"display", "none"}}},
+                                },
+                        },
+                },
+        };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
         require(nodes.size() == 2);
@@ -193,20 +217,40 @@ int main() {
     });
 
     etest::test("matching nodes in different branches", [] {
-        auto const dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("div", {}, {
-                    create_element_node("p", {{"display", "none"}}, {}),
-                }),
-                create_element_node("span", {}, {
-                    create_element_node("p", {{"display", "inline"}}, {}),
-                }),
-                create_element_node("div", {}, {
-                    create_element_node("p", {{"display", "block"}}, {}),
-                })
-            })
-        });
+        auto const dom_root = dom::Element{
+                .name{"html"},
+                .attributes{},
+                .children{
+                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{
+                                .name{"body"},
+                                .attributes{},
+                                .children{
+                                        Element{
+                                                .name{"div"},
+                                                .attributes{},
+                                                .children{
+                                                        Element{.name{"p"}, .attributes{{"display", "none"}}},
+                                                },
+                                        },
+                                        Element{
+                                                .name{"span"},
+                                                .attributes{},
+                                                .children{
+                                                        Element{.name{"p"}, .attributes{{"display", "inline"}}},
+                                                },
+                                        },
+                                        Element{
+                                                .name{"div"},
+                                                .attributes{},
+                                                .children{
+                                                        Element{.name{"p"}, .attributes{{"display", "block"}}},
+                                                },
+                                        },
+                                },
+                        },
+                },
+        };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/div/p");
         require(nodes.size() == 2);
@@ -223,13 +267,21 @@ int main() {
     });
 
     etest::test("non-element node in search path", [] {
-        auto const dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            dom::Text{"I don't belong here. :("},
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        auto const dom_root = dom::Element{
+                .name{"html"},
+                .attributes{},
+                .children{
+                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Text{"I don't belong here. :("},
+                        Element{
+                                .name{"body"},
+                                .attributes{},
+                                .children{
+                                        Element{.name{"p"}},
+                                },
+                        },
+                },
+        };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
         expect(nodes.size() == 1);
