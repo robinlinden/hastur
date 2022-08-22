@@ -5,6 +5,7 @@
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
+#include <exception>
 #include <map>
 #include <memory>
 #include <optional>
@@ -19,6 +20,7 @@ namespace ast {
 struct Function;
 struct BinaryExpression;
 struct BlockStatement;
+struct ReturnStatement;
 struct CallExpression;
 struct ExpressionStatement;
 struct FunctionDeclaration;
@@ -32,7 +34,7 @@ struct VariableDeclarator;
 using Declaration = std::variant<FunctionDeclaration, VariableDeclaration>;
 using Literal = std::variant<NumericLiteral, StringLiteral>;
 using Pattern = std::variant<Identifier>;
-using Statement = std::variant<Declaration, ExpressionStatement, BlockStatement>;
+using Statement = std::variant<Declaration, ExpressionStatement, BlockStatement, ReturnStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
 using Node = std::variant<Expression, Statement, Pattern, Program, Function, VariableDeclarator>;
 
@@ -101,7 +103,9 @@ struct BlockStatement {
     std::vector<std::shared_ptr<Statement>> body;
 };
 
-using FunctionBody = BlockStatement;
+struct FunctionBody {
+    std::vector<Statement> body;
+};
 
 struct Function {
     std::vector<Pattern> params;
@@ -131,6 +135,10 @@ struct VariableDeclaration {
     Kind kind{Kind::Var};
 };
 
+struct ReturnStatement {
+    std::optional<Expression> argument;
+};
+
 class AstExecutor {
 public:
     Value execute(auto const &ast) { return (*this)(ast); }
@@ -141,6 +149,11 @@ public:
     Value operator()(Expression const &v) { return std::visit(*this, v); }
     Value operator()(Identifier const &v) { return Value{v.name}; }
     Value operator()(Pattern const &v) { return std::visit(*this, v); }
+    Value operator()(Declaration const &v) { return std::visit(*this, v); }
+    Value operator()(Statement const &v) { return std::visit(*this, v); }
+
+    // TODO(robinlinden): Implement.
+    Value operator()(ExpressionStatement const &) { std::terminate(); }
 
     Value operator()(BinaryExpression const &v) {
         auto lhs = execute(*v.lhs);
@@ -202,7 +215,24 @@ public:
         return Value{};
     }
 
+    Value operator()(FunctionBody const &v) {
+        for (auto const &statement : v.body) {
+            execute(statement);
+            if (returning) {
+                return *std::exchange(returning, std::nullopt);
+            }
+        }
+
+        return Value{};
+    }
+
+    Value operator()(ReturnStatement const &v) {
+        returning = v.argument ? execute(*v.argument) : Value{};
+        return Value{};
+    }
+
     std::map<std::string, Value, std::less<>> variables;
+    std::optional<Value> returning;
 };
 
 } // namespace ast

@@ -90,5 +90,40 @@ int main() {
         expect_eq(e.variables.at("two"), Value{"beep beep boop"});
     });
 
+    etest::test("return, values are returned", [] {
+        auto declaration = FunctionDeclaration{
+                .id = Identifier{"func"},
+                .function = std::make_shared<Function>(Function{
+                        .params{},
+                        .body{{ReturnStatement{NumericLiteral{42.}}}},
+                }),
+        };
+
+        auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
+
+        AstExecutor e;
+        expect_eq(e.execute(declaration), Value{});
+        expect_eq(e.execute(call), Value{42.});
+    });
+
+    etest::test("return, function execution is ended", [] {
+        auto declaration = FunctionDeclaration{
+                .id = Identifier{"func"},
+                .function = std::make_shared<Function>(Function{
+                        .params{},
+                        .body{{
+                                ReturnStatement{},
+                                ReturnStatement{NumericLiteral{42.}},
+                        }},
+                }),
+        };
+
+        auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
+
+        AstExecutor e;
+        expect_eq(e.execute(declaration), Value{});
+        expect_eq(e.execute(call), Value{});
+    });
+
     return etest::run_all_tests();
 }
