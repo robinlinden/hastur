@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "js/ast_executor.h"
+
 #include "js/ast.h"
 
 #include "etest/etest.h"
