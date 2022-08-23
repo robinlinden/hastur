@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <iterator>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -54,6 +55,11 @@ constexpr char to_lower(char c) {
     }
 
     return c + ('a' - 'A');
+}
+
+[[nodiscard]] inline std::string to_lower(std::string s) {
+    std::transform(begin(s), end(s), begin(s), [](char c) { return to_lower(c); });
+    return s;
 }
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
