@@ -17,8 +17,8 @@ namespace {
 void normalize(Uri &uri) {
     // The scheme and host components of the URI are case-insensitive and
     // therefore should be normalized to lowercase.
-    uri.scheme = util::to_lower(std::move(uri.scheme));
-    uri.authority.host = util::to_lower(std::move(uri.authority.host));
+    uri.scheme = util::lowercased(std::move(uri.scheme));
+    uri.authority.host = util::lowercased(std::move(uri.authority.host));
 
     // In presence of an authority component, an empty path component should be
     // normalized to a path component of "/".

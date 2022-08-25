@@ -39,7 +39,7 @@ std::size_t Headers::size() const {
 
 bool Headers::CaseInsensitiveLess::operator()(std::string_view s1, std::string_view s2) const {
     return ranges::lexicographical_compare(
-            s1, s2, [](char c1, char c2) { return util::to_lower(c1) < util::to_lower(c2); });
+            s1, s2, [](char c1, char c2) { return util::lowercased(c1) < util::lowercased(c2); });
 }
 
 } // namespace protocol

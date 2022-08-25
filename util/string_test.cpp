@@ -55,14 +55,14 @@ int main() {
         expect(!is_hex_digit('!'));
     });
 
-    etest::test("to_lower(char)", [] {
-        expect_eq(to_lower('A'), 'a');
-        expect_eq(to_lower('a'), 'a');
+    etest::test("lowercased(char)", [] {
+        expect_eq(lowercased('A'), 'a');
+        expect_eq(lowercased('a'), 'a');
     });
 
-    etest::test("to_lower(std::string)", [] {
-        expect_eq(to_lower("Hello There!!1"), "hello there!!1");
-        expect_eq(to_lower("woop woop"), "woop woop");
+    etest::test("lowercased(std::string)", [] {
+        expect_eq(lowercased("Hello There!!1"), "hello there!!1");
+        expect_eq(lowercased("woop woop"), "woop woop");
     });
 
     etest::test("no case compare", [] {

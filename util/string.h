@@ -49,7 +49,7 @@ constexpr bool is_hex_digit(char c) {
     return is_upper_hex_digit(c) || is_lower_hex_digit(c);
 }
 
-constexpr char to_lower(char c) {
+constexpr char lowercased(char c) {
     if (!is_upper_alpha(c)) {
         return c;
     }
@@ -57,13 +57,13 @@ constexpr char to_lower(char c) {
     return c + ('a' - 'A');
 }
 
-[[nodiscard]] inline std::string to_lower(std::string s) {
-    std::transform(begin(s), end(s), begin(s), [](char c) { return to_lower(c); });
+[[nodiscard]] inline std::string lowercased(std::string s) {
+    std::transform(begin(s), end(s), begin(s), [](char c) { return lowercased(c); });
     return s;
 }
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-    return ranges::equal(a, b, [](auto c1, auto c2) { return to_lower(c1) == to_lower(c2); });
+    return ranges::equal(a, b, [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
 }
 
 inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {

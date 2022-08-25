@@ -216,7 +216,7 @@ void Tokenizer::run() {
                 };
 
                 if (util::is_upper_alpha(*c)) {
-                    append_to_tag_name(util::to_lower(*c));
+                    append_to_tag_name(util::lowercased(*c));
                     continue;
                 }
 
@@ -299,7 +299,7 @@ void Tokenizer::run() {
                 }
 
                 if (util::is_upper_alpha(*c)) {
-                    std::get<EndTagToken>(current_token_).tag_name.append(1, util::to_lower(*c));
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, util::lowercased(*c));
                     temporary_buffer_.append(1, *c);
                     continue;
                 }
@@ -513,7 +513,7 @@ void Tokenizer::run() {
                 }
 
                 if (util::is_upper_alpha(*c)) {
-                    std::get<EndTagToken>(current_token_).tag_name.append(1, util::to_lower(*c));
+                    std::get<EndTagToken>(current_token_).tag_name.append(1, util::lowercased(*c));
                     temporary_buffer_.append(1, *c);
                     continue;
                 }
@@ -564,7 +564,7 @@ void Tokenizer::run() {
                 }
 
                 if (util::is_upper_alpha(*c)) {
-                    temporary_buffer_.append(1, util::to_lower(*c));
+                    temporary_buffer_.append(1, util::lowercased(*c));
                     emit(CharacterToken{*c});
                     continue;
                 }
@@ -704,7 +704,7 @@ void Tokenizer::run() {
                 }
 
                 if (util::is_upper_alpha(*c)) {
-                    temporary_buffer_.append(1, util::to_lower(*c));
+                    temporary_buffer_.append(1, util::lowercased(*c));
                     emit(CharacterToken{*c});
                     continue;
                 }
@@ -776,7 +776,7 @@ void Tokenizer::run() {
                 };
 
                 if (util::is_upper_alpha(*c)) {
-                    append_to_current_attribute_name(util::to_lower(*c));
+                    append_to_current_attribute_name(util::lowercased(*c));
                     continue;
                 }
 
@@ -1272,7 +1272,7 @@ void Tokenizer::run() {
 
                 if (util::is_upper_alpha(*c)) {
                     current_token_ = DoctypeToken{.name = std::string{}};
-                    std::get<DoctypeToken>(current_token_).name->append(1, util::to_lower(*c));
+                    std::get<DoctypeToken>(current_token_).name->append(1, util::lowercased(*c));
                     state_ = State::DoctypeName;
                     continue;
                 }
@@ -1314,7 +1314,7 @@ void Tokenizer::run() {
                 }
 
                 if (util::is_upper_alpha(*c)) {
-                    std::get<DoctypeToken>(current_token_).name->append(1, util::to_lower(*c));
+                    std::get<DoctypeToken>(current_token_).name->append(1, util::lowercased(*c));
                     continue;
                 }
 
