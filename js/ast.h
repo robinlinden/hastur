@@ -56,6 +56,16 @@ public:
     std::shared_ptr<Function const> as_function() const { return std::get<std::shared_ptr<Function>>(value_); }
     std::vector<Value> const &as_vector() const { return std::get<std::vector<Value>>(value_); }
 
+    bool as_bool() const {
+        // TODO(robinlinden): false, 0n, null, NaN, objects with an [[IsHTMLDDA]] internal slot.
+        // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+        if (*this == Value{0} || *this == Value{-0} || *this == Value{""} || *this == Value{}) {
+            return false;
+        }
+
+        return true;
+    }
+
     [[nodiscard]] bool operator==(Value const &) const = default;
 
 private:
