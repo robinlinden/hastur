@@ -7,7 +7,6 @@
 
 #include "js/ast.h"
 
-#include <exception>
 #include <functional>
 #include <map>
 #include <string>
@@ -30,8 +29,7 @@ public:
     Value operator()(Declaration const &v) { return std::visit(*this, v); }
     Value operator()(Statement const &v) { return std::visit(*this, v); }
 
-    // TODO(robinlinden): Implement.
-    Value operator()(ExpressionStatement const &) { std::terminate(); }
+    Value operator()(ExpressionStatement const &v) { return execute(v.expression); }
 
     Value operator()(BinaryExpression const &v) {
         auto lhs = execute(*v.lhs);

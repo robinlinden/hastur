@@ -87,10 +87,6 @@ struct Identifier {
     std::string name;
 };
 
-struct ExpressionStatement {
-    std::shared_ptr<Expression> expression;
-};
-
 // TODO(robinlinden): Support more operators.
 enum class BinaryOperator {
     Minus,
@@ -141,6 +137,10 @@ struct VariableDeclaration {
         Var,
     };
     Kind kind{Kind::Var};
+};
+
+struct ExpressionStatement {
+    Expression expression;
 };
 
 struct ReturnStatement {

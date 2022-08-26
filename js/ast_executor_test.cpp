@@ -127,5 +127,11 @@ int main() {
         expect_eq(e.execute(call), Value{});
     });
 
+    etest::test("expression statement", [] {
+        AstExecutor e;
+        expect_eq(e.execute(ExpressionStatement{StringLiteral{"hi"}}), Value{"hi"});
+        expect_eq(e.execute(ExpressionStatement{NumericLiteral{1213}}), Value{1213});
+    });
+
     return etest::run_all_tests();
 }
