@@ -23,6 +23,7 @@ struct CallExpression;
 struct ExpressionStatement;
 struct FunctionDeclaration;
 struct Identifier;
+struct IfStatement;
 struct NumericLiteral;
 struct Program;
 struct StringLiteral;
@@ -32,7 +33,7 @@ struct VariableDeclarator;
 using Declaration = std::variant<FunctionDeclaration, VariableDeclaration>;
 using Literal = std::variant<NumericLiteral, StringLiteral>;
 using Pattern = std::variant<Identifier>;
-using Statement = std::variant<Declaration, ExpressionStatement, BlockStatement, ReturnStatement>;
+using Statement = std::variant<Declaration, ExpressionStatement, BlockStatement, ReturnStatement, IfStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
 using Node = std::variant<Expression, Statement, Pattern, Program, Function, VariableDeclarator>;
 
@@ -145,6 +146,12 @@ struct ExpressionStatement {
 
 struct ReturnStatement {
     std::optional<Expression> argument;
+};
+
+struct IfStatement {
+    Expression test;
+    std::shared_ptr<Statement> if_branch;
+    std::optional<std::shared_ptr<Statement>> else_branch;
 };
 
 } // namespace ast

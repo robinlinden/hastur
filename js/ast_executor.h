@@ -107,6 +107,14 @@ public:
         return Value{};
     }
 
+    Value operator()(IfStatement const &v) {
+        if (execute(v.test).as_bool()) {
+            return execute(*v.if_branch);
+        }
+
+        return v.else_branch ? execute(**v.else_branch) : Value{};
+    }
+
     std::map<std::string, Value, std::less<>> variables;
     std::optional<Value> returning;
 };

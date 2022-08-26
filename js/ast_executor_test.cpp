@@ -133,5 +133,32 @@ int main() {
         expect_eq(e.execute(ExpressionStatement{NumericLiteral{1213}}), Value{1213});
     });
 
+    etest::test("if", [] {
+        auto if_stmt = IfStatement{
+                .test = NumericLiteral{1},
+                .if_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"true!"}}),
+        };
+
+        AstExecutor e;
+        expect_eq(e.execute(if_stmt), Value{"true!"});
+
+        if_stmt.test = NumericLiteral{0};
+        expect_eq(e.execute(if_stmt), Value{});
+    });
+
+    etest::test("if-else", [] {
+        auto if_stmt = IfStatement{
+                .test = NumericLiteral{1},
+                .if_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"true!"}}),
+                .else_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"false!"}}),
+        };
+
+        AstExecutor e;
+        expect_eq(e.execute(if_stmt), Value{"true!"});
+
+        if_stmt.test = NumericLiteral{0};
+        expect_eq(e.execute(if_stmt), Value{"false!"});
+    });
+
     return etest::run_all_tests();
 }
