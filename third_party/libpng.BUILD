@@ -23,6 +23,7 @@ cc_library(
         "png.h",
         "pngconf.h",
     ],
+    includes = ["."],
     visibility = ["//visibility:public"],
     deps = ["@zlib"],
 )
