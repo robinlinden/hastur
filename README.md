@@ -8,7 +8,7 @@
 
 #### Compiler
 
-Right now GCC 10, Clang 14, and MSVC are tested against. The project makes use
+Right now GCC 12, Clang 14, and MSVC are tested against. The project makes use
 of C++20 features, so a reasonably recent compiler is required.
 
 #### Build system
