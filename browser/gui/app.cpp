@@ -180,6 +180,35 @@ int App::run() {
                             switch_canvas();
                             break;
                         }
+                        case sf::Keyboard::Key::Left: {
+                            if (!event.key.alt) {
+                                break;
+                            }
+
+                            auto entry = browse_history_.previous();
+                            if (!entry) {
+                                break;
+                            }
+
+                            browse_history_.pop();
+                            url_buf_ = entry->uri;
+                            navigate();
+                            break;
+                        }
+                        case sf::Keyboard::Key::Right: {
+                            if (!event.key.alt) {
+                                break;
+                            }
+
+                            auto entry = browse_history_.next();
+                            if (!entry) {
+                                break;
+                            }
+
+                            url_buf_ = entry->uri;
+                            navigate();
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -269,6 +298,7 @@ void App::navigate() {
         return;
     }
 
+    browse_history_.push(*uri);
     engine_.navigate(std::move(*uri));
 
     // Make sure the displayed url is still correct if we followed any redirects.

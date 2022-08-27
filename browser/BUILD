@@ -37,6 +37,7 @@ cc_binary(
         "//protocol",
         "//render",
         "//uri",
+        "//util:history",
         "@fmt",
         "@imgui",
         "@imgui-sfml",

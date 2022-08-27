@@ -11,6 +11,8 @@
 #include "gfx/sfml_canvas.h"
 #include "layout/layout.h"
 #include "protocol/handler_factory.h"
+#include "uri/uri.h"
+#include "util/history.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -61,6 +63,8 @@ private:
     bool render_debug_{};
 
     unsigned scale_{1};
+
+    util::History<uri::Uri> browse_history_;
 
     void on_navigation_failure(protocol::Error);
     void on_page_loaded();
