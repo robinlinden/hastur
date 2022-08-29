@@ -1,4 +1,10 @@
 ---
+# -clang-analyzer-cplusplus.NewDeleteLeaks: Lots of false positives w/
+# -std=c++2b when calling std::make_shared in the JS AST.
+# js/ast_executor_test.cpp:176:5: error: Potential leak of memory pointed to by
+# field '_M_pi' [clang-analyzer-cplusplus.NewDeleteLeaks,-warnings-as-errors]
+# Very similar call stack to https://github.com/llvm/llvm-project/issues/55219
+#
 # -clang-analyzer-optin.cplusplus.UninitializedObject: Triggered by libfmt
 # format strings on the line we instantiate them.
 #
@@ -10,6 +16,7 @@
 # -misc-non-private-member-variables-in-classes: TODO(robinlinden): Fix.
 Checks: >
   misc-*,
+  -clang-analyzer-cplusplus.NewDeleteLeaks,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-diagnostic-builtin-macro-redefined,
   -misc-no-recursion,
