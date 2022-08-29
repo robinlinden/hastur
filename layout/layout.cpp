@@ -307,6 +307,14 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
 
 } // namespace
 
+std::optional<std::string_view> LayoutBox::get_property(std::string_view property) const {
+    if (!node) {
+        return std::nullopt;
+    }
+
+    return style::get_property(*node, property);
+}
+
 LayoutBox create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
     layout(*tree, {0, 0, width, 0});

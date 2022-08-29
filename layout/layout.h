@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,7 +10,9 @@
 #include "geom/geom.h"
 #include "style/styled_node.h"
 
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace layout {
@@ -27,6 +29,8 @@ struct LayoutBox {
     BoxModel dimensions;
     std::vector<LayoutBox> children;
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
+
+    std::optional<std::string_view> get_property(std::string_view) const;
 };
 
 LayoutBox create_layout(style::StyledNode const &node, int width);

@@ -921,5 +921,22 @@ int main() {
         expect_eq(to_string(layout::create_layout(style_root, 0)), expected);
     });
 
+    // clang-format on
+    etest::test("get_property", [] {
+        dom::Node dom_root = dom::Element{.name{"html"}, .attributes{}, .children{}};
+        auto style_root = style::StyledNode{.node = dom_root, .properties = {{"color", "green"}}, .children{}};
+
+        auto layout = layout::create_layout(style_root, 0);
+        expect_eq(layout.get_property("color"), "green");
+        expect_eq(layout.get_property("background-color"), std::nullopt);
+    });
+
+    etest::test("get_property, no backing style node", [] {
+        auto layout = layout::LayoutBox{
+                .node = nullptr,
+        };
+        expect_eq(layout.get_property("color"), std::nullopt);
+    });
+
     return etest::run_all_tests();
 }
