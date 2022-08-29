@@ -109,17 +109,17 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
         return;
     }
 
-    if (auto margin_top = style::get_property(*box.node, "margin-top")) {
+    if (auto margin_top = box.get_property("margin-top")) {
         box.dimensions.margin.top = to_px(*margin_top, font_size);
     }
 
-    if (auto margin_bottom = style::get_property(*box.node, "margin-bottom")) {
+    if (auto margin_bottom = box.get_property("margin-bottom")) {
         box.dimensions.margin.bottom = to_px(*margin_bottom, font_size);
     }
 
-    auto width = style::get_property(*box.node, "width").value_or("auto");
-    auto margin_left = style::get_property(*box.node, "margin-left").value_or("0");
-    auto margin_right = style::get_property(*box.node, "margin-right").value_or("0");
+    auto width = box.get_property("width").value_or("auto");
+    auto margin_left = box.get_property("margin-left").value_or("0");
+    auto margin_right = box.get_property("margin-right").value_or("0");
     if (width == "auto") {
         if (margin_left != "auto") {
             box.dimensions.margin.left = to_px(margin_left, font_size);
@@ -133,7 +133,7 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
         calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
     }
 
-    if (auto min = style::get_property(*box.node, "min-width")) {
+    if (auto min = box.get_property("min-width")) {
         int min_width_px = to_px(*min, font_size);
         if (box.dimensions.content.width < min_width_px) {
             box.dimensions.content.width = min_width_px;
@@ -141,7 +141,7 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
         }
     }
 
-    if (auto max = style::get_property(*box.node, "max-width")) {
+    if (auto max = box.get_property("max-width")) {
         int max_width_px = to_px(*max, font_size);
         if (box.dimensions.content.width > max_width_px) {
             box.dimensions.content.width = max_width_px;
@@ -163,33 +163,33 @@ void calculate_height(LayoutBox &box, int const font_size) {
         box.dimensions.content.height = font_size;
     }
 
-    if (auto height = style::get_property(*box.node, "height")) {
+    if (auto height = box.get_property("height")) {
         box.dimensions.content.height = to_px(*height, font_size);
     }
 
-    if (auto min = style::get_property(*box.node, "min-height")) {
+    if (auto min = box.get_property("min-height")) {
         box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(*min, font_size));
     }
 
-    if (auto max = style::get_property(*box.node, "max-height")) {
+    if (auto max = box.get_property("max-height")) {
         box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(*max, font_size));
     }
 }
 
 void calculate_padding(LayoutBox &box, int const font_size) {
-    if (auto padding_left = style::get_property(*box.node, "padding-left")) {
+    if (auto padding_left = box.get_property("padding-left")) {
         box.dimensions.padding.left = to_px(*padding_left, font_size);
     }
 
-    if (auto padding_right = style::get_property(*box.node, "padding-right")) {
+    if (auto padding_right = box.get_property("padding-right")) {
         box.dimensions.padding.right = to_px(*padding_right, font_size);
     }
 
-    if (auto padding_top = style::get_property(*box.node, "padding-top")) {
+    if (auto padding_top = box.get_property("padding-top")) {
         box.dimensions.padding.top = to_px(*padding_top, font_size);
     }
 
-    if (auto padding_bottom = style::get_property(*box.node, "padding-bottom")) {
+    if (auto padding_bottom = box.get_property("padding-bottom")) {
         box.dimensions.padding.bottom = to_px(*padding_bottom, font_size);
     }
 }
@@ -200,23 +200,23 @@ void calculate_border(LayoutBox &box, int const font_size) {
     // TODO(mkiael): Change to "meduim" when this is supported
     std::string_view default_width = "3px";
 
-    if (style::get_property(*box.node, "border-left-style").value_or(default_style) != default_style) {
-        auto border_width = style::get_property(*box.node, "border-left-width").value_or(default_width);
+    if (box.get_property("border-left-style").value_or(default_style) != default_style) {
+        auto border_width = box.get_property("border-left-width").value_or(default_width);
         box.dimensions.border.left = to_px(border_width, font_size);
     }
 
-    if (style::get_property(*box.node, "border-right-style").value_or(default_style) != default_style) {
-        auto border_width = style::get_property(*box.node, "border-right-width").value_or(default_width);
+    if (box.get_property("border-right-style").value_or(default_style) != default_style) {
+        auto border_width = box.get_property("border-right-width").value_or(default_width);
         box.dimensions.border.right = to_px(border_width, font_size);
     }
 
-    if (style::get_property(*box.node, "border-top-style").value_or(default_style) != default_style) {
-        auto border_width = style::get_property(*box.node, "border-top-width").value_or(default_width);
+    if (box.get_property("border-top-style").value_or(default_style) != default_style) {
+        auto border_width = box.get_property("border-top-width").value_or(default_width);
         box.dimensions.border.top = to_px(border_width, font_size);
     }
 
-    if (style::get_property(*box.node, "border-bottom-style").value_or(default_style) != default_style) {
-        auto border_width = style::get_property(*box.node, "border-bottom-width").value_or(default_width);
+    if (box.get_property("border-bottom-style").value_or(default_style) != default_style) {
+        auto border_width = box.get_property("border-bottom-width").value_or(default_width);
         box.dimensions.border.bottom = to_px(border_width, font_size);
     }
 }
@@ -226,8 +226,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
         case LayoutType::Inline:
         case LayoutType::Block: {
             // TODO(robinlinden): font-size should be inherited.
-            auto font_size =
-                    to_px(style::get_property(*box.node, "font-size").value_or(kDefaultFontSize), kDefaultFontSizePx);
+            auto font_size = to_px(box.get_property("font-size").value_or(kDefaultFontSize), kDefaultFontSizePx);
             calculate_padding(box, font_size);
             calculate_border(box, font_size);
             calculate_width_and_margin(box, bounds, font_size);
