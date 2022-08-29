@@ -9,7 +9,6 @@ cc_library(
         "//dom",
         "//gfx",
         "//layout",
-        "//style",
         "//util:string",
         "@range-v3",
         "@spdlog",

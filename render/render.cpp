@@ -7,7 +7,6 @@
 
 #include "dom/dom.h"
 #include "gfx/color.h"
-#include "style/style.h"
 #include "util/string.h"
 
 #include <range/v3/algorithm/lexicographical_compare.hpp>
@@ -101,7 +100,7 @@ gfx::Color parse_color(std::string_view str) {
 }
 
 std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout, std::string_view color) {
-    if (auto maybe_color = style::get_property(*layout.node, color)) {
+    if (auto maybe_color = layout.get_property(color)) {
         return parse_color(*maybe_color);
     }
     return std::nullopt;
