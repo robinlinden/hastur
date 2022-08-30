@@ -91,7 +91,7 @@ jobs:
           echo "CC=gcc-10" >> $GITHUB_ENV
           echo "CXX=g++-10" >> $GITHUB_ENV
       - name: Coverage
-        run: bazel coverage --combined_report=lcov //...
+        run: bazel coverage ...
       - name: Summary
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload

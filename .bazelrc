@@ -8,6 +8,7 @@ build:release -c opt
 # =========================================================
 
 build --enable_platform_specific_config
+coverage --combined_report=lcov
 
 # Bazel deprecations
 # =========================================================
