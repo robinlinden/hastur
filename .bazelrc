@@ -156,6 +156,11 @@ build:ubsan --linkopt=-fsanitize=undefined
 build:ubsan --linkopt=-fsanitize-link-c++-runtime
 build:ubsan --action_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
 
+build:clang14-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-14
+build:clang14-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
+build:clang14-coverage --action_env=GCOV=llvm-profdata-14
+build:clang14-coverage --experimental_generate_llvm_lcov
+
 # Misc configuration
 # =========================================================
 
