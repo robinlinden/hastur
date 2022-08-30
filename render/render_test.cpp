@@ -64,6 +64,26 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawRectCmd{expected_rect, expected_color, {}}});
     });
 
+    etest::test("render block with transparent background-color", [] {
+        auto dom = dom::create_element_node("div", {}, {dom::create_element_node("first", {}, {})});
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties = {{"display", "block"}, {"background-color", "transparent"}},
+        };
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {{10, 20, 100, 100}, {}, {}, {}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+        gfx::Painter painter{saver};
+        render::render_layout(painter, layout);
+
+        expect_eq(saver.take_commands(), CanvasCommands{});
+    });
+
     etest::test("render block with borders, default color", [] {
         auto dom = dom::create_element_node("div", {}, {dom::create_element_node("first", {}, {})});
         auto styled = style::StyledNode{
@@ -111,7 +131,7 @@ int main() {
         render::render_layout(painter, layout);
 
         geom::Rect expected_rect{0, 0, 20, 40};
-        gfx::Color expected_color{0xFF, 0xFF, 0xFF, 0x0};
+        gfx::Color expected_color{0, 0, 0, 0};
         gfx::Borders expected_borders{{{1, 1, 1}, 2}, {{2, 2, 2}, 4}, {{3, 3, 3}, 6}, {{4, 4, 4}, 8}};
 
         expect_eq(saver.take_commands(),

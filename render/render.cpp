@@ -25,7 +25,6 @@ namespace render {
 namespace {
 
 constexpr gfx::Color kDefaultColor{0x0, 0x0, 0x0};
-constexpr gfx::Color kTransparentColor{0xFF, 0xFF, 0xFF, 0x0};
 
 struct CaseInsensitiveLess {
     using is_transparent = void;
@@ -69,6 +68,10 @@ bool has_any_border(geom::EdgeSize const &border) {
 
 dom::Text const *try_get_text(layout::LayoutBox const &layout) {
     return std::get_if<dom::Text>(&layout.node->node);
+}
+
+constexpr bool is_fully_transparent(gfx::Color const &c) {
+    return c.a == 0;
 }
 
 gfx::Color from_hex_chars(std::string_view hex_chars) {
@@ -117,7 +120,7 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
-    auto background_color = try_get_color(layout, "background-color"sv).value_or(kTransparentColor);
+    auto background_color = try_get_color(layout, "background-color"sv).value_or(named_colors.at("transparent"));
     auto const &border_size = layout.dimensions.border;
     if (has_any_border(border_size)) {
         gfx::Borders borders{};
@@ -131,7 +134,7 @@ void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
         borders.bottom.size = border_size.bottom;
 
         painter.draw_rect(layout.dimensions.padding_box(), background_color, borders);
-    } else if (background_color != kTransparentColor) {
+    } else if (!is_fully_transparent(background_color)) {
         painter.draw_rect(layout.dimensions.padding_box(), background_color, gfx::Borders{});
     }
 }
