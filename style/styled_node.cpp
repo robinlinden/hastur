@@ -76,6 +76,13 @@ std::optional<std::string_view> get_property(style::StyledNode const &node, std:
         }
 
         return std::nullopt;
+    } else if (it->second == "inherit") {
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
+        if (node.parent != nullptr) {
+            return get_property(*node.parent, property);
+        }
+
+        return std::nullopt;
     }
 
     return it->second;

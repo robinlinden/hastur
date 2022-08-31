@@ -38,5 +38,36 @@ int main() {
         expect_eq(style::get_property(child, "font-size"sv), "15em"sv);
     });
 
+    etest::test("inherit css keyword", [] {
+        dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
+        style::StyledNode root{
+                .node = dom_node,
+                .properties = {{"background-color"s, "blue"s}},
+                .children{
+                        style::StyledNode{
+                                .node{dom_node},
+                                .properties{
+                                        {"background-color"s, "inherit"s},
+                                        {"width"s, "inherit"s},
+                                },
+                        },
+                },
+        };
+
+        auto &child = root.children[0];
+        child.parent = &root;
+
+        // TODO(robinlinden): inherit, but not in parent, so receives initial value for property.
+        // inherit, but not in parent, so we get nothing.
+        expect_eq(style::get_property(child, "width"sv), std::nullopt);
+
+        // inherit, value in parent.
+        expect_eq(style::get_property(child, "background-color"sv), "blue"sv);
+
+        // inherit, no parent node.
+        child.parent = nullptr;
+        expect_eq(style::get_property(child, "background-color"sv), std::nullopt);
+    });
+
     return etest::run_all_tests();
 }
