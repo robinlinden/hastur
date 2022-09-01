@@ -102,10 +102,18 @@ gfx::Color parse_color(std::string_view str) {
     return gfx::Color{0xFF, 0, 0};
 }
 
-std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout, std::string_view color) {
-    if (auto maybe_color = layout.get_property(color)) {
+std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout, std::string_view color_property) {
+    auto maybe_color = layout.get_property(color_property);
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
+    if (maybe_color == "currentcolor") {
+        maybe_color = layout.get_property("color");
+    }
+
+    if (maybe_color) {
         return parse_color(*maybe_color);
     }
+
     return std::nullopt;
 }
 

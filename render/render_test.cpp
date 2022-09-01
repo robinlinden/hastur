@@ -138,5 +138,34 @@ int main() {
                 CanvasCommands{gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
     });
 
+    etest::test("currentcolor", [] {
+        dom::Node dom = dom::Element{"span", {}, {dom::Element{"span"}}};
+        auto const &children = std::get<dom::Element>(dom).children;
+
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties = {{"color", "#aabbcc"}},
+                .children = {{children[0], {{"background-color", "currentcolor"}}, {}}},
+        };
+        styled.children[0].parent = &styled;
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Inline,
+                .dimensions = {},
+                .children = {{&styled.children[0], layout::LayoutType::Inline, {{0, 0, 20, 20}}, {}}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+        gfx::Painter painter{saver};
+        render::render_layout(painter, layout);
+
+        auto cmd = gfx::DrawRectCmd{
+                .rect{0, 0, 20, 20},
+                .color{gfx::Color{0xaa, 0xbb, 0xcc}},
+        };
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+    });
+
     return etest::run_all_tests();
 }
