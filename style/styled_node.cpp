@@ -64,6 +64,15 @@ constexpr bool is_in_array(std::string_view str) {
 constexpr bool is_inherited(std::string_view property) {
     return is_in_array<kInheritedProperties>(property);
 }
+
+std::optional<std::string_view> get_parent_property(style::StyledNode const &node, std::string_view property) {
+    if (node.parent != nullptr) {
+        return get_property(*node.parent, property);
+    }
+
+    return std::nullopt;
+}
+
 } // namespace
 
 std::optional<std::string_view> get_property(style::StyledNode const &node, std::string_view property) {
@@ -78,11 +87,19 @@ std::optional<std::string_view> get_property(style::StyledNode const &node, std:
         return std::nullopt;
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
-        if (node.parent != nullptr) {
-            return get_property(*node.parent, property);
+        return get_parent_property(node, property);
+    } else if (it->second == "currentcolor") {
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
+        // If the "color" property has the value "currentcolor", treat it as "inherit".
+        if (it->first == "color") {
+            return get_parent_property(node, property);
         }
 
-        return std::nullopt;
+        // Even though we return the correct value here, if a property has
+        // "currentcolor" as its initial value, the caller have to manually look
+        // up the value of "color". This will be cleaned up along with the rest
+        // of the property management soon.
+        return get_property(node, "color");
     }
 
     return it->second;

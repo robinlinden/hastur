@@ -69,5 +69,30 @@ int main() {
         expect_eq(style::get_property(child, "background-color"sv), std::nullopt);
     });
 
+    etest::test("currentcolor css keyword", [] {
+        dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
+        style::StyledNode root{
+                .node = dom_node,
+                .properties = {{"color"s, "blue"s}},
+                .children{
+                        style::StyledNode{
+                                .node{dom_node},
+                                .properties{
+                                        {"background-color"s, "currentcolor"s},
+                                },
+                        },
+                },
+        };
+
+        auto &child = root.children[0];
+        child.parent = &root;
+
+        expect_eq(style::get_property(child, "background-color"sv), "blue"sv);
+
+        // "color: currentcolor" should be treated as inherit.
+        child.properties.push_back({"color"s, "currentcolor"s});
+        expect_eq(style::get_property(child, "color"sv), "blue"sv);
+    });
+
     return etest::run_all_tests();
 }
