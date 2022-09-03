@@ -17,6 +17,11 @@ void Tokenizer::run() {
                 }
 
                 switch (*c) {
+                    case ' ':
+                    case '\n':
+                    case '\t':
+                        state_ = State::Whitespace;
+                        continue;
                     case '/':
                         state_ = State::CommentStart;
                         continue;
@@ -69,6 +74,25 @@ void Tokenizer::run() {
                         continue;
                     default:
                         state_ = State::Comment;
+                        continue;
+                }
+            }
+
+            case State::Whitespace: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(WhitespaceToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case ' ':
+                    case '\n':
+                    case '\t':
+                        continue;
+                    default:
+                        emit(WhitespaceToken{});
+                        reconsume_in(State::Main);
                         continue;
                 }
             }

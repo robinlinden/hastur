@@ -21,6 +21,7 @@ enum class State {
     CommentStart,
     Comment,
     CommentEnd,
+    Whitespace,
 };
 
 enum class ParseError {

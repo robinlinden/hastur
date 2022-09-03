@@ -101,5 +101,39 @@ int main() {
         expect_error(output, ParseError::EofInComment);
     });
 
+    etest::test("space and comments", [] {
+        auto output = run_tokenizer(" /* */   /**/");
+
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("end with one tab", [] {
+        auto output = run_tokenizer("a\t");
+
+        expect_token(output, DelimToken{'a'});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("end with two tabs", [] {
+        auto output = run_tokenizer("a\t\t");
+
+        expect_token(output, DelimToken{'a'});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("end with one line feed", [] {
+        auto output = run_tokenizer("a\n");
+
+        expect_token(output, DelimToken{'a'});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("end with two line feeds", [] {
+        auto output = run_tokenizer("a\n\n");
+
+        expect_token(output, DelimToken{'a'});
+        expect_token(output, WhitespaceToken{});
+    });
     return etest::run_all_tests();
 }
