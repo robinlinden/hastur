@@ -21,11 +21,14 @@ enum class State {
     CommentStart,
     Comment,
     CommentEnd,
+    String,
     Whitespace,
 };
 
 enum class ParseError {
     EofInComment,
+    EofInString,
+    NewlineInString,
 };
 
 class Tokenizer {
@@ -39,6 +42,9 @@ private:
     std::string_view input_;
     std::size_t pos_{0};
     State state_{State::Main};
+    Token current_token_{};
+
+    char string_ending_{};
 
     std::function<void(Token &&)> on_emit_;
     std::function<void(ParseError)> on_error_;

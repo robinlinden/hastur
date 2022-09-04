@@ -5,6 +5,8 @@
 
 #include "css2/tokenizer.h"
 
+#include <exception>
+
 namespace css2 {
 
 void Tokenizer::run() {
@@ -21,6 +23,12 @@ void Tokenizer::run() {
                     case '\n':
                     case '\t':
                         state_ = State::Whitespace;
+                        continue;
+                    case '\'':
+                    case '"':
+                        string_ending_ = *c;
+                        current_token_ = StringToken{""};
+                        state_ = State::String;
                         continue;
                     case '/':
                         state_ = State::CommentStart;
@@ -74,6 +82,35 @@ void Tokenizer::run() {
                         continue;
                     default:
                         state_ = State::Comment;
+                        continue;
+                }
+            }
+
+            case State::String: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInString);
+                    emit(std::move(current_token_));
+                    return;
+                }
+
+                if (*c == string_ending_) {
+                    emit(std::move(current_token_));
+                    state_ = State::Main;
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\\':
+                        // TODO(mkiael): Handle escaped code point
+                        std::terminate();
+                    case '\n':
+                        emit(ParseError::NewlineInString);
+                        emit(BadStringToken{});
+                        reconsume_in(State::Main);
+                        continue;
+                    default:
+                        std::get<StringToken>(current_token_).data.append(1, *c);
                         continue;
                 }
             }

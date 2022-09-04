@@ -135,5 +135,33 @@ int main() {
         expect_token(output, DelimToken{'a'});
         expect_token(output, WhitespaceToken{});
     });
+
+    etest::test("single quoted string", [] {
+        auto output = run_tokenizer("\'this is a string\'");
+
+        expect_token(output, StringToken{"this is a string"});
+    });
+
+    etest::test("double quoted string", [] {
+        auto output = run_tokenizer("\"this is a string\"");
+
+        expect_token(output, StringToken{"this is a string"});
+    });
+
+    etest::test("eof in string", [] {
+        auto output = run_tokenizer("\"this is a");
+
+        expect_error(output, ParseError::EofInString);
+        expect_token(output, StringToken{"this is a"});
+    });
+
+    etest::test("newline in string", [] {
+        auto output = run_tokenizer("\"this is a\n");
+
+        expect_error(output, ParseError::NewlineInString);
+        expect_token(output, BadStringToken{});
+        expect_token(output, WhitespaceToken{});
+    });
+
     return etest::run_all_tests();
 }
