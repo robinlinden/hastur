@@ -21,6 +21,7 @@ char const *const kDefaultUri = "http://www.example.com";
 int main(int argc, char **argv) {
     spdlog::set_default_logger(spdlog::stderr_color_mt("hastur"));
     spdlog::cfg::load_env_levels();
+    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
     auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
     if (!uri) {

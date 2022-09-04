@@ -24,6 +24,7 @@ auto const kStartpage{"http://example.com"s};
 int main(int argc, char **argv) {
     spdlog::set_default_logger(spdlog::stderr_color_mt(kBrowserTitle));
     spdlog::cfg::load_env_levels();
+    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
     std::optional<std::string> page_provided{std::nullopt};
     std::optional<unsigned> scale{std::nullopt};
