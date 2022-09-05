@@ -86,6 +86,10 @@ build:linux --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-missing-declarations'
 
+# Force DWARF-4 format for debug symbols for compatibility with valgrind.
+# See: https://bugs.kde.org/show_bug.cgi?id=452758
+build:linux --copt='-gdwarf-4'
+
 build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
 build:gcc12 --config=gcc11
