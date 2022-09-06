@@ -65,9 +65,18 @@ constexpr bool is_inherited(std::string_view property) {
     return is_in_array<kInheritedProperties>(property);
 }
 
+// https://www.w3.org/TR/css-cascade/#initial-values
+std::map<std::string_view, std::string_view> const kInitialValues{
+        {"width"sv, "auto"sv}, // https://drafts.csswg.org/css-sizing-3/#propdef-width
+};
+
 std::optional<std::string_view> get_parent_property(style::StyledNode const &node, std::string_view property) {
     if (node.parent != nullptr) {
         return get_property(*node.parent, property);
+    }
+
+    if (kInitialValues.contains(property)) {
+        return kInitialValues.at(property);
     }
 
     return std::nullopt;
@@ -82,6 +91,10 @@ std::optional<std::string_view> get_property(style::StyledNode const &node, std:
     if (it == cend(node.properties)) {
         if (is_inherited(property) && node.parent != nullptr) {
             return get_property(*node.parent, property);
+        }
+
+        if (kInitialValues.contains(property)) {
+            return kInitialValues.at(property);
         }
 
         return std::nullopt;

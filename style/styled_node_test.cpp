@@ -34,7 +34,10 @@ int main() {
 
         auto &child = root.children.emplace_back(style::StyledNode{dom_node, {}, {}, &root});
 
-        expect_eq(style::get_property(child, "width"sv), std::nullopt);
+        // Not inherited, returns the initial value.
+        expect_eq(style::get_property(child, "width"sv), "auto"sv);
+
+        // Inherited, returns the parent's value.
         expect_eq(style::get_property(child, "font-size"sv), "15em"sv);
     });
 
@@ -57,9 +60,8 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        // TODO(robinlinden): inherit, but not in parent, so receives initial value for property.
-        // inherit, but not in parent, so we get nothing.
-        expect_eq(style::get_property(child, "width"sv), std::nullopt);
+        // inherit, but not in parent, so receives initial value for property.
+        expect_eq(style::get_property(child, "width"sv), "auto"sv);
 
         // inherit, value in parent.
         expect_eq(style::get_property(child, "background-color"sv), "blue"sv);
