@@ -39,6 +39,18 @@ std::map<std::string_view, gfx::Color, CaseInsensitiveLess> named_colors{
         // Special.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#transparent_keyword
         {"transparent", {0x00, 0x00, 0x00, 0x00}},
+
+        // System colors.
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#system_colors
+        // TODO(robinlinden): Move these elsewhere and actually grab them from the system.
+        //   Right now these are based on what the CSS Color 4 spec says the traditional colors are.
+        //   See: https://www.w3.org/TR/css-color-4/#css-system-colors
+        // TODO(robinlinden): More system colors. Right now, we only have the most common ones.
+        {"canvas", gfx::Color::from_rgb(0xff'ff'ff)}, // white
+        {"canvastext", gfx::Color::from_rgb(0)}, // black
+        {"linktext", gfx::Color::from_rgb(0x00'00'ff)}, // blue
+        {"visitedtext", gfx::Color::from_rgb(0x80'00'80)}, // purple
+
         // CSS Level 1.
         {"black", gfx::Color::from_rgb(0)},
         {"silver", gfx::Color::from_rgb(0xc0'c0'c0)},
