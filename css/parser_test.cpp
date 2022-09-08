@@ -62,14 +62,11 @@ auto const initial_font_values = std::map<std::string, std::string, std::less<>>
         {"font-variant-position", "normal"},
         {"font-variant-east-asian", "normal"}};
 
-bool check_initial_font_values(std::map<std::string, std::string, std::less<>> declarations) {
-    for (auto [property, value] : declarations) {
-        auto it = initial_font_values.find(property);
-        if (it != cend(initial_font_values) && it->second != value) {
-            return false;
-        }
-    }
-    return true;
+bool check_initial_font_values(std::map<std::string, std::string, std::less<>> const &declarations) {
+    return std::all_of(cbegin(declarations), cend(declarations), [](auto const &decl) {
+        auto it = initial_font_values.find(decl.first);
+        return it != cend(initial_font_values) && it->second == decl.second;
+    });
 }
 
 template<class KeyT, class ValueT>
