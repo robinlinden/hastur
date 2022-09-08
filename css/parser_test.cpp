@@ -27,6 +27,22 @@ namespace {
     return os;
 }
 
+auto const initial_background_values = std::map<std::string, std::string, std::less<>>{{"background-image", "none"},
+        {"background-position", "0% 0%"},
+        {"background-size", "auto auto"},
+        {"background-repeat", "repeat"},
+        {"background-origin", "padding-box"},
+        {"background-clip", "border-box"},
+        {"background-attachment", "scroll"},
+        {"background-color", "transparent"}};
+
+bool check_initial_background_values(std::map<std::string, std::string, std::less<>> const &declarations) {
+    return std::all_of(cbegin(declarations), cend(declarations), [](auto const &decl) {
+        auto it = initial_background_values.find(decl.first);
+        return it != cend(initial_background_values) && it->second == decl.second;
+    });
+}
+
 auto const initial_font_values = std::map<std::string, std::string, std::less<>>{{"font-stretch", "normal"},
         {"font-variant", "normal"},
         {"font-weight", "normal"},
@@ -409,6 +425,15 @@ int main() {
         etest::test("parser: override border-style with shorthand",
                 box_override_with_shorthand("border-style", border_styles, "-style"));
     }
+
+    etest::test("parser: shorthand background color", [] {
+        auto rules = css::parse("p { background: red }"sv);
+        require(rules.size() == 1);
+
+        auto &p = rules[0];
+        expect_eq(get_and_erase(p.declarations, "background-color"s), "red"sv);
+        expect(check_initial_background_values(p.declarations));
+    });
 
     etest::test("parser: shorthand font with only size and generic font family", [] {
         auto rules = css::parse("p { font: 1.5em sans-serif; }"sv);

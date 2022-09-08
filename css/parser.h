@@ -209,10 +209,31 @@ private:
             std::string_view value) const {
         if (is_shorthand_edge_property(name)) {
             expand_edge_values(declarations, std::string{name}, value);
+        } else if (name == "background") {
+            expand_background(declarations, value);
         } else if (name == "font") {
             expand_font(declarations, value);
         } else {
             declarations.insert_or_assign(std::string{name}, std::string{value});
+        }
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/background
+    // TODO(robinlinden): This only handles a color being named, and assumes any single item listed is a color.
+    static void expand_background(
+            std::map<std::string, std::string, std::less<>> &declarations, std::string_view value) {
+        declarations["background-image"] = "none";
+        declarations["background-position"] = "0% 0%";
+        declarations["background-size"] = "auto auto";
+        declarations["background-repeat"] = "repeat";
+        declarations["background-origin"] = "padding-box";
+        declarations["background-clip"] = "border-box";
+        declarations["background-attachment"] = "scroll";
+        declarations["background-color"] = "transparent";
+
+        Tokenizer tokenizer{value, ' '};
+        if (tokenizer.size() == 1) {
+            declarations["background-color"] = tokenizer.get().value();
         }
     }
 
