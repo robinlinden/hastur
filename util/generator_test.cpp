@@ -15,7 +15,8 @@ int main() {
         auto gen = []() -> util::Generator<int> {
             int i{0};
             while (true) {
-                co_yield ++i;
+                i += 1;
+                co_yield i;
             }
         }();
 
@@ -26,8 +27,7 @@ int main() {
 
     etest::test("has_next", [] {
         auto gen = []() -> util::Generator<int> {
-            int i{0};
-            co_yield ++i;
+            co_yield 1;
         }();
 
         require(gen.has_next());

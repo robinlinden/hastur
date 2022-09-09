@@ -56,8 +56,10 @@ build:linux --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-missing-declarations'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-sometimes-uninitialized'
+build:linux --per_file_copt='external/freetype2[:/]@-Wno-unused-but-set-variable'
 build:linux --per_file_copt='external/ftxui[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
+build:linux --per_file_copt='external/glew[:/]@-Wno-strict-prototypes'
 build:linux --per_file_copt='external/glew[:/]@-Wno-undef'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
@@ -85,6 +87,7 @@ build:linux --per_file_copt='external/xrender[:/]@-Wno-unused-parameter'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-format-nonliteral'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/zlib[:/]@-Wno-missing-declarations'
+build:linux --per_file_copt='external/zlib[:/]@-Wno-strict-prototypes'
 
 # Force DWARF-4 format for debug symbols for compatibility with valgrind.
 # See: https://bugs.kde.org/show_bug.cgi?id=452758
@@ -97,6 +100,10 @@ build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 build:gcc12 --config=gcc11
 build:gcc12 --per_file_copt='external/freetype2[:/]@-Wno-dangling-pointer'
 build:gcc12 --per_file_copt='external/glew[:/]@-Wno-address'
+
+build:clang15 --per_file_copt='external/ftxui[:/]@-Wno-deprecated-declarations'
+build:clang15 --per_file_copt='external/xext[:/]@-Wno-invalid-utf8'
+build:clang15 --per_file_copt='external/zlib[:/]@-Wno-deprecated-non-prototype'
 
 build:windows --enable_runfiles
 build:windows --cxxopt='/std:c++20'
