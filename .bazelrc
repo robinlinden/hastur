@@ -3,6 +3,7 @@
 
 build --enable_platform_specific_config
 coverage --combined_report=lcov
+test --test_output=errors
 
 # Bazel deprecations
 # =========================================================
@@ -171,7 +172,5 @@ build:clang14-coverage --experimental_generate_llvm_lcov
 
 # Misc configuration
 # =========================================================
-
-test --test_output=errors
 
 try-import %workspace%/.bazelrc.local
