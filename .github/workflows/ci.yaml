@@ -41,7 +41,25 @@ jobs:
             bazel: --config libc++
             apt: libc++abi-14-dev libc++-14-dev
 
+          - name: clang-15
+            os: ubuntu-22.04
+            compiler: clang
+            version: 15
+            bazel: --config clang15
+
+          - name: clang-15-libc++
+            os: ubuntu-22.04
+            compiler: clang
+            version: 15
+            bazel: --config libc++ --config clang15
+            apt: libc++abi-15-dev libc++-15-dev
+
     steps:
+      - name: Prepare clang install
+        if: startsWith(matrix.compiler, 'clang') && matrix.version == 15
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.version }} main"
       - name: Setup gcc
         if: startsWith(matrix.compiler, 'gcc')
         run: |
