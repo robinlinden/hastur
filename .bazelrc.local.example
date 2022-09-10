@@ -1,15 +1,26 @@
 # Developer-specific configuration
 #
-# Copy this to .bazelrc.local and adjust.
+# Copy this to .bazelrc.local and uncomment --config lines you want.
+#
+# Clang 14 on Linux and MSVC on Windows don't require any --config flags.
 
 # Choose a build type
 build -c dbg
 # build -c opt
 
 # Choose a compiler
-build --config clang
-# build --config gcc
+## Linux
+# build --config clang15
+# build --config gcc10
+# build --config gcc11
+# build --config gcc12
+## Windows
+# build --config clang-cl
 
 # Other interesting build options
 # build --config asan
+# build --config tsan
 # build --config ubsan
+
+# build --config libc++ # only supported when compiling with Clang.
+# build --config clang14-coverage # required to generate code coverage reports with Clang 14.
