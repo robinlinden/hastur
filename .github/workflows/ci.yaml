@@ -123,13 +123,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: bazel build ///... --config debug
+        run: bazel build ... -c dbg
       - name: Test
-        run: bazel test ///... --config debug
+        run: bazel test ... -c dbg
       # TODO(robinlinden): This no longer runs in CI due to http://example.com
       # being inaccessible.
       # - name: Run
-      #   run: bazel run browser:tui --config debug
+      #   run: bazel run browser:tui -c dbg
 
   windows-clang-cl:
     runs-on: windows-2022

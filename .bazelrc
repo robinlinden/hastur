@@ -1,9 +1,3 @@
-# Build configuration
-# =========================================================
-
-build:debug -c dbg
-build:release -c opt
-
 # Bazel configuration
 # =========================================================
 
