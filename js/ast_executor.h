@@ -73,6 +73,8 @@ public:
     }
 
     Value operator()(CallExpression const &v) {
+        AstExecutor scope{*this};
+
         auto const &fn = *variables.at(execute(*v.callee).as_string()).as_function();
 
         std::vector<Value> args;
@@ -82,8 +84,8 @@ public:
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
-        variables["arguments"] = Value{std::move(args)};
-        return execute(fn);
+        scope.variables["arguments"] = Value{std::move(args)};
+        return scope.execute(fn);
     }
 
     Value operator()(Function const &v) {

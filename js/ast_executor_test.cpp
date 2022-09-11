@@ -100,6 +100,9 @@ int main() {
         AstExecutor e;
         expect_eq(e.execute(declaration), Value{});
         expect_eq(e.execute(call), Value{13. + 4.});
+
+        // The only variable in scope should be the function we declared.
+        expect_eq(e.variables.size(), std::size_t{1});
     });
 
     etest::test("return, values are returned", [] {
