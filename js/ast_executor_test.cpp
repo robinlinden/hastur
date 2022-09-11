@@ -74,15 +74,18 @@ int main() {
         expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
     });
 
-    etest::test("function call", [] {
+    etest::test("function call, arguments", [] {
+        auto function_body = ReturnStatement{BinaryExpression{
+                .op = BinaryOperator::Plus,
+                .lhs = std::make_shared<Expression>(Identifier{"one"}),
+                .rhs = std::make_shared<Expression>(Identifier{"two"}),
+        }};
+
         auto declaration = FunctionDeclaration{
                 .id = Identifier{"func"},
                 .function = std::make_shared<Function>(Function{
-                        .params{
-                                Identifier{"one"},
-                                Identifier{"two"},
-                        },
-                        .body{},
+                        .params{Identifier{"one"}, Identifier{"two"}},
+                        .body{{std::move(function_body)}},
                 }),
         };
 
@@ -90,19 +93,13 @@ int main() {
                 .callee = std::make_shared<Expression>(Identifier{"func"}),
                 .arguments{
                         std::make_shared<Expression>(NumericLiteral{13.}),
-                        std::make_shared<Expression>(StringLiteral{"beep beep boop"}),
+                        std::make_shared<Expression>(NumericLiteral{4.}),
                 },
         };
 
         AstExecutor e;
         expect_eq(e.execute(declaration), Value{});
-        expect_eq(e.execute(call), Value{});
-
-        // Abuse the fact that we don't yet support scopes to check that the
-        // arguments were mapped to the correct names. This should break when
-        // scopes are supported.
-        expect_eq(e.variables.at("one"), Value{13.});
-        expect_eq(e.variables.at("two"), Value{"beep beep boop"});
+        expect_eq(e.execute(call), Value{13. + 4.});
     });
 
     etest::test("return, values are returned", [] {
