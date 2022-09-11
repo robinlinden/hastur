@@ -31,6 +31,19 @@ int main() {
         expect_eq(e.execute(plus_expr), Value{42.});
     });
 
+    etest::test("binary expression, identifiers", [] {
+        auto plus_expr = BinaryExpression{
+                .op = BinaryOperator::Plus,
+                .lhs = std::make_shared<Expression>(Identifier{"eleven"}),
+                .rhs = std::make_shared<Expression>(Identifier{"thirtyone"}),
+        };
+
+        AstExecutor e;
+        e.variables["eleven"] = Value{11.};
+        e.variables["thirtyone"] = Value{31.};
+        expect_eq(e.execute(plus_expr), Value{42.});
+    });
+
     etest::test("binary expression, minus", [] {
         auto minus_expr = BinaryExpression{
                 .op = BinaryOperator::Minus,

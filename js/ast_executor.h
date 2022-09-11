@@ -32,8 +32,18 @@ public:
     Value operator()(ExpressionStatement const &v) { return execute(v.expression); }
 
     Value operator()(BinaryExpression const &v) {
-        auto lhs = execute(*v.lhs);
-        auto rhs = execute(*v.rhs);
+        // TODO(robinlinden): This should be done in a more generic fashion.
+        auto get_value_resolving_variables = [this](Expression const &expr) {
+            if (std::holds_alternative<Identifier>(expr)) {
+                return variables.at(execute(expr).as_string());
+            }
+
+            return execute(expr);
+        };
+
+        auto lhs = get_value_resolving_variables(*v.lhs);
+        auto rhs = get_value_resolving_variables(*v.rhs);
+
         switch (v.op) {
             case BinaryOperator::Plus:
                 return Value{lhs.as_number() + rhs.as_number()};
