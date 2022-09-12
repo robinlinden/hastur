@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,23 +6,15 @@
 
 #include "css/parse.h"
 
-#include <filesystem>
-#include <fstream>
-#include <string>
+#include <string_view>
 
 namespace css {
+namespace {
+#include "css/default_css.h"
+} // namespace
 
 std::vector<css::Rule> default_style() {
-    auto path = std::filesystem::path("css/default.css");
-    if (!exists(path) || !is_regular_file(path)) {
-        return {};
-    }
-
-    auto file = std::ifstream(path, std::ios::in | std::ios::binary);
-    auto size = file_size(path);
-    auto content = std::string(size, '\0');
-    file.read(content.data(), size);
-    return css::parse(content);
+    return css::parse(std::string_view{reinterpret_cast<char const *>(css_default_css), css_default_css_len});
 }
 
 } // namespace css

@@ -1,11 +1,19 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
+genrule(
+    name = "default_css",
+    srcs = ["default.css"],
+    outs = ["default_css.h"],
+    cmd = "xxd -i $< >$@",
+)
+
 cc_library(
     name = "css",
     srcs = [
         "default.cpp",
         "parse.cpp",
         "rule.cpp",
+        ":default_css.h",
     ],
     hdrs = [
         "default.h",
@@ -13,7 +21,6 @@ cc_library(
         "parser.h",
         "rule.h",
     ],
-    data = ["default.css"],
     visibility = ["//visibility:public"],
     deps = [
         "//util:base_parser",
