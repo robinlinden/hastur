@@ -35,7 +35,7 @@ struct CaseInsensitiveLess {
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color_keywords#list_of_all_color_keywords
-std::map<std::string_view, gfx::Color, CaseInsensitiveLess> named_colors{
+std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
         // Special.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#transparent_keyword
         {"transparent", {0x00, 0x00, 0x00, 0x00}},
