@@ -142,6 +142,8 @@ build:clang-cl --copt='-Wno-unused-command-line-argument'
 build:libc++ --cxxopt=-stdlib=libc++
 build:libc++ --linkopt=-stdlib=libc++
 build:libc++ --copt=-D_LIBCPP_ENABLE_NODISCARD
+# https://releases.llvm.org/15.0.0/projects/libcxx/docs/ReleaseNotes.html#upcoming-deprecations-and-removals
+build:libc++ --copt=-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 
 # Some of this is from "Can I run AddressSanitizer with more aggressive diagnostics enabled?"
 # on https://github.com/google/sanitizers/wiki/AddressSanitizer#faq and some is from
