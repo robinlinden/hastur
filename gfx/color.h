@@ -18,6 +18,13 @@ struct Color {
         };
     }
 
+    constexpr static Color from_rgba(std::int32_t rgba) {
+        auto alpha = static_cast<std::uint8_t>(rgba & 0xFF);
+        auto color = from_rgb((rgba & 0xFF'FF'FF'00) >> 8);
+        color.a = alpha;
+        return color;
+    }
+
     std::uint8_t r, g, b, a{0xFF};
 
     [[nodiscard]] constexpr std::uint32_t as_rgba_u32() const { return r << 24 | g << 16 | b << 8 | a; }

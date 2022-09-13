@@ -17,9 +17,19 @@ int main() {
         expect(Color{0xFF, 0xFF, 0xFF} == Color::from_rgb(0xFF'FF'FF));
     });
 
+    etest::test("Color::from_rgba", [] {
+        expect(Color{0x12, 0x34, 0x56, 0x78} == Color::from_rgba(0x12'34'56'78));
+        expect(Color{.a = 0x00} == Color::from_rgba(0));
+        expect(Color{0xFF, 0xFF, 0xFF, 0xFF} == Color::from_rgba(0xFF'FF'FF'FF));
+        expect(Color{0xFF, 0xFF, 0xFF, 0x00} == Color::from_rgba(0xFF'FF'FF'00));
+    });
+
     etest::test("Color::as_rgba_u32", [] {
         expect_eq(Color{0x12, 0x34, 0x56}.as_rgba_u32(), 0x12'34'56'FFu);
         expect_eq(Color{0x12, 0x34, 0x56, 0x78}.as_rgba_u32(), 0x12'34'56'78u);
+
+        auto c = Color{0x12, 0x34, 0x56, 0x78};
+        expect_eq(Color::from_rgba(static_cast<std::int32_t>(c.as_rgba_u32())), c);
     });
 
     return etest::run_all_tests();
