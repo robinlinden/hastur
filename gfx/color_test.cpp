@@ -29,7 +29,7 @@ int main() {
         expect_eq(Color{0x12, 0x34, 0x56, 0x78}.as_rgba_u32(), 0x12'34'56'78u);
 
         auto c = Color{0x12, 0x34, 0x56, 0x78};
-        expect_eq(Color::from_rgba(static_cast<std::int32_t>(c.as_rgba_u32())), c);
+        expect_eq(Color::from_rgba(c.as_rgba_u32()), c);
     });
 
     return etest::run_all_tests();

@@ -10,7 +10,7 @@
 namespace gfx {
 
 struct Color {
-    constexpr static Color from_rgb(std::int32_t rgb) {
+    constexpr static Color from_rgb(std::uint32_t rgb) {
         return Color{
                 .r = static_cast<std::uint8_t>((rgb & 0xFF0000) >> 16),
                 .g = static_cast<std::uint8_t>((rgb & 0x00FF00) >> 8),
@@ -18,7 +18,7 @@ struct Color {
         };
     }
 
-    constexpr static Color from_rgba(std::int32_t rgba) {
+    constexpr static Color from_rgba(std::uint32_t rgba) {
         auto alpha = static_cast<std::uint8_t>(rgba & 0xFF);
         auto color = from_rgb((rgba & 0xFF'FF'FF'00) >> 8);
         color.a = alpha;

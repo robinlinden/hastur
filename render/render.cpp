@@ -223,7 +223,7 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     }
 
     hex_chars.remove_prefix(1);
-    std::int32_t hex{};
+    std::uint32_t hex{};
     if (hex_chars.length() == 6) {
         std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
     } else if (hex_chars.length() == 3) {
