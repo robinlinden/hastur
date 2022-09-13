@@ -205,10 +205,6 @@ std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
         {"rebeccapurple", gfx::Color::from_rgb(0x66'33'99)},
 };
 
-bool looks_like_hex(std::string_view str) {
-    return str.starts_with('#') && (str.length() == 7 || str.length() == 4);
-}
-
 bool has_any_border(geom::EdgeSize const &border) {
     return border != geom::EdgeSize{};
 }
@@ -221,24 +217,30 @@ constexpr bool is_fully_transparent(gfx::Color const &c) {
     return c.a == 0;
 }
 
-gfx::Color from_hex_chars(std::string_view hex_chars) {
+std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
+    if (!hex_chars.starts_with('#')) {
+        return std::nullopt;
+    }
+
     hex_chars.remove_prefix(1);
     std::int32_t hex{};
     if (hex_chars.length() == 6) {
         std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
-    } else {
+    } else if (hex_chars.length() == 3) {
         std::ostringstream ss;
         ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2];
         auto expanded = ss.str();
         std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
+    } else {
+        return std::nullopt;
     }
 
     return gfx::Color::from_rgb(hex);
 }
 
 gfx::Color parse_color(std::string_view str) {
-    if (looks_like_hex(str)) {
-        return from_hex_chars(str);
+    if (auto color = try_from_hex_chars(str)) {
+        return *color;
     }
 
     if (named_colors.contains(str)) {
