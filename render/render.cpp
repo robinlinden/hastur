@@ -226,16 +226,26 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     std::uint32_t hex{};
     if (hex_chars.length() == 6) {
         std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgb(hex);
     } else if (hex_chars.length() == 3) {
         std::ostringstream ss;
         ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2];
         auto expanded = ss.str();
         std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
-    } else {
-        return std::nullopt;
+        return gfx::Color::from_rgb(hex);
+    } else if (hex_chars.length() == 8) {
+        std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgba(hex);
+    } else if (hex_chars.length() == 4) {
+        std::ostringstream ss;
+        ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2]
+           << hex_chars[3] << hex_chars[3];
+        auto expanded = ss.str();
+        std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgba(hex);
     }
 
-    return gfx::Color::from_rgb(hex);
+    return std::nullopt;
 }
 
 gfx::Color parse_color(std::string_view str) {

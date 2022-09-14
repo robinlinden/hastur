@@ -167,5 +167,42 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
     });
 
+    etest::test("hex colors", [] {
+        dom::Node dom = dom::Element{"div"};
+        auto styled = style::StyledNode{.node = dom};
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {{0, 0, 20, 20}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+        gfx::Painter painter{saver};
+
+        // #rgba
+        styled.properties = {{"background-color", "#abcd"}};
+        auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc, 0xdd}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // #rrggbbaa
+        styled.properties = {{"background-color", "#12345678"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56, 0x78}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // #rgb
+        styled.properties = {{"background-color", "#abc"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // #rrggbb
+        styled.properties = {{"background-color", "#123456"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+    });
+
     return etest::run_all_tests();
 }
