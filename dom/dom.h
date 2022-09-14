@@ -41,14 +41,6 @@ struct Document {
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
-inline Document create_document(std::string_view doctype, Element html) {
-    return {std::string{doctype}, std::move(html)};
-}
-
-inline Node create_text_node(std::string_view data) {
-    return Text{std::string(data)};
-}
-
 inline Node create_element_node(std::string_view name, AttrMap attrs, std::vector<Node> children) {
     return Element{std::string{name}, std::move(attrs), std::move(children)};
 }

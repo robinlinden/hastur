@@ -18,7 +18,7 @@ using CanvasCommands = std::vector<gfx::CanvasCommand>;
 
 int main() {
     etest::test("render simple layout", [] {
-        auto dom = dom::create_element_node("span", {}, {dom::create_text_node("hello")});
+        auto dom = dom::create_element_node("span", {}, {dom::Text{"hello"}});
 
         auto const &children = std::get<dom::Element>(dom).children;
         auto styled = style::StyledNode{

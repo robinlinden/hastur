@@ -157,8 +157,8 @@ int main() {
     etest::test("text", [] {
         auto dom_root = dom::create_element_node("html", {}, {
             dom::create_element_node("body", {}, {
-                dom::create_text_node("hello"),
-                dom::create_text_node("goodbye"),
+                dom::Text{"hello"},
+                dom::Text{"goodbye"},
             }),
         });
 
