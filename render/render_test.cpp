@@ -18,7 +18,7 @@ using CanvasCommands = std::vector<gfx::CanvasCommand>;
 
 int main() {
     etest::test("render simple layout", [] {
-        auto dom = dom::create_element_node("span", {}, {dom::Text{"hello"}});
+        dom::Node dom = dom::Element{"span", {}, {dom::Text{"hello"}}};
 
         auto const &children = std::get<dom::Element>(dom).children;
         auto styled = style::StyledNode{
@@ -42,7 +42,7 @@ int main() {
     });
 
     etest::test("render block with background-color", [] {
-        auto dom = dom::create_element_node("div", {}, {dom::create_element_node("first", {}, {})});
+        dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
                 .properties = {{"display", "block"}, {"background-color", "#0A0B0C"}},
@@ -65,7 +65,7 @@ int main() {
     });
 
     etest::test("render block with transparent background-color", [] {
-        auto dom = dom::create_element_node("div", {}, {dom::create_element_node("first", {}, {})});
+        dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
                 .properties = {{"display", "block"}, {"background-color", "transparent"}},
@@ -85,7 +85,7 @@ int main() {
     });
 
     etest::test("render block with borders, default color", [] {
-        auto dom = dom::create_element_node("div", {}, {dom::create_element_node("first", {}, {})});
+        dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
                 .properties = {{"display", "block"}, {"background-color", "#0A0B0C"}},
@@ -110,7 +110,7 @@ int main() {
     });
 
     etest::test("render block with borders, custom color", [] {
-        auto dom = dom::create_element_node("div", {}, {dom::create_element_node("first", {}, {})});
+        dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
                 .properties = {{"display", "block"},
