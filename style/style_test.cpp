@@ -120,8 +120,8 @@ int main() {
 
     etest::test("style_tree: structure", [] {
         auto root = dom::Element{"html", {}, {}};
-        root.children.emplace_back(dom::create_element_node("head", {}, {}));
-        root.children.emplace_back(dom::create_element_node("body", {}, {dom::create_element_node("p", {}, {})}));
+        root.children.emplace_back(dom::Element{"head"});
+        root.children.emplace_back(dom::Element{"body", {}, {dom::Element{"p"}}});
 
         style::StyledNode expected{root};
         expected.children.push_back({root.children[0], {}, {}, &expected});
@@ -136,8 +136,8 @@ int main() {
 
     etest::test("style_tree: style is applied", [] {
         auto root = dom::Element{"html", {}, {}};
-        root.children.emplace_back(dom::create_element_node("head", {}, {}));
-        root.children.emplace_back(dom::create_element_node("body", {}, {dom::create_element_node("p", {}, {})}));
+        root.children.emplace_back(dom::Element{"head"});
+        root.children.emplace_back(dom::Element{"body", {}, {dom::Element{"p"}}});
 
         std::vector<css::Rule> stylesheet{
                 {.selectors = {"p"}, .declarations = {{"height", "100px"}}},

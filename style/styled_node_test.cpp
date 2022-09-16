@@ -13,7 +13,7 @@ using etest::require;
 
 int main() {
     etest::test("get_property", [] {
-        dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
+        dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode styled_node{
                 .node = dom_node,
                 .properties = {{"good_property"s, "fantastic_value"s}},
@@ -25,7 +25,7 @@ int main() {
     });
 
     etest::test("property inheritance", [] {
-        dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
+        dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
                 .properties = {{"font-size"s, "15em"s}, {"width"s, "0px"s}},
@@ -42,7 +42,7 @@ int main() {
     });
 
     etest::test("inherit css keyword", [] {
-        dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
+        dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
                 .properties = {{"background-color"s, "blue"s}},
@@ -72,7 +72,7 @@ int main() {
     });
 
     etest::test("currentcolor css keyword", [] {
-        dom::Node dom_node = dom::create_element_node("dummy"sv, {}, {});
+        dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
                 .properties = {{"color"s, "blue"s}},
