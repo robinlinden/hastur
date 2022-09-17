@@ -141,7 +141,7 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
         }
     }
 
-    if (auto max = box.get_property("max-width")) {
+    if (auto max = box.get_property("max-width"); max && max != "none") {
         int max_width_px = to_px(*max, font_size);
         if (box.dimensions.content.width > max_width_px) {
             box.dimensions.content.width = max_width_px;
