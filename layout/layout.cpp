@@ -163,7 +163,7 @@ void calculate_height(LayoutBox &box, int const font_size) {
         box.dimensions.content.height = font_size;
     }
 
-    if (auto height = box.get_property("height")) {
+    if (auto height = box.get_property("height"); height && height != "auto") {
         box.dimensions.content.height = to_px(*height, font_size);
     }
 

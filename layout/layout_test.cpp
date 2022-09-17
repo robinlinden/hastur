@@ -931,10 +931,37 @@ int main() {
         expect_eq(layout, expected_layout);
     });
 
-    etest::test("max-height: auto", [] {
+    etest::test("max-height: none", [] {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{.node{dom}, .properties{{"height", "100px"}, {"max-height", "none"}}};
         layout::LayoutBox expected_layout{.node = &style, .type = LayoutType::Block, .dimensions{{0, 0, 0, 100}}};
+
+        auto layout = layout::create_layout(style, 0);
+        expect_eq(layout, expected_layout);
+    });
+
+    etest::test("height: auto", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Element{.name{"p"}}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{"height", "auto"}},
+                .children{
+                        style::StyledNode{
+                                .node{std::get<dom::Element>(dom).children[0]},
+                                .properties{{"height", "10px"}},
+                        },
+                },
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 0, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children[0],
+                        .type = LayoutType::Block,
+                        .dimensions{{0, 0, 0, 10}},
+                }},
+        };
 
         auto layout = layout::create_layout(style, 0);
         expect_eq(layout, expected_layout);
