@@ -171,7 +171,7 @@ void calculate_height(LayoutBox &box, int const font_size) {
         box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(*min, font_size));
     }
 
-    if (auto max = box.get_property("max-height")) {
+    if (auto max = box.get_property("max-height"); max && max != "none") {
         box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(*max, font_size));
     }
 }
