@@ -133,7 +133,7 @@ void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int co
         calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
     }
 
-    if (auto min = box.get_property("min-width")) {
+    if (auto min = box.get_property("min-width"); min && min != "auto") {
         int min_width_px = to_px(*min, font_size);
         if (box.dimensions.content.width < min_width_px) {
             box.dimensions.content.width = min_width_px;
@@ -167,7 +167,7 @@ void calculate_height(LayoutBox &box, int const font_size) {
         box.dimensions.content.height = to_px(*height, font_size);
     }
 
-    if (auto min = box.get_property("min-height")) {
+    if (auto min = box.get_property("min-height"); min && min != "auto") {
         box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(*min, font_size));
     }
 
