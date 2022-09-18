@@ -16,6 +16,7 @@ struct Rule {
     std::vector<std::string> selectors;
     std::map<std::string, std::string, std::less<>> declarations;
     std::string media_query;
+    [[nodiscard]] bool operator==(Rule const &) const = default;
 };
 
 std::string to_string(Rule const &);

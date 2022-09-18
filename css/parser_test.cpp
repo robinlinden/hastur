@@ -254,6 +254,13 @@ int main() {
         expect_eq(rule.declarations.at("font-size"), "10px");
     });
 
+    etest::test("parser: 2 media queries in a row", [] {
+        auto rules = css::parse("@media screen { p { font-size: 1em; } } @media print { a { color: blue; } }");
+        require_eq(rules.size(), std::size_t{2});
+        expect_eq(rules[0], css::Rule{.selectors{{"p"}}, .declarations{{"font-size", "1em"}}, .media_query{"screen"}});
+        expect_eq(rules[1], css::Rule{.selectors{{"a"}}, .declarations{{"color", "blue"}}, .media_query{"print"}});
+    });
+
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {
         return [=] {
             auto rules = css::parse(fmt::format("p {{ {}: {}; }}"sv, property, value));
