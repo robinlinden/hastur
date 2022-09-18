@@ -60,10 +60,7 @@ public:
 
                 consume_char(); // }
                 skip_whitespace_and_comments();
-
-                if (is_eof()) {
-                    break;
-                }
+                continue;
             }
 
             rules.push_back(parse_rule());

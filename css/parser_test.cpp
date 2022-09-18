@@ -657,5 +657,21 @@ int main() {
         expect(rules.empty());
     });
 
+    etest::test("parser: several @keyframes in a row doesn't crash the parser", [] {
+        auto css = R"(
+            @keyframes toast-spinner {
+                from { transform: rotate(0deg) }
+                to { transform: rotate(360deg) }
+            }
+            @keyframes toast-spinner {
+                from { transform: rotate(0deg) }
+                to { transform: rotate(360deg) }
+            })"sv;
+
+        // No rules produced (yet!) since this isn't handled aside from not crashing.
+        auto rules = css::parse(css);
+        expect(rules.empty());
+    });
+
     return etest::run_all_tests();
 }
