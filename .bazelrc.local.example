@@ -12,7 +12,6 @@ build -c dbg
 ## Linux
 # build --config clang15
 # build --config gcc10
-# build --config gcc11
 # build --config gcc12
 ## Windows
 # build --config clang-cl

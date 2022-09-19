@@ -90,11 +90,9 @@ build:linux --copt='-gdwarf-4'
 
 build:gcc10 --cxxopt='-fcoroutines'
 
-build:gcc11 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
-
-build:gcc12 --config=gcc11
 build:gcc12 --per_file_copt='external/freetype2[:/]@-Wno-dangling-pointer'
 build:gcc12 --per_file_copt='external/glew[:/]@-Wno-address'
+build:gcc12 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
 build:clang15 --per_file_copt='external/ftxui[:/]@-Wno-deprecated-declarations'
 build:clang15 --per_file_copt='external/xext[:/]@-Wno-invalid-utf8'
