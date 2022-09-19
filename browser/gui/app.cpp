@@ -221,8 +221,9 @@ int App::run() {
 
                     auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
                     auto document_position = to_document_position(std::move(window_position));
-                    auto const dom_nodes = get_hovered_nodes(std::move(document_position));
-                    nav_widget_extra_info_ = element_text(dom_nodes);
+                    auto const dom_nodes = get_hovered_nodes(document_position);
+                    nav_widget_extra_info_ =
+                            fmt::format("{},{}: {}", document_position.x, document_position.y, element_text(dom_nodes));
 
                     // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
                     if (ImGui::GetIO().WantCaptureMouse) {
