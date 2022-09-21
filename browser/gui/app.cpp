@@ -385,6 +385,11 @@ void App::scroll(int pixels) {
         return;
     }
 
+    // Don't allow scrolling if the entire page fits on the screen.
+    if (static_cast<int>(window_.getSize().y) > engine_.layout().dimensions.margin_box().height) {
+        return;
+    }
+
     canvas_->add_translation(0, pixels);
     scroll_offset_y_ += pixels;
 }
