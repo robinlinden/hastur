@@ -390,6 +390,17 @@ void App::scroll(int pixels) {
         return;
     }
 
+    // Don't allow overscroll in either direction.
+    if (scroll_offset_y_ + pixels > 0) {
+        pixels = -scroll_offset_y_;
+    }
+
+    int current_bottom_visible_y = static_cast<int>(window_.getSize().y) - scroll_offset_y_;
+    int scrolled_bottom_visible_y = current_bottom_visible_y - pixels;
+    if (scrolled_bottom_visible_y > engine_.layout().dimensions.margin_box().height) {
+        pixels -= engine_.layout().dimensions.margin_box().height - scrolled_bottom_visible_y;
+    }
+
     canvas_->add_translation(0, pixels);
     scroll_offset_y_ += pixels;
 }
