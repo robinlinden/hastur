@@ -47,6 +47,10 @@ build:linux --per_file_copt='external/boringssl[:/]@-Wno-gnu-binary-literal'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-overlength-strings'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-pedantic'
 build:linux --per_file_copt='external/boringssl[:/]@-Wno-unused-parameter'
+build:linux --per_file_copt='external/com_google_absl[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/com_google_absl[:/]@-Wno-format-nonliteral'
+build:linux --per_file_copt='external/com_google_absl[:/]@-Wno-gcc-compat'
+build:linux --per_file_copt='external/com_google_absl[:/]@-Wno-pedantic'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-cast-function-type'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/freetype2[:/]@-Wno-missing-declarations'
@@ -63,6 +67,9 @@ build:linux --per_file_copt='external/imgui[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
 build:linux --per_file_copt='external/libpng[:/]@-Wno-undef'
 build:linux --per_file_copt='external/libpng[:/]@-Wno-unused-but-set-variable'
+build:linux --per_file_copt='external/rules_fuzzing[:/]@-Wno-double-promotion'
+build:linux --per_file_copt='external/rules_fuzzing[:/]@-Wno-gcc-compat'
+build:linux --per_file_copt='external/rules_fuzzing[:/]@-Wno-pedantic'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/sfml[:/]@-Wno-missing-declarations'
@@ -169,6 +176,11 @@ build:clang14-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-14
 build:clang14-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
 build:clang14-coverage --action_env=GCOV=llvm-profdata-14
 build:clang14-coverage --experimental_generate_llvm_lcov
+
+build:asan-libfuzzer --config=asan
+build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
+build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer
+build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_sanitizer=asan
 
 # Misc configuration
 # =========================================================

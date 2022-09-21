@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 
 cc_library(
     name = "html2",
@@ -32,4 +33,16 @@ dependencies = {
         "//etest",
         "@fmt",
     ],
-) for src in glob(["*_test.cpp"])]
+) for src in glob(
+    include = ["*_test.cpp"],
+    exclude = ["*_fuzz_test.cpp"],
+)]
+
+[cc_fuzz_test(
+    name = src[:-4],
+    size = "small",
+    srcs = [src],
+    tags = ["manual"],
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = [":html2"],
+) for src in glob(["*_fuzz_test.cpp"])]
