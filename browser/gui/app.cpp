@@ -381,6 +381,10 @@ void App::reset_scroll() {
 }
 
 void App::scroll(int pixels) {
+    if (!page_loaded_) {
+        return;
+    }
+
     canvas_->add_translation(0, pixels);
     scroll_offset_y_ += pixels;
 }
