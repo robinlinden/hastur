@@ -60,6 +60,13 @@ build:linux --per_file_copt='external/ftxui[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/ftxui[:/]@-Wno-missing-declarations'
 build:linux --per_file_copt='external/glew[:/]@-Wno-strict-prototypes'
 build:linux --per_file_copt='external/glew[:/]@-Wno-undef'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-empty-translation-unit'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-format-nonliteral'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-gnu-case-range'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-gnu-designator'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-pedantic'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-shadow'
+build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-undef'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
 build:linux --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
@@ -181,6 +188,11 @@ build:asan-libfuzzer --config=asan
 build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
 build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer
 build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_sanitizer=asan
+
+build:asan-honggfuzz --config=asan
+build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:honggfuzz
+build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine_instrumentation=honggfuzz
+build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine_sanitizer=asan
 
 # Misc configuration
 # =========================================================
