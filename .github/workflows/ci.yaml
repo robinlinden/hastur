@@ -123,7 +123,10 @@ jobs:
       - name: Summary
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
-        run: bash <(curl -s https://codecov.io/bash) -f bazel-out/_coverage/_coverage_report.dat
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -f bazel-out/_coverage/_coverage_report.dat
 
   windows-msvc:
     runs-on: windows-2022
