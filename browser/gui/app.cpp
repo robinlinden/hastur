@@ -295,12 +295,8 @@ int App::run() {
 void App::navigate() {
     page_loaded_ = false;
     auto uri = uri::Uri::parse(url_buf_);
-    if (!uri) {
-        return;
-    }
-
-    browse_history_.push(*uri);
-    engine_.navigate(std::move(*uri));
+    browse_history_.push(uri);
+    engine_.navigate(std::move(uri));
 
     // Make sure the displayed url is still correct if we followed any redirects.
     url_buf_ = engine_.uri().uri;

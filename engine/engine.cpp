@@ -37,11 +37,11 @@ protocol::Error Engine::navigate(uri::Uri uri) {
 
     if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
         spdlog::info("Handling origin-relative URL {}", uri.uri);
-        uri = uri::Uri::parse(fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, uri.uri)).value();
+        uri = uri::Uri::parse(fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, uri.uri));
         spdlog::info("Transformed origin-relative URL to {}", uri.uri);
     } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
         spdlog::info("Handling scheme-relative URL {}", uri.uri);
-        uri = uri::Uri::parse(fmt::format("{}:{}", uri_.scheme, uri.uri)).value();
+        uri = uri::Uri::parse(fmt::format("{}:{}", uri_.scheme, uri.uri));
         spdlog::info("Transformed scheme-relative URL to {}", uri.uri);
     }
 
@@ -52,7 +52,7 @@ protocol::Error Engine::navigate(uri::Uri uri) {
                 response_.status_line.status_code,
                 uri_.uri,
                 response_.headers.get("Location").value());
-        uri_ = *uri::Uri::parse(std::string(response_.headers.get("Location").value()));
+        uri_ = uri::Uri::parse(std::string(response_.headers.get("Location").value()));
         response_ = protocol_handler_->handle(uri_);
     }
 
@@ -111,7 +111,7 @@ void Engine::on_navigation_success() {
             }();
 
             spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-            auto style_data = protocol_handler_->handle(*uri::Uri::parse(stylesheet_url));
+            auto style_data = protocol_handler_->handle(uri::Uri::parse(stylesheet_url));
             if (style_data.err != protocol::Error::Ok) {
                 spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url);
                 return {};

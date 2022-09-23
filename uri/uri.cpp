@@ -7,6 +7,7 @@
 
 #include "util/string.h"
 
+#include <exception>
 #include <regex>
 #include <utility>
 
@@ -29,13 +30,13 @@ void normalize(Uri &uri) {
 
 } // namespace
 
-std::optional<Uri> Uri::parse(std::string uristr) {
+Uri Uri::parse(std::string uristr) {
     std::smatch match;
 
     // Regex taken from RFC 3986.
     std::regex uri_regex("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
     if (!std::regex_search(uristr, match, uri_regex)) {
-        return std::nullopt;
+        std::terminate();
     }
 
     Authority authority{};

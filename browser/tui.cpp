@@ -24,14 +24,9 @@ int main(int argc, char **argv) {
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
     auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
-    if (!uri) {
-        spdlog::error("Unable to parse uri from {}", argc > 1 ? argv[1] : kDefaultUri);
-        return 1;
-    }
-
     engine::Engine engine{protocol::HandlerFactory::create()};
-    if (auto err = engine.navigate(*uri); err != protocol::Error::Ok) {
-        spdlog::error("Got error {} from {}", static_cast<int>(err), uri->uri);
+    if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
+        spdlog::error("Got error {} from {}", static_cast<int>(err), uri.uri);
         std::exit(1);
     }
 

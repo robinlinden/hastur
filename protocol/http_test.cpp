@@ -56,7 +56,7 @@ struct FakeSocket {
 };
 
 uri::Uri create_uri(std::string url = "http://example.com") {
-    return uri::Uri::parse(std::move(url)).value();
+    return uri::Uri::parse(std::move(url));
 }
 
 FakeSocket create_chunked_socket(std::string const &body) {

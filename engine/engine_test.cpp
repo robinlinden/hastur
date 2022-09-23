@@ -37,7 +37,7 @@ int main() {
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
 
-        e.navigate(*uri::Uri::parse("hax://example.com"));
+        e.navigate(uri::Uri::parse("hax://example.com"));
         expect(success);
     });
 
@@ -48,7 +48,7 @@ int main() {
         e.set_on_page_loaded([&] { success = true; });
         e.set_on_layout_updated([] { require(false); });
 
-        e.navigate(*uri::Uri::parse("hax://example.com"));
+        e.navigate(uri::Uri::parse("hax://example.com"));
         expect(success);
     });
 
@@ -63,7 +63,7 @@ int main() {
         bool success{false};
         e.set_on_page_loaded([&] { success = true; });
 
-        e.navigate(*uri::Uri::parse("hax://example.com"));
+        e.navigate(uri::Uri::parse("hax://example.com"));
 
         expect(success);
 
@@ -78,21 +78,21 @@ int main() {
     etest::test("origin-relative uri", [] {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
 
-        e.navigate(*uri::Uri::parse("hax://example.com"));
-        expect_eq(e.uri(), *uri::Uri::parse("hax://example.com"));
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect_eq(e.uri(), uri::Uri::parse("hax://example.com"));
 
-        e.navigate(*uri::Uri::parse("/test"));
-        expect_eq(e.uri(), *uri::Uri::parse("hax://example.com/test"));
+        e.navigate(uri::Uri::parse("/test"));
+        expect_eq(e.uri(), uri::Uri::parse("hax://example.com/test"));
     });
 
     etest::test("scheme-relative uri", [] {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
 
-        e.navigate(*uri::Uri::parse("hax://example.com"));
-        expect_eq(e.uri(), *uri::Uri::parse("hax://example.com"));
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect_eq(e.uri(), uri::Uri::parse("hax://example.com"));
 
-        e.navigate(*uri::Uri::parse("//example2.com/test"));
-        expect_eq(e.uri(), *uri::Uri::parse("hax://example2.com/test"));
+        e.navigate(uri::Uri::parse("//example2.com/test"));
+        expect_eq(e.uri(), uri::Uri::parse("hax://example2.com/test"));
     });
 
     return etest::run_all_tests();
