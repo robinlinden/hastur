@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 
 genrule(
     name = "default_css",
@@ -37,6 +38,14 @@ cc_test(
         "//etest",
         "@fmt",
     ],
+)
+
+cc_fuzz_test(
+    name = "css_parser_fuzz_test",
+    srcs = ["parser_fuzz_test.cpp"],
+    tags = ["manual"],
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = [":css"],
 )
 
 cc_test(
