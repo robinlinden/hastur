@@ -808,5 +808,20 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("invalid end tag open, eof", [] {
+        auto tokens = run_tokenizer("</!bogus");
+        expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
+        expect_token(tokens, CommentToken{.data = "!bogus"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("invalid end tag open, unexpected null", [] {
+        auto tokens = run_tokenizer("</!bogu\0>"sv);
+        expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, CommentToken{.data = "!bogu"s + kReplacementCharacter});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     return etest::run_all_tests();
 }

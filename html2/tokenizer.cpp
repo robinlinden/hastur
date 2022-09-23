@@ -196,7 +196,10 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                std::terminate();
+                emit(ParseError::InvalidFirstCharacterOfTagName);
+                current_token_ = CommentToken{};
+                reconsume_in(State::BogusComment);
+                continue;
             }
 
             case State::TagName: {
@@ -1003,6 +1006,29 @@ void Tokenizer::run() {
                         reconsume_in(State::BeforeAttributeName);
                         continue;
                 }
+            }
+
+            case State::BogusComment: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    case '\0':
+                        emit(ParseError::UnexpectedNullCharacter);
+                        std::get<CommentToken>(current_token_).data += util::unicode_to_utf8(0xFFFD);
+                        continue;
+                }
+
+                std::get<CommentToken>(current_token_).data += *c;
+                continue;
             }
 
             case State::MarkupDeclarationOpen:
