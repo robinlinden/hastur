@@ -26,6 +26,7 @@ cc_library(
     deps = [
         "//util:base_parser",
         "@fmt",
+        "@spdlog",
     ],
 )
 

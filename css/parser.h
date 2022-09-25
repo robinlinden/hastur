@@ -11,6 +11,7 @@
 #include "util/base_parser.h"
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include <array>
 #include <charconv>
@@ -48,7 +49,9 @@ public:
             // Make sure we don't crash if we hit a currently unsupported at-rule.
             // @font-face works fine with the normal parsing-logic.
             if (starts_with("@") && !starts_with("@font-face")) {
-                std::ignore = consume_while([](char c) { return c != ' ' && c != '{' && c != '('; });
+                auto kind = consume_while([](char c) { return c != ' ' && c != '{' && c != '('; });
+                spdlog::warn("Encountered unhandled {} at-rule", kind);
+
                 skip_whitespace_and_comments();
                 std::ignore = consume_while([](char c) { return c != '{'; });
                 consume_char(); // {
