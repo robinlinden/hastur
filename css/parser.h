@@ -17,6 +17,7 @@
 #include <cstring>
 #include <optional>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -44,17 +45,17 @@ public:
                 skip_whitespace_and_comments();
             }
 
-            // https://developer.mozilla.org/en-US/docs/Web/CSS/@keyframes
-            // Not saved or anything yet, but stops us from crashing when encountering it.
-            if (starts_with("@keyframes ")) {
-                advance(std::strlen("@keyframes "));
+            // Make sure we don't crash if we hit a currently unsupported at-rule.
+            // @font-face works fine with the normal parsing-logic.
+            if (starts_with("@") && !starts_with("@font-face")) {
+                std::ignore = consume_while([](char c) { return c != ' ' && c != '{' && c != '('; });
                 skip_whitespace_and_comments();
-                [[maybe_unused]] auto keyframes_name = consume_while([](char c) { return c != '{'; });
+                std::ignore = consume_while([](char c) { return c != '{'; });
                 consume_char(); // {
                 skip_whitespace_and_comments();
 
                 while (peek() != '}') {
-                    [[maybe_unused]] auto rule = parse_rule();
+                    std::ignore = parse_rule();
                     skip_whitespace_and_comments();
                 }
 
