@@ -680,5 +680,26 @@ int main() {
         expect(rules.empty());
     });
 
+    etest::test("parser: @font-face", [] {
+        // This isn't correct, but it doesn't crash.
+        auto css = R"(
+            @font-face {
+                font-family: "Open Sans";
+                src: url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2"),
+                     url("/fonts/OpenSans-Regular-webfont.woff") format("woff");
+            })"sv;
+
+        auto rules = css::parse(css);
+        expect_eq(rules.size(), std::size_t{1});
+        expect_eq(rules[0].selectors, std::vector{"@font-face"s});
+        expect_eq(rules[0].declarations.size(), std::size_t{2});
+        expect_eq(rules[0].declarations.at("font-family"), R"("Open Sans")");
+        auto const &src = rules[0].declarations.at("src");
+        auto woff2 = src.find(R"(url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2"))");
+        expect(woff2 != std::string::npos);
+        auto woff = src.find(R"(url("/fonts/OpenSans-Regular-webfont.woff") format("woff")");
+        expect(woff != std::string::npos);
+    });
+
     return etest::run_all_tests();
 }
