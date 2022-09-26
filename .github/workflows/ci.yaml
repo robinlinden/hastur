@@ -151,8 +151,6 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v3
-      # windows-2022 ships with llvm 13 which doesn't seem to work for us.
-      - run: choco install llvm -y --force --version 14.0.5
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: bazel test ...
       # TODO(robinlinden): This no longer runs in CI due to http://example.com
