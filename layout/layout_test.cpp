@@ -11,7 +11,19 @@ using namespace std::literals;
 using etest::expect;
 using etest::expect_eq;
 using etest::require;
+using etest::require_eq;
 using layout::LayoutType;
+
+namespace {
+// Until we have a nicer tree-creation abstraction for the tests, this needs to
+// be called if a test relies on property inheritance.
+void set_up_parent_ptrs(style::StyledNode &parent) {
+    for (auto &child : parent.children) {
+        child.parent = &parent;
+        set_up_parent_ptrs(child);
+    }
+}
+} // namespace
 
 // TODO(robinlinden): clang-format doesn't get along well with how I structured
 // the trees in these test cases.
@@ -965,6 +977,36 @@ int main() {
 
         auto layout = layout::create_layout(style, 0);
         expect_eq(layout, expected_layout);
+    });
+
+    etest::test("font-size absolute value keywords", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{"font-size", "medium"}},
+                .children{
+                        style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto medium_layout = layout::create_layout(style, 1000);
+        style.properties = {{"font-size", "xxx-large"}};
+        auto xxxlarge_layout = layout::create_layout(style, 1000);
+
+        auto get_text_width = [](layout::LayoutBox const &layout) {
+            require_eq(layout.children.size(), std::size_t{1});
+            require_eq(layout.children[0].children.size(), std::size_t{1});
+            return layout.children[0].children[0].dimensions.content.width;
+        };
+
+        auto medium_layout_width = get_text_width(medium_layout);
+        auto xxxlarge_layout_width = get_text_width(xxxlarge_layout);
+        expect(medium_layout_width > 0);
+
+        // font-size: xxx-large should be 3x font-size: medium.
+        // https://w3c.github.io/csswg-drafts/css-fonts-4/#absolute-size-mapping
+        expect_eq(medium_layout_width * 3, xxxlarge_layout_width);
     });
 
     etest::test("get_property", [] {

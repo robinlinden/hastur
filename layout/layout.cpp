@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cassert>
 #include <charconv>
+#include <cmath>
+#include <map>
 #include <optional>
 #include <sstream>
 #include <string_view>
@@ -64,6 +66,19 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 
     return std::visit(visitor, node.node);
 }
+
+// https://w3c.github.io/csswg-drafts/css-fonts-4/#absolute-size-mapping
+constexpr int kMediumFontSize = kDefaultFontSizePx;
+std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
+        {"xx-small", 3 / 5.f},
+        {"x-small", 3 / 4.f},
+        {"small", 8 / 9.f},
+        {"medium", 1.f},
+        {"large", 6 / 5.f},
+        {"x-large", 3 / 2.f},
+        {"xx-large", 2 / 1.f},
+        {"xxx-large", 3 / 1.f},
+};
 
 // TODO(robinlinden):
 // * margin, border, etc.
@@ -226,7 +241,17 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
         case LayoutType::Inline:
         case LayoutType::Block: {
             // TODO(robinlinden): font-size should be inherited.
-            auto font_size = to_px(box.get_property("font-size").value_or(kDefaultFontSize), kDefaultFontSizePx);
+            auto font_size_property = box.get_property("font-size").value_or(kDefaultFontSize);
+            auto font_size = [&]() -> int {
+                // TODO(robinlinden): Move to fancier property value calculation
+                // once done. These keywords are only fine for font-size, so
+                // to_px would have to know what property the value is from.
+                if (kFontSizeAbsoluteSizeKeywords.contains(font_size_property)) {
+                    return std::lround(kFontSizeAbsoluteSizeKeywords.at(font_size_property) * kMediumFontSize);
+                }
+                return to_px(font_size_property, kDefaultFontSizePx);
+            }();
+
             calculate_padding(box, font_size);
             calculate_border(box, font_size);
             calculate_width_and_margin(box, bounds, font_size);
