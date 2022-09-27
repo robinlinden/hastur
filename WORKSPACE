@@ -45,18 +45,18 @@ hedron_compile_commands_setup()
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "6874d81a863d800ee53456b1cafcdd1abf38bbbf54ecf295056b053c0d7115ce",
-    strip_prefix = "asio-1.22.1",
-    url = "https://downloads.sourceforge.net/project/asio/asio/1.22.1%20(Stable)/asio-1.22.1.tar.bz2",
+    sha256 = "8976812c24a118600f6fcf071a20606630a69afe4c0abee3b0dea528e682c585",
+    strip_prefix = "asio-1.24.0",
+    url = "https://downloads.sourceforge.net/project/asio/asio/1.24.0%20(Stable)/asio-1.24.0.tar.bz2",
 )
 
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "641c62d698e88d838fc8076098645b72ae3dc0ecb791b75282d6618ac424f4b2",
-    strip_prefix = "boringssl-80692b63910ff9f3971412ea509449f73a114e18",
-    url = "https://github.com/google/boringssl/archive/80692b63910ff9f3971412ea509449f73a114e18.tar.gz",
+    sha256 = "be8231e5f3b127d83eb156354dfa28c110e3c616c11ae119067c8184ef7a257f",
+    strip_prefix = "boringssl-3a3d0b5c7fddeea312b5ce032d9b84a2be399b32",
+    url = "https://github.com/google/boringssl/archive/3a3d0b5c7fddeea312b5ce032d9b84a2be399b32.tar.gz",
 )
 
 http_archive(
@@ -112,9 +112,9 @@ http_archive(
 http_archive(
     name = "libpng",  # Libpng
     build_file = "//third_party:libpng.BUILD",
-    sha256 = "ca74a0dace179a8422187671aee97dd3892b53e168627145271cad5b5ac81307",
-    strip_prefix = "libpng-1.6.37",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.37.tar.gz",
+    sha256 = "d4160037fa5d09fa7cff555037f2a7f2fefc99ca01e21723b19bfcda33015234",
+    strip_prefix = "libpng-1.6.38",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.38.tar.gz",
 )
 
 http_archive(
@@ -149,9 +149,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "936b4e506b5f55db178207e528ecdf5a411f67431447767d06c9b7061765cd7e",
-    strip_prefix = "stb-af1a5bc352164740c1cc1354942b1c6b72eacb8a",
-    url = "https://github.com/nothings/stb/archive/af1a5bc352164740c1cc1354942b1c6b72eacb8a.tar.gz",
+    sha256 = "c47cf5abe21e1d620afccd159c23fe71dfa86eb270015a7646a4f79e9bfd5503",
+    strip_prefix = "stb-8b5f1f37b5b75829fc72d38e7b5d4bcbf8a26d55",
+    url = "https://github.com/nothings/stb/archive/8b5f1f37b5b75829fc72d38e7b5d4bcbf8a26d55.tar.gz",
 )
 
 http_archive(
@@ -165,9 +165,9 @@ http_archive(
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "004b4f7841bd912d1cc3f5ac5694d5dea2f944f10053451233b533874368df87",
-    strip_prefix = "Vulkan-Headers-1.3.217",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.217.tar.gz",
+    sha256 = "fe620275ca1e29501dcb3f54c69cc011b6d9c3296408fac4e18dc491a1be754f",
+    strip_prefix = "Vulkan-Headers-1.3.229",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.229.tar.gz",
 )
 
 http_archive(
