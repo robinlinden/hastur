@@ -118,13 +118,6 @@ http_archive(
 )
 
 http_archive(
-    name = "range-v3",  # BSL-1.0
-    sha256 = "015adb2300a98edfceaf0725beec3337f542af4915cec4d0b89fa0886f4ba9cb",
-    strip_prefix = "range-v3-0.12.0",
-    url = "https://github.com/ericniebler/range-v3/archive/0.12.0.tar.gz",
-)
-
-http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
     # Work around SFML check for enough bytes for a given UTF-8 character crashing
