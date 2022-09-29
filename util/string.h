@@ -6,8 +6,6 @@
 #ifndef UTIL_STRING_H_
 #define UTIL_STRING_H_
 
-#include <range/v3/algorithm/equal.hpp>
-
 #include <algorithm>
 #include <array>
 #include <iterator>
@@ -63,7 +61,8 @@ constexpr char lowercased(char c) {
 }
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-    return ranges::equal(a, b, [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
+    return std::equal(
+            begin(a), end(a), begin(b), end(b), [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
 }
 
 inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
