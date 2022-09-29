@@ -7,7 +7,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//util:overloaded",
-        "@range-v3",
     ],
 )
 
