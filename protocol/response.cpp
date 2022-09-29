@@ -7,8 +7,7 @@
 
 #include "util/string.h"
 
-#include <range/v3/algorithm/lexicographical_compare.hpp>
-
+#include <algorithm>
 #include <sstream>
 #include <utility>
 
@@ -38,8 +37,9 @@ std::size_t Headers::size() const {
 }
 
 bool Headers::CaseInsensitiveLess::operator()(std::string_view s1, std::string_view s2) const {
-    return ranges::lexicographical_compare(
-            s1, s2, [](char c1, char c2) { return util::lowercased(c1) < util::lowercased(c2); });
+    return std::lexicographical_compare(begin(s1), end(s1), begin(s2), end(s2), [](char c1, char c2) {
+        return util::lowercased(c1) < util::lowercased(c2);
+    });
 }
 
 } // namespace protocol

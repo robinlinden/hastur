@@ -13,7 +13,6 @@ cc_library(
         "//uri",
         "//util:string",
         "@fmt",
-        "@range-v3",
     ],
 )
 
