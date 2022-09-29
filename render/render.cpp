@@ -9,9 +9,9 @@
 #include "gfx/color.h"
 #include "util/string.h"
 
-#include <range/v3/algorithm/lexicographical_compare.hpp>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <charconv>
 #include <cstdint>
 #include <map>
@@ -29,8 +29,9 @@ constexpr gfx::Color kDefaultColor{0x0, 0x0, 0x0};
 struct CaseInsensitiveLess {
     using is_transparent = void;
     bool operator()(std::string_view s1, std::string_view s2) const {
-        return ranges::lexicographical_compare(
-                s1, s2, [](char c1, char c2) { return util::lowercased(c1) < util::lowercased(c2); });
+        return std::lexicographical_compare(begin(s1), end(s1), begin(s2), end(s2), [](char c1, char c2) {
+            return util::lowercased(c1) < util::lowercased(c2);
+        });
     }
 };
 
