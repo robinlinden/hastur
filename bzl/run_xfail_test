@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -eu
+
+readonly TEST_BINARY="$1"
+
+shift 1
+
+set +e
+echo "Running test ${TEST_BINARY}" >&2
+"${TEST_BINARY}" "$@"
+RESULT="$?"
+set -e
+
+if [ "${RESULT}" -eq 0 ]; then
+  echo "Test succeeded when it should have exploded" >&2
+  exit 1
+fi
