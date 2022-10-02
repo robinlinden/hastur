@@ -8,6 +8,7 @@
 #include <cassert>
 #include <concepts>
 #include <coroutine>
+#include <exception>
 #include <optional>
 #include <utility>
 
@@ -31,7 +32,7 @@ public:
             return {};
         }
 
-        static void unhandled_exception() { throw; }
+        static void unhandled_exception() { std::terminate(); }
     };
 
     using Handle = std::coroutine_handle<promise_type>;
