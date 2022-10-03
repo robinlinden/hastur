@@ -108,7 +108,9 @@ build:gcc12 --per_file_copt='external/freetype2[:/]@-Wno-dangling-pointer'
 build:gcc12 --per_file_copt='external/glew[:/]@-Wno-address'
 build:gcc12 --per_file_copt='external/libpng[:/]@-Wno-maybe-uninitialized'
 
+build:clang15 --per_file_copt='external/com_google_absl[:/]@-Wno-deprecated-builtins'
 build:clang15 --per_file_copt='external/ftxui[:/]@-Wno-deprecated-declarations'
+build:clang15 --per_file_copt='external/rules_fuzzing[:/]@-Wno-deprecated-builtins'
 build:clang15 --per_file_copt='external/xext[:/]@-Wno-invalid-utf8'
 build:clang15 --per_file_copt='external/zlib[:/]@-Wno-deprecated-non-prototype'
 
