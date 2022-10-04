@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+"""Starlark rules for creating xfail tests."""
+
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 def cc_xfail_test(
