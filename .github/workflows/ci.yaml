@@ -38,13 +38,6 @@ jobs:
             version: 14
             bazel: --config ubsan
 
-          - name: clang-libc++
-            os: ubuntu-22.04
-            compiler: clang
-            version: 14
-            bazel: --config libc++
-            apt: libc++abi-14-dev libc++-14-dev
-
           - name: clang-15
             os: ubuntu-22.04
             compiler: clang
