@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <cstring>
@@ -425,7 +426,7 @@ private:
 
     template<auto const &array>
     constexpr bool is_in_array(std::string_view str) const {
-        return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
+        return std::ranges::find(array, str) != std::cend(array);
     }
 
     constexpr bool is_shorthand_edge_property(std::string_view str) const {

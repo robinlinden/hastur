@@ -56,13 +56,12 @@ constexpr char lowercased(char c) {
 }
 
 [[nodiscard]] inline std::string lowercased(std::string s) {
-    std::transform(begin(s), end(s), begin(s), [](char c) { return lowercased(c); });
+    std::ranges::transform(std::move(s), begin(s), [](char c) { return lowercased(c); });
     return s;
 }
 
 constexpr bool no_case_compare(std::string_view a, std::string_view b) {
-    return std::equal(
-            begin(a), end(a), begin(b), end(b), [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
+    return std::ranges::equal(a, b, [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
 }
 
 inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
@@ -84,11 +83,11 @@ inline std::pair<std::string_view, std::string_view> split_once(std::string_view
 
 constexpr bool is_whitespace(char ch) {
     constexpr std::array ws_chars = {' ', '\n', '\r', '\f', '\v', '\t'};
-    return std::any_of(cbegin(ws_chars), cend(ws_chars), [ch](char ws_ch) { return ch == ws_ch; });
+    return std::ranges::any_of(ws_chars, [ch](char ws_ch) { return ch == ws_ch; });
 }
 
 constexpr std::string_view trim_start(std::string_view s) {
-    auto it = std::find_if(cbegin(s), cend(s), [](char ch) { return !is_whitespace(ch); });
+    auto it = std::ranges::find_if(s, [](char ch) { return !is_whitespace(ch); });
     s.remove_prefix(std::distance(cbegin(s), it));
     return s;
 }

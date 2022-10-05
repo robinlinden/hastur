@@ -19,7 +19,7 @@ using etest::require;
 
 namespace {
 bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {
-    if (!std::equal(cbegin(a.children), cend(a.children), cbegin(b.children), cend(b.children), &check_parents)) {
+    if (!std::ranges::equal(a.children, b.children, &check_parents)) {
         return false;
     }
 

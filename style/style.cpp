@@ -62,10 +62,8 @@ std::vector<std::pair<std::string, std::string>> matching_rules(
     std::vector<std::pair<std::string, std::string>> matched_rules;
 
     for (auto const &rule : stylesheet) {
-        if (std::any_of(rule.selectors.cbegin(), rule.selectors.cend(), [&](auto const &selector) {
-                return is_match(element, selector);
-            })) {
-            std::copy(rule.declarations.cbegin(), rule.declarations.cend(), std::back_inserter(matched_rules));
+        if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(element, selector); })) {
+            std::ranges::copy(rule.declarations, std::back_inserter(matched_rules));
         }
     }
 

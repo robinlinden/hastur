@@ -58,7 +58,7 @@ constexpr std::array kInheritedProperties{
 
 template<auto const &array>
 constexpr bool is_in_array(std::string_view str) {
-    return std::find(std::cbegin(array), std::cend(array), str) != std::cend(array);
+    return std::ranges::find(array, str) != std::cend(array);
 }
 
 constexpr bool is_inherited(std::string_view property) {
@@ -85,8 +85,7 @@ std::optional<std::string_view> get_parent_property(style::StyledNode const &nod
 } // namespace
 
 std::optional<std::string_view> get_property(style::StyledNode const &node, std::string_view property) {
-    auto it = std::find_if(
-            cbegin(node.properties), cend(node.properties), [=](auto const &p) { return p.first == property; });
+    auto it = std::ranges::find_if(node.properties, [=](auto const &p) { return p.first == property; });
 
     if (it == cend(node.properties)) {
         if (is_inherited(property) && node.parent != nullptr) {

@@ -49,10 +49,7 @@ public:
 
 private:
     static constexpr auto space_chars = std::array{' ', '\f', '\n', '\r', '\t', '\v'};
-
-    constexpr static bool is_space(char c) {
-        return std::find(begin(space_chars), end(space_chars), c) != end(space_chars);
-    }
+    constexpr static bool is_space(char c) { return std::ranges::find(space_chars, c) != end(space_chars); }
 
     std::string_view input_;
     std::size_t pos_{0};

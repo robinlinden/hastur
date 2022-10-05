@@ -42,6 +42,8 @@ int run_all_tests() noexcept {
         std::cout << ", " << disabled_tests << " disabled." << std::endl;
     }
 
+    // TODO(robinlinden): std::ranges once clang-cl supports it. Last tested
+    // with LLVM 15.0.0.
     auto const longest_name = std::max_element(registry().begin(), registry().end(), [](auto const &a, auto const &b) {
         return a.name.size() < b.name.size();
     });

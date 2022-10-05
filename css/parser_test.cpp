@@ -23,7 +23,7 @@ using etest::require_eq;
 namespace {
 
 [[maybe_unused]] std::ostream &operator<<(std::ostream &os, std::vector<std::string> const &vec) {
-    std::copy(cbegin(vec), cend(vec), std::ostream_iterator<std::string const &>(os, " "));
+    std::ranges::copy(vec, std::ostream_iterator<std::string const &>(os, " "));
     return os;
 }
 
@@ -37,7 +37,7 @@ auto const initial_background_values = std::map<std::string, std::string, std::l
         {"background-color", "transparent"}};
 
 bool check_initial_background_values(std::map<std::string, std::string, std::less<>> const &declarations) {
-    return std::all_of(cbegin(declarations), cend(declarations), [](auto const &decl) {
+    return std::ranges::all_of(declarations, [](auto const &decl) {
         auto it = initial_background_values.find(decl.first);
         return it != cend(initial_background_values) && it->second == decl.second;
     });
@@ -63,7 +63,7 @@ auto const initial_font_values = std::map<std::string, std::string, std::less<>>
         {"font-variant-east-asian", "normal"}};
 
 bool check_initial_font_values(std::map<std::string, std::string, std::less<>> const &declarations) {
-    return std::all_of(cbegin(declarations), cend(declarations), [](auto const &decl) {
+    return std::ranges::all_of(declarations, [](auto const &decl) {
         auto it = initial_font_values.find(decl.first);
         return it != cend(initial_font_values) && it->second == decl.second;
     });
