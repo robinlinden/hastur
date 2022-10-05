@@ -154,6 +154,7 @@ build:clang-cl --copt='-Wno-missing-field-initializers'
 build:clang-cl --copt='-Wno-unused-command-line-argument'
 
 build:libc++ --cxxopt=-stdlib=libc++
+build:libc++ --cxxopt=-fexperimental-library
 build:libc++ --linkopt=-stdlib=libc++
 build:libc++ --copt=-D_LIBCPP_ENABLE_NODISCARD
 # https://releases.llvm.org/15.0.0/projects/libcxx/docs/ReleaseNotes.html#upcoming-deprecations-and-removals
