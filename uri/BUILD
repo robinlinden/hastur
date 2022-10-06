@@ -26,6 +26,7 @@ config_setting(
 
 cc_fuzz_test(
     name = "uri_fuzz_test",
+    size = "small",
     srcs = ["uri_fuzz_test.cpp"],
     target_compatible_with = select({
         ":is_clang": ["@platforms//os:linux"],
