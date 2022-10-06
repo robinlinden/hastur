@@ -93,6 +93,8 @@ constexpr bool is_unicode_noncharacter(int code_point) {
     }
 }
 
+std::string const kReplacementCharacter = util::unicode_to_utf8(0xFFFD);
+
 } // namespace
 
 void Tokenizer::set_state(State state) {
@@ -939,7 +941,7 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        current_attribute().value.append(util::unicode_to_utf8(0xFFFD));
+                        current_attribute().value += kReplacementCharacter;
                         continue;
                     case '"':
                     case '\'':
@@ -1023,7 +1025,7 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        std::get<CommentToken>(current_token_).data += util::unicode_to_utf8(0xFFFD);
+                        std::get<CommentToken>(current_token_).data += kReplacementCharacter;
                         continue;
                 }
 
@@ -1498,7 +1500,7 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).public_identifier += util::unicode_to_utf8(0xFFFD);
+                        *std::get<DoctypeToken>(current_token_).public_identifier += kReplacementCharacter;
                         continue;
                     case '>':
                         emit(ParseError::AbruptDoctypePublicIdentifier);
@@ -1528,7 +1530,7 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).public_identifier += util::unicode_to_utf8(0xFFFD);
+                        *std::get<DoctypeToken>(current_token_).public_identifier += kReplacementCharacter;
                         continue;
                     case '>':
                         emit(ParseError::AbruptDoctypePublicIdentifier);
@@ -1940,7 +1942,7 @@ bool Tokenizer::is_appropriate_end_tag_token(Token const &token) const {
 }
 
 void Tokenizer::emit_replacement_character() {
-    for (char c : util::unicode_to_utf8(0xFFFD)) {
+    for (char c : kReplacementCharacter) {
         emit(CharacterToken{c});
     }
 }
