@@ -823,5 +823,49 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("tag name, unexpected null", [] {
+        auto tokens = run_tokenizer("<hell\0>"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name{"hell"s + kReplacementCharacter}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute name, unexpected null", [] {
+        auto tokens = run_tokenizer("<hello a\0>"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, StartTagToken{.tag_name{"hello"s}, .attributes{{"a"s + kReplacementCharacter, ""}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("attribute value, unexpected null", [] {
+        for (auto html : {"<a b=\"\0\">"sv, "<a b='\0'>"sv}) {
+            auto tokens = run_tokenizer(html);
+            expect_error(tokens, ParseError::UnexpectedNullCharacter);
+            expect_token(tokens, StartTagToken{.tag_name{"a"s}, .attributes{{"b"s, kReplacementCharacter}}});
+            expect_token(tokens, EndOfFileToken{});
+        }
+    });
+
+    etest::test("comment, unexpected null", [] {
+        auto tokens = run_tokenizer("<!--\0-->"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, CommentToken{.data{kReplacementCharacter}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("before doctype name, unexpected null", [] {
+        auto tokens = run_tokenizer("<!doctype \0hi>"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, DoctypeToken{.name{kReplacementCharacter + "hi"s}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype name, unexpected null", [] {
+        auto tokens = run_tokenizer("<!doctype hi\0>"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, DoctypeToken{.name{"hi"s + kReplacementCharacter}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     return etest::run_all_tests();
 }

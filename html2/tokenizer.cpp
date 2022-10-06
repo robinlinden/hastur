@@ -240,8 +240,8 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        append_to_tag_name("\xFF\xFD");
+                        emit(ParseError::UnexpectedNullCharacter);
+                        append_to_tag_name(kReplacementCharacter);
                         continue;
                     default:
                         append_to_tag_name(*c);
@@ -790,8 +790,8 @@ void Tokenizer::run() {
                         state_ = State::BeforeAttributeValue;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        append_to_current_attribute_name("\xFF\xFD");
+                        emit(ParseError::UnexpectedNullCharacter);
+                        append_to_current_attribute_name(kReplacementCharacter);
                         continue;
                     case '"':
                     case '\'':
@@ -881,8 +881,8 @@ void Tokenizer::run() {
                         state_ = State::CharacterReference;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        current_attribute().value += "\xFF\xFD";
+                        emit(ParseError::UnexpectedNullCharacter);
+                        current_attribute().value += kReplacementCharacter;
                         continue;
                     default:
                         current_attribute().value += *c;
@@ -907,8 +907,8 @@ void Tokenizer::run() {
                         state_ = State::CharacterReference;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        current_attribute().value += "\xFF\xFD";
+                        emit(ParseError::UnexpectedNullCharacter);
+                        current_attribute().value += kReplacementCharacter;
                         continue;
                     default:
                         current_attribute().value += *c;
@@ -1113,8 +1113,8 @@ void Tokenizer::run() {
                         state_ = State::CommentEndDash;
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        std::get<CommentToken>(current_token_).data.append("\xFF\xFD");
+                        emit(ParseError::UnexpectedNullCharacter);
+                        std::get<CommentToken>(current_token_).data += kReplacementCharacter;
                         continue;
                     default:
                         std::get<CommentToken>(current_token_).data.append(1, *c);
@@ -1312,9 +1312,9 @@ void Tokenizer::run() {
                     case ' ':
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         current_token_ = DoctypeToken{.name = std::string{}};
-                        std::get<DoctypeToken>(current_token_).name->append("\xFF\xFD");
+                        *std::get<DoctypeToken>(current_token_).name += kReplacementCharacter;
                         state_ = State::DoctypeName;
                         continue;
                     case '>':
@@ -1358,8 +1358,8 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     case '\0':
-                        // This is an unexpected-null-character parse error.
-                        std::get<DoctypeToken>(current_token_).name->append("\xFF\xFD");
+                        emit(ParseError::UnexpectedNullCharacter);
+                        *std::get<DoctypeToken>(current_token_).name += kReplacementCharacter;
                         continue;
                     default:
                         std::get<DoctypeToken>(current_token_).name->append(1, *c);
