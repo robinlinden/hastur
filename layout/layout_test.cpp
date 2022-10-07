@@ -177,7 +177,7 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {},
+            .properties = {{"font-size", "10px"}},
             .children = {
                 {children[0], {}, {
                     {std::get<dom::Element>(children[0]).children[0], {}, {}},
@@ -185,6 +185,7 @@ int main() {
                 }},
             },
         };
+        set_up_parent_ptrs(style_root);
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
