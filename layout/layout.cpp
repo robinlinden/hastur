@@ -35,7 +35,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     auto visitor = util::Overloaded{
             [&node](dom::Element const &) -> std::optional<LayoutBox> {
                 auto display = style::get_property(node, "display");
-                if (display && *display == "none") {
+                if (display == "none") {
                     return std::nullopt;
                 }
 

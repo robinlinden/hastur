@@ -20,7 +20,7 @@ int main() {
                 .children = {},
         };
 
-        expect(style::get_property(styled_node, "width"sv).value() == "15px"sv);
+        expect(style::get_property(styled_node, "width"sv) == "15px"sv);
     });
 
     etest::test("property inheritance", [] {

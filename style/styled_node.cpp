@@ -124,7 +124,7 @@ std::map<std::string_view, std::string_view> const kInitialValues{
         {"min-width"sv, "auto"sv},
 };
 
-std::optional<std::string_view> get_parent_property(style::StyledNode const &node, std::string_view property) {
+std::string_view get_parent_property(style::StyledNode const &node, std::string_view property) {
     if (node.parent != nullptr) {
         return get_property(*node.parent, property);
     }
@@ -134,7 +134,7 @@ std::optional<std::string_view> get_parent_property(style::StyledNode const &nod
 
 } // namespace
 
-std::optional<std::string_view> get_property(style::StyledNode const &node, std::string_view property) {
+std::string_view get_property(style::StyledNode const &node, std::string_view property) {
     auto it = std::ranges::find_if(node.properties, [=](auto const &p) { return p.first == property; });
 
     if (it == cend(node.properties)) {

@@ -7,7 +7,6 @@
 
 #include "dom/dom.h"
 
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -26,7 +25,7 @@ struct StyledNode {
     return a.node == b.node && a.properties == b.properties && a.children == b.children;
 }
 
-std::optional<std::string_view> get_property(StyledNode const &node, std::string_view property);
+std::string_view get_property(StyledNode const &node, std::string_view property);
 
 } // namespace style
 
