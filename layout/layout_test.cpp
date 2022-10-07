@@ -123,9 +123,6 @@ int main() {
             },
         };
 
-        // TODO(robinlinden)
-        // Having block elements inside of inline ones isn't allowed,
-        // but I haven't looked up how to handle them yet.
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
@@ -134,7 +131,7 @@ int main() {
                 {nullptr, LayoutType::AnonymousBlock, {}, {
                     {&style_root.children[0], LayoutType::Inline, {}, {}},
                     {&style_root.children[1], LayoutType::Inline, {}, {
-                        {&style_root.children[1].children[0], LayoutType::Block, {}, {}},
+                        {&style_root.children[1].children[0], LayoutType::Inline, {}, {}},
                     }},
                 }},
             }
@@ -1034,7 +1031,7 @@ int main() {
 
         auto layout = layout::create_layout(style_root, 0);
         expect_eq(layout.get_property("color"), "green");
-        expect_eq(layout.get_property("background-color"), std::nullopt);
+        expect_eq(layout.get_property("background-color"), "transparent");
     });
 
     etest::test("get_property, no backing style node", [] {

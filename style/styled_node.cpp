@@ -67,7 +67,61 @@ constexpr bool is_inherited(std::string_view property) {
 
 // https://www.w3.org/TR/css-cascade/#initial-values
 std::map<std::string_view, std::string_view> const kInitialValues{
-        {"width"sv, "auto"sv}, // https://drafts.csswg.org/css-sizing-3/#propdef-width
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/background-color#formal_definition
+        {"background-color"sv, "transparent"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/color#formal_definition
+        {"color"sv, "canvastext"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-size#formal_definition
+        {"font-size"sv, "medium"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-color#formal_definition
+        {"border-bottom-color"sv, "currentcolor"sv},
+        {"border-left-color"sv, "currentcolor"sv},
+        {"border-right-color"sv, "currentcolor"sv},
+        {"border-top-color"sv, "currentcolor"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-style#formal_definition
+        {"border-bottom-style"sv, "none"sv},
+        {"border-left-style"sv, "none"sv},
+        {"border-right-style"sv, "none"sv},
+        {"border-top-style"sv, "none"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-width#formal_definition
+        {"border-bottom-width"sv, "medium"sv},
+        {"border-left-width"sv, "medium"sv},
+        {"border-right-width"sv, "medium"sv},
+        {"border-top-width"sv, "medium"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/padding#formal_definition
+        {"padding-bottom"sv, "0"sv},
+        {"padding-left"sv, "0"sv},
+        {"padding-right"sv, "0"sv},
+        {"padding-top"sv, "0"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/display#formal_definition
+        {"display"sv, "inline"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/height#formal_definition
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/max-height#formal_definition
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/min-height#formal_definition
+        {"height"sv, "auto"sv},
+        {"max-height"sv, "none"sv},
+        {"min-height"sv, "auto"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/margin#formal_definition
+        {"margin-bottom"sv, "0"sv},
+        {"margin-left"sv, "0"sv},
+        {"margin-right"sv, "0"sv},
+        {"margin-top"sv, "0"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/width#formal_definition
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/max-width#formal_definition
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/min-width#formal_definition
+        {"width"sv, "auto"sv},
+        {"max-width"sv, "none"sv},
+        {"min-width"sv, "auto"sv},
 };
 
 std::optional<std::string_view> get_parent_property(style::StyledNode const &node, std::string_view property) {
@@ -75,11 +129,7 @@ std::optional<std::string_view> get_parent_property(style::StyledNode const &nod
         return get_property(*node.parent, property);
     }
 
-    if (kInitialValues.contains(property)) {
-        return kInitialValues.at(property);
-    }
-
-    return std::nullopt;
+    return kInitialValues.at(property);
 }
 
 } // namespace
@@ -92,11 +142,7 @@ std::optional<std::string_view> get_property(style::StyledNode const &node, std:
             return get_property(*node.parent, property);
         }
 
-        if (kInitialValues.contains(property)) {
-            return kInitialValues.at(property);
-        }
-
-        return std::nullopt;
+        return kInitialValues.at(property);
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
         return get_parent_property(node, property);

@@ -16,12 +16,11 @@ int main() {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode styled_node{
                 .node = dom_node,
-                .properties = {{"good_property"s, "fantastic_value"s}},
+                .properties = {{"width"s, "15px"s}},
                 .children = {},
         };
 
-        expect(style::get_property(styled_node, "bad_property"sv) == std::nullopt);
-        expect(style::get_property(styled_node, "good_property"sv).value() == "fantastic_value"sv);
+        expect(style::get_property(styled_node, "width"sv).value() == "15px"sv);
     });
 
     etest::test("property inheritance", [] {
@@ -68,7 +67,7 @@ int main() {
 
         // inherit, no parent node.
         child.parent = nullptr;
-        expect_eq(style::get_property(child, "background-color"sv), std::nullopt);
+        expect_eq(style::get_property(child, "background-color"sv), "transparent");
     });
 
     etest::test("currentcolor css keyword", [] {
