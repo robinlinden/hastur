@@ -20,7 +20,7 @@ int main() {
                 .children = {},
         };
 
-        expect(style::get_property(styled_node, "width"sv) == "15px"sv);
+        expect(styled_node.get_property("width"sv) == "15px"sv);
     });
 
     etest::test("property inheritance", [] {
@@ -34,10 +34,10 @@ int main() {
         auto &child = root.children.emplace_back(style::StyledNode{dom_node, {}, {}, &root});
 
         // Not inherited, returns the initial value.
-        expect_eq(style::get_property(child, "width"sv), "auto"sv);
+        expect_eq(child.get_property("width"sv), "auto"sv);
 
         // Inherited, returns the parent's value.
-        expect_eq(style::get_property(child, "font-size"sv), "15em"sv);
+        expect_eq(child.get_property("font-size"sv), "15em"sv);
     });
 
     etest::test("inherit css keyword", [] {
@@ -60,14 +60,14 @@ int main() {
         child.parent = &root;
 
         // inherit, but not in parent, so receives initial value for property.
-        expect_eq(style::get_property(child, "width"sv), "auto"sv);
+        expect_eq(child.get_property("width"sv), "auto"sv);
 
         // inherit, value in parent.
-        expect_eq(style::get_property(child, "background-color"sv), "blue"sv);
+        expect_eq(child.get_property("background-color"sv), "blue"sv);
 
         // inherit, no parent node.
         child.parent = nullptr;
-        expect_eq(style::get_property(child, "background-color"sv), "transparent");
+        expect_eq(child.get_property("background-color"sv), "transparent");
     });
 
     etest::test("currentcolor css keyword", [] {
@@ -88,11 +88,11 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(style::get_property(child, "background-color"sv), "blue"sv);
+        expect_eq(child.get_property("background-color"sv), "blue"sv);
 
         // "color: currentcolor" should be treated as inherit.
         child.properties.push_back({"color"s, "currentcolor"s});
-        expect_eq(style::get_property(child, "color"sv), "blue"sv);
+        expect_eq(child.get_property("color"sv), "blue"sv);
     });
 
     return etest::run_all_tests();

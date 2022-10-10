@@ -19,13 +19,13 @@ struct StyledNode {
     std::vector<std::pair<std::string, std::string>> properties;
     std::vector<StyledNode> children;
     StyledNode const *parent{nullptr};
+
+    std::string_view get_property(std::string_view property) const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
     return a.node == b.node && a.properties == b.properties && a.children == b.children;
 }
-
-std::string_view get_property(StyledNode const &node, std::string_view property);
 
 } // namespace style
 

@@ -126,7 +126,7 @@ std::map<std::string_view, std::string_view> const kInitialValues{
 
 std::string_view get_parent_property(style::StyledNode const &node, std::string_view property) {
     if (node.parent != nullptr) {
-        return get_property(*node.parent, property);
+        return node.parent->get_property(property);
     }
 
     return kInitialValues.at(property);
@@ -134,30 +134,30 @@ std::string_view get_parent_property(style::StyledNode const &node, std::string_
 
 } // namespace
 
-std::string_view get_property(style::StyledNode const &node, std::string_view property) {
-    auto it = std::ranges::find_if(node.properties, [=](auto const &p) { return p.first == property; });
+std::string_view StyledNode::get_property(std::string_view property) const {
+    auto it = std::ranges::find_if(properties, [=](auto const &p) { return p.first == property; });
 
-    if (it == cend(node.properties)) {
-        if (is_inherited(property) && node.parent != nullptr) {
-            return get_property(*node.parent, property);
+    if (it == cend(properties)) {
+        if (is_inherited(property) && parent != nullptr) {
+            return parent->get_property(property);
         }
 
         return kInitialValues.at(property);
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
-        return get_parent_property(node, property);
+        return get_parent_property(*this, property);
     } else if (it->second == "currentcolor") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
         // If the "color" property has the value "currentcolor", treat it as "inherit".
         if (it->first == "color") {
-            return get_parent_property(node, property);
+            return get_parent_property(*this, property);
         }
 
         // Even though we return the correct value here, if a property has
         // "currentcolor" as its initial value, the caller have to manually look
         // up the value of "color". This will be cleaned up along with the rest
         // of the property management soon.
-        return get_property(node, "color");
+        return get_property("color");
     }
 
     return it->second;
