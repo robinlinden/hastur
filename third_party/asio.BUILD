@@ -15,14 +15,3 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = ["@boringssl//:ssl"],
 )
-
-cc_library(
-    name = "header_only",
-    hdrs = glob([
-        "asio/include/**/*.hpp",
-        "asio/include/**/*.ipp",
-    ]),
-    defines = ["ASIO_HEADER_ONLY"],
-    strip_include_prefix = "include",
-    visibility = ["//visibility:public"],
-)
