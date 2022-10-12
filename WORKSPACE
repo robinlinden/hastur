@@ -45,9 +45,9 @@ hedron_compile_commands_setup()
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "8976812c24a118600f6fcf071a20606630a69afe4c0abee3b0dea528e682c585",
-    strip_prefix = "asio-1.24.0",
-    url = "https://downloads.sourceforge.net/project/asio/asio/1.24.0%20(Stable)/asio-1.24.0.tar.bz2",
+    sha256 = "cbcaaba0f66722787b1a7c33afe1befb3a012b5af3ad7da7ff0f6b8c9b7a8a5b",
+    strip_prefix = "asio-asio-1-24-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-24-0.tar.gz",
 )
 
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
