@@ -116,8 +116,4 @@ void require(bool b, std::optional<std::string_view> log_message, etest::source_
     }
 }
 
-std::ostream &log() {
-    return test_log;
-}
-
 } // namespace etest

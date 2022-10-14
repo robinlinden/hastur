@@ -10,7 +10,6 @@
 #include <concepts>
 #include <functional>
 #include <optional>
-#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -36,9 +35,6 @@ void expect(bool,
 void require(bool,
         std::optional<std::string_view> log_message = std::nullopt,
         etest::source_location const &loc = etest::source_location::current());
-
-// Access the internal test log.
-[[nodiscard]] std::ostream &log();
 
 // Weak test requirement. Prints the types compared on failure (if printable).
 template<Printable T, Printable U>
