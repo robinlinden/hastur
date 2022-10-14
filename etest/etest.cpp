@@ -87,33 +87,35 @@ void disabled_test(std::string, std::function<void()>) noexcept {
 }
 
 void expect(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) noexcept {
-    if (!b) {
-        ++assertion_failures;
-        // Check if we're using the real source_location by checking for line == 0.
-        if (loc.line() != 0) {
-            test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column()
-                     << ")\n";
-        }
+    if (b) {
+        return;
+    }
 
-        if (log_message) {
-            test_log << *log_message << "\n\n";
-        }
+    ++assertion_failures;
+    // Check if we're using the real source_location by checking for line == 0.
+    if (loc.line() != 0) {
+        test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
+    }
+
+    if (log_message) {
+        test_log << *log_message << "\n\n";
     }
 }
 
 void require(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) {
-    if (!b) {
-        if (loc.line() != 0) {
-            test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column()
-                     << ")\n";
-        }
-
-        if (log_message) {
-            test_log << *log_message << "\n\n";
-        }
-
-        throw test_failure{};
+    if (b) {
+        return;
     }
+
+    if (loc.line() != 0) {
+        test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
+    }
+
+    if (log_message) {
+        test_log << *log_message << "\n\n";
+    }
+
+    throw test_failure{};
 }
 
 } // namespace etest
