@@ -9,8 +9,12 @@
 
 #include <concepts>
 #include <functional>
+#include <optional>
 #include <ostream>
+#include <sstream>
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace etest {
 
@@ -24,44 +28,66 @@ void test(std::string name, std::function<void()> body) noexcept;
 void disabled_test(std::string name, std::function<void()> body) noexcept;
 
 // Weak test requirement. Allows the test to continue even if the check fails.
-void expect(bool, etest::source_location const &loc = etest::source_location::current()) noexcept;
+void expect(bool,
+        std::optional<std::string_view> log_message = std::nullopt,
+        etest::source_location const &loc = etest::source_location::current()) noexcept;
 
 // Hard test requirement. Stops the test (using an exception) if the check fails.
-void require(bool, etest::source_location const &loc = etest::source_location::current());
+void require(bool,
+        std::optional<std::string_view> log_message = std::nullopt,
+        etest::source_location const &loc = etest::source_location::current());
 
 // Access the internal test log.
 [[nodiscard]] std::ostream &log();
 
 // Weak test requirement. Prints the types compared on failure (if printable).
 template<Printable T, Printable U>
-void expect_eq(T const &a, U const &b, etest::source_location const &loc = etest::source_location::current()) noexcept {
+void expect_eq(T const &a,
+        U const &b,
+        std::optional<std::string_view> log_message = std::nullopt,
+        etest::source_location const &loc = etest::source_location::current()) noexcept {
     if (a != b) {
-        expect(false, loc);
-        log() << a << " !=\n" << b << "\n\n";
-    }
-}
-
-template<typename T, typename U>
-void expect_eq(T const &a, U const &b, etest::source_location const &loc = etest::source_location::current()) noexcept {
-    expect(a == b, loc);
-}
-
-// Hard test requirement. Prints the types compared on failure (if printable).
-template<Printable T, Printable U>
-void require_eq(T const &a, U const &b, etest::source_location const &loc = etest::source_location::current()) {
-    if (a != b) {
-        try {
-            require(false, loc);
-        } catch (...) {
-            log() << a << " !=\n" << b << "\n\n";
-            throw;
+        if (log_message) {
+            expect(false, std::move(log_message), loc);
+        } else {
+            std::stringstream ss;
+            ss << a << " !=\n" << b;
+            expect(false, std::move(ss).str(), loc);
         }
     }
 }
 
 template<typename T, typename U>
-void require_eq(T const &a, U const &b, etest::source_location const &loc = etest::source_location::current()) {
-    require(a == b, loc);
+void expect_eq(T const &a,
+        U const &b,
+        std::optional<std::string_view> log_message = std::nullopt,
+        etest::source_location const &loc = etest::source_location::current()) noexcept {
+    expect(a == b, std::move(log_message), loc);
+}
+
+// Hard test requirement. Prints the types compared on failure (if printable).
+template<Printable T, Printable U>
+void require_eq(T const &a,
+        U const &b,
+        std::optional<std::string_view> log_message = std::nullopt,
+        etest::source_location const &loc = etest::source_location::current()) {
+    if (a != b) {
+        if (log_message) {
+            require(false, std::move(log_message), loc);
+        } else {
+            std::stringstream ss;
+            ss << a << " !=\n" << b;
+            require(false, std::move(ss).str(), loc);
+        }
+    }
+}
+
+template<typename T, typename U>
+void require_eq(T const &a,
+        U const &b,
+        std::optional<std::string_view> log_message = std::nullopt,
+        etest::source_location const &loc = etest::source_location::current()) {
+    require(a == b, std::move(log_message), loc);
 }
 
 } // namespace etest

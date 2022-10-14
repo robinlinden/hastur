@@ -73,7 +73,7 @@ template<class KeyT, class ValueT>
 ValueT get_and_erase(std::map<KeyT, ValueT, std::less<>> &map,
         KeyT key,
         etest::source_location const &loc = etest::source_location::current()) {
-    require(map.contains(key), loc);
+    require(map.contains(key), {}, loc);
     ValueT value = map.at(key);
     map.erase(key);
     return value;

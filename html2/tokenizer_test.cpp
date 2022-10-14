@@ -31,8 +31,8 @@ static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 class TokenizerOutput {
 public:
     ~TokenizerOutput() {
-        expect(tokens.empty(), loc);
-        expect(errors.empty(), loc);
+        expect(tokens.empty(), "Not all tokens were handled", loc);
+        expect(errors.empty(), "Not all errors were handled", loc);
     }
 
     std::vector<Token> tokens;
@@ -61,8 +61,8 @@ TokenizerOutput run_tokenizer(std::string_view input, etest::source_location loc
 
 void expect_token(
         TokenizerOutput &output, Token t, etest::source_location const &loc = etest::source_location::current()) {
-    require(!output.tokens.empty(), loc);
-    expect_eq(output.tokens.front(), t, loc);
+    require(!output.tokens.empty(), "Unexpected end of token list", loc);
+    expect_eq(output.tokens.front(), t, {}, loc);
     output.tokens.erase(begin(output.tokens));
 }
 
@@ -76,8 +76,8 @@ void expect_text(TokenizerOutput &output,
 
 void expect_error(
         TokenizerOutput &output, ParseError e, etest::source_location const &loc = etest::source_location::current()) {
-    require(!output.errors.empty(), loc);
-    expect_eq(output.errors.front(), e, loc);
+    require(!output.errors.empty(), "Unexpected end of error list", loc);
+    expect_eq(output.errors.front(), e, {}, loc);
     output.errors.erase(begin(output.errors));
 }
 

@@ -86,7 +86,7 @@ void disabled_test(std::string, std::function<void()>) noexcept {
     ++disabled_tests;
 }
 
-void expect(bool b, etest::source_location const &loc) noexcept {
+void expect(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) noexcept {
     if (!b) {
         ++assertion_failures;
         // Check if we're using the real source_location by checking for line == 0.
@@ -94,15 +94,24 @@ void expect(bool b, etest::source_location const &loc) noexcept {
             test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column()
                      << ")\n";
         }
+
+        if (log_message) {
+            test_log << *log_message << "\n\n";
+        }
     }
 }
 
-void require(bool b, etest::source_location const &loc) {
+void require(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) {
     if (!b) {
         if (loc.line() != 0) {
             test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column()
                      << ")\n";
         }
+
+        if (log_message) {
+            test_log << *log_message << "\n\n";
+        }
+
         throw test_failure{};
     }
 }
