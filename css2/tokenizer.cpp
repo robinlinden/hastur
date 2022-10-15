@@ -57,6 +57,33 @@ void Tokenizer::run() {
                     case '-':
                         state_ = State::HyphenMinus;
                         continue;
+                    case '(':
+                        emit(OpenParenToken{});
+                        continue;
+                    case ')':
+                        emit(CloseParenToken{});
+                        continue;
+                    case ',':
+                        emit(CommaToken{});
+                        continue;
+                    case ':':
+                        emit(ColonToken{});
+                        continue;
+                    case ';':
+                        emit(SemiColonToken{});
+                        continue;
+                    case '[':
+                        emit(OpenSquareToken{});
+                        continue;
+                    case ']':
+                        emit(CloseSquareToken{});
+                        continue;
+                    case '{':
+                        emit(OpenCurlyToken{});
+                        continue;
+                    case '}':
+                        emit(CloseCurlyToken{});
+                        continue;
                     default:
                         emit(DelimToken{*c});
                         continue;
