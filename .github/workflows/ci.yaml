@@ -129,6 +129,11 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: windows_msvc-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+      - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
       - name: Build
         run: bazel build ... -c dbg
       - name: Test
@@ -145,7 +150,12 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
+      - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
       - run: bazel test ...
       # TODO(robinlinden): This no longer runs in CI due to http://example.com
       # being inaccessible.
