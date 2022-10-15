@@ -84,9 +84,9 @@ int main() {
     });
 
     etest::test("delimiter after comment", [] {
-        auto output = run_tokenizer("/*/*/,");
+        auto output = run_tokenizer("/*/*/?");
 
-        expect_token(output, DelimToken{','});
+        expect_token(output, DelimToken{'?'});
     });
 
     etest::test("eof in comment", [] {
@@ -198,6 +198,60 @@ int main() {
 
         expect_token(output, IdentToken{"abc"});
         expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("open paren", [] {
+        auto output = run_tokenizer("(");
+
+        expect_token(output, OpenParenToken{});
+    });
+
+    etest::test("close paren", [] {
+        auto output = run_tokenizer(")");
+
+        expect_token(output, CloseParenToken{});
+    });
+
+    etest::test("comma", [] {
+        auto output = run_tokenizer(",");
+
+        expect_token(output, CommaToken{});
+    });
+
+    etest::test("colon", [] {
+        auto output = run_tokenizer(":");
+
+        expect_token(output, ColonToken{});
+    });
+
+    etest::test("semicolon", [] {
+        auto output = run_tokenizer(";");
+
+        expect_token(output, SemiColonToken{});
+    });
+
+    etest::test("open square bracket", [] {
+        auto output = run_tokenizer("[");
+
+        expect_token(output, OpenSquareToken{});
+    });
+
+    etest::test("close square bracket", [] {
+        auto output = run_tokenizer("]");
+
+        expect_token(output, CloseSquareToken{});
+    });
+
+    etest::test("open curly bracket", [] {
+        auto output = run_tokenizer("{");
+
+        expect_token(output, OpenCurlyToken{});
+    });
+
+    etest::test("close curly bracket", [] {
+        auto output = run_tokenizer("}");
+
+        expect_token(output, CloseCurlyToken{});
     });
 
     return etest::run_all_tests();
