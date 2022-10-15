@@ -59,9 +59,9 @@ void expect_error(
 
 int main() {
     etest::test("delimiter", [] {
-        auto output = run_tokenizer("a");
+        auto output = run_tokenizer("?");
 
-        expect_token(output, DelimToken{'a'});
+        expect_token(output, DelimToken{'?'});
     });
 
     etest::test("comment", [] {
@@ -80,7 +80,7 @@ int main() {
         auto output = run_tokenizer("/a");
 
         expect_token(output, DelimToken{'/'});
-        expect_token(output, DelimToken{'a'});
+        expect_token(output, IdentToken{"a"});
     });
 
     etest::test("delimiter after comment", [] {
@@ -111,28 +111,28 @@ int main() {
     etest::test("end with one tab", [] {
         auto output = run_tokenizer("a\t");
 
-        expect_token(output, DelimToken{'a'});
+        expect_token(output, IdentToken{"a"});
         expect_token(output, WhitespaceToken{});
     });
 
     etest::test("end with two tabs", [] {
         auto output = run_tokenizer("a\t\t");
 
-        expect_token(output, DelimToken{'a'});
+        expect_token(output, IdentToken{"a"});
         expect_token(output, WhitespaceToken{});
     });
 
     etest::test("end with one line feed", [] {
         auto output = run_tokenizer("a\n");
 
-        expect_token(output, DelimToken{'a'});
+        expect_token(output, IdentToken{"a"});
         expect_token(output, WhitespaceToken{});
     });
 
     etest::test("end with two line feeds", [] {
         auto output = run_tokenizer("a\n\n");
 
-        expect_token(output, DelimToken{'a'});
+        expect_token(output, IdentToken{"a"});
         expect_token(output, WhitespaceToken{});
     });
 
@@ -160,6 +160,43 @@ int main() {
 
         expect_error(output, ParseError::NewlineInString);
         expect_token(output, BadStringToken{});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("ident token", [] {
+        auto output = run_tokenizer("foo");
+
+        expect_token(output, IdentToken{"foo"});
+    });
+
+    etest::test("ident token with digit", [] {
+        auto output = run_tokenizer("f0o");
+
+        expect_token(output, IdentToken{"f0o"});
+    });
+
+    etest::test("ident token starting with one dash", [] {
+        auto output = run_tokenizer("-foo");
+
+        expect_token(output, IdentToken{"-foo"});
+    });
+
+    etest::test("ident token starting with two dashes", [] {
+        auto output = run_tokenizer("--foo");
+
+        expect_token(output, IdentToken{"--foo"});
+    });
+
+    etest::test("ident token starting with underscore", [] {
+        auto output = run_tokenizer("_foo-bar");
+
+        expect_token(output, IdentToken{"_foo-bar"});
+    });
+
+    etest::test("whitespace after ident", [] {
+        auto output = run_tokenizer("abc  ");
+
+        expect_token(output, IdentToken{"abc"});
         expect_token(output, WhitespaceToken{});
     });
 

@@ -5,9 +5,24 @@
 
 #include "css2/tokenizer.h"
 
+#include "util/string.h"
+
 #include <exception>
 
 namespace css2 {
+
+namespace {
+
+constexpr bool is_ident_start_code_point(char c) {
+    // TODO(mkiael): Handle non-ascii code point
+    return util::is_alpha(c) || c == '_';
+}
+
+constexpr bool is_ident_code_point(char c) {
+    return is_ident_start_code_point(c) || util::is_digit(c) || c == '-';
+}
+
+} // namespace
 
 void Tokenizer::run() {
     while (true) {
@@ -16,6 +31,12 @@ void Tokenizer::run() {
                 auto c = consume_next_input_character();
                 if (!c) {
                     return;
+                }
+
+                if (is_ident_start_code_point(*c)) {
+                    temporary_buffer_ = "";
+                    reconsume_in(State::IdentLike);
+                    continue;
                 }
 
                 switch (*c) {
@@ -32,6 +53,9 @@ void Tokenizer::run() {
                         continue;
                     case '/':
                         state_ = State::CommentStart;
+                        continue;
+                    case '-':
+                        state_ = State::HyphenMinus;
                         continue;
                     default:
                         emit(DelimToken{*c});
@@ -84,6 +108,47 @@ void Tokenizer::run() {
                         state_ = State::Comment;
                         continue;
                 }
+            }
+
+            case State::HyphenMinus: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(DelimToken{'-'});
+                    return;
+                }
+
+                if (is_ident_start_code_point(*c) || *c == '-') {
+                    temporary_buffer_ = '-';
+                    temporary_buffer_ += *c;
+                    state_ = State::IdentLike;
+                    continue;
+                }
+
+                // TODO(mkiael): Handle numeric token
+                // TODO(mkiael): Handle escaped code point in ident sequence
+                std::terminate();
+            }
+
+            case State::IdentLike: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(IdentToken{temporary_buffer_});
+                    return;
+                }
+
+                if (is_ident_code_point(*c)) {
+                    temporary_buffer_ += *c;
+                    continue;
+                } else if (*c == '\\') {
+                    // TODO(mkiael): Handle escaped code point
+                    std::terminate();
+                }
+
+                // TODO(mkiael): Handle url and function token
+
+                emit(IdentToken{temporary_buffer_});
+                reconsume_in(State::Main);
+                continue;
             }
 
             case State::String: {

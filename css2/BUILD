@@ -8,7 +8,10 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     visibility = ["//visibility:public"],
-    deps = ["//util:overloaded"],
+    deps = [
+        "//util:overloaded",
+        "//util:string",
+    ],
 )
 
 [cc_test(
