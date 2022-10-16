@@ -7,8 +7,9 @@
 
 #include "util/string.h"
 
+#include <ctre.hpp>
+
 #include <exception>
-#include <regex>
 #include <utility>
 
 namespace uri {
@@ -31,21 +32,19 @@ void normalize(Uri &uri) {
 } // namespace
 
 Uri Uri::parse(std::string uristr) {
-    std::smatch match;
-
     // Regex taken from RFC 3986.
-    std::regex uri_regex("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
-    if (!std::regex_search(uristr, match, uri_regex)) {
+    auto match = ctre::match<"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?">(uristr);
+    if (!match) {
         std::terminate();
     }
 
     Authority authority{};
 
-    std::string hostport = match.str(4);
-    if (auto userinfo_end = match.str(4).find_first_of('@'); userinfo_end != std::string::npos) {
+    std::string hostport = match.get<4>().str();
+    if (auto userinfo_end = match.get<4>().str().find_first_of('@'); userinfo_end != std::string::npos) {
         // Userinfo present.
-        std::string userinfo(match.str(4).substr(0, userinfo_end));
-        hostport = match.str(4).substr(userinfo_end + 1, match.str(4).size() - userinfo_end);
+        std::string userinfo(match.get<4>().str().substr(0, userinfo_end));
+        hostport = match.get<4>().str().substr(userinfo_end + 1, match.get<4>().str().size() - userinfo_end);
 
         if (auto user_end = userinfo.find_first_of(':'); user_end != std::string::npos) {
             // Password present.
@@ -67,11 +66,11 @@ Uri Uri::parse(std::string uristr) {
     }
 
     auto uri = Uri{
-            .scheme{match.str(2)},
+            .scheme{match.get<2>().str()},
             .authority{std::move(authority)},
-            .path{match.str(5)},
-            .query{match.str(7)},
-            .fragment{match.str(9)},
+            .path{match.get<5>().str()},
+            .query{match.get<7>().str()},
+            .fragment{match.get<9>().str()},
     };
     uri.uri = std::move(uristr);
 

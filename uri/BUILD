@@ -6,7 +6,10 @@ cc_library(
     srcs = ["uri.cpp"],
     hdrs = ["uri.h"],
     visibility = ["//visibility:public"],
-    deps = ["//util:string"],
+    deps = [
+        "//util:string",
+        "@ctre",
+    ],
 )
 
 cc_test(
