@@ -41,10 +41,10 @@ Uri Uri::parse(std::string uristr) {
     Authority authority{};
 
     std::string hostport = match.get<4>().str();
-    if (auto userinfo_end = match.get<4>().str().find_first_of('@'); userinfo_end != std::string::npos) {
+    if (auto userinfo_end = hostport.find_first_of('@'); userinfo_end != std::string::npos) {
         // Userinfo present.
-        std::string userinfo(match.get<4>().str().substr(0, userinfo_end));
-        hostport = match.get<4>().str().substr(userinfo_end + 1, match.get<4>().str().size() - userinfo_end);
+        std::string userinfo = hostport.substr(0, userinfo_end);
+        hostport = hostport.substr(userinfo_end + 1, hostport.size() - userinfo_end);
 
         if (auto user_end = userinfo.find_first_of(':'); user_end != std::string::npos) {
             // Password present.
@@ -52,7 +52,7 @@ Uri Uri::parse(std::string uristr) {
             authority.passwd = userinfo.substr(user_end + 1, userinfo.size() - user_end);
         } else {
             // Password not present.
-            authority.user = userinfo;
+            authority.user = std::move(userinfo);
         }
     }
 
@@ -62,7 +62,7 @@ Uri Uri::parse(std::string uristr) {
         authority.port = hostport.substr(host_end + 1, hostport.size() - host_end);
     } else {
         // Port not present.
-        authority.host = hostport;
+        authority.host = std::move(hostport);
     }
 
     auto uri = Uri{
