@@ -60,6 +60,14 @@ http_archive(
 )
 
 http_archive(
+    name = "ctre",  # Apache-2.0
+    build_file = "//third_party:ctre.BUILD",
+    sha256 = "d00d7eaa0e22f2fdaa947a532b81b6fc35880acf4887b50a5ac9bfb7411ced03",
+    strip_prefix = "compile-time-regular-expressions-3.7.1",
+    url = "https://github.com/hanickadot/compile-time-regular-expressions/archive/v3.7.1.tar.gz",
+)
+
+http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
     sha256 = "5dea48d1fcddc3ec571ce2058e13910a0d4a6bab4cc09a809d8b1dd1c88ae6f2",
