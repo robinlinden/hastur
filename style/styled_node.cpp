@@ -143,6 +143,9 @@ std::string_view StyledNode::get_property(std::string_view property) const {
         }
 
         return kInitialValues.at(property);
+    } else if (it->second == "initial") {
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/initial
+        return kInitialValues.at(property);
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
         return get_parent_property(*this, property);

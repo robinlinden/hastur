@@ -40,6 +40,25 @@ int main() {
         expect_eq(child.get_property("font-size"sv), "15em"sv);
     });
 
+    etest::test("initial css keyword", [] {
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode root{
+                .node = dom_node,
+                .properties = {{"color"s, "blue"s}},
+                .children{
+                        style::StyledNode{
+                                .node{dom_node},
+                                .properties{{"color"s, "initial"s}},
+                        },
+                },
+        };
+
+        auto &child = root.children[0];
+        child.parent = &root;
+
+        expect_eq(child.get_property("color"sv), "canvastext"sv);
+    });
+
     etest::test("inherit css keyword", [] {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
