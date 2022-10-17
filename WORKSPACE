@@ -199,7 +199,7 @@ http_archive(
 http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
-    sha256 = "d8688496ea40fb61787500e863cc63c9afcbc524468cedeb478068924eb54932",
-    strip_prefix = "zlib-1.2.12",
-    url = "https://github.com/madler/zlib/archive/v1.2.12.tar.gz",
+    sha256 = "1525952a0a567581792613a9723333d7f8cc20b87a81f920fb8bc7e3f2251428",
+    strip_prefix = "zlib-1.2.13",
+    url = "https://github.com/madler/zlib/archive/v1.2.13.tar.gz",
 )
