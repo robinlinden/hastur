@@ -93,27 +93,21 @@ void Engine::on_navigation_success() {
     for (auto link : head_links) {
         future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
             auto const &href = link->attributes.at("href");
-            auto stylesheet_url = [&] {
-                if (href.starts_with("http://") || href.starts_with("https://")) {
-                    return href;
-                }
+            auto stylesheet_url = uri::Uri::parse(href, uri_);
 
-                return fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, link->attributes.at("href"));
-            }();
-
-            spdlog::info("Downloading stylesheet from {}", stylesheet_url);
-            auto style_data = protocol_handler_->handle(uri::Uri::parse(stylesheet_url));
+            spdlog::info("Downloading stylesheet from {}", stylesheet_url.uri);
+            auto style_data = protocol_handler_->handle(stylesheet_url);
             if (style_data.err != protocol::Error::Ok) {
-                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url);
+                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url.uri);
                 return {};
             }
 
-            if ((stylesheet_url.starts_with("http://") || stylesheet_url.starts_with("https://"))
+            if ((stylesheet_url.scheme == "http" || stylesheet_url.scheme == "https")
                     && style_data.status_line.status_code != 200) {
                 spdlog::warn("Error {}: {} downloading {}",
                         style_data.status_line.status_code,
                         style_data.status_line.reason,
-                        stylesheet_url);
+                        stylesheet_url.uri);
                 return {};
             }
 
