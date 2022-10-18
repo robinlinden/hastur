@@ -294,7 +294,7 @@ int App::run() {
 
 void App::navigate() {
     page_loaded_ = false;
-    auto uri = uri::Uri::parse(url_buf_);
+    auto uri = uri::Uri::parse(url_buf_, engine_.uri());
     browse_history_.push(uri);
     engine_.navigate(std::move(uri));
 
