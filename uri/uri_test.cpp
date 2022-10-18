@@ -157,5 +157,17 @@ int main() {
         expect_eq(actual, expected);
     });
 
+    etest::test("origin-relative completion", [] {
+        auto const base = uri::Uri::parse("hax://example.com");
+        auto const completed = uri::Uri::parse("/test", base);
+        expect_eq(completed, uri::Uri::parse("hax://example.com/test"));
+    });
+
+    etest::test("scheme-relative uri", [] {
+        auto const base = uri::Uri::parse("hax://example.com");
+        auto const completed = uri::Uri::parse("//example2.com/test", base);
+        expect_eq(completed, uri::Uri::parse("hax://example2.com/test"));
+    });
+
     return etest::run_all_tests();
 }

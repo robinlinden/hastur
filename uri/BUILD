@@ -9,6 +9,7 @@ cc_library(
     deps = [
         "//util:string",
         "@ctre",
+        "@fmt",
     ],
 )
 

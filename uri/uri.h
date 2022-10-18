@@ -6,6 +6,8 @@
 #ifndef URI_URI_H_
 #define URI_URI_H_
 
+#include <functional>
+#include <optional>
 #include <string>
 
 namespace uri {
@@ -22,7 +24,7 @@ struct Authority {
 };
 
 struct Uri {
-    static Uri parse(std::string uri);
+    static Uri parse(std::string uri, std::optional<std::reference_wrapper<Uri const>> base_uri = std::nullopt);
 
     std::string uri;
     std::string scheme;

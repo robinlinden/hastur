@@ -8,6 +8,7 @@
 #include "util/string.h"
 
 #include <ctre.hpp>
+#include <fmt/format.h>
 
 #include <exception>
 #include <utility>
@@ -29,9 +30,19 @@ void normalize(Uri &uri) {
     }
 }
 
+void complete_from_base_if_needed(Uri &uri, Uri const &base) {
+    if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
+        // Origin-relative.
+        uri = Uri::parse(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri));
+    } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
+        // Scheme-relative.
+        uri = Uri::parse(fmt::format("{}:{}", base.scheme, uri.uri));
+    }
+}
+
 } // namespace
 
-Uri Uri::parse(std::string uristr) {
+Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
     // Regex taken from RFC 3986.
     auto match = ctre::match<"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?">(uristr);
     if (!match) {
@@ -75,6 +86,10 @@ Uri Uri::parse(std::string uristr) {
     uri.uri = std::move(uristr);
 
     normalize(uri);
+
+    if (base_uri) {
+        complete_from_base_if_needed(uri, base_uri->get());
+    }
 
     return uri;
 }
