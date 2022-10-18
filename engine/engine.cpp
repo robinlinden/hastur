@@ -14,6 +14,7 @@
 #include <future>
 #include <iterator>
 #include <string_view>
+#include <utility>
 
 using namespace std::literals;
 
@@ -35,17 +36,7 @@ protocol::Error Engine::navigate(uri::Uri uri) {
         return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
     };
 
-    if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
-        spdlog::info("Handling origin-relative URL {}", uri.uri);
-        uri = uri::Uri::parse(fmt::format("{}://{}{}", uri_.scheme, uri_.authority.host, uri.uri));
-        spdlog::info("Transformed origin-relative URL to {}", uri.uri);
-    } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
-        spdlog::info("Handling scheme-relative URL {}", uri.uri);
-        uri = uri::Uri::parse(fmt::format("{}:{}", uri_.scheme, uri.uri));
-        spdlog::info("Transformed scheme-relative URL to {}", uri.uri);
-    }
-
-    uri_ = uri;
+    uri_ = std::move(uri);
     response_ = protocol_handler_->handle(uri_);
     while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
         spdlog::info("Following {} redirect from {} to {}",
