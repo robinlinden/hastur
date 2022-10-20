@@ -11,12 +11,15 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cerrno>
 #include <charconv>
 #include <cmath>
+#include <cstdlib>
 #include <map>
 #include <optional>
 #include <sstream>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <variant>
 
@@ -82,6 +85,46 @@ std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
         {"xxx-large", 3 / 1.f},
 };
 
+// Workaround for GCC 10 not supporting std::from_chars for floating point numbers.
+// TODO(robinlinden): Nuke once we drop support for GCC 10.
+#if defined(__GNUC__) && __GNUC__ <= 10
+// https://en.cppreference.com/w/cpp/utility/from_chars
+struct from_chars_result {
+    char const *ptr;
+    std::errc ec;
+};
+
+// Not 100% spec-compliant, but close enough for how we're using it.
+from_chars_result from_chars(char const *first, char const *last, float &value) {
+    // Produce a null-terminated string that we can safely pass to std::strtof.
+    std::string to_parse{first, last};
+    char *end{};
+    float result = std::strtof(to_parse.c_str(), &end);
+    if (end == to_parse.c_str()) {
+        // No conversion could be performed.
+        return {first, std::errc::invalid_argument};
+    }
+
+    // Since we're parsing a copy of the argument, we need to map the end ptr
+    // back into the string the user provided.
+    auto map_end_into_argument_string = [&] {
+        auto parsed_length = std::distance(to_parse.c_str(), static_cast<char const *>(end));
+        auto new_end = first;
+        std::advance(new_end, parsed_length);
+        return new_end;
+    };
+
+    if (errno == ERANGE) {
+        return {map_end_into_argument_string(), std::errc::result_out_of_range};
+    }
+
+    value = result;
+    return {map_end_into_argument_string(), std::errc{}};
+}
+#else
+using std::from_chars;
+#endif
+
 // TODO(robinlinden):
 // * margin, border, etc.
 // * Not all measurements have to be in pixels.
@@ -92,27 +135,27 @@ int to_px(std::string_view property, int const font_size) {
         return 0;
     }
 
-    int res{};
-    auto parse_result = std::from_chars(property.data(), property.data() + property.size(), res);
+    float res{};
+    auto parse_result = from_chars(property.data(), property.data() + property.size(), res);
     if (parse_result.ec != std::errc{}) {
         spdlog::warn("Unable to parse property '{}' in to_px", property);
-        return res;
+        return 0;
     }
 
     auto const parsed_length = std::distance(property.data(), parse_result.ptr);
     auto const unit = property.substr(parsed_length);
 
     if (unit == "px") {
-        return res;
+        return static_cast<int>(res);
     }
 
     if (unit == "em") {
-        res *= font_size;
-        return res;
+        res *= static_cast<float>(font_size);
+        return static_cast<int>(res);
     }
 
     spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
-    return res;
+    return static_cast<int>(res);
 }
 
 void calculate_left_and_right_margin(LayoutBox &box,
