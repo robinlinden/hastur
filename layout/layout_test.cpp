@@ -1042,6 +1042,23 @@ int main() {
         expect_eq(layout, expected_layout);
     });
 
+    etest::test("unhandled unit", [] {
+        dom::Node dom = dom::Element{.name{"html"}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{"display", "block"}, {"height", "0notarealunit"}},
+        };
+
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 0, 0}},
+        };
+
+        auto layout = layout::create_layout(style, 0);
+        expect_eq(layout, expected_layout);
+    });
+
     etest::test("get_property", [] {
         dom::Node dom_root = dom::Element{.name{"html"}, .attributes{}, .children{}};
         auto style_root = style::StyledNode{.node = dom_root, .properties = {{"color", "green"}}, .children{}};

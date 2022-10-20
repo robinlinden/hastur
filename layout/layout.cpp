@@ -99,10 +99,19 @@ int to_px(std::string_view property, int const font_size) {
         return res;
     }
 
-    if (property.ends_with("em")) {
-        res *= font_size;
+    auto const parsed_length = std::distance(property.data(), parse_result.ptr);
+    auto const unit = property.substr(parsed_length);
+
+    if (unit == "px") {
+        return res;
     }
 
+    if (unit == "em") {
+        res *= font_size;
+        return res;
+    }
+
+    spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
     return res;
 }
 
