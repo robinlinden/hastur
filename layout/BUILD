@@ -9,6 +9,7 @@ cc_library(
         "//geom",
         "//style",
         "//util:overloaded",
+        "@spdlog",
     ],
 )
 

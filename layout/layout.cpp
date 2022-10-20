@@ -7,6 +7,8 @@
 
 #include "util/overloaded.h"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cassert>
 #include <charconv>
@@ -86,7 +88,12 @@ std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
 // * %, rem
 int to_px(std::string_view property, int const font_size) {
     int res{};
-    std::from_chars(property.data(), property.data() + property.size(), res);
+    auto parse_result = std::from_chars(property.data(), property.data() + property.size(), res);
+    if (parse_result.ec != std::errc{}) {
+        spdlog::warn("Unable to parse property '{}' in to_px", property);
+        return res;
+    }
+
     if (property.ends_with("em")) {
         res *= font_size;
     }
