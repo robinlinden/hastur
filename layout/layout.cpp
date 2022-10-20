@@ -87,6 +87,11 @@ std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
 // * Not all measurements have to be in pixels.
 // * %, rem
 int to_px(std::string_view property, int const font_size) {
+    // Special case for 0 since it won't ever have a unit that needs to be handled.
+    if (property == "0") {
+        return 0;
+    }
+
     int res{};
     auto parse_result = std::from_chars(property.data(), property.data() + property.size(), res);
     if (parse_result.ec != std::errc{}) {
