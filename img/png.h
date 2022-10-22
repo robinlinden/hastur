@@ -14,6 +14,7 @@ namespace img {
 
 class Png {
 public:
+    static std::optional<Png> from(std::istream &&is) { return from(is); }
     static std::optional<Png> from(std::istream &is);
 
     std::uint32_t width{};
