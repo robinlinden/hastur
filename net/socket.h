@@ -17,8 +17,8 @@ public:
     Socket();
     ~Socket();
 
-    Socket(Socket &&);
-    Socket &operator=(Socket &&);
+    Socket(Socket &&) noexcept;
+    Socket &operator=(Socket &&) noexcept;
 
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
@@ -36,8 +36,8 @@ public:
     SecureSocket();
     ~SecureSocket();
 
-    SecureSocket(SecureSocket &&);
-    SecureSocket &operator=(SecureSocket &&);
+    SecureSocket(SecureSocket &&) noexcept;
+    SecureSocket &operator=(SecureSocket &&) noexcept;
 
     bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);

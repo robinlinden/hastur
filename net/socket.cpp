@@ -68,12 +68,9 @@ struct Socket::Impl : public BaseSocketImpl {
 };
 
 Socket::Socket() : impl_(std::make_unique<Impl>()) {}
-
 Socket::~Socket() = default;
-
-Socket::Socket(Socket &&) = default;
-
-Socket &Socket::operator=(Socket &&) = default;
+Socket::Socket(Socket &&) noexcept = default;
+Socket &Socket::operator=(Socket &&) noexcept = default;
 
 bool Socket::connect(std::string_view host, std::string_view service) {
     return impl_->connect(impl_->resolver, impl_->socket, host, service);
@@ -111,12 +108,9 @@ struct SecureSocket::Impl : public BaseSocketImpl {
 };
 
 SecureSocket::SecureSocket() : impl_(std::make_unique<Impl>()) {}
-
 SecureSocket::~SecureSocket() = default;
-
-SecureSocket::SecureSocket(SecureSocket &&) = default;
-
-SecureSocket &SecureSocket::operator=(SecureSocket &&) = default;
+SecureSocket::SecureSocket(SecureSocket &&) noexcept = default;
+SecureSocket &SecureSocket::operator=(SecureSocket &&) noexcept = default;
 
 bool SecureSocket::connect(std::string_view host, std::string_view service) {
     return impl_->connect(host, service);
