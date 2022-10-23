@@ -57,6 +57,9 @@ void Tokenizer::run() {
                     case '-':
                         state_ = State::HyphenMinus;
                         continue;
+                    case '@':
+                        state_ = State::CommercialAt;
+                        continue;
                     case '(':
                         emit(OpenParenToken{});
                         continue;
@@ -135,6 +138,67 @@ void Tokenizer::run() {
                         state_ = State::Comment;
                         continue;
                 }
+            }
+
+            case State::CommercialAt: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(DelimToken{'@'});
+                    return;
+                }
+
+                if (is_ident_start_code_point(*c)) {
+                    temporary_buffer_ = "";
+                    reconsume_in(State::CommercialAtIdent);
+                    continue;
+                } else if (*c == '-') {
+                    state_ = State::CommercialAtHyphenMinus;
+                    continue;
+                }
+
+                emit(DelimToken{'@'});
+                reconsume_in(State::Main);
+                continue;
+            }
+
+            case State::CommercialAtHyphenMinus: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(DelimToken{'@'});
+                    emit(DelimToken{'-'});
+                    return;
+                }
+
+                if (is_ident_start_code_point(*c) || *c == '-') {
+                    temporary_buffer_ = '-';
+                    temporary_buffer_ += *c;
+                    state_ = State::CommercialAtIdent;
+                    continue;
+                }
+
+                // TODO(mkiael): Handle numeric token
+                // TODO(mkiael): Handle escaped code point in ident sequence
+                std::terminate();
+            }
+
+            case State::CommercialAtIdent: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(AtKeywordToken{temporary_buffer_});
+                    return;
+                }
+
+                if (is_ident_code_point(*c)) {
+                    temporary_buffer_ += *c;
+                    continue;
+                } else if (*c == '\\') {
+                    // TODO(mkiael): Handle escaped code point
+                    std::terminate();
+                }
+
+                emit(AtKeywordToken{temporary_buffer_});
+                reconsume_in(State::Main);
+                continue;
             }
 
             case State::HyphenMinus: {

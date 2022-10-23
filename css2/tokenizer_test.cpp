@@ -200,6 +200,57 @@ int main() {
         expect_token(output, WhitespaceToken{});
     });
 
+    etest::test("at keyword token", [] {
+        auto output = run_tokenizer("@foo");
+
+        expect_token(output, AtKeywordToken{"foo"});
+    });
+
+    etest::test("at keyword token with digit", [] {
+        auto output = run_tokenizer("@b4z");
+
+        expect_token(output, AtKeywordToken{"b4z"});
+    });
+
+    etest::test("at keyword token starting with one dash", [] {
+        auto output = run_tokenizer("@-foo");
+
+        expect_token(output, AtKeywordToken{"-foo"});
+    });
+
+    etest::test("at keyword token starting with two dashes", [] {
+        auto output = run_tokenizer("@--foo");
+
+        expect_token(output, AtKeywordToken{"--foo"});
+    });
+
+    etest::test("at keyword token starting with underscore", [] {
+        auto output = run_tokenizer("@_foo-bar");
+
+        expect_token(output, AtKeywordToken{"_foo-bar"});
+    });
+
+    etest::test("whitespace after at keyword token", [] {
+        auto output = run_tokenizer("@foo ");
+
+        expect_token(output, AtKeywordToken{"foo"});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("at delimiter", [] {
+        auto output = run_tokenizer("@ ");
+
+        expect_token(output, DelimToken{'@'});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    etest::test("at dash delimiter", [] {
+        auto output = run_tokenizer("@-");
+
+        expect_token(output, DelimToken{'@'});
+        expect_token(output, DelimToken{'-'});
+    });
+
     etest::test("open paren", [] {
         auto output = run_tokenizer("(");
 
