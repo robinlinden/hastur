@@ -82,7 +82,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/bazel
-          key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+          key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
           restore-keys: ${{ matrix.name }}-
       - name: Build
         run: bazel build //... ${{ matrix.bazel }}
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/bazel
-          key: ${{ matrix.name }}-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+          key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
           restore-keys: ${{ matrix.name }}-
       - name: Install
         run: |
