@@ -22,9 +22,7 @@ enum class State {
     Comment,
     CommentEnd,
     CommercialAt,
-    CommercialAtHyphenMinus,
     CommercialAtIdent,
-    HyphenMinus,
     IdentLike,
     String,
     Whitespace,
@@ -59,6 +57,8 @@ private:
     void emit(ParseError);
     void emit(Token &&);
     std::optional<char> consume_next_input_character();
+    std::optional<char> peek_input(int index) const;
+    bool inputs_starts_ident_sequence(char first_character) const;
     bool is_eof() const;
     void reconsume_in(State);
 };
