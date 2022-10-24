@@ -33,9 +33,9 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (is_ident_start_code_point(*c)) {
-                    temporary_buffer_ = "";
-                    reconsume_in(State::IdentLike);
+                if (inputs_starts_ident_sequence(*c)) {
+                    temporary_buffer_ = *c;
+                    state_ = State::IdentLike;
                     continue;
                 }
 
@@ -53,9 +53,6 @@ void Tokenizer::run() {
                         continue;
                     case '/':
                         state_ = State::CommentStart;
-                        continue;
-                    case '-':
-                        state_ = State::HyphenMinus;
                         continue;
                     case '@':
                         state_ = State::CommercialAt;
@@ -147,38 +144,15 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (is_ident_start_code_point(*c)) {
-                    temporary_buffer_ = "";
-                    reconsume_in(State::CommercialAtIdent);
-                    continue;
-                } else if (*c == '-') {
-                    state_ = State::CommercialAtHyphenMinus;
+                if (inputs_starts_ident_sequence(*c)) {
+                    temporary_buffer_ = *c;
+                    state_ = State::CommercialAtIdent;
                     continue;
                 }
 
                 emit(DelimToken{'@'});
                 reconsume_in(State::Main);
                 continue;
-            }
-
-            case State::CommercialAtHyphenMinus: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(DelimToken{'@'});
-                    emit(DelimToken{'-'});
-                    return;
-                }
-
-                if (is_ident_start_code_point(*c) || *c == '-') {
-                    temporary_buffer_ = '-';
-                    temporary_buffer_ += *c;
-                    state_ = State::CommercialAtIdent;
-                    continue;
-                }
-
-                // TODO(mkiael): Handle numeric token
-                // TODO(mkiael): Handle escaped code point in ident sequence
-                std::terminate();
             }
 
             case State::CommercialAtIdent: {
@@ -199,25 +173,6 @@ void Tokenizer::run() {
                 emit(AtKeywordToken{temporary_buffer_});
                 reconsume_in(State::Main);
                 continue;
-            }
-
-            case State::HyphenMinus: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(DelimToken{'-'});
-                    return;
-                }
-
-                if (is_ident_start_code_point(*c) || *c == '-') {
-                    temporary_buffer_ = '-';
-                    temporary_buffer_ += *c;
-                    state_ = State::IdentLike;
-                    continue;
-                }
-
-                // TODO(mkiael): Handle numeric token
-                // TODO(mkiael): Handle escaped code point in ident sequence
-                std::terminate();
             }
 
             case State::IdentLike: {
@@ -308,6 +263,30 @@ std::optional<char> Tokenizer::consume_next_input_character() {
     }
 
     return input_[pos_++];
+}
+
+std::optional<char> Tokenizer::peek_input(int index) const {
+    if (pos_ + index >= input_.size()) {
+        return std::nullopt;
+    }
+
+    return input_[pos_ + index];
+}
+
+// https://www.w3.org/TR/css-syntax-3/#would-start-an-identifier
+bool Tokenizer::inputs_starts_ident_sequence(char first_character) const {
+    bool result{false};
+    if (first_character == '-') {
+        if (auto second_character = peek_input(0)) {
+            if (is_ident_start_code_point(*second_character) || *second_character == '-') {
+                result = true;
+            }
+        }
+    } else if (is_ident_start_code_point(first_character)) {
+        result = true;
+    }
+    // TODO(mkiael): Handle escape sequence
+    return result;
 }
 
 bool Tokenizer::is_eof() const {
