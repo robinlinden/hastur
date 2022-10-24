@@ -76,7 +76,7 @@ inline std::vector<std::string_view> split(std::string_view str, std::string_vie
 
 inline std::pair<std::string_view, std::string_view> split_once(std::string_view str, std::string_view sep) {
     if (auto p = str.find(sep); p != str.npos) {
-        return {str.substr(0, p), str.substr(p + sep.size(), str.size() - p - sep.size())};
+        return {str.substr(0, p), str.substr(p + sep.size())};
     }
     return {str, ""};
 }

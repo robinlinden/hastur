@@ -131,7 +131,7 @@ private:
                 pos = loc + 1;
             }
             if (pos < str.size()) {
-                tokens.push_back(str.substr(pos, str.size() - pos));
+                tokens.push_back(str.substr(pos));
             }
             token_iter = cbegin(tokens);
         }
@@ -343,7 +343,7 @@ private:
             std::string_view str = *token;
             if (std::size_t loc = str.find('/'); loc != std::string_view::npos) {
                 std::string_view font_size = str.substr(0, loc);
-                std::string_view line_height = str.substr(loc + 1, str.size() - loc);
+                std::string_view line_height = str.substr(loc + 1);
                 return std::pair(std::move(font_size), std::move(line_height));
             } else if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
                 return std::pair(std::move(str), std::nullopt);

@@ -65,7 +65,7 @@ std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) 
     return StatusLine{
             std::string{status_line.substr(0, sep1)},
             status_code,
-            std::string{status_line.substr(sep2 + 1, status_line.size())},
+            std::string{status_line.substr(sep2 + 1)},
     };
 }
 
