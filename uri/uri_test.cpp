@@ -169,5 +169,14 @@ int main() {
         expect_eq(completed, uri::Uri::parse("hax://example2.com/test"));
     });
 
+    etest::test("path-relative uri", [] {
+        auto const base = uri::Uri::parse("hax://example.com");
+        auto completed = uri::Uri::parse("test", base);
+        expect_eq(completed, uri::Uri::parse("hax://example.com/test"));
+
+        completed = uri::Uri::parse("hello", completed);
+        expect_eq(completed, uri::Uri::parse("hax://example.com/test/hello"));
+    });
+
     return etest::run_all_tests();
 }

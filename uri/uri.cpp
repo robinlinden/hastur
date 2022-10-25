@@ -34,6 +34,9 @@ void complete_from_base_if_needed(Uri &uri, Uri const &base) {
     if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
         // Origin-relative.
         uri = Uri::parse(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri));
+    } else if (uri.scheme.empty() && uri.authority.host.empty() && !uri.path.empty()) {
+        // https://url.spec.whatwg.org/#path-relative-url-string
+        uri = Uri::parse(fmt::format("{}/{}", base.uri, uri.uri));
     } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
         // Scheme-relative.
         uri = Uri::parse(fmt::format("{}:{}", base.scheme, uri.uri));
