@@ -11,11 +11,3 @@ cc_library(
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
 )
-
-cc_library(
-    name = "header_only",
-    hdrs = glob(["include/**/*.h"]),
-    defines = ["FMT_HEADER_ONLY=1"],
-    strip_include_prefix = "include",
-    visibility = ["//visibility:public"],
-)
