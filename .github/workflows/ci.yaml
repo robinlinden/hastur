@@ -38,25 +38,18 @@ jobs:
             version: 14
             bazel: --config ubsan
 
-          # TODO(robinlinden): Re-enable once apt.llvm.org works with Bazel again.
-          # this rule is missing dependency declarations for the following files included by 'os/linux.cpp':
-          #   '/usr/lib/llvm-15/lib/clang/15.0.3/include/stddef.h'
-          #   '/usr/lib/llvm-15/lib/clang/15.0.3/include/__stddef_max_align_t.h'
-          #   '/usr/lib/llvm-15/lib/clang/15.0.3/include/stdint.h'
-          #   '/usr/lib/llvm-15/lib/clang/15.0.3/include/stdarg.h'
-          #   '/usr/lib/llvm-15/lib/clang/15.0.3/include/limits.h'
-          # - name: clang-15
-          #   os: ubuntu-22.04
-          #   compiler: clang
-          #   version: 15
-          #   bazel: --config clang15
+          - name: clang-15
+            os: ubuntu-22.04
+            compiler: clang
+            version: 15
+            bazel: --config clang15
 
-          # - name: clang-15-libc++
-          #   os: ubuntu-22.04
-          #   compiler: clang
-          #   version: 15
-          #   bazel: --config libc++ --config clang15
-          #   apt: libc++abi-15-dev libc++-15-dev
+          - name: clang-15-libc++
+            os: ubuntu-22.04
+            compiler: clang
+            version: 15
+            bazel: --config libc++ --config clang15
+            apt: libc++abi-15-dev libc++-15-dev
 
     steps:
       - name: Prepare clang install
