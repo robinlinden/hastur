@@ -273,30 +273,43 @@ void calculate_padding(LayoutBox &box, int const font_size) {
     }
 }
 
+// https://w3c.github.io/csswg-drafts/css-backgrounds/#the-border-width
+std::map<std::string_view, int> const kBorderWidthKeywords{
+        {"thin", 3},
+        {"medium", 5},
+        {"thick", 7},
+};
+
 void calculate_border(LayoutBox &box, int const font_size) {
     std::string_view default_style = "none";
+    std::string_view default_width = "medium";
 
-    // TODO(mkiael): Change to "meduim" when this is supported
-    std::string_view default_width = "3px";
+    auto as_px = [&](std::string_view border_width_property) {
+        if (kBorderWidthKeywords.contains(border_width_property)) {
+            return kBorderWidthKeywords.at(border_width_property);
+        }
+
+        return to_px(border_width_property, font_size);
+    };
 
     if (box.get_property("border-left-style").value_or(default_style) != default_style) {
         auto border_width = box.get_property("border-left-width").value_or(default_width);
-        box.dimensions.border.left = to_px(border_width, font_size);
+        box.dimensions.border.left = as_px(border_width);
     }
 
     if (box.get_property("border-right-style").value_or(default_style) != default_style) {
         auto border_width = box.get_property("border-right-width").value_or(default_width);
-        box.dimensions.border.right = to_px(border_width, font_size);
+        box.dimensions.border.right = as_px(border_width);
     }
 
     if (box.get_property("border-top-style").value_or(default_style) != default_style) {
         auto border_width = box.get_property("border-top-width").value_or(default_width);
-        box.dimensions.border.top = to_px(border_width, font_size);
+        box.dimensions.border.top = as_px(border_width);
     }
 
     if (box.get_property("border-bottom-style").value_or(default_style) != default_style) {
         auto border_width = box.get_property("border-bottom-width").value_or(default_width);
-        box.dimensions.border.bottom = to_px(border_width, font_size);
+        box.dimensions.border.bottom = as_px(border_width);
     }
 }
 

@@ -1075,5 +1075,16 @@ int main() {
         expect_eq(layout.get_property("color"), std::nullopt);
     });
 
+    etest::test("border-width keywords", [] {
+        dom::Node dom = dom::Element{.name{"html"}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{"display", "block"}, {"border-left-style", "solid"}, {"border-left-width", "thin"}},
+        };
+
+        auto layout = layout::create_layout(style, 0);
+        expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
+    });
+
     return etest::run_all_tests();
 }
