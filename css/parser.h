@@ -268,6 +268,8 @@ private:
         }
         std::string post_fix{""};
         if (property == "border-style") {
+            // border-style is a bit special as we want border-top-style instead of border-style-top-style.
+            property = "border";
             post_fix = "-style";
         }
         declarations.insert_or_assign(fmt::format("{}-top{}", property, post_fix), std::string{top});

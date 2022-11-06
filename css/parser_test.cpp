@@ -262,9 +262,13 @@ int main() {
     });
 
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {
-        return [=] {
+        return [=]() mutable {
             auto rules = css::parse(fmt::format("p {{ {}: {}; }}"sv, property, value));
             require(rules.size() == 1);
+
+            if (property == "border-style") {
+                property = "border";
+            }
 
             auto body = rules[0];
             expect(body.declarations.size() == 4);
@@ -287,9 +291,13 @@ int main() {
 
     auto box_shorthand_two_values =
             [](std::string property, std::array<std::string, 2> values, std::string post_fix = "") {
-                return [=] {
+                return [=]() mutable {
                     auto rules = css::parse(fmt::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1]));
                     require(rules.size() == 1);
+
+                    if (property == "border-style") {
+                        property = "border";
+                    }
 
                     auto body = rules[0];
                     expect(body.declarations.size() == 4);
@@ -313,9 +321,13 @@ int main() {
     auto box_shorthand_three_values = [](std::string property,
                                               std::array<std::string, 3> values,
                                               std::string post_fix = "") {
-        return [=] {
+        return [=]() mutable {
             auto rules = css::parse(fmt::format("p {{ {}: {} {} {}; }}"sv, property, values[0], values[1], values[2]));
             require(rules.size() == 1);
+
+            if (property == "border-style") {
+                property = "border";
+            }
 
             auto body = rules[0];
             expect(body.declarations.size() == 4);
@@ -338,10 +350,14 @@ int main() {
 
     auto box_shorthand_four_values =
             [](std::string property, std::array<std::string, 4> values, std::string post_fix = "") {
-                return [=] {
+                return [=]() mutable {
                     auto rules = css::parse(fmt::format(
                             "p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]));
                     require(rules.size() == 1);
+
+                    if (property == "border-style") {
+                        property = "border";
+                    }
 
                     auto body = rules[0];
                     expect(body.declarations.size() == 4);
@@ -364,19 +380,25 @@ int main() {
 
     auto box_shorthand_overridden =
             [](std::string property, std::array<std::string, 3> values, std::string post_fix = "") {
-                return [=] {
+                return [=]() mutable {
+                    std::string workaround_for_border_style = property == "border-style" ? "border" : property;
                     auto rules = css::parse(fmt::format(R"(
                             p {{
                                {0}: {2};
-                               {0}-top{1}: {3};
-                               {0}-left{1}: {4};
+                               {5}-top{1}: {3};
+                               {5}-left{1}: {4};
                             }})"sv,
                             property,
                             post_fix,
                             values[0],
                             values[1],
-                            values[2]));
+                            values[2],
+                            workaround_for_border_style));
                     require(rules.size() == 1);
+
+                    if (property == "border-style") {
+                        property = "border";
+                    }
 
                     auto body = rules[0];
                     expect(body.declarations.size() == 4);
@@ -399,11 +421,12 @@ int main() {
 
     auto box_override_with_shorthand =
             [](std::string property, std::array<std::string, 4> values, std::string post_fix = "") {
-                return [=] {
+                return [=]() mutable {
+                    std::string workaround_for_border_style = property == "border-style" ? "border" : property;
                     auto rules = css::parse(fmt::format(R"(
                             p {{
-                               {0}-bottom{1}: {2};
-                               {0}-left{1}: {3};
+                               {6}-bottom{1}: {2};
+                               {6}-left{1}: {3};
                                {0}: {4} {5};
                             }})"sv,
                             property,
@@ -411,8 +434,13 @@ int main() {
                             values[0],
                             values[1],
                             values[2],
-                            values[3]));
+                            values[3],
+                            workaround_for_border_style));
                     require(rules.size() == 1);
+
+                    if (property == "border-style") {
+                        property = "border";
+                    }
 
                     auto body = rules[0];
                     expect(body.declarations.size() == 4);
