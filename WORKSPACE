@@ -78,9 +78,9 @@ http_archive(
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "efe71fd4b8246f1b0b1b9bfca13cfff1c9ad85930340c27df469733bbb620938",
-    strip_prefix = "freetype-2.12.1",
-    url = "https://download.savannah.gnu.org/releases/freetype/freetype-2.12.1.tar.gz",
+    sha256 = "0e72cae32751598d126cfd4bceda909f646b7231ab8c52e28abb686c20a2bea1",
+    strip_prefix = "freetype-VER-2-12-1",
+    url = "https://github.com/freetype/freetype/archive/VER-2-12-1.tar.gz",
 )
 
 # 094d8d9d0a3cd19a7258a13d21ccb6acca60b858 contains a workaround for a Clang
