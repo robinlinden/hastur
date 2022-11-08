@@ -5,6 +5,8 @@
 
 #include "css/parse.h"
 
+#include "css/property_id.h"
+
 #include "etest/etest.h"
 
 #include <algorithm>
@@ -27,42 +29,43 @@ namespace {
     return os;
 }
 
-auto const initial_background_values = std::map<std::string, std::string, std::less<>>{{"background-image", "none"},
-        {"background-position", "0% 0%"},
-        {"background-size", "auto auto"},
-        {"background-repeat", "repeat"},
-        {"background-origin", "padding-box"},
-        {"background-clip", "border-box"},
-        {"background-attachment", "scroll"},
-        {"background-color", "transparent"}};
+auto const initial_background_values =
+        std::map<css::PropertyId, std::string>{{css::PropertyId::BackgroundImage, "none"},
+                {css::PropertyId::BackgroundPosition, "0% 0%"},
+                {css::PropertyId::BackgroundSize, "auto auto"},
+                {css::PropertyId::BackgroundRepeat, "repeat"},
+                {css::PropertyId::BackgroundOrigin, "padding-box"},
+                {css::PropertyId::BackgroundClip, "border-box"},
+                {css::PropertyId::BackgroundAttachment, "scroll"},
+                {css::PropertyId::BackgroundColor, "transparent"}};
 
-bool check_initial_background_values(std::map<std::string, std::string, std::less<>> const &declarations) {
+bool check_initial_background_values(std::map<css::PropertyId, std::string> const &declarations) {
     return std::ranges::all_of(declarations, [](auto const &decl) {
         auto it = initial_background_values.find(decl.first);
         return it != cend(initial_background_values) && it->second == decl.second;
     });
 }
 
-auto const initial_font_values = std::map<std::string, std::string, std::less<>>{{"font-stretch", "normal"},
-        {"font-variant", "normal"},
-        {"font-weight", "normal"},
-        {"line-height", "normal"},
-        {"font-style", "normal"},
-        {"font-size-adjust", "none"},
-        {"font-kerning", "auto"},
-        {"font-feature-settings", "normal"},
-        {"font-language-override", "normal"},
-        {"font-optical-sizing", "auto"},
-        {"font-variation-settings", "normal"},
-        {"font-palette", "normal"},
-        {"font-variant-alternates", "normal"},
-        {"font-variant-caps", "normal"},
-        {"font-variant-ligatures", "normal"},
-        {"font-variant-numeric", "normal"},
-        {"font-variant-position", "normal"},
-        {"font-variant-east-asian", "normal"}};
+auto const initial_font_values = std::map<css::PropertyId, std::string>{{css::PropertyId::FontStretch, "normal"},
+        {css::PropertyId::FontVariant, "normal"},
+        {css::PropertyId::FontWeight, "normal"},
+        {css::PropertyId::LineHeight, "normal"},
+        {css::PropertyId::FontStyle, "normal"},
+        {css::PropertyId::FontSizeAdjust, "none"},
+        {css::PropertyId::FontKerning, "auto"},
+        {css::PropertyId::FontFeatureSettings, "normal"},
+        {css::PropertyId::FontLanguageOverride, "normal"},
+        {css::PropertyId::FontOpticalSizing, "auto"},
+        {css::PropertyId::FontVariationSettings, "normal"},
+        {css::PropertyId::FontPalette, "normal"},
+        {css::PropertyId::FontVariantAlternatives, "normal"},
+        {css::PropertyId::FontVariantCaps, "normal"},
+        {css::PropertyId::FontVariantLigatures, "normal"},
+        {css::PropertyId::FontVariantNumeric, "normal"},
+        {css::PropertyId::FontVariantPosition, "normal"},
+        {css::PropertyId::FontVariantEastAsian, "normal"}};
 
-bool check_initial_font_values(std::map<std::string, std::string, std::less<>> const &declarations) {
+bool check_initial_font_values(std::map<css::PropertyId, std::string> const &declarations) {
     return std::ranges::all_of(declarations, [](auto const &decl) {
         auto it = initial_font_values.find(decl.first);
         return it != cend(initial_font_values) && it->second == decl.second;
@@ -70,9 +73,8 @@ bool check_initial_font_values(std::map<std::string, std::string, std::less<>> c
 }
 
 template<class KeyT, class ValueT>
-ValueT get_and_erase(std::map<KeyT, ValueT, std::less<>> &map,
-        KeyT key,
-        etest::source_location const &loc = etest::source_location::current()) {
+ValueT get_and_erase(
+        std::map<KeyT, ValueT> &map, KeyT key, etest::source_location const &loc = etest::source_location::current()) {
     require(map.contains(key), {}, loc);
     ValueT value = map.at(key);
     map.erase(key);
@@ -89,7 +91,7 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
         expect(body.declarations.size() == 1);
-        expect(body.declarations.at("width"s) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
     });
 
     etest::test("parser: minified", [] {
@@ -99,13 +101,13 @@ int main() {
         auto first = rules[0];
         expect(first.selectors == std::vector{"body"s});
         expect(first.declarations.size() == 2);
-        expect(first.declarations.at("width"s) == "50px"s);
-        expect(first.declarations.at("font"s) == "inherit"s);
+        expect(first.declarations.at(css::PropertyId::Width) == "50px"s);
+        expect(first.declarations.at(css::PropertyId::Font) == "inherit"s);
 
         auto second = rules[1];
         expect(second.selectors == std::vector{"head"s, "p"s});
         expect(second.declarations.size() == 1);
-        expect(second.declarations.at("display"s) == "none"s);
+        expect(second.declarations.at(css::PropertyId::Display) == "none"s);
     });
 
     etest::test("parser: multiple rules", [] {
@@ -115,12 +117,12 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
         expect(body.declarations.size() == 1);
-        expect(body.declarations.at("width"s) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
 
         auto p = rules[1];
         expect(p.selectors == std::vector{"p"s});
         expect(p.declarations.size() == 1);
-        expect(p.declarations.at("font-size"s) == "8em"s);
+        expect(p.declarations.at(css::PropertyId::FontSize) == "8em"s);
     });
 
     etest::test("parser: multiple selectors", [] {
@@ -130,7 +132,7 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s, "p"s});
         expect(body.declarations.size() == 1);
-        expect(body.declarations.at("width"s) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
     });
 
     etest::test("parser: multiple declarations", [] {
@@ -140,8 +142,8 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
         expect(body.declarations.size() == 2);
-        expect(body.declarations.at("width"s) == "50px"s);
-        expect(body.declarations.at("height"s) == "300px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Height) == "300px"s);
     });
 
     etest::test("parser: class", [] {
@@ -151,7 +153,7 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{".cls"s});
         expect(body.declarations.size() == 1);
-        expect(body.declarations.at("width"s) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
     });
 
     etest::test("parser: id", [] {
@@ -161,7 +163,7 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{"#cls"s});
         expect(body.declarations.size() == 1);
-        expect(body.declarations.at("width"s) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
     });
 
     etest::test("parser: empty rule", [] {
@@ -185,12 +187,12 @@ int main() {
         auto body = rules[0];
         expect(body.selectors == std::vector{"body"s});
         expect(body.declarations.size() == 1);
-        expect(body.declarations.at("width"s) == "50px"s);
+        expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
 
         auto p = rules[1];
         expect(p.selectors == std::vector{"p"s});
         expect(p.declarations.size() == 1);
-        expect(p.declarations.at("font-size"s) == "8em"s);
+        expect(p.declarations.at(css::PropertyId::FontSize) == "8em"s);
     });
 
     etest::test("parser: comments almost everywhere", [] {
@@ -205,15 +207,15 @@ int main() {
         auto body = rules[0];
         expect_eq(body.selectors, std::vector{"body"s});
         expect_eq(body.declarations.size(), 1UL);
-        expect_eq(body.declarations.at("width"s), "50px"s);
+        expect_eq(body.declarations.at(css::PropertyId::Width), "50px"s);
 
         auto p = rules[1];
         expect_eq(p.selectors, std::vector{"p"s});
         expect_eq(p.declarations.size(), 4UL);
-        expect_eq(p.declarations.at("padding-top"s), "8em"s);
-        expect_eq(p.declarations.at("padding-bottom"s), "8em"s);
-        expect_eq(p.declarations.at("padding-left"s), "4em"s);
-        expect_eq(p.declarations.at("padding-right"s), "4em"s);
+        expect_eq(p.declarations.at(css::PropertyId::PaddingTop), "8em"s);
+        expect_eq(p.declarations.at(css::PropertyId::PaddingBottom), "8em"s);
+        expect_eq(p.declarations.at(css::PropertyId::PaddingLeft), "4em"s);
+        expect_eq(p.declarations.at(css::PropertyId::PaddingRight), "4em"s);
     });
 
     etest::test("parser: media query", [] {
@@ -227,20 +229,20 @@ int main() {
 
         auto article = rules[0];
         expect(article.selectors == std::vector{"article"s});
-        require(article.declarations.contains("width"));
-        expect(article.declarations.at("width"s) == "50px"s);
+        require(article.declarations.contains(css::PropertyId::Width));
+        expect(article.declarations.at(css::PropertyId::Width) == "50px"s);
         expect(article.media_query == "screen and (min-width: 900px)");
 
         auto p = rules[1];
         expect(p.selectors == std::vector{"p"s});
-        require(p.declarations.contains("font-size"));
-        expect(p.declarations.at("font-size"s) == "9em"s);
+        require(p.declarations.contains(css::PropertyId::FontSize));
+        expect(p.declarations.at(css::PropertyId::FontSize) == "9em"s);
         expect(p.media_query == "screen and (min-width: 900px)");
 
         auto a = rules[2];
         expect(a.selectors == std::vector{"a"s});
-        require(a.declarations.contains("background-color"));
-        expect(a.declarations.at("background-color"s) == "indigo"s);
+        require(a.declarations.contains(css::PropertyId::BackgroundColor));
+        expect(a.declarations.at(css::PropertyId::BackgroundColor) == "indigo"s);
         expect(a.media_query.empty());
     });
 
@@ -251,14 +253,17 @@ int main() {
         expect_eq(rule.media_query, "(prefers-color-scheme: dark)");
         expect_eq(rule.selectors, std::vector{"p"s});
         require_eq(rule.declarations.size(), std::size_t{1});
-        expect_eq(rule.declarations.at("font-size"), "10px");
+        expect_eq(rule.declarations.at(css::PropertyId::FontSize), "10px");
     });
 
     etest::test("parser: 2 media queries in a row", [] {
         auto rules = css::parse("@media screen { p { font-size: 1em; } } @media print { a { color: blue; } }");
         require_eq(rules.size(), std::size_t{2});
-        expect_eq(rules[0], css::Rule{.selectors{{"p"}}, .declarations{{"font-size", "1em"}}, .media_query{"screen"}});
-        expect_eq(rules[1], css::Rule{.selectors{{"a"}}, .declarations{{"color", "blue"}}, .media_query{"print"}});
+        expect_eq(rules[0],
+                css::Rule{
+                        .selectors{{"p"}}, .declarations{{css::PropertyId::FontSize, "1em"}}, .media_query{"screen"}});
+        expect_eq(rules[1],
+                css::Rule{.selectors{{"a"}}, .declarations{{css::PropertyId::Color, "blue"}}, .media_query{"print"}});
     });
 
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {
@@ -272,10 +277,14 @@ int main() {
 
             auto body = rules[0];
             expect(body.declarations.size() == 4);
-            expect(body.declarations.at(fmt::format("{}-top{}", property, post_fix)) == value);
-            expect(body.declarations.at(fmt::format("{}-bottom{}", property, post_fix)) == value);
-            expect(body.declarations.at(fmt::format("{}-left{}", property, post_fix)) == value);
-            expect(body.declarations.at(fmt::format("{}-right{}", property, post_fix)) == value);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+                    == value);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+                    == value);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+                    == value);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+                    == value);
         };
     };
 
@@ -289,24 +298,29 @@ int main() {
                 box_shorthand_one_value("border-style", border_style, "-style"));
     }
 
-    auto box_shorthand_two_values =
-            [](std::string property, std::array<std::string, 2> values, std::string post_fix = "") {
-                return [=]() mutable {
-                    auto rules = css::parse(fmt::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1]));
-                    require(rules.size() == 1);
+    auto box_shorthand_two_values = [](std::string property,
+                                            std::array<std::string, 2> values,
+                                            std::string post_fix = "") {
+        return [=]() mutable {
+            auto rules = css::parse(fmt::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1]));
+            require(rules.size() == 1);
 
-                    if (property == "border-style") {
-                        property = "border";
-                    }
+            if (property == "border-style") {
+                property = "border";
+            }
 
-                    auto body = rules[0];
-                    expect(body.declarations.size() == 4);
-                    expect(body.declarations.at(fmt::format("{}-top{}", property, post_fix)) == values[0]);
-                    expect(body.declarations.at(fmt::format("{}-bottom{}", property, post_fix)) == values[0]);
-                    expect(body.declarations.at(fmt::format("{}-left{}", property, post_fix)) == values[1]);
-                    expect(body.declarations.at(fmt::format("{}-right{}", property, post_fix)) == values[1]);
-                };
-            };
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+                    == values[0]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+                    == values[0]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+                    == values[1]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+                    == values[1]);
+        };
+    };
 
     {
         auto size_values = std::array{"12em"s, "36em"s};
@@ -331,10 +345,14 @@ int main() {
 
             auto body = rules[0];
             expect(body.declarations.size() == 4);
-            expect(body.declarations.at(fmt::format("{}-top{}", property, post_fix)) == values[0]);
-            expect(body.declarations.at(fmt::format("{}-bottom{}", property, post_fix)) == values[2]);
-            expect(body.declarations.at(fmt::format("{}-left{}", property, post_fix)) == values[1]);
-            expect(body.declarations.at(fmt::format("{}-right{}", property, post_fix)) == values[1]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+                    == values[0]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+                    == values[2]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+                    == values[1]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+                    == values[1]);
         };
     };
 
@@ -348,25 +366,30 @@ int main() {
                 box_shorthand_three_values("border-style", border_styles, "-style"));
     }
 
-    auto box_shorthand_four_values =
-            [](std::string property, std::array<std::string, 4> values, std::string post_fix = "") {
-                return [=]() mutable {
-                    auto rules = css::parse(fmt::format(
-                            "p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]));
-                    require(rules.size() == 1);
+    auto box_shorthand_four_values = [](std::string property,
+                                             std::array<std::string, 4> values,
+                                             std::string post_fix = "") {
+        return [=]() mutable {
+            auto rules = css::parse(
+                    fmt::format("p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]));
+            require(rules.size() == 1);
 
-                    if (property == "border-style") {
-                        property = "border";
-                    }
+            if (property == "border-style") {
+                property = "border";
+            }
 
-                    auto body = rules[0];
-                    expect(body.declarations.size() == 4);
-                    expect(body.declarations.at(fmt::format("{}-top{}", property, post_fix)) == values[0]);
-                    expect(body.declarations.at(fmt::format("{}-bottom{}", property, post_fix)) == values[2]);
-                    expect(body.declarations.at(fmt::format("{}-left{}", property, post_fix)) == values[3]);
-                    expect(body.declarations.at(fmt::format("{}-right{}", property, post_fix)) == values[1]);
-                };
-            };
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+                    == values[0]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+                    == values[2]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+                    == values[3]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+                    == values[1]);
+        };
+    };
 
     {
         auto size_values = std::array{"12px"s, "36px"s, "52px"s, "2"s};
@@ -378,36 +401,41 @@ int main() {
                 box_shorthand_four_values("border-style", border_styles, "-style"));
     }
 
-    auto box_shorthand_overridden =
-            [](std::string property, std::array<std::string, 3> values, std::string post_fix = "") {
-                return [=]() mutable {
-                    std::string workaround_for_border_style = property == "border-style" ? "border" : property;
-                    auto rules = css::parse(fmt::format(R"(
+    auto box_shorthand_overridden = [](std::string property,
+                                            std::array<std::string, 3> values,
+                                            std::string post_fix = "") {
+        return [=]() mutable {
+            std::string workaround_for_border_style = property == "border-style" ? "border" : property;
+            auto rules = css::parse(fmt::format(R"(
                             p {{
                                {0}: {2};
                                {5}-top{1}: {3};
                                {5}-left{1}: {4};
                             }})"sv,
-                            property,
-                            post_fix,
-                            values[0],
-                            values[1],
-                            values[2],
-                            workaround_for_border_style));
-                    require(rules.size() == 1);
+                    property,
+                    post_fix,
+                    values[0],
+                    values[1],
+                    values[2],
+                    workaround_for_border_style));
+            require(rules.size() == 1);
 
-                    if (property == "border-style") {
-                        property = "border";
-                    }
+            if (property == "border-style") {
+                property = "border";
+            }
 
-                    auto body = rules[0];
-                    expect(body.declarations.size() == 4);
-                    expect(body.declarations.at(fmt::format("{}-top{}", property, post_fix)) == values[1]);
-                    expect(body.declarations.at(fmt::format("{}-bottom{}", property, post_fix)) == values[0]);
-                    expect(body.declarations.at(fmt::format("{}-left{}", property, post_fix)) == values[2]);
-                    expect(body.declarations.at(fmt::format("{}-right{}", property, post_fix)) == values[0]);
-                };
-            };
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect_eq(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix))),
+                    values[1]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+                    == values[0]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+                    == values[2]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+                    == values[0]);
+        };
+    };
 
     {
         auto size_values = std::array{"10px"s, "15px"s, "25px"s};
@@ -419,37 +447,42 @@ int main() {
                 box_shorthand_overridden("border-style", border_styles, "-style"));
     }
 
-    auto box_override_with_shorthand =
-            [](std::string property, std::array<std::string, 4> values, std::string post_fix = "") {
-                return [=]() mutable {
-                    std::string workaround_for_border_style = property == "border-style" ? "border" : property;
-                    auto rules = css::parse(fmt::format(R"(
+    auto box_override_with_shorthand = [](std::string property,
+                                               std::array<std::string, 4> values,
+                                               std::string post_fix = "") {
+        return [=]() mutable {
+            std::string workaround_for_border_style = property == "border-style" ? "border" : property;
+            auto rules = css::parse(fmt::format(R"(
                             p {{
                                {6}-bottom{1}: {2};
                                {6}-left{1}: {3};
                                {0}: {4} {5};
                             }})"sv,
-                            property,
-                            post_fix,
-                            values[0],
-                            values[1],
-                            values[2],
-                            values[3],
-                            workaround_for_border_style));
-                    require(rules.size() == 1);
+                    property,
+                    post_fix,
+                    values[0],
+                    values[1],
+                    values[2],
+                    values[3],
+                    workaround_for_border_style));
+            require(rules.size() == 1);
 
-                    if (property == "border-style") {
-                        property = "border";
-                    }
+            if (property == "border-style") {
+                property = "border";
+            }
 
-                    auto body = rules[0];
-                    expect(body.declarations.size() == 4);
-                    expect(body.declarations.at(fmt::format("{}-top{}", property, post_fix)) == values[2]);
-                    expect(body.declarations.at(fmt::format("{}-bottom{}", property, post_fix)) == values[2]);
-                    expect(body.declarations.at(fmt::format("{}-left{}", property, post_fix)) == values[3]);
-                    expect(body.declarations.at(fmt::format("{}-right{}", property, post_fix)) == values[3]);
-                };
-            };
+            auto body = rules[0];
+            expect(body.declarations.size() == 4);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+                    == values[2]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+                    == values[2]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+                    == values[3]);
+            expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+                    == values[3]);
+        };
+    };
 
     {
         auto size_values = std::array{"5px"s, "25px"s, "12px"s, "40px"s};
@@ -466,7 +499,7 @@ int main() {
         require(rules.size() == 1);
 
         auto &p = rules[0];
-        expect_eq(get_and_erase(p.declarations, "background-color"s), "red"sv);
+        expect_eq(get_and_erase(p.declarations, css::PropertyId::BackgroundColor), "red"sv);
         expect(check_initial_background_values(p.declarations));
     });
 
@@ -476,8 +509,8 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "sans-serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "1.5em"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "sans-serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "1.5em"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -487,9 +520,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "monospace"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "10%"s);
-        expect(get_and_erase(body.declarations, "line-height"s) == "2.5"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "monospace"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "10%"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::LineHeight) == "2.5"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -499,9 +532,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "\"New Century Schoolbook\", serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "x-large"s);
-        expect(get_and_erase(body.declarations, "line-height"s) == "110%"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"New Century Schoolbook\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "x-large"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::LineHeight) == "110%"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -511,9 +544,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "\"Helvetica Neue\", serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "120%"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "120%"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "italic"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -523,9 +556,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "\"Helvetica Neue\", serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "12pt"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "oblique"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "12pt"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -535,9 +568,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "10px"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "oblique 25deg"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "10px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique 25deg"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -547,11 +580,11 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "20em"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "bold"s);
-        expect(get_and_erase(body.declarations, "line-height"s) == "50%"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "20em"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "italic"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "bold"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::LineHeight) == "50%"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -561,9 +594,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "bolder"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "100px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "bolder"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -573,9 +606,9 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "lighter"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "100px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "lighter"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -585,10 +618,10 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "oblique"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "1000"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "100px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "1000"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -598,10 +631,10 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "550"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "100px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "italic"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "550"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -611,10 +644,10 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "oblique"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "1"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "100px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "1"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -624,10 +657,10 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "100px"s);
-        expect(get_and_erase(body.declarations, "font-variant"s) == "small-caps"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "900"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "100px"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontVariant) == "small-caps"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "900"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -637,11 +670,11 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "\"Helvetica Neue\", serif"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "12pt"s);
-        expect(get_and_erase(body.declarations, "font-stretch"s) == "condensed"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "oblique 25deg"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "753"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "12pt"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStretch) == "condensed"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique 25deg"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "753"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -651,12 +684,12 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "monospace"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "xx-smal"s);
-        expect(get_and_erase(body.declarations, "font-stretch"s) == "expanded"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "bold"s);
-        expect(get_and_erase(body.declarations, "line-height"s) == "80%"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "monospace"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "xx-smal"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStretch) == "expanded"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "italic"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "bold"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::LineHeight) == "80%"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -666,12 +699,12 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, "font-family"s) == "Arial, monospace"s);
-        expect(get_and_erase(body.declarations, "font-size"s) == "medium"s);
-        expect(get_and_erase(body.declarations, "font-stretch"s) == "ultra-expanded"s);
-        expect(get_and_erase(body.declarations, "font-style"s) == "italic"s);
-        expect(get_and_erase(body.declarations, "font-variant"s) == "small-caps"s);
-        expect(get_and_erase(body.declarations, "font-weight"s) == "bold"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "Arial, monospace"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "medium"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStretch) == "ultra-expanded"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "italic"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontVariant) == "small-caps"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "bold"s);
         expect(check_initial_font_values(body.declarations));
     });
 
@@ -721,8 +754,10 @@ int main() {
         expect_eq(rules.size(), std::size_t{1});
         expect_eq(rules[0].selectors, std::vector{"@font-face"s});
         expect_eq(rules[0].declarations.size(), std::size_t{2});
-        expect_eq(rules[0].declarations.at("font-family"), R"("Open Sans")");
-        auto const &src = rules[0].declarations.at("src");
+        expect_eq(rules[0].declarations.at(css::PropertyId::FontFamily), R"("Open Sans")");
+
+        // Very incorrect.
+        auto const &src = rules[0].declarations.at(css::PropertyId::Unknown);
         auto woff2 = src.find(R"(url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2"))");
         expect(woff2 != std::string::npos);
         auto woff = src.find(R"(url("/fonts/OpenSans-Regular-webfont.woff") format("woff")");

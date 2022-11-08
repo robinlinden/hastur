@@ -261,12 +261,12 @@ gfx::Color parse_color(std::string_view str) {
     return gfx::Color{0xFF, 0, 0};
 }
 
-std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout, std::string_view color_property) {
+std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout, css::PropertyId color_property) {
     auto maybe_color = layout.get_property(color_property);
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
     if (maybe_color == "currentcolor") {
-        maybe_color = layout.get_property("color");
+        maybe_color = layout.get_property(css::PropertyId::Color);
     }
 
     if (maybe_color) {
@@ -282,22 +282,23 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
     // * This shouldn't be done here.
     auto font = gfx::Font{"arial"sv};
     auto font_size = gfx::FontSize{.px = 10};
-    auto color = try_get_color(layout, "color"sv).value_or(kDefaultColor);
+    auto color = try_get_color(layout, css::PropertyId::Color).value_or(kDefaultColor);
     painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
-    auto background_color = try_get_color(layout, "background-color"sv).value_or(named_colors.at("transparent"));
+    auto background_color =
+            try_get_color(layout, css::PropertyId::BackgroundColor).value_or(named_colors.at("transparent"));
     auto const &border_size = layout.dimensions.border;
     if (has_any_border(border_size)) {
         gfx::Borders borders{};
-        borders.left.color = try_get_color(layout, "border-left-color"sv).value_or(kDefaultColor);
+        borders.left.color = try_get_color(layout, css::PropertyId::BorderLeftColor).value_or(kDefaultColor);
         borders.left.size = border_size.left;
-        borders.right.color = try_get_color(layout, "border-right-color"sv).value_or(kDefaultColor);
+        borders.right.color = try_get_color(layout, css::PropertyId::BorderRightColor).value_or(kDefaultColor);
         borders.right.size = border_size.right;
-        borders.top.color = try_get_color(layout, "border-top-color"sv).value_or(kDefaultColor);
+        borders.top.color = try_get_color(layout, css::PropertyId::BorderTopColor).value_or(kDefaultColor);
         borders.top.size = border_size.top;
-        borders.bottom.color = try_get_color(layout, "border-bottom-color"sv).value_or(kDefaultColor);
+        borders.bottom.color = try_get_color(layout, css::PropertyId::BorderBottomColor).value_or(kDefaultColor);
         borders.bottom.size = border_size.bottom;
 
         painter.draw_rect(layout.dimensions.padding_box(), background_color, borders);

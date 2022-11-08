@@ -42,11 +42,11 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {}},
-                {children[1], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[1]).children[0], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {}},
+                {children[1], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[1]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -78,12 +78,12 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "none"}}, {}},
-                {children[1], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "none"}}, {}},
+                {children[1], {{css::PropertyId::Display, "block"}}, {
 
-                    {std::get<dom::Element>(children[1]).children[0], {{"display", "block"}}, {}},
+                    {std::get<dom::Element>(children[1]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -114,10 +114,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "inline"}}, {}},
-                {children[1], {{"display", "inline"}}, {
+                {children[0], {{css::PropertyId::Display, "inline"}}, {}},
+                {children[1], {{css::PropertyId::Display, "inline"}}, {
                     {std::get<dom::Element>(children[1]).children[0], {}, {}},
                 }},
             },
@@ -148,8 +148,8 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
                 .node = dom_root,
-                .properties = {{"display", "inline"}},
-                .children = {{children[0], {{"display", "inline"}}, {}}},
+                .properties = {{css::PropertyId::Display, "inline"}},
+                .children = {{children[0], {{css::PropertyId::Display, "inline"}}, {}}},
         };
 
         auto expected_layout = layout::LayoutBox{
@@ -175,9 +175,9 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}, {"font-size", "10px"}},
+            .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], {}, {}},
                     {std::get<dom::Element>(children[0]).children[1], {}, {}},
                 }},
@@ -213,10 +213,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"width", "100px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -245,10 +245,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"min-width", "100px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::MinWidth, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"min-width", "50px"}, {"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::MinWidth, "50px"}, {css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -277,10 +277,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"max-width", "100px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::MaxWidth, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"max-width", "50px"}, {"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::MaxWidth, "50px"}, {css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -309,10 +309,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"width", "100px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"width", "50px"}, {"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"width", "25px"}, {"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Width, "50px"}, {css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Width, "25px"}, {css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -341,10 +341,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"width", "100px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -373,10 +373,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"height", "100px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::Height, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -406,11 +406,11 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}, {"display", "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -441,11 +441,11 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"min-height", "400px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::MinHeight, "400px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}, {"display", "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -476,11 +476,11 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"max-height", "10px"}, {"display", "block"}},
+            .properties = {{css::PropertyId::MaxHeight, "10px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"height", "400px"}, {"display", "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "400px"}, {css::PropertyId::Display, "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -509,22 +509,22 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"height"s, "100px"s},
-                std::pair{"padding-top"s, "10px"s},
-                std::pair{"padding-right"s, "10px"s},
-                std::pair{"padding-bottom"s, "10px"s},
-                std::pair{"padding-left"s, "10px"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::Height, "100px"s},
+                std::pair{css::PropertyId::PaddingTop, "10px"s},
+                std::pair{css::PropertyId::PaddingRight, "10px"s},
+                std::pair{css::PropertyId::PaddingBottom, "10px"s},
+                std::pair{css::PropertyId::PaddingLeft, "10px"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"display", "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -553,26 +553,26 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"height"s, "100px"s},
-                std::pair{"border-left-style"s, "solid"s},
-                std::pair{"border-right-style"s, "solid"s},
-                std::pair{"border-top-style"s, "solid"s},
-                std::pair{"border-bottom-style"s, "solid"s},
-                std::pair{"border-left-width"s, "10px"s},
-                std::pair{"border-right-width"s, "12px"s},
-                std::pair{"border-top-width"s, "14px"s},
-                std::pair{"border-bottom-width"s, "16px"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::Height, "100px"s},
+                std::pair{css::PropertyId::BorderLeftStyle, "solid"s},
+                std::pair{css::PropertyId::BorderRightStyle, "solid"s},
+                std::pair{css::PropertyId::BorderTopStyle, "solid"s},
+                std::pair{css::PropertyId::BorderBottomStyle, "solid"s},
+                std::pair{css::PropertyId::BorderLeftWidth, "10px"s},
+                std::pair{css::PropertyId::BorderRightWidth, "12px"s},
+                std::pair{css::PropertyId::BorderTopWidth, "14px"s},
+                std::pair{css::PropertyId::BorderBottomWidth, "16px"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"display", "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -600,20 +600,20 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"height"s, "100px"s},
-                std::pair{"border-left-width"s, "10px"s},
-                std::pair{"border-right-width"s, "12px"s},
-                std::pair{"border-top-width"s, "14px"s},
-                std::pair{"border-bottom-width"s, "16px"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::Height, "100px"s},
+                std::pair{css::PropertyId::BorderLeftWidth, "10px"s},
+                std::pair{css::PropertyId::BorderRightWidth, "12px"s},
+                std::pair{css::PropertyId::BorderTopWidth, "14px"s},
+                std::pair{css::PropertyId::BorderBottomWidth, "16px"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
                 }},
             },
@@ -642,21 +642,21 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"margin-top"s, "10px"s},
-                std::pair{"margin-right"s, "10px"s},
-                std::pair{"margin-bottom"s, "10px"s},
-                std::pair{"margin-left"s, "10px"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::MarginTop, "10px"s},
+                std::pair{css::PropertyId::MarginRight, "10px"s},
+                std::pair{css::PropertyId::MarginBottom, "10px"s},
+                std::pair{css::PropertyId::MarginLeft, "10px"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"display", "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -684,18 +684,18 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"width"s, "100px"s},
-                std::pair{"margin-left"s, "auto"s},
-                std::pair{"margin-right"s, "auto"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::Width, "100px"s},
+                std::pair{css::PropertyId::MarginLeft, "auto"s},
+                std::pair{css::PropertyId::MarginRight, "auto"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
                 }},
             },
@@ -723,18 +723,18 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"width"s, "100px"s},
-                std::pair{"margin-left"s, "auto"s},
-                std::pair{"margin-right"s, "20px"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::Width, "100px"s},
+                std::pair{css::PropertyId::MarginLeft, "auto"s},
+                std::pair{css::PropertyId::MarginRight, "20px"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
                 }},
             },
@@ -762,18 +762,18 @@ int main() {
         });
 
         auto properties = std::vector{
-                std::pair{"display"s, "block"s},
-                std::pair{"width"s, "100px"s},
-                std::pair{"margin-left"s, "75px"s},
-                std::pair{"margin-right"s, "auto"s},
+                std::pair{css::PropertyId::Display, "block"s},
+                std::pair{css::PropertyId::Width, "100px"s},
+                std::pair{css::PropertyId::MarginLeft, "75px"s},
+                std::pair{css::PropertyId::MarginRight, "auto"s},
         };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"display", "block"}}, {
+                {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
                 }},
             },
@@ -799,10 +799,10 @@ int main() {
             auto style_root = style::StyledNode{
                 .node = dom_root,
                 .properties = {
-                        std::pair{"display", "block"},
-                        std::pair{"font-size", "10px"},
-                        std::pair{"height", "10em"},
-                        std::pair{"width", "10em"},
+                        std::pair{css::PropertyId::Display, "block"},
+                        std::pair{css::PropertyId::FontSize, "10px"},
+                        std::pair{css::PropertyId::Height, "10em"},
+                        std::pair{css::PropertyId::Width, "10em"},
                 },
                 .children = {},
             };
@@ -821,10 +821,10 @@ int main() {
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {
-                    std::pair{"display", "block"},
-                    std::pair{"font-size", "20px"},
-                    std::pair{"height", "10em"},
-                    std::pair{"width", "10em"},
+                    std::pair{css::PropertyId::Display, "block"},
+                    std::pair{css::PropertyId::FontSize, "20px"},
+                    std::pair{css::PropertyId::Height, "10em"},
+                    std::pair{css::PropertyId::Width, "10em"},
             },
             .children = {},
         };
@@ -845,10 +845,10 @@ int main() {
             auto style_root = style::StyledNode{
                 .node = dom_root,
                 .properties = {
-                        std::pair{"display", "block"},
-                        std::pair{"font-size", "10px"},
-                        std::pair{"height", "10px"},
-                        std::pair{"width", "10px"},
+                        std::pair{css::PropertyId::Display, "block"},
+                        std::pair{css::PropertyId::FontSize, "10px"},
+                        std::pair{css::PropertyId::Height, "10px"},
+                        std::pair{css::PropertyId::Width, "10px"},
                 },
                 .children = {},
             };
@@ -867,10 +867,10 @@ int main() {
         auto style_root = style::StyledNode{
             .node = dom_root,
             .properties = {
-                    std::pair{"display", "block"},
-                    std::pair{"font-size", "20px"},
-                    std::pair{"height", "10px"},
-                    std::pair{"width", "10px"},
+                    std::pair{css::PropertyId::Display, "block"},
+                    std::pair{css::PropertyId::FontSize, "20px"},
+                    std::pair{css::PropertyId::Height, "10px"},
+                    std::pair{css::PropertyId::Width, "10px"},
             },
             .children = {},
         };
@@ -922,11 +922,11 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{"display", "block"}},
+            .properties = {{css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{"width", "50px"}, {"display", "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{"height", "25px"}, {"display", "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{"padding-top", "5px"}, {"padding-right", "15px"}, {"display", "block"}}, {}},
+                {children[0], {{css::PropertyId::Width, "50px"}, {css::PropertyId::Display, "block"}}, {
+                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}}, {}},
+                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::PaddingTop, "5px"}, {css::PropertyId::PaddingRight, "15px"}, {css::PropertyId::Display, "block"}}, {}},
                 }},
             },
         };
@@ -948,7 +948,9 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"width", "100px"}, {"max-width", "none"}},
+                .properties{{css::PropertyId::Display, "block"},
+                        {css::PropertyId::Width, "100px"},
+                        {css::PropertyId::MaxWidth, "none"}},
         };
         layout::LayoutBox expected_layout{.node = &style, .type = LayoutType::Block, .dimensions{{0, 0, 100, 0}}};
 
@@ -960,7 +962,9 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"height", "100px"}, {"max-height", "none"}},
+                .properties{{css::PropertyId::Display, "block"},
+                        {css::PropertyId::Height, "100px"},
+                        {css::PropertyId::MaxHeight, "none"}},
         };
         layout::LayoutBox expected_layout{.node = &style, .type = LayoutType::Block, .dimensions{{0, 0, 0, 100}}};
 
@@ -972,11 +976,11 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Element{.name{"p"}}}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"height", "auto"}},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::Height, "auto"}},
                 .children{
                         style::StyledNode{
                                 .node{std::get<dom::Element>(dom).children[0]},
-                                .properties{{"display", "block"}, {"height", "10px"}},
+                                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::Height, "10px"}},
                         },
                 },
         };
@@ -999,7 +1003,7 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi"}}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"font-size", "medium"}},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "medium"}},
                 .children{
                         style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}},
                 },
@@ -1007,7 +1011,7 @@ int main() {
         set_up_parent_ptrs(style);
 
         auto medium_layout = layout::create_layout(style, 1000);
-        style.properties = {{"display", "block"}, {"font-size", "xxx-large"}};
+        style.properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "xxx-large"}};
         auto xxxlarge_layout = layout::create_layout(style, 1000);
 
         auto get_text_width = [](layout::LayoutBox const &layout) {
@@ -1029,7 +1033,7 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"height", "no"}},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::Height, "no"}},
         };
 
         layout::LayoutBox expected_layout{
@@ -1046,7 +1050,7 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"height", "0notarealunit"}},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::Height, "0notarealunit"}},
         };
 
         layout::LayoutBox expected_layout{
@@ -1061,25 +1065,28 @@ int main() {
 
     etest::test("get_property", [] {
         dom::Node dom_root = dom::Element{.name{"html"}, .attributes{}, .children{}};
-        auto style_root = style::StyledNode{.node = dom_root, .properties = {{"color", "green"}}, .children{}};
+        auto style_root =
+                style::StyledNode{.node = dom_root, .properties = {{css::PropertyId::Color, "green"}}, .children{}};
 
         auto layout = layout::create_layout(style_root, 0);
-        expect_eq(layout.get_property("color"), "green");
-        expect_eq(layout.get_property("background-color"), "transparent");
+        expect_eq(layout.get_property(css::PropertyId::Color), "green");
+        expect_eq(layout.get_property(css::PropertyId::BackgroundColor), "transparent");
     });
 
     etest::test("get_property, no backing style node", [] {
         auto layout = layout::LayoutBox{
                 .node = nullptr,
         };
-        expect_eq(layout.get_property("color"), std::nullopt);
+        expect_eq(layout.get_property(css::PropertyId::Color), std::nullopt);
     });
 
     etest::test("border-width keywords", [] {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{"display", "block"}, {"border-left-style", "solid"}, {"border-left-width", "thin"}},
+                .properties{{css::PropertyId::Display, "block"},
+                        {css::PropertyId::BorderLeftStyle, "solid"},
+                        {css::PropertyId::BorderLeftWidth, "thin"}},
         };
 
         auto layout = layout::create_layout(style, 0);

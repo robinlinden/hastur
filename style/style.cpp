@@ -57,9 +57,9 @@ bool is_match(dom::Element const &element, std::string_view selector_) {
     return false;
 }
 
-std::vector<std::pair<std::string, std::string>> matching_rules(
+std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         dom::Element const &element, std::vector<css::Rule> const &stylesheet) {
-    std::vector<std::pair<std::string, std::string>> matched_rules;
+    std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
 
     for (auto const &rule : stylesheet) {
         if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(element, selector); })) {
@@ -85,7 +85,7 @@ void style_tree_impl(StyledNode &current, dom::Node const &root, std::vector<css
 
     current.properties = std::holds_alternative<dom::Element>(root)
             ? matching_rules(std::get<dom::Element>(root), stylesheet)
-            : std::vector<std::pair<std::string, std::string>>{};
+            : std::vector<std::pair<css::PropertyId, std::string>>{};
 }
 } // namespace
 

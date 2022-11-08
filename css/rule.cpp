@@ -4,6 +4,8 @@
 
 #include "css/rule.h"
 
+#include "css/property_id.h"
+
 #include <sstream>
 #include <utility>
 
@@ -24,7 +26,7 @@ std::string to_string(Rule const &rule) {
     ss << '\n';
     ss << "Declarations:\n";
     for (auto const &[property, value] : rule.declarations) {
-        ss << "  " << property << ": " << value << '\n';
+        ss << "  " << to_string(property) << ": " << value << '\n';
     }
     if (!rule.media_query.empty()) {
         ss << "Media query:\n";

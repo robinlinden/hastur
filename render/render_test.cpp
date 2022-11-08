@@ -23,8 +23,8 @@ int main() {
         auto const &children = std::get<dom::Element>(dom).children;
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{"display", "inline"}},
-                .children = {{children[0], {{"display", "inline"}}, {}}},
+                .properties = {{css::PropertyId::Display, "inline"}},
+                .children = {{children[0], {{css::PropertyId::Display, "inline"}}, {}}},
         };
 
         auto layout = layout::LayoutBox{
@@ -45,7 +45,7 @@ int main() {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{"display", "block"}, {"background-color", "#0A0B0C"}},
+                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::BackgroundColor, "#0A0B0C"}},
         };
 
         auto layout = layout::LayoutBox{
@@ -68,7 +68,7 @@ int main() {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{"display", "block"}, {"background-color", "transparent"}},
+                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::BackgroundColor, "transparent"}},
         };
 
         auto layout = layout::LayoutBox{
@@ -88,7 +88,7 @@ int main() {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{"display", "block"}, {"background-color", "#0A0B0C"}},
+                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::BackgroundColor, "#0A0B0C"}},
         };
 
         auto layout = layout::LayoutBox{
@@ -113,11 +113,11 @@ int main() {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{"display", "block"},
-                        {"border-left-color", "#010101"},
-                        {"border-right-color", "#020202"},
-                        {"border-top-color", "#030303"},
-                        {"border-bottom-color", "#040404"}},
+                .properties = {{css::PropertyId::Display, "block"},
+                        {css::PropertyId::BorderLeftColor, "#010101"},
+                        {css::PropertyId::BorderRightColor, "#020202"},
+                        {css::PropertyId::BorderTopColor, "#030303"},
+                        {css::PropertyId::BorderBottomColor, "#040404"}},
         };
 
         auto layout = layout::LayoutBox{
@@ -144,8 +144,8 @@ int main() {
 
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{"color", "#aabbcc"}},
-                .children = {{children[0], {{"background-color", "currentcolor"}}, {}}},
+                .properties = {{css::PropertyId::Color, "#aabbcc"}},
+                .children = {{children[0], {{css::PropertyId::BackgroundColor, "currentcolor"}}, {}}},
         };
         styled.children[0].parent = &styled;
 
@@ -180,25 +180,25 @@ int main() {
         gfx::Painter painter{saver};
 
         // #rgba
-        styled.properties = {{"background-color", "#abcd"}};
+        styled.properties = {{css::PropertyId::BackgroundColor, "#abcd"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc, 0xdd}}};
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // #rrggbbaa
-        styled.properties = {{"background-color", "#12345678"}};
+        styled.properties = {{css::PropertyId::BackgroundColor, "#12345678"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56, 0x78}}};
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // #rgb
-        styled.properties = {{"background-color", "#abc"}};
+        styled.properties = {{css::PropertyId::BackgroundColor, "#abc"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc}}};
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // #rrggbb
-        styled.properties = {{"background-color", "#123456"}};
+        styled.properties = {{css::PropertyId::BackgroundColor, "#123456"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});

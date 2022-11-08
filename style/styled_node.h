@@ -5,6 +5,7 @@
 #ifndef STYLE_STYLED_NODE_H_
 #define STYLE_STYLED_NODE_H_
 
+#include "css/property_id.h"
 #include "dom/dom.h"
 
 #include <string>
@@ -16,11 +17,11 @@ namespace style {
 
 struct StyledNode {
     dom::Node const &node;
-    std::vector<std::pair<std::string, std::string>> properties;
+    std::vector<std::pair<css::PropertyId, std::string>> properties;
     std::vector<StyledNode> children;
     StyledNode const *parent{nullptr};
 
-    std::string_view get_property(std::string_view property) const;
+    std::string_view get_property(css::PropertyId) const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

@@ -4,6 +4,8 @@
 
 #include "css/rule.h"
 
+#include "css/property_id.h"
+
 #include "etest/etest.h"
 
 using etest::expect_eq;
@@ -12,7 +14,7 @@ int main() {
     etest::test("rule to string, one selector and declaration", [] {
         css::Rule rule;
         rule.selectors.emplace_back("div");
-        rule.declarations.emplace("background-color", "black");
+        rule.declarations.emplace(css::PropertyId::BackgroundColor, "black");
 
         auto expected =
                 "Selectors: div\n"
@@ -25,9 +27,9 @@ int main() {
         css::Rule rule;
         rule.selectors.emplace_back("h1");
         rule.selectors.emplace_back("h2");
-        rule.declarations.emplace("color", "blue");
-        rule.declarations.emplace("font-family", "Arial");
-        rule.declarations.emplace("text-align", "center");
+        rule.declarations.emplace(css::PropertyId::Color, "blue");
+        rule.declarations.emplace(css::PropertyId::FontFamily, "Arial");
+        rule.declarations.emplace(css::PropertyId::TextAlign, "center");
 
         auto expected =
                 "Selectors: h1, h2\n"
@@ -41,8 +43,8 @@ int main() {
     etest::test("rule to string, two selectors and several declarations", [] {
         css::Rule rule;
         rule.selectors.emplace_back("h1");
-        rule.declarations.emplace("color", "blue");
-        rule.declarations.emplace("text-align", "center");
+        rule.declarations.emplace(css::PropertyId::Color, "blue");
+        rule.declarations.emplace(css::PropertyId::TextAlign, "center");
         rule.media_query = "screen and (min-width: 900px)";
 
         auto expected =

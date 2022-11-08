@@ -6,6 +6,7 @@
 #ifndef CSS_PARSER_H_
 #define CSS_PARSER_H_
 
+#include "css/property_id.h"
 #include "css/rule.h"
 
 #include "util/base_parser.h"
@@ -206,9 +207,8 @@ private:
         return {name, value};
     }
 
-    void add_declaration(std::map<std::string, std::string, std::less<>> &declarations,
-            std::string_view name,
-            std::string_view value) const {
+    void add_declaration(
+            std::map<PropertyId, std::string> &declarations, std::string_view name, std::string_view value) const {
         if (is_shorthand_edge_property(name)) {
             expand_edge_values(declarations, std::string{name}, value);
         } else if (name == "background") {
@@ -216,32 +216,30 @@ private:
         } else if (name == "font") {
             expand_font(declarations, value);
         } else {
-            declarations.insert_or_assign(std::string{name}, std::string{value});
+            declarations.insert_or_assign(property_id_from_string(name), std::string{value});
         }
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/background
     // TODO(robinlinden): This only handles a color being named, and assumes any single item listed is a color.
-    static void expand_background(
-            std::map<std::string, std::string, std::less<>> &declarations, std::string_view value) {
-        declarations["background-image"] = "none";
-        declarations["background-position"] = "0% 0%";
-        declarations["background-size"] = "auto auto";
-        declarations["background-repeat"] = "repeat";
-        declarations["background-origin"] = "padding-box";
-        declarations["background-clip"] = "border-box";
-        declarations["background-attachment"] = "scroll";
-        declarations["background-color"] = "transparent";
+    static void expand_background(std::map<PropertyId, std::string> &declarations, std::string_view value) {
+        declarations[PropertyId::BackgroundImage] = "none";
+        declarations[PropertyId::BackgroundPosition] = "0% 0%";
+        declarations[PropertyId::BackgroundSize] = "auto auto";
+        declarations[PropertyId::BackgroundRepeat] = "repeat";
+        declarations[PropertyId::BackgroundOrigin] = "padding-box";
+        declarations[PropertyId::BackgroundClip] = "border-box";
+        declarations[PropertyId::BackgroundAttachment] = "scroll";
+        declarations[PropertyId::BackgroundColor] = "transparent";
 
         Tokenizer tokenizer{value, ' '};
         if (tokenizer.size() == 1) {
-            declarations["background-color"] = tokenizer.get().value();
+            declarations[PropertyId::BackgroundColor] = tokenizer.get().value();
         }
     }
 
-    void expand_edge_values(std::map<std::string, std::string, std::less<>> &declarations,
-            std::string property,
-            std::string_view value) const {
+    void expand_edge_values(
+            std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const {
         std::string_view top = "", bottom = "", left = "", right = "";
         Tokenizer tokenizer(value, ' ');
         switch (tokenizer.size()) {
@@ -272,17 +270,21 @@ private:
             property = "border";
             post_fix = "-style";
         }
-        declarations.insert_or_assign(fmt::format("{}-top{}", property, post_fix), std::string{top});
-        declarations.insert_or_assign(fmt::format("{}-bottom{}", property, post_fix), std::string{bottom});
-        declarations.insert_or_assign(fmt::format("{}-left{}", property, post_fix), std::string{left});
-        declarations.insert_or_assign(fmt::format("{}-right{}", property, post_fix), std::string{right});
+        declarations.insert_or_assign(
+                property_id_from_string(fmt::format("{}-top{}", property, post_fix)), std::string{top});
+        declarations.insert_or_assign(
+                property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)), std::string{bottom});
+        declarations.insert_or_assign(
+                property_id_from_string(fmt::format("{}-left{}", property, post_fix)), std::string{left});
+        declarations.insert_or_assign(
+                property_id_from_string(fmt::format("{}-right{}", property, post_fix)), std::string{right});
     }
 
-    void expand_font(std::map<std::string, std::string, std::less<>> &declarations, std::string_view value) const {
+    void expand_font(std::map<PropertyId, std::string> &declarations, std::string_view value) const {
         Tokenizer tokenizer(value, ' ');
         if (tokenizer.size() == 1) {
             // TODO(mkiael): Handle system properties correctly. Just forward it for now.
-            declarations.insert_or_assign("font", std::string{tokenizer.get().value()});
+            declarations.insert_or_assign(PropertyId::Font, std::string{tokenizer.get().value()});
             return;
         }
 
@@ -315,28 +317,28 @@ private:
             tokenizer.next();
         }
 
-        declarations.insert_or_assign("font-style", font_style);
-        declarations.insert_or_assign("font-variant", std::string{font_variant});
-        declarations.insert_or_assign("font-weight", std::string{font_weight});
-        declarations.insert_or_assign("font-stretch", std::string{font_stretch});
-        declarations.insert_or_assign("font-size", std::string{font_size});
-        declarations.insert_or_assign("line-height", std::string{line_height});
-        declarations.insert_or_assign("font-family", font_family);
+        declarations.insert_or_assign(PropertyId::FontStyle, font_style);
+        declarations.insert_or_assign(PropertyId::FontVariant, std::string{font_variant});
+        declarations.insert_or_assign(PropertyId::FontWeight, std::string{font_weight});
+        declarations.insert_or_assign(PropertyId::FontStretch, std::string{font_stretch});
+        declarations.insert_or_assign(PropertyId::FontSize, std::string{font_size});
+        declarations.insert_or_assign(PropertyId::LineHeight, std::string{line_height});
+        declarations.insert_or_assign(PropertyId::FontFamily, font_family);
 
         // Reset all values that can't be specified in shorthand
-        declarations.insert_or_assign("font-feature-settings", "normal");
-        declarations.insert_or_assign("font-kerning", "auto");
-        declarations.insert_or_assign("font-language-override", "normal");
-        declarations.insert_or_assign("font-optical-sizing", "auto");
-        declarations.insert_or_assign("font-palette", "normal");
-        declarations.insert_or_assign("font-size-adjust", "none");
-        declarations.insert_or_assign("font-variation-settings", "normal");
-        declarations.insert_or_assign("font-variant-alternates", "normal");
-        declarations.insert_or_assign("font-variant-caps", "normal");
-        declarations.insert_or_assign("font-variant-ligatures", "normal");
-        declarations.insert_or_assign("font-variant-numeric", "normal");
-        declarations.insert_or_assign("font-variant-position", "normal");
-        declarations.insert_or_assign("font-variant-east-asian", "normal");
+        declarations.insert_or_assign(PropertyId::FontFeatureSettings, "normal");
+        declarations.insert_or_assign(PropertyId::FontKerning, "auto");
+        declarations.insert_or_assign(PropertyId::FontLanguageOverride, "normal");
+        declarations.insert_or_assign(PropertyId::FontOpticalSizing, "auto");
+        declarations.insert_or_assign(PropertyId::FontPalette, "normal");
+        declarations.insert_or_assign(PropertyId::FontSizeAdjust, "none");
+        declarations.insert_or_assign(PropertyId::FontVariationSettings, "normal");
+        declarations.insert_or_assign(PropertyId::FontVariantAlternatives, "normal");
+        declarations.insert_or_assign(PropertyId::FontVariantCaps, "normal");
+        declarations.insert_or_assign(PropertyId::FontVariantLigatures, "normal");
+        declarations.insert_or_assign(PropertyId::FontVariantNumeric, "normal");
+        declarations.insert_or_assign(PropertyId::FontVariantPosition, "normal");
+        declarations.insert_or_assign(PropertyId::FontVariantEastAsian, "normal");
     }
 
     std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_parse_font_size(

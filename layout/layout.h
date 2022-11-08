@@ -7,6 +7,7 @@
 
 #include "layout/box_model.h"
 
+#include "css/property_id.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
 
@@ -30,7 +31,7 @@ struct LayoutBox {
     std::vector<LayoutBox> children;
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
-    std::optional<std::string_view> get_property(std::string_view) const;
+    std::optional<std::string_view> get_property(css::PropertyId) const;
 };
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
