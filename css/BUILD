@@ -13,6 +13,7 @@ cc_library(
     srcs = [
         "default.cpp",
         "parse.cpp",
+        "property_id.cpp",
         "rule.cpp",
         ":default_css.h",
     ],
@@ -20,6 +21,7 @@ cc_library(
         "default.h",
         "parse.h",
         "parser.h",
+        "property_id.h",
         "rule.h",
     ],
     visibility = ["//visibility:public"],
@@ -56,5 +58,16 @@ cc_test(
     deps = [
         ":css",
         "//etest",
+    ],
+)
+
+cc_test(
+    name = "property_id_test",
+    size = "small",
+    srcs = ["property_id_test.cpp"],
+    deps = [
+        ":css",
+        "//etest",
+        "@fmt",
     ],
 )
