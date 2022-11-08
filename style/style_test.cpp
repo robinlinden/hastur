@@ -141,12 +141,12 @@ int main() {
 
         std::vector<css::Rule> stylesheet{
                 {.selectors = {"p"}, .declarations = {{"height", "100px"}}},
-                {.selectors = {"body"}, .declarations = {{"text-size", "500em"}}},
+                {.selectors = {"body"}, .declarations = {{"font-size", "500em"}}},
         };
 
         style::StyledNode expected{root};
         expected.children.push_back({root.children[0], {}, {}, &expected});
-        expected.children.push_back({root.children[1], {{"text-size", "500em"}}, {}, &expected});
+        expected.children.push_back({root.children[1], {{"font-size", "500em"}}, {}, &expected});
         auto &body = expected.children.back();
 
         body.children.push_back(
