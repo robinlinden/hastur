@@ -5,6 +5,7 @@
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -15,6 +16,8 @@
 namespace js {
 namespace ast {
 
+class Value;
+struct NativeFunction;
 struct Function;
 struct BinaryExpression;
 struct BlockStatement;
@@ -37,6 +40,11 @@ using Statement = std::variant<Declaration, ExpressionStatement, BlockStatement,
 using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
 using Node = std::variant<Expression, Statement, Pattern, Program, Function, VariableDeclarator>;
 
+struct NativeFunction {
+    std::function<Value(std::vector<Value> const &)> f;
+    [[nodiscard]] bool operator==(NativeFunction const &) const { return false; }
+};
+
 // TODO(robinlinden): This needs to support more values.
 class Value {
 public:
@@ -45,17 +53,20 @@ public:
     explicit Value(std::string value) : value_{std::move(value)} {}
     explicit Value(std::shared_ptr<Function> value) : value_{std::move(value)} {}
     explicit Value(std::vector<Value> value) : value_{std::move(value)} {}
+    explicit Value(NativeFunction value) : value_{std::move(value)} {}
 
     bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
     bool is_number() const { return std::holds_alternative<double>(value_); }
     bool is_string() const { return std::holds_alternative<std::string>(value_); }
     bool is_function() const { return std::holds_alternative<std::shared_ptr<Function>>(value_); }
     bool is_vector() const { return std::holds_alternative<std::vector<Value>>(value_); }
+    bool is_native_function() const { return std::holds_alternative<NativeFunction>(value_); }
 
     double as_number() const { return std::get<double>(value_); }
     std::string const &as_string() const { return std::get<std::string>(value_); }
     std::shared_ptr<Function const> as_function() const { return std::get<std::shared_ptr<Function>>(value_); }
     std::vector<Value> const &as_vector() const { return std::get<std::vector<Value>>(value_); }
+    NativeFunction const &as_native_function() const { return std::get<NativeFunction>(value_); }
 
     bool as_bool() const {
         // TODO(robinlinden): false, 0n, null, NaN, objects with an [[IsHTMLDDA]] internal slot.
@@ -73,7 +84,7 @@ private:
     struct Undefined {
         [[nodiscard]] bool operator==(Undefined const &) const = default;
     };
-    std::variant<Undefined, std::string, double, std::shared_ptr<Function>, std::vector<Value>> value_;
+    std::variant<Undefined, std::string, double, std::shared_ptr<Function>, std::vector<Value>, NativeFunction> value_;
 };
 
 struct NumericLiteral {

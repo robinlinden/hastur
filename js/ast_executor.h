@@ -7,6 +7,7 @@
 
 #include "js/ast.h"
 
+#include <cassert>
 #include <functional>
 #include <map>
 #include <string>
@@ -75,7 +76,8 @@ public:
     Value operator()(CallExpression const &v) {
         AstExecutor scope{*this};
 
-        auto const &fn = *variables.at(execute(*v.callee).as_string()).as_function();
+        auto const &fn = variables.at(execute(*v.callee).as_string());
+        assert(fn.is_function() || fn.is_native_function());
 
         std::vector<Value> args;
         args.reserve(v.arguments.size());
@@ -85,7 +87,11 @@ public:
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
         scope.variables["arguments"] = Value{std::move(args)};
-        return scope.execute(fn);
+        if (fn.is_function()) {
+            return scope.execute(*fn.as_function());
+        }
+
+        return scope.execute(fn.as_native_function());
     }
 
     Value operator()(Function const &v) {
@@ -126,6 +132,8 @@ public:
 
         return v.else_branch ? execute(**v.else_branch) : Value{};
     }
+
+    Value operator()(NativeFunction const &v) { return v.f(variables.at("arguments").as_vector()); }
 
     std::map<std::string, Value, std::less<>> variables;
     std::optional<Value> returning;

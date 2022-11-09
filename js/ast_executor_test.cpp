@@ -12,6 +12,7 @@
 
 using namespace js::ast;
 using etest::expect_eq;
+using etest::require_eq;
 
 int main() {
     etest::test("literals", [] {
@@ -171,6 +172,25 @@ int main() {
 
         if_stmt.test = NumericLiteral{0};
         expect_eq(e.execute(if_stmt), Value{"false!"});
+    });
+
+    etest::test("native function", [] {
+        AstExecutor e;
+
+        std::string argument{};
+        e.variables["set_string_and_get_42"] = Value{NativeFunction{[&](auto args) {
+            require_eq(args.size(), std::size_t{1});
+            argument = args[0].as_string();
+            return Value{42};
+        }}};
+
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"set_string_and_get_42"}),
+                .arguments{std::make_shared<Expression>(StringLiteral{"did it!"})},
+        };
+
+        expect_eq(e.execute(call), Value{42});
+        expect_eq(argument, "did it!");
     });
 
     return etest::run_all_tests();
