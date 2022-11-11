@@ -29,7 +29,6 @@ namespace layout {
 namespace {
 
 constexpr int kDefaultFontSizePx = 10;
-constexpr std::string_view kDefaultFontSize{"10px"};
 
 bool last_node_was_anonymous(LayoutBox const &box) {
     return !box.children.empty() && box.children.back().type == LayoutType::AnonymousBlock;
@@ -318,15 +317,19 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
         case LayoutType::Inline:
         case LayoutType::Block: {
             // TODO(robinlinden): font-size should be inherited.
-            auto font_size_property = box.get_property(css::PropertyId::FontSize).value_or(kDefaultFontSize);
             auto font_size = [&]() -> int {
+                auto font_size_property = box.get_property(css::PropertyId::FontSize);
+                if (!font_size_property) {
+                    return kDefaultFontSizePx;
+                }
+
                 // TODO(robinlinden): Move to fancier property value calculation
                 // once done. These keywords are only fine for font-size, so
                 // to_px would have to know what property the value is from.
-                if (kFontSizeAbsoluteSizeKeywords.contains(font_size_property)) {
-                    return std::lround(kFontSizeAbsoluteSizeKeywords.at(font_size_property) * kMediumFontSize);
+                if (kFontSizeAbsoluteSizeKeywords.contains(*font_size_property)) {
+                    return std::lround(kFontSizeAbsoluteSizeKeywords.at(*font_size_property) * kMediumFontSize);
                 }
-                return to_px(font_size_property, kDefaultFontSizePx);
+                return to_px(*font_size_property, kDefaultFontSizePx);
             }();
 
             calculate_padding(box, font_size);
