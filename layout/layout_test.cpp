@@ -1069,15 +1069,15 @@ int main() {
                 style::StyledNode{.node = dom_root, .properties = {{css::PropertyId::Color, "green"}}, .children{}};
 
         auto layout = layout::create_layout(style_root, 0);
-        expect_eq(layout.get_property(css::PropertyId::Color), "green");
-        expect_eq(layout.get_property(css::PropertyId::BackgroundColor), "transparent");
+        expect_eq(layout.get_property<css::PropertyId::Color>(), "green");
+        expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), "transparent");
     });
 
     etest::test("get_property, no backing style node", [] {
         auto layout = layout::LayoutBox{
                 .node = nullptr,
         };
-        expect_eq(layout.get_property(css::PropertyId::Color), std::nullopt);
+        expect_eq(layout.get_property<css::PropertyId::Color>(), std::nullopt);
     });
 
     etest::test("border-width keywords", [] {

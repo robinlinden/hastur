@@ -263,11 +263,11 @@ gfx::Color parse_color(std::string_view str) {
 
 template<css::PropertyId T>
 std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout) {
-    auto maybe_color = layout.get_property(T);
+    auto maybe_color = layout.get_property<T>();
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
     if (maybe_color == "currentcolor") {
-        maybe_color = layout.get_property(css::PropertyId::Color);
+        maybe_color = layout.get_property<css::PropertyId::Color>();
     }
 
     if (maybe_color) {

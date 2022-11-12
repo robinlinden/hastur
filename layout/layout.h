@@ -31,7 +31,8 @@ struct LayoutBox {
     std::vector<LayoutBox> children;
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
-    std::optional<std::string_view> get_property(css::PropertyId) const;
+    template<css::PropertyId T>
+    std::optional<std::string_view> get_property() const;
 };
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
@@ -39,6 +40,15 @@ LayoutBox create_layout(style::StyledNode const &node, int width);
 LayoutBox const *box_at_position(LayoutBox const &, geom::Position);
 
 std::string to_string(LayoutBox const &box);
+
+template<css::PropertyId T>
+std::optional<std::string_view> LayoutBox::get_property() const {
+    if (!node) {
+        return std::nullopt;
+    }
+
+    return node->get_property(T);
+}
 
 } // namespace layout
 
