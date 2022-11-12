@@ -12,55 +12,6 @@ using namespace std::literals;
 namespace style {
 namespace {
 
-// https://www.w3.org/TR/CSS22/propidx.html
-constexpr bool is_inherited(css::PropertyId id) {
-    switch (id) {
-        case css::PropertyId::Azimuth:
-        case css::PropertyId::BorderCollapse:
-        case css::PropertyId::BorderSpacing:
-        case css::PropertyId::CaptionSide:
-        case css::PropertyId::Color:
-        case css::PropertyId::Cursor:
-        case css::PropertyId::Direction:
-        case css::PropertyId::Elevation:
-        case css::PropertyId::EmptyCells:
-        case css::PropertyId::Font:
-        case css::PropertyId::FontFamily:
-        case css::PropertyId::FontSize:
-        case css::PropertyId::FontStyle:
-        case css::PropertyId::FontVariant:
-        case css::PropertyId::FontWeight:
-        case css::PropertyId::LetterSpacing:
-        case css::PropertyId::LineHeight:
-        case css::PropertyId::ListStyle:
-        case css::PropertyId::ListStyleImage:
-        case css::PropertyId::ListStylePosition:
-        case css::PropertyId::ListStyleType:
-        case css::PropertyId::Orphans:
-        case css::PropertyId::Pitch:
-        case css::PropertyId::PitchRange:
-        case css::PropertyId::Quotes:
-        case css::PropertyId::Richness:
-        case css::PropertyId::Speak:
-        case css::PropertyId::SpeakHeader:
-        case css::PropertyId::SpeakNumeral:
-        case css::PropertyId::SpeakPunctuation:
-        case css::PropertyId::SpeechRate:
-        case css::PropertyId::Stress:
-        case css::PropertyId::TextAlign:
-        case css::PropertyId::TextIndent:
-        case css::PropertyId::TextTransform:
-        case css::PropertyId::Visibility:
-        case css::PropertyId::VoiceFamily:
-        case css::PropertyId::Volume:
-        case css::PropertyId::Widows:
-        case css::PropertyId::WordSpacing:
-            return true;
-        default:
-            return false;
-    }
-}
-
 // https://www.w3.org/TR/css-cascade/#initial-values
 std::map<css::PropertyId, std::string_view> const kInitialValues{
         // https://developer.mozilla.org/en-US/docs/Web/CSS/background-color#formal_definition
