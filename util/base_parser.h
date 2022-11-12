@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef UTIL_BASE_PARSER_H_
 #define UTIL_BASE_PARSER_H_
 
-#include <algorithm>
-#include <array>
+#include "util/string.h"
+
 #include <concepts>
 #include <cstddef>
 #include <string_view>
@@ -32,6 +33,15 @@ public:
 
     constexpr void advance(std::size_t n) { pos_ += n; }
 
+    constexpr void back(std::size_t n) { pos_ -= n; }
+
+    constexpr void reset() { pos_ = 0; }
+
+    constexpr void reset(std::string_view input) {
+        input_ = input;
+        pos_ = 0;
+    }
+
     template<Predicate T>
     constexpr std::string_view consume_while(T const &pred) {
         std::size_t start = pos_;
@@ -42,15 +52,12 @@ public:
     }
 
     constexpr void skip_whitespace() {
-        while (!is_eof() && is_space(peek())) {
+        while (!is_eof() && util::is_whitespace(peek())) {
             advance(1);
         }
     }
 
 private:
-    static constexpr auto space_chars = std::array{' ', '\f', '\n', '\r', '\t', '\v'};
-    constexpr static bool is_space(char c) { return std::ranges::find(space_chars, c) != end(space_chars); }
-
     std::string_view input_;
     std::size_t pos_{0};
 };

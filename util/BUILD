@@ -1,9 +1,17 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
+dependencies = {
+    "base_parser": [":string"],
+}
+
 [cc_library(
     name = hdr[:-2],
     hdrs = [hdr],
     visibility = ["//visibility:public"],
+    deps = dependencies.get(
+        hdr[:-2],
+        [],
+    ),
 ) for hdr in glob(["*.h"])]
 
 [cc_test(

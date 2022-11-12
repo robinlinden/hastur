@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2022 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +15,18 @@
 #include <vector>
 
 namespace util {
+
+constexpr bool is_c0(char c) {
+    return c >= 0x00 && c <= 0x1f;
+}
+
+constexpr bool is_c0_or_space(char c) {
+    return is_c0(c) || c == ' ';
+}
+
+constexpr bool is_tab_or_newline(char c) {
+    return c == '\t' || c == '\n' || c == '\r';
+}
 
 constexpr bool is_upper_alpha(char c) {
     return c >= 'A' && c <= 'Z';
