@@ -15,6 +15,7 @@ cc_library(
         "//css",
         "//dom",
         "//util:string",
+        "@spdlog",
     ],
 )
 

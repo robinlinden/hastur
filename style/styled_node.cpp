@@ -4,6 +4,8 @@
 
 #include "style/styled_node.h"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <string_view>
 
@@ -111,6 +113,20 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     }
 
     return it->second;
+}
+
+DisplayValue StyledNode::get_display_property(css::PropertyId id) const {
+    auto raw = get_raw_property(id);
+    if (raw == "none") {
+        return DisplayValue::None;
+    } else if (raw == "inline") {
+        return DisplayValue::Inline;
+    } else if (raw == "block") {
+        return DisplayValue::Block;
+    }
+
+    spdlog::warn("Unhandled display value {} for property {}", raw, static_cast<int>(id));
+    return DisplayValue::None;
 }
 
 } // namespace style

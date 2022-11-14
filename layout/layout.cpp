@@ -39,11 +39,11 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     auto visitor = util::Overloaded{
             [&node](dom::Element const &) -> std::optional<LayoutBox> {
                 auto display = node.get_property<css::PropertyId::Display>();
-                if (display == "none") {
+                if (display == style::DisplayValue::None) {
                     return std::nullopt;
                 }
 
-                LayoutBox box{&node, display == "inline" ? LayoutType::Inline : LayoutType::Block};
+                LayoutBox box{&node, display == style::DisplayValue::Inline ? LayoutType::Inline : LayoutType::Block};
 
                 for (auto const &child : node.children) {
                     auto child_box = create_tree(child);

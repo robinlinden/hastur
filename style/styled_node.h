@@ -15,6 +15,12 @@
 
 namespace style {
 
+enum class DisplayValue {
+    None,
+    Inline,
+    Block,
+};
+
 struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<css::PropertyId, std::string>> properties;
@@ -24,9 +30,16 @@ struct StyledNode {
     std::string_view get_raw_property(css::PropertyId) const;
 
     template<css::PropertyId T>
-    std::string_view get_property() const {
-        return get_raw_property(T);
+    auto get_property() const {
+        if constexpr (T == css::PropertyId::Display) {
+            return get_display_property(T);
+        } else {
+            return get_raw_property(T);
+        }
     }
+
+private:
+    DisplayValue get_display_property(css::PropertyId) const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
