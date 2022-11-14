@@ -47,7 +47,7 @@ std::optional<std::string_view> LayoutBox::get_property() const {
         return std::nullopt;
     }
 
-    return node->get_property(T);
+    return node->get_property<T>();
 }
 
 } // namespace layout

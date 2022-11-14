@@ -21,7 +21,12 @@ struct StyledNode {
     std::vector<StyledNode> children;
     StyledNode const *parent{nullptr};
 
-    std::string_view get_property(css::PropertyId) const;
+    std::string_view get_raw_property(css::PropertyId) const;
+
+    template<css::PropertyId T>
+    std::string_view get_property() const {
+        return get_raw_property(T);
+    }
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

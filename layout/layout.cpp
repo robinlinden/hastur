@@ -38,7 +38,7 @@ bool last_node_was_anonymous(LayoutBox const &box) {
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     auto visitor = util::Overloaded{
             [&node](dom::Element const &) -> std::optional<LayoutBox> {
-                auto display = node.get_property(css::PropertyId::Display);
+                auto display = node.get_property<css::PropertyId::Display>();
                 if (display == "none") {
                     return std::nullopt;
                 }

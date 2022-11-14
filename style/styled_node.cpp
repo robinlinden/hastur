@@ -71,9 +71,9 @@ std::map<css::PropertyId, std::string_view> const kInitialValues{
         {css::PropertyId::MinWidth, "auto"sv},
 };
 
-std::string_view get_parent_property(style::StyledNode const &node, css::PropertyId property) {
+std::string_view get_parent_raw_property(style::StyledNode const &node, css::PropertyId property) {
     if (node.parent != nullptr) {
-        return node.parent->get_property(property);
+        return node.parent->get_raw_property(property);
     }
 
     return kInitialValues.at(property);
@@ -81,12 +81,12 @@ std::string_view get_parent_property(style::StyledNode const &node, css::Propert
 
 } // namespace
 
-std::string_view StyledNode::get_property(css::PropertyId property) const {
+std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     auto it = std::ranges::find_if(properties, [=](auto const &p) { return p.first == property; });
 
     if (it == cend(properties)) {
         if (is_inherited(property) && parent != nullptr) {
-            return parent->get_property(property);
+            return parent->get_raw_property(property);
         }
 
         return kInitialValues.at(property);
@@ -95,19 +95,19 @@ std::string_view StyledNode::get_property(css::PropertyId property) const {
         return kInitialValues.at(property);
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
-        return get_parent_property(*this, property);
+        return get_parent_raw_property(*this, property);
     } else if (it->second == "currentcolor") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
         // If the "color" property has the value "currentcolor", treat it as "inherit".
         if (it->first == css::PropertyId::Color) {
-            return get_parent_property(*this, property);
+            return get_parent_raw_property(*this, property);
         }
 
         // Even though we return the correct value here, if a property has
         // "currentcolor" as its initial value, the caller have to manually look
         // up the value of "color". This will be cleaned up along with the rest
         // of the property management soon.
-        return get_property(css::PropertyId::Color);
+        return get_raw_property(css::PropertyId::Color);
     }
 
     return it->second;

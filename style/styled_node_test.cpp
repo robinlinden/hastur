@@ -20,7 +20,7 @@ int main() {
                 .children = {},
         };
 
-        expect(styled_node.get_property(css::PropertyId::Width) == "15px"sv);
+        expect(styled_node.get_property<css::PropertyId::Width>() == "15px"sv);
     });
 
     etest::test("property inheritance", [] {
@@ -34,10 +34,10 @@ int main() {
         auto &child = root.children.emplace_back(style::StyledNode{dom_node, {}, {}, &root});
 
         // Not inherited, returns the initial value.
-        expect_eq(child.get_property(css::PropertyId::Width), "auto"sv);
+        expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
 
         // Inherited, returns the parent's value.
-        expect_eq(child.get_property(css::PropertyId::FontSize), "15em"sv);
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), "15em"sv);
     });
 
     etest::test("initial css keyword", [] {
@@ -56,7 +56,7 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(child.get_property(css::PropertyId::Color), "canvastext"sv);
+        expect_eq(child.get_property<css::PropertyId::Color>(), "canvastext"sv);
     });
 
     etest::test("inherit css keyword", [] {
@@ -79,14 +79,14 @@ int main() {
         child.parent = &root;
 
         // inherit, but not in parent, so receives initial value for property.
-        expect_eq(child.get_property(css::PropertyId::Width), "auto"sv);
+        expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
 
         // inherit, value in parent.
-        expect_eq(child.get_property(css::PropertyId::BackgroundColor), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "blue"sv);
 
         // inherit, no parent node.
         child.parent = nullptr;
-        expect_eq(child.get_property(css::PropertyId::BackgroundColor), "transparent");
+        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "transparent");
     });
 
     etest::test("currentcolor css keyword", [] {
@@ -107,11 +107,11 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(child.get_property(css::PropertyId::BackgroundColor), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "blue"sv);
 
         // "color: currentcolor" should be treated as inherit.
         child.properties.push_back({css::PropertyId::Color, "currentcolor"s});
-        expect_eq(child.get_property(css::PropertyId::Color), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::Color>(), "blue"sv);
     });
 
     return etest::run_all_tests();
