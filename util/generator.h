@@ -65,6 +65,29 @@ public:
     }
 
 private:
+    struct CoroutineSentinel {
+        friend constexpr bool operator!=(auto const &generator_iterator, CoroutineSentinel const &) {
+            return !generator_iterator.handle.done();
+        }
+    };
+
+    struct GeneratorIterator {
+        Handle handle;
+
+        GeneratorIterator &operator++() {
+            handle.resume();
+            return *this;
+        }
+
+        T &operator*() const { return handle.promise().maybe_value.value(); }
+        T *operator->() const { return &**this; }
+    };
+
+public:
+    GeneratorIterator begin() { return {handle_}; }
+    CoroutineSentinel end() { return {}; }
+
+private:
     Handle handle_{};
 };
 

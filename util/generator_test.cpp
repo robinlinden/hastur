@@ -90,5 +90,36 @@ int main() {
     });
 #endif
 
+    etest::test("range-based for loop", [] {
+        auto gen = []() -> util::Generator<char> {
+            co_yield 'a';
+            co_yield 'b';
+            co_yield 'c';
+        }();
+
+        char current_expectation = 'a';
+        for (auto c : gen) {
+            expect_eq(current_expectation, c);
+            ++current_expectation;
+        }
+
+        expect_eq('d', current_expectation);
+    });
+
+    etest::test("boring for loop", [] {
+        auto gen = []() -> util::Generator<std::pair<char, int>> {
+            co_yield {'a', 2};
+        }();
+
+        int iterations{};
+        for (auto it = std::begin(gen); it != std::end(gen); ++it) {
+            expect_eq(it->first, 'a');
+            expect_eq(it->second, 2);
+            ++iterations;
+        }
+
+        expect_eq(1, iterations);
+    });
+
     return etest::run_all_tests();
 }
