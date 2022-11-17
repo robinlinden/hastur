@@ -98,6 +98,13 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
         return get_parent_raw_property(*this, property);
+    } else if (it->second == "unset") {
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/unset
+        if (is_inherited(property) && parent != nullptr) {
+            return parent->get_raw_property(property);
+        }
+
+        return kInitialValues.at(property);
     } else if (it->second == "currentcolor") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
         // If the "color" property has the value "currentcolor", treat it as "inherit".

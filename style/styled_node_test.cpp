@@ -89,6 +89,36 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "transparent");
     });
 
+    etest::test("unset css keyword", [] {
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode root{
+                .node = dom_node,
+                .properties = {{css::PropertyId::Color, "blue"s}},
+                .children{
+                        style::StyledNode{
+                                .node{dom_node},
+                                .properties{
+                                        {css::PropertyId::Color, "unset"s},
+                                        {css::PropertyId::Width, "unset"s},
+                                },
+                        },
+                },
+        };
+
+        auto &child = root.children[0];
+        child.parent = &root;
+
+        // unset, not inherited, so receives initial value for property.
+        expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
+
+        // unset, inherited, value in parent.
+        expect_eq(child.get_property<css::PropertyId::Color>(), "blue"sv);
+
+        // unset, inherited, no parent node.
+        child.parent = nullptr;
+        expect_eq(child.get_property<css::PropertyId::Color>(), "canvastext");
+    });
+
     etest::test("currentcolor css keyword", [] {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
