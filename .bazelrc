@@ -123,6 +123,7 @@ build:windows --cxxopt='/GR-' # Disable rtti.
 build:windows --copt='/W4' # More warnings.
 build:windows --copt='/WX' # Treat warnings as errors.
 build:windows --copt='/permissive-' # Conform to the standard.
+build:windows --copt='/Zc:__cplusplus' # Report the real supported C++ version, not just C++98.
 build:windows --per_file_copt='external/boringssl[:/]@/wd4100' # C4100: 'out_public_key': unreferenced formal parameter
 build:windows --per_file_copt='external/boringssl[:/]@/wd4127' # C4127: conditional expression is constant
 build:windows --per_file_copt='external/boringssl[:/]@/wd4244' # C4244: '=': conversion from 'unsigned int' to 'uint8_t', possible loss of data
