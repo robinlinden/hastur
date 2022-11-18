@@ -19,6 +19,7 @@
 #include <spdlog/spdlog.h>
 
 #include <cmath>
+#include <cstdlib>
 #include <functional>
 #include <optional>
 #include <sstream>
@@ -109,7 +110,11 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
       url_buf_{std::move(start_page_hint)} {
     window_.setFramerateLimit(60);
     window_.setMouseCursor(cursor_);
-    ImGui::SFML::Init(window_);
+    if (ImGui::SFML::Init(window_)) {
+        spdlog::critical("imgui-sfml initialization failed");
+        std::abort();
+    }
+
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     engine_.set_layout_width(window_.getSize().x / scale_);

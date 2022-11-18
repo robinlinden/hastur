@@ -104,17 +104,17 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "9f14c788aee15b777051e48f868c5d4d959bd679fc5050e3d2a29de80d8fd32e",
-    strip_prefix = "imgui-1.88",
-    url = "https://github.com/ocornut/imgui/archive/v1.88.tar.gz",
+    sha256 = "4038b05bd44c889cf40be999656d3871a0559916708cb52a6ae2fa6fa35c5c60",
+    strip_prefix = "imgui-1.89",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.tar.gz",
 )
 
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    sha256 = "848315ec333c8d2e1f5cf0722408f2f5e2fb0de49936d1e9cd23c591193b8905",
-    strip_prefix = "imgui-sfml-3dd9b4d35c7caf21c81231410e2c4785d40d418d",
-    url = "https://github.com/eliasdaler/imgui-sfml/archive/3dd9b4d35c7caf21c81231410e2c4785d40d418d.tar.gz",
+    sha256 = "c9f5f5ed92ad30afb64f32e2e0d4b4050c59de465f759330e972b90891798581",
+    strip_prefix = "imgui-sfml-49dbecb43040449cccb3bfc43e3472cee94da417",
+    url = "https://github.com/eliasdaler/imgui-sfml/archive/49dbecb43040449cccb3bfc43e3472cee94da417.tar.gz",
 )
 
 http_archive(

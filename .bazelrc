@@ -70,6 +70,8 @@ build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-shadow'
 build:linux --per_file_copt='external/honggfuzz[:/]@-Wno-undef'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-implicit-fallthrough'
+build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-missing-declarations'
+build:linux --per_file_copt='external/imgui-sfml[:/]@-Wno-switch'
 build:linux --per_file_copt='external/imgui[:/]@-Wno-deprecated-enum-enum-conversion'
 build:linux --per_file_copt='external/imgui[:/]@-Wno-double-promotion'
 build:linux --per_file_copt='external/libpng[:/]@-Wno-null-pointer-subtraction'
@@ -132,6 +134,7 @@ build:windows --per_file_copt='external/freetype2[:/]@/wd4267' # C4267: '=': con
 build:windows --per_file_copt='external/freetype2[:/]@/wd4701' # C4701: potentially uninitialized local variable 'cbox' used
 build:windows --per_file_copt='external/ftxui[:/]@/wd4244' # C4244: '=': conversion from 'int' to 'uint8_t', possible loss of data
 build:windows --per_file_copt='external/ftxui[:/]@/wd4267' # C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+build:windows --per_file_copt='external/imgui-sfml[:/]@/wd4244' # C4244: 'argument': conversion from 'const unsigned int' to 'float', possible loss of data
 build:windows --per_file_copt='external/sfml[:/]@/wd4100' # C4100: 'visible': unreferenced formal parameter
 build:windows --per_file_copt='external/sfml[:/]@/wd4244' # C4244: 'initializing': conversion from 'sf::Uint32' to 'sf::Uint8', possible loss of data
 build:windows --per_file_copt='external/sfml[:/]@/wd4456' # C4456: declaration of 'i' hides previous local declaration
