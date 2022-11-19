@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "img",
@@ -7,6 +8,7 @@ cc_library(
         exclude = ["*_test.cpp"],
     ),
     hdrs = glob(["*.h"]),
+    copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
         "@libpng",
@@ -32,6 +34,7 @@ extra_srcs = {
         src[:-9],
         [],
     ),
+    copts = HASTUR_COPTS,
     deps = [
         ":img",
         "//etest",

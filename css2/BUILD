@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "css2",
@@ -7,6 +8,7 @@ cc_library(
         exclude = ["*_test.cpp"],
     ),
     hdrs = glob(["*.h"]),
+    copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
         "//util:overloaded",
@@ -18,6 +20,7 @@ cc_library(
     name = src[:-4],
     size = "small",
     srcs = [src],
+    copts = HASTUR_COPTS,
     deps = [
         ":css2",
         "//etest",

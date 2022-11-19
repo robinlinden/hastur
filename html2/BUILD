@@ -1,5 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
+load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "html2",
@@ -8,6 +9,7 @@ cc_library(
         exclude = ["*_test.cpp"],
     ),
     hdrs = glob(["*.h"]),
+    copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
         "//dom2",
@@ -25,6 +27,7 @@ dependencies = {
     name = src[:-4],
     size = "small",
     srcs = [src],
+    copts = HASTUR_COPTS,
     deps = dependencies.get(
         src[:-9],
         [],
@@ -42,6 +45,7 @@ dependencies = {
     name = src[:-4],
     size = "small",
     srcs = [src],
+    copts = HASTUR_COPTS,
     tags = ["manual"],
     target_compatible_with = ["@platforms//os:linux"],
     deps = [":html2"],

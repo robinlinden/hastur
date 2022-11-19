@@ -17,7 +17,7 @@ jobs:
             os: ubuntu-22.04
             compiler: gcc
             version: 12
-            bazel: --config gcc12 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
+            bazel: --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: g++-12 valgrind
 
           - name: clang-14-tsan
@@ -42,13 +42,12 @@ jobs:
             os: ubuntu-22.04
             compiler: clang
             version: 15
-            bazel: --config clang15
 
           - name: clang-15-libc++
             os: ubuntu-22.04
             compiler: clang
             version: 15
-            bazel: --config libc++ --config clang15
+            bazel: --config libc++
             apt: libc++abi-15-dev libc++-15-dev
 
     steps:

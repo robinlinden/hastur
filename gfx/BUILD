@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "gfx",
@@ -9,6 +10,7 @@ cc_library(
         "icanvas.h",
         "painter.h",
     ],
+    copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = ["//geom"],
 )
@@ -17,6 +19,7 @@ cc_library(
     name = "opengl",
     srcs = ["opengl_canvas.cpp"],
     hdrs = ["opengl_canvas.h"],
+    copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
@@ -46,6 +49,13 @@ cc_library(
         ":rect_fragment_shader",
     ],
     hdrs = ["sfml_canvas.h"],
+    copts = HASTUR_COPTS + select({
+        "@platforms//os:linux": [
+            # sfml leaks this into our code.
+            "-Wno-implicit-fallthrough",
+        ],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
@@ -59,6 +69,7 @@ cc_library(
     name = src[:-4],
     size = "small",
     srcs = [src],
+    copts = HASTUR_COPTS,
     deps = [
         ":gfx",
         "//etest",
@@ -68,6 +79,7 @@ cc_library(
 cc_binary(
     name = "gfx_example",
     srcs = ["gfx_example.cpp"],
+    copts = HASTUR_COPTS,
     deps = [
         ":gfx",
         ":opengl",

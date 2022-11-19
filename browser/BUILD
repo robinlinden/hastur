@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 alias(
     name = "browser",
@@ -8,6 +9,7 @@ alias(
 cc_binary(
     name = "tui",
     srcs = ["tui.cpp"],
+    copts = HASTUR_COPTS,
     linkopts = select({
         "@platforms//os:linux": ["-lpthread"],
         "@platforms//os:windows": [],
@@ -25,6 +27,7 @@ cc_binary(
 cc_binary(
     name = "gui",
     srcs = ["gui.cpp"] + glob(["gui/*"]),
+    copts = HASTUR_COPTS,
     deps = [
         "//css",
         "//dom",

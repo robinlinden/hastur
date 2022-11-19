@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "os",
@@ -7,6 +8,7 @@ cc_library(
         "@platforms//os:windows": ["windows.cpp"],
     }),
     hdrs = ["os.h"],
+    copts = HASTUR_COPTS,
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:windows": [
@@ -28,6 +30,7 @@ cc_test(
     name = "os_test",
     size = "small",
     srcs = ["os_test.cpp"],
+    copts = HASTUR_COPTS,
     deps = [
         ":os",
         "//etest",
@@ -38,6 +41,7 @@ cc_test(
     name = "linux_test",
     size = "small",
     srcs = ["linux_test.cpp"],
+    copts = HASTUR_COPTS,
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
         ":os",
