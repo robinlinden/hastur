@@ -80,10 +80,10 @@ jobs:
         run: bazel build //... ${{ matrix.bazel }}
       - name: Test
         run: bazel test //... ${{ matrix.bazel }}
-      # TODO(robinlinden): This no longer runs in CI due to http://example.com
-      # being inaccessible.
-      # - name: Run
-      #   run: bazel run browser:tui ${{ matrix.bazel }}
+      - name: Run
+        run: |
+          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+          bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
 
   linux-gcc-10-coverage:
     runs-on: ubuntu-20.04
