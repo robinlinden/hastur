@@ -7,10 +7,8 @@ cc_library(
     hdrs = ["socket.h"],
     copts = HASTUR_COPTS + select({
         "@platforms//os:linux": [
-            # asio leaks these into our code.
-            "-Wno-nonnull",
+            # asio leaks this into our code.
             "-Wno-shadow",
-            "-Wno-undef",
         ],
         "//conditions:default": [],
     }),
