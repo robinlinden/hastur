@@ -22,6 +22,12 @@ int main() {
         expect_eq(to_string(document), expected);
     });
 
+    etest::test("root not being an element shouldn't crash", [] {
+        dom::Node dom = dom::Text{"hello"};
+        auto const nodes = nodes_by_path(dom, "anything");
+        expect(nodes.empty());
+    });
+
     // TODO(robinlinden): clang-format doesn't get along well with how I structured
     // the trees in these test cases.
     // clang-format off
