@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,15 +6,26 @@
 
 #include "etest/etest.h"
 
+#include <string_view>
+
+using namespace std::literals;
+
 using etest::expect;
+using etest::expect_eq;
 using etest::require;
 
-// TODO(robinlinden): clang-format doesn't get along well with how I structured
-// the trees in these test cases.
-
-// clang-format off
-
 int main() {
+    etest::test("to_string", [] {
+        auto document = dom::Document{.doctype{"html5"}};
+        document.html_node = dom::Element{.name{"span"}, .children{{dom::Text{"hello"}}}};
+        auto expected = "doctype: html5\ntag: span\n  value: hello\n"sv;
+        expect_eq(to_string(document), expected);
+    });
+
+    // TODO(robinlinden): clang-format doesn't get along well with how I structured
+    // the trees in these test cases.
+    // clang-format off
+
     etest::test("no matches", [] {
         auto const dom_root = dom::create_element_node("html", {}, {
             dom::create_element_node("head", {}, {}),
