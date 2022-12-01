@@ -127,16 +127,9 @@ int main() {
     etest::test("no matches", [] {
         auto const dom_root = dom::Element{
                 .name{"html"},
-                .attributes{},
                 .children{
-                        Element{.name{"head"}, .attributes{}, .children{}},
-                        Element{
-                                .name{"body"},
-                                .attributes{},
-                                .children{
-                                        Element{.name{"p"}},
-                                },
-                        },
+                        Element{.name{"head"}},
+                        Element{.name{"body"}, .children{Element{.name{"p"}}}},
                 },
         };
 
@@ -147,16 +140,9 @@ int main() {
     etest::test("root match", [] {
         auto const dom_root = dom::Element{
                 .name{"html"},
-                .attributes{},
                 .children{
-                        Element{.name{"head"}, .attributes{}, .children{}},
-                        Element{
-                                .name{"body"},
-                                .attributes{},
-                                .children{
-                                        Element{.name{"p"}},
-                                },
-                        },
+                        Element{.name{"head"}},
+                        Element{.name{"body"}, .children{Element{.name{"p"}}}},
                 },
         };
 
@@ -168,16 +154,9 @@ int main() {
     etest::test("path with one element node", [] {
         auto const dom_root = dom::Element{
                 .name{"html"},
-                .attributes{},
                 .children{
-                        Element{.name{"head"}, .attributes{}, .children{}},
-                        Element{
-                                .name{"body"},
-                                .attributes{},
-                                .children{
-                                        Element{.name{"p"}},
-                                },
-                        },
+                        Element{.name{"head"}},
+                        Element{.name{"body"}, .children{Element{.name{"p"}}}},
                 },
         };
 
@@ -189,12 +168,10 @@ int main() {
     etest::test("path with multiple element nodes", [] {
         auto const dom_root = dom::Element{
                 .name{"html"},
-                .attributes{},
                 .children{
-                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{.name{"head"}},
                         Element{
                                 .name{"body"},
-                                .attributes{},
                                 .children{
                                         Element{.name{"p"}},
                                         Element{.name{"p"}, .attributes{{"display", "none"}}},
@@ -219,33 +196,22 @@ int main() {
     etest::test("matching nodes in different branches", [] {
         auto const dom_root = dom::Element{
                 .name{"html"},
-                .attributes{},
                 .children{
-                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{.name{"head"}},
                         Element{
                                 .name{"body"},
-                                .attributes{},
                                 .children{
                                         Element{
                                                 .name{"div"},
-                                                .attributes{},
-                                                .children{
-                                                        Element{.name{"p"}, .attributes{{"display", "none"}}},
-                                                },
+                                                .children{Element{.name{"p"}, .attributes{{"display", "none"}}}},
                                         },
                                         Element{
                                                 .name{"span"},
-                                                .attributes{},
-                                                .children{
-                                                        Element{.name{"p"}, .attributes{{"display", "inline"}}},
-                                                },
+                                                .children{Element{.name{"p"}, .attributes{{"display", "inline"}}}},
                                         },
                                         Element{
                                                 .name{"div"},
-                                                .attributes{},
-                                                .children{
-                                                        Element{.name{"p"}, .attributes{{"display", "block"}}},
-                                                },
+                                                .children{Element{.name{"p"}, .attributes{{"display", "block"}}}},
                                         },
                                 },
                         },
@@ -269,17 +235,10 @@ int main() {
     etest::test("non-element node in search path", [] {
         auto const dom_root = dom::Element{
                 .name{"html"},
-                .attributes{},
                 .children{
-                        Element{.name{"head"}, .attributes{}, .children{}},
+                        Element{.name{"head"}},
                         Text{"I don't belong here. :("},
-                        Element{
-                                .name{"body"},
-                                .attributes{},
-                                .children{
-                                        Element{.name{"p"}},
-                                },
-                        },
+                        Element{.name{"body"}, .children{Element{.name{"p"}}}},
                 },
         };
 
