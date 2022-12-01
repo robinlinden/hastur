@@ -110,7 +110,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
       url_buf_{std::move(start_page_hint)} {
     window_.setFramerateLimit(60);
     window_.setMouseCursor(cursor_);
-    if (ImGui::SFML::Init(window_)) {
+    if (!ImGui::SFML::Init(window_)) {
         spdlog::critical("imgui-sfml initialization failed");
         std::abort();
     }
