@@ -103,6 +103,7 @@ enum class State {
 enum class ParseError {
     AbruptClosingOfEmptyComment,
     AbruptDoctypePublicIdentifier,
+    AbruptDoctypeSystemIdentifier,
     AbsenceOfDigitsInNumericCharacterReference,
     ControlCharacterReference,
     EofInComment,
@@ -118,6 +119,7 @@ enum class ParseError {
     MissingWhitespaceAfterDoctypePublicKeyword,
     MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers,
     NestedComment,
+    UnexpectedCharacterAfterDoctypeSystemIdentifier,
     UnexpectedCharacterInUnquotedAttributeValue,
     UnexpectedNullCharacter,
 };

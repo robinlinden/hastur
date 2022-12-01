@@ -1559,18 +1559,113 @@ void Tokenizer::run() {
                     case '\n':
                     case '\f':
                     case ' ':
-                        std::terminate();
+                        state_ = State::BetweenDoctypePublicAndSystemIdentifiers;
+                        continue;
                     case '>':
                         state_ = State::Data;
                         emit(std::move(current_token_));
                         continue;
                     case '"':
-                        std::terminate();
+                        emit(ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers);
+                        std::get<DoctypeToken>(current_token_).system_identifier = "";
+                        state_ = State::DoctypeSystemIdentifierDoubleQuoted;
+                        continue;
                     case '\'':
                         std::terminate();
                     default:
                         emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
                         std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        reconsume_in(State::BogusDoctype);
+                        continue;
+                }
+            }
+
+            case State::BetweenDoctypePublicAndSystemIdentifiers: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    case '"':
+                        std::get<DoctypeToken>(current_token_).system_identifier = "";
+                        state_ = State::DoctypeSystemIdentifierDoubleQuoted;
+                        continue;
+                    case '\'':
+                        std::terminate();
+                    default:
+                        emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::BogusDoctype;
+                        continue;
+                }
+            }
+
+            case State::DoctypeSystemIdentifierDoubleQuoted: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '"':
+                        state_ = State::AfterDoctypeSystemIdentifier;
+                        continue;
+                    case '\0':
+                        emit(ParseError::UnexpectedNullCharacter);
+                        *std::get<DoctypeToken>(current_token_).system_identifier += kReplacementCharacter;
+                        continue;
+                    case '>':
+                        emit(ParseError::AbruptDoctypeSystemIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        *std::get<DoctypeToken>(current_token_).system_identifier += *c;
+                        continue;
+                }
+            }
+
+            case State::AfterDoctypeSystemIdentifier: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '>':
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        emit(ParseError::UnexpectedCharacterAfterDoctypeSystemIdentifier);
                         reconsume_in(State::BogusDoctype);
                         continue;
                 }
