@@ -425,38 +425,32 @@ void App::run_overlay() {
 }
 
 void App::run_nav_widget() {
-    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Navigation");
-    if (ImGui::InputText("Url", &url_buf_, ImGuiInputTextFlags_EnterReturnsTrue)) {
-        ensure_has_scheme(url_buf_);
-        navigate();
-    }
-
-    ImGui::TextUnformatted(nav_widget_extra_info_.c_str());
-    ImGui::End();
+    im::window("Navigation", {0, 0}, {window_.getSize().x / 2.f, 0}, [this] {
+        if (ImGui::InputText("Url", &url_buf_, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            ensure_has_scheme(url_buf_);
+            navigate();
+        }
+        ImGui::TextUnformatted(nav_widget_extra_info_.c_str());
+    });
 }
 
 void App::run_http_response_widget() const {
-    ImGui::SetNextWindowPos(ImVec2(window_.getSize().x / 2.f, 0), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
-    ImGui::Begin("HTTP Response");
-    ImGui::TextUnformatted(status_line_str_.c_str());
-    if (ImGui::CollapsingHeader("Headers")) {
-        ImGui::TextUnformatted(response_headers_str_.c_str());
-    }
-    if (ImGui::CollapsingHeader("Body")) {
-        ImGui::TextUnformatted(engine_.response().body.c_str());
-    }
-    ImGui::End();
+    auto const &size = window_.getSize();
+    im::window("HTTP Response", {size.x / 2.f, 0}, {size.x / 2.f, size.y / 2.f}, [this] {
+        ImGui::TextUnformatted(status_line_str_.c_str());
+        if (ImGui::CollapsingHeader("Headers")) {
+            ImGui::TextUnformatted(response_headers_str_.c_str());
+        }
+        if (ImGui::CollapsingHeader("Body")) {
+            ImGui::TextUnformatted(engine_.response().body.c_str());
+        }
+    });
 }
 
 void App::run_dom_widget() const {
-    ImGui::SetNextWindowPos(ImVec2(0, 70 * static_cast<float>(scale_)), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
-    ImGui::Begin("DOM");
-    ImGui::TextUnformatted(dom_str_.c_str());
-    ImGui::End();
+    im::window("DOM", {0, 70.f * scale_}, {window_.getSize().x / 2.f, window_.getSize().y / 2.f}, [this] {
+        ImGui::TextUnformatted(dom_str_.c_str());
+    });
 }
 
 void App::run_stylesheet_widget() const {
@@ -469,11 +463,10 @@ void App::run_stylesheet_widget() const {
 }
 
 void App::run_layout_widget() const {
-    ImGui::SetNextWindowPos(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Layout");
-    ImGui::TextUnformatted(layout_str_.c_str());
-    ImGui::End();
+    auto const &size = window_.getSize();
+    im::window("Layout", {size.x / 2.f, size.y / 2.f}, {size.x / 2.f, size.y / 2.f}, [this] {
+        ImGui::TextUnformatted(layout_str_.c_str());
+    });
 }
 
 void App::clear_render_surface() {
