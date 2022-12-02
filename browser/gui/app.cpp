@@ -102,6 +102,15 @@ std::vector<dom::Node const *> gather_node_and_parents(style::StyledNode const &
     return nodes;
 }
 
+namespace im {
+void window(char const *title, ImVec2 const &position, ImVec2 const &size, auto content) {
+    ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+    ImGui::Begin(title);
+    content();
+    ImGui::End();
+}
+} // namespace im
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
