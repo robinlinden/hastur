@@ -106,7 +106,7 @@ namespace im {
 void window(char const *title, ImVec2 const &position, ImVec2 const &size, auto content) {
     ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-    ImGui::Begin(title);
+    ImGui::Begin(title, nullptr, ImGuiWindowFlags_HorizontalScrollbar);
     content();
     ImGui::End();
 }
