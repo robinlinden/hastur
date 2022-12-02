@@ -454,12 +454,10 @@ void App::run_dom_widget() const {
 }
 
 void App::run_stylesheet_widget() const {
-    ImGui::SetNextWindowPos(
-            ImVec2(0, 70 * static_cast<float>(scale_) + window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(window_.getSize().x / 2.f, window_.getSize().y / 2.f), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Stylesheet", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
-    ImGui::TextUnformatted(stylesheet_str_.c_str());
-    ImGui::End();
+    auto const &size = window_.getSize();
+    im::window("Stylesheet", {0, 70.f * scale_ + size.y / 2.f}, {size.x / 2.f, size.y / 2.f}, [this] {
+        ImGui::TextUnformatted(stylesheet_str_.c_str());
+    });
 }
 
 void App::run_layout_widget() const {
