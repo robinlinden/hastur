@@ -94,8 +94,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/bazel
-          key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: ${{ matrix.name }}-
+          key: coverage-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
+          restore-keys: coverage-
       - name: Install
         run: |
           sudo apt-get update
