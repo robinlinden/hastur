@@ -735,57 +735,59 @@ int main() {
                     tokens, DoctypeToken{.name = "html", .public_identifier = "gre"s + kReplacementCharacter + "t"});
             expect_token(tokens, EndOfFileToken{});
         });
+
+        etest::test(fmt::format("doctype, {}-quoted system identifier", type), [=] {
+            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}hello{0}>", quote));
+            expect_token(
+                    tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
+            expect_token(tokens, EndOfFileToken{});
+        });
+
+        etest::test(fmt::format("doctype, {}-quoted system identifier, unexpected null", type), [=] {
+            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}n\0{0}>"sv, quote));
+            expect_error(tokens, ParseError::UnexpectedNullCharacter);
+            expect_token(tokens,
+                    DoctypeToken{.name = "html",
+                            .public_identifier = "great",
+                            .system_identifier = "n"s + kReplacementCharacter});
+            expect_token(tokens, EndOfFileToken{});
+        });
+
+        etest::test(fmt::format("doctype, {}-quoted system identifier, missing whitespace", type), [=] {
+            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great'{0}hello{0}>", quote));
+            expect_error(tokens, ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers);
+            expect_token(
+                    tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
+            expect_token(tokens, EndOfFileToken{});
+        });
+
+        etest::test(fmt::format("doctype, {}-quoted system identifier, eof", type), [=] {
+            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell", quote));
+            expect_error(tokens, ParseError::EofInDoctype);
+            expect_token(tokens,
+                    DoctypeToken{.name = "html",
+                            .public_identifier = "great",
+                            .system_identifier = "hell",
+                            .force_quirks = true});
+            expect_token(tokens, EndOfFileToken{});
+        });
+
+        etest::test(fmt::format("doctype, {}-quoted system identifier, abrupt end", type), [=] {
+            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell>", quote));
+            expect_error(tokens, ParseError::AbruptDoctypeSystemIdentifier);
+            expect_token(tokens,
+                    DoctypeToken{.name = "html",
+                            .public_identifier = "great",
+                            .system_identifier = "hell",
+                            .force_quirks = true});
+            expect_token(tokens, EndOfFileToken{});
+        });
     }
 
-    etest::test("doctype, double-quoted system identifier", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" "hello">)");
-        expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
-    etest::test("doctype, double-quoted system identifier, unexpected null", [=] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLIC \"great\" \"n\0\">"sv);
-        expect_error(tokens, ParseError::UnexpectedNullCharacter);
-        expect_token(tokens,
-                DoctypeToken{.name = "html",
-                        .public_identifier = "great",
-                        .system_identifier = "n"s + kReplacementCharacter});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
-    etest::test("doctype, double-quoted system identifier, missing whitespace", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great""hello">)");
-        expect_error(tokens, ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers);
-        expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
-    etest::test("doctype, double-quoted system identifier, missing quote", [=] {
+    etest::test("doctype, system identifier, missing quote", [=] {
         auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" hello>)");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
-    etest::test("doctype, double-quoted system identifier, eof", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" "hell)");
-        expect_error(tokens, ParseError::EofInDoctype);
-        expect_token(tokens,
-                DoctypeToken{.name = "html",
-                        .public_identifier = "great",
-                        .system_identifier = "hell",
-                        .force_quirks = true});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
-    etest::test("doctype, double-quoted system identifier, abrupt end", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" "hell>)");
-        expect_error(tokens, ParseError::AbruptDoctypeSystemIdentifier);
-        expect_token(tokens,
-                DoctypeToken{.name = "html",
-                        .public_identifier = "great",
-                        .system_identifier = "hell",
-                        .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
