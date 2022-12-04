@@ -30,7 +30,7 @@ bool Http::use_port(uri::Uri const &uri) {
     return false;
 }
 
-std::string Http::create_get_request(uri::Uri const &uri) {
+std::string Http::create_get_request(uri::Uri const &uri, std::optional<std::string_view> user_agent) {
     std::stringstream ss;
     ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
     if (Http::use_port(uri)) {
@@ -39,7 +39,12 @@ std::string Http::create_get_request(uri::Uri const &uri) {
         ss << fmt::format("Host: {}\r\n", uri.authority.host);
     }
     ss << "Accept: text/html\r\n";
-    ss << "Connection: close\r\n\r\n";
+    ss << "Connection: close\r\n";
+    if (user_agent) {
+        ss << fmt::format("User-Agent: {}\r\n", *user_agent);
+    }
+
+    ss << "\r\n";
 
     return std::move(ss).str();
 }

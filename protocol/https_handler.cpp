@@ -11,7 +11,7 @@
 namespace protocol {
 
 Response HttpsHandler::handle(uri::Uri const &uri) {
-    return Http::get(net::SecureSocket{}, uri);
+    return Http::get(net::SecureSocket{}, uri, user_agent_);
 }
 
 } // namespace protocol

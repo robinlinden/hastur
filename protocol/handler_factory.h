@@ -8,12 +8,15 @@
 #include "protocol/multi_protocol_handler.h"
 
 #include <memory>
+#include <optional>
+#include <string>
 
 namespace protocol {
 
 class HandlerFactory {
 public:
-    [[nodiscard]] static std::unique_ptr<MultiProtocolHandler> create();
+    [[nodiscard]] static std::unique_ptr<MultiProtocolHandler> create(
+            std::optional<std::string> user_agent = std::nullopt);
 };
 
 } // namespace protocol

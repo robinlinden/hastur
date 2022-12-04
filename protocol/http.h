@@ -21,11 +21,11 @@ namespace protocol {
 
 class Http {
 public:
-    static Response get(auto &&socket, uri::Uri const &uri) {
+    static Response get(auto &&socket, uri::Uri const &uri, std::optional<std::string_view> user_agent) {
         using namespace std::string_view_literals;
 
         if (socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
-            socket.write(Http::create_get_request(uri));
+            socket.write(Http::create_get_request(uri, std::move(user_agent)));
             auto data = socket.read_until("\r\n"sv);
             if (data.empty()) {
                 return {Error::Unresolved};
@@ -106,7 +106,7 @@ private:
     }
 
     static bool use_port(uri::Uri const &uri);
-    static std::string create_get_request(uri::Uri const &uri);
+    static std::string create_get_request(uri::Uri const &uri, std::optional<std::string_view> user_agent);
     static std::optional<StatusLine> parse_status_line(std::string_view status_line);
     static Headers parse_headers(std::string_view header);
 };

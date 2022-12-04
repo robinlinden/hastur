@@ -7,11 +7,20 @@
 
 #include "protocol/iprotocol_handler.h"
 
+#include <optional>
+#include <string>
+#include <utility>
+
 namespace protocol {
 
 class HttpHandler final : public IProtocolHandler {
 public:
+    explicit HttpHandler(std::optional<std::string> user_agent) : user_agent_{std::move(user_agent)} {}
+
     [[nodiscard]] Response handle(uri::Uri const &) override;
+
+private:
+    std::optional<std::string> user_agent_;
 };
 
 } // namespace protocol
