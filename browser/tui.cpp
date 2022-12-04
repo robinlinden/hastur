@@ -13,6 +13,10 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
+#include <utility>
+
+using namespace std::literals;
 
 namespace {
 char const *const kDefaultUri = "http://www.example.com";
@@ -24,7 +28,9 @@ int main(int argc, char **argv) {
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
     auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
-    engine::Engine engine{protocol::HandlerFactory::create()};
+    // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
+    auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"s;
+    engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", static_cast<int>(err), uri.uri);
         std::exit(1);
