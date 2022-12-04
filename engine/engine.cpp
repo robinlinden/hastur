@@ -43,7 +43,7 @@ protocol::Error Engine::navigate(uri::Uri uri) {
                 response_.status_line.status_code,
                 uri_.uri,
                 response_.headers.get("Location").value());
-        uri_ = uri::Uri::parse(std::string(response_.headers.get("Location").value()));
+        uri_ = uri::Uri::parse(std::string(response_.headers.get("Location").value()), uri_);
         response_ = protocol_handler_->handle(uri_);
     }
 
