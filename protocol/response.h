@@ -26,6 +26,8 @@ struct StatusLine {
     std::string version;
     int status_code;
     std::string reason;
+
+    [[nodiscard]] bool operator==(StatusLine const &) const = default;
 };
 
 class Headers {
@@ -34,6 +36,8 @@ public:
     [[nodiscard]] std::optional<std::string_view> get(std::string_view name) const;
     [[nodiscard]] std::string to_string() const;
     [[nodiscard]] std::size_t size() const;
+
+    [[nodiscard]] bool operator==(Headers const &) const = default;
 
 private:
     struct CaseInsensitiveLess {
@@ -48,6 +52,8 @@ struct Response {
     StatusLine status_line;
     Headers headers;
     std::string body;
+
+    [[nodiscard]] bool operator==(Response const &) const = default;
 };
 
 } // namespace protocol
