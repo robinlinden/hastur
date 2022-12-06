@@ -120,9 +120,9 @@ http_archive(
 http_archive(
     name = "libpng",  # Libpng
     build_file = "//third_party:libpng.BUILD",
-    sha256 = "d4160037fa5d09fa7cff555037f2a7f2fefc99ca01e21723b19bfcda33015234",
-    strip_prefix = "libpng-1.6.38",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.38.tar.gz",
+    sha256 = "a00e9d2f2f664186e4202db9299397f851aea71b36a35e74910b8820e380d441",
+    strip_prefix = "libpng-1.6.39",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.39.tar.gz",
 )
 
 http_archive(
