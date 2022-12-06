@@ -7,12 +7,20 @@
 #include "etest/etest.h"
 
 #include <string_view>
+#include <utility>
 
 using namespace std::literals;
 
 using etest::expect;
 using etest::expect_eq;
 using etest::require;
+
+namespace {
+// TODO(robinlinden): Remove.
+dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::vector<dom::Node> children) {
+    return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
+}
+} // namespace
 
 int main() {
     etest::test("to_string", [] {
@@ -33,10 +41,10 @@ int main() {
     // clang-format off
 
     etest::test("no matches", [] {
-        auto const dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto const dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -45,10 +53,10 @@ int main() {
     });
 
     etest::test("root match", [] {
-        auto const dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto const dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -58,10 +66,10 @@ int main() {
     });
 
     etest::test("path with one element node", [] {
-        auto const dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto const dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -71,11 +79,11 @@ int main() {
     });
 
     etest::test("path with multiple element nodes", [] {
-        auto const dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {{"display", "none"}}, {}),
+        auto const dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {{"display", "none"}}, {}),
             }),
         });
 
@@ -93,17 +101,17 @@ int main() {
     });
 
     etest::test("matching nodes in different branches", [] {
-        auto const dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("div", {}, {
-                    dom::create_element_node("p", {{"display", "none"}}, {}),
+        auto const dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("div", {}, {
+                    create_element_node("p", {{"display", "none"}}, {}),
                 }),
-                dom::create_element_node("span", {}, {
-                    dom::create_element_node("p", {{"display", "inline"}}, {}),
+                create_element_node("span", {}, {
+                    create_element_node("p", {{"display", "inline"}}, {}),
                 }),
-                dom::create_element_node("div", {}, {
-                    dom::create_element_node("p", {{"display", "block"}}, {}),
+                create_element_node("div", {}, {
+                    create_element_node("p", {{"display", "block"}}, {}),
                 })
             })
         });
@@ -123,11 +131,11 @@ int main() {
     });
 
     etest::test("non-element node in search path", [] {
-        auto const dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
+        auto const dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
             dom::Text{"I don't belong here. :("},
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 

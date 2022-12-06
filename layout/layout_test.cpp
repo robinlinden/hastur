@@ -7,6 +7,9 @@
 
 #include "etest/etest.h"
 
+#include <string_view>
+#include <utility>
+
 using namespace std::literals;
 using etest::expect;
 using etest::expect_eq;
@@ -15,6 +18,7 @@ using etest::require_eq;
 using layout::LayoutType;
 
 namespace {
+
 // Until we have a nicer tree-creation abstraction for the tests, this needs to
 // be called if a test relies on property inheritance.
 void set_up_parent_ptrs(style::StyledNode &parent) {
@@ -23,6 +27,12 @@ void set_up_parent_ptrs(style::StyledNode &parent) {
         set_up_parent_ptrs(child);
     }
 }
+
+// TODO(robinlinden): Remove.
+dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::vector<dom::Node> children) {
+    return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
+}
+
 } // namespace
 
 // TODO(robinlinden): clang-format doesn't get along well with how I structured
@@ -32,10 +42,10 @@ void set_up_parent_ptrs(style::StyledNode &parent) {
 
 int main() {
     etest::test("simple tree", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -68,10 +78,10 @@ int main() {
     });
 
     etest::test("layouting removes display:none nodes", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -104,10 +114,10 @@ int main() {
     });
 
     etest::test("inline nodes get wrapped in anonymous blocks", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("head", {}, {}),
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("head", {}, {}),
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -143,7 +153,7 @@ int main() {
 
     // clang-format on
     etest::test("inline in inline don't get wrapped in anon-blocks", [] {
-        auto dom_root = dom::create_element_node("span", {}, {dom::create_element_node("span", {}, {})});
+        auto dom_root = create_element_node("span", {}, {create_element_node("span", {}, {})});
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
@@ -165,8 +175,8 @@ int main() {
     // clang-format off
 
     etest::test("text", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
                 dom::Text{"hello"},
                 dom::Text{"goodbye"},
             }),
@@ -204,9 +214,9 @@ int main() {
     });
 
     etest::test("simple width", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -236,9 +246,9 @@ int main() {
     });
 
     etest::test("min-width", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -268,9 +278,9 @@ int main() {
     });
 
     etest::test("max-width", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -300,9 +310,9 @@ int main() {
     });
 
     etest::test("less simple width", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -332,9 +342,9 @@ int main() {
     });
 
     etest::test("auto width expands to fill parent", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -364,9 +374,9 @@ int main() {
     });
 
     etest::test("height doesn't affect children", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -396,10 +406,10 @@ int main() {
     });
 
     etest::test("height affects siblings and parents", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -431,10 +441,10 @@ int main() {
     });
 
     etest::test("min-height is respected", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -466,10 +476,10 @@ int main() {
     });
 
     etest::test("max-height is respected", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -501,10 +511,10 @@ int main() {
     });
 
     etest::test("padding is taken into account", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -545,10 +555,10 @@ int main() {
     });
 
     etest::test("border is taken into account", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -593,9 +603,9 @@ int main() {
     });
 
     etest::test("border is not added if border style is none", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -634,10 +644,10 @@ int main() {
     });
 
     etest::test("margin is taken into account", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -677,9 +687,9 @@ int main() {
     });
 
     etest::test("auto margin is handled", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -716,9 +726,9 @@ int main() {
     });
 
     etest::test("auto left margin and fixed right margin is handled", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -755,9 +765,9 @@ int main() {
     });
 
     etest::test("fixed left margin and auto right margin is handled", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
             }),
         });
 
@@ -794,7 +804,7 @@ int main() {
     });
 
     etest::test("em sizes depend on the font-size", [] {
-        auto dom_root = dom::create_element_node("html", {}, {});
+        auto dom_root = create_element_node("html", {}, {});
         {
             auto style_root = style::StyledNode{
                 .node = dom_root,
@@ -840,7 +850,7 @@ int main() {
     });
 
     etest::test("px sizes don't depend on the font-size", [] {
-        auto dom_root = dom::create_element_node("html", {}, {});
+        auto dom_root = create_element_node("html", {}, {});
         {
             auto style_root = style::StyledNode{
                 .node = dom_root,
@@ -912,10 +922,10 @@ int main() {
     });
 
     etest::test("to_string", [] {
-        auto dom_root = dom::create_element_node("html", {}, {
-            dom::create_element_node("body", {}, {
-                dom::create_element_node("p", {}, {}),
-                dom::create_element_node("p", {}, {}),
+        auto dom_root = create_element_node("html", {}, {
+            create_element_node("body", {}, {
+                create_element_node("p", {}, {}),
+                create_element_node("p", {}, {}),
             }),
         });
 

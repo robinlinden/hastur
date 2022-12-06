@@ -9,7 +9,6 @@
 #include <map>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <variant>
 #include <vector>
 
@@ -40,10 +39,6 @@ struct Document {
     Element &html() { return std::get<Element>(html_node); }
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
-
-inline Node create_element_node(std::string_view name, AttrMap attrs, std::vector<Node> children) {
-    return Element{std::string{name}, std::move(attrs), std::move(children)};
-}
 
 // reference_wrapper to ensure that the argument isn't a temporary since we return pointers into it.
 std::vector<Element const *> nodes_by_path(std::reference_wrapper<Node const>, std::string_view path);
