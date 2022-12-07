@@ -16,15 +16,19 @@ namespace etest {
 namespace {
 
 int assertion_failures = 0;
-int disabled_tests = 0;
 
 struct Test {
     std::string name;
     std::function<void()> body;
 };
 
-std::vector<Test> &registry() {
-    static std::vector<Test> test_registry;
+struct Registry {
+    std::vector<Test> tests;
+    std::vector<Test> disabled_tests;
+};
+
+Registry &registry() {
+    static Registry test_registry;
     return test_registry;
 }
 
@@ -35,20 +39,22 @@ std::stringstream test_log{};
 } // namespace
 
 int run_all_tests() noexcept {
-    std::cout << registry().size() + disabled_tests << " test(s) registered";
-    if (disabled_tests == 0) {
+    auto const &tests = registry().tests;
+    auto const &disabled = registry().disabled_tests;
+
+    std::cout << tests.size() + disabled.size() << " test(s) registered";
+    if (disabled.size() == 0) {
         std::cout << "." << std::endl;
     } else {
-        std::cout << ", " << disabled_tests << " disabled." << std::endl;
+        std::cout << ", " << disabled.size() << " disabled." << std::endl;
     }
 
     // TODO(robinlinden): std::ranges once clang-cl supports it. Last tested
     // with LLVM 15.0.0.
-    auto const longest_name = std::max_element(registry().begin(), registry().end(), [](auto const &a, auto const &b) {
-        return a.name.size() < b.name.size();
-    });
+    auto const longest_name = std::max_element(
+            tests.begin(), tests.end(), [](auto const &a, auto const &b) { return a.name.size() < b.name.size(); });
 
-    for (auto const &test : registry()) {
+    for (auto const &test : tests) {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": ";
 
         int const before = assertion_failures;
@@ -78,12 +84,12 @@ int run_all_tests() noexcept {
 
 void test(std::string name, std::function<void()> body) noexcept {
     // TODO(robinlinden): push_back -> emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 13.
-    registry().push_back({std::move(name), std::move(body)});
+    registry().tests.push_back({std::move(name), std::move(body)});
 }
 
-// TODO(robinlinden): Save and allow running these by passing some flag.
-void disabled_test(std::string, std::function<void()>) noexcept {
-    ++disabled_tests;
+// TODO(robinlinden): Allow running these by passing some flag.
+void disabled_test(std::string name, std::function<void()> body) noexcept {
+    registry().disabled_tests.push_back({std::move(name), std::move(body)});
 }
 
 void expect(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) noexcept {
