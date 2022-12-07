@@ -22,7 +22,12 @@ concept Printable = requires(std::ostream &os, T t) {
     { os << t } -> std::same_as<std::ostream &>;
 };
 
-[[nodiscard]] int run_all_tests() noexcept;
+struct RunOptions {
+    bool run_disabled_tests{false};
+};
+
+[[nodiscard]] int run_all_tests(RunOptions const & = {}) noexcept;
+
 void test(std::string name, std::function<void()> body) noexcept;
 void disabled_test(std::string name, std::function<void()> body) noexcept;
 

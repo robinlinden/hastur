@@ -13,4 +13,9 @@ int main() {
         std::cerr << "A disabled test ran when it shouldn't have\n";
         return 1;
     }
+
+    if (etest::run_all_tests({.run_disabled_tests = true}) == 0) {
+        std::cerr << "A disabled test didn't run when it should have\n";
+        return 1;
+    }
 }

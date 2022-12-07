@@ -8,6 +8,7 @@
 #include <exception>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -38,23 +39,30 @@ std::stringstream test_log{};
 
 } // namespace
 
-int run_all_tests() noexcept {
+int run_all_tests(RunOptions const &opts) noexcept {
     auto const &tests = registry().tests;
     auto const &disabled = registry().disabled_tests;
+
+    std::vector<Test> tests_to_run;
+    std::ranges::copy(begin(tests), end(tests), std::back_inserter(tests_to_run));
 
     std::cout << tests.size() + disabled.size() << " test(s) registered";
     if (disabled.size() == 0) {
         std::cout << "." << std::endl;
     } else {
         std::cout << ", " << disabled.size() << " disabled." << std::endl;
+        if (opts.run_disabled_tests) {
+            std::ranges::copy(begin(disabled), end(disabled), std::back_inserter(tests_to_run));
+        }
     }
 
     // TODO(robinlinden): std::ranges once clang-cl supports it. Last tested
     // with LLVM 15.0.0.
-    auto const longest_name = std::max_element(
-            tests.begin(), tests.end(), [](auto const &a, auto const &b) { return a.name.size() < b.name.size(); });
+    auto const longest_name = std::max_element(tests_to_run.begin(),
+            tests_to_run.end(),
+            [](auto const &a, auto const &b) { return a.name.size() < b.name.size(); });
 
-    for (auto const &test : tests) {
+    for (auto const &test : tests_to_run) {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": ";
 
         int const before = assertion_failures;
@@ -87,7 +95,6 @@ void test(std::string name, std::function<void()> body) noexcept {
     registry().tests.push_back({std::move(name), std::move(body)});
 }
 
-// TODO(robinlinden): Allow running these by passing some flag.
 void disabled_test(std::string name, std::function<void()> body) noexcept {
     registry().disabled_tests.push_back({std::move(name), std::move(body)});
 }
