@@ -32,7 +32,14 @@ struct LayoutBox {
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
     template<css::PropertyId T>
-    std::optional<std::string_view> get_property() const;
+    auto get_property() const {
+        using RetT = decltype(node->get_property<T>());
+        if (!node) {
+            return std::optional<RetT>{};
+        }
+
+        return std::optional<RetT>{node->get_property<T>()};
+    }
 };
 
 LayoutBox create_layout(style::StyledNode const &node, int width);
@@ -40,15 +47,6 @@ LayoutBox create_layout(style::StyledNode const &node, int width);
 LayoutBox const *box_at_position(LayoutBox const &, geom::Position);
 
 std::string to_string(LayoutBox const &box);
-
-template<css::PropertyId T>
-std::optional<std::string_view> LayoutBox::get_property() const {
-    if (!node) {
-        return std::nullopt;
-    }
-
-    return node->get_property<T>();
-}
 
 } // namespace layout
 
