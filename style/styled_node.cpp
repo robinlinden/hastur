@@ -24,6 +24,8 @@ std::map<css::PropertyId, std::string_view> const kInitialValues{
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-size#formal_definition
         {css::PropertyId::FontSize, "medium"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#formal_definition
+        {css::PropertyId::FontFamily, "arial"sv}, // TODO(robinlinden): Better default.
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/border-color#formal_definition
         {css::PropertyId::BorderBottomColor, "currentcolor"sv},
