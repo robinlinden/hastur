@@ -15,6 +15,10 @@ namespace os {
 
 std::vector<std::string> font_paths() {
     std::vector<std::string> paths{};
+    // This is actually probably a bit user hostile. User fonts *are* better than system fonts
+    // but until we can search through for missing glyphs ¯\_(ツ)_/¯
+    paths.push_back("/usr/local/share/fonts"s);
+    paths.push_back("/usr/share/fonts"s);
     if (char const *xdg_data_home = std::getenv("XDG_DATA_HOME")) {
         paths.push_back(xdg_data_home + "/fonts"s);
     }
@@ -26,8 +30,6 @@ std::vector<std::string> font_paths() {
         paths.push_back(home + "/.fonts"s);
     }
 
-    paths.push_back("/usr/share/fonts"s);
-    paths.push_back("/usr/local/share/fonts"s);
     return paths;
 }
 
