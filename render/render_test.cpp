@@ -41,6 +41,30 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawTextCmd{{0, 0}, "hello", "arial", 10}});
     });
 
+    etest::test("text, font-family provided", [] {
+        dom::Node dom = dom::Element{"span", {}, {dom::Text{"hello"}}};
+
+        auto const &children = std::get<dom::Element>(dom).children;
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties = {{css::PropertyId::Display, "inline"}},
+                .children = {{children[0],
+                        {{css::PropertyId::Display, "inline"}, {css::PropertyId::FontFamily, "comic sans"}}}},
+        };
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Inline,
+                .children = {{&styled.children[0], layout::LayoutType::Inline}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+        gfx::Painter painter{saver};
+        render::render_layout(painter, layout);
+
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawTextCmd{{0, 0}, "hello", "comic sans", 10}});
+    });
+
     etest::test("render block with background-color", [] {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{

@@ -5,6 +5,7 @@
 
 #include "render/render.h"
 
+#include "css/property_id.h"
 #include "dom/dom.h"
 #include "gfx/color.h"
 #include "util/string.h"
@@ -275,10 +276,15 @@ std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout) {
 }
 
 void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
-    // TODO(robinlinden):
-    // * We need to grab properties from the parent for this to work.
-    // * This shouldn't be done here.
-    auto font = gfx::Font{"arial"sv};
+    auto font_family = layout.get_property<css::PropertyId::FontFamily>();
+    // TODO(robinlinden): Handle multiple font-families.
+    auto font = [&] {
+        if (font_family) {
+            return gfx::Font{*font_family};
+        }
+
+        return gfx::Font{"arial"sv};
+    }();
     auto font_size = gfx::FontSize{.px = 10};
     auto color = try_get_color<css::PropertyId::Color>(layout).value_or(kDefaultColor);
     painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
