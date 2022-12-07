@@ -86,7 +86,7 @@ jobs:
           bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
 
   linux-gcc-10-coverage:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -99,7 +99,7 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends libgl-dev lcov
+          sudo apt-get install --no-install-recommends libgl-dev lcov gcc-10 g++-10
       - name: Setup
         run: |
           echo "CC=gcc-10" >> $GITHUB_ENV
@@ -164,7 +164,7 @@ jobs:
         run: git diff --exit-code
 
   buildifier:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Install
@@ -175,7 +175,7 @@ jobs:
         run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl")
 
   prettier:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - run: npm install --global prettier@2.8.0
@@ -185,7 +185,7 @@ jobs:
       - run: git diff --exit-code
 
   shfmt:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - run: pip install shfmt-py==3.4.3.1
