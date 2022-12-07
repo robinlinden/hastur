@@ -276,11 +276,11 @@ std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout) {
 }
 
 void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
-    auto font_family = layout.get_property<css::PropertyId::FontFamily>();
+    auto font_families = layout.get_property<css::PropertyId::FontFamily>();
     // TODO(robinlinden): Handle multiple font-families.
     auto font = [&] {
-        if (font_family) {
-            return gfx::Font{*font_family};
+        if (font_families && !font_families->empty()) {
+            return gfx::Font{font_families->at(0)};
         }
 
         return gfx::Font{"arial"sv};

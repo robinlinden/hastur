@@ -7,6 +7,7 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
+#include "util/string.h"
 
 #include <string>
 #include <string_view>
@@ -33,6 +34,9 @@ struct StyledNode {
     auto get_property() const {
         if constexpr (T == css::PropertyId::Display) {
             return get_display_property(T);
+        } else if constexpr (T == css::PropertyId::FontFamily) {
+            auto font_family = get_raw_property(T);
+            return util::split(font_family, ",");
         } else {
             return get_raw_property(T);
         }
