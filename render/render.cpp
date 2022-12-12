@@ -36,10 +36,6 @@ struct CaseInsensitiveLess {
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color_keywords#list_of_all_color_keywords
 std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
-        // Special.
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#transparent_keyword
-        {"transparent", {0x00, 0x00, 0x00, 0x00}},
-
         // System colors.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#system_colors
         // TODO(robinlinden): Move these elsewhere and actually grab them from the system.
@@ -196,6 +192,7 @@ std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
         {"tan", gfx::Color::from_rgb(0xd2'b4'8c)},
         {"thistle", gfx::Color::from_rgb(0xd8'bf'd8)},
         {"tomato", gfx::Color::from_rgb(0xff'63'47)},
+        {"transparent", {0x00, 0x00, 0x00, 0x00}},
         {"turquoise", gfx::Color::from_rgb(0x40'e0'd0)},
         {"violet", gfx::Color::from_rgb(0xee'82'ee)},
         {"wheat", gfx::Color::from_rgb(0xf5'de'b3)},
