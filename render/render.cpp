@@ -247,16 +247,23 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     return std::nullopt;
 }
 
-// TODO(robinlinden): rgba, space-separated values, alpha.
+// TODO(robinlinden): space-separated values, alpha.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgba
 std::optional<gfx::Color> try_from_rgba(std::string_view text) {
-    if (!text.starts_with("rgb(") || !text.ends_with(')')) {
+    if (text.starts_with("rgb(")) {
+        text.remove_prefix(std::strlen("rgb("));
+    } else if (text.starts_with("rgba(")) {
+        text.remove_prefix(std::strlen("rgba("));
+    } else {
         return std::nullopt;
     }
 
-    text.remove_prefix(std::strlen("rgb("));
+    if (!text.ends_with(')')) {
+        return std::nullopt;
+    }
     text.remove_suffix(std::strlen(")"));
+
     auto rgba = util::split(text, ",");
     if (rgba.size() != 3) {
         return std::nullopt;

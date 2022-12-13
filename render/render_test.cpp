@@ -248,6 +248,18 @@ int main() {
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
+        // rgb, rgba should be an alias of rgb
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgba(100, 200, 255)"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{100, 200, 255}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, missing closing paren
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
         // rgb, value out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(-1, 2, 3)"}};
         render::render_layout(painter, layout);
