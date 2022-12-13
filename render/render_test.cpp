@@ -16,6 +16,8 @@ using etest::expect_eq;
 
 using CanvasCommands = std::vector<gfx::CanvasCommand>;
 
+constexpr auto kInvalidColor = gfx::Color{0xFF, 0, 0};
+
 int main() {
     etest::test("render simple layout", [] {
         dom::Node dom = dom::Element{"span", {}, {dom::Text{"hello"}}};
@@ -225,6 +227,43 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "#123456"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
         render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+    });
+
+    etest::test("rgba colors", [] {
+        dom::Node dom = dom::Element{"div"};
+        auto styled = style::StyledNode{.node = dom};
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {{0, 0, 20, 20}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+        gfx::Painter painter{saver};
+
+        // rgb, working
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3)"}};
+        auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, value out of range
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(-1, 2, 3)"}};
+        render::render_layout(painter, layout);
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, wrong number of arguments
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2)"}};
+        render::render_layout(painter, layout);
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, garbage value
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(a, 2, 3)"}};
+        render::render_layout(painter, layout);
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
     });
 

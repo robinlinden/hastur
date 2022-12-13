@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <charconv>
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <sstream>
 #include <string_view>
@@ -246,8 +247,54 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     return std::nullopt;
 }
 
+// TODO(robinlinden): rgba, space-separated values, alpha.
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgba
+std::optional<gfx::Color> try_from_rgba(std::string_view text) {
+    if (!text.starts_with("rgb(") || !text.ends_with(')')) {
+        return std::nullopt;
+    }
+
+    text.remove_prefix(std::strlen("rgb("));
+    text.remove_suffix(std::strlen(")"));
+    auto rgba = util::split(text, ",");
+    if (rgba.size() != 3) {
+        return std::nullopt;
+    }
+
+    for (auto &value : rgba) {
+        value = util::trim(value);
+    }
+
+    auto to_int = [](std::string_view v) {
+        int ret{-1};
+        if (std::from_chars(v.data(), v.data() + v.size(), ret).ptr != v.data() + v.size()) {
+            return -1;
+        }
+
+        if (ret < 0 || ret > 255) {
+            return -1;
+        }
+
+        return ret;
+    };
+
+    auto r{to_int(rgba[0])};
+    auto g{to_int(rgba[1])};
+    auto b{to_int(rgba[2])};
+    if (r == -1 || g == -1 || b == -1) {
+        return std::nullopt;
+    }
+
+    return gfx::Color{static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b)};
+}
+
 gfx::Color parse_color(std::string_view str) {
     if (auto color = try_from_hex_chars(str)) {
+        return *color;
+    }
+
+    if (auto color = try_from_rgba(str)) {
         return *color;
     }
 
