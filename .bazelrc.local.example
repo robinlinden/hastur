@@ -2,15 +2,13 @@
 #
 # Copy this to .bazelrc.local and uncomment --config lines you want.
 #
-# GCC-12 and Clang on Linux, and MSVC on Windows don't require any --config flags.
+# Only the clang-cl compiler on Windows requires any special --config flags.
 
 # Choose a build type
 build -c dbg
 # build -c opt
 
 # Choose a compiler
-## Linux
-# build --config gcc10
 ## Windows
 # build --config clang-cl
 
