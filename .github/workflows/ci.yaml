@@ -86,7 +86,7 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
 
-  linux-gcc-10-coverage:
+  linux-gcc-11-coverage:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -100,13 +100,13 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends libgl-dev lcov gcc-10 g++-10
+          sudo apt-get install --no-install-recommends libgl-dev lcov gcc-11 g++-11
       - name: Setup
         run: |
-          echo "CC=gcc-10" >> $GITHUB_ENV
-          echo "CXX=g++-10" >> $GITHUB_ENV
+          echo "CC=gcc-11" >> $GITHUB_ENV
+          echo "CXX=g++-11" >> $GITHUB_ENV
       - name: Coverage
-        run: bazel coverage ... --config gcc10
+        run: bazel coverage ...
       - name: Summary
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
