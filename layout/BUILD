@@ -10,6 +10,7 @@ cc_library(
     deps = [
         "//geom",
         "//style",
+        "//util:from_chars",
         "//util:overloaded",
         "@spdlog",
     ],
