@@ -34,18 +34,6 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "css_parser_test",
-    size = "small",
-    srcs = ["parser_test.cpp"],
-    copts = HASTUR_COPTS,
-    deps = [
-        ":css",
-        "//etest",
-        "@fmt",
-    ],
-)
-
 cc_fuzz_test(
     name = "css_parser_fuzz_test",
     srcs = ["parser_fuzz_test.cpp"],
@@ -55,25 +43,17 @@ cc_fuzz_test(
     deps = [":css"],
 )
 
-cc_test(
-    name = "css_rule_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["rule_test.cpp"],
-    copts = HASTUR_COPTS,
-    deps = [
-        ":css",
-        "//etest",
-    ],
-)
-
-cc_test(
-    name = "property_id_test",
-    size = "small",
-    srcs = ["property_id_test.cpp"],
+    srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
         ":css",
         "//etest",
         "@fmt",
     ],
-)
+) for src in glob(
+    include = ["*_test.cpp"],
+    exclude = ["*_fuzz_test.cpp"],
+)]
