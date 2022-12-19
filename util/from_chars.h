@@ -7,10 +7,9 @@
 
 #include <version>
 
-// Workaround for GCC 10 and libc++ not supporting std::from_chars for floating
-// point numbers.
-// TODO(robinlinden): Nuke once we drop support for GCC 10, and libc++ supports std::from_chars w/ floats.
-#if (defined(__GNUC__) && __GNUC__ <= 10 && !defined(__clang__)) || defined(_LIBCPP_VERSION)
+// Workaround for libc++ not supporting std::from_chars for floating point numbers.
+// TODO(robinlinden): Nuke once libc++ supports std::from_chars w/ floats.
+#if defined(_LIBCPP_VERSION)
 
 #include <algorithm>
 #include <cerrno>

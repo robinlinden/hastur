@@ -12,7 +12,7 @@ struct Overloaded : Ts... {
     using Ts::operator()...;
 };
 
-// Not needed as of C++20, but gcc 10 won't work without it.
+// Not needed as of C++20, but Clang won't work without it.
 template<class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
