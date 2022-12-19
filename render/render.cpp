@@ -8,6 +8,7 @@
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "gfx/color.h"
+#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -247,7 +248,7 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     return std::nullopt;
 }
 
-// TODO(robinlinden): space-separated values, alpha.
+// TODO(robinlinden): space-separated values.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgba
 std::optional<gfx::Color> try_from_rgba(std::string_view text) {
@@ -265,7 +266,7 @@ std::optional<gfx::Color> try_from_rgba(std::string_view text) {
     text.remove_suffix(std::strlen(")"));
 
     auto rgba = util::split(text, ",");
-    if (rgba.size() != 3) {
+    if (rgba.size() != 3 && rgba.size() != 4) {
         return std::nullopt;
     }
 
@@ -293,7 +294,25 @@ std::optional<gfx::Color> try_from_rgba(std::string_view text) {
         return std::nullopt;
     }
 
-    return gfx::Color{static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b)};
+    if (rgba.size() == 3) {
+        return gfx::Color{static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b)};
+    }
+
+    float a{-1.f};
+    if (util::from_chars(rgba[3].data(), rgba[3].data() + rgba[3].size(), a).ptr != rgba[3].data() + rgba[3].size()) {
+        return std::nullopt;
+    }
+
+    if (a < 0.f || a > 1.f) {
+        return std::nullopt;
+    }
+
+    return gfx::Color{
+            static_cast<std::uint8_t>(r),
+            static_cast<std::uint8_t>(g),
+            static_cast<std::uint8_t>(b),
+            static_cast<std::uint8_t>(a * 255),
+    };
 }
 
 gfx::Color parse_color(std::string_view str) {

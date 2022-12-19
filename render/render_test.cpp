@@ -254,6 +254,30 @@ int main() {
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
+        // rgb, with alpha
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.5)"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 127}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, with alpha
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.2)"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 51}}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, alpha out of range
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 2)"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
+        // rgb, garbage values in alpha
+        styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, blergh)"}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+
         // rgb, missing closing paren
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
