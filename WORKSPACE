@@ -11,9 +11,9 @@ http_archive(
 
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "d9002dd3cd6437017f08593124fdd1b13b3473c7b929ceb0e60d317cb9346118",
+    sha256 = "f85dc70bb9672af0e350686461fe6fdd0d61e10e75645f9e44fedf549b21e369",
     strip_prefix = "rules_fuzzing-0.3.2",
-    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.2.zip",
+    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.2.tar.gz",
 )
 
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
@@ -134,9 +134,9 @@ http_archive(
     patch_cmds = [
         "sed -i 's/if (begin + trailingBytes < end)/if (trailingBytes < std::distance(begin, end))/' include/SFML/System/Utf.inl",
     ],
-    sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
+    sha256 = "438c91a917cc8aa19e82c6f59f8714da353c488584a007d401efac8368e1c785",
     strip_prefix = "SFML-2.5.1",
-    url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
+    url = "https://github.com/SFML/SFML/archive/2.5.1.tar.gz",
 )
 
 http_archive(
