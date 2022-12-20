@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//bzl:github_archive.bzl", "github_archive")
 
 # Bazel
 # =========================================================
@@ -9,11 +10,11 @@ http_archive(
     url = "https://github.com/bazelbuild/platforms/releases/download/0.0.6/platforms-0.0.6.tar.gz",
 )
 
-http_archive(
+github_archive(
     name = "rules_fuzzing",
+    repo = "bazelbuild/rules_fuzzing",
     sha256 = "f85dc70bb9672af0e350686461fe6fdd0d61e10e75645f9e44fedf549b21e369",
-    strip_prefix = "rules_fuzzing-0.3.2",
-    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.2.tar.gz",
+    version = "v0.3.2",
 )
 
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
@@ -28,11 +29,11 @@ rules_fuzzing_init()
 # =========================================================
 
 # HEAD as of 2022-12-17.
-http_archive(
+github_archive(
     name = "hedron_compile_commands",
+    repo = "hedronvision/bazel-compile-commands-extractor",
     sha256 = "9b5683e6e0d764585f41639076f0be421a4c495c8f993c186e4449977ce03e5e",
-    strip_prefix = "bazel-compile-commands-extractor-c6cd079bef5836293ca18e55aac6ef05134c3a9d",
-    url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/c6cd079bef5836293ca18e55aac6ef05134c3a9d.tar.gz",
+    version = "c6cd079bef5836293ca18e55aac6ef05134c3a9d",
 )
 
 load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
