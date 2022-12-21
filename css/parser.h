@@ -10,6 +10,7 @@
 #include "css/rule.h"
 
 #include "util/base_parser.h"
+#include "util/string.h"
 
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
@@ -178,8 +179,8 @@ private:
     css::Rule parse_rule() {
         Rule rule{};
         while (peek() != '{') {
-            auto selector = consume_while([](char c) { return c != ' ' && c != ',' && c != '{'; });
-            rule.selectors.push_back(std::string{selector});
+            auto selector = consume_while([](char c) { return c != ',' && c != '{'; });
+            rule.selectors.push_back(std::string{util::trim(selector)});
             skip_if_neq('{'); // ' ' or ','
             skip_whitespace_and_comments();
         }

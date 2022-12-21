@@ -94,6 +94,15 @@ int main() {
         expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
     });
 
+    etest::test("selector with spaces", [] {
+        auto rules = css::parse("p a { color: green; }");
+        expect_eq(rules,
+                std::vector<css::Rule>{{
+                        .selectors{{"p a"}},
+                        .declarations{{css::PropertyId::Color, "green"}},
+                }});
+    });
+
     etest::test("parser: minified", [] {
         auto rules = css::parse("body{width:50px;font:inherit}head,p{display:none}"sv);
         require(rules.size() == 2);
@@ -197,8 +206,8 @@ int main() {
 
     etest::test("parser: comments almost everywhere", [] {
         // body { width: 50px; } p { padding: 8em 4em; } with comments added everywhere currently supported.
-        auto rules = css::parse(R"(/**/body /**/{/**/width:50px;/**/}/*
-                */p /**/{/**/padding:/**/8em 4em;/**//**/}/**/)"sv);
+        auto rules = css::parse(R"(/**/body {/**/width:50px;/**/}/*
+                */p {/**/padding:/**/8em 4em;/**//**/}/**/)"sv);
         // TODO(robinlinden): Support comments in more places.
         // auto rules = css::parse(R"(/**/body/**/{/**/width/**/:/**/50px/**/;/**/}/*
         //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"sv);
