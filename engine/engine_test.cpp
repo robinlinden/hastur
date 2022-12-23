@@ -39,6 +39,20 @@ int main() {
         e.set_layout_width(10);
     });
 
+    etest::test("css in <head><style>", [] {
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{
+                .err = protocol::Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head><style>p { font-size: 123em; }</style></head></html>"},
+        })};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect_eq(e.stylesheet().back(),
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                });
+    });
+
     etest::test("navigation failure", [] {
         bool success{false};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
