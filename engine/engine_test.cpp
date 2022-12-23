@@ -30,6 +30,15 @@ private:
 } // namespace
 
 int main() {
+    etest::test("no handlers set", [] {
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+
+        e = engine::Engine{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        e.set_layout_width(10);
+    });
+
     etest::test("navigation failure", [] {
         bool success{false};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
