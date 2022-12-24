@@ -285,7 +285,7 @@ private:
         Tokenizer tokenizer(value, ' ');
         if (tokenizer.size() == 1) {
             // TODO(mkiael): Handle system properties correctly. Just forward it for now.
-            declarations.insert_or_assign(PropertyId::Font, std::string{tokenizer.get().value()});
+            declarations.insert_or_assign(PropertyId::FontFamily, std::string{tokenizer.get().value()});
             return;
         }
 

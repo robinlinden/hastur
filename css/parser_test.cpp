@@ -104,14 +104,14 @@ int main() {
     });
 
     etest::test("parser: minified", [] {
-        auto rules = css::parse("body{width:50px;font:inherit}head,p{display:none}"sv);
+        auto rules = css::parse("body{width:50px;font-family:inherit}head,p{display:none}"sv);
         require(rules.size() == 2);
 
         auto first = rules[0];
         expect(first.selectors == std::vector{"body"s});
         expect(first.declarations.size() == 2);
         expect(first.declarations.at(css::PropertyId::Width) == "50px"s);
-        expect(first.declarations.at(css::PropertyId::Font) == "inherit"s);
+        expect(first.declarations.at(css::PropertyId::FontFamily) == "inherit"s);
 
         auto second = rules[1];
         expect(second.selectors == std::vector{"head"s, "p"s});
@@ -700,6 +700,15 @@ int main() {
         expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "bold"s);
         expect(get_and_erase(body.declarations, css::PropertyId::LineHeight) == "80%"s);
         expect(check_initial_font_values(body.declarations));
+    });
+
+    etest::test("parser: font, single-argument", [] {
+        auto rules = css::parse("p { font: status-bar; }"sv);
+        require(rules.size() == 1);
+
+        auto p = rules[0];
+        expect_eq(p.declarations.size(), std::size_t{1});
+        expect_eq(get_and_erase(p.declarations, css::PropertyId::FontFamily), "status-bar"s);
     });
 
     etest::test("parser: shorthand font with ultra-exapnded font stretch", [] {

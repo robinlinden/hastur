@@ -44,7 +44,6 @@ std::map<std::string_view, PropertyId> const kKnownProperties{
         {"display"sv, PropertyId::Display},
         {"elevation"sv, PropertyId::Elevation},
         {"empty-cells"sv, PropertyId::EmptyCells},
-        {"font"sv, PropertyId::Font},
         {"font-family"sv, PropertyId::FontFamily},
         {"font-feature-settings"sv, PropertyId::FontFeatureSettings},
         {"font-kerning"sv, PropertyId::FontKerning},

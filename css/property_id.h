@@ -42,7 +42,6 @@ enum class PropertyId {
     Display,
     Elevation,
     EmptyCells,
-    Font,
     FontFamily,
     FontFeatureSettings,
     FontKerning,
@@ -119,7 +118,6 @@ constexpr bool is_inherited(PropertyId id) {
         case css::PropertyId::Direction:
         case css::PropertyId::Elevation:
         case css::PropertyId::EmptyCells:
-        case css::PropertyId::Font:
         case css::PropertyId::FontFamily:
         case css::PropertyId::FontSize:
         case css::PropertyId::FontStyle:
