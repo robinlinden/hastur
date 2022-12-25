@@ -133,7 +133,7 @@ void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders c
 }
 
 // TODO(robinlinden): Fonts are never evicted from the cache.
-void SfmlCanvas::draw_text(geom::Position p, std::string_view text, Font font, FontSize size, Color color) {
+void SfmlCanvas::draw_text(geom::Position p, std::string_view text, Font font, FontSize size, FontStyle, Color color) {
     auto const *sf_font = [&]() -> sf::Font const * {
         if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
             return &*it->second;

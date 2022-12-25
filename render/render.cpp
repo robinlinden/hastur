@@ -360,7 +360,7 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
     }();
     auto font_size = gfx::FontSize{.px = 10};
     auto color = try_get_color<css::PropertyId::Color>(layout).value_or(kDefaultColor);
-    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, color);
+    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, gfx::FontStyle::Normal, color);
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {

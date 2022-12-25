@@ -17,6 +17,11 @@ struct FontSize {
     int px{10};
 };
 
+enum class FontStyle {
+    Normal,
+    Italic,
+};
+
 } // namespace gfx
 
 #endif

@@ -33,7 +33,7 @@ public:
 
     void fill_rect(geom::Rect const &, Color) override;
     void draw_rect(geom::Rect const &, Color const &, Borders const &) override;
-    void draw_text(geom::Position, std::string_view, Font, FontSize, Color) override;
+    void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) override;
 
 private:
     sf::RenderTarget &target_;

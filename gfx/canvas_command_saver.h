@@ -54,6 +54,7 @@ struct DrawTextCmd {
     std::string text{};
     std::string font{};
     int size{};
+    FontStyle style{FontStyle::Normal};
     Color color{};
 
     [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;
@@ -72,8 +73,13 @@ public:
     void draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) override {
         cmds_.emplace_back(DrawRectCmd{rect, color, borders});
     }
-    void draw_text(geom::Position position, std::string_view text, Font font, FontSize size, Color color) override {
-        cmds_.emplace_back(DrawTextCmd{position, std::string{text}, std::string{font.font}, size.px, color});
+    void draw_text(geom::Position position,
+            std::string_view text,
+            Font font,
+            FontSize size,
+            FontStyle style,
+            Color color) override {
+        cmds_.emplace_back(DrawTextCmd{position, std::string{text}, std::string{font.font}, size.px, style, color});
     }
 
     //
@@ -94,7 +100,7 @@ public:
     constexpr void operator()(DrawRectCmd const &cmd) { canvas_.draw_rect(cmd.rect, cmd.color, cmd.borders); }
 
     void operator()(DrawTextCmd const &cmd) {
-        canvas_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.color);
+        canvas_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.style, cmd.color);
     }
 
 private:
