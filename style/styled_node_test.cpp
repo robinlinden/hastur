@@ -144,5 +144,16 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::Color>(), "blue"sv);
     });
 
+    etest::test("get_font_style_property", [] {
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode styled_node{.node = dom_node, .properties = {{css::PropertyId::FontStyle, "oblique"s}}};
+
+        expect_eq(styled_node.get_property<css::PropertyId::FontStyle>(), style::FontStyle::Oblique);
+
+        // Unhandled properties don't break things.
+        styled_node.properties[0] = std::pair{css::PropertyId::FontStyle, "???"s};
+        expect_eq(styled_node.get_property<css::PropertyId::FontStyle>(), style::FontStyle::Normal);
+    });
+
     return etest::run_all_tests();
 }

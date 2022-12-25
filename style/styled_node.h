@@ -22,6 +22,12 @@ enum class DisplayValue {
     Block,
 };
 
+enum class FontStyle {
+    Normal,
+    Italic,
+    Oblique,
+};
+
 struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<css::PropertyId, std::string>> properties;
@@ -37,6 +43,8 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::FontFamily) {
             auto font_family = get_raw_property(T);
             return util::split(font_family, ",");
+        } else if constexpr (T == css::PropertyId::FontStyle) {
+            return get_font_style_property();
         } else {
             return get_raw_property(T);
         }
@@ -44,6 +52,7 @@ struct StyledNode {
 
 private:
     DisplayValue get_display_property(css::PropertyId) const;
+    FontStyle get_font_style_property() const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

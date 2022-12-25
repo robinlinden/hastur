@@ -138,4 +138,18 @@ DisplayValue StyledNode::get_display_property(css::PropertyId id) const {
     return DisplayValue::None;
 }
 
+FontStyle StyledNode::get_font_style_property() const {
+    auto raw = get_raw_property(css::PropertyId::FontStyle);
+    if (raw == "normal") {
+        return FontStyle::Normal;
+    } else if (raw == "italic") {
+        return FontStyle::Italic;
+    } else if (raw == "oblique") {
+        return FontStyle::Oblique;
+    }
+
+    spdlog::warn("Unhandled font style value {}", raw);
+    return FontStyle::Normal;
+}
+
 } // namespace style
