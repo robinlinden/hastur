@@ -51,7 +51,9 @@ int main() {
                 .node = dom,
                 .properties = {{css::PropertyId::Display, "inline"}},
                 .children = {{children[0],
-                        {{css::PropertyId::Display, "inline"}, {css::PropertyId::FontFamily, "comic sans"}}}},
+                        {{css::PropertyId::Display, "inline"},
+                                {css::PropertyId::FontFamily, "comic sans"},
+                                {css::PropertyId::FontStyle, "italic"}}}},
         };
 
         auto layout = layout::LayoutBox{
@@ -64,7 +66,8 @@ int main() {
         gfx::Painter painter{saver};
         render::render_layout(painter, layout);
 
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawTextCmd{{0, 0}, "hello", "comic sans", 10}});
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::DrawTextCmd{{0, 0}, "hello", "comic sans", 10, gfx::FontStyle::Italic}});
     });
 
     etest::test("render block with background-color", [] {

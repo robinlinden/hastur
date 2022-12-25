@@ -348,6 +348,17 @@ std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout) {
     return std::nullopt;
 }
 
+gfx::FontStyle to_gfx(style::FontStyle style) {
+    switch (style) {
+        case style::FontStyle::Italic:
+        case style::FontStyle::Oblique:
+            return gfx::FontStyle::Italic;
+        case style::FontStyle::Normal:
+        default:
+            return gfx::FontStyle::Normal;
+    }
+}
+
 void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
     auto font_families = layout.get_property<css::PropertyId::FontFamily>();
     // TODO(robinlinden): Handle multiple font-families.
@@ -359,8 +370,9 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
         return gfx::Font{"arial"sv};
     }();
     auto font_size = gfx::FontSize{.px = 10};
+    auto style = layout.get_property<css::PropertyId::FontStyle>().value_or(style::FontStyle::Normal);
     auto color = try_get_color<css::PropertyId::Color>(layout).value_or(kDefaultColor);
-    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, gfx::FontStyle::Normal, color);
+    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, to_gfx(style), color);
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
