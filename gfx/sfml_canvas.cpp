@@ -73,6 +73,16 @@ sf::Glsl::Vec4 to_vec4(Color const &color) {
             static_cast<float>(color.a) / 0xFF};
 }
 
+sf::Text::Style to_sfml(FontStyle style) {
+    switch (style) {
+        case FontStyle::Italic:
+            return sf::Text::Italic;
+        case FontStyle::Normal:
+        default:
+            return sf::Text::Regular;
+    }
+}
+
 } // namespace
 
 SfmlCanvas::SfmlCanvas(sf::RenderTarget &target) : target_{target} {
@@ -133,7 +143,8 @@ void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders c
 }
 
 // TODO(robinlinden): Fonts are never evicted from the cache.
-void SfmlCanvas::draw_text(geom::Position p, std::string_view text, Font font, FontSize size, FontStyle, Color color) {
+void SfmlCanvas::draw_text(
+        geom::Position p, std::string_view text, Font font, FontSize size, FontStyle style, Color color) {
     auto const *sf_font = [&]() -> sf::Font const * {
         if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
             return &*it->second;
@@ -159,7 +170,7 @@ void SfmlCanvas::draw_text(geom::Position p, std::string_view text, Font font, F
     drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px);
-    drawable.setStyle(sf::Text::Regular);
+    drawable.setStyle(to_sfml(style));
     drawable.setPosition(static_cast<float>(p.x + tx_), static_cast<float>(p.y + ty_));
     target_.draw(drawable);
 }
