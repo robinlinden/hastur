@@ -1636,7 +1636,8 @@ void Tokenizer::run() {
                     case '\n':
                     case '\f':
                     case ' ':
-                        std::terminate();
+                        state_ = State::BeforeDoctypeSystemIdentifier;
+                        continue;
                     case '"':
                         emit(ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
                         std::get<DoctypeToken>(current_token_).system_identifier = "";
@@ -1644,6 +1645,44 @@ void Tokenizer::run() {
                         continue;
                     case '\'':
                         emit(ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
+                        std::get<DoctypeToken>(current_token_).system_identifier = "";
+                        state_ = State::DoctypeSystemIdentifierSingleQuoted;
+                        continue;
+                    case '>':
+                        emit(ParseError::MissingDoctypeSystemIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
+                        continue;
+                    default:
+                        emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::BogusDoctype;
+                        continue;
+                }
+            }
+
+            case State::BeforeDoctypeSystemIdentifier: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        continue;
+                    case '"':
+                        std::get<DoctypeToken>(current_token_).system_identifier = "";
+                        state_ = State::DoctypeSystemIdentifierDoubleQuoted;
+                        continue;
+                    case '\'':
                         std::get<DoctypeToken>(current_token_).system_identifier = "";
                         state_ = State::DoctypeSystemIdentifierSingleQuoted;
                         continue;

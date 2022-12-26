@@ -116,6 +116,39 @@ void doctype_system_keyword_tests() {
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
+
+    etest::test("doctype before system identifier, single-quoted system identifier", [] {
+        auto tokens = run_tokenizer("<!DOCTYPE HTML SYSTEM 'great'>");
+        expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype before system identifier, double-quoted system identifier", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM "great">)");
+        expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype before system identifier, more eof in doctype", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM   )");
+        expect_error(tokens, ParseError::EofInDoctype);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype before system identifier, missing identifier", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM >)");
+        expect_error(tokens, ParseError::MissingDoctypeSystemIdentifier);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype before system identifier, missing quote before identifier", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM great>)");
+        expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 } // namespace
