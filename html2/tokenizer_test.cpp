@@ -81,9 +81,48 @@ void expect_error(
     output.errors.erase(begin(output.errors));
 }
 
+void doctype_system_keyword_tests() {
+    etest::test("doctype system keyword, single-quoted system identifier, missing space", [] {
+        auto tokens = run_tokenizer("<!DOCTYPE HTML SYSTEM'great'>");
+        expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
+        expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype system keyword, double-quoted system identifier, missing space", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM"great">)");
+        expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
+        expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype system keyword, missing identifier", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM>)");
+        expect_error(tokens, ParseError::MissingDoctypeSystemIdentifier);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype system keyword, missing quote before identifier", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEMgreat>)");
+        expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype system keyword, eof in doctype", [] {
+        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM)");
+        expect_error(tokens, ParseError::EofInDoctype);
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
+    doctype_system_keyword_tests();
+
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");
 

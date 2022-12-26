@@ -1395,7 +1395,9 @@ void Tokenizer::run() {
                         }
 
                         if (util::no_case_compare(input_.substr(pos_ - 1, std::strlen("SYSTEM")), "system"sv)) {
-                            std::terminate();
+                            pos_ += std::strlen("SYSTEM") - 1;
+                            state_ = State::AfterDoctypeSystemKeyword;
+                            continue;
                         }
 
                         emit(ParseError::InvalidCharacterSequenceAfterDoctypeName);
@@ -1610,6 +1612,46 @@ void Tokenizer::run() {
                     case '\'':
                         std::get<DoctypeToken>(current_token_).system_identifier = "";
                         state_ = State::DoctypeSystemIdentifierSingleQuoted;
+                        continue;
+                    default:
+                        emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::BogusDoctype;
+                        continue;
+                }
+            }
+
+            case State::AfterDoctypeSystemKeyword: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInDoctype);
+                    std::get<DoctypeToken>(current_token_).force_quirks = true;
+                    emit(std::move(current_token_));
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        std::terminate();
+                    case '"':
+                        emit(ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
+                        std::get<DoctypeToken>(current_token_).system_identifier = "";
+                        state_ = State::DoctypeSystemIdentifierDoubleQuoted;
+                        continue;
+                    case '\'':
+                        emit(ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
+                        std::get<DoctypeToken>(current_token_).system_identifier = "";
+                        state_ = State::DoctypeSystemIdentifierSingleQuoted;
+                        continue;
+                    case '>':
+                        emit(ParseError::MissingDoctypeSystemIdentifier);
+                        std::get<DoctypeToken>(current_token_).force_quirks = true;
+                        state_ = State::Data;
+                        emit(std::move(current_token_));
                         continue;
                     default:
                         emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
