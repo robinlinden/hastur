@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <string>
 
 #include <fmt/format.h>
 
@@ -724,6 +725,58 @@ int main() {
         expect(get_and_erase(body.declarations, css::PropertyId::FontVariant) == "small-caps"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontWeight) == "bold"s);
         expect(check_initial_font_values(body.declarations));
+    });
+
+    etest::test("parser: border-radius shorthand, 1 value", [] {
+        auto rules = css::parse("div { border-radius: 5px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "5px"s},
+                        {css::PropertyId::BorderTopRightRadius, "5px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "5px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "5px"s},
+                });
+    });
+
+    etest::test("parser: border-radius shorthand, 2 values", [] {
+        auto rules = css::parse("div { border-radius: 1px 2px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "1px"s},
+                        {css::PropertyId::BorderTopRightRadius, "2px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "1px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "2px"s},
+                });
+    });
+
+    etest::test("parser: border-radius shorthand, 3 values", [] {
+        auto rules = css::parse("div { border-radius: 1px 2px 3px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "1px"s},
+                        {css::PropertyId::BorderTopRightRadius, "2px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "3px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "2px"s},
+                });
+    });
+
+    etest::test("parser: border-radius shorthand, 4 values", [] {
+        auto rules = css::parse("div { border-radius: 1px 2px 3px 4px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "1px"s},
+                        {css::PropertyId::BorderTopRightRadius, "2px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "3px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "4px"s},
+                });
     });
 
     etest::test("parser: @keyframes doesn't crash the parser", [] {

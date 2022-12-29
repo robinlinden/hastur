@@ -216,6 +216,8 @@ private:
             expand_background(declarations, value);
         } else if (name == "font") {
             expand_font(declarations, value);
+        } else if (name == "border-radius") {
+            expand_border_radius_values(declarations, value);
         } else {
             declarations.insert_or_assign(property_id_from_string(name), std::string{value});
         }
@@ -237,6 +239,38 @@ private:
         if (tokenizer.size() == 1) {
             declarations[PropertyId::BackgroundColor] = tokenizer.get().value();
         }
+    }
+
+    static void expand_border_radius_values(std::map<PropertyId, std::string> &declarations, std::string_view value) {
+        std::string_view top_left, top_right, bottom_right, bottom_left;
+        Tokenizer tokenizer(value, ' ');
+        switch (tokenizer.size()) {
+            case 1:
+                top_left = top_right = bottom_right = bottom_left = tokenizer.get().value();
+                break;
+            case 2:
+                top_left = bottom_right = tokenizer.get().value();
+                top_right = bottom_left = tokenizer.next().get().value();
+                break;
+            case 3:
+                top_left = tokenizer.get().value();
+                top_right = bottom_left = tokenizer.next().get().value();
+                bottom_right = tokenizer.next().get().value();
+                break;
+            case 4:
+                top_left = tokenizer.get().value();
+                top_right = tokenizer.next().get().value();
+                bottom_right = tokenizer.next().get().value();
+                bottom_left = tokenizer.next().get().value();
+                break;
+            default:
+                break;
+        }
+
+        declarations.insert_or_assign(PropertyId::BorderTopLeftRadius, std::string{top_left});
+        declarations.insert_or_assign(PropertyId::BorderTopRightRadius, std::string{top_right});
+        declarations.insert_or_assign(PropertyId::BorderBottomRightRadius, std::string{bottom_right});
+        declarations.insert_or_assign(PropertyId::BorderBottomLeftRadius, std::string{bottom_left});
     }
 
     void expand_edge_values(
