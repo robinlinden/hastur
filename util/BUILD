@@ -3,6 +3,7 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 dependencies = {
     "base_parser": [":string"],
+    "uuid": ["@fmt"],
 }
 
 [cc_library(
