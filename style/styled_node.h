@@ -46,6 +46,8 @@ struct StyledNode {
             auto families = util::split(raw_font_family, ",");
             std::ranges::for_each(families, [](auto &family) { family = util::trim(family); });
             return families;
+        } else if constexpr (T == css::PropertyId::FontSize) {
+            return get_font_size_property();
         } else if constexpr (T == css::PropertyId::FontStyle) {
             return get_font_style_property();
         } else {
@@ -56,6 +58,7 @@ struct StyledNode {
 private:
     DisplayValue get_display_property(css::PropertyId) const;
     FontStyle get_font_style_property() const;
+    int get_font_size_property() const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

@@ -16,6 +16,7 @@ cc_library(
     deps = [
         "//css",
         "//dom",
+        "//util:from_chars",
         "//util:string",
         "@spdlog",
     ],

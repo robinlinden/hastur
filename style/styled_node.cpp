@@ -7,7 +7,13 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cmath>
+#include <map>
+#include <optional>
 #include <string_view>
+#include <utility>
+
+#include "util/from_chars.h"
 
 using namespace std::literals;
 
@@ -85,6 +91,19 @@ std::string_view get_parent_raw_property(style::StyledNode const &node, css::Pro
     return kInitialValues.at(property);
 }
 
+std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std::string_view property) {
+    float res{};
+    auto parse_result = util::from_chars(property.data(), property.data() + property.size(), res);
+    if (parse_result.ec != std::errc{}) {
+        spdlog::warn("Unable to split '{}' in split_into_value_and_unit", property);
+        return std::nullopt;
+    }
+
+    auto const parsed_length = std::distance(property.data(), parse_result.ptr);
+    auto const unit = property.substr(parsed_length);
+    return std::pair{res, unit};
+}
+
 } // namespace
 
 std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
@@ -152,6 +171,49 @@ FontStyle StyledNode::get_font_style_property() const {
 
     spdlog::warn("Unhandled font style value {}", raw);
     return FontStyle::Normal;
+}
+
+static int const kDefaultFontSize{10};
+// https://w3c.github.io/csswg-drafts/css-fonts-4/#absolute-size-mapping
+constexpr int kMediumFontSize = kDefaultFontSize;
+std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
+        {"xx-small", 3 / 5.f},
+        {"x-small", 3 / 4.f},
+        {"small", 8 / 9.f},
+        {"medium", 1.f},
+        {"large", 6 / 5.f},
+        {"x-large", 3 / 2.f},
+        {"xx-large", 2 / 1.f},
+        {"xxx-large", 3 / 1.f},
+};
+
+int StyledNode::get_font_size_property() const {
+    auto raw_value = get_raw_property(css::PropertyId::FontSize);
+
+    if (kFontSizeAbsoluteSizeKeywords.contains(raw_value)) {
+        return std::lround(kFontSizeAbsoluteSizeKeywords.at(raw_value) * kMediumFontSize);
+    }
+
+    auto value_and_unit = split_into_value_and_unit(raw_value);
+    if (!value_and_unit) {
+        return kDefaultFontSize;
+    }
+    auto [value, unit] = *value_and_unit;
+
+    if (value == 0) {
+        return 0;
+    }
+
+    if (unit == "px") {
+        return static_cast<int>(value);
+    }
+
+    if (unit == "em") {
+        return static_cast<int>(value * kDefaultFontSize);
+    }
+
+    spdlog::warn("Unhandled unit '{}'", unit);
+    return static_cast<int>(value);
 }
 
 } // namespace style
