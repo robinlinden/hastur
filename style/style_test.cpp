@@ -32,6 +32,11 @@ bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {
 } // namespace
 
 int main() {
+    etest::test("is_match: universal selector", [] {
+        expect(style::is_match(dom::Element{"div"}, "*"sv));
+        expect(style::is_match(dom::Element{"span"}, "*"sv));
+    });
+
     etest::test("is_match: simple names", [] {
         expect(style::is_match(dom::Element{"div"}, "div"sv));
         expect(!style::is_match(dom::Element{"div"}, "span"sv));

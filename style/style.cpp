@@ -40,6 +40,11 @@ bool is_match(dom::Element const &element, std::string_view selector_) {
         }
     }
 
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/Universal_selectors
+    if (selector == "*") {
+        return true;
+    }
+
     if (element.name == selector) {
         return true;
     }
