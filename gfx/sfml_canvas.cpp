@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -36,6 +36,19 @@ std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesys
     return {};
 }
 
+std::optional<std::string> find_path_to_fallback_font() {
+    for (auto const &path : os::font_paths()) {
+        for (auto const &entry : get_font_dir_iterator(path)) {
+            if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
+                spdlog::info("Using fallback {}", entry.path().string());
+                return std::make_optional(entry.path().string());
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+
 // TODO(robinlinden): We should be looking at font names rather than filenames.
 std::optional<std::string> find_path_to_font(std::string_view font_filename) {
     for (auto const &path : os::font_paths()) {
@@ -48,17 +61,6 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
         }
     }
 
-    spdlog::warn("Unable to find font {}, looking for literally any font", font_filename);
-    for (auto const &path : os::font_paths()) {
-        for (auto const &entry : get_font_dir_iterator(path)) {
-            if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
-                spdlog::info("Using fallback {}", entry.path().string());
-                return std::make_optional(entry.path().string());
-            }
-        }
-    }
-
-    spdlog::error("Unable to find fallback font");
     return std::nullopt;
 }
 
@@ -151,6 +153,11 @@ void SfmlCanvas::draw_text(
         }
 
         auto font_path = find_path_to_font(font.font);
+        if (!font_path) {
+            spdlog::warn("Unable to find font {}, looking for literally any font", font.font);
+            font_path = find_path_to_fallback_font();
+        }
+
         auto entry = std::make_shared<sf::Font>();
         if (!font_path || !entry->loadFromFile(*font_path)) {
             return nullptr;
