@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -153,6 +153,12 @@ int main() {
         // Unhandled properties don't break things.
         styled_node.properties[0] = std::pair{css::PropertyId::FontStyle, "???"s};
         expect_eq(styled_node.get_property<css::PropertyId::FontStyle>(), style::FontStyle::Normal);
+    });
+
+    etest::test("get_font_family_property", [] {
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode styled_node{.node = dom_node, .properties = {{css::PropertyId::FontFamily, "abc, def"s}}};
+        expect_eq(styled_node.get_property<css::PropertyId::FontFamily>(), std::vector<std::string_view>{"abc", "def"});
     });
 
     return etest::run_all_tests();

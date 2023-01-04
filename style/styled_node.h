@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,6 +9,7 @@
 #include "dom/dom.h"
 #include "util/string.h"
 
+#include <algorithm>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -41,8 +42,10 @@ struct StyledNode {
         if constexpr (T == css::PropertyId::Display) {
             return get_display_property(T);
         } else if constexpr (T == css::PropertyId::FontFamily) {
-            auto font_family = get_raw_property(T);
-            return util::split(font_family, ",");
+            auto raw_font_family = get_raw_property(T);
+            auto families = util::split(raw_font_family, ",");
+            std::ranges::for_each(families, [](auto &family) { family = util::trim(family); });
+            return families;
         } else if constexpr (T == css::PropertyId::FontStyle) {
             return get_font_style_property();
         } else {
