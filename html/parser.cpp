@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -34,8 +34,21 @@ dom::AttrMap into_dom_attributes(std::vector<html2::Attribute> const &attributes
     return attrs;
 }
 
-constexpr auto kImmediatelyPopped = std::to_array(
-        {"br"sv, "hr"sv, "img"sv, "input"sv, "link"sv, "meta"sv, "param"sv, "source"sv, "track"sv, "wbr"sv});
+// https://developer.mozilla.org/en-US/docs/Glossary/Void_element
+constexpr auto kImmediatelyPopped = std::to_array({"area"sv,
+        "base"sv,
+        "br"sv,
+        "col"sv,
+        "embed"sv,
+        "hr"sv,
+        "img"sv,
+        "input"sv,
+        "link"sv,
+        "meta"sv,
+        "param"sv,
+        "source"sv,
+        "track"sv,
+        "wbr"sv});
 
 } // namespace
 
