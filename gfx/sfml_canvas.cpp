@@ -6,6 +6,7 @@
 #include "gfx/sfml_canvas.h"
 
 #include "os/os.h"
+#include "util/string.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -13,6 +14,7 @@
 #include <SFML/Graphics/View.hpp>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -54,7 +56,10 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
     for (auto const &path : os::font_paths()) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             auto name = entry.path().filename().string();
-            if (name.find(font_filename) != std::string::npos) {
+            // TODO(robinlinden): std::ranges once Clang supports it. Last tested w/ 15.
+            if (std::search(begin(name), end(name), begin(font_filename), end(font_filename), [](char a, char b) {
+                    return util::lowercased(a) == util::lowercased(b);
+                }) != end(name)) {
                 spdlog::info("Found font {} for {}", entry.path().string(), font_filename);
                 return std::make_optional(entry.path().string());
             }

@@ -60,6 +60,7 @@ cc_library(
     deps = [
         ":gfx",
         "//os",
+        "//util:string",
         "@sfml//:graphics",
         "@spdlog",
     ],
