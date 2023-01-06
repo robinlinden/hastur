@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -18,6 +18,15 @@ public:
 
     void draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) {
         canvas_.draw_rect(rect, color, borders);
+    }
+
+    void draw_text(geom::Position p,
+            std::string_view text,
+            std::vector<Font> const &font_options,
+            FontSize size,
+            FontStyle style,
+            Color color) {
+        canvas_.draw_text(p, text, font_options, size, style, color);
     }
 
     void draw_text(geom::Position p, std::string_view text, Font font, FontSize size, FontStyle style, Color color) {

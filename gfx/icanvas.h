@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,6 +10,7 @@
 #include "gfx/font.h"
 
 #include <string_view>
+#include <vector>
 
 namespace gfx {
 
@@ -33,6 +34,7 @@ public:
     virtual void add_translation(int dx, int dy) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
     virtual void draw_rect(geom::Rect const &, Color const &, Borders const &) = 0;
+    virtual void draw_text(geom::Position, std::string_view, std::vector<Font> const &, FontSize, FontStyle, Color) = 0;
     virtual void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) = 0;
 };
 

@@ -149,6 +149,39 @@ void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders c
     target_.draw(drawable, &border_shader_);
 }
 
+void SfmlCanvas::draw_text(geom::Position p,
+        std::string_view text,
+        std::vector<Font> const &font_options,
+        FontSize size,
+        FontStyle style,
+        Color color) {
+    // Try to find a cached font.
+    for (auto const &font : font_options) {
+        if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
+            draw_text(p, text, font, size, style, color);
+            return;
+        }
+    }
+
+    // Try to load one of the options provided.
+    for (auto const &font : font_options) {
+        auto font_path = find_path_to_font(font.font);
+        auto entry = std::make_shared<sf::Font>();
+        if (!font_path || !entry->loadFromFile(*font_path)) {
+            continue;
+        }
+
+        font_cache_[std::string{font.font}] = std::move(entry);
+        draw_text(p, text, font, size, style, color);
+        return;
+    }
+
+    // Let the normal draw_text deal with loading a fallback.
+    if (!font_options.empty()) {
+        draw_text(p, text, font_options.front(), size, style, color);
+    }
+}
+
 // TODO(robinlinden): Fonts are never evicted from the cache.
 void SfmlCanvas::draw_text(
         geom::Position p, std::string_view text, Font font, FontSize size, FontStyle style, Color color) {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,8 @@
 
 #include "gfx/icanvas.h"
 
+#include <algorithm>
+#include <iterator>
 #include <string>
 #include <utility>
 #include <variant>
@@ -49,6 +51,17 @@ struct DrawRectCmd {
     [[nodiscard]] constexpr bool operator==(DrawRectCmd const &) const = default;
 };
 
+struct DrawTextWithFontOptionsCmd {
+    geom::Position position{};
+    std::string text{};
+    std::vector<std::string> font_options{};
+    int size{};
+    FontStyle style{FontStyle::Normal};
+    Color color{};
+
+    [[nodiscard]] bool operator==(DrawTextWithFontOptionsCmd const &) const = default;
+};
+
 struct DrawTextCmd {
     geom::Position position{};
     std::string text{};
@@ -60,8 +73,13 @@ struct DrawTextCmd {
     [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;
 };
 
-using CanvasCommand =
-        std::variant<SetViewportSizeCmd, SetScaleCmd, AddTranslationCmd, FillRectCmd, DrawRectCmd, DrawTextCmd>;
+using CanvasCommand = std::variant<SetViewportSizeCmd,
+        SetScaleCmd,
+        AddTranslationCmd,
+        FillRectCmd,
+        DrawRectCmd,
+        DrawTextWithFontOptionsCmd,
+        DrawTextCmd>;
 
 class CanvasCommandSaver : public ICanvas {
 public:
@@ -73,6 +91,20 @@ public:
     void draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) override {
         cmds_.emplace_back(DrawRectCmd{rect, color, borders});
     }
+    void draw_text(geom::Position position,
+            std::string_view text,
+            std::vector<Font> const &font_options,
+            FontSize size,
+            FontStyle style,
+            Color color) override {
+        std::vector<std::string> copied_options;
+        std::ranges::transform(font_options, std::back_inserter(copied_options), [](auto const &font) {
+            return std::string{font.font};
+        });
+        cmds_.emplace_back(DrawTextWithFontOptionsCmd{
+                position, std::string{text}, std::move(copied_options), size.px, style, color});
+    }
+
     void draw_text(geom::Position position,
             std::string_view text,
             Font font,
@@ -98,6 +130,13 @@ public:
     constexpr void operator()(AddTranslationCmd const &cmd) { canvas_.add_translation(cmd.dx, cmd.dy); }
     constexpr void operator()(FillRectCmd const &cmd) { canvas_.fill_rect(cmd.rect, cmd.color); }
     constexpr void operator()(DrawRectCmd const &cmd) { canvas_.draw_rect(cmd.rect, cmd.color, cmd.borders); }
+
+    void operator()(DrawTextWithFontOptionsCmd const &cmd) {
+        std::vector<gfx::Font> fonts;
+        std::ranges::transform(
+                cmd.font_options, std::back_inserter(fonts), [](auto const &font) { return gfx::Font{font}; });
+        canvas_.draw_text(cmd.position, cmd.text, fonts, {cmd.size}, cmd.style, cmd.color);
+    }
 
     void operator()(DrawTextCmd const &cmd) {
         canvas_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.style, cmd.color);
