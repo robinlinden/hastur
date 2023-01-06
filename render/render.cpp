@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -361,18 +361,15 @@ gfx::FontStyle to_gfx(style::FontStyle style) {
 
 void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
     auto font_families = layout.get_property<css::PropertyId::FontFamily>();
-    // TODO(robinlinden): Handle multiple font-families.
-    auto font = [&] {
-        if (font_families && !font_families->empty()) {
-            return gfx::Font{font_families->at(0)};
-        }
-
-        return gfx::Font{"arial"sv};
+    auto fonts = [&font_families] {
+        std::vector<gfx::Font> fs;
+        std::ranges::transform(font_families.value(), std::back_inserter(fs), [](auto f) { return gfx::Font{f}; });
+        return fs;
     }();
     auto font_size = gfx::FontSize{.px = 10};
     auto style = layout.get_property<css::PropertyId::FontStyle>().value_or(style::FontStyle::Normal);
     auto color = try_get_color<css::PropertyId::Color>(layout).value_or(kDefaultColor);
-    painter.draw_text(layout.dimensions.content.position(), text.text, font, font_size, to_gfx(style), color);
+    painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, to_gfx(style), color);
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {

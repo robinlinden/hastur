@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -40,7 +40,8 @@ int main() {
         gfx::Painter painter{saver};
         render::render_layout(painter, layout);
 
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawTextCmd{{0, 0}, "hello", "arial", 10}});
+        expect_eq(
+                saver.take_commands(), CanvasCommands{gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"arial"}, 10}});
     });
 
     etest::test("text, font-family provided", [] {
@@ -67,7 +68,8 @@ int main() {
         render::render_layout(painter, layout);
 
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawTextCmd{{0, 0}, "hello", "comic sans", 10, gfx::FontStyle::Italic}});
+                CanvasCommands{
+                        gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"comic sans"}, 10, gfx::FontStyle::Italic}});
     });
 
     etest::test("render block with background-color", [] {
