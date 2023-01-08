@@ -366,7 +366,7 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
         std::ranges::transform(font_families.value(), std::back_inserter(fs), [](auto f) { return gfx::Font{f}; });
         return fs;
     }();
-    auto font_size = gfx::FontSize{.px = 10};
+    auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>().value()};
     auto style = layout.get_property<css::PropertyId::FontStyle>().value_or(style::FontStyle::Normal);
     auto color = try_get_color<css::PropertyId::Color>(layout).value_or(kDefaultColor);
     painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, to_gfx(style), color);
