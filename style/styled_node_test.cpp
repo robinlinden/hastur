@@ -175,6 +175,7 @@ int main() {
                         },
                 },
         };
+        int default_font_size = style::StyledNode{dom_node, {}, {}}.get_property<css::PropertyId::FontSize>();
 
         auto &child = root.children[0];
         child.parent = &root;
@@ -184,10 +185,14 @@ int main() {
         expect_eq(root.get_property<css::PropertyId::FontSize>(), 50);
 
         // em
-        // TODO(robinlinden): Not correct, but this is the behaviour we had in //layout previously.
         child.properties[0] = {css::PropertyId::FontSize, "2em"};
-        // TODO(robinlinden): Should be 100.
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 20);
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50 * 2);
+        root.properties[0] = {css::PropertyId::FontSize, "25px"};
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), 25 * 2);
+        root.properties[0] = {css::PropertyId::FontSize, "2em"};
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2 * 2);
+        root.properties.clear();
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2);
 
         // unhandled units
         // TODO(robinlinden): We should probably return 0 or something for this,

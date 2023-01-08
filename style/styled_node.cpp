@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -188,7 +188,24 @@ std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
 };
 
 int StyledNode::get_font_size_property() const {
-    auto raw_value = get_raw_property(css::PropertyId::FontSize);
+    auto get_closest_font_size_and_owner =
+            [](StyledNode const *starting_node) -> std::optional<std::pair<std::string_view, StyledNode const *>> {
+        for (auto const *n = starting_node; n != nullptr; n = n->parent) {
+            auto it = std::ranges::find_if(
+                    n->properties, [](auto const &v) { return v.first == css::PropertyId::FontSize; });
+            if (it != end(n->properties)) {
+                return {{it->second, n}};
+            }
+        }
+
+        return std::nullopt;
+    };
+
+    auto closest = get_closest_font_size_and_owner(this);
+    if (!closest) {
+        return kDefaultFontSize;
+    }
+    auto raw_value = closest->first;
 
     if (kFontSizeAbsoluteSizeKeywords.contains(raw_value)) {
         return std::lround(kFontSizeAbsoluteSizeKeywords.at(raw_value) * kMediumFontSize);
@@ -209,7 +226,13 @@ int StyledNode::get_font_size_property() const {
     }
 
     if (unit == "em") {
-        return static_cast<int>(value * kDefaultFontSize);
+        auto const *owner = closest->second;
+        if (owner->parent == nullptr) {
+            return static_cast<int>(value * kDefaultFontSize);
+        }
+
+        auto parent_font_size = owner->parent->get_font_size_property();
+        return static_cast<int>(value * parent_font_size);
     }
 
     spdlog::warn("Unhandled unit '{}'", unit);
