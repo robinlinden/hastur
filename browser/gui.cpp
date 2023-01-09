@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,12 +7,16 @@
 #include "os/os.h"
 
 #include <spdlog/cfg/env.h>
+#include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <chrono>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 using namespace std::literals;
 
@@ -22,7 +26,9 @@ auto const kStartpage{"http://example.com"s};
 } // namespace
 
 int main(int argc, char **argv) {
-    spdlog::set_default_logger(spdlog::stderr_color_mt(kBrowserTitle));
+    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_mt>(std::chrono::seconds{10});
+    dup_filter->add_sink(std::make_shared<spdlog::sinks::stderr_color_sink_mt>());
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>(kBrowserTitle, std::move(dup_filter)));
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
