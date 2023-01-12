@@ -1,6 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
-load("//bzl:copts.bzl", "HASTUR_COPTS")
+load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
 cc_library(
     name = "uri",
@@ -36,9 +36,6 @@ cc_fuzz_test(
     size = "small",
     srcs = ["uri_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
-    target_compatible_with = select({
-        ":is_clang": ["@platforms//os:linux"],
-        "//conditions:default": ["@platforms//:incompatible"],
-    }),
+    target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":uri"],
 )

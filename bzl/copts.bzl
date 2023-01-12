@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -40,4 +40,10 @@ HASTUR_COPTS = select({
     "//bzl:is_clang-cl": HASTUR_CLANG_CL_WARNING_FLAGS,
     "//bzl:is_msvc": HASTUR_MSVC_WARNING_FLAGS,
     "@platforms//os:linux": HASTUR_LINUX_WARNING_FLAGS,
+})
+
+# C++ fuzzing requires a Clang compiler: https://github.com/bazelbuild/rules_fuzzing#prerequisites
+HASTUR_FUZZ_PLATFORMS = select({
+    ":is_clang": ["@platforms//os:linux"],
+    "//conditions:default": ["@platforms//:incompatible"],
 })
