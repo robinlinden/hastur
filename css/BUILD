@@ -1,6 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
-load("//bzl:copts.bzl", "HASTUR_COPTS")
+load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
 genrule(
     name = "default_css",
@@ -40,7 +40,7 @@ cc_fuzz_test(
     srcs = ["parser_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
     tags = ["manual"],
-    target_compatible_with = ["@platforms//os:linux"],
+    target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":css"],
 )
 
