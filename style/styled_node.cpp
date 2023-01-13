@@ -225,14 +225,17 @@ int StyledNode::get_font_size_property() const {
         return static_cast<int>(value);
     }
 
-    if (unit == "em") {
+    auto parent_or_default_font_size = [&] {
         auto const *owner = closest->second;
         if (owner->parent == nullptr) {
-            return static_cast<int>(value * kDefaultFontSize);
+            return kDefaultFontSize;
         }
 
-        auto parent_font_size = owner->parent->get_font_size_property();
-        return static_cast<int>(value * parent_font_size);
+        return owner->parent->get_font_size_property();
+    };
+
+    if (unit == "em") {
+        return static_cast<int>(value * parent_or_default_font_size());
     }
 
     spdlog::warn("Unhandled unit '{}'", unit);
