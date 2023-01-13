@@ -238,6 +238,10 @@ int StyledNode::get_font_size_property() const {
         return static_cast<int>(value * parent_or_default_font_size());
     }
 
+    if (unit == "%") {
+        return static_cast<int>(value / 100.f * parent_or_default_font_size());
+    }
+
     spdlog::warn("Unhandled unit '{}'", unit);
     return static_cast<int>(value);
 }
