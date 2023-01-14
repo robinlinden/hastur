@@ -242,6 +242,18 @@ int StyledNode::get_font_size_property() const {
         return static_cast<int>(value / 100.f * parent_or_default_font_size());
     }
 
+    if (unit == "rem") {
+        auto const *root = [&] {
+            auto const *n = closest->second;
+            while (n->parent) {
+                n = n->parent;
+            }
+            return n;
+        }();
+        auto root_font_size = root && root != this ? root->get_font_size_property() : kDefaultFontSize;
+        return static_cast<int>(value * root_font_size);
+    }
+
     spdlog::warn("Unhandled unit '{}'", unit);
     return static_cast<int>(value);
 }

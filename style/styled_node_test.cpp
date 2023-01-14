@@ -190,6 +190,13 @@ int main() {
         child.properties[0] = {css::PropertyId::FontSize, "50%"};
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
 
+        // rem
+        auto &child2 = child.children.emplace_back(
+                style::StyledNode{.node{dom_node}, .properties{{css::PropertyId::FontSize, "2rem"}}, .parent = &child});
+        expect_eq(child2.get_property<css::PropertyId::FontSize>(), 50 * 2);
+        child2.properties[0] = {css::PropertyId::FontSize, "0.5rem"};
+        expect_eq(child2.get_property<css::PropertyId::FontSize>(), 25);
+
         // em
         child.properties[0] = {css::PropertyId::FontSize, "2em"};
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 50 * 2);
