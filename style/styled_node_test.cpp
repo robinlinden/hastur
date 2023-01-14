@@ -208,10 +208,8 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2);
 
         // unhandled units
-        // TODO(robinlinden): We should probably return 0 or something for this,
-        //                    but this matches the behaviour from //layout.
         child.properties[0] = {css::PropertyId::FontSize, "1asdf"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 1);
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), 0);
 
         // 0
         child.properties[0] = {css::PropertyId::FontSize, "0"};

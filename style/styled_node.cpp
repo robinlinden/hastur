@@ -255,7 +255,7 @@ int StyledNode::get_font_size_property() const {
     }
 
     spdlog::warn("Unhandled unit '{}'", unit);
-    return static_cast<int>(value);
+    return 0;
 }
 
 } // namespace style
