@@ -17,7 +17,8 @@ jobs:
             os: ubuntu-22.04
             compiler: gcc
             version: 12
-            bazel: --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
+            # We exclude @freetype2//:bbox_test as that can take >1 minute to run under valgrind in CI.
+            bazel: --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all" -- -@freetype2//:bbox_test
             apt: g++-12 valgrind
 
           - name: clang-14-tsan
