@@ -34,5 +34,8 @@ cc_test(
     srcs = ["pngtest.c"],
     args = ["$(location :pngtest.png)"],
     data = ["pngtest.png"],
-    deps = [":libpng"],
+    deps = [
+        ":libpng",
+        "@zlib",
+    ],
 )
