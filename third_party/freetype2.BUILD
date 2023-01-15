@@ -65,6 +65,7 @@ cc_library(
 
 cc_test(
     name = "bbox_test",
+    size = "small",
     srcs = ["src/tools/test_bbox.c"],
     local_defines = ["FT2_BUILD_LIBRARY"],
     deps = [":freetype2"],
