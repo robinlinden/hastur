@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -1101,6 +1101,32 @@ int main() {
 
         auto layout = layout::create_layout(style, 0);
         expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
+    });
+
+    etest::test("text with newlines in", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}},
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
+        };
+        set_up_parent_ptrs(style);
+
+        auto get_text_height = [](layout::LayoutBox const &layout) {
+            require_eq(layout.children.size(), std::size_t{1});
+            require_eq(layout.children[0].children.size(), std::size_t{1});
+            return layout.children[0].children[0].dimensions.content.height;
+        };
+
+        auto single_line_layout = layout::create_layout(style, 1000);
+        auto single_line_layout_height = get_text_height(single_line_layout);
+        require(single_line_layout_height > 0);
+
+        std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nbye"s;
+        auto two_line_layout = layout::create_layout(style, 1000);
+        auto two_line_layout_height = get_text_height(two_line_layout);
+
+        expect(two_line_layout_height >= 2 * single_line_layout_height);
     });
 
     return etest::run_all_tests();

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -182,8 +182,9 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
 
 void calculate_height(LayoutBox &box, int const font_size) {
     assert(box.node != nullptr);
-    if (std::holds_alternative<dom::Text>(box.node->node)) {
-        box.dimensions.content.height = font_size;
+    if (auto const *text = std::get_if<dom::Text>(&box.node->node)) {
+        int lines = static_cast<int>(std::ranges::count(text->text, '\n')) + 1;
+        box.dimensions.content.height = lines * font_size;
     }
 
     if (auto height = box.get_property<css::PropertyId::Height>(); height && height != "auto") {
