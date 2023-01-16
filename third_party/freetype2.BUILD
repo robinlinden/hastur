@@ -55,7 +55,10 @@ cc_library(
         "src/**/*.c",
     ]),
     includes = ["include/"],
-    local_defines = ["FT2_BUILD_LIBRARY"],
+    local_defines = [
+        "FT2_BUILD_LIBRARY",
+        "FT_CONFIG_OPTION_SYSTEM_ZLIB",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "@libpng",
