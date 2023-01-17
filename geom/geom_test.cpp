@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -13,6 +13,37 @@ using geom::Position;
 using geom::Rect;
 
 int main() {
+    etest::test("Position::scaled", [] {
+        Position p{0, 0};
+
+        expect_eq(Position{}, p.scaled(0));
+        expect_eq(p, p.scaled(1));
+        expect_eq(Position{0, 0}, p.scaled(2));
+        expect_eq(Position{0, 0}, p.scaled(3));
+
+        Position r1{1, 1};
+        expect_eq(r1, r1.scaled(1));
+        expect_eq(Position{2, 2}, r1.scaled(2));
+        expect_eq(Position{3, 3}, r1.scaled(3));
+
+        Position r2{1, 1};
+        expect_eq(r2, r2.scaled(1, {1, 1}));
+        expect_eq(Position{1, 1}, r2.scaled(2, {1, 1}));
+        expect_eq(Position{1, 1}, r2.scaled(3, {1, 1}));
+
+        Position r3{0, 0};
+        expect_eq(r3, r3.scaled(1, {5, 5}));
+        expect_eq(Position{-5, -5}, r3.scaled(2, {5, 5}));
+        expect_eq(Position{-10, -10}, r3.scaled(3, {5, 5}));
+    });
+
+    etest::test("Position::translated", [] {
+        Position p{0, 0};
+        expect_eq(Position{10, 0}, p.translated(10, 0));
+        expect_eq(Position{0, 10}, p.translated(0, 10));
+        expect_eq(Position{-10, -10}, p.translated(-10, -10));
+    });
+
     etest::test("Rect::position", [] {
         expect_eq(Rect{-10, 0, 20, 10}.position(), Position{-10, 0});
         expect_eq(Rect{0, 0, 20, 10}.position(), Position{0, 0});

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -12,6 +12,15 @@ namespace geom {
 struct Position {
     int x{}, y{};
     [[nodiscard]] bool operator==(Position const &) const = default;
+
+    [[nodiscard]] constexpr Position scaled(unsigned scale, Position origin = {0, 0}) const {
+        return Position{
+                origin.x + (x - origin.x) * static_cast<int>(scale),
+                origin.y + (y - origin.y) * static_cast<int>(scale),
+        };
+    }
+
+    [[nodiscard]] constexpr Position translated(int dx, int dy) const { return {x + dx, y + dy}; }
 };
 
 struct EdgeSize {
