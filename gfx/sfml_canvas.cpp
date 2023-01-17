@@ -185,6 +185,8 @@ void SfmlCanvas::draw_text(geom::Position p,
 // TODO(robinlinden): Fonts are never evicted from the cache.
 void SfmlCanvas::draw_text(
         geom::Position p, std::string_view text, Font font, FontSize size, FontStyle style, Color color) {
+    p = p.translated(tx_, ty_).scaled(scale_);
+
     auto const *sf_font = [&]() -> sf::Font const * {
         if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
             return &*it->second;
@@ -216,7 +218,7 @@ void SfmlCanvas::draw_text(
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px);
     drawable.setStyle(to_sfml(style));
-    drawable.setPosition(static_cast<float>(p.x + tx_), static_cast<float>(p.y + ty_));
+    drawable.setPosition(static_cast<float>(p.x), static_cast<float>(p.y));
     target_.draw(drawable);
 }
 
