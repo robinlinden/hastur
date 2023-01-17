@@ -216,7 +216,7 @@ void SfmlCanvas::draw_text(
     drawable.setFont(*sf_font);
     drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
-    drawable.setCharacterSize(size.px);
+    drawable.setCharacterSize(size.px * scale_);
     drawable.setStyle(to_sfml(style));
     drawable.setPosition(static_cast<float>(p.x), static_cast<float>(p.y));
     target_.draw(drawable);
