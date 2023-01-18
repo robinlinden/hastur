@@ -9,7 +9,10 @@ cc_library(
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
+        "//net",
+        "//util:base_parser",
         "//util:string",
+        "//util:uuid",
         "@ctre",
         "@fmt",
     ],

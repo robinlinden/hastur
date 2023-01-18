@@ -13,6 +13,7 @@
 
 namespace net {
 
+// https://url.spec.whatwg.org/#concept-ipv4-serializer
 std::string ipv4_serialize(std::uint32_t addr) {
     std::string out = "";
     std::uint32_t n = addr;
@@ -30,6 +31,7 @@ std::string ipv4_serialize(std::uint32_t addr) {
     return out;
 }
 
+// https://url.spec.whatwg.org/#concept-ipv6-serializer
 std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
     std::string out = "";
 

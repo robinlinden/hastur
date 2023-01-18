@@ -5,12 +5,16 @@
 
 #include "uri/uri.h"
 
+#include "net/ip.h"
 #include "util/string.h"
+#include "util/uuid.h"
 
 #include <ctre.hpp>
 #include <fmt/format.h>
 
 #include <exception>
+#include <optional>
+#include <string>
 #include <utility>
 
 namespace uri {
@@ -95,6 +99,65 @@ Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri cons
     }
 
     return uri;
+}
+
+// https://w3c.github.io/FileAPI/#unicodeBlobURL
+std::string blob_url_create(Origin *origin) {
+    if (origin == NULL) {
+        return "";
+    }
+
+    std::string result = "blob:";
+    std::string serialized = "";
+
+    // https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
+    if (origin->opaque) {
+        serialized = "null";
+    } else {
+        serialized = origin->scheme + "://";
+
+        switch (origin->host->type) {
+            case DNS_DOMAIN:
+            case OPAQUE:
+            case EMPTY:
+                serialized += origin->host->domain;
+                break;
+            case IP4_ADDR:
+                serialized += net::ipv4_serialize(origin->host->ip4_addr);
+                break;
+            case IP6_ADDR:
+                serialized += "[" + net::ipv6_serialize(origin->host->ip6_addr) + "]";
+        }
+
+        if (origin->port.has_value()) {
+            serialized += ":" + std::to_string(origin->port.value());
+        }
+    }
+
+    result += serialized;
+    result += "/";
+    result += util::new_uuid();
+
+    return result;
+}
+
+bool URL::parse(std::optional<URL> base) {
+    bool ret = parse_basic(base, std::nullopt, std::nullopt);
+
+    if (ret) {
+        return true;
+    }
+
+    return true;
+}
+
+ParserState URL::parse_basic(
+        std::optional<URL> base, std::optional<URL> url, std::optional<ParserState> state_override) {
+    if (base || url || state_override) {
+        return FAILURE;
+    }
+
+    return FAILURE;
 }
 
 } // namespace uri
