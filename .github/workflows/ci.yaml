@@ -193,6 +193,15 @@ jobs:
       - run: shfmt -i 2 -w $(shfmt -f .)
       - run: git diff --exit-code
 
+  gitlint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: pip install gitlint==0.18.0
+      - run: gitlint --commits origin/master..
+
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
