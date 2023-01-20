@@ -198,7 +198,9 @@ int App::run() {
                             if (!event.key.alt) {
                                 break;
                             }
-
+                            [[fallthrough]];
+                        }
+                        case sf::Keyboard::Backspace: {
                             auto entry = browse_history_.previous();
                             if (!entry) {
                                 break;
