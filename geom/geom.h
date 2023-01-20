@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef GEOM_GEOM_H_
-#define GEOM_GEOM_H_
+#pragma once
 
 #include <algorithm>
 
@@ -76,4 +75,3 @@ struct Rect {
 
 } // namespace geom
 
-#endif
