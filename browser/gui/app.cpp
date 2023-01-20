@@ -127,6 +127,12 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
         std::abort();
     }
 
+    if (std::getenv("HST_DISABLE_DISK_IO")) {
+        // TODO(robinlinden): Support for things like HST_DISABLE_DISK_IO=0 to
+        // re-enable IO.
+        ImGui::GetIO().IniFilename = nullptr;
+    }
+
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     engine_.set_layout_width(window_.getSize().x / scale_);
