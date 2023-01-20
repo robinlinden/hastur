@@ -137,6 +137,14 @@ public:
 
     Value operator()(EmptyStatement const &) { return Value{}; }
 
+    Value operator()(WhileStatement const &v) {
+        while (execute(v.test).as_bool()) {
+            execute(*v.body);
+        }
+
+        return Value{};
+    }
+
     std::map<std::string, Value, std::less<>> variables;
     std::optional<Value> returning;
 };

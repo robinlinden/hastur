@@ -200,5 +200,24 @@ int main() {
         expect(e.variables.empty());
     });
 
+    etest::test("while statement", [] {
+        AstExecutor e;
+
+        int loop_count{};
+        e.variables["should_continue"] = Value{NativeFunction{[&](auto const &args) {
+            expect_eq(args.size(), std::size_t{0});
+            // TODO(robinlinden): We don't have bool values yet.
+            return Value{++loop_count < 3 ? 1. : 0.};
+        }}};
+
+        auto while_loop = WhileStatement{
+                .test = CallExpression{.callee = std::make_shared<Expression>(Identifier{"should_continue"})},
+                .body = std::make_shared<Statement>(EmptyStatement{}),
+        };
+
+        expect_eq(e.execute(while_loop), Value{});
+        expect_eq(loop_count, 3);
+    });
+
     return etest::run_all_tests();
 }

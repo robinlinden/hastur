@@ -33,6 +33,7 @@ struct StringLiteral;
 struct VariableDeclaration;
 struct VariableDeclarator;
 struct EmptyStatement;
+struct WhileStatement;
 
 using Declaration = std::variant<FunctionDeclaration, VariableDeclaration>;
 using Literal = std::variant<NumericLiteral, StringLiteral>;
@@ -42,6 +43,7 @@ using Statement = std::variant<Declaration,
         BlockStatement,
         ReturnStatement,
         IfStatement,
+        WhileStatement,
         EmptyStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
 using Node = std::variant<Expression, Statement, Pattern, Program, Function, VariableDeclarator>;
@@ -172,6 +174,11 @@ struct IfStatement {
 };
 
 struct EmptyStatement {};
+
+struct WhileStatement {
+    Expression test;
+    std::shared_ptr<Statement> body;
+};
 
 } // namespace ast
 } // namespace js
