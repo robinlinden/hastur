@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -134,6 +134,8 @@ public:
     }
 
     Value operator()(NativeFunction const &v) { return v.f(variables.at("arguments").as_vector()); }
+
+    Value operator()(EmptyStatement const &) { return Value{}; }
 
     std::map<std::string, Value, std::less<>> variables;
     std::optional<Value> returning;

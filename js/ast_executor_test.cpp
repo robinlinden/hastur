@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,6 +11,7 @@
 #include <tuple>
 
 using namespace js::ast;
+using etest::expect;
 using etest::expect_eq;
 using etest::require_eq;
 
@@ -191,6 +192,12 @@ int main() {
 
         expect_eq(e.execute(call), Value{42});
         expect_eq(argument, "did it!");
+    });
+
+    etest::test("empty statement", [] {
+        AstExecutor e;
+        expect_eq(e.execute(EmptyStatement{}), Value{});
+        expect(e.variables.empty());
     });
 
     return etest::run_all_tests();

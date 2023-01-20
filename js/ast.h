@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,11 +32,17 @@ struct Program;
 struct StringLiteral;
 struct VariableDeclaration;
 struct VariableDeclarator;
+struct EmptyStatement;
 
 using Declaration = std::variant<FunctionDeclaration, VariableDeclaration>;
 using Literal = std::variant<NumericLiteral, StringLiteral>;
 using Pattern = std::variant<Identifier>;
-using Statement = std::variant<Declaration, ExpressionStatement, BlockStatement, ReturnStatement, IfStatement>;
+using Statement = std::variant<Declaration,
+        ExpressionStatement,
+        BlockStatement,
+        ReturnStatement,
+        IfStatement,
+        EmptyStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
 using Node = std::variant<Expression, Statement, Pattern, Program, Function, VariableDeclarator>;
 
@@ -164,6 +170,8 @@ struct IfStatement {
     std::shared_ptr<Statement> if_branch;
     std::optional<std::shared_ptr<Statement>> else_branch;
 };
+
+struct EmptyStatement {};
 
 } // namespace ast
 } // namespace js
