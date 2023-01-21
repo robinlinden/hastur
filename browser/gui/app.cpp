@@ -17,6 +17,7 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include <imgui_internal.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -134,6 +135,8 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     engine_.set_on_page_loaded(std::bind_front(&App::on_page_loaded, this));
     engine_.set_on_layout_updated(std::bind_front(&App::on_layout_updated, this));
 
+    prev_sticky_w = 0;
+
     if (load_start_page) {
         ensure_has_scheme(url_buf_);
         navigate();
@@ -159,6 +162,20 @@ void App::set_scale(unsigned scale) {
     engine_.set_layout_width(windowSize.x / scale_);
 }
 
+void App::sticky_windows(const sf::Event::SizeEvent &size) {
+    int delta = prev_sticky_w - size.width;
+    for (ImGuiWindow *win  : GImGui->Windows) {
+        if (!win) {
+            continue;
+        }
+        int edge = static_cast<int>(win->Pos.x) + static_cast<int>(win->Size.x);
+        if (edge == prev_sticky_w) {
+            ImGui::SetWindowPos(win, {win->Pos.x - delta, win->Pos.y});
+        }
+    }
+    prev_sticky_w = size.width;
+}
+
 int App::run() {
     while (window_.isOpen()) {
         sf::Event event;
@@ -173,6 +190,7 @@ int App::run() {
                 case sf::Event::Resized: {
                     canvas_->set_viewport_size(event.size.width, event.size.height);
                     engine_.set_layout_width(event.size.width / scale_);
+                    sticky_windows(event.size);
                     break;
                 }
                 case sf::Event::KeyPressed: {

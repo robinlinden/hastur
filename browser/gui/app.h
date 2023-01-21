@@ -17,6 +17,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Cursor.hpp>
+#include <SFML/Window/Event.hpp>
 
 #include <memory>
 #include <string>
@@ -74,6 +75,8 @@ private:
 
     void navigate();
     void layout();
+    void sticky_windows(const sf::Event::SizeEvent &);
+    int prev_sticky_w;
 
     std::vector<dom::Node const *> get_hovered_nodes(geom::Position document_position) const;
     geom::Position to_document_position(geom::Position window_position) const;
