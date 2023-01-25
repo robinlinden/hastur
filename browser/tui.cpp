@@ -6,6 +6,7 @@
 #include "dom/dom.h"
 #include "engine/engine.h"
 #include "protocol/handler_factory.h"
+#include "browser/branding.h"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -29,7 +30,7 @@ int main(int argc, char **argv) {
 
     auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
-    auto user_agent = "hastur/0.0 (devel)"s;
+    auto user_agent = browser::ua_default;
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", static_cast<int>(err), uri.uri);

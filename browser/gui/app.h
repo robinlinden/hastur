@@ -13,6 +13,7 @@
 #include "protocol/handler_factory.h"
 #include "uri/uri.h"
 #include "util/history.h"
+#include "browser/branding.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -33,7 +34,7 @@ public:
     int run();
 
 private:
-    engine::Engine engine_{protocol::HandlerFactory::create("hastur/0.0 (devel)")};
+    engine::Engine engine_{protocol::HandlerFactory::create(ua_default)};
     bool page_loaded_{};
 
     std::string browser_title_{};

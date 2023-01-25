@@ -6,6 +6,13 @@ alias(
     actual = "gui",
 )
 
+[cc_library(
+    name = hdr[:-2],
+    hdrs = [hdr],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+) for hdr in glob(["*.h"])]
+
 cc_binary(
     name = "tui",
     srcs = ["tui.cpp"],
@@ -15,6 +22,7 @@ cc_binary(
         "@platforms//os:windows": [],
     }),
     deps = [
+        "//browser:branding",
         "//dom",
         "//engine",
         "//protocol",
@@ -29,6 +37,7 @@ cc_binary(
     srcs = ["gui.cpp"] + glob(["gui/*"]),
     copts = HASTUR_COPTS,
     deps = [
+        "//browser:branding",
         "//css",
         "//dom",
         "//engine",
