@@ -139,12 +139,13 @@ http_archive(
     url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
 )
 
+# 1.11.0 + fixes for -Wshadow.
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "ca5cae8d6cac15dae0ec63b21d6ad3530070650f68076f3a4a862ca293a858bb",
-    strip_prefix = "spdlog-1.11.0",
-    url = "https://github.com/gabime/spdlog/archive/v1.11.0.tar.gz",
+    sha256 = "6be1b1c8ec9ed82b1f5c4d793678d5d9446e000eb38bb53c7d470365171722fd",
+    strip_prefix = "spdlog-6df64c6c34997e298a81150b9ce55c440c6f503f",
+    url = "https://github.com/gabime/spdlog/archive/6df64c6c34997e298a81150b9ce55c440c6f503f.tar.gz",
 )
 
 http_archive(
