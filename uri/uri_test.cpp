@@ -174,8 +174,14 @@ int main() {
         auto completed = uri::Uri::parse("test", base);
         expect_eq(completed, uri::Uri::parse("hax://example.com/test"));
 
-        completed = uri::Uri::parse("hello", completed);
-        expect_eq(completed, uri::Uri::parse("hax://example.com/test/hello"));
+        completed = uri::Uri::parse("hello/", completed);
+        expect_eq(completed, uri::Uri::parse("hax://example.com/hello/"));
+
+        completed = uri::Uri::parse("test", completed);
+        expect_eq(completed, uri::Uri::parse("hax://example.com/hello/test"));
+
+        completed = uri::Uri::parse("goodbye", completed);
+        expect_eq(completed, uri::Uri::parse("hax://example.com/hello/goodbye"));
     });
 
     return etest::run_all_tests();
