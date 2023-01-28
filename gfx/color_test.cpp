@@ -1,10 +1,12 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "gfx/color.h"
 
 #include "etest/etest.h"
+
+#include <optional>
 
 using etest::expect;
 using etest::expect_eq;
@@ -22,6 +24,11 @@ int main() {
         expect(Color{.a = 0x00} == Color::from_rgba(0));
         expect(Color{0xFF, 0xFF, 0xFF, 0xFF} == Color::from_rgba(0xFF'FF'FF'FF));
         expect(Color{0xFF, 0xFF, 0xFF, 0x00} == Color::from_rgba(0xFF'FF'FF'00));
+    });
+
+    etest::test("Color::from_css_name", [] {
+        expect_eq(Color::from_css_name("blue"), Color{.b = 0xFF});
+        expect_eq(Color::from_css_name("not a valid css name"), std::nullopt);
     });
 
     etest::test("Color::as_rgba_u32", [] {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,6 +6,8 @@
 #define GFX_COLOR_H_
 
 #include <cstdint>
+#include <optional>
+#include <string_view>
 
 namespace gfx {
 
@@ -24,6 +26,8 @@ struct Color {
         color.a = alpha;
         return color;
     }
+
+    static std::optional<Color> from_css_name(std::string_view);
 
     std::uint8_t r, g, b, a{0xFF};
 

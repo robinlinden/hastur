@@ -3,6 +3,7 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "gfx",
+    srcs = ["color.cpp"],
     hdrs = [
         "canvas_command_saver.h",
         "color.h",
@@ -12,7 +13,10 @@ cc_library(
     ],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["//geom"],
+    deps = [
+        "//geom",
+        "//util:string",
+    ],
 )
 
 cc_library(
