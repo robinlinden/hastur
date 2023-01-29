@@ -4,4 +4,4 @@ ignore=body-is-missing
 # TODO(robinlinden): Better way of documenting and setting this up.
 # Each commit must start with the main area it affects.
 [title-match-regex]
-regex=^(browser|bzl|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|img|js|layout|net|os|protocol|render|style|tui|uri|util|all|build|ci|deps|doc|meta)(/.*|\+.*)?:
+regex=^(browser|bzl|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|img|js|layout|net|os|protocol|render|style|tui|uri|url|util|all|build|ci|deps|doc|meta)(/.*|\+.*)?:
