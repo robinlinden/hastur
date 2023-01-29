@@ -161,7 +161,7 @@ std::optional<gfx::Color> try_get_color(layout::LayoutBox const &layout) {
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
     if (maybe_color == "currentcolor") {
-        maybe_color = layout.get_property<css::PropertyId::Color>();
+        return layout.get_property<css::PropertyId::Color>();
     }
 
     if (maybe_color) {
@@ -191,7 +191,7 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
     }();
     auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>().value()};
     auto style = layout.get_property<css::PropertyId::FontStyle>().value_or(style::FontStyle::Normal);
-    auto color = try_get_color<css::PropertyId::Color>(layout).value_or(kDefaultColor);
+    auto color = layout.get_property<css::PropertyId::Color>().value();
     painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, to_gfx(style), color);
 }
 

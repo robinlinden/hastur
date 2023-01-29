@@ -42,6 +42,8 @@ struct StyledNode {
     auto get_property() const {
         if constexpr (T == css::PropertyId::BackgroundColor) {
             return get_color_property(T);
+        } else if constexpr (T == css::PropertyId::Color) {
+            return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
             return get_display_property(T);
         } else if constexpr (T == css::PropertyId::FontFamily) {

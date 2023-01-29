@@ -58,7 +58,7 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(child.get_property<css::PropertyId::Color>(), "canvastext"sv);
+        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("canvastext"));
     });
 
     etest::test("inherit css keyword", [] {
@@ -114,11 +114,11 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
 
         // unset, inherited, value in parent.
-        expect_eq(child.get_property<css::PropertyId::Color>(), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
 
         // unset, inherited, no parent node.
         child.parent = nullptr;
-        expect_eq(child.get_property<css::PropertyId::Color>(), "canvastext");
+        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("canvastext"));
     });
 
     etest::test("currentcolor css keyword", [] {
@@ -143,7 +143,7 @@ int main() {
 
         // "color: currentcolor" should be treated as inherit.
         child.properties.push_back({css::PropertyId::Color, "currentcolor"s});
-        expect_eq(child.get_property<css::PropertyId::Color>(), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
     });
 
     etest::test("get_font_style_property", [] {
