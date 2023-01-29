@@ -200,13 +200,13 @@ void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
     auto const &border_size = layout.dimensions.border;
     if (has_any_border(border_size)) {
         gfx::Borders borders{};
-        borders.left.color = try_get_color<css::PropertyId::BorderLeftColor>(layout).value_or(kDefaultColor);
+        borders.left.color = layout.get_property<css::PropertyId::BorderLeftColor>().value_or(kDefaultColor);
         borders.left.size = border_size.left;
-        borders.right.color = try_get_color<css::PropertyId::BorderRightColor>(layout).value_or(kDefaultColor);
+        borders.right.color = layout.get_property<css::PropertyId::BorderRightColor>().value_or(kDefaultColor);
         borders.right.size = border_size.right;
-        borders.top.color = try_get_color<css::PropertyId::BorderTopColor>(layout).value_or(kDefaultColor);
+        borders.top.color = layout.get_property<css::PropertyId::BorderTopColor>().value_or(kDefaultColor);
         borders.top.size = border_size.top;
-        borders.bottom.color = try_get_color<css::PropertyId::BorderBottomColor>(layout).value_or(kDefaultColor);
+        borders.bottom.color = layout.get_property<css::PropertyId::BorderBottomColor>().value_or(kDefaultColor);
         borders.bottom.size = border_size.bottom;
 
         painter.draw_rect(layout.dimensions.padding_box(), background_color, borders);

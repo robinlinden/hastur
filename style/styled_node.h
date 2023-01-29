@@ -42,6 +42,9 @@ struct StyledNode {
     auto get_property() const {
         if constexpr (T == css::PropertyId::BackgroundColor) {
             return get_color_property(T);
+        } else if constexpr (T == css::PropertyId::BorderBottomColor || T == css::PropertyId::BorderLeftColor
+                || T == css::PropertyId::BorderRightColor || T == css::PropertyId::BorderTopColor) {
+            return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Color) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
