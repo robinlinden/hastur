@@ -1080,7 +1080,7 @@ int main() {
 
         auto layout = layout::create_layout(style_root, 0);
         expect_eq(layout.get_property<css::PropertyId::Color>(), "green");
-        expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), "transparent");
+        expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
     });
 
     etest::test("get_property, no backing style node", [] {

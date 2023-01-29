@@ -4,12 +4,19 @@
 
 #include "style/styled_node.h"
 
+#include "gfx/color.h"
+#include "util/string.h"
+
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <charconv>
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 #include <map>
 #include <optional>
+#include <sstream>
 #include <string_view>
 #include <utility>
 
@@ -83,6 +90,121 @@ std::map<css::PropertyId, std::string_view> const kInitialValues{
         {css::PropertyId::MinWidth, "auto"sv},
 };
 
+std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
+    if (!hex_chars.starts_with('#')) {
+        return std::nullopt;
+    }
+
+    hex_chars.remove_prefix(1);
+    std::uint32_t hex{};
+    if (hex_chars.length() == 6) {
+        std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgb(hex);
+    } else if (hex_chars.length() == 3) {
+        std::ostringstream ss;
+        ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2];
+        auto expanded = std::move(ss).str();
+        std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgb(hex);
+    } else if (hex_chars.length() == 8) {
+        std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgba(hex);
+    } else if (hex_chars.length() == 4) {
+        std::ostringstream ss;
+        ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2]
+           << hex_chars[3] << hex_chars[3];
+        auto expanded = std::move(ss).str();
+        std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
+        return gfx::Color::from_rgba(hex);
+    }
+
+    return std::nullopt;
+}
+
+// TODO(robinlinden): space-separated values.
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgba
+std::optional<gfx::Color> try_from_rgba(std::string_view text) {
+    if (text.starts_with("rgb(")) {
+        text.remove_prefix(std::strlen("rgb("));
+    } else if (text.starts_with("rgba(")) {
+        text.remove_prefix(std::strlen("rgba("));
+    } else {
+        return std::nullopt;
+    }
+
+    if (!text.ends_with(')')) {
+        return std::nullopt;
+    }
+    text.remove_suffix(std::strlen(")"));
+
+    auto rgba = util::split(text, ",");
+    if (rgba.size() != 3 && rgba.size() != 4) {
+        return std::nullopt;
+    }
+
+    for (auto &value : rgba) {
+        value = util::trim(value);
+    }
+
+    auto to_int = [](std::string_view v) {
+        int ret{-1};
+        if (std::from_chars(v.data(), v.data() + v.size(), ret).ptr != v.data() + v.size()) {
+            return -1;
+        }
+
+        if (ret < 0 || ret > 255) {
+            return -1;
+        }
+
+        return ret;
+    };
+
+    auto r{to_int(rgba[0])};
+    auto g{to_int(rgba[1])};
+    auto b{to_int(rgba[2])};
+    if (r == -1 || g == -1 || b == -1) {
+        return std::nullopt;
+    }
+
+    if (rgba.size() == 3) {
+        return gfx::Color{static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b)};
+    }
+
+    float a{-1.f};
+    if (util::from_chars(rgba[3].data(), rgba[3].data() + rgba[3].size(), a).ptr != rgba[3].data() + rgba[3].size()) {
+        return std::nullopt;
+    }
+
+    if (a < 0.f || a > 1.f) {
+        return std::nullopt;
+    }
+
+    return gfx::Color{
+            static_cast<std::uint8_t>(r),
+            static_cast<std::uint8_t>(g),
+            static_cast<std::uint8_t>(b),
+            static_cast<std::uint8_t>(a * 255),
+    };
+}
+
+gfx::Color parse_color(std::string_view str) {
+    if (auto color = try_from_hex_chars(str)) {
+        return *color;
+    }
+
+    if (auto color = try_from_rgba(str)) {
+        return *color;
+    }
+
+    if (auto css_named_color = gfx::Color::from_css_name(str)) {
+        return *css_named_color;
+    }
+
+    spdlog::warn("Unrecognized color format: {}", str);
+    return gfx::Color{0xFF, 0, 0};
+}
+
 std::string_view get_parent_raw_property(style::StyledNode const &node, css::PropertyId property) {
     if (node.parent != nullptr) {
         return node.parent->get_raw_property(property);
@@ -143,6 +265,17 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     }
 
     return it->second;
+}
+
+gfx::Color StyledNode::get_color_property(css::PropertyId property) const {
+    auto color_text = get_raw_property(property);
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
+    if (color_text == "currentcolor") {
+        color_text = get_raw_property(css::PropertyId::Color);
+    }
+
+    return parse_color(color_text);
 }
 
 DisplayValue StyledNode::get_display_property(css::PropertyId id) const {

@@ -84,11 +84,11 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
 
         // inherit, value in parent.
-        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
 
         // inherit, no parent node.
         child.parent = nullptr;
-        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "transparent");
+        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
     });
 
     etest::test("unset css keyword", [] {
@@ -139,7 +139,7 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), "blue"sv);
+        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
 
         // "color: currentcolor" should be treated as inherit.
         child.properties.push_back({css::PropertyId::Color, "currentcolor"s});

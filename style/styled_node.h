@@ -7,6 +7,7 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
+#include "gfx/color.h"
 #include "util/string.h"
 
 #include <algorithm>
@@ -39,7 +40,9 @@ struct StyledNode {
 
     template<css::PropertyId T>
     auto get_property() const {
-        if constexpr (T == css::PropertyId::Display) {
+        if constexpr (T == css::PropertyId::BackgroundColor) {
+            return get_color_property(T);
+        } else if constexpr (T == css::PropertyId::Display) {
             return get_display_property(T);
         } else if constexpr (T == css::PropertyId::FontFamily) {
             auto raw_font_family = get_raw_property(T);
@@ -56,6 +59,7 @@ struct StyledNode {
     }
 
 private:
+    gfx::Color get_color_property(css::PropertyId) const;
     DisplayValue get_display_property(css::PropertyId) const;
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;

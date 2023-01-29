@@ -196,8 +196,7 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
-    auto background_color =
-            try_get_color<css::PropertyId::BackgroundColor>(layout).value_or(*gfx::Color::from_css_name("transparent"));
+    auto background_color = layout.get_property<css::PropertyId::BackgroundColor>().value();
     auto const &border_size = layout.dimensions.border;
     if (has_any_border(border_size)) {
         gfx::Borders borders{};
