@@ -1,3 +1,9 @@
+/* https://html.spec.whatwg.org/multipage/rendering.html#the-page */
+html,
+body {
+  display: block;
+}
+
 /* https://html.spec.whatwg.org/#hidden-elements */
 area,
 base,
