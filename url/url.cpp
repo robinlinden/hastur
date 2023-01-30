@@ -4,7 +4,7 @@
 
 #include "url/url.h"
 
-#include "net/ip.h"
+#include "util/string.h"
 #include "util/uuid.h"
 
 #include <array>
@@ -32,11 +32,11 @@ std::string blob_url_create(Origin const &origin) {
                 serialized += std::get<std::string>(origin.host.data);
                 break;
             case HostType::Ip4Addr:
-                serialized += net::ipv4_serialize(std::get<std::uint32_t>(origin.host.data));
+                serialized += util::ipv4_serialize(std::get<std::uint32_t>(origin.host.data));
                 break;
             case HostType::Ip6Addr:
                 std::array<std::uint16_t, 8> v6 = std::get<std::array<std::uint16_t, 8>>(origin.host.data);
-                serialized += "[" + net::ipv6_serialize(v6) + "]";
+                serialized += "[" + util::ipv6_serialize(v6) + "]";
         }
 
         if (origin.port.has_value()) {

@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
@@ -16,19 +16,5 @@ cc_library(
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
-    deps = [
-        "@asio",
-        "@fmt",
-    ],
-)
-
-cc_test(
-    name = "ip_test",
-    size = "small",
-    srcs = ["ip_test.cpp"],
-    copts = HASTUR_COPTS,
-    deps = [
-        ":net",
-        "//etest",
-    ],
+    deps = ["@asio"],
 )
