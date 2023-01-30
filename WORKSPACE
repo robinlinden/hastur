@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Bazel
@@ -140,12 +141,11 @@ http_archive(
 )
 
 # 1.11.0 + fixes for -Wshadow.
-http_archive(
+git_repository(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "6be1b1c8ec9ed82b1f5c4d793678d5d9446e000eb38bb53c7d470365171722fd",
-    strip_prefix = "spdlog-6df64c6c34997e298a81150b9ce55c440c6f503f",
-    url = "https://github.com/gabime/spdlog/archive/6df64c6c34997e298a81150b9ce55c440c6f503f.tar.gz",
+    commit = "6df64c6c34997e298a81150b9ce55c440c6f503f",
+    remote = "https://github.com/gabime/spdlog/",
 )
 
 http_archive(
