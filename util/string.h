@@ -1,15 +1,19 @@
 // SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2022 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef UTIL_STRING_H_
 #define UTIL_STRING_H_
 
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <iterator>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -116,6 +120,80 @@ constexpr std::string_view trim(std::string_view s) {
     s = trim_start(s);
     s = trim_end(s);
     return s;
+}
+
+// To-Do(zero-one): specify constexpr when we drop gcc-11 support
+// https://url.spec.whatwg.org/#concept-ipv4-serializer
+inline std::string ipv4_serialize(std::uint32_t addr) {
+    std::string out = "";
+    std::uint32_t n = addr;
+
+    for (std::size_t i = 1; i < 5; i++) {
+        out.insert(0, std::to_string(n % 256));
+
+        if (i != 4) {
+            out.insert(0, ".");
+        }
+
+        n >>= 8;
+    }
+
+    return out;
+}
+
+// To-Do(zero-one): specify constexpr when we drop gcc-11 support
+// https://url.spec.whatwg.org/#concept-ipv6-serializer
+inline std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
+    std::string out = "";
+
+    std::size_t compress = 0;
+
+    std::size_t longest_run = 1;
+    std::size_t run = 1;
+
+    // Set compress to the index of the longest run of 0 pieces
+    for (std::size_t i = 1; i < 8; i++) {
+        if (addr[i - 1] == 0 && addr[i] == 0) {
+            run++;
+
+            if (run > longest_run) {
+                longest_run = run;
+                compress = i - (run - 1);
+            }
+        } else {
+            run = 1;
+        }
+    }
+
+    bool ignore0 = false;
+
+    for (std::size_t i = 0; i < 8; i++) {
+        if (ignore0 && addr[i] == 0) {
+            continue;
+        } else if (ignore0) {
+            ignore0 = false;
+        }
+
+        if (longest_run > 1 && compress == i) {
+            if (i == 0) {
+                out += "::";
+            } else {
+                out += ":";
+            }
+
+            ignore0 = true;
+
+            continue;
+        }
+
+        out += fmt::format("{:x}", addr[i]);
+
+        if (i != 7) {
+            out += ":";
+        }
+    }
+
+    return out;
 }
 
 } // namespace util
