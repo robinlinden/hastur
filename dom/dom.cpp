@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -42,31 +42,39 @@ std::string to_string(Document const &document) {
     return std::move(ss).str();
 }
 
-std::vector<Element const *> nodes_by_path(std::reference_wrapper<Node const> root, std::string_view path) {
+std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Node const> root, std::string_view xpath) {
     if (!std::holds_alternative<Element>(root.get())) {
         return {};
     }
 
     auto const &element = std::get<Element>(root.get());
-    return nodes_by_path(element, path);
+    return nodes_by_xpath(element, xpath);
 }
 
-std::vector<Element const *> nodes_by_path(std::reference_wrapper<Element const> root, std::string_view path) {
+// https://developer.mozilla.org/en-US/docs/Web/XPath
+// https://en.wikipedia.org/wiki/XPath
+std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Element const> root, std::string_view xpath) {
     std::vector<Element const *> next_search{&root.get()};
     std::vector<Element const *> searching{};
     std::vector<Element const *> goal_nodes{};
+
+    // We only support xpaths in the form /a/b/c right now.
+    if (!xpath.starts_with('/')) {
+        return {};
+    }
+    xpath.remove_prefix(1);
 
     while (!next_search.empty()) {
         searching.swap(next_search);
         next_search.clear();
 
         for (auto node : searching) {
-            if (path == node->name) {
+            if (xpath == node->name) {
                 goal_nodes.push_back(node);
                 continue;
             }
 
-            if (path.starts_with(node->name + ".")) {
+            if (xpath.starts_with(node->name + "/")) {
                 for (auto const &child : node->children) {
                     if (auto const *element = std::get_if<Element>(&child)) {
                         next_search.push_back(element);
@@ -76,12 +84,12 @@ std::vector<Element const *> nodes_by_path(std::reference_wrapper<Element const>
         }
 
         // Remove name + separator.
-        std::size_t separator_position{path.find_first_of(".")};
-        if (separator_position == path.npos) {
+        std::size_t separator_position{xpath.find_first_of("/")};
+        if (separator_position == xpath.npos) {
             break;
         }
 
-        path.remove_prefix(separator_position + 1);
+        xpath.remove_prefix(separator_position + 1);
     }
 
     return goal_nodes;

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,7 +32,16 @@ int main() {
 
     etest::test("root not being an element shouldn't crash", [] {
         dom::Node dom = dom::Text{"hello"};
-        auto const nodes = nodes_by_path(dom, "anything");
+        auto const nodes = nodes_by_xpath(dom, "/anything");
+        expect(nodes.empty());
+    });
+
+    etest::test("unsupported xpaths don't return anything", [] {
+        dom::Node dom = dom::Element{"div"};
+        auto nodes = nodes_by_xpath(dom, "div");
+        expect(nodes.empty());
+
+        nodes = nodes_by_xpath(dom, "//div");
         expect(nodes.empty());
     });
 
@@ -48,7 +57,7 @@ int main() {
             }),
         });
 
-        auto const nodes = nodes_by_path(dom_root, "html.body.a");
+        auto const nodes = nodes_by_xpath(dom_root, "/html/body/a");
         expect(nodes.empty());
     });
 
@@ -60,7 +69,7 @@ int main() {
             }),
         });
 
-        auto const nodes = nodes_by_path(dom_root, "html");
+        auto const nodes = nodes_by_xpath(dom_root, "/html");
         require(nodes.size() == 1);
         expect(nodes[0]->name == "html");
     });
@@ -73,7 +82,7 @@ int main() {
             }),
         });
 
-        auto const nodes = nodes_by_path(dom_root, "html.body.p");
+        auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
         require(nodes.size() == 1);
         expect(nodes[0]->name == "p");
     });
@@ -87,7 +96,7 @@ int main() {
             }),
         });
 
-        auto const nodes = nodes_by_path(dom_root, "html.body.p");
+        auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
         require(nodes.size() == 2);
 
         auto const first = *nodes[0];
@@ -116,7 +125,7 @@ int main() {
             })
         });
 
-        auto const nodes = nodes_by_path(dom_root, "html.body.div.p");
+        auto const nodes = nodes_by_xpath(dom_root, "/html/body/div/p");
         require(nodes.size() == 2);
 
         auto const first = *nodes[0];
@@ -139,7 +148,7 @@ int main() {
             }),
         });
 
-        auto const nodes = nodes_by_path(dom_root, "html.body.p");
+        auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
         expect(nodes.size() == 1);
     });
 

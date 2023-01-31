@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,8 +21,8 @@ using namespace std::literals;
 namespace engine {
 namespace {
 
-std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
-    auto nodes = dom::nodes_by_path(doc.html(), path);
+std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view xpath) {
+    auto nodes = dom::nodes_by_xpath(doc.html(), xpath);
     if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
         return std::nullopt;
     }
@@ -73,14 +73,14 @@ void Engine::on_navigation_success() {
     dom_ = html::parse(response_.body);
     stylesheet_ = css::default_style();
 
-    if (auto style = try_get_text_content(dom_, "html.head.style"sv)) {
+    if (auto style = try_get_text_content(dom_, "/html/head/style"sv)) {
         auto new_rules = css::parse(*style);
         stylesheet_.reserve(stylesheet_.size() + new_rules.size());
         stylesheet_.insert(
                 end(stylesheet_), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
     }
 
-    auto head_links = dom::nodes_by_path(dom_.html(), "html.head.link");
+    auto head_links = dom::nodes_by_xpath(dom_.html(), "/html/head/link");
     std::erase_if(head_links, [](auto const *link) {
         return !link->attributes.contains("rel")
                 || (link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet")

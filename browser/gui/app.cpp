@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -37,8 +37,8 @@ auto constexpr kDefaultResolutionY = 480;
 // Magic number that felt right during testing.
 auto constexpr kMouseWheelScrollFactor = 10;
 
-std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view path) {
-    auto nodes = dom::nodes_by_path(doc.html(), path);
+std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view xpath) {
+    auto nodes = dom::nodes_by_xpath(doc.html(), xpath);
     if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
         return std::nullopt;
     }
@@ -348,7 +348,7 @@ void App::on_navigation_failure(protocol::Error err) {
 
 void App::on_page_loaded() {
     page_loaded_ = true;
-    if (auto page_title = try_get_text_content(engine_.dom(), "html.head.title"sv)) {
+    if (auto page_title = try_get_text_content(engine_.dom(), "/html/head/title"sv)) {
         window_.setTitle(fmt::format("{} - {}", *page_title, browser_title_));
     } else {
         window_.setTitle(browser_title_);

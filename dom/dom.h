@@ -41,8 +41,8 @@ struct Document {
 };
 
 // reference_wrapper to ensure that the argument isn't a temporary since we return pointers into it.
-std::vector<Element const *> nodes_by_path(std::reference_wrapper<Node const>, std::string_view path);
-std::vector<Element const *> nodes_by_path(std::reference_wrapper<Element const>, std::string_view path);
+std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Node const>, std::string_view);
+std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Element const>, std::string_view);
 
 std::string to_string(Document const &node);
 
