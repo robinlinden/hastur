@@ -6,6 +6,7 @@
 
 #include "css/rule.h"
 #include "dom/dom.h"
+#include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/painter.h"
 #include "render/render.h"
@@ -18,6 +19,7 @@
 #include <imgui_stdlib.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <functional>
@@ -25,6 +27,7 @@
 #include <sstream>
 #include <string_view>
 #include <utility>
+#include <variant>
 
 using namespace std::literals;
 
@@ -470,9 +473,41 @@ void App::run_layout_widget() const {
 void App::clear_render_surface() {
     if (render_debug_) {
         window_.clear();
-    } else {
-        window_.clear(sf::Color(255, 255, 255));
+        return;
     }
+
+    if (!page_loaded_) {
+        window_.clear(sf::Color(255, 255, 255));
+        return;
+    }
+
+    // https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
+    // If html or body has a background set, use that as the canvas background.
+    // TODO(robinlinden): This should be done in //render, but requires new
+    //                    //gfx APIs that I want to think a bit about.
+    if (auto html_bg = engine_.layout().get_property<css::PropertyId::BackgroundColor>();
+            html_bg != gfx::Color::from_css_name("transparent")) {
+        window_.clear(sf::Color(html_bg->as_rgba_u32()));
+        return;
+    }
+
+    auto body = std::ranges::find_if(engine_.layout().children, [](layout::LayoutBox const &c) {
+        return c.node && std::holds_alternative<dom::Element>(c.node->node)
+                && std::get<dom::Element>(c.node->node).name == "body";
+    });
+
+    if (body == end(engine_.layout().children)) {
+        window_.clear(sf::Color(255, 255, 255));
+        return;
+    }
+
+    if (auto body_bg = body->get_property<css::PropertyId::BackgroundColor>();
+            body_bg != gfx::Color::from_css_name("transparent")) {
+        window_.clear(sf::Color(body_bg->as_rgba_u32()));
+        return;
+    }
+
+    window_.clear(sf::Color(255, 255, 255));
 }
 
 void App::render_layout() {
