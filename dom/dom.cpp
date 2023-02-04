@@ -42,15 +42,6 @@ std::string to_string(Document const &document) {
     return std::move(ss).str();
 }
 
-std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Node const> root, std::string_view xpath) {
-    if (!std::holds_alternative<Element>(root.get())) {
-        return {};
-    }
-
-    auto const &element = std::get<Element>(root.get());
-    return nodes_by_xpath(element, xpath);
-}
-
 // https://developer.mozilla.org/en-US/docs/Web/XPath
 // https://en.wikipedia.org/wiki/XPath
 std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Element const> root, std::string_view xpath) {

@@ -20,6 +20,15 @@ namespace {
 dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::vector<dom::Node> children) {
     return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
 }
+
+std::vector<dom::Element const *> nodes_by_xpath(std::reference_wrapper<dom::Node const> root, std::string_view xpath) {
+    if (!std::holds_alternative<dom::Element>(root.get())) {
+        return {};
+    }
+
+    auto const &element = std::get<dom::Element>(root.get());
+    return nodes_by_xpath(element, xpath);
+}
 } // namespace
 
 int main() {
