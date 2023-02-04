@@ -193,6 +193,12 @@ jobs:
       - run: shfmt -i 2 -w $(shfmt -f .)
       - run: git diff --exit-code
 
+  link-liveness:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: grep --recursive --no-filename --only-matching --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{", ]*' | grep -v '^https://$' | xargs wget --spider
+
   gitlint:
     runs-on: ubuntu-22.04
     steps:
