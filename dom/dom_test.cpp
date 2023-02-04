@@ -22,12 +22,7 @@ dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::ve
 }
 
 std::vector<dom::Element const *> nodes_by_xpath(std::reference_wrapper<dom::Node const> root, std::string_view xpath) {
-    if (!std::holds_alternative<dom::Element>(root.get())) {
-        return {};
-    }
-
-    auto const &element = std::get<dom::Element>(root.get());
-    return nodes_by_xpath(element, xpath);
+    return nodes_by_xpath(std::get<dom::Element>(root.get()), xpath);
 }
 } // namespace
 
@@ -37,12 +32,6 @@ int main() {
         document.html_node = dom::Element{.name{"span"}, .children{{dom::Text{"hello"}}}};
         auto expected = "doctype: html5\ntag: span\n  value: hello\n"sv;
         expect_eq(to_string(document), expected);
-    });
-
-    etest::test("root not being an element shouldn't crash", [] {
-        dom::Node dom = dom::Text{"hello"};
-        auto const nodes = nodes_by_xpath(dom, "/anything");
-        expect(nodes.empty());
     });
 
     etest::test("unsupported xpaths don't return anything", [] {
