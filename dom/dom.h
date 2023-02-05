@@ -56,10 +56,11 @@ inline std::vector<Element const *> dom_children(Element const &e) {
 
 // https://developer.mozilla.org/en-US/docs/Web/XPath
 // https://en.wikipedia.org/wiki/XPath
-inline std::vector<Element const *> nodes_by_xpath(Element const &root, std::string_view xpath) {
-    std::vector<Element const *> next_search{&root};
-    std::vector<Element const *> searching{};
-    std::vector<Element const *> goal_nodes{};
+template<typename T>
+inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpath) {
+    std::vector<T const *> next_search{&root};
+    std::vector<T const *> searching{};
+    std::vector<T const *> goal_nodes{};
 
     // We only support xpaths in the form /a/b/c right now.
     if (!xpath.starts_with('/')) {
