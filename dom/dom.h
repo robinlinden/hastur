@@ -58,12 +58,13 @@ inline std::vector<Element const *> nodes_by_xpath(Element const &root, std::str
         next_search.clear();
 
         for (auto node : searching) {
-            if (xpath == node->name) {
+            auto const &name = node->name;
+            if (xpath == name) {
                 goal_nodes.push_back(node);
                 continue;
             }
 
-            if (xpath.starts_with(node->name + "/")) {
+            if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && xpath[name.size()] == '/') {
                 for (auto const &child : node->children) {
                     if (auto const *element = std::get_if<Element>(&child)) {
                         next_search.push_back(element);
