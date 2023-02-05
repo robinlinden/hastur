@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef DOM_DOM_H_
 #define DOM_DOM_H_
 
+#include <cstddef>
 #include <map>
 #include <string>
 #include <string_view>
@@ -39,7 +40,49 @@ struct Document {
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
-std::vector<Element const *> nodes_by_xpath(Element const &, std::string_view);
+// https://developer.mozilla.org/en-US/docs/Web/XPath
+// https://en.wikipedia.org/wiki/XPath
+inline std::vector<Element const *> nodes_by_xpath(Element const &root, std::string_view xpath) {
+    std::vector<Element const *> next_search{&root};
+    std::vector<Element const *> searching{};
+    std::vector<Element const *> goal_nodes{};
+
+    // We only support xpaths in the form /a/b/c right now.
+    if (!xpath.starts_with('/')) {
+        return {};
+    }
+    xpath.remove_prefix(1);
+
+    while (!next_search.empty()) {
+        searching.swap(next_search);
+        next_search.clear();
+
+        for (auto node : searching) {
+            if (xpath == node->name) {
+                goal_nodes.push_back(node);
+                continue;
+            }
+
+            if (xpath.starts_with(node->name + "/")) {
+                for (auto const &child : node->children) {
+                    if (auto const *element = std::get_if<Element>(&child)) {
+                        next_search.push_back(element);
+                    }
+                }
+            }
+        }
+
+        // Remove name + separator.
+        std::size_t separator_position{xpath.find_first_of("/")};
+        if (separator_position == xpath.npos) {
+            break;
+        }
+
+        xpath.remove_prefix(separator_position + 1);
+    }
+
+    return goal_nodes;
+}
 
 std::string to_string(Document const &node);
 
