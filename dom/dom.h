@@ -40,6 +40,20 @@ struct Document {
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
+inline std::string_view dom_name(Element const &e) {
+    return e.name;
+}
+
+inline std::vector<Element const *> dom_children(Element const &e) {
+    std::vector<Element const *> children;
+    for (auto const &child : e.children) {
+        if (auto const *element = std::get_if<Element>(&child)) {
+            children.push_back(element);
+        }
+    }
+    return children;
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/XPath
 // https://en.wikipedia.org/wiki/XPath
 inline std::vector<Element const *> nodes_by_xpath(Element const &root, std::string_view xpath) {
@@ -58,17 +72,15 @@ inline std::vector<Element const *> nodes_by_xpath(Element const &root, std::str
         next_search.clear();
 
         for (auto node : searching) {
-            auto const &name = node->name;
+            auto name = dom_name(*node);
             if (xpath == name) {
                 goal_nodes.push_back(node);
                 continue;
             }
 
             if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && xpath[name.size()] == '/') {
-                for (auto const &child : node->children) {
-                    if (auto const *element = std::get_if<Element>(&child)) {
-                        next_search.push_back(element);
-                    }
+                for (auto const *child : dom_children(*node)) {
+                    next_search.push_back(child);
                 }
             }
         }
