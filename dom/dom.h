@@ -5,7 +5,6 @@
 #ifndef DOM_DOM_H_
 #define DOM_DOM_H_
 
-#include <functional>
 #include <map>
 #include <string>
 #include <string_view>
@@ -40,8 +39,7 @@ struct Document {
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
-// reference_wrapper to ensure that the argument isn't a temporary since we return pointers into it.
-std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Element const>, std::string_view);
+std::vector<Element const *> nodes_by_xpath(Element const &, std::string_view);
 
 std::string to_string(Document const &node);
 

@@ -21,8 +21,8 @@ dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::ve
     return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
 }
 
-std::vector<dom::Element const *> nodes_by_xpath(std::reference_wrapper<dom::Node const> root, std::string_view xpath) {
-    return nodes_by_xpath(std::get<dom::Element>(root.get()), xpath);
+std::vector<dom::Element const *> nodes_by_xpath(dom::Node const &root, std::string_view xpath) {
+    return nodes_by_xpath(std::get<dom::Element>(root), xpath);
 }
 } // namespace
 

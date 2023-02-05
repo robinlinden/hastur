@@ -44,8 +44,8 @@ std::string to_string(Document const &document) {
 
 // https://developer.mozilla.org/en-US/docs/Web/XPath
 // https://en.wikipedia.org/wiki/XPath
-std::vector<Element const *> nodes_by_xpath(std::reference_wrapper<Element const> root, std::string_view xpath) {
-    std::vector<Element const *> next_search{&root.get()};
+std::vector<Element const *> nodes_by_xpath(Element const &root, std::string_view xpath) {
+    std::vector<Element const *> next_search{&root};
     std::vector<Element const *> searching{};
     std::vector<Element const *> goal_nodes{};
 
