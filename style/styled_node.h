@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace style {
@@ -72,6 +73,22 @@ private:
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
     return a.node == b.node && a.properties == b.properties && a.children == b.children;
+}
+
+inline std::string_view dom_name(StyledNode const &node) {
+    return std::get<dom::Element>(node.node).name;
+}
+
+inline std::vector<StyledNode const *> dom_children(StyledNode const &node) {
+    std::vector<StyledNode const *> children{};
+    for (auto const &child : node.children) {
+        if (!std::holds_alternative<dom::Element>(child.node)) {
+            continue;
+        }
+
+        children.push_back(&child);
+    }
+    return children;
 }
 
 } // namespace style

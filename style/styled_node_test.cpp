@@ -221,5 +221,26 @@ int main() {
         std::ignore = child.get_property<css::PropertyId::FontSize>();
     });
 
+    etest::test("xpath", [] {
+        dom::Node html_node = dom::Element{"html"s};
+        dom::Node div_node = dom::Element{"div"s};
+        dom::Node text_node = dom::Text{"hello!"s};
+        style::StyledNode styled_node{
+                .node = html_node,
+                .children{
+                        style::StyledNode{.node = text_node},
+                        style::StyledNode{.node = div_node},
+                },
+        };
+
+        using NodeVec = std::vector<style::StyledNode const *>;
+        expect_eq(dom::nodes_by_xpath(styled_node, "/html"), NodeVec{&styled_node});
+        expect_eq(dom::nodes_by_xpath(styled_node, "/html/div"), NodeVec{&styled_node.children[1]});
+        expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/p"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(styled_node, "/htm/div"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(styled_node, "//div"), NodeVec{});
+    });
+
     return etest::run_all_tests();
 }
