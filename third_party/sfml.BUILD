@@ -97,6 +97,7 @@ cc_library(
     hdrs = glob(["include/SFML/Graphics/*"]),
     copts = ["-Iexternal/sfml/src/"],
     defines = SFML_DEFINES,
+    includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": [
             "-lGL",

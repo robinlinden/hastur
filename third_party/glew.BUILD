@@ -8,6 +8,7 @@ cc_library(
         "GLEW_NO_GLU",
         "GLEW_STATIC",
     ],
+    includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": [
             "-lGL",

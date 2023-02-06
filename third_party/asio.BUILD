@@ -11,6 +11,7 @@ cc_library(
         "ASIO_NO_TYPEID",
         "ASIO_SEPARATE_COMPILATION",
     ],
+    includes = ["asio/include/"],
     strip_include_prefix = "asio/include",
     visibility = ["//visibility:public"],
     deps = ["@boringssl//:ssl"],

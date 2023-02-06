@@ -15,6 +15,7 @@ cc_library(
         "@platforms//os:linux": [],
         "@platforms//os:windows": ["-utf-8"],
     }),
+    includes = ["include/"],
     local_defines = select({
         "@platforms//os:linux": [],
         "@platforms//os:windows": [

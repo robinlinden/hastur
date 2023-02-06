@@ -7,6 +7,7 @@ cc_library(
         "*.h",
     ]),
     hdrs = ["zlib.h"],
+    includes = ["."],
     local_defines = select({
         "@platforms//os:linux": ["Z_HAVE_UNISTD_H"],
         "@platforms//os:windows": [],
