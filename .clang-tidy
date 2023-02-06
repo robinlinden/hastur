@@ -1,0 +1,20 @@
+---
+# -clang-analyzer-optin.cplusplus.UninitializedObject: Triggered by libfmt
+# format strings on the line we instantiate them.
+#
+# -clang-diagnostic-builtin-macro-redefined: Bazel redefines a lot of builtin
+# macros to set up a reproducible build.
+#
+# -misc-no-recursion: We use a lot of recursion.
+#
+# -misc-non-private-member-variables-in-classes: TODO(robinlinden): Fix.
+Checks: >
+  misc-*,
+  -clang-analyzer-optin.cplusplus.UninitializedObject,
+  -clang-diagnostic-builtin-macro-redefined,
+  -misc-no-recursion,
+  -misc-non-private-member-variables-in-classes,
+
+WarningsAsErrors: "*"
+
+HeaderFilterRegex: ""
