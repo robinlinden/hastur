@@ -15,7 +15,6 @@
 using namespace std::literals;
 
 using etest::expect_eq;
-using etest::require;
 
 using namespace html2;
 

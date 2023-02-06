@@ -6,8 +6,6 @@
 
 #include "etest/etest.h"
 
-using etest::expect_eq;
-
 using namespace css2;
 
 int main() {

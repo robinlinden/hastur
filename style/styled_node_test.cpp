@@ -11,7 +11,6 @@
 using namespace std::literals;
 using etest::expect;
 using etest::expect_eq;
-using etest::require;
 
 int main() {
     etest::test("get_property", [] {

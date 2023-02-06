@@ -10,7 +10,6 @@
 
 using namespace std::string_view_literals;
 
-using etest::expect;
 using etest::expect_eq;
 using etest::require;
 

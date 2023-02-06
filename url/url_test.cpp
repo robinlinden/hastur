@@ -11,9 +11,6 @@
 #include <iostream>
 #include <regex>
 
-using etest::expect;
-using etest::expect_eq;
-
 int main() {
     etest::test("blob URL generation", [] {
         std::string REGEX_UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
