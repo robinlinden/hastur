@@ -12,6 +12,12 @@
 
 namespace uri {
 
+enum class Error {
+    Ok,
+    Unparseable,
+    Security,
+};
+
 struct Authority {
     std::string user;
     std::string passwd;
@@ -24,8 +30,11 @@ struct Authority {
 };
 
 struct Uri {
-    static Uri parse(std::string uri, std::optional<std::reference_wrapper<Uri const>> base_uri = std::nullopt);
+    static Uri parse(std::string uri,
+            std::optional<std::reference_wrapper<Uri const>> base_uri = std::nullopt,
+            bool enforce_security = true);
 
+    Error err;
     std::string uri;
     std::string scheme;
     Authority authority;

@@ -50,7 +50,7 @@ void complete_from_base_if_needed(Uri &uri, Uri const &base) {
 
 } // namespace
 
-Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
+Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri, bool enforce_security) {
     // Regex taken from RFC 3986.
     auto match = ctre::match<"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?">(uristr);
     if (!match) {
@@ -96,7 +96,14 @@ Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri cons
     normalize(uri);
 
     if (base_uri) {
-        complete_from_base_if_needed(uri, base_uri->get());
+        auto base = base_uri->get();
+        complete_from_base_if_needed(uri, base);
+        if (enforce_security) {
+            if (!base.scheme.empty() && uri.scheme != base.scheme) {
+                uri.err = Error::Security;
+                return uri;
+            }
+        }
     }
 
     return uri;

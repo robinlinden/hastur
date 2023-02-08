@@ -94,6 +94,12 @@ void Engine::on_navigation_success() {
         future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
             auto const &href = link->attributes.at("href");
             auto stylesheet_url = uri::Uri::parse(href, uri_);
+            if (stylesheet_url.err != uri::Error::Ok) {
+                spdlog::error("Error {} when attempting to fetch {}",
+                        static_cast<int>(stylesheet_url.err),
+                        stylesheet_url.uri);
+                return {};
+            }
 
             spdlog::info("Downloading stylesheet from {}", stylesheet_url.uri);
             auto style_data = protocol_handler_->handle(stylesheet_url);
@@ -104,6 +110,7 @@ void Engine::on_navigation_success() {
 
             if ((stylesheet_url.scheme == "http" || stylesheet_url.scheme == "https")
                     && style_data.status_line.status_code != 200) {
+                // TODO handle http 3XX series
                 spdlog::warn("Error {}: {} downloading {}",
                         style_data.status_line.status_code,
                         style_data.status_line.reason,

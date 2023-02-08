@@ -19,8 +19,8 @@ namespace etest {
 
 template<typename T>
 concept Printable = requires(std::ostream &os, T t) {
-    { os << t } -> std::same_as<std::ostream &>;
-};
+                        { os << t } -> std::same_as<std::ostream &>;
+                    };
 
 struct RunOptions {
     bool run_disabled_tests{false};
