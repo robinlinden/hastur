@@ -412,7 +412,7 @@ private:
             } else if (maybe_font_style->starts_with("oblique")) {
                 font_style = *maybe_font_style;
                 if (auto maybe_angle = tokenizer.peek()) {
-                    if (maybe_angle->find("deg") != std::string_view::npos) {
+                    if (maybe_angle->contains("deg")) {
                         font_style += ' ';
                         font_style += *maybe_angle;
                         tokenizer.next();

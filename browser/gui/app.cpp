@@ -49,7 +49,7 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 }
 
 void ensure_has_scheme(std::string &url) {
-    if (url.find("://") == std::string::npos) {
+    if (!url.contains("://")) {
         spdlog::info("Url missing scheme, assuming https");
         url = fmt::format("https://{}", url);
     }

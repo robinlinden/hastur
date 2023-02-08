@@ -829,10 +829,8 @@ int main() {
 
         // Very incorrect.
         auto const &src = rules[0].declarations.at(css::PropertyId::Unknown);
-        auto woff2 = src.find(R"(url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2"))");
-        expect(woff2 != std::string::npos);
-        auto woff = src.find(R"(url("/fonts/OpenSans-Regular-webfont.woff") format("woff")");
-        expect(woff != std::string::npos);
+        expect(src.contains(R"(url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2"))"));
+        expect(src.contains(R"(url("/fonts/OpenSans-Regular-webfont.woff") format("woff")"));
     });
 
     return etest::run_all_tests();
