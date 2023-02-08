@@ -26,11 +26,6 @@ cc_test(
     ],
 )
 
-config_setting(
-    name = "is_clang",
-    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang"},
-)
-
 cc_fuzz_test(
     name = "uri_fuzz_test",
     size = "small",
