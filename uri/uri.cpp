@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,10 +7,10 @@
 
 #include "util/string.h"
 
-#include <ctre.hpp>
 #include <fmt/format.h>
 
 #include <exception>
+#include <regex>
 #include <utility>
 
 namespace uri {
@@ -52,14 +52,15 @@ void complete_from_base_if_needed(Uri &uri, Uri const &base) {
 
 Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
     // Regex taken from RFC 3986.
-    auto match = ctre::match<"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?">(uristr);
-    if (!match) {
+    std::smatch match;
+    std::regex const uri_regex{"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"};
+    if (!std::regex_search(uristr, match, uri_regex)) {
         std::terminate();
     }
 
     Authority authority{};
 
-    std::string hostport = match.get<4>().str();
+    std::string hostport = match.str(4);
     if (auto userinfo_end = hostport.find_first_of('@'); userinfo_end != std::string::npos) {
         // Userinfo present.
         std::string userinfo = hostport.substr(0, userinfo_end);
@@ -85,11 +86,11 @@ Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri cons
     }
 
     auto uri = Uri{
-            .scheme{match.get<2>().str()},
+            .scheme{match.str(2)},
             .authority{std::move(authority)},
-            .path{match.get<5>().str()},
-            .query{match.get<7>().str()},
-            .fragment{match.get<9>().str()},
+            .path{match.str(5)},
+            .query{match.str(7)},
+            .fragment{match.str(9)},
     };
     uri.uri = std::move(uristr);
 
