@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <cstdlib>
 #include <cstring>
 #include <optional>
 #include <string_view>
@@ -102,6 +103,16 @@ private:
         }
     }
 
+    static constexpr std::array border_shorthand_properties{
+            "border", "border-left", "border-right", "border-top", "border-bottom"};
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/border-style
+    static constexpr std::array border_style_keywords{
+            "none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"};
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/border-width
+    static constexpr std::array border_width_keywords{"thin", "medium", "thick"};
+
     static constexpr auto shorthand_edge_property = std::array{"padding", "margin", "border-style"};
 
     static constexpr auto absolute_size_keywords =
@@ -121,6 +132,11 @@ private:
             "ultra-expanded"};
 
     static constexpr std::string_view dot_and_digits = ".0123456789";
+
+    template<auto const &array>
+    constexpr bool is_in_array(std::string_view str) const {
+        return std::ranges::find(array, str) != std::cend(array);
+    }
 
     class Tokenizer {
     public:
@@ -218,9 +234,97 @@ private:
             expand_font(declarations, value);
         } else if (name == "border-radius") {
             expand_border_radius_values(declarations, value);
+        } else if (is_in_array<border_shorthand_properties>(name)) {
+            expand_border(name, declarations, value);
         } else {
             declarations.insert_or_assign(property_id_from_string(name), std::string{value});
         }
+    }
+
+    enum class BorderSide { Left, Right, Top, Bottom };
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/border
+    void expand_border(
+            std::string_view name, std::map<PropertyId, std::string> &declarations, std::string_view value) const {
+        if (name == "border") {
+            expand_border_impl(BorderSide::Left, declarations, value);
+            expand_border_impl(BorderSide::Right, declarations, value);
+            expand_border_impl(BorderSide::Top, declarations, value);
+            expand_border_impl(BorderSide::Bottom, declarations, value);
+        } else if (name == "border-left") {
+            expand_border_impl(BorderSide::Left, declarations, value);
+        } else if (name == "border-right") {
+            expand_border_impl(BorderSide::Right, declarations, value);
+        } else if (name == "border-top") {
+            expand_border_impl(BorderSide::Top, declarations, value);
+        } else if (name == "border-bottom") {
+            expand_border_impl(BorderSide::Bottom, declarations, value);
+        }
+    }
+
+    void expand_border_impl(
+            BorderSide side, std::map<PropertyId, std::string> &declarations, std::string_view value) const {
+        auto [color_id, style_id, width_id] = [&] {
+            switch (side) {
+                case BorderSide::Left:
+                    return std::tuple{
+                            PropertyId::BorderLeftColor, PropertyId::BorderLeftStyle, PropertyId::BorderLeftWidth};
+                case BorderSide::Right:
+                    return std::tuple{
+                            PropertyId::BorderRightColor, PropertyId::BorderRightStyle, PropertyId::BorderRightWidth};
+                case BorderSide::Top:
+                    return std::tuple{
+                            PropertyId::BorderTopColor, PropertyId::BorderTopStyle, PropertyId::BorderTopWidth};
+                case BorderSide::Bottom:
+                    return std::tuple{PropertyId::BorderBottomColor,
+                            PropertyId::BorderBottomStyle,
+                            PropertyId::BorderBottomWidth};
+            }
+            std::abort(); // Unreachable.
+        }();
+
+        Tokenizer tokenizer(value, ' ');
+        if (tokenizer.size() == 0 || tokenizer.size() > 3) {
+            // TODO(robinlinden): Propagate info about invalid properties.
+            return;
+        }
+
+        enum class BorderPropertyType { Color, Style, Width };
+        auto guess_type = [this](std::string_view v) -> BorderPropertyType {
+            if (is_in_array<border_style_keywords>(v)) {
+                return BorderPropertyType::Style;
+            }
+
+            if (v.find_first_of("0123456789") == 0 || is_in_array<border_width_keywords>(v)) {
+                return BorderPropertyType::Width;
+            }
+
+            return BorderPropertyType::Color;
+        };
+
+        std::optional<std::string_view> color;
+        std::optional<std::string_view> style;
+        std::optional<std::string_view> width;
+
+        // TODO(robinlinden): Duplicate color/style/width shouldn't be
+        // tolerated, but we have no way of propagating that info right now.
+        for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
+            switch (guess_type(*v)) {
+                case BorderPropertyType::Color:
+                    color = *v;
+                    break;
+                case BorderPropertyType::Style:
+                    style = *v;
+                    break;
+                case BorderPropertyType::Width:
+                    width = *v;
+                    break;
+            }
+        }
+
+        declarations.insert_or_assign(color_id, color.value_or("currentcolor"));
+        declarations.insert_or_assign(style_id, style.value_or("none"));
+        declarations.insert_or_assign(width_id, width.value_or("medium"));
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/background
@@ -461,11 +565,6 @@ private:
             return std::nullopt;
         }
         return result;
-    }
-
-    template<auto const &array>
-    constexpr bool is_in_array(std::string_view str) const {
-        return std::ranges::find(array, str) != std::cend(array);
     }
 
     constexpr bool is_shorthand_edge_property(std::string_view str) const {

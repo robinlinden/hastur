@@ -833,5 +833,69 @@ int main() {
         expect(src.contains(R"(url("/fonts/OpenSans-Regular-webfont.woff") format("woff")"));
     });
 
+    etest::test("parser: border shorthand, all values", [] {
+        auto rules = css::parse("p { border: 5px black solid; }");
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderBottomColor, "black"s},
+                        {css::PropertyId::BorderBottomStyle, "solid"s},
+                        {css::PropertyId::BorderBottomWidth, "5px"s},
+                        {css::PropertyId::BorderLeftColor, "black"s},
+                        {css::PropertyId::BorderLeftStyle, "solid"s},
+                        {css::PropertyId::BorderLeftWidth, "5px"s},
+                        {css::PropertyId::BorderRightColor, "black"s},
+                        {css::PropertyId::BorderRightStyle, "solid"s},
+                        {css::PropertyId::BorderRightWidth, "5px"s},
+                        {css::PropertyId::BorderTopColor, "black"s},
+                        {css::PropertyId::BorderTopStyle, "solid"s},
+                        {css::PropertyId::BorderTopWidth, "5px"s},
+                });
+    });
+
+    etest::test("parser: border shorthand, color+style", [] {
+        auto rules = css::parse("p { border-bottom: #123 dotted; }");
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderBottomColor, "#123"s},
+                        {css::PropertyId::BorderBottomStyle, "dotted"s},
+                        {css::PropertyId::BorderBottomWidth, "medium"s},
+                });
+    });
+
+    etest::test("parser: border shorthand, width+style", [] {
+        auto rules = css::parse("p { border-left: ridge 30em; }");
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderLeftColor, "currentcolor"s},
+                        {css::PropertyId::BorderLeftStyle, "ridge"s},
+                        {css::PropertyId::BorderLeftWidth, "30em"s},
+                });
+    });
+
+    etest::test("parser: border shorthand, width", [] {
+        auto rules = css::parse("p { border-right: thin; }");
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderRightColor, "currentcolor"s},
+                        {css::PropertyId::BorderRightStyle, "none"s},
+                        {css::PropertyId::BorderRightWidth, "thin"s},
+                });
+    });
+
+    etest::test("parser: border shorthand, too many values", [] {
+        auto rules = css::parse("p { border-top: outset #123 none solid; }");
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+
     return etest::run_all_tests();
 }
