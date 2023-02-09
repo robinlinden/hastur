@@ -78,5 +78,29 @@ int main() {
         }
     });
 
+    etest::test("utf8_to_utf32", [] {
+        expect_eq(utf8_to_utf32("/"sv), 0x002ful);
+
+        expect_eq(utf8_to_utf32("Д"sv), 0x0414ul);
+
+        expect_eq(utf8_to_utf32("ᛋ"sv), 0x16cbul);
+
+        expect_eq(utf8_to_utf32("🫸"sv), 0x1faf8ul);
+
+        // Pass several codepoints, it should just decode the first one
+        expect_eq(utf8_to_utf32("🯷🯷🯷"sv), 0x1fbf7ul);
+    });
+
+    etest::test("utf8_length", [] {
+        expect_eq(utf8_length("🮻"sv), 1ul);
+        expect_eq(utf8_length("This string is 33 characters long"sv), 33ul);
+        expect_eq(utf8_length("🤖🤖🤖"sv), 3ul);
+        expect_eq(utf8_length("🆒🆒🆒🆒🆒🆒🆒!"sv), 8ul);
+
+        // First byte suggests a 2-byte char, but we don't supply the 2nd byte
+        std::string invalid{static_cast<char>(0b11000000)};
+        expect_eq(utf8_length(invalid), std::nullopt);
+    });
+
     return etest::run_all_tests();
 }

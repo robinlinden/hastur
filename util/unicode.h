@@ -6,6 +6,7 @@
 #define UTIL_UNICODE_H_
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace util {
@@ -111,6 +112,70 @@ constexpr bool is_unicode_noncharacter(std::uint32_t code_point) {
         default:
             return false;
     }
+}
+
+// Takes a UTF-8 encoded codepoint, and returns the codepoint value.
+//
+// Note: This routine assumes that the input is a valid UTF-8 string. Strings that are too short return 0.
+constexpr std::uint32_t utf8_to_utf32(std::string_view input) {
+    std::uint32_t codepoint = 0;
+
+    if (!input.empty() && (input[0] & 0b10000000) == 0b00000000) {
+        codepoint = static_cast<unsigned char>(input[0]);
+    } else if (input.size() > 1 && (input[0] & 0b11100000) == 0b11000000) {
+        codepoint = ((input[0] & 0b00011111) << 6) | (input[1] & 0b00111111);
+    } else if (input.size() > 2 && (input[0] & 0b11110000) == 0b11100000) {
+        codepoint = ((input[0] & 0b00001111) << 12) | ((input[1] & 0b00111111) << 6) | (input[2] & 0b00111111);
+    } else if (input.size() > 3 && (input[0] & 0b11111000) == 0b11110000) {
+        codepoint = ((input[0] & 0b00000111) << 18) | ((input[1] & 0b00111111) << 12) | ((input[2] & 0b00111111) << 6)
+                | (input[3] & 0b00111111);
+    }
+
+    return codepoint;
+}
+
+// Calculates codepoint length of a UTF-8 string.
+//
+// Note: This routine assumes that the string is valid UTF-8, otherwise we need
+// to check if the bytes following the first byte of the codepoint are correct
+// instead of just advancing the index.
+//
+// For incorrectly-encoded strings which do not have enough data to match the
+// size suggested by the initial code unit, this function returns std::nullopt
+constexpr std::optional<std::size_t> utf8_length(std::string_view input) {
+    std::size_t len = 0;
+
+    for (std::size_t i = 0; i < input.size(); i++) {
+        if ((input[i] & 0b10000000) == 0b00000000) {
+            len++;
+        } else if ((input[i] & 0b11100000) == 0b11000000) {
+            i++;
+
+            if (input.size() <= i) {
+                return std::nullopt;
+            }
+
+            len++;
+        } else if ((input[i] & 0b11110000) == 0b11100000) {
+            i += 2;
+
+            if (input.size() <= i) {
+                return std::nullopt;
+            }
+
+            len++;
+        } else if ((input[i] & 0b11111000) == 0b11110000) {
+            i += 3;
+
+            if (input.size() <= i) {
+                return std::nullopt;
+            }
+
+            len++;
+        }
+    }
+
+    return len;
 }
 
 } // namespace util

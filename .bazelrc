@@ -6,6 +6,8 @@ coverage --combined_report=lcov
 test --test_output=errors
 test --test_summary=terse
 test --test_verbose_timeout_warnings
+# Set ICU data directory for tests
+test --test_env=HASTUR_ICU_DATA=external/icu-data/
 
 # Bazel deprecations
 # =========================================================

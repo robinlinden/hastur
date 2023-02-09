@@ -10,6 +10,7 @@
 
 #include <concepts>
 #include <cstddef>
+#include <optional>
 #include <string_view>
 
 namespace util {
@@ -17,13 +18,30 @@ namespace util {
 template<typename T>
 concept Predicate = std::predicate<T, char>;
 
+// NOLINTBEGIN(bugprone-unchecked-optional-access)
 class BaseParser {
 public:
     constexpr explicit BaseParser(std::string_view input) : input_{input} {}
 
-    constexpr char peek() const { return input_[pos_]; }
+    constexpr std::optional<char> peek() const {
+        if (is_eof()) {
+            return std::nullopt;
+        }
 
-    constexpr std::string_view peek(std::size_t chars) const { return input_.substr(pos_, chars); }
+        return input_[pos_];
+    }
+
+    constexpr std::optional<std::string_view> peek(std::size_t chars) const {
+        if (is_eof()) {
+            return std::nullopt;
+        }
+
+        return input_.substr(pos_, chars);
+    }
+
+    constexpr std::string_view remaining_from(std::size_t skip) const {
+        return pos_ + skip >= input_.size() ? "" : input_.substr(pos_ + skip);
+    }
 
     constexpr bool starts_with(std::string_view prefix) const { return peek(prefix.size()) == prefix; }
 
@@ -42,6 +60,8 @@ public:
         pos_ = 0;
     }
 
+    constexpr std::size_t current_pos() const { return pos_; }
+
     template<Predicate T>
     constexpr std::string_view consume_while(T const &pred) {
         std::size_t start = pos_;
@@ -52,7 +72,7 @@ public:
     }
 
     constexpr void skip_whitespace() {
-        while (!is_eof() && util::is_whitespace(peek())) {
+        while (!is_eof() && util::is_whitespace(*peek())) {
             advance(1);
         }
     }
@@ -61,6 +81,7 @@ private:
     std::string_view input_;
     std::size_t pos_{0};
 };
+// NOLINTEND(bugprone-unchecked-optional-access)
 
 } // namespace util
 

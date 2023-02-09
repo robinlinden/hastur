@@ -120,6 +120,13 @@ http_archive(
 
 # https://github.com/ocornut/imgui
 http_archive(
+    name = "icu-data",  # Unicode-DFS-2016
+    build_file_content = "exports_files([\"icudt72l.dat\"])",
+    sha256 = "1bc02487cbeaec3fc2d0dc941e8b243e7d35cd79899a201df88dc9ec9667a162",
+    url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-data-bin-l.zip",
+)
+
+http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
     sha256 = "e95d1cba1481e66386acda3e7da19cd738da86c6c2a140a48fa55046e5f6e208",

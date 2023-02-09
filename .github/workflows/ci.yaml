@@ -266,7 +266,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
-      - run: grep --recursive --no-filename --only-matching --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider
+      - run: grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider
 
   gitlint:
     runs-on: ubuntu-22.04

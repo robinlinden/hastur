@@ -31,13 +31,20 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
+    defines = [
+        "U_STATIC_IMPLEMENTATION",
+        "U_COMMON_IMPLEMENTATION",
+        "U_CHARSET_IS_UTF8=1",
+        "U_HIDE_OBSOLETE_UTF_OLD_H=1",
+        "UCONFIG_NO_CONVERSION=1",
+    ],
     linkopts = select({
-        "@platforms//os:windows": [],
+        "@platforms//os:windows": [
+            "-DEFAULTLIB:advapi32",
+        ],
         "//conditions:default": ["-ldl"],
     }),
-    local_defines = [
-        "U_COMMON_IMPLEMENTATION",
-    ],
+    linkstatic = True,
     strip_include_prefix = "source/common/",
     visibility = ["//visibility:public"],
 )
