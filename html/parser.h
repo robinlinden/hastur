@@ -29,7 +29,7 @@ public:
     void operator()(html2::EndOfFileToken const &);
 
 private:
-    Parser(std::string_view input) : tokenizer_{input, std::bind_front(&Parser::on_token, this)} {}
+    explicit Parser(std::string_view input) : tokenizer_{input, std::bind_front(&Parser::on_token, this)} {}
 
     [[nodiscard]] dom::Document run() {
         tokenizer_.run();

@@ -19,7 +19,7 @@ concept Predicate = std::predicate<T, char>;
 
 class BaseParser {
 public:
-    constexpr BaseParser(std::string_view input) : input_{input} {}
+    constexpr explicit BaseParser(std::string_view input) : input_{input} {}
 
     constexpr char peek() const { return input_[pos_]; }
 

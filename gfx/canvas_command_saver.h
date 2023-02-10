@@ -123,7 +123,7 @@ private:
 
 class CanvasCommandVisitor {
 public:
-    constexpr CanvasCommandVisitor(ICanvas &canvas) : canvas_{canvas} {}
+    constexpr explicit CanvasCommandVisitor(ICanvas &canvas) : canvas_{canvas} {}
 
     constexpr void operator()(SetViewportSizeCmd const &cmd) { canvas_.set_viewport_size(cmd.width, cmd.height); }
     constexpr void operator()(SetScaleCmd const &cmd) { canvas_.set_scale(cmd.scale); }

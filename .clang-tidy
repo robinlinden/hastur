@@ -13,8 +13,6 @@
 #
 # -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
 #
-# -google-explicit-constructor: TODO(robinlinden): Fix.
-#
 # -google-readability-braces-around-statements: Crashes clang-tidy-14/15.
 # Stack dump:
 # 0.      Program arguments: clang-tidy-15 -p=/home/robin/code/hastur -quiet /home/robin/code/hastur/dom2/character_data_test.cpp
@@ -32,7 +30,6 @@ Checks: >
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-diagnostic-builtin-macro-redefined,
   -google-build-using-namespace,
-  -google-explicit-constructor,
   -google-readability-braces-around-statements,
   -misc-no-recursion,
   -misc-non-private-member-variables-in-classes,

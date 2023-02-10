@@ -15,7 +15,8 @@ namespace dom2 {
 // https://dom.spec.whatwg.org/#interface-documenttype
 class DocumentType final : public Node {
 public:
-    DocumentType(std::string name, std::string public_id = std::string{""}, std::string system_id = std::string{""})
+    explicit DocumentType(
+            std::string name, std::string public_id = std::string{""}, std::string system_id = std::string{""})
         : name_{std::move(name)}, public_id_{std::move(public_id)}, system_id_{std::move(system_id)} {}
 
     [[nodiscard]] NodeType type() const override { return NodeType::DocumentType; }

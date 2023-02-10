@@ -12,7 +12,7 @@ namespace gfx {
 
 class Painter {
 public:
-    Painter(ICanvas &canvas) : canvas_{canvas} {}
+    explicit Painter(ICanvas &canvas) : canvas_{canvas} {}
 
     void fill_rect(geom::Rect const &rect, Color color) { canvas_.fill_rect(rect, color); }
 

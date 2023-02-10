@@ -21,7 +21,7 @@ namespace gfx {
 
 class SfmlCanvas : public ICanvas {
 public:
-    SfmlCanvas(sf::RenderTarget &target);
+    explicit SfmlCanvas(sf::RenderTarget &target);
 
     void set_viewport_size(int width, int height) override;
     constexpr void set_scale(int scale) override { scale_ = scale; }

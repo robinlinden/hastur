@@ -20,7 +20,7 @@ namespace {
 
 class TestableCharacterData : public CharacterData {
 public:
-    TestableCharacterData(std::string data = ""s) : CharacterData(std::move(data)) {}
+    explicit TestableCharacterData(std::string data = ""s) : CharacterData(std::move(data)) {}
 
     // Not correct, but let's pretend this is fine so I can test the rest of the methods.
     NodeType type() const override { return NodeType::Text; }
