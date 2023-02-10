@@ -174,7 +174,6 @@ jobs:
       # confused by missing headers.
       - run: bazel build `bazel query 'kind("genrule", "...")'`
       - run: bazel run refresh_compile_commands
-      # TODO(robinlinden): Also check header files.
       - run: run-clang-tidy-14 -quiet `find . -name "*.cpp"`
 
   buildifier:
