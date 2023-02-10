@@ -101,6 +101,14 @@ void Tokenizer::set_state(State state) {
     state_ = state;
 }
 
+// While long, this function only contains trivial and short cases for each of
+// the parser states.
+//
+// Splitting it would (very slightly) complicate stopping parsing as instead of
+// just returning when we're done, we'd have to keep a member keeping track of
+// if we're done and check that after every state, or return an enum value
+// telling us if we should continue or return.
+// NOLINTNEXTLINE(google-readability-function-size)
 void Tokenizer::run() {
     while (true) {
         switch (state_) {

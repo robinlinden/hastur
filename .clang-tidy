@@ -11,14 +11,29 @@
 # -clang-diagnostic-builtin-macro-redefined: Bazel redefines a lot of builtin
 # macros to set up a reproducible build.
 #
+# -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
+#
+# -google-explicit-constructor: TODO(robinlinden): Fix.
+#
+# -google-readability-braces-around-statements: Crashes clang-tidy-14/15.
+# Stack dump:
+# 0.      Program arguments: clang-tidy-15 -p=/home/robin/code/hastur -quiet /home/robin/code/hastur/dom2/character_data_test.cpp
+# 1.      <eof> parser at end of file
+# 2.      ASTMatcher: Processing 'google-readability-braces-around-statements' against:
+#         IfStmt : </usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:520:5, col:56>
+#
 # -misc-no-recursion: We use a lot of recursion.
 #
 # -misc-non-private-member-variables-in-classes: TODO(robinlinden): Fix.
 Checks: >
+  google-*,
   misc-*,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-diagnostic-builtin-macro-redefined,
+  -google-build-using-namespace,
+  -google-explicit-constructor,
+  -google-readability-braces-around-statements,
   -misc-no-recursion,
   -misc-non-private-member-variables-in-classes,
 

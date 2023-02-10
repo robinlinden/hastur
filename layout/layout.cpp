@@ -45,8 +45,9 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 
                 for (auto const &child : node.children) {
                     auto child_box = create_tree(child);
-                    if (!child_box)
+                    if (!child_box) {
                         continue;
+                    }
 
                     if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
                         if (!last_node_was_anonymous(box)) {
