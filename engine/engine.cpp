@@ -14,6 +14,7 @@
 #include <future>
 #include <iterator>
 #include <string_view>
+#include <tuple>
 #include <utility>
 
 using namespace std::literals;
@@ -70,7 +71,12 @@ void Engine::set_layout_width(int width) {
 }
 
 void Engine::on_navigation_success() {
-    dom_ = html::parse(response_.body);
+    std::tuple both = html::parse(response_.body);
+    dom_ = std::get<dom::Document>(both);
+    auto css = std::get<std::vector<html::ExtResource>>(both);
+    for (auto res : css) {
+        spdlog::error("Going to get my precious {}", uri::Uri::parse(res.href, uri_).uri);
+    }
     stylesheet_ = css::default_style();
 
     if (auto style = try_get_text_content(dom_, "/html/head/style"sv)) {

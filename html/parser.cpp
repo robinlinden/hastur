@@ -62,6 +62,23 @@ void Parser::operator()(html2::DoctypeToken const &doctype) {
     }
 }
 
+void Parser::consume_tag_link(html2::StartTagToken const &link) {
+    spdlog::warn("ext css name {}", link.tag_name);
+    ExtResource res{};
+    for (auto attr : link.attributes) {
+        if (attr.name == "rel" && attr.value == "stylesheet") {
+            res.type = "css";
+        }
+        if (attr.name == "href") {
+            res.href = attr.value;
+        }
+        spdlog::warn("start tag attr {} {}", attr.name, attr.value);
+    }
+    if (!res.type.empty() && !res.href.empty()) {
+        ext_resources_.push_back(std::move(res));
+    }
+}
+
 void Parser::operator()(html2::StartTagToken const &start_tag) {
     if (start_tag.tag_name == "html"sv) {
         doc_.html().name = start_tag.tag_name;
@@ -83,6 +100,10 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
     } else if (open_elements_.empty()) {
         spdlog::warn("Start tag [{}] encountered with no open elements", start_tag.tag_name);
         return;
+    }
+
+    if (start_tag.tag_name == "link") {
+        consume_tag_link(start_tag);
     }
 
     generate_text_node_if_needed();

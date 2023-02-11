@@ -11,7 +11,15 @@
 
 namespace html {
 
-dom::Document parse(std::string_view input);
+
+
+// I know this doesn't belong here, it was easier for this draft
+struct ExtResource {
+    std::string type;
+    std::string href;
+};
+
+std::tuple<dom::Document, std::vector<ExtResource>> parse(std::string_view input);
 
 } // namespace html
 

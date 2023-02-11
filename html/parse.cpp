@@ -8,7 +8,7 @@
 
 namespace html {
 
-dom::Document parse(std::string_view input) {
+std::tuple<dom::Document, std::vector<ExtResource>> parse(std::string_view input) {
     return Parser::parse_document(input);
 }
 
