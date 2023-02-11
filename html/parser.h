@@ -37,7 +37,7 @@ private:
     }
 
     void on_token(html2::Tokenizer &, html2::Token &&token);
-
+    void inject_html_tag();
     void generate_text_node_if_needed();
 
     html2::Tokenizer tokenizer_;

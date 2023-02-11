@@ -56,6 +56,12 @@ void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
     std::visit(*this, token);
 }
 
+void Parser::inject_html_tag() {
+    doc_.html().name = "html"s;
+    open_elements_.push(&doc_.html());
+    seen_html_tag_ = true;
+}
+
 void Parser::operator()(html2::DoctypeToken const &doctype) {
     if (doctype.name.has_value()) {
         doc_.doctype = *doctype.name;
@@ -77,9 +83,7 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
 
     if (open_elements_.empty() && !seen_html_tag_) {
         spdlog::warn("Start tag [{}] encountered before html element was opened", start_tag.tag_name);
-        doc_.html().name = "html"s;
-        open_elements_.push(&doc_.html());
-        seen_html_tag_ = true;
+        inject_html_tag();
     } else if (open_elements_.empty()) {
         spdlog::warn("Start tag [{}] encountered with no open elements", start_tag.tag_name);
         return;
@@ -133,6 +137,15 @@ void Parser::operator()(html2::CharacterToken const &character) {
 void Parser::operator()(html2::EndOfFileToken const &) {
     if (!open_elements_.empty()) {
         spdlog::warn("EOF reached with [{}] elements still open", open_elements_.size());
+    }
+
+    // TODO this is a hacky way of allowing rendering of raw text without a real
+    // html start tag. A better way to do this might be adding real content type
+    // support.
+    if (!seen_html_tag_ || open_elements_.empty()) {
+        inject_html_tag();
+        generate_text_node_if_needed();
+        open_elements_.pop();
     }
 }
 
