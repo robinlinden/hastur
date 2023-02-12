@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,6 +11,16 @@
 #include <utility>
 
 namespace style {
+namespace {
+bool has_class(dom::Element const &element, std::string_view needle_class) {
+    if (!element.attributes.contains("class")) {
+        return false;
+    }
+
+    auto classes = util::split(element.attributes.at("class"), " ");
+    return std::ranges::any_of(classes, [&](auto const &c) { return c == needle_class; });
+}
+} // namespace
 
 // TODO(robinlinden): This needs to match more things.
 bool is_match(dom::Element const &element, std::string_view selector_) {
@@ -49,9 +59,9 @@ bool is_match(dom::Element const &element, std::string_view selector_) {
         return true;
     }
 
-    if (selector.starts_with('.') && element.attributes.contains("class")) {
+    if (selector.starts_with('.')) {
         selector.remove_prefix(1);
-        return element.attributes.at("class") == selector;
+        return has_class(element, selector);
     }
 
     if (selector.starts_with('#') && element.attributes.contains("id")) {

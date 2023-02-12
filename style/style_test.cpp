@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -46,6 +46,8 @@ int main() {
         expect(!style::is_match(dom::Element{"div"}, ".myclass"sv));
         expect(!style::is_match(dom::Element{"div", {{"id", "myclass"}}}, ".myclass"sv));
         expect(style::is_match(dom::Element{"div", {{"class", "myclass"}}}, ".myclass"sv));
+        expect(style::is_match(dom::Element{"div", {{"class", "first second"}}}, ".first"sv));
+        expect(style::is_match(dom::Element{"div", {{"class", "first second"}}}, ".second"sv));
     });
 
     etest::test("is_match: id", [] {
