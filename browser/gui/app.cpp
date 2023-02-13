@@ -373,15 +373,17 @@ void App::on_page_loaded() {
 void App::on_layout_updated() {
     reset_scroll();
     nav_widget_extra_info_.clear();
-    layout_str_ = layout::to_string(engine_.layout());
+    auto const *layout = engine_.layout();
+    layout_str_ = layout != nullptr ? layout::to_string(*layout) : "";
 }
 
 std::vector<dom::Node const *> App::get_hovered_nodes(geom::Position p) const {
-    if (!page_loaded_) {
+    auto const *layout = engine_.layout();
+    if (!page_loaded_ || layout == nullptr) {
         return {};
     }
 
-    auto const *moused_over = layout::box_at_position(engine_.layout(), p);
+    auto const *moused_over = layout::box_at_position(*layout, p);
     if (moused_over == nullptr || moused_over->node == nullptr) {
         return {};
     }
@@ -400,12 +402,13 @@ void App::reset_scroll() {
 }
 
 void App::scroll(int pixels) {
-    if (!page_loaded_) {
+    auto const *layout = engine_.layout();
+    if (!page_loaded_ || layout == nullptr) {
         return;
     }
 
     // Don't allow scrolling if the entire page fits on the screen.
-    if (static_cast<int>(window_.getSize().y) > engine_.layout().dimensions.margin_box().height) {
+    if (static_cast<int>(window_.getSize().y) > layout->dimensions.margin_box().height) {
         return;
     }
 
@@ -416,8 +419,8 @@ void App::scroll(int pixels) {
 
     int current_bottom_visible_y = static_cast<int>(window_.getSize().y) - scroll_offset_y_;
     int scrolled_bottom_visible_y = current_bottom_visible_y - pixels;
-    if (scrolled_bottom_visible_y > engine_.layout().dimensions.margin_box().height) {
-        pixels -= engine_.layout().dimensions.margin_box().height - scrolled_bottom_visible_y;
+    if (scrolled_bottom_visible_y > layout->dimensions.margin_box().height) {
+        pixels -= layout->dimensions.margin_box().height - scrolled_bottom_visible_y;
     }
 
     canvas_->add_translation(0, pixels);
@@ -482,7 +485,8 @@ void App::clear_render_surface() {
         return;
     }
 
-    if (!page_loaded_) {
+    auto const *layout = engine_.layout();
+    if (!page_loaded_ || layout == nullptr) {
         window_.clear(sf::Color(255, 255, 255));
         return;
     }
@@ -491,18 +495,18 @@ void App::clear_render_surface() {
     // If html or body has a background set, use that as the canvas background.
     // TODO(robinlinden): This should be done in //render, but requires new
     //                    //gfx APIs that I want to think a bit about.
-    if (auto html_bg = engine_.layout().get_property<css::PropertyId::BackgroundColor>();
+    if (auto html_bg = layout->get_property<css::PropertyId::BackgroundColor>();
             html_bg != gfx::Color::from_css_name("transparent")) {
         window_.clear(sf::Color(html_bg->as_rgba_u32()));
         return;
     }
 
-    auto body = std::ranges::find_if(engine_.layout().children, [](layout::LayoutBox const &c) {
+    auto body = std::ranges::find_if(layout->children, [](layout::LayoutBox const &c) {
         return c.node && std::holds_alternative<dom::Element>(c.node->node)
                 && std::get<dom::Element>(c.node->node).name == "body";
     });
 
-    if (body == end(engine_.layout().children)) {
+    if (body == end(layout->children)) {
         window_.clear(sf::Color(255, 255, 255));
         return;
     }
@@ -517,11 +521,16 @@ void App::clear_render_surface() {
 }
 
 void App::render_layout() {
+    auto const *layout = engine_.layout();
+    if (layout == nullptr) {
+        return;
+    }
+
     gfx::Painter painter(*canvas_);
     if (render_debug_) {
-        render::debug::render_layout_depth(painter, engine_.layout());
+        render::debug::render_layout_depth(painter, *layout);
     } else {
-        render::render_layout(painter, engine_.layout());
+        render::render_layout(painter, *layout);
     }
 }
 

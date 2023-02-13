@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -38,6 +38,13 @@ int main(int argc, char **argv) {
 
     std::cout << dom::to_string(engine.dom());
     spdlog::info("Building TUI");
-    std::cout << tui::render(engine.layout()) << '\n';
+
+    auto const *layout = engine.layout();
+    if (layout == nullptr) {
+        spdlog::error("Unable to create a layout of {}", uri.uri);
+        return 1;
+    }
+
+    std::cout << tui::render(*layout) << '\n';
     spdlog::info("Done");
 }

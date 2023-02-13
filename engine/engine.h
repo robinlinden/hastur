@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -38,7 +38,7 @@ public:
     protocol::Response const &response() const { return response_; }
     dom::Document const &dom() const { return dom_; }
     std::vector<css::Rule> const &stylesheet() const { return stylesheet_; }
-    layout::LayoutBox const &layout() const { return *layout_; }
+    layout::LayoutBox const *layout() const { return layout_.has_value() ? &*layout_ : nullptr; }
 
 private:
     std::function<void(protocol::Error)> on_navigation_failure_{[](protocol::Error) {
