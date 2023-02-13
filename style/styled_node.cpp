@@ -229,9 +229,12 @@ std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std:
 } // namespace
 
 std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
-    auto it = std::ranges::find_if(properties, [=](auto const &p) { return p.first == property; });
+    // We don't support selector specificity yet, so the last property is found
+    // in order to allow website style to override the browser built-in style.
+    auto it = std::ranges::find_if(
+            rbegin(properties), rend(properties), [=](auto const &p) { return p.first == property; });
 
-    if (it == cend(properties)) {
+    if (it == rend(properties)) {
         if (is_inherited(property) && parent != nullptr) {
             return parent->get_raw_property(property);
         }
@@ -324,9 +327,10 @@ int StyledNode::get_font_size_property() const {
     auto get_closest_font_size_and_owner =
             [](StyledNode const *starting_node) -> std::optional<std::pair<std::string_view, StyledNode const *>> {
         for (auto const *n = starting_node; n != nullptr; n = n->parent) {
-            auto it = std::ranges::find_if(
-                    n->properties, [](auto const &v) { return v.first == css::PropertyId::FontSize; });
-            if (it != end(n->properties)) {
+            auto it = std::ranges::find_if(rbegin(n->properties), rend(n->properties), [](auto const &v) {
+                return v.first == css::PropertyId::FontSize;
+            });
+            if (it != rend(n->properties)) {
                 return {{it->second, n}};
             }
         }

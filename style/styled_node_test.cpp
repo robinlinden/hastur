@@ -241,5 +241,16 @@ int main() {
         expect_eq(dom::nodes_by_xpath(styled_node, "//div"), NodeVec{});
     });
 
+    etest::test("get_property, last property gets priority", [] {
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode styled_node{
+                .node = dom_node,
+                .properties = {{css::PropertyId::Display, "block"s}, {css::PropertyId::Display, "none"}},
+                .children = {},
+        };
+
+        expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::None);
+    });
+
     return etest::run_all_tests();
 }
