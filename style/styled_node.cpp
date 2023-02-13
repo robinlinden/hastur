@@ -292,7 +292,7 @@ DisplayValue StyledNode::get_display_property(css::PropertyId id) const {
     }
 
     spdlog::warn("Unhandled display value {} for property {}", raw, static_cast<int>(id));
-    return DisplayValue::None;
+    return DisplayValue::Block;
 }
 
 FontStyle StyledNode::get_font_style_property() const {

@@ -252,5 +252,16 @@ int main() {
         expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::None);
     });
 
+    etest::test("get_property, unhandled display value", [] {
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode styled_node{
+                .node = dom_node,
+                .properties = {{css::PropertyId::Display, "i cant believe this"s}},
+                .children = {},
+        };
+
+        expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
+    });
+
     return etest::run_all_tests();
 }
