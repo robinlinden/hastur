@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <ostream>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -85,6 +86,8 @@ int run_all_tests(RunOptions const &opts) noexcept {
             std::cout << "\u001b[31;1mFAILED\u001b[0m\n";
             std::cout << std::exchange(test_log, {}).str();
         }
+
+        std::cout << std::flush;
     }
 
     return assertion_failures > 0 ? 1 : 0;
