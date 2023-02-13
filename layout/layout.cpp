@@ -346,6 +346,10 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
 
 std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
+    if (!tree) {
+        return {};
+    }
+
     layout(*tree, {0, 0, width, 0});
     return *tree;
 }

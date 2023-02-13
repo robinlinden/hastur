@@ -1129,5 +1129,15 @@ int main() {
         expect(two_line_layout_height >= 2 * single_line_layout_height);
     });
 
+    etest::test("display:none on root node", [] {
+        dom::Node dom = dom::Element{.name{"html"}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "none"}},
+        };
+
+        expect_eq(layout::create_layout(style, 0), std::nullopt);
+    });
+
     return etest::run_all_tests();
 }
