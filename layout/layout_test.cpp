@@ -950,7 +950,7 @@ int main() {
                 "    block {0,0,50,25} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
-        expect_eq(to_string(layout::create_layout(style_root, 0)), expected);
+        expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);
     });
 
     // clang-format on
@@ -1020,9 +1020,9 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto medium_layout = layout::create_layout(style, 1000);
+        auto medium_layout = layout::create_layout(style, 1000).value();
         style.properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "xxx-large"}};
-        auto xxxlarge_layout = layout::create_layout(style, 1000);
+        auto xxxlarge_layout = layout::create_layout(style, 1000).value();
 
         auto get_text_width = [](layout::LayoutBox const &layout) {
             require_eq(layout.children.size(), std::size_t{1});
@@ -1078,7 +1078,7 @@ int main() {
         auto style_root =
                 style::StyledNode{.node = dom_root, .properties = {{css::PropertyId::Color, "green"}}, .children{}};
 
-        auto layout = layout::create_layout(style_root, 0);
+        auto layout = layout::create_layout(style_root, 0).value();
         expect_eq(layout.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("green"));
         expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
     });
@@ -1099,7 +1099,7 @@ int main() {
                         {css::PropertyId::BorderLeftWidth, "thin"}},
         };
 
-        auto layout = layout::create_layout(style, 0);
+        auto layout = layout::create_layout(style, 0).value();
         expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
     });
 
@@ -1118,12 +1118,12 @@ int main() {
             return layout.children[0].children[0].dimensions.content.height;
         };
 
-        auto single_line_layout = layout::create_layout(style, 1000);
+        auto single_line_layout = layout::create_layout(style, 1000).value();
         auto single_line_layout_height = get_text_height(single_line_layout);
         require(single_line_layout_height > 0);
 
         std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nbye"s;
-        auto two_line_layout = layout::create_layout(style, 1000);
+        auto two_line_layout = layout::create_layout(style, 1000).value();
         auto two_line_layout_height = get_text_height(two_line_layout);
 
         expect(two_line_layout_height >= 2 * single_line_layout_height);

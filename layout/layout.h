@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -42,7 +42,7 @@ struct LayoutBox {
     }
 };
 
-LayoutBox create_layout(style::StyledNode const &node, int width);
+std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width);
 
 LayoutBox const *box_at_position(LayoutBox const &, geom::Position);
 
