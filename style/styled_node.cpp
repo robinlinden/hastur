@@ -281,8 +281,8 @@ gfx::Color StyledNode::get_color_property(css::PropertyId property) const {
     return parse_color(color_text);
 }
 
-DisplayValue StyledNode::get_display_property(css::PropertyId id) const {
-    auto raw = get_raw_property(id);
+DisplayValue StyledNode::get_display_property() const {
+    auto raw = get_raw_property(css::PropertyId::Display);
     if (raw == "none") {
         return DisplayValue::None;
     } else if (raw == "inline") {
@@ -291,7 +291,7 @@ DisplayValue StyledNode::get_display_property(css::PropertyId id) const {
         return DisplayValue::Block;
     }
 
-    spdlog::warn("Unhandled display value {} for property {}", raw, static_cast<int>(id));
+    spdlog::warn("Unhandled display value '{}'", raw);
     return DisplayValue::Block;
 }
 

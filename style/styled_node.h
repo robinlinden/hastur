@@ -49,7 +49,7 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::Color) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
-            return get_display_property(T);
+            return get_display_property();
         } else if constexpr (T == css::PropertyId::FontFamily) {
             auto raw_font_family = get_raw_property(T);
             auto families = util::split(raw_font_family, ",");
@@ -66,7 +66,7 @@ struct StyledNode {
 
 private:
     gfx::Color get_color_property(css::PropertyId) const;
-    DisplayValue get_display_property(css::PropertyId) const;
+    DisplayValue get_display_property() const;
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;
 };
