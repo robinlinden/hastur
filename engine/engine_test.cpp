@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -96,6 +96,30 @@ int main() {
 
         e.set_layout_width(100);
         expect(success);
+    });
+
+    etest::test("css in <head><style> takes priority over browser built-in css", [] {
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{
+                .err = protocol::Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html></html>"},
+        })};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        // Our default CSS gives <html> the property display: block.
+        require(e.layout());
+        expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
+
+        e = engine::Engine{std::make_unique<FakeProtocolHandler>(protocol::Response{
+                .err = protocol::Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head><style>html { display: inline; }</style></head></html>"},
+        })};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+
+        // The CSS declared in the page should have a higher priority and give
+        // <html> the property display: inline.
+        require(e.layout());
+        expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
     });
 
     return etest::run_all_tests();
