@@ -83,14 +83,12 @@ http_archive(
     url = "https://github.com/freetype/freetype/archive/VER-2-12-1.tar.gz",
 )
 
-# 094d8d9d0a3cd19a7258a13d21ccb6acca60b858 contains a workaround for a Clang
-# compiler crash that was affecting us on Windows w/ clang-cl.
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "2fbc119e30d0e236badf6136ac1b672284a861174cad10a7d336487148f08c0d",
-    strip_prefix = "FTXUI-094d8d9d0a3cd19a7258a13d21ccb6acca60b858",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/094d8d9d0a3cd19a7258a13d21ccb6acca60b858.tar.gz",
+    sha256 = "7276e4117429ebf8e34ea371c3ea4e66eb99e0f234cb4c5c85fca17174a53dfa",
+    strip_prefix = "FTXUI-4.0.0",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v4.0.0.tar.gz",
 )
 
 http_archive(
@@ -104,9 +102,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "e110beffda505e6954feb7b13541d35a7c12a176b9723290c853684713df6a67",
-    strip_prefix = "imgui-1.89.2",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.2.tar.gz",
+    sha256 = "3b665fadd5580b7ef494d5d8bb1c12b2ec53ee723034caf43332956381f5d631",
+    strip_prefix = "imgui-1.89.3",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.3.tar.gz",
 )
 
 http_archive(
