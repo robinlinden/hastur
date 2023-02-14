@@ -34,6 +34,7 @@ Checks: >
   bugprone-*,
   google-*,
   misc-*,
+  readability-identifier-naming,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,
@@ -48,3 +49,44 @@ Checks: >
 WarningsAsErrors: "*"
 
 HeaderFilterRegex: "\\./(browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|img|js|layout|net|os|protocol|render|style|tui|uri|url|util)/"
+
+CheckOptions:
+  # readability-identifier-naming
+  # Classes, structs, ...
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+
+  # Variables, member variables, ...
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberSuffix
+    value: _
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _
+
+  # Functions, methods, ...
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
+
+  # Constants
+  # TODO(robinlinden): Fix.
+  - key: readability-identifier-naming.ConstantCase
+    value: aNy_CasE
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
