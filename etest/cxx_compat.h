@@ -17,6 +17,8 @@ using source_location = std::source_location;
 
 #include <cstdint>
 namespace etest {
+// https://en.cppreference.com/w/cpp/utility/source_location
+// NOLINTNEXTLINE(readability-identifier-naming)
 struct source_location {
     static constexpr source_location current() noexcept { return source_location{}; }
     constexpr std::uint_least32_t line() const noexcept { return 0; }

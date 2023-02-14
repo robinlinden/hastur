@@ -23,9 +23,9 @@ bool has_class(dom::Element const &element, std::string_view needle_class) {
 } // namespace
 
 // TODO(robinlinden): This needs to match more things.
-bool is_match(dom::Element const &element, std::string_view selector_) {
+bool is_match(dom::Element const &element, std::string_view selector) {
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
-    auto [selector, psuedo_class] = util::split_once(selector_, ":");
+    auto [selector_, psuedo_class] = util::split_once(selector, ":");
 
     if (!psuedo_class.empty()) {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/:any-link
@@ -41,7 +41,7 @@ bool is_match(dom::Element const &element, std::string_view selector_) {
                 return false;
             }
 
-            if (selector.empty()) {
+            if (selector_.empty()) {
                 return true;
             }
         } else {
@@ -51,22 +51,22 @@ bool is_match(dom::Element const &element, std::string_view selector_) {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Universal_selectors
-    if (selector == "*") {
+    if (selector_ == "*") {
         return true;
     }
 
-    if (element.name == selector) {
+    if (element.name == selector_) {
         return true;
     }
 
-    if (selector.starts_with('.')) {
-        selector.remove_prefix(1);
-        return has_class(element, selector);
+    if (selector_.starts_with('.')) {
+        selector_.remove_prefix(1);
+        return has_class(element, selector_);
     }
 
-    if (selector.starts_with('#') && element.attributes.contains("id")) {
-        selector.remove_prefix(1);
-        return element.attributes.at("id") == selector;
+    if (selector_.starts_with('#') && element.attributes.contains("id")) {
+        selector_.remove_prefix(1);
+        return element.attributes.at("id") == selector_;
     }
 
     return false;

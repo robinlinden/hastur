@@ -156,15 +156,15 @@ void App::set_scale(unsigned scale) {
     scale_ = scale;
     ImGui::GetIO().FontGlobalScale = static_cast<float>(scale_);
     canvas_->set_scale(scale_);
-    auto windowSize = window_.getSize();
+    auto window_size = window_.getSize();
 
     // Only resize the window if the user hasn't resized it.
-    if (windowSize.x == kDefaultResolutionX && windowSize.y == kDefaultResolutionY) {
+    if (window_size.x == kDefaultResolutionX && window_size.y == kDefaultResolutionY) {
         window_.setSize({kDefaultResolutionX * scale_, kDefaultResolutionY * scale_});
         canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
     }
 
-    engine_.set_layout_width(windowSize.x / scale_);
+    engine_.set_layout_width(window_size.x / scale_);
 }
 
 int App::run() {

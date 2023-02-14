@@ -23,7 +23,7 @@ void OpenGLCanvas::set_viewport_size(int width, int height) {
 }
 
 void OpenGLCanvas::fill_rect(geom::Rect const &rect, Color color) {
-    auto translated{rect.translated(translation_x, translation_y)};
+    auto translated{rect.translated(translation_x_, translation_y_)};
     auto scaled{translated.scaled(scale_)};
     glColor4ub(color.r, color.g, color.b, color.a);
     glRecti(scaled.x, scaled.y, scaled.x + scaled.width, scaled.y + scaled.height);

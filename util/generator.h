@@ -17,6 +17,8 @@ namespace util {
 template<std::movable T>
 class Generator {
 public:
+    // https://en.cppreference.com/w/cpp/coroutine/coroutine_traits
+    // NOLINTNEXTLINE(readability-identifier-naming)
     struct promise_type {
         std::optional<T> maybe_value;
 

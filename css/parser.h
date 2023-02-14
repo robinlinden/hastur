@@ -144,46 +144,46 @@ private:
             std::size_t pos = 0, loc = 0;
             while ((loc = str.find(delimiter, pos)) != std::string_view::npos) {
                 if (auto substr = str.substr(pos, loc - pos); !substr.empty()) {
-                    tokens.push_back(substr);
+                    tokens_.push_back(substr);
                 }
                 pos = loc + 1;
             }
             if (pos < str.size()) {
-                tokens.push_back(str.substr(pos));
+                tokens_.push_back(str.substr(pos));
             }
-            token_iter = cbegin(tokens);
+            token_iter_ = cbegin(tokens_);
         }
 
         std::optional<std::string_view> get() const {
             if (empty()) {
                 return std::nullopt;
             } else {
-                return *token_iter;
+                return *token_iter_;
             }
         }
 
         std::optional<std::string_view> peek() const {
-            if (empty() || ((token_iter + 1) == cend(tokens))) {
+            if (empty() || ((token_iter_ + 1) == cend(tokens_))) {
                 return std::nullopt;
             } else {
-                return *(token_iter + 1);
+                return *(token_iter_ + 1);
             }
         }
 
         Tokenizer &next() {
             if (!empty()) {
-                ++token_iter;
+                ++token_iter_;
             }
             return *this;
         }
 
-        bool empty() const { return token_iter == cend(tokens); }
+        bool empty() const { return token_iter_ == cend(tokens_); }
 
-        std::size_t size() const { return tokens.size(); }
+        std::size_t size() const { return tokens_.size(); }
 
     private:
-        std::vector<std::string_view> tokens;
-        std::vector<std::string_view>::const_iterator token_iter;
+        std::vector<std::string_view> tokens_;
+        std::vector<std::string_view>::const_iterator token_iter_;
     };
 
     constexpr void skip_if_neq(char c) {

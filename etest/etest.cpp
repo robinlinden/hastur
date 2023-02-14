@@ -34,7 +34,7 @@ Registry &registry() {
     return test_registry;
 }
 
-struct test_failure : public std::exception {};
+struct TestFailure : public std::exception {};
 
 std::stringstream test_log{};
 
@@ -70,7 +70,7 @@ int run_all_tests(RunOptions const &opts) noexcept {
 
         try {
             test.body();
-        } catch (test_failure const &) {
+        } catch (TestFailure const &) {
             ++assertion_failures;
         } catch (std::exception const &e) {
             ++assertion_failures;
@@ -131,7 +131,7 @@ void require(bool b, std::optional<std::string_view> log_message, etest::source_
         test_log << *log_message << "\n\n";
     }
 
-    throw test_failure{};
+    throw TestFailure{};
 }
 
 } // namespace etest

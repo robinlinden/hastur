@@ -17,8 +17,8 @@ public:
     constexpr void set_scale(int scale) override { scale_ = scale; }
 
     constexpr void add_translation(int dx, int dy) override {
-        translation_x += dx;
-        translation_y += dy;
+        translation_x_ += dx;
+        translation_y_ += dy;
     }
 
     void fill_rect(geom::Rect const &, Color) override;
@@ -27,8 +27,8 @@ public:
     void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) override {}
 
 private:
-    int translation_x{};
-    int translation_y{};
+    int translation_x_{};
+    int translation_y_{};
     int scale_{1};
 };
 
