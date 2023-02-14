@@ -1279,7 +1279,7 @@ void Tokenizer::run() {
             case State::Doctype: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-doctype parse error.
+                    emit(ParseError::EofInDoctype);
                     emit(DoctypeToken{.force_quirks = true});
                     emit(EndOfFileToken{});
                     return;
@@ -1292,15 +1292,20 @@ void Tokenizer::run() {
                     case ' ':
                         state_ = State::BeforeDoctypeName;
                         continue;
+                    case '>':
+                        reconsume_in(State::BeforeDoctypeName);
+                        continue;
                     default:
-                        std::terminate();
+                        emit(ParseError::MissingWhitespaceBeforeDoctypeName);
+                        reconsume_in(State::BeforeDoctypeName);
+                        continue;
                 }
             }
 
             case State::BeforeDoctypeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-doctype parse error.
+                    emit(ParseError::EofInDoctype);
                     emit(DoctypeToken{.force_quirks = true});
                     emit(EndOfFileToken{});
                     return;
@@ -1326,7 +1331,7 @@ void Tokenizer::run() {
                         state_ = State::DoctypeName;
                         continue;
                     case '>':
-                        // This is a missing-doctype-name parse error.
+                        emit(ParseError::MissingDoctypeName);
                         current_token_ = DoctypeToken{.force_quirks = true};
                         state_ = State::Data;
                         emit(std::move(current_token_));
@@ -1342,7 +1347,7 @@ void Tokenizer::run() {
             case State::DoctypeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-doctype parse error.
+                    emit(ParseError::EofInDoctype);
                     std::get<DoctypeToken>(current_token_).force_quirks = true;
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});

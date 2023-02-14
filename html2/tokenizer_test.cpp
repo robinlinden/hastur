@@ -1024,5 +1024,40 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("doctype, eof", [] {
+        auto tokens = run_tokenizer("<!doctype"sv);
+        expect_error(tokens, ParseError::EofInDoctype);
+        expect_token(tokens, DoctypeToken{.force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype, missing doctype name", [] {
+        auto tokens = run_tokenizer("<!doctype>"sv);
+        expect_error(tokens, ParseError::MissingDoctypeName);
+        expect_token(tokens, DoctypeToken{.force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype, missing whitespace before doctype name", [] {
+        auto tokens = run_tokenizer("<!doctypelol>"sv);
+        expect_error(tokens, ParseError::MissingWhitespaceBeforeDoctypeName);
+        expect_token(tokens, DoctypeToken{.name = "lol"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("before doctype name, eof", [] {
+        auto tokens = run_tokenizer("<!doctype "sv);
+        expect_error(tokens, ParseError::EofInDoctype);
+        expect_token(tokens, DoctypeToken{.force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("doctype name, eof", [] {
+        auto tokens = run_tokenizer("<!doctype hi"sv);
+        expect_error(tokens, ParseError::EofInDoctype);
+        expect_token(tokens, DoctypeToken{.name = "hi", .force_quirks = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     return etest::run_all_tests();
 }
