@@ -15,6 +15,95 @@ using namespace std::literals;
 
 using etest::expect_eq;
 
+namespace {
+
+void export_section_tests() {
+    etest::test("export section, non-existent", [] {
+        auto module = wasm::Module{};
+        expect_eq(module.export_section(), std::nullopt);
+    });
+
+    etest::test("export section, missing export count", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Export,
+                .content{},
+        }}};
+
+        expect_eq(module.export_section(), std::nullopt);
+    });
+
+    etest::test("export section, missing export after count", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Export,
+                .content{1},
+        }}};
+
+        expect_eq(module.export_section(), std::nullopt);
+    });
+
+    etest::test("export section, empty", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Export,
+                .content{0},
+        }}};
+
+        expect_eq(module.export_section(), wasm::ExportSection{});
+    });
+
+    etest::test("export section, one", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Export,
+                .content{1, 2, 'h', 'i', static_cast<std::uint8_t>(wasm::Export::Type::Function), 5},
+        }}};
+
+        expect_eq(module.export_section(),
+                wasm::ExportSection{.exports{wasm::Export{"hi", wasm::Export::Type::Function, 5}}});
+    });
+
+    etest::test("export section, two", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Export,
+                .content{
+                        2,
+                        2,
+                        'h',
+                        'i',
+                        static_cast<std::uint8_t>(wasm::Export::Type::Function),
+                        5,
+                        3,
+                        'l',
+                        'o',
+                        'l',
+                        static_cast<std::uint8_t>(wasm::Export::Type::Global),
+                        2,
+                },
+        }}};
+
+        expect_eq(module.export_section(),
+                wasm::ExportSection{.exports{
+                        wasm::Export{"hi", wasm::Export::Type::Function, 5},
+                        wasm::Export{"lol", wasm::Export::Type::Global, 2},
+                }});
+    });
+
+    etest::test("export section, missing name", [] {
+        auto module = wasm::Module{.sections{wasm::Section{.id = wasm::SectionId::Export, .content{1, 2}}}};
+        expect_eq(module.export_section(), std::nullopt);
+    });
+
+    etest::test("export section, missing type", [] {
+        auto module = wasm::Module{.sections{wasm::Section{.id = wasm::SectionId::Export, .content{1, 1, 'a'}}}};
+        expect_eq(module.export_section(), std::nullopt);
+    });
+
+    etest::test("export section, missing index", [] {
+        auto module = wasm::Module{.sections{wasm::Section{.id = wasm::SectionId::Export, .content{1, 1, 'a', 1}}}};
+        expect_eq(module.export_section(), std::nullopt);
+    });
+}
+
+} // namespace
+
 int main() {
     etest::test("invalid magic", [] {
         auto wasm_bytes = std::stringstream{"hello"};
@@ -82,6 +171,8 @@ int main() {
                         },
                 });
     });
+
+    export_section_tests();
 
     return etest::run_all_tests();
 }

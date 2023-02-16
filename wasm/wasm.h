@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace wasm {
@@ -36,12 +37,32 @@ struct Section {
     [[nodiscard]] bool operator==(Section const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/bikeshed/#binary-export
+struct Export {
+    enum class Type { Function, Table, Memory, Global };
+
+    std::string name{};
+    Type type{};
+    std::uint32_t index{};
+
+    [[nodiscard]] bool operator==(Export const &) const = default;
+};
+
+// https://webassembly.github.io/spec/core/bikeshed/#export-section
+struct ExportSection {
+    std::vector<Export> exports{};
+
+    [[nodiscard]] bool operator==(ExportSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/bikeshed/#modules
 struct Module {
     static std::optional<Module> parse_from(std::istream &&is) { return parse_from(is); }
     static std::optional<Module> parse_from(std::istream &);
 
     std::vector<Section> sections{};
+
+    std::optional<ExportSection> export_section() const;
 
     [[nodiscard]] bool operator==(Module const &) const = default;
 };

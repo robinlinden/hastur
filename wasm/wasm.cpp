@@ -6,9 +6,11 @@
 
 #include "wasm/leb128.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <istream>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -18,8 +20,72 @@ using namespace std::literals;
 
 namespace wasm {
 namespace {
+
 constexpr int kMagicSize = 4;
 constexpr int kVersionSize = 4;
+
+template<typename T>
+std::optional<T> parse(std::istream &) = delete;
+
+// https://webassembly.github.io/spec/core/bikeshed/#export-section
+template<>
+std::optional<Export> parse(std::istream &is) {
+    // https://webassembly.github.io/spec/core/bikeshed/#binary-utf8
+    auto name_length = Uleb128::decode_from(is);
+    if (!name_length) {
+        return std::nullopt;
+    }
+    std::string name;
+    name.reserve(*name_length);
+    for (std::uint32_t i = 0; i < *name_length; ++i) {
+        // TODO(robinlinden): Handle non-ascii.
+        char c{};
+        if (!is.read(reinterpret_cast<char *>(&c), sizeof(c)) || c > 0x79) {
+            return std::nullopt;
+        }
+
+        name += c;
+    }
+
+    std::uint8_t type{};
+    if (!is.read(reinterpret_cast<char *>(&type), sizeof(type)) || type > 0x03) {
+        return std::nullopt;
+    }
+
+    auto index = Uleb128::decode_from(is);
+    if (!index) {
+        return std::nullopt;
+    }
+
+    return Export{
+            .name = std::move(name),
+            .type = static_cast<Export::Type>(type),
+            .index = *index,
+    };
+}
+
+// https://webassembly.github.io/spec/core/bikeshed/#binary-vec
+template<typename T>
+std::optional<std::vector<T>> parse_vector(std::istream &&is) {
+    auto item_count = Uleb128::decode_from(is);
+    if (!item_count) {
+        return std::nullopt;
+    }
+
+    std::vector<T> items;
+    items.reserve(*item_count);
+    for (std::uint32_t i = 0; i < *item_count; ++i) {
+        auto item = parse<T>(is);
+        if (!item) {
+            return std::nullopt;
+        }
+
+        items.push_back(std::move(item).value());
+    }
+
+    return items;
+}
+
 } // namespace
 
 std::optional<Module> Module::parse_from(std::istream &is) {
@@ -70,6 +136,22 @@ std::optional<Module> Module::parse_from(std::istream &is) {
     }
 
     return module;
+}
+
+std::optional<ExportSection> Module::export_section() const {
+    auto export_section_bytes =
+            std::ranges::find_if(sections, [](auto const &section) { return section.id == SectionId::Export; });
+    if (export_section_bytes == end(sections)) {
+        return std::nullopt;
+    }
+
+    auto content = std::string{
+            reinterpret_cast<char const *>(export_section_bytes->content.data()), export_section_bytes->content.size()};
+    if (auto maybe_exports = parse_vector<Export>(std::stringstream{std::move(content)})) {
+        return ExportSection{.exports = std::move(maybe_exports).value()};
+    }
+
+    return std::nullopt;
 }
 
 } // namespace wasm
