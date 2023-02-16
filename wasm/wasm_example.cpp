@@ -28,4 +28,11 @@ int main(int argc, char **argv) {
     for (auto const &section : module->sections) {
         std::cout << static_cast<int>(section.id) << ": " << section.content.size() << '\n';
     }
+
+    if (auto const &export_section = module->export_section()) {
+        std::cout << '\n';
+        for (auto const &e : export_section->exports) {
+            std::cout << e.name << ": " << static_cast<int>(e.type) << ':' << e.index << '\n';
+        }
+    }
 }
