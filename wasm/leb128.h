@@ -14,7 +14,7 @@ namespace wasm {
 
 // https://en.wikipedia.org/wiki/LEB128#Decode_unsigned_integer
 // https://webassembly.github.io/spec/core/bikeshed/#binary-int
-struct Uleb128 {
+struct Leb128 {
     static std::optional<std::uint32_t> decode_from(std::istream &&is) { return decode_from(is); }
     static std::optional<std::uint32_t> decode_from(std::istream &is) {
         std::uint32_t result{};

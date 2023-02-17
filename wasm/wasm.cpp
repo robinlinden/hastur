@@ -31,7 +31,7 @@ std::optional<T> parse(std::istream &) = delete;
 template<>
 std::optional<Export> parse(std::istream &is) {
     // https://webassembly.github.io/spec/core/bikeshed/#binary-utf8
-    auto name_length = Uleb128::decode_from(is);
+    auto name_length = Leb128::decode_from(is);
     if (!name_length) {
         return std::nullopt;
     }
@@ -52,7 +52,7 @@ std::optional<Export> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    auto index = Uleb128::decode_from(is);
+    auto index = Leb128::decode_from(is);
     if (!index) {
         return std::nullopt;
     }
@@ -67,7 +67,7 @@ std::optional<Export> parse(std::istream &is) {
 // https://webassembly.github.io/spec/core/bikeshed/#binary-vec
 template<typename T>
 std::optional<std::vector<T>> parse_vector(std::istream &&is) {
-    auto item_count = Uleb128::decode_from(is);
+    auto item_count = Leb128::decode_from(is);
     if (!item_count) {
         return std::nullopt;
     }
@@ -120,7 +120,7 @@ std::optional<Module> Module::parse_from(std::istream &is) {
             return std::nullopt;
         }
 
-        auto size = Uleb128::decode_from(is);
+        auto size = Leb128::decode_from(is);
         if (!size) {
             return std::nullopt;
         }
