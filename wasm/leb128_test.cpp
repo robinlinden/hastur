@@ -27,24 +27,44 @@ void expect_decode_failure(std::string bytes, etest::source_location loc = etest
 
 int main() {
     etest::test("decode unsigned", [] {
+        expect_decoded<std::uint32_t>("\x80\x7f", 16256);
+
+        // Missing termination.
+        expect_decode_failure<std::uint32_t>("\x80");
+        // Too many bytes with no termination.
+        expect_decode_failure<std::uint32_t>("\x80\x80\x80\x80\x80\x80");
+
+        // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L119-L142
         expect_decoded<std::uint32_t>("\0"s, 0);
         expect_decoded<std::uint32_t>("\1", 1);
         expect_decoded<std::uint32_t>("\x3f", 63);
         expect_decoded<std::uint32_t>("\x40", 64);
         expect_decoded<std::uint32_t>("\x7f", 0x7f);
         expect_decoded<std::uint32_t>("\x80\x01", 0x80);
-        expect_decoded<std::uint32_t>("\x80\x02", 0x100);
-        expect_decoded<std::uint32_t>("\x80\x7f", 16256);
         expect_decoded<std::uint32_t>("\x81\x01", 0x81);
-        expect_decoded<std::uint32_t>("\x81\x02", 0x101);
         expect_decoded<std::uint32_t>("\x90\x01", 0x90);
         expect_decoded<std::uint32_t>("\xff\x01", 0xff);
+        expect_decoded<std::uint32_t>("\x80\x02", 0x100);
+        expect_decoded<std::uint32_t>("\x81\x02", 0x101);
         expect_decoded<std::uint64_t>("\x80\xc1\x80\x80\x10", 4294975616);
 
-        // Missing termination.
-        expect_decode_failure<std::uint32_t>("\x80");
-        // Too many bytes with no termination.
-        expect_decode_failure<std::uint32_t>("\x80\x80\x80\x80\x80\x80");
+        expect_decoded<std::uint64_t>("\x80\x00"s, 0u);
+        expect_decoded<std::uint64_t>("\x80\x80\x00"s, 0u);
+        expect_decoded<std::uint64_t>("\xff\x00"s, 0x7fu);
+        expect_decoded<std::uint64_t>("\xff\x80\x00"s, 0x7fu);
+        expect_decoded<std::uint64_t>("\x80\x81\x00"s, 0x80u);
+        expect_decoded<std::uint64_t>("\x80\x81\x80\x00"s, 0x80u);
+        expect_decoded<std::uint64_t>("\x80\x81\x80\x80\x80\x80\x80\x80\x80\x00"s, 0x80u);
+        expect_decoded<std::uint64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01", 0x80000000'00000000ul);
+
+        // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L160-L166
+        // Buffer overflow.
+        expect_decode_failure<std::uint64_t>("");
+        expect_decode_failure<std::uint64_t>("\x80");
+
+        // Does not fit in 64 bits.
+        expect_decode_failure<std::uint64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02");
+        expect_decode_failure<std::uint64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02");
     });
 
     etest::test("trailing zeros", [] {
