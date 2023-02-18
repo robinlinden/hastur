@@ -86,6 +86,15 @@ std::optional<std::vector<T>> parse_vector(std::istream &&is) {
     return items;
 }
 
+std::optional<std::string> get_section_data(std::vector<Section> const &sections, SectionId id) {
+    auto section = std::ranges::find_if(sections, [&](auto const &s) { return s.id == id; });
+    if (section == end(sections)) {
+        return std::nullopt;
+    }
+
+    return std::string{reinterpret_cast<char const *>(section->content.data()), section->content.size()};
+}
+
 } // namespace
 
 std::optional<Module> Module::parse_from(std::istream &is) {
@@ -139,15 +148,12 @@ std::optional<Module> Module::parse_from(std::istream &is) {
 }
 
 std::optional<ExportSection> Module::export_section() const {
-    auto export_section_bytes =
-            std::ranges::find_if(sections, [](auto const &section) { return section.id == SectionId::Export; });
-    if (export_section_bytes == end(sections)) {
+    auto content = get_section_data(sections, SectionId::Export);
+    if (!content) {
         return std::nullopt;
     }
 
-    auto content = std::string{
-            reinterpret_cast<char const *>(export_section_bytes->content.data()), export_section_bytes->content.size()};
-    if (auto maybe_exports = parse_vector<Export>(std::stringstream{std::move(content)})) {
+    if (auto maybe_exports = parse_vector<Export>(std::stringstream{*std::move(content)})) {
         return ExportSection{.exports = std::move(maybe_exports).value()};
     }
 
