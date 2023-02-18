@@ -47,5 +47,39 @@ int main() {
         expect_decode_failure<std::uint32_t>("\x80\x80\x80\x80\x80\x80");
     });
 
+    etest::test("trailing zeros", [] {
+        // From https://webassembly.github.io/spec/core/bikeshed/#binary-int
+
+        // The side conditions N>7 in the productions for non-terminal bytes of
+        // the u and s encodings restrict the encoding's length. However,
+        // "trailing zeros" are still allowed within these bounds
+
+        // For example, 0x03 and 0x83 0x00 are both well-formed encodings for
+        // the value 3 as a u8.
+        expect_decoded<std::uint8_t>("\x03", 3);
+        expect_decoded<std::uint8_t>("\x83\x00"s, 3);
+
+        // Similarly, either of 0x7e and 0xFE 0x7F and 0xFE 0xFF 0x7F are
+        // well-formed encodings of the value -2 as a s16.
+        // expect_decoded<std::int16_t>("\x7e", -2);
+        // expect_decoded<std::int16_t>("\xfe\x7f", -2);
+        // expect_decoded<std::int16_t>("\xfe\xff\x7f", -2);
+    });
+
+    etest::test("unused bits in terminal byte", [] {
+        // From https://webassembly.github.io/spec/core/bikeshed/#binary-int
+
+        // The side conditions on the value n of terminal bytes further enforce
+        // that any unused bits in these bytes must be 0 for positive values and
+        // 1 for negative ones.
+
+        // For example, 0x83 0x10 is malformed as a u8 encoding.
+        expect_decode_failure<std::uint8_t>("\x83\x10");
+
+        // Similarly, both 0x83 0x3E and 0xFF 0x7B are malformed as s8 encodings
+        // expect_decode_failure<std::int8_t>("\x83\x3e");
+        // expect_decode_failure<std::int8_t>("\xff\x7b");
+    });
+
     return etest::run_all_tests();
 }
