@@ -6,6 +6,7 @@
 
 #include "etest/etest.h"
 
+#include <limits>
 #include <sstream>
 #include <string>
 
@@ -81,9 +82,9 @@ int main() {
 
         // Similarly, either of 0x7e and 0xFE 0x7F and 0xFE 0xFF 0x7F are
         // well-formed encodings of the value -2 as a s16.
-        // expect_decoded<std::int16_t>("\x7e", -2);
-        // expect_decoded<std::int16_t>("\xfe\x7f", -2);
-        // expect_decoded<std::int16_t>("\xfe\xff\x7f", -2);
+        expect_decoded<std::int16_t>("\x7e", -2);
+        expect_decoded<std::int16_t>("\xfe\x7f", -2);
+        expect_decoded<std::int16_t>("\xfe\xff\x7f", -2);
     });
 
     etest::test("unused bits in terminal byte", [] {
@@ -97,8 +98,53 @@ int main() {
         expect_decode_failure<std::uint8_t>("\x83\x10");
 
         // Similarly, both 0x83 0x3E and 0xFF 0x7B are malformed as s8 encodings
-        // expect_decode_failure<std::int8_t>("\x83\x3e");
-        // expect_decode_failure<std::int8_t>("\xff\x7b");
+        expect_decode_failure<std::int8_t>("\x83\x3e");
+        expect_decode_failure<std::int8_t>("\xff\x7b");
+    });
+
+    etest::test("decode signed", [&] {
+        static constexpr auto kInt64Min = std::numeric_limits<std::int64_t>::min();
+        static constexpr auto kInt64Max = std::numeric_limits<std::int64_t>::max();
+
+        expect_decoded<std::int32_t>("\xc0\xbb\x78", -123456);
+
+        // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L184-L211
+        expect_decoded<std::int8_t>("\0"s, 0);
+        expect_decoded<std::int8_t>("\x01", 1);
+        expect_decoded<std::int8_t>("\x3f", 63);
+        expect_decoded<std::int8_t>("\x40", -64);
+        expect_decoded<std::int8_t>("\x41", -63);
+        expect_decoded<std::int8_t>("\x7f", -1);
+        expect_decoded<std::int16_t>("\x80\x01", 128);
+        expect_decoded<std::int16_t>("\x81\x01", 129);
+        expect_decoded<std::int16_t>("\xff\x7e", -129);
+        expect_decoded<std::int16_t>("\x80\x7f", -128);
+        expect_decoded<std::int16_t>("\x81\x7f", -127);
+        expect_decoded<std::int16_t>("\xc0\x00"s, 64);
+        expect_decoded<std::int16_t>("\xc7\x9f\x7f", -12345);
+
+        expect_decoded<std::int64_t>("\x80\x00"s, 0L);
+        expect_decoded<std::int64_t>("\x80\x80\x00"s, 0L);
+        expect_decoded<std::int64_t>("\xff\x00"s, 0x7fL);
+        expect_decoded<std::int64_t>("\xff\x80\x00"s, 0x7fL);
+        expect_decoded<std::int64_t>("\x80\x81\x00"s, 0x80L);
+        expect_decoded<std::int64_t>("\x80\x81\x80\x00"s, 0x80L);
+        expect_decoded<std::int64_t>("\x80\x81\x80\x80\x80\x80\x80\x80\x80\x00"s, 0x80L);
+        expect_decoded<std::int64_t>("\xfe\xff\xff\xff\xff\xff\xff\xff\xff\x7f", -2L);
+        expect_decoded<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x7f", kInt64Min);
+        expect_decoded<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"s, kInt64Max);
+
+        // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L229-L240
+        expect_decode_failure<std::int8_t>("");
+        expect_decode_failure<std::int8_t>("\x80");
+
+        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01");
+        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x7e");
+        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02");
+        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e");
+        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01");
+        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e");
+        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"s);
     });
 
     return etest::run_all_tests();
