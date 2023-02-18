@@ -66,7 +66,7 @@ std::optional<Export> parse(std::istream &is) {
 
 // https://webassembly.github.io/spec/core/bikeshed/#binary-vec
 template<typename T>
-std::optional<std::vector<T>> parse_vector(std::istream &&is) {
+std::optional<std::vector<T>> parse_vector(std::istream &is) {
     auto item_count = Leb128<std::uint32_t>::decode_from(is);
     if (!item_count) {
         return std::nullopt;
@@ -84,6 +84,11 @@ std::optional<std::vector<T>> parse_vector(std::istream &&is) {
     }
 
     return items;
+}
+
+template<typename T>
+std::optional<std::vector<T>> parse_vector(std::istream &&is) {
+    return parse_vector<T>(is);
 }
 
 std::optional<std::string> get_section_data(std::vector<Section> const &sections, SectionId id) {
