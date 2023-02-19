@@ -170,6 +170,8 @@ std::shared_ptr<dom2::Element> TreeConstructor::create_element_for_token(
 std::shared_ptr<dom2::Element> TreeConstructor::create_element([[maybe_unused]] dom2::Document const &document,
         std::string local_name,
         [[maybe_unused]] std::string_view ns,
+        // Maybe not needed once we've implemented this.
+        // NOLINTNEXTLINE(bugprone-easily-swappable-parameters):
         [[maybe_unused]] std::optional<std::string_view> prefix,
         [[maybe_unused]] std::optional<std::string_view> is_value,
         [[maybe_unused]] bool synchronous_custom_elements) const {

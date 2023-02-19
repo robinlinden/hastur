@@ -41,6 +41,10 @@ struct StyledNode {
 
     template<css::PropertyId T>
     auto get_property() const {
+        // Some of these branches have the same content, but we still want to
+        // keep related properties grouped together and away from unrelated
+        // ones, e.g. all border-<side>-color properties in the same branch.
+        // NOLINTNEXTLINE(bugprone-branch-clone)
         if constexpr (T == css::PropertyId::BackgroundColor) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::BorderBottomColor || T == css::PropertyId::BorderLeftColor

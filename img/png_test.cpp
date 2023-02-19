@@ -24,7 +24,8 @@ int main() {
         auto expected_pixels = [] {
             std::array<unsigned char, 3> pixel_pattern{181, 208, 208};
             std::vector<unsigned char> expected;
-            expected.resize(256 * 256 * 3);
+            static constexpr auto kPixelCount = std::size_t{256} * 256 * 3;
+            expected.resize(kPixelCount);
 
             for (std::size_t i = 0; i < expected.size(); ++i) {
                 expected[i] = pixel_pattern[i % pixel_pattern.size()];

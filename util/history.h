@@ -63,7 +63,7 @@ public:
     }
 
     constexpr std::optional<T> next() const {
-        if (auto next_index = static_cast<std::size_t>(current_index_ + 1); next_index < entries_.size()) {
+        if (auto next_index = static_cast<std::size_t>(current_index_) + 1; next_index < entries_.size()) {
             return entries_[next_index];
         }
 
