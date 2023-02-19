@@ -74,7 +74,7 @@ constexpr char lowercased(char c) {
 }
 
 [[nodiscard]] inline std::string lowercased(std::string s) {
-    std::ranges::transform(std::move(s), begin(s), [](char c) { return lowercased(c); });
+    std::ranges::for_each(s, [](char &c) { c = lowercased(c); });
     return s;
 }
 
