@@ -102,6 +102,108 @@ void export_section_tests() {
     });
 }
 
+void type_section_tests() {
+    etest::test("type section, non-existent", [] {
+        auto module = wasm::Module{};
+        expect_eq(module.type_section(), std::nullopt);
+    });
+
+    etest::test("type section, missing type data", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{},
+        }}};
+
+        expect_eq(module.type_section(), std::nullopt);
+    });
+
+    etest::test("type section, empty", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{0},
+        }}};
+
+        expect_eq(module.type_section(), wasm::TypeSection{});
+    });
+
+    etest::test("type section, missing type after count", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1},
+        }}};
+
+        expect_eq(module.type_section(), std::nullopt);
+    });
+
+    etest::test("type section, bad magic in function type", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1, 0x59},
+        }}};
+
+        expect_eq(module.type_section(), std::nullopt);
+    });
+
+    etest::test("type section, one type with no parameters and no results", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1, 0x60, 0, 0},
+        }}};
+
+        expect_eq(module.type_section(),
+                wasm::TypeSection{
+                        .types{wasm::FunctionType{}},
+                });
+    });
+
+    etest::test("type section, eof in parameter parsing", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1, 0x60, 1},
+        }}};
+
+        expect_eq(module.type_section(), std::nullopt);
+    });
+
+    etest::test("type section, eof in result parsing", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1, 0x60, 0, 1},
+        }}};
+
+        expect_eq(module.type_section(), std::nullopt);
+    });
+
+    etest::test("type section, two types", [] {
+        auto const i32_byte = static_cast<std::uint8_t>(wasm::ValueType::Int32);
+        auto const f64_byte = static_cast<std::uint8_t>(wasm::ValueType::Float64);
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{2, 0x60, 0, 1, i32_byte, 0x60, 2, i32_byte, i32_byte, 1, f64_byte},
+        }}};
+
+        expect_eq(module.type_section(),
+                wasm::TypeSection{
+                        .types{
+                                wasm::FunctionType{.results{wasm::ValueType::Int32}},
+                                wasm::FunctionType{
+                                        .parameters{wasm::ValueType::Int32, wasm::ValueType::Int32},
+                                        .results{wasm::ValueType::Float64},
+                                },
+                        },
+                });
+    });
+
+    etest::test("type section, invalid value type", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1, 0x60, 0, 1, 0x10},
+        }}};
+
+        expect_eq(module.type_section(), std::nullopt);
+    });
+}
+
 } // namespace
 
 int main() {
@@ -172,6 +274,7 @@ int main() {
                 });
     });
 
+    type_section_tests();
     export_section_tests();
 
     return etest::run_all_tests();

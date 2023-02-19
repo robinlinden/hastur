@@ -25,7 +25,59 @@ constexpr int kMagicSize = 4;
 constexpr int kVersionSize = 4;
 
 template<typename T>
+std::optional<std::vector<T>> parse_vector(std::istream &);
+template<typename T>
+std::optional<std::vector<T>> parse_vector(std::istream &&);
+
+template<typename T>
 std::optional<T> parse(std::istream &) = delete;
+
+template<>
+std::optional<ValueType> parse(std::istream &is) {
+    std::uint8_t byte{};
+    if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
+        return std::nullopt;
+    }
+
+    // Cute hack to make sure that the byte we read is one of the valid enum values.
+    auto type = static_cast<ValueType>(byte);
+    switch (type) {
+        case ValueType::Int32:
+        case ValueType::Int64:
+        case ValueType::Float32:
+        case ValueType::Float64:
+        case ValueType::Vector128:
+        case ValueType::FunctionReference:
+        case ValueType::ExternReference:
+            return type;
+        default:
+            return std::nullopt;
+    }
+}
+
+// https://webassembly.github.io/spec/core/binary/types.html#function-types
+template<>
+std::optional<FunctionType> parse(std::istream &is) {
+    std::uint8_t magic{};
+    if (!is.read(reinterpret_cast<char *>(&magic), sizeof(magic)) || magic != 0x60) {
+        return std::nullopt;
+    }
+
+    auto parameters = parse_vector<ValueType>(is);
+    if (!parameters) {
+        return std::nullopt;
+    }
+
+    auto results = parse_vector<ValueType>(is);
+    if (!results) {
+        return std::nullopt;
+    }
+
+    return FunctionType{
+            .parameters = *std::move(parameters),
+            .results = *std::move(results),
+    };
+}
 
 // https://webassembly.github.io/spec/core/bikeshed/#export-section
 template<>
@@ -150,6 +202,19 @@ std::optional<Module> Module::parse_from(std::istream &is) {
     }
 
     return module;
+}
+
+std::optional<TypeSection> Module::type_section() const {
+    auto content = get_section_data(sections, SectionId::Type);
+    if (!content) {
+        return std::nullopt;
+    }
+
+    if (auto maybe_types = parse_vector<FunctionType>(std::stringstream{*std::move(content)})) {
+        return TypeSection{.types = *std::move(maybe_types)};
+    }
+
+    return std::nullopt;
 }
 
 std::optional<ExportSection> Module::export_section() const {

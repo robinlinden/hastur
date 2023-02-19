@@ -37,6 +37,40 @@ struct Section {
     [[nodiscard]] bool operator==(Section const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/types.html#types
+enum class ValueType : std::uint8_t {
+    // https://webassembly.github.io/spec/core/binary/types.html#number-types
+    Int32 = 0x7f,
+    Int64 = 0x7e,
+    Float32 = 0x7d,
+    Float64 = 0x7c,
+
+    // https://webassembly.github.io/spec/core/binary/types.html#vector-types
+    Vector128 = 0x7b,
+
+    // https://webassembly.github.io/spec/core/binary/types.html#reference-types
+    FunctionReference = 0x70,
+    ExternReference = 0x6f,
+};
+
+// https://webassembly.github.io/spec/core/binary/types.html#result-types
+using ResultType = std::vector<ValueType>;
+
+// https://webassembly.github.io/spec/core/binary/types.html#function-types
+struct FunctionType {
+    ResultType parameters;
+    ResultType results;
+
+    [[nodiscard]] bool operator==(FunctionType const &) const = default;
+};
+
+// https://webassembly.github.io/spec/core/binary/modules.html#type-section
+struct TypeSection {
+    std::vector<FunctionType> types;
+
+    [[nodiscard]] bool operator==(TypeSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/bikeshed/#binary-export
 struct Export {
     enum class Type { Function, Table, Memory, Global };
@@ -62,6 +96,7 @@ struct Module {
 
     std::vector<Section> sections{};
 
+    std::optional<TypeSection> type_section() const;
     std::optional<ExportSection> export_section() const;
 
     [[nodiscard]] bool operator==(Module const &) const = default;
