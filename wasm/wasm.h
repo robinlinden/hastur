@@ -73,7 +73,7 @@ struct TypeSection {
 
 // https://webassembly.github.io/spec/core/bikeshed/#binary-export
 struct Export {
-    enum class Type { Function, Table, Memory, Global };
+    enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
 
     std::string name{};
     Type type{};
