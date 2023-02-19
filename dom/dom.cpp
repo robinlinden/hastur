@@ -15,7 +15,7 @@ namespace dom {
 namespace {
 
 void print_node(dom::Node const &node, std::ostream &os, uint8_t depth = 0) {
-    for (int8_t i = 0; i < depth; ++i) {
+    for (std::uint8_t i = 0; i < depth; ++i) {
         os << "  ";
     }
     std::visit(util::Overloaded{

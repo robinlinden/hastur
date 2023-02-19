@@ -324,13 +324,13 @@ std::string to_str(geom::EdgeSize const &edge) {
 }
 
 void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
-    for (int8_t i = 0; i < depth; ++i) {
+    for (std::uint8_t i = 0; i < depth; ++i) {
         os << "  ";
     }
 
     if (box.node != nullptr) {
         os << to_str(box.node->node) << '\n';
-        for (int8_t i = 0; i < depth; ++i) {
+        for (std::uint8_t i = 0; i < depth; ++i) {
             os << "  ";
         }
     }
