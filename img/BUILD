@@ -1,11 +1,14 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "img",
     srcs = glob(
         include = ["*.cpp"],
-        exclude = ["*_test.cpp"],
+        exclude = [
+            "*_example.cpp",
+            "*_test.cpp",
+        ],
     ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
@@ -40,3 +43,14 @@ extra_srcs = {
         "//etest",
     ],
 ) for src in glob(["*_test.cpp"])]
+
+cc_binary(
+    name = "img_example",
+    srcs = ["img_example.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":img",
+        "@sfml//:graphics",
+        "@sfml//:window",
+    ],
+)
