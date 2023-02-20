@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -1043,6 +1043,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
             case State::MarkupDeclarationOpen:
                 if (input_.substr(pos_, 2) == "--") {
                     pos_ += 2;
@@ -1056,7 +1057,7 @@ void Tokenizer::run() {
                     state_ = State::Doctype;
                     continue;
                 }
-                break;
+                std::terminate();
 
             case State::CommentStart: {
                 auto c = consume_next_input_character();
