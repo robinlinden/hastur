@@ -50,6 +50,49 @@ constexpr auto kImmediatelyPopped = std::to_array({"area"sv,
         "track"sv,
         "wbr"sv});
 
+constexpr std::array kAllowsParagraphEndTagOmission{
+        "address"sv,
+        "article"sv,
+        "aside"sv,
+        "blockquote"sv,
+        "details"sv,
+        "div"sv,
+        "dl"sv,
+        "fieldset"sv,
+        "figcaption"sv,
+        "figure"sv,
+        "footer"sv,
+        "form"sv,
+        "h1"sv,
+        "h2"sv,
+        "h3"sv,
+        "h4"sv,
+        "h5"sv,
+        "h6"sv,
+        "header"sv,
+        "hgroup"sv,
+        "hr"sv,
+        "main"sv,
+        "menu"sv,
+        "nav"sv,
+        "ol"sv,
+        "p"sv,
+        "pre"sv,
+        "section"sv,
+        "table"sv,
+        "ul"sv,
+};
+
+constexpr std::array kDisallowsParagraphEndTagOmissionWhenClosed{
+        "a"sv,
+        "audio"sv,
+        "del"sv,
+        "ins"sv,
+        "map"sv,
+        "noscript"sv,
+        "video"sv,
+};
+
 } // namespace
 
 void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
@@ -87,6 +130,11 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
 
     generate_text_node_if_needed();
 
+    // https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
+    if (open_elements_.top()->name == "p" && is_in_array<kAllowsParagraphEndTagOmission>(start_tag.tag_name)) {
+        open_elements_.pop();
+    }
+
     auto &new_element = open_elements_.top()->children.emplace_back(
             dom::Element{start_tag.tag_name, into_dom_attributes(start_tag.attributes), {}});
 
@@ -112,6 +160,13 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
     }
 
     generate_text_node_if_needed();
+
+    // https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
+    // TODO(robinlinden): or if the parent element is an autonomous custom element.
+    if (open_elements_.top()->name == "p" && end_tag.tag_name != "p"
+            && !is_in_array<kDisallowsParagraphEndTagOmissionWhenClosed>(end_tag.tag_name)) {
+        open_elements_.pop();
+    }
 
     auto const &expected_tag = open_elements_.top()->name;
     if (end_tag.tag_name != expected_tag) {

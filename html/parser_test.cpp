@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -184,6 +184,25 @@ int main() {
 
         auto const &script_content = std::get<dom::Text>(script.children[0]);
         expect_eq(script_content.text, "<hello>"sv);
+    });
+
+    etest::test("special rules, p end tag omission", [] {
+        auto html = html::parse("<html><p>hello<p>world</html>"sv).html();
+        require_eq(html.children.size(), std::size_t{2});
+
+        auto const &p1 = std::get<dom::Element>(html.children[0]);
+        expect_eq(p1.name, "p");
+
+        require_eq(p1.children.size(), std::size_t{1});
+        auto const &p1_text = std::get<dom::Text>(p1.children[0]);
+        expect_eq(p1_text, dom::Text{"hello"});
+
+        auto const &p2 = std::get<dom::Element>(html.children[1]);
+        expect_eq(p2.name, "p");
+
+        require_eq(p2.children.size(), std::size_t{1});
+        auto const &p2_text = std::get<dom::Text>(p2.children[0]);
+        expect_eq(p2_text, dom::Text{"world"});
     });
 
     return etest::run_all_tests();
