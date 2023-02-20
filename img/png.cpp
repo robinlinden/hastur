@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -64,6 +64,7 @@ std::optional<Png> Png::from(std::istream &is) {
     png_read_info(png, info);
 
     png_set_expand(png);
+    png_set_add_alpha(png, 0xff, PNG_FILLER_AFTER);
 
     png_read_update_info(png, info);
 

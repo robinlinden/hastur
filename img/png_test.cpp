@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -22,9 +22,9 @@ std::string const png_bytes(reinterpret_cast<char const *>(img_tiny_png), img_ti
 int main() {
     etest::test("it works", [] {
         auto expected_pixels = [] {
-            std::array<unsigned char, 3> pixel_pattern{181, 208, 208};
+            std::array<unsigned char, 4> pixel_pattern{181, 208, 208, 0xff};
             std::vector<unsigned char> expected;
-            static constexpr auto kPixelCount = std::size_t{256} * 256 * 3;
+            static constexpr auto kPixelCount = std::size_t{256} * 256 * 4;
             expected.resize(kPixelCount);
 
             for (std::size_t i = 0; i < expected.size(); ++i) {
