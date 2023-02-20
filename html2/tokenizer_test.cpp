@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -488,6 +488,13 @@ int main() {
     etest::test("comment, simple", [] {
         auto tokens = run_tokenizer("<!-- Hello -->");
         expect_token(tokens, CommentToken{.data = " Hello "});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("comment, bogus open", [] {
+        auto tokens = run_tokenizer("<!Hello");
+        expect_error(tokens, ParseError::IncorrectlyOpenedComment);
+        expect_token(tokens, CommentToken{.data = "Hello"});
         expect_token(tokens, EndOfFileToken{});
     });
 

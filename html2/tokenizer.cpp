@@ -1057,7 +1057,15 @@ void Tokenizer::run() {
                     state_ = State::Doctype;
                     continue;
                 }
-                std::terminate();
+
+                if (input_.substr(pos_, std::strlen("[CDATA[")) == "[CDATA["sv) {
+                    std::terminate();
+                }
+
+                emit(ParseError::IncorrectlyOpenedComment);
+                current_token_ = CommentToken{};
+                state_ = State::BogusComment;
+                continue;
 
             case State::CommentStart: {
                 auto c = consume_next_input_character();
