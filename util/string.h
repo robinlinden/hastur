@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
 //
@@ -7,13 +7,13 @@
 #ifndef UTIL_STRING_H_
 #define UTIL_STRING_H_
 
-#include <fmt/core.h>
-
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <ios>
 #include <iterator>
 #include <span>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -144,7 +144,7 @@ inline std::string ipv4_serialize(std::uint32_t addr) {
 // To-Do(zero-one): specify constexpr when we drop gcc-11 support
 // https://url.spec.whatwg.org/#concept-ipv6-serializer
 inline std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
-    std::string out = "";
+    std::stringstream out;
 
     std::size_t compress = 0;
 
@@ -176,9 +176,9 @@ inline std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
 
         if (longest_run > 1 && compress == i) {
             if (i == 0) {
-                out += "::";
+                out << "::";
             } else {
-                out += ":";
+                out << ":";
             }
 
             ignore0 = true;
@@ -186,14 +186,14 @@ inline std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
             continue;
         }
 
-        out += fmt::format("{:x}", addr[i]);
+        out << std::hex << addr[i];
 
         if (i != 7) {
-            out += ":";
+            out << ":";
         }
     }
 
-    return out;
+    return std::move(out).str();
 }
 
 } // namespace util
