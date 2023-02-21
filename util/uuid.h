@@ -1,18 +1,22 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef UTIL_UUID_H_
 #define UTIL_UUID_H_
 
+#include <iomanip>
+#include <ios>
 #include <random>
-
-#include <fmt/core.h>
+#include <sstream>
+#include <utility>
 
 namespace util {
 inline std::string new_uuid() {
     unsigned char data[16];
-    std::string uuid_string;
+    std::stringstream uuid_string;
+    uuid_string << std::setfill('0');
 
     std::random_device rando;
 
@@ -30,13 +34,13 @@ inline std::string new_uuid() {
 
     for (size_t i = 0; i < 16; i++) {
         if (i == 4 || i == 6 || i == 8 || i == 10) {
-            uuid_string += '-';
+            uuid_string << '-';
         }
 
-        uuid_string += fmt::format("{:02x}", data[i]);
+        uuid_string << std::setw(2) << std::hex << +data[i];
     }
 
-    return uuid_string;
+    return std::move(uuid_string).str();
 }
 
 } // namespace util
