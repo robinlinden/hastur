@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,13 +10,12 @@
 #include <fmt/format.h>
 
 #include <cerrno>
-#include <cstdlib>
 #include <cstring>
-#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <random>
 #include <utility>
 
 namespace fs = std::filesystem;
@@ -61,9 +60,6 @@ private:
 } // namespace
 
 int main() {
-    // We use std::rand() to generate suffixes for tmp-files.
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
-
     etest::test("uri pointing to non-existent file", [] {
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse("file:///this/file/does/definitely/not/exist.hastur"));
@@ -79,8 +75,8 @@ int main() {
     });
 
     etest::test("uri pointing to a regular file", [] {
-        auto tmp_dst =
-                fs::temp_directory_path() / fmt::format("hastur-uri-pointing-to-a-regular-file-test.{}", std::rand());
+        std::random_device rng;
+        auto tmp_dst = fs::temp_directory_path() / fmt::format("hastur-uri-pointing-to-a-regular-file-test.{}", rng());
 
         auto tmp_file = TmpFile::create(std::move(tmp_dst));
         require(tmp_file.has_value());
