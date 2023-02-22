@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -93,10 +94,12 @@ std::string Socket::read_bytes(std::size_t bytes) {
 }
 
 struct SecureSocket::Impl : public BaseSocketImpl {
+    // TODO(robinlinden): Better error propagation.
     bool connect(std::string_view host, std::string_view service) {
         if (BaseSocketImpl::connect(resolver, socket.next_layer(), host, service)) {
-            socket.handshake(asio::ssl::stream_base::handshake_type::client);
-            return true;
+            asio::error_code ec;
+            socket.handshake(asio::ssl::stream_base::handshake_type::client, ec);
+            return !ec;
         }
         return false;
     }
