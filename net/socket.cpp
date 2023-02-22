@@ -7,7 +7,9 @@
 
 #include <asio.hpp>
 #include <asio/ssl.hpp>
+#include <openssl/ssl.h>
 
+#include <string>
 #include <utility>
 
 namespace net {
@@ -98,6 +100,9 @@ struct SecureSocket::Impl : public BaseSocketImpl {
     bool connect(std::string_view host, std::string_view service) {
         if (BaseSocketImpl::connect(resolver, socket.next_layer(), host, service)) {
             asio::error_code ec;
+            // Set SNI hostname. Many hosts reject the handshake if this isn't done.
+            std::string null_terminated_host{host};
+            SSL_set_tlsext_host_name(socket.native_handle(), null_terminated_host.c_str());
             socket.handshake(asio::ssl::stream_base::handshake_type::client, ec);
             return !ec;
         }

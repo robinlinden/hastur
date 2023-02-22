@@ -16,5 +16,8 @@ cc_library(
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
-    deps = ["@asio"],
+    deps = [
+        "@asio",
+        "@boringssl//:ssl",
+    ],
 )
