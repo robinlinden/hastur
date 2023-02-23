@@ -102,6 +102,45 @@ void export_section_tests() {
     });
 }
 
+void function_section_tests() {
+    etest::test("function section, non-existent", [] {
+        auto module = wasm::Module{};
+        expect_eq(module.function_section(), std::nullopt);
+    });
+
+    etest::test("function section, missing data", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Function,
+                .content{},
+        }}};
+        expect_eq(module.function_section(), std::nullopt);
+    });
+
+    etest::test("function section, empty", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Function,
+                .content{0},
+        }}};
+        expect_eq(module.function_section(), wasm::FunctionSection{});
+    });
+
+    etest::test("function section, missing type indices after count", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Function,
+                .content{1},
+        }}};
+        expect_eq(module.function_section(), std::nullopt);
+    });
+
+    etest::test("function section, good one", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Function,
+                .content{2, 9, 13},
+        }}};
+        expect_eq(module.function_section(), wasm::FunctionSection{.type_indices{9, 13}});
+    });
+}
+
 void type_section_tests() {
     etest::test("type section, non-existent", [] {
         auto module = wasm::Module{};
@@ -275,6 +314,7 @@ int main() {
     });
 
     type_section_tests();
+    function_section_tests();
     export_section_tests();
 
     return etest::run_all_tests();

@@ -13,6 +13,9 @@
 
 namespace wasm {
 
+// https://webassembly.github.io/spec/core/binary/modules.html#indices
+using TypeIdx = std::uint32_t;
+
 // https://webassembly.github.io/spec/core/bikeshed/#sections
 enum class SectionId {
     Custom = 0,
@@ -71,6 +74,13 @@ struct TypeSection {
     [[nodiscard]] bool operator==(TypeSection const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/modules.html#function-section
+struct FunctionSection {
+    std::vector<TypeIdx> type_indices;
+
+    [[nodiscard]] bool operator==(FunctionSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/bikeshed/#binary-export
 struct Export {
     enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
@@ -97,6 +107,7 @@ struct Module {
     std::vector<Section> sections{};
 
     std::optional<TypeSection> type_section() const;
+    std::optional<FunctionSection> function_section() const;
     std::optional<ExportSection> export_section() const;
 
     [[nodiscard]] bool operator==(Module const &) const = default;

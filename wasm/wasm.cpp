@@ -33,6 +33,11 @@ template<typename T>
 std::optional<T> parse(std::istream &) = delete;
 
 template<>
+std::optional<std::uint32_t> parse(std::istream &is) {
+    return Leb128<std::uint32_t>::decode_from(is);
+}
+
+template<>
 std::optional<ValueType> parse(std::istream &is) {
     std::uint8_t byte{};
     if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
@@ -212,6 +217,19 @@ std::optional<TypeSection> Module::type_section() const {
 
     if (auto maybe_types = parse_vector<FunctionType>(std::stringstream{*std::move(content)})) {
         return TypeSection{.types = *std::move(maybe_types)};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<FunctionSection> Module::function_section() const {
+    auto content = get_section_data(sections, SectionId::Function);
+    if (!content) {
+        return std::nullopt;
+    }
+
+    if (auto maybe_type_indices = parse_vector<TypeIdx>(std::stringstream{*std::move(content)})) {
+        return FunctionSection{.type_indices = *std::move(maybe_type_indices)};
     }
 
     return std::nullopt;
