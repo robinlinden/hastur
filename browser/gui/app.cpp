@@ -503,17 +503,13 @@ void App::clear_render_surface() {
         return;
     }
 
-    auto body = std::ranges::find_if(layout->children, [](layout::LayoutBox const &c) {
-        return c.node && std::holds_alternative<dom::Element>(c.node->node)
-                && std::get<dom::Element>(c.node->node).name == "body";
-    });
-
-    if (body == end(layout->children)) {
+    auto body = dom::nodes_by_xpath(*layout, "/html/body");
+    if (body.empty()) {
         window_.clear(sf::Color(255, 255, 255));
         return;
     }
 
-    if (auto body_bg = body->get_property<css::PropertyId::BackgroundColor>();
+    if (auto body_bg = body[0]->get_property<css::PropertyId::BackgroundColor>();
             body_bg != gfx::Color::from_css_name("transparent")) {
         window_.clear(sf::Color(body_bg->as_rgba_u32()));
         return;
