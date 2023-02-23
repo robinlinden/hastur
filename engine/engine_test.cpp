@@ -149,5 +149,38 @@ int main() {
         expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
     });
 
+    etest::test("stylesheet link, unsupported Content-Encoding", [] {
+        protocol::Headers css_response_headers;
+        css_response_headers.add({"Content-Encoding", "really-borked-content-type"});
+
+        std::map<std::string, Response> responses{
+                {
+                        "hax://example.com"s,
+                        Response{
+                                .err = Error::Ok,
+                                .status_line = {.status_code = 200},
+                                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
+                        },
+                },
+                {
+                        "hax://example.com/lol.css"s,
+                        Response{
+                                .err = Error::Ok,
+                                .status_line = {.status_code = 200},
+                                .headers{std::move(css_response_headers)},
+                                .body{"p { font-size: 123em; }"},
+                        },
+                },
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect(std::ranges::find(e.stylesheet(),
+                       css::Rule{
+                               .selectors{"p"},
+                               .declarations{{css::PropertyId::FontSize, "123em"}},
+                       })
+                == end(e.stylesheet()));
+    });
+
     return etest::run_all_tests();
 }

@@ -111,6 +111,11 @@ void Engine::on_navigation_success() {
                 return {};
             }
 
+            if (auto encoding = style_data.headers.get("Content-Encoding")) {
+                spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url.uri);
+                return {};
+            }
+
             return css::parse(style_data.body);
         }));
     }
