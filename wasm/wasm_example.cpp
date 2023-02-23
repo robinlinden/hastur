@@ -60,6 +60,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (module->sections.empty()) {
+        std::cout << "No sections in module\n";
+        return 0;
+    }
+
     for (auto const &section : module->sections) {
         std::cout << static_cast<int>(section.id) << ": " << section.content.size() << '\n';
     }
