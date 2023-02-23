@@ -90,6 +90,13 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (auto const &function_section = module->function_section()) {
+        std::cout << "\n# Function idx -> type idx\n";
+        for (std::size_t i = 0; i < function_section->type_indices.size(); ++i) {
+            std::cout << i << " -> " << function_section->type_indices[i] << '\n';
+        }
+    }
+
     if (auto const &export_section = module->export_section()) {
         std::cout << "\n# Exports\n";
         for (auto const &e : export_section->exports) {
