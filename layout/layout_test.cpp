@@ -1139,5 +1139,40 @@ int main() {
         expect_eq(layout::create_layout(style, 0), std::nullopt);
     });
 
+    etest::test("xpath", [] {
+        dom::Node html_node = dom::Element{"html"s};
+        dom::Node div_node = dom::Element{"div"s};
+        dom::Node p_node = dom::Element{"p"s};
+        dom::Node text_node = dom::Text{"hello!"s};
+        style::StyledNode styled_node{
+                .node = html_node,
+                .properties{{css::PropertyId::Display, "block"}},
+                .children{
+                        style::StyledNode{.node = div_node, .properties{{css::PropertyId::Display, "block"}}},
+                        style::StyledNode{.node = text_node},
+                        style::StyledNode{.node = div_node,
+                                .children{
+                                        style::StyledNode{.node = p_node},
+                                        style::StyledNode{.node = text_node},
+                                }},
+                },
+        };
+        auto layout = layout::create_layout(styled_node, 123).value();
+
+        // Verify that we have a shady anon-box to deal with in here.
+        expect_eq(layout.children.size(), std::size_t{2});
+        expect_eq(layout.children.at(1).type, LayoutType::AnonymousBlock);
+
+        auto const &anon_block = layout.children.at(1);
+
+        using NodeVec = std::vector<layout::LayoutBox const *>;
+        expect_eq(dom::nodes_by_xpath(layout, "/html"), NodeVec{&layout});
+        expect_eq(dom::nodes_by_xpath(layout, "/html/div"), NodeVec{&layout.children[0], &anon_block.children[1]});
+        expect_eq(dom::nodes_by_xpath(layout, "/html/div/"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(layout, "/html/div/p"), NodeVec{&anon_block.children[1].children[0]});
+        expect_eq(dom::nodes_by_xpath(layout, "/htm/div"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(layout, "//div"), NodeVec{});
+    });
+
     return etest::run_all_tests();
 }

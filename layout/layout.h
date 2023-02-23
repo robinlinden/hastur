@@ -11,9 +11,11 @@
 #include "geom/geom.h"
 #include "style/styled_node.h"
 
+#include <cassert>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace layout {
@@ -47,6 +49,37 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width)
 LayoutBox const *box_at_position(LayoutBox const &, geom::Position);
 
 std::string to_string(LayoutBox const &box);
+
+inline std::string_view dom_name(LayoutBox const &node) {
+    assert(node.node);
+    return std::get<dom::Element>(node.node->node).name;
+}
+
+inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
+    assert(node.node);
+    std::vector<LayoutBox const *> children{};
+    for (auto const &child : node.children) {
+        if (child.type == LayoutType::AnonymousBlock) {
+            for (auto const &inline_child : child.children) {
+                assert(inline_child.node);
+                if (!std::holds_alternative<dom::Element>(inline_child.node->node)) {
+                    continue;
+                }
+
+                children.push_back(&inline_child);
+            }
+            continue;
+        }
+
+        assert(child.node);
+        if (!std::holds_alternative<dom::Element>(child.node->node)) {
+            continue;
+        }
+
+        children.push_back(&child);
+    }
+    return children;
+}
 
 } // namespace layout
 
