@@ -9,42 +9,54 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
+#include <map>
+#include <string>
 #include <utility>
 
 using namespace std::literals;
 using etest::expect;
 using etest::expect_eq;
 using etest::require;
+using protocol::Error;
+using protocol::Response;
 
 namespace {
 
 class FakeProtocolHandler final : public protocol::IProtocolHandler {
 public:
-    explicit FakeProtocolHandler(protocol::Response response) : response_{std::move(response)} {}
-    [[nodiscard]] protocol::Response handle(uri::Uri const &) override { return response_; }
+    explicit FakeProtocolHandler(std::map<std::string, Response> responses) : responses_{std::move(responses)} {}
+    [[nodiscard]] Response handle(uri::Uri const &uri) override { return responses_.at(uri.uri); }
 
 private:
-    protocol::Response response_;
+    std::map<std::string, Response> responses_;
 };
 
 } // namespace
 
 int main() {
     etest::test("no handlers set", [] {
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
+                std::pair{"hax://example.com"s, Response{.err = Error::Unresolved}},
+        })};
         e.navigate(uri::Uri::parse("hax://example.com"));
 
-        e = engine::Engine{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
+        e = engine::Engine{std::make_unique<FakeProtocolHandler>(std::map{
+                std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
+        })};
         e.navigate(uri::Uri::parse("hax://example.com"));
         e.set_layout_width(10);
     });
 
     etest::test("css in <head><style>", [] {
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{
-                .err = protocol::Error::Ok,
-                .status_line = {.status_code = 200},
-                .body{"<html><head><style>p { font-size: 123em; }</style></head></html>"},
-        })};
+        std::map<std::string, Response> responses{{
+                "hax://example.com"s,
+                Response{
+                        .err = Error::Ok,
+                        .status_line = {.status_code = 200},
+                        .body{"<html><head><style>p { font-size: 123em; }</style></head></html>"},
+                },
+        }};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
         expect_eq(e.stylesheet().back(),
                 css::Rule{
@@ -55,8 +67,10 @@ int main() {
 
     etest::test("navigation failure", [] {
         bool success{false};
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Unresolved})};
-        e.set_on_navigation_failure([&](protocol::Error err) { success = err != protocol::Error::Ok; });
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
+                std::pair{"hax://example.com"s, Response{.err = Error::Unresolved}},
+        })};
+        e.set_on_navigation_failure([&](Error err) { success = err != Error::Ok; });
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
 
@@ -66,8 +80,10 @@ int main() {
 
     etest::test("page load", [] {
         bool success{false};
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
-        e.set_on_navigation_failure([&](protocol::Error) { require(false); });
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
+                std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
+        })};
+        e.set_on_navigation_failure([&](Error) { require(false); });
         e.set_on_page_loaded([&] { success = true; });
         e.set_on_layout_updated([] { require(false); });
 
@@ -76,8 +92,10 @@ int main() {
     });
 
     etest::test("layout update", [] {
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{.err = protocol::Error::Ok})};
-        e.set_on_navigation_failure([&](protocol::Error) { require(false); });
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
+                std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
+        })};
+        e.set_on_navigation_failure([&](Error) { require(false); });
         e.set_on_page_loaded([] { require(false); });
         e.set_on_layout_updated([] { require(false); });
 
@@ -99,21 +117,30 @@ int main() {
     });
 
     etest::test("css in <head><style> takes priority over browser built-in css", [] {
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(protocol::Response{
-                .err = protocol::Error::Ok,
-                .status_line = {.status_code = 200},
-                .body{"<html></html>"},
-        })};
+        std::map<std::string, Response> responses{{
+                "hax://example.com"s,
+                Response{
+                        .err = Error::Ok,
+                        .status_line = {.status_code = 200},
+                        .body{"<html></html>"},
+                },
+        }};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
         // Our default CSS gives <html> the property display: block.
         require(e.layout());
         expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
 
-        e = engine::Engine{std::make_unique<FakeProtocolHandler>(protocol::Response{
-                .err = protocol::Error::Ok,
-                .status_line = {.status_code = 200},
-                .body{"<html><head><style>html { display: inline; }</style></head></html>"},
-        })};
+        responses = std::map<std::string, Response>{{
+                "hax://example.com"s,
+                Response{
+                        .err = Error::Ok,
+                        .status_line = {.status_code = 200},
+                        .body{"<html><head><style>html { display: inline; }</style></head></html>"},
+                },
+        }};
+
+        e = engine::Engine{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
 
         // The CSS declared in the page should have a higher priority and give
