@@ -65,11 +65,13 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    std::cout << "# Sections\n";
     for (auto const &section : module->sections) {
         std::cout << static_cast<int>(section.id) << ": " << section.content.size() << '\n';
     }
 
     if (auto const &type_section = module->type_section()) {
+        std::cout << "\n# Types\n";
         // Prints a list of wasm::ValueType separated by commas.
         // https://en.cppreference.com/w/cpp/experimental/ostream_joiner soon, I hope.
         auto print_values = [](auto const &values) {
@@ -79,7 +81,6 @@ int main(int argc, char **argv) {
             }
         };
 
-        std::cout << '\n';
         for (auto const &type : type_section->types) {
             std::cout << '(';
             print_values(type.parameters);
@@ -90,7 +91,7 @@ int main(int argc, char **argv) {
     }
 
     if (auto const &export_section = module->export_section()) {
-        std::cout << '\n';
+        std::cout << "\n# Exports\n";
         for (auto const &e : export_section->exports) {
             std::cout << e.name << ": " << static_cast<int>(e.type) << ':' << e.index << '\n';
         }
