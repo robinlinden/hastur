@@ -35,12 +35,11 @@ struct LayoutBox {
 
     template<css::PropertyId T>
     auto get_property() const {
-        using RetT = decltype(node->get_property<T>());
-        if (!node) {
-            return std::optional<RetT>{};
-        }
-
-        return std::optional<RetT>{node->get_property<T>()};
+        // Calling get_property on an anonymous block (the only type that
+        // doesn't have a StyleNode) is a programming error.
+        assert(type != LayoutType::AnonymousBlock);
+        assert(node);
+        return node->get_property<T>();
     }
 };
 

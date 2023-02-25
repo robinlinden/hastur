@@ -26,8 +26,6 @@ using namespace std::literals;
 namespace render {
 namespace {
 
-constexpr gfx::Color kDefaultColor{0x0, 0x0, 0x0};
-
 bool has_any_border(geom::EdgeSize const &border) {
     return border != geom::EdgeSize{};
 }
@@ -55,27 +53,27 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
     auto font_families = layout.get_property<css::PropertyId::FontFamily>();
     auto fonts = [&font_families] {
         std::vector<gfx::Font> fs;
-        std::ranges::transform(font_families.value(), std::back_inserter(fs), [](auto f) { return gfx::Font{f}; });
+        std::ranges::transform(font_families, std::back_inserter(fs), [](auto f) { return gfx::Font{f}; });
         return fs;
     }();
-    auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>().value()};
-    auto style = layout.get_property<css::PropertyId::FontStyle>().value_or(style::FontStyle::Normal);
-    auto color = layout.get_property<css::PropertyId::Color>().value();
+    auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>()};
+    auto style = layout.get_property<css::PropertyId::FontStyle>();
+    auto color = layout.get_property<css::PropertyId::Color>();
     painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, to_gfx(style), color);
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
-    auto background_color = layout.get_property<css::PropertyId::BackgroundColor>().value();
+    auto background_color = layout.get_property<css::PropertyId::BackgroundColor>();
     auto const &border_size = layout.dimensions.border;
     if (has_any_border(border_size)) {
         gfx::Borders borders{};
-        borders.left.color = layout.get_property<css::PropertyId::BorderLeftColor>().value_or(kDefaultColor);
+        borders.left.color = layout.get_property<css::PropertyId::BorderLeftColor>();
         borders.left.size = border_size.left;
-        borders.right.color = layout.get_property<css::PropertyId::BorderRightColor>().value_or(kDefaultColor);
+        borders.right.color = layout.get_property<css::PropertyId::BorderRightColor>();
         borders.right.size = border_size.right;
-        borders.top.color = layout.get_property<css::PropertyId::BorderTopColor>().value_or(kDefaultColor);
+        borders.top.color = layout.get_property<css::PropertyId::BorderTopColor>();
         borders.top.size = border_size.top;
-        borders.bottom.color = layout.get_property<css::PropertyId::BorderBottomColor>().value_or(kDefaultColor);
+        borders.bottom.color = layout.get_property<css::PropertyId::BorderBottomColor>();
         borders.bottom.size = border_size.bottom;
 
         painter.draw_rect(layout.dimensions.padding_box(), background_color, borders);

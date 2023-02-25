@@ -499,7 +499,7 @@ void App::clear_render_surface() {
     //                    //gfx APIs that I want to think a bit about.
     if (auto html_bg = layout->get_property<css::PropertyId::BackgroundColor>();
             html_bg != gfx::Color::from_css_name("transparent")) {
-        window_.clear(sf::Color(html_bg->as_rgba_u32()));
+        window_.clear(sf::Color(html_bg.as_rgba_u32()));
         return;
     }
 
@@ -511,7 +511,7 @@ void App::clear_render_surface() {
 
     if (auto body_bg = body[0]->get_property<css::PropertyId::BackgroundColor>();
             body_bg != gfx::Color::from_css_name("transparent")) {
-        window_.clear(sf::Color(body_bg->as_rgba_u32()));
+        window_.clear(sf::Color(body_bg.as_rgba_u32()));
         return;
     }
 

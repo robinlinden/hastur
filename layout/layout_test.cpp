@@ -1083,13 +1083,6 @@ int main() {
         expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
     });
 
-    etest::test("get_property, no backing style node", [] {
-        auto layout = layout::LayoutBox{
-                .node = nullptr,
-        };
-        expect_eq(layout.get_property<css::PropertyId::Color>(), std::nullopt);
-    });
-
     etest::test("border-width keywords", [] {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
