@@ -10,6 +10,7 @@ cc_library(
     deps = [
         "//util:string",
         "//util:uuid",
+        "@icu//:common",
     ],
 )
 

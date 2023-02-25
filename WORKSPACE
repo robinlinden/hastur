@@ -100,6 +100,18 @@ http_archive(
 )
 
 http_archive(
+    name = "icu",  # Unicode-DFS-2016
+    build_file = "//third_party:icu.BUILD",
+    patch_cmds = [
+        "rm source/common/BUILD.bazel",
+        "rm source/stubdata/BUILD.bazel",
+    ],
+    sha256 = "a2d2d38217092a7ed56635e34467f92f976b370e20182ad325edea6681a71d68",
+    strip_prefix = "icu",
+    url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz",
+)
+
+http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
     sha256 = "3b665fadd5580b7ef494d5d8bb1c12b2ec53ee723034caf43332956381f5d631",
