@@ -48,7 +48,7 @@ Checks: >
 
 WarningsAsErrors: "*"
 
-HeaderFilterRegex: "\\./(browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|img|js|layout|net|os|protocol|render|style|tui|uri|url|util)/"
+HeaderFilterRegex: "\\./(browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|img|js|layout|net|os|protocol|render|style|tui|uri|url|util|wasm)/"
 
 CheckOptions:
   # readability-identifier-naming
