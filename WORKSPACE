@@ -177,25 +177,25 @@ http_archive(
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "fe620275ca1e29501dcb3f54c69cc011b6d9c3296408fac4e18dc491a1be754f",
-    strip_prefix = "Vulkan-Headers-1.3.229",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.229.tar.gz",
+    sha256 = "4ee7c8e588e3e90785636c7ac879ad7d0b8d363c26838f57d3e4a7b8a55c38f5",
+    strip_prefix = "Vulkan-Headers-1.3.242",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.242.tar.gz",
 )
 
 http_archive(
     name = "xext",  # MIT
     build_file = "//third_party:xext.BUILD",
-    sha256 = "1a0f56d602100e320e553a799ef3fec626515bbe5e04f376bc44566d71dde288",
-    strip_prefix = "libxext-libXext-1.3.4",
-    url = "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.4/libxext-libXext-1.3.4.tar.gz",
+    sha256 = "dcf5fd6defbe474912fb6c617f8b926e53f828698c8491a8abab955ab071fc3f",
+    strip_prefix = "libxext-libXext-1.3.5",
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.5/libxext-libXext-1.3.5.tar.gz",
 )
 
 http_archive(
     name = "xrandr",  # MIT
     build_file = "//third_party:xrandr.BUILD",
-    sha256 = "55cd6a2797cb79823b8a611dbc695d93262fd0d6a663d9f52422d7d25b81b4b1",
-    strip_prefix = "xorg-libXrandr-libXrandr-1.5.2",
-    url = "https://github.com/freedesktop/xorg-libXrandr/archive/libXrandr-1.5.2.tar.gz",
+    sha256 = "1b46bad15e13eb22db31abf4b3e73dfdc13f8c709897dcf39ce6ca6827c7a741",
+    strip_prefix = "xorg-libXrandr-libXrandr-1.5.3",
+    url = "https://github.com/freedesktop/xorg-libXrandr/archive/libXrandr-1.5.3.tar.gz",
 )
 
 http_archive(
