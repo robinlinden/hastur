@@ -779,6 +779,58 @@ int main() {
                 });
     });
 
+    etest::test("parser: border-radius, 1 value, separate horizontal and vertical", [] {
+        auto rules = css::parse("div { border-radius: 5px / 10px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderTopRightRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "5px / 10px"s},
+                });
+    });
+
+    etest::test("parser: border-radius, 2 values, separate horizontal and vertical", [] {
+        auto rules = css::parse("div { border-radius: 5px / 10px 15px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderTopRightRadius, "5px / 15px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "5px / 15px"s},
+                });
+    });
+
+    etest::test("parser: border-radius, 3 values, separate horizontal and vertical", [] {
+        auto rules = css::parse("div { border-radius: 5px / 10px 15px 20px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderTopRightRadius, "5px / 15px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "5px / 20px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "5px / 15px"s},
+                });
+    });
+
+    etest::test("parser: border-radius, 4 values, separate horizontal and vertical", [] {
+        auto rules = css::parse("div { border-radius: 5px / 10px 15px 20px 25px; }");
+        require(rules.size() == 1);
+        auto const &div = rules[0];
+        expect_eq(div.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderTopLeftRadius, "5px / 10px"s},
+                        {css::PropertyId::BorderTopRightRadius, "5px / 15px"s},
+                        {css::PropertyId::BorderBottomRightRadius, "5px / 20px"s},
+                        {css::PropertyId::BorderBottomLeftRadius, "5px / 25px"s},
+                });
+    });
+
     etest::test("parser: @keyframes doesn't crash the parser", [] {
         auto css = R"(
             @keyframes toast-spinner {

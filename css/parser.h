@@ -345,9 +345,11 @@ private:
         }
     }
 
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
     static void expand_border_radius_values(std::map<PropertyId, std::string> &declarations, std::string_view value) {
-        std::string_view top_left, top_right, bottom_right, bottom_left;
-        Tokenizer tokenizer(value, ' ');
+        std::string top_left, top_right, bottom_right, bottom_left;
+        auto [horizontal, vertical] = util::split_once(value, "/");
+        Tokenizer tokenizer(horizontal, ' ');
         switch (tokenizer.size()) {
             case 1:
                 top_left = top_right = bottom_right = bottom_left = tokenizer.get().value();
@@ -371,10 +373,48 @@ private:
                 break;
         }
 
-        declarations.insert_or_assign(PropertyId::BorderTopLeftRadius, std::string{top_left});
-        declarations.insert_or_assign(PropertyId::BorderTopRightRadius, std::string{top_right});
-        declarations.insert_or_assign(PropertyId::BorderBottomRightRadius, std::string{bottom_right});
-        declarations.insert_or_assign(PropertyId::BorderBottomLeftRadius, std::string{bottom_left});
+        if (!vertical.empty()) {
+            tokenizer = Tokenizer{vertical, ' '};
+            switch (tokenizer.size()) {
+                case 1: {
+                    auto v_radius{tokenizer.get().value()};
+                    top_left += fmt::format(" / {}", v_radius);
+                    top_right += fmt::format(" / {}", v_radius);
+                    bottom_right += fmt::format(" / {}", v_radius);
+                    bottom_left += fmt::format(" / {}", v_radius);
+                    break;
+                }
+                case 2: {
+                    auto v1_radius{tokenizer.get().value()};
+                    top_left += fmt::format(" / {}", v1_radius);
+                    bottom_right += fmt::format(" / {}", v1_radius);
+                    auto v2_radius{tokenizer.next().get().value()};
+                    top_right += fmt::format(" / {}", v2_radius);
+                    bottom_left += fmt::format(" / {}", v2_radius);
+                    break;
+                }
+                case 3: {
+                    top_left += fmt::format(" / {}", tokenizer.get().value());
+                    auto v_radius = tokenizer.next().get().value();
+                    top_right += fmt::format(" / {}", v_radius);
+                    bottom_left += fmt::format(" / {}", v_radius);
+                    bottom_right += fmt::format(" / {}", tokenizer.next().get().value());
+                    break;
+                }
+                case 4: {
+                    top_left += fmt::format(" / {}", tokenizer.get().value());
+                    top_right += fmt::format(" / {}", tokenizer.next().get().value());
+                    bottom_right += fmt::format(" / {}", tokenizer.next().get().value());
+                    bottom_left += fmt::format(" / {}", tokenizer.next().get().value());
+                    break;
+                }
+            }
+        }
+
+        declarations.insert_or_assign(PropertyId::BorderTopLeftRadius, top_left);
+        declarations.insert_or_assign(PropertyId::BorderTopRightRadius, top_right);
+        declarations.insert_or_assign(PropertyId::BorderBottomRightRadius, bottom_right);
+        declarations.insert_or_assign(PropertyId::BorderBottomLeftRadius, bottom_left);
     }
 
     void expand_edge_values(
