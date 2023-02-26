@@ -77,6 +77,10 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
     std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
 
     for (auto const &rule : stylesheet) {
+        if (!rule.media_query.empty()) {
+            continue;
+        }
+
         if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(element, selector); })) {
             std::ranges::copy(rule.declarations, std::back_inserter(matched_rules));
         }

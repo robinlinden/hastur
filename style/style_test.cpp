@@ -15,6 +15,7 @@
 
 using namespace std::literals;
 using etest::expect;
+using etest::expect_eq;
 using etest::require;
 
 namespace {
@@ -124,6 +125,18 @@ int main() {
             require(hr_rules.size() == 1);
             expect(hr_rules[0] == std::pair{css::PropertyId::Height, "auto"s});
         }
+    });
+
+    etest::test("matching_rules: media query", [] {
+        std::vector<css::Rule> stylesheet{
+                css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "red"}}},
+        };
+
+        expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet),
+                std::vector{std::pair{css::PropertyId::Color, "red"s}});
+
+        stylesheet[0].media_query = "max-width: 700px"s;
+        expect(style::matching_rules(dom::Element{"p"}, stylesheet).empty());
     });
 
     etest::test("style_tree: structure", [] {
