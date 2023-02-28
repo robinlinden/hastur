@@ -14,24 +14,35 @@
 #include <cstddef>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <string_view>
 #include <utility>
 
+using namespace std::literals;
+
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << (argv[0] ? argv[0] : "<bin>") << ' ' << "<image_file>\n";
+    if (argc != 2 && argc != 3) {
+        std::cerr << "Usage: " << (argv[0] ? argv[0] : "<bin>") << " [--metadata] <image_file>\n";
         return 1;
     }
 
-    auto fs = std::ifstream{argv[1], std::fstream::in | std::fstream::binary};
+    auto file_name = std::string{argv[argc - 1]};
+
+    auto fs = std::ifstream{file_name, std::fstream::in | std::fstream::binary};
     if (!fs) {
-        std::cerr << "Unable to open " << argv[1] << " for reading\n";
+        std::cerr << "Unable to open " << file_name << " for reading\n";
         return 1;
     }
 
     auto img = img::Png::from(std::move(fs));
     if (!img) {
-        std::cerr << "Unable to parse " << argv[1] << " as a png\n";
+        std::cerr << "Unable to parse " << file_name << " as a png\n";
         return 1;
+    }
+
+    if (argc == 3 && argv[1] == "--metadata"sv) {
+        std::cout << "Dimensions: " << img->width << 'x' << img->height << '\n';
+        return 0;
     }
 
     if (img->bytes.size() != (static_cast<std::size_t>(img->width) * img->height * 4)) {
