@@ -270,5 +270,20 @@ int main() {
         expect_eq(title.name, "title");
     });
 
+    etest::test("special rules, just text is fine too", [] {
+        auto html = html::parse("hello?"sv).html();
+        require_eq(html.children.size(), std::size_t{2});
+
+        auto const &head = std::get<dom::Element>(html.children[0]);
+        expect_eq(head.name, "head");
+
+        auto const &body = std::get<dom::Element>(html.children[1]);
+        expect_eq(body.name, "body");
+
+        require_eq(body.children.size(), std::size_t{1});
+        auto const &body_text = std::get<dom::Text>(body.children[0]);
+        expect_eq(body_text, dom::Text{"hello?"});
+    });
+
     return etest::run_all_tests();
 }

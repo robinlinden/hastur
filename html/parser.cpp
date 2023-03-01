@@ -264,7 +264,12 @@ void Parser::operator()(html2::EndOfFileToken const &) {
     }
 
     if (!open_elements_.empty() && open_elements_.top()->name == "html" && open_elements_.top()->children.size() == 1) {
-        doc_.html().children.emplace_back(dom::Element{.name = "body"});
+        auto &body = doc_.html().children.emplace_back(dom::Element{.name = "body"});
+        open_elements_.push(&std::get<dom::Element>(body));
+    }
+
+    if (!open_elements_.empty()) {
+        generate_text_node_if_needed();
     }
 
     if (!open_elements_.empty() && open_elements_.top()->name == "body") {
