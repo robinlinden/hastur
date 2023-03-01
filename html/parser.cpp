@@ -114,16 +114,18 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         return;
     }
 
+    // https://html.spec.whatwg.org/multipage/semantics.html#the-html-element
+    if (open_elements_.empty() && !seen_html_tag_) {
+        doc_.html().name = "html"s;
+        open_elements_.push(&doc_.html());
+        seen_html_tag_ = true;
+    }
+
     if (start_tag.tag_name == "script"sv) {
         tokenizer_.set_state(html2::State::ScriptData);
     }
 
-    if (open_elements_.empty() && !seen_html_tag_) {
-        spdlog::warn("Start tag [{}] encountered before html element was opened", start_tag.tag_name);
-        doc_.html().name = "html"s;
-        open_elements_.push(&doc_.html());
-        seen_html_tag_ = true;
-    } else if (open_elements_.empty()) {
+    if (open_elements_.empty()) {
         spdlog::warn("Start tag [{}] encountered with no open elements", start_tag.tag_name);
         return;
     }
@@ -186,6 +188,11 @@ void Parser::operator()(html2::CharacterToken const &character) {
 }
 
 void Parser::operator()(html2::EndOfFileToken const &) {
+    // https://html.spec.whatwg.org/multipage/semantics.html#the-html-element
+    if (!open_elements_.empty() && open_elements_.top()->name == "html") {
+        open_elements_.pop();
+    }
+
     if (!open_elements_.empty()) {
         spdlog::warn("EOF reached with [{}] elements still open", open_elements_.size());
     }
