@@ -17,13 +17,11 @@ using etest::require_eq;
 int main() {
     etest::test("doctype", [] {
         auto document = html::parse("<!doctype html>"sv);
-        expect(document.html().children.empty());
         expect(document.doctype == "html"s);
     });
 
     etest::test("weirdly capitalized doctype", [] {
         auto document = html::parse("<!docTYpe html>"sv);
-        expect(document.html().children.empty());
         expect(document.doctype == "html"s);
     });
 
@@ -31,22 +29,22 @@ int main() {
         auto document = html::parse("<p></p>"sv);
         auto html = document.html();
         expect(html.name == "html"s);
-        require(html.children.size() == 1);
-        expect(std::get<dom::Element>(html.children[0]).name == "p"s);
+        require(html.children.size() == 2);
+        expect(std::get<dom::Element>(html.children[0]).name == "head"s);
+        expect(std::get<dom::Element>(html.children[1]).name == "p"s);
     });
 
     etest::test("single element", [] {
         auto html = html::parse("<html></html>"sv).html();
-        expect(html.children.empty());
         expect(html.name == "html"s);
         expect(html.attributes.empty());
     });
 
     etest::test("self-closing single element", [] {
         auto nodes = html::parse("<br>"sv).html().children;
-        require(nodes.size() == 1);
+        require(nodes.size() == 2);
 
-        auto const &br = std::get<dom::Element>(nodes[0]);
+        auto const &br = std::get<dom::Element>(nodes[1]);
         expect(br.children.empty());
         expect(br.name == "br"s);
         expect(br.attributes.empty());
@@ -54,9 +52,9 @@ int main() {
 
     etest::test("self-closing single element with slash", [] {
         auto nodes = html::parse("<img/>"sv).html().children;
-        require(nodes.size() == 1);
+        require(nodes.size() == 2);
 
-        auto const &img = std::get<dom::Element>(nodes[0]);
+        auto const &img = std::get<dom::Element>(nodes[1]);
         expect(img.children.empty());
         expect(img.name == "img"s);
         expect(img.attributes.empty());
@@ -64,14 +62,14 @@ int main() {
 
     etest::test("multiple elements", [] {
         auto nodes = html::parse("<span></span><div></div>"sv).html().children;
-        require(nodes.size() == 2);
+        require(nodes.size() == 3);
 
-        auto const &span = std::get<dom::Element>(nodes[0]);
+        auto const &span = std::get<dom::Element>(nodes[1]);
         expect(span.children.empty());
         expect(span.name == "span"s);
         expect(span.attributes.empty());
 
-        auto const &div = std::get<dom::Element>(nodes[1]);
+        auto const &div = std::get<dom::Element>(nodes[2]);
         expect(div.children.empty());
         expect(div.name == "div"s);
         expect(div.attributes.empty());
@@ -79,11 +77,15 @@ int main() {
 
     etest::test("nested elements", [] {
         auto html = html::parse("<html><body></body></html>"sv).html();
-        require(html.children.size() == 1);
+        require(html.children.size() == 2);
         expect(html.name == "html"s);
         expect(html.attributes.empty());
 
-        auto const &body = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children[0]);
+        expect(head.name == "head"s);
+        expect(head.attributes.empty());
+
+        auto const &body = std::get<dom::Element>(html.children[1]);
         expect(body.name == "body"s);
         expect(body.attributes.empty());
     });
@@ -92,7 +94,8 @@ int main() {
         auto nodes = html::parse("<meta charset='utf-8'/>"sv).html().children;
         require(nodes.size() == 1);
 
-        auto const &meta = std::get<dom::Element>(nodes[0]);
+        auto const &head = std::get<dom::Element>(nodes[0]);
+        auto const &meta = std::get<dom::Element>(head.children.at(0));
         expect(meta.children.empty());
         expect(meta.name == "meta"s);
         expect(meta.attributes.size() == 1);
@@ -103,7 +106,8 @@ int main() {
         auto nodes = html::parse(R"(<meta charset="utf-8"/>)"sv).html().children;
         require(nodes.size() == 1);
 
-        auto const &meta = std::get<dom::Element>(nodes[0]);
+        auto const &head = std::get<dom::Element>(nodes[0]);
+        auto const &meta = std::get<dom::Element>(head.children.at(0));
         expect(meta.children.empty());
         expect(meta.name == "meta"s);
         expect(meta.attributes.size() == 1);
@@ -114,7 +118,8 @@ int main() {
         auto nodes = html::parse(R"(<meta name="viewport" content="width=100em, initial-scale=1"/>)"sv).html().children;
         require(nodes.size() == 1);
 
-        auto const &meta = std::get<dom::Element>(nodes[0]);
+        auto const &head = std::get<dom::Element>(nodes[0]);
+        auto const &meta = std::get<dom::Element>(head.children.at(0));
         expect(meta.children.empty());
         expect(meta.name == "meta"s);
         expect(meta.attributes.size() == 2);
@@ -124,12 +129,12 @@ int main() {
 
     etest::test("multiple nodes with attributes", [] {
         auto html = html::parse("<html bonus='hello'><body style='fancy'></body></html>"sv).html();
-        require(html.children.size() == 1);
+        require(html.children.size() == 2);
         expect(html.name == "html"s);
         expect(html.attributes.size() == 1);
         expect(html.attributes.at("bonus"s) == "hello"s);
 
-        auto const &body = std::get<dom::Element>(html.children[0]);
+        auto const &body = std::get<dom::Element>(html.children[1]);
         expect(body.name == "body"s);
         expect(body.attributes.size() == 1);
         expect(body.attributes.at("style"s) == "fancy"s);
@@ -147,7 +152,6 @@ int main() {
 
     etest::test("character reference in attribute", [] {
         auto html = html::parse("<html test='&lt;3'></html>"sv).html();
-        expect(html.children.empty());
         expect(html.name == "html"s);
         expect(html.attributes.size() == 1);
         expect(html.attributes.at("test") == "<3");
@@ -155,7 +159,6 @@ int main() {
 
     etest::test("character reference in attribute, no semicolon", [] {
         auto html = html::parse("<html test='&lt3'></html>"sv).html();
-        expect(html.children.empty());
         expect(html.name == "html"s);
         expect(html.attributes.size() == 1);
         expect(html.attributes.at("test") == "&lt3");
@@ -163,13 +166,13 @@ int main() {
 
     etest::test("br shouldn't open a new scope", [] {
         auto html = html::parse("<br><p></p>"sv).html();
-        require(html.children.size() == 2);
+        require(html.children.size() == 3);
 
-        auto const &br = std::get<dom::Element>(html.children[0]);
+        auto const &br = std::get<dom::Element>(html.children[1]);
         expect(br.name == "br"sv);
         expect(br.children.empty());
 
-        auto const &p = std::get<dom::Element>(html.children[1]);
+        auto const &p = std::get<dom::Element>(html.children[2]);
         expect(p.name == "p"sv);
         expect(p.children.empty());
     });
@@ -178,7 +181,8 @@ int main() {
         auto html = html::parse("<script><hello></script>"sv).html();
         require_eq(html.children.size(), std::size_t{1});
 
-        auto const &script = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &script = std::get<dom::Element>(head.children.at(0));
         expect_eq(script.name, "script"sv);
         expect_eq(script.children.size(), std::size_t{1});
 
@@ -188,16 +192,16 @@ int main() {
 
     etest::test("special rules, p end tag omission", [] {
         auto html = html::parse("<html><p>hello<p>world</html>"sv).html();
-        require_eq(html.children.size(), std::size_t{2});
+        require_eq(html.children.size(), std::size_t{3});
 
-        auto const &p1 = std::get<dom::Element>(html.children[0]);
+        auto const &p1 = std::get<dom::Element>(html.children[1]);
         expect_eq(p1.name, "p");
 
         require_eq(p1.children.size(), std::size_t{1});
         auto const &p1_text = std::get<dom::Text>(p1.children[0]);
         expect_eq(p1_text, dom::Text{"hello"});
 
-        auto const &p2 = std::get<dom::Element>(html.children[1]);
+        auto const &p2 = std::get<dom::Element>(html.children[2]);
         expect_eq(p2.name, "p");
 
         require_eq(p2.children.size(), std::size_t{1});
@@ -222,7 +226,36 @@ int main() {
 
     etest::test("special rules, an empty string still parses as html", [] {
         auto html = html::parse("").html();
-        expect_eq(html.children.size(), std::size_t{0});
+        require_eq(html.children.size(), std::size_t{1});
+
+        auto const &head = std::get<dom::Element>(html.children[0]);
+        expect_eq(head.name, "head");
+    });
+
+    etest::test("special rules, just closing html is fine", [] {
+        auto html = html::parse("</html>").html();
+        require_eq(html.children.size(), std::size_t{1});
+
+        auto const &head = std::get<dom::Element>(html.children[0]);
+        expect_eq(head.name, "head");
+    });
+
+    etest::test("special rules, head is auto-closed on html end tag", [] {
+        auto html = html::parse("<head></html>").html();
+        require_eq(html.children.size(), std::size_t{1});
+
+        auto const &head = std::get<dom::Element>(html.children[0]);
+        expect_eq(head.name, "head");
+    });
+
+    etest::test("special rules, head tag omission", [] {
+        auto html = html::parse("<title>hello</title>"sv).html();
+
+        auto const &head = std::get<dom::Element>(html.children.at(0));
+        expect_eq(head.name, "head");
+
+        auto const &title = std::get<dom::Element>(head.children.at(0));
+        expect_eq(title.name, "title");
     });
 
     return etest::run_all_tests();

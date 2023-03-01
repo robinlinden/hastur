@@ -93,6 +93,18 @@ constexpr std::array kDisallowsParagraphEndTagOmissionWhenClosed{
         "video"sv,
 };
 
+// https://html.spec.whatwg.org/multipage/dom.html#metadata-content-2
+constexpr std::array kMetadataContent{
+        "base"sv,
+        "link"sv,
+        "meta"sv,
+        "noscript"sv,
+        "script"sv,
+        "style"sv,
+        "template"sv,
+        "title"sv,
+};
+
 } // namespace
 
 void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
@@ -128,6 +140,22 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
     if (open_elements_.empty()) {
         spdlog::warn("Start tag [{}] encountered with no open elements", start_tag.tag_name);
         return;
+    }
+
+    // https://html.spec.whatwg.org/multipage/semantics.html#the-head-element
+    // A head element's start tag can be omitted if the element is empty, or
+    // if the first thing inside the head element is an element.
+    if (start_tag.tag_name != "head") {
+        if (doc_.html().children.empty()) {
+            auto &head = open_elements_.top()->children.emplace_back(dom::Element{.name{"head"}});
+            open_elements_.push(&std::get<dom::Element>(head));
+        }
+
+        // A head element's end tag can be omitted if the head element is not
+        // immediately followed by ASCII whitespace or a comment.
+        if (open_elements_.top()->name == "head" && !is_in_array<kMetadataContent>(start_tag.tag_name)) {
+            open_elements_.pop();
+        }
     }
 
     generate_text_node_if_needed();
@@ -170,6 +198,17 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
         open_elements_.pop();
     }
 
+    if (end_tag.tag_name == "html") {
+        // https://html.spec.whatwg.org/multipage/semantics.html#the-head-element
+        if (open_elements_.top()->name == "head") {
+            open_elements_.pop();
+        }
+
+        if (doc_.html().children.empty()) {
+            doc_.html().children.emplace_back(dom::Element{.name = "head"});
+        }
+    }
+
     auto const &expected_tag = open_elements_.top()->name;
     if (end_tag.tag_name != expected_tag) {
         spdlog::warn("Unexpected end_tag name, expected [{}] but got [{}]", expected_tag, end_tag.tag_name);
@@ -188,6 +227,15 @@ void Parser::operator()(html2::CharacterToken const &character) {
 }
 
 void Parser::operator()(html2::EndOfFileToken const &) {
+    if (doc_.html().children.empty()) {
+        doc_.html().children.emplace_back(dom::Element{.name = "head"});
+    }
+
+    // https://html.spec.whatwg.org/multipage/semantics.html#the-head-element
+    if (!open_elements_.empty() && open_elements_.top()->name == "head") {
+        open_elements_.pop();
+    }
+
     // https://html.spec.whatwg.org/multipage/semantics.html#the-html-element
     if (!open_elements_.empty() && open_elements_.top()->name == "html") {
         open_elements_.pop();
