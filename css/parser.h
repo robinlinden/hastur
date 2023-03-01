@@ -295,7 +295,7 @@ private:
                 return BorderPropertyType::Style;
             }
 
-            if (v.find_first_of("0123456789") == 0 || is_in_array<border_width_keywords>(v)) {
+            if (v.find_first_of(dot_and_digits) == 0 || is_in_array<border_width_keywords>(v)) {
                 return BorderPropertyType::Width;
             }
 

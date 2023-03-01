@@ -942,6 +942,18 @@ int main() {
                 });
     });
 
+    etest::test("parser: border shorthand, width, first character a dot", [] {
+        auto rules = css::parse("p { border-right: .3em; }");
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::BorderRightColor, "currentcolor"s},
+                        {css::PropertyId::BorderRightStyle, "none"s},
+                        {css::PropertyId::BorderRightWidth, ".3em"s},
+                });
+    });
+
     etest::test("parser: border shorthand, too many values", [] {
         auto rules = css::parse("p { border-top: outset #123 none solid; }");
         require(rules.size() == 1);
