@@ -47,6 +47,7 @@ struct DrawRectCmd {
     geom::Rect rect{};
     Color color{};
     Borders borders{};
+    Corners corners{};
 
     [[nodiscard]] constexpr bool operator==(DrawRectCmd const &) const = default;
 };
@@ -88,8 +89,9 @@ public:
     void set_scale(int scale) override { cmds_.emplace_back(SetScaleCmd{scale}); }
     void add_translation(int dx, int dy) override { cmds_.emplace_back(AddTranslationCmd{dx, dy}); }
     void fill_rect(geom::Rect const &rect, Color color) override { cmds_.emplace_back(FillRectCmd{rect, color}); }
-    void draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) override {
-        cmds_.emplace_back(DrawRectCmd{rect, color, borders});
+    void draw_rect(
+            geom::Rect const &rect, Color const &color, Borders const &borders, Corners const &corners) override {
+        cmds_.emplace_back(DrawRectCmd{rect, color, borders, corners});
     }
     void draw_text(geom::Position position,
             std::string_view text,
@@ -129,7 +131,10 @@ public:
     constexpr void operator()(SetScaleCmd const &cmd) { canvas_.set_scale(cmd.scale); }
     constexpr void operator()(AddTranslationCmd const &cmd) { canvas_.add_translation(cmd.dx, cmd.dy); }
     constexpr void operator()(FillRectCmd const &cmd) { canvas_.fill_rect(cmd.rect, cmd.color); }
-    constexpr void operator()(DrawRectCmd const &cmd) { canvas_.draw_rect(cmd.rect, cmd.color, cmd.borders); }
+
+    constexpr void operator()(DrawRectCmd const &cmd) {
+        canvas_.draw_rect(cmd.rect, cmd.color, cmd.borders, cmd.corners);
+    }
 
     void operator()(DrawTextWithFontOptionsCmd const &cmd) {
         std::vector<gfx::Font> fonts;

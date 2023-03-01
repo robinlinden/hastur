@@ -16,8 +16,8 @@ public:
 
     void fill_rect(geom::Rect const &rect, Color color) { canvas_.fill_rect(rect, color); }
 
-    void draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) {
-        canvas_.draw_rect(rect, color, borders);
+    void draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders, Corners const &corners) {
+        canvas_.draw_rect(rect, color, borders, corners);
     }
 
     void draw_text(geom::Position p,

@@ -68,8 +68,15 @@ int main() {
         borders.bottom.color = Color::from_rgb(0xFF00FF);
         borders.bottom.size = 10;
 
-        saver.draw_rect({1, 2, 3, 4}, {0xFF, 0xAA, 0xFF}, borders);
-        expect_eq(saver.take_commands(), CanvasCommands{DrawRectCmd{{1, 2, 3, 4}, {0xFF, 0xAA, 0xFF}, borders}});
+        Corners corners;
+        corners.top_left = {1, 2};
+        corners.top_right = {3, 4};
+        corners.bottom_left = {5, 6};
+        corners.bottom_right = {7, 8};
+
+        saver.draw_rect({1, 2, 3, 4}, {0xFF, 0xAA, 0xFF}, borders, corners);
+        expect_eq(
+                saver.take_commands(), CanvasCommands{DrawRectCmd{{1, 2, 3, 4}, {0xFF, 0xAA, 0xFF}, borders, corners}});
     });
 
     etest::test("CanvasCommandSaver::draw_text", [] {
@@ -92,7 +99,7 @@ int main() {
         saver.set_scale(1);
         saver.add_translation(1234, 5678);
         saver.fill_rect({9, 9, 9, 9}, {0x12, 0x34, 0x56});
-        saver.draw_rect({9, 9, 9, 9}, {0x10, 0x11, 0x12}, {});
+        saver.draw_rect({9, 9, 9, 9}, {0x10, 0x11, 0x12}, {}, {});
         saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, FontStyle::Italic, {3, 2, 1});
         saver.draw_text({1, 5}, "hello?"sv, {{"font1"}, {"font2"}}, {42}, FontStyle::Normal, {1, 2, 3});
         auto cmds = saver.take_commands();

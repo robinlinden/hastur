@@ -76,9 +76,9 @@ void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
         borders.bottom.color = layout.get_property<css::PropertyId::BorderBottomColor>();
         borders.bottom.size = border_size.bottom;
 
-        painter.draw_rect(layout.dimensions.padding_box(), background_color, borders);
+        painter.draw_rect(layout.dimensions.padding_box(), background_color, borders, gfx::Corners{});
     } else if (!is_fully_transparent(background_color)) {
-        painter.draw_rect(layout.dimensions.padding_box(), background_color, gfx::Borders{});
+        painter.draw_rect(layout.dimensions.padding_box(), background_color, gfx::Borders{}, gfx::Corners{});
     }
 }
 

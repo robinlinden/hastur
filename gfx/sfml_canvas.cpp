@@ -113,7 +113,7 @@ void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
     target_.draw(drawable);
 }
 
-void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders) {
+void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders, Corners const &corners) {
     auto translated{rect.translated(tx_, ty_)};
     auto inner_rect{translated.scaled(scale_)};
     auto outer_rect{
@@ -134,11 +134,12 @@ void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders c
     border_shader_.setUniform("outer_bottom_left", to_vec2(outer_rect.left(), outer_rect.bottom()));
     border_shader_.setUniform("outer_bottom_right", to_vec2(outer_rect.right(), outer_rect.bottom()));
 
-    // TODO(mkiael): Set radii when support for parsing it from stylesheet has been added
-    border_shader_.setUniform("top_left_radii", to_vec2(0, 0));
-    border_shader_.setUniform("top_right_radii", to_vec2(0, 0));
-    border_shader_.setUniform("bottom_left_radii", to_vec2(0, 0));
-    border_shader_.setUniform("bottom_right_radii", to_vec2(0, 0));
+    border_shader_.setUniform("top_left_radii", to_vec2(corners.top_left.horizontal, corners.top_left.vertical));
+    border_shader_.setUniform("top_right_radii", to_vec2(corners.top_right.horizontal, corners.top_right.vertical));
+    border_shader_.setUniform(
+            "bottom_left_radii", to_vec2(corners.bottom_left.horizontal, corners.bottom_left.vertical));
+    border_shader_.setUniform(
+            "bottom_right_radii", to_vec2(corners.bottom_right.horizontal, corners.bottom_right.vertical));
 
     border_shader_.setUniform("left_border_color", to_vec4(borders.left.color));
     border_shader_.setUniform("right_border_color", to_vec4(borders.right.color));
