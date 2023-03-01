@@ -158,6 +158,18 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         }
     }
 
+    // https://html.spec.whatwg.org/multipage/semantics.html#the-body-element
+    // A body element's start tag can be omitted if the element is empty, or if
+    // the first thing inside the body element is not ASCII whitespace or a
+    // comment, except if the first thing inside the body element is a meta,
+    // noscript, link, script, style, or template element.
+    if (start_tag.tag_name != "body" && !is_in_array<kMetadataContent>(start_tag.tag_name)) {
+        if (doc_.html().children.size() == 1) {
+            auto &body = open_elements_.top()->children.emplace_back(dom::Element{.name{"body"}});
+            open_elements_.push(&std::get<dom::Element>(body));
+        }
+    }
+
     generate_text_node_if_needed();
 
     // https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
@@ -189,6 +201,23 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
         return;
     }
 
+    if (end_tag.tag_name == "html" && doc_.html().children.empty()) {
+        if (open_elements_.top()->name == "html") {
+            open_elements_.top()->children.emplace_back(dom::Element{.name = "head"});
+        }
+    }
+
+    if (end_tag.tag_name == "html" && open_elements_.top()->name == "head") {
+        open_elements_.pop();
+    }
+
+    if (end_tag.tag_name == "html" && doc_.html().children.size() == 1) {
+        if (open_elements_.top()->name == "html") {
+            auto &body = open_elements_.top()->children.emplace_back(dom::Element{.name = "body"});
+            open_elements_.push(&std::get<dom::Element>(body));
+        }
+    }
+
     generate_text_node_if_needed();
 
     // https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
@@ -198,15 +227,8 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
         open_elements_.pop();
     }
 
-    if (end_tag.tag_name == "html") {
-        // https://html.spec.whatwg.org/multipage/semantics.html#the-head-element
-        if (open_elements_.top()->name == "head") {
-            open_elements_.pop();
-        }
-
-        if (doc_.html().children.empty()) {
-            doc_.html().children.emplace_back(dom::Element{.name = "head"});
-        }
+    if (end_tag.tag_name == "html" && open_elements_.top()->name == "body") {
+        open_elements_.pop();
     }
 
     auto const &expected_tag = open_elements_.top()->name;
@@ -227,12 +249,25 @@ void Parser::operator()(html2::CharacterToken const &character) {
 }
 
 void Parser::operator()(html2::EndOfFileToken const &) {
-    if (doc_.html().children.empty()) {
+    if (!seen_html_tag_) {
+        doc_.html().name = "html"s;
+        open_elements_.push(&doc_.html());
+        seen_html_tag_ = true;
+    }
+
+    if (!open_elements_.empty() && open_elements_.top()->name == "html" && open_elements_.top()->children.empty()) {
         doc_.html().children.emplace_back(dom::Element{.name = "head"});
     }
 
-    // https://html.spec.whatwg.org/multipage/semantics.html#the-head-element
     if (!open_elements_.empty() && open_elements_.top()->name == "head") {
+        open_elements_.pop();
+    }
+
+    if (!open_elements_.empty() && open_elements_.top()->name == "html" && open_elements_.top()->children.size() == 1) {
+        doc_.html().children.emplace_back(dom::Element{.name = "body"});
+    }
+
+    if (!open_elements_.empty() && open_elements_.top()->name == "body") {
         open_elements_.pop();
     }
 
