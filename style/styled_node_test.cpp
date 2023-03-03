@@ -238,7 +238,7 @@ int main() {
         expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/"), NodeVec{});
         expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/p"), NodeVec{});
         expect_eq(dom::nodes_by_xpath(styled_node, "/htm/div"), NodeVec{});
-        expect_eq(dom::nodes_by_xpath(styled_node, "//div"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(styled_node, "//div"), NodeVec{&styled_node.children[1]});
     });
 
     etest::test("get_property, last property gets priority", [] {

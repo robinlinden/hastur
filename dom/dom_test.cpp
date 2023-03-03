@@ -24,9 +24,73 @@ dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::ve
 std::vector<dom::Element const *> nodes_by_xpath(dom::Node const &root, std::string_view xpath) {
     return nodes_by_xpath(std::get<dom::Element>(root), xpath);
 }
+
+void descendant_axis_tests() {
+    etest::test("descendant axis, root node match", [] {
+        dom::Element dom{"div"};
+        auto nodes = nodes_by_xpath(dom, "div");
+        expect(nodes.empty());
+
+        nodes = nodes_by_xpath(dom, "//div");
+        expect_eq(*nodes.at(0), dom);
+    });
+
+    etest::test("descendant axis, nested matches", [] {
+        dom::Element const &first{"div", {}, {dom::Element{"div", {}, {dom::Element{"div"}}}}};
+        dom::Element const &second = std::get<dom::Element>(first.children[0]);
+        dom::Element const &third = std::get<dom::Element>(second.children[0]);
+
+        auto nodes = nodes_by_xpath(first, "//div");
+        expect_eq(nodes, std::vector{&first, &second, &third});
+
+        nodes = nodes_by_xpath(first, "//div/div");
+        expect_eq(nodes, std::vector{&second, &third});
+
+        nodes = nodes_by_xpath(first, "//div//div");
+        expect_eq(nodes, std::vector{&second, &third});
+    });
+
+    etest::test("descendant axis, no matches", [] {
+        dom::Element dom{"div"};
+        auto nodes = nodes_by_xpath(dom, "//p");
+        expect(nodes.empty());
+    });
+
+    etest::test("descendant axis, mixed child and descendant axes", [] {
+        dom::Element div{
+                .name{"div"},
+                .children{
+                        dom::Element{"span", {}, {dom::Text{"oh no"}}},
+                        dom::Element{"p", {}, {dom::Element{"span", {}, {dom::Element{"a"}}}}},
+                        dom::Element{"span"},
+                },
+        };
+
+        dom::Element const &div_first_span = std::get<dom::Element>(div.children[0]);
+        dom::Element const &p = std::get<dom::Element>(div.children[1]);
+        dom::Element const &p_span = std::get<dom::Element>(p.children[0]);
+        dom::Element const &p_span_a = std::get<dom::Element>(p_span.children[0]);
+        dom::Element const &div_last_span = std::get<dom::Element>(div.children[2]);
+
+        auto nodes = nodes_by_xpath(div, "//p");
+        expect_eq(nodes, std::vector{&p});
+
+        nodes = nodes_by_xpath(div, "//p/span");
+        expect_eq(nodes, std::vector{&p_span});
+
+        nodes = nodes_by_xpath(div, "/div/p//a");
+        expect_eq(nodes, std::vector{&p_span_a});
+
+        nodes = nodes_by_xpath(div, "//span");
+        expect_eq(nodes, std::vector{&div_first_span, &p_span, &div_last_span});
+    });
+}
+
 } // namespace
 
 int main() {
+    descendant_axis_tests();
+
     etest::test("to_string", [] {
         auto document = dom::Document{.doctype{"html5"}};
         document.html_node = dom::Element{.name{"span"}, .children{{dom::Text{"hello"}}}};
@@ -37,9 +101,6 @@ int main() {
     etest::test("unsupported xpaths don't return anything", [] {
         dom::Node dom = dom::Element{"div"};
         auto nodes = nodes_by_xpath(dom, "div");
-        expect(nodes.empty());
-
-        nodes = nodes_by_xpath(dom, "//div");
         expect(nodes.empty());
     });
 

@@ -5,7 +5,9 @@
 #ifndef DOM_DOM_H_
 #define DOM_DOM_H_
 
+#include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <map>
 #include <string>
 #include <string_view>
@@ -67,6 +69,15 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
         return {};
     }
 
+    auto remove_name_segment = [&] {
+        std::size_t separator_position{xpath.find_first_of("/")};
+        if (separator_position == std::string_view::npos) {
+            xpath = std::string_view{};
+            return;
+        }
+        xpath.remove_prefix(separator_position);
+    };
+
     auto search_children = [&] {
         xpath.remove_prefix(1);
         for (auto node : searching) {
@@ -82,21 +93,37 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
                 }
             }
         }
+    };
 
-        // Remove name.
-        std::size_t separator_position{xpath.find_first_of("/")};
-        if (separator_position == xpath.npos) {
-            xpath = std::string_view{};
-            return;
+    auto search_descendants = [&] {
+        xpath.remove_prefix(2);
+        for (std::size_t i = 0; i < searching.size(); ++i) {
+            auto const *node = searching[i];
+
+            auto name = dom_name(*node);
+            if (xpath == name) {
+                // TODO(robinlinden): Less terrible way of deduplicating goal nodes.
+                if (std::ranges::find(goal_nodes, node) == end(goal_nodes)) {
+                    goal_nodes.push_back(node);
+                }
+            } else if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && xpath[name.size()] == '/') {
+                std::ranges::move(dom_children(*node), std::back_inserter(next_search));
+            }
+
+            // Pretty gross, but we want to perform the search in tree order.
+            std::ranges::move(dom_children(*node), std::insert_iterator(searching, next(begin(searching), i + 1)));
         }
-
-        xpath.remove_prefix(separator_position);
     };
 
     while (!next_search.empty() && !xpath.empty()) {
         searching.swap(next_search);
         next_search.clear();
-        search_children();
+        if (xpath.starts_with("//")) {
+            search_descendants();
+        } else if (xpath.starts_with('/')) {
+            search_children();
+        }
+        remove_name_segment();
     }
 
     return goal_nodes;

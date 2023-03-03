@@ -1164,7 +1164,7 @@ int main() {
         expect_eq(dom::nodes_by_xpath(layout, "/html/div/"), NodeVec{});
         expect_eq(dom::nodes_by_xpath(layout, "/html/div/p"), NodeVec{&anon_block.children[1].children[0]});
         expect_eq(dom::nodes_by_xpath(layout, "/htm/div"), NodeVec{});
-        expect_eq(dom::nodes_by_xpath(layout, "//div"), NodeVec{});
+        expect_eq(dom::nodes_by_xpath(layout, "//div"), NodeVec{&layout.children[0], &anon_block.children[1]});
     });
 
     return etest::run_all_tests();
