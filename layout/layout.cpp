@@ -337,6 +337,14 @@ void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
 
 } // namespace
 
+std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) const {
+    auto raw = node->get_raw_property(id);
+    auto [horizontal, vertical] = raw.contains('/') ? util::split_once(raw, "/") : std::pair{raw, raw};
+
+    int font_size = node->get_property<css::PropertyId::FontSize>();
+    return {to_px(horizontal, font_size), to_px(vertical, font_size)};
+}
+
 std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
     if (!tree) {

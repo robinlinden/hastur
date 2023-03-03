@@ -15,6 +15,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -39,8 +40,16 @@ struct LayoutBox {
         // doesn't have a StyleNode) is a programming error.
         assert(type != LayoutType::AnonymousBlock);
         assert(node);
-        return node->get_property<T>();
+        if constexpr (T == css::PropertyId::BorderBottomLeftRadius || T == css::PropertyId::BorderBottomRightRadius
+                || T == css::PropertyId::BorderTopLeftRadius || T == css::PropertyId::BorderTopRightRadius) {
+            return get_border_radius_property(T);
+        } else {
+            return node->get_property<T>();
+        }
     }
+
+private:
+    std::pair<int, int> get_border_radius_property(css::PropertyId) const;
 };
 
 std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width);
