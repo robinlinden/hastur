@@ -66,12 +66,9 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
     if (!xpath.starts_with('/')) {
         return {};
     }
-    xpath.remove_prefix(1);
 
-    while (!next_search.empty()) {
-        searching.swap(next_search);
-        next_search.clear();
-
+    auto search_children = [&] {
+        xpath.remove_prefix(1);
         for (auto node : searching) {
             auto name = dom_name(*node);
             if (xpath == name) {
@@ -86,13 +83,20 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
             }
         }
 
-        // Remove name + separator.
+        // Remove name.
         std::size_t separator_position{xpath.find_first_of("/")};
         if (separator_position == xpath.npos) {
-            break;
+            xpath = std::string_view{};
+            return;
         }
 
-        xpath.remove_prefix(separator_position + 1);
+        xpath.remove_prefix(separator_position);
+    };
+
+    while (!next_search.empty() && !xpath.empty()) {
+        searching.swap(next_search);
+        next_search.clear();
+        search_children();
     }
 
     return goal_nodes;
