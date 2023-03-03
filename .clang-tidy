@@ -27,6 +27,8 @@
 # 2.      ASTMatcher: Processing 'google-readability-braces-around-statements' against:
 #         IfStmt : </usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:520:5, col:56>
 #
+# -misc-const-correctness: Consts some things that can't be const, and very very noisy.
+#
 # -misc-no-recursion: We use a lot of recursion.
 #
 # -misc-non-private-member-variables-in-classes: TODO(robinlinden): Fix.
@@ -43,6 +45,7 @@ Checks: >
   -clang-diagnostic-builtin-macro-redefined,
   -google-build-using-namespace,
   -google-readability-braces-around-statements,
+  -misc-const-correctness,
   -misc-no-recursion,
   -misc-non-private-member-variables-in-classes,
 
