@@ -48,6 +48,12 @@ std::map<css::PropertyId, std::string_view> const kInitialValues{
         {css::PropertyId::BorderRightColor, "currentcolor"sv},
         {css::PropertyId::BorderTopColor, "currentcolor"sv},
 
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
+        {css::PropertyId::BorderBottomLeftRadius, "0"sv},
+        {css::PropertyId::BorderBottomRightRadius, "0"sv},
+        {css::PropertyId::BorderTopLeftRadius, "0"sv},
+        {css::PropertyId::BorderTopRightRadius, "0"sv},
+
         // https://developer.mozilla.org/en-US/docs/Web/CSS/border-style#formal_definition
         {css::PropertyId::BorderBottomStyle, "none"sv},
         {css::PropertyId::BorderLeftStyle, "none"sv},

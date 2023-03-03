@@ -65,6 +65,17 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
     auto background_color = layout.get_property<css::PropertyId::BackgroundColor>();
     auto const &border_size = layout.dimensions.border;
+
+    gfx::Corners corners{};
+    auto top_left = layout.get_property<css::PropertyId::BorderTopLeftRadius>();
+    corners.top_left = {top_left.first, top_left.second};
+    auto top_right = layout.get_property<css::PropertyId::BorderTopRightRadius>();
+    corners.top_right = {top_right.first, top_right.second};
+    auto bottom_left = layout.get_property<css::PropertyId::BorderBottomLeftRadius>();
+    corners.bottom_left = {bottom_left.first, bottom_left.second};
+    auto bottom_right = layout.get_property<css::PropertyId::BorderBottomRightRadius>();
+    corners.bottom_right = {bottom_right.first, bottom_right.second};
+
     if (has_any_border(border_size)) {
         gfx::Borders borders{};
         borders.left.color = layout.get_property<css::PropertyId::BorderLeftColor>();
@@ -76,9 +87,9 @@ void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
         borders.bottom.color = layout.get_property<css::PropertyId::BorderBottomColor>();
         borders.bottom.size = border_size.bottom;
 
-        painter.draw_rect(layout.dimensions.padding_box(), background_color, borders, gfx::Corners{});
+        painter.draw_rect(layout.dimensions.padding_box(), background_color, borders, corners);
     } else if (!is_fully_transparent(background_color)) {
-        painter.draw_rect(layout.dimensions.padding_box(), background_color, gfx::Borders{}, gfx::Corners{});
+        painter.draw_rect(layout.dimensions.padding_box(), background_color, gfx::Borders{}, corners);
     }
 }
 
