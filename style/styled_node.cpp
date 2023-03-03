@@ -123,7 +123,6 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
 
 // TODO(robinlinden): space-separated values.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
-// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgba
 std::optional<gfx::Color> try_from_rgba(std::string_view text) {
     if (text.starts_with("rgb(")) {
         text.remove_prefix(std::strlen("rgb("));

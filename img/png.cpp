@@ -50,7 +50,7 @@ std::optional<Png> Png::from(std::istream &is) {
 
 #ifdef _MSC_VER
     // C4611: interaction between '_setjmp' and C++ object destruction is non-portable.
-    // See: https://docs.microsoft.com/en-us/cpp/cpp/using-setjmp-longjmp
+    // See: https://learn.microsoft.com/en-us/cpp/cpp/using-setjmp-longjmp?view=msvc-170
 #pragma warning(disable : 4611)
 #endif
     if (setjmp(png_jmpbuf(png))) {

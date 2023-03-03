@@ -21,7 +21,7 @@ struct CaseInsensitiveLess {
     }
 };
 
-// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color_keywords#list_of_all_color_keywords
+// https://developer.mozilla.org/en-US/docs/Web/CSS/named-color#list_of_all_color_keywords
 std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const kNamedColors{
         // System colors.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#system_colors

@@ -37,7 +37,7 @@ build:windows --copt='/Zc:__cplusplus' # Report the real supported C++ version, 
 # Special build options
 # =========================================================
 
-# https://bazel.build/docs/windows#clang
+# https://bazel.build/configure/windows#clang
 build:clang-cl --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl
 build:clang-cl --extra_execution_platforms=//:x64_windows-clang-cl
 build:clang-cl --platforms=//:x64_windows-clang-cl

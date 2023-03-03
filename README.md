@@ -70,4 +70,4 @@ C++ feature.
 [bazel]: https://bazel.build
 [bazelisk]: https://github.com/bazelbuild/bazelisk
 [clangd-on-windows]: https://github.com/clangd/clangd/issues/527
-[codecov]: https://codecov.io/gh/robinlinden/hastur
+[codecov]: https://app.codecov.io/gh/robinlinden/hastur
