@@ -26,12 +26,6 @@ public:
 
 private:
     void skip_whitespace_and_comments();
-
-    template<auto const &array>
-    constexpr bool is_in_array(std::string_view) const;
-
-    class Tokenizer;
-
     constexpr void skip_if_neq(char);
 
     css::Rule parse_rule();
@@ -59,23 +53,6 @@ private:
             std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const;
 
     void expand_font(std::map<PropertyId, std::string> &declarations, std::string_view value) const;
-
-    std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_parse_font_size(Tokenizer &) const;
-
-    std::optional<std::string> try_parse_font_family(Tokenizer &) const;
-    std::optional<std::string> try_parse_font_style(Tokenizer &) const;
-    std::optional<std::string_view> try_parse_font_weight(Tokenizer &) const;
-    std::optional<std::string_view> try_parse_font_variant(Tokenizer &) const;
-    std::optional<std::string_view> try_parse_font_stretch(Tokenizer &) const;
-
-    std::optional<int> to_int(std::string_view) const;
-
-    constexpr bool is_shorthand_edge_property(std::string_view) const;
-    constexpr bool is_absolute_size(std::string_view) const;
-    constexpr bool is_relative_size(std::string_view) const;
-    constexpr bool is_weight(std::string_view) const;
-    constexpr bool is_stretch(std::string_view) const;
-    constexpr bool is_length_or_percentage(std::string_view) const;
 };
 
 } // namespace css

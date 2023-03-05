@@ -25,8 +25,78 @@
 #include <vector>
 
 namespace css {
+namespace {
 
-class Parser::Tokenizer {
+constexpr std::array border_shorthand_properties{
+        "border", "border-left", "border-right", "border-top", "border-bottom"};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/border-style
+constexpr std::array border_style_keywords{
+        "none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/border-width
+constexpr std::array border_width_keywords{"thin", "medium", "thick"};
+
+constexpr auto shorthand_edge_property = std::array{"padding", "margin", "border-style"};
+
+constexpr auto absolute_size_keywords =
+        std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
+
+constexpr auto relative_size_keywords = std::array{"larger", "smaller"};
+
+constexpr auto weight_keywords = std::array{"bold", "bolder", "lighter"};
+
+constexpr auto stretch_keywords = std::array{"ultra-condensed",
+        "extra-condensed",
+        "condensed",
+        "semi-condensed",
+        "semi-expanded",
+        "expanded",
+        "extra-expanded",
+        "ultra-expanded"};
+
+constexpr std::string_view dot_and_digits = ".0123456789";
+
+template<auto const &array>
+constexpr bool is_in_array(std::string_view str) {
+    return std::ranges::find(array, str) != std::cend(array);
+}
+
+constexpr bool is_shorthand_edge_property(std::string_view str) {
+    return is_in_array<shorthand_edge_property>(str);
+}
+
+constexpr bool is_absolute_size(std::string_view str) {
+    return is_in_array<absolute_size_keywords>(str);
+}
+
+constexpr bool is_relative_size(std::string_view str) {
+    return is_in_array<relative_size_keywords>(str);
+}
+
+constexpr bool is_weight(std::string_view str) {
+    return is_in_array<weight_keywords>(str);
+}
+
+constexpr bool is_stretch(std::string_view str) {
+    return is_in_array<stretch_keywords>(str);
+}
+
+constexpr bool is_length_or_percentage(std::string_view str) {
+    // TODO(mkiael): Make this check more reliable.
+    std::size_t pos = str.find_first_not_of(dot_and_digits);
+    return pos > 0 && pos != std::string_view::npos;
+}
+
+std::optional<int> to_int(std::string_view str) {
+    int result{};
+    if (std::from_chars(str.data(), str.data() + str.size(), result).ec != std::errc{}) {
+        return std::nullopt;
+    }
+    return result;
+}
+
+class Tokenizer {
 public:
     Tokenizer(std::string_view str, char delimiter) {
         std::size_t pos = 0, loc = 0;
@@ -74,6 +144,85 @@ private:
     std::vector<std::string_view>::const_iterator token_iter_;
 };
 
+std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_parse_font_size(Tokenizer &tokenizer) {
+    if (auto token = tokenizer.get()) {
+        std::string_view str = *token;
+        if (std::size_t loc = str.find('/'); loc != std::string_view::npos) {
+            std::string_view font_size = str.substr(0, loc);
+            std::string_view line_height = str.substr(loc + 1);
+            return std::pair(std::move(font_size), std::move(line_height));
+        } else if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
+            return std::pair(std::move(str), std::nullopt);
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string> try_parse_font_family(Tokenizer &tokenizer) {
+    std::string font_family = "";
+    while (auto str = tokenizer.get()) {
+        if (!font_family.empty()) {
+            font_family += ' ';
+        }
+        font_family += *str;
+        tokenizer.next();
+    }
+    return font_family;
+}
+
+std::optional<std::string> try_parse_font_style(Tokenizer &tokenizer) {
+    std::string font_style = "";
+    if (auto maybe_font_style = tokenizer.get()) {
+        if (maybe_font_style->starts_with("italic")) {
+            font_style = *maybe_font_style;
+            return font_style;
+        } else if (maybe_font_style->starts_with("oblique")) {
+            font_style = *maybe_font_style;
+            if (auto maybe_angle = tokenizer.peek()) {
+                if (maybe_angle->contains("deg")) {
+                    font_style += ' ';
+                    font_style += *maybe_angle;
+                    tokenizer.next();
+                }
+            }
+            return font_style;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string_view> try_parse_font_weight(Tokenizer &tokenizer) {
+    if (auto maybe_font_weight = tokenizer.get()) {
+        if (is_weight(*maybe_font_weight)) {
+            return *maybe_font_weight;
+        } else if (auto maybe_int = to_int(*maybe_font_weight)) {
+            if (*maybe_int >= 1 && *maybe_int <= 1000) {
+                return *maybe_font_weight;
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string_view> try_parse_font_variant(Tokenizer &tokenizer) {
+    if (auto maybe_font_variant = tokenizer.get()) {
+        if (*maybe_font_variant == "small-caps") {
+            return *maybe_font_variant;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) {
+    if (auto maybe_font_stretch = tokenizer.get()) {
+        if (is_stretch(*maybe_font_stretch)) {
+            return *maybe_font_stretch;
+        }
+    }
+    return std::nullopt;
+}
+
+} // namespace
 
 std::vector<css::Rule> Parser::parse_rules() {
     std::vector<css::Rule> rules;
@@ -143,41 +292,6 @@ void Parser::skip_whitespace_and_comments() {
     if (starts_with("/*")) {
         skip_whitespace_and_comments();
     }
-}
-
-static constexpr std::array border_shorthand_properties{
-        "border", "border-left", "border-right", "border-top", "border-bottom"};
-
-// https://developer.mozilla.org/en-US/docs/Web/CSS/border-style
-static constexpr std::array border_style_keywords{
-        "none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"};
-
-// https://developer.mozilla.org/en-US/docs/Web/CSS/border-width
-static constexpr std::array border_width_keywords{"thin", "medium", "thick"};
-
-static constexpr auto shorthand_edge_property = std::array{"padding", "margin", "border-style"};
-
-static constexpr auto absolute_size_keywords =
-        std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
-
-static constexpr auto relative_size_keywords = std::array{"larger", "smaller"};
-
-static constexpr auto weight_keywords = std::array{"bold", "bolder", "lighter"};
-
-static constexpr auto stretch_keywords = std::array{"ultra-condensed",
-        "extra-condensed",
-        "condensed",
-        "semi-condensed",
-        "semi-expanded",
-        "expanded",
-        "extra-expanded",
-        "ultra-expanded"};
-
-static constexpr std::string_view dot_and_digits = ".0123456789";
-
-template<auto const &array>
-constexpr bool Parser::is_in_array(std::string_view str) const {
-    return std::ranges::find(array, str) != std::cend(array);
 }
 
 constexpr void Parser::skip_if_neq(char c) {
@@ -282,7 +396,7 @@ void Parser::expand_border_impl(
     }
 
     enum class BorderPropertyType { Color, Style, Width };
-    auto guess_type = [this](std::string_view v) -> BorderPropertyType {
+    auto guess_type = [](std::string_view v) -> BorderPropertyType {
         if (is_in_array<border_style_keywords>(v)) {
             return BorderPropertyType::Style;
         }
@@ -338,8 +452,7 @@ void Parser::expand_background(std::map<PropertyId, std::string> &declarations, 
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
-void Parser::expand_border_radius_values(
-        std::map<PropertyId, std::string> &declarations, std::string_view value) {
+void Parser::expand_border_radius_values(std::map<PropertyId, std::string> &declarations, std::string_view value) {
     std::string top_left, top_right, bottom_right, bottom_left;
     auto [horizontal, vertical] = util::split_once(value, "/");
     Tokenizer tokenizer(horizontal, ' ');
@@ -511,119 +624,6 @@ void Parser::expand_font(std::map<PropertyId, std::string> &declarations, std::s
     declarations.insert_or_assign(PropertyId::FontVariantNumeric, "normal");
     declarations.insert_or_assign(PropertyId::FontVariantPosition, "normal");
     declarations.insert_or_assign(PropertyId::FontVariantEastAsian, "normal");
-}
-
-std::optional<std::pair<std::string_view, std::optional<std::string_view>>> Parser::try_parse_font_size(
-        Tokenizer &tokenizer) const {
-    if (auto token = tokenizer.get()) {
-        std::string_view str = *token;
-        if (std::size_t loc = str.find('/'); loc != std::string_view::npos) {
-            std::string_view font_size = str.substr(0, loc);
-            std::string_view line_height = str.substr(loc + 1);
-            return std::pair(std::move(font_size), std::move(line_height));
-        } else if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
-            return std::pair(std::move(str), std::nullopt);
-        }
-    }
-    return std::nullopt;
-}
-
-std::optional<std::string> Parser::try_parse_font_family(Tokenizer &tokenizer) const {
-    std::string font_family = "";
-    while (auto str = tokenizer.get()) {
-        if (!font_family.empty()) {
-            font_family += ' ';
-        }
-        font_family += *str;
-        tokenizer.next();
-    }
-    return font_family;
-}
-
-std::optional<std::string> Parser::try_parse_font_style(Tokenizer &tokenizer) const {
-    std::string font_style = "";
-    if (auto maybe_font_style = tokenizer.get()) {
-        if (maybe_font_style->starts_with("italic")) {
-            font_style = *maybe_font_style;
-            return font_style;
-        } else if (maybe_font_style->starts_with("oblique")) {
-            font_style = *maybe_font_style;
-            if (auto maybe_angle = tokenizer.peek()) {
-                if (maybe_angle->contains("deg")) {
-                    font_style += ' ';
-                    font_style += *maybe_angle;
-                    tokenizer.next();
-                }
-            }
-            return font_style;
-        }
-    }
-    return std::nullopt;
-}
-
-std::optional<std::string_view> Parser::try_parse_font_weight(Tokenizer &tokenizer) const {
-    if (auto maybe_font_weight = tokenizer.get()) {
-        if (is_weight(*maybe_font_weight)) {
-            return *maybe_font_weight;
-        } else if (auto maybe_int = to_int(*maybe_font_weight)) {
-            if (*maybe_int >= 1 && *maybe_int <= 1000) {
-                return *maybe_font_weight;
-            }
-        }
-    }
-    return std::nullopt;
-}
-
-std::optional<std::string_view> Parser::try_parse_font_variant(Tokenizer &tokenizer) const {
-    if (auto maybe_font_variant = tokenizer.get()) {
-        if (*maybe_font_variant == "small-caps") {
-            return *maybe_font_variant;
-        }
-    }
-    return std::nullopt;
-}
-
-std::optional<std::string_view> Parser::try_parse_font_stretch(Tokenizer &tokenizer) const {
-    if (auto maybe_font_stretch = tokenizer.get()) {
-        if (is_stretch(*maybe_font_stretch)) {
-            return *maybe_font_stretch;
-        }
-    }
-    return std::nullopt;
-}
-
-std::optional<int> Parser::to_int(std::string_view str) const {
-    int result{};
-    if (std::from_chars(str.data(), str.data() + str.size(), result).ec != std::errc{}) {
-        return std::nullopt;
-    }
-    return result;
-}
-
-constexpr bool Parser::is_shorthand_edge_property(std::string_view str) const {
-    return is_in_array<shorthand_edge_property>(str);
-}
-
-constexpr bool Parser::is_absolute_size(std::string_view str) const {
-    return is_in_array<absolute_size_keywords>(str);
-}
-
-constexpr bool Parser::is_relative_size(std::string_view str) const {
-    return is_in_array<relative_size_keywords>(str);
-}
-
-constexpr bool Parser::is_weight(std::string_view str) const {
-    return is_in_array<weight_keywords>(str);
-}
-
-constexpr bool Parser::is_stretch(std::string_view str) const {
-    return is_in_array<stretch_keywords>(str);
-}
-
-constexpr bool Parser::is_length_or_percentage(std::string_view str) const {
-    // TODO(mkiael): Make this check more reliable.
-    std::size_t pos = str.find_first_not_of(dot_and_digits);
-    return pos > 0 && pos != std::string_view::npos;
 }
 
 } // namespace css
