@@ -11,20 +11,11 @@ genrule(
 
 cc_library(
     name = "css",
-    srcs = [
-        "default.cpp",
-        "parse.cpp",
-        "property_id.cpp",
-        "rule.cpp",
-        ":default_css.h",
-    ],
-    hdrs = [
-        "default.h",
-        "parse.h",
-        "parser.h",
-        "property_id.h",
-        "rule.h",
-    ],
+    srcs = [":default_css.h"] + glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
