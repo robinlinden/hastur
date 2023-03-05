@@ -10,9 +10,11 @@
 #include "style/style.h"
 
 #include <spdlog/spdlog.h>
+#include <zlib.h>
 
 #include <future>
 #include <iterator>
+#include <optional>
 #include <string_view>
 #include <utility>
 
@@ -27,6 +29,49 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
         return std::nullopt;
     }
     return std::get<dom::Text>(nodes[0]->children[0]).text;
+}
+
+std::optional<std::string> zlib_decode(std::string data) {
+    z_stream s{
+            .next_in = reinterpret_cast<Bytef *>(data.data()),
+            .avail_in = static_cast<uInt>(data.size()),
+    };
+
+    // https://github.com/madler/zlib/blob/v1.2.13/zlib.h#L832
+    // The windowBits parameter is the base two logarithm of the
+    // maximum window size (the size of the history buffer). It
+    // should be in the range 8..15 for this version of the library.
+    // <...>
+    // windowBits can also be greater than 15 for optional gzip
+    // decoding. Add 32 to windowBits to enable zlib and gzip
+    // decoding with automatic header detection, or add 16 to decode
+    // only the gzip format <...>.
+    constexpr int kWindowBits = 15;
+    constexpr int kEnableGzip = 32;
+    if (inflateInit2(&s, kWindowBits + kEnableGzip) != Z_OK) {
+        return std::nullopt;
+    }
+
+    std::string out{};
+    std::string buf{};
+    constexpr auto kZlibInflateChunkSize = std::size_t{64} * 1024; // Chosen by a fair dice roll.
+    buf.resize(kZlibInflateChunkSize);
+    do {
+        s.next_out = reinterpret_cast<Bytef *>(buf.data());
+        s.avail_out = static_cast<uInt>(buf.size());
+        int ret = inflate(&s, Z_NO_FLUSH);
+        if (ret != Z_OK && ret != Z_STREAM_END) {
+            spdlog::error("Error '{}: {}' during zlib inflation", ret, s.msg);
+            inflateEnd(&s);
+            return std::nullopt;
+        }
+
+        uInt inflated_bytes = static_cast<uInt>(buf.size()) - s.avail_out;
+        out += buf.substr(0, inflated_bytes);
+    } while (s.avail_out == 0);
+
+    inflateEnd(&s);
+    return out;
 }
 
 } // namespace
@@ -111,7 +156,16 @@ void Engine::on_navigation_success() {
                 return {};
             }
 
-            if (auto encoding = style_data.headers.get("Content-Encoding")) {
+            auto encoding = style_data.headers.get("Content-Encoding");
+            if (encoding == "gzip") {
+                auto decoded = zlib_decode(std::move(style_data.body));
+                if (!decoded) {
+                    spdlog::error("Failed {}-decoding of '{}'", *encoding, stylesheet_url.uri);
+                    return {};
+                }
+
+                style_data.body = *std::move(decoded);
+            } else if (encoding) {
                 spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url.uri);
                 return {};
             }

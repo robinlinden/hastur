@@ -16,6 +16,7 @@ cc_library(
         "//style",
         "//uri",
         "@spdlog",
+        "@zlib",
     ],
 )
 
