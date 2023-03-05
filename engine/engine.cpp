@@ -31,9 +31,9 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
     return std::get<dom::Text>(nodes[0]->children[0]).text;
 }
 
-std::optional<std::string> zlib_decode(std::string data) {
+std::optional<std::string> zlib_decode(std::string_view data) {
     z_stream s{
-            .next_in = reinterpret_cast<Bytef *>(data.data()),
+            .next_in = reinterpret_cast<Bytef const *>(data.data()),
             .avail_in = static_cast<uInt>(data.size()),
     };
 
@@ -158,7 +158,7 @@ void Engine::on_navigation_success() {
 
             auto encoding = style_data.headers.get("Content-Encoding");
             if (encoding == "gzip") {
-                auto decoded = zlib_decode(std::move(style_data.body));
+                auto decoded = zlib_decode(style_data.body);
                 if (!decoded) {
                     spdlog::error("Failed {}-decoding of '{}'", *encoding, stylesheet_url.uri);
                     return {};
