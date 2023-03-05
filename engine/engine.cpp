@@ -5,7 +5,7 @@
 #include "engine/engine.h"
 
 #include "css/default.h"
-#include "css/parse.h"
+#include "css/parser.h"
 #include "html/parse.h"
 #include "style/style.h"
 

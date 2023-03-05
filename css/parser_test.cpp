@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "css/parse.h"
+#include "css/parser.h"
 
 #include "css/property_id.h"
 

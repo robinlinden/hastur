@@ -55,6 +55,10 @@ private:
     void expand_font(std::map<PropertyId, std::string> &declarations, std::string_view value) const;
 };
 
+inline std::vector<Rule> parse(std::string_view input) {
+    return Parser{input}.parse_rules();
+}
+
 } // namespace css
 
 #endif
