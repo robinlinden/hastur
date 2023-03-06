@@ -217,7 +217,25 @@ int main() {
                 .headers{std::move(css_response_headers)},
                 .body{gzipped_css},
         };
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect(std::ranges::find(e.stylesheet(),
+                       css::Rule{
+                               .selectors{"p"},
+                               .declarations{{css::PropertyId::FontSize, "123em"}},
+                       })
+                != end(e.stylesheet()));
+
+        // And again, but with x-gzip instead.
+        css_response_headers = {};
+        css_response_headers.add({"Content-Encoding", "x-gzip"});
+        responses["hax://example.com/lol.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .headers{std::move(css_response_headers)},
+                .body{std::move(gzipped_css)},
+        };
+        e = engine::Engine{std::make_unique<FakeProtocolHandler>(responses)};
         e.navigate(uri::Uri::parse("hax://example.com"));
         expect(std::ranges::find(e.stylesheet(),
                        css::Rule{

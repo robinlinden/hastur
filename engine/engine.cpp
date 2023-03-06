@@ -156,8 +156,9 @@ void Engine::on_navigation_success() {
                 return {};
             }
 
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding#directives
             auto encoding = style_data.headers.get("Content-Encoding");
-            if (encoding == "gzip") {
+            if (encoding == "gzip" || encoding == "x-gzip") {
                 auto decoded = zlib_decode(style_data.body);
                 if (!decoded) {
                     spdlog::error("Failed {}-decoding of '{}'", *encoding, stylesheet_url.uri);
