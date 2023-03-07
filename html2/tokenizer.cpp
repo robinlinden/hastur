@@ -1059,7 +1059,16 @@ void Tokenizer::run() {
                 }
 
                 if (input_.substr(pos_, std::strlen("[CDATA[")) == "[CDATA["sv) {
-                    std::terminate();
+                    pos_ += std::strlen("[CDATA[");
+                    if (adjusted_current_node_not_in_html_namespace_) {
+                        state_ = State::CdataSection;
+                        continue;
+                    }
+
+                    emit(ParseError::CdataInHtmlContent);
+                    current_token_ = CommentToken{.data = "[CDATA["};
+                    state_ = State::BogusComment;
+                    continue;
                 }
 
                 emit(ParseError::IncorrectlyOpenedComment);
@@ -1830,6 +1839,57 @@ void Tokenizer::run() {
                     default:
                         continue;
                 }
+            }
+
+            // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-state
+            case State::CdataSection: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(ParseError::EofInCdata);
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case ']':
+                        state_ = State::CdataSectionBracket;
+                        continue;
+                    default:
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
+            // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-bracket-state
+            case State::CdataSectionBracket: {
+                auto c = consume_next_input_character();
+                if (c == ']') {
+                    state_ = State::CdataSectionEnd;
+                    continue;
+                }
+
+                emit(CharacterToken{']'});
+                reconsume_in(State::CdataSection);
+                continue;
+            }
+
+            // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-end-state
+            case State::CdataSectionEnd: {
+                auto c = consume_next_input_character();
+                if (c == ']') {
+                    emit(CharacterToken{']'});
+                    continue;
+                }
+
+                if (c == '>') {
+                    state_ = State::Data;
+                    continue;
+                }
+
+                emit(CharacterToken{']'});
+                emit(CharacterToken{']'});
+                reconsume_in(State::CdataSection);
+                continue;
             }
 
             case State::CharacterReference: {

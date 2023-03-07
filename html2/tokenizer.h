@@ -105,7 +105,9 @@ enum class ParseError {
     AbruptDoctypePublicIdentifier,
     AbruptDoctypeSystemIdentifier,
     AbsenceOfDigitsInNumericCharacterReference,
+    CdataInHtmlContent,
     ControlCharacterReference,
+    EofInCdata,
     EofInComment,
     EofInDoctype,
     EofInTag,
@@ -140,6 +142,12 @@ public:
     void set_state(State);
     void run();
 
+    // This will definitely change once we implement the tree construction, but this works for now.
+    // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
+    void set_adjusted_current_node_not_in_html_namespace(bool in_html_namespace) {
+        adjusted_current_node_not_in_html_namespace_ = in_html_namespace;
+    }
+
 private:
     std::string_view input_;
     std::size_t pos_{0};
@@ -151,6 +159,7 @@ private:
     std::string last_start_tag_name_{};
 
     std::uint32_t character_reference_code_{};
+    bool adjusted_current_node_not_in_html_namespace_{false};
 
     std::function<void(Tokenizer &, Token &&)> on_emit_{};
     std::function<void(Tokenizer &, ParseError)> on_error_{};

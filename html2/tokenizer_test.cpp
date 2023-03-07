@@ -40,22 +40,26 @@ public:
     etest::source_location loc;
 };
 
-TokenizerOutput run_tokenizer(std::string_view input, etest::source_location loc = etest::source_location::current()) {
+TokenizerOutput run_tokenizer(std::string_view input,
+        bool in_html_namespace = true,
+        etest::source_location loc = etest::source_location::current()) {
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
-    Tokenizer{input,
-            [&](Tokenizer &tokenizer, Token &&t) {
+    Tokenizer tokenizer{input,
+            [&](Tokenizer &the, Token &&t) {
                 if (std::holds_alternative<StartTagToken>(t)) {
                     if (std::get<StartTagToken>(t).tag_name == "script") {
-                        tokenizer.set_state(State::ScriptData);
+                        the.set_state(State::ScriptData);
                     }
                 }
                 tokens.push_back(std::move(t));
             },
             [&](auto &, ParseError e) {
                 errors.push_back(e);
-            }}
-            .run();
+            }};
+    tokenizer.set_adjusted_current_node_not_in_html_namespace(!in_html_namespace);
+    tokenizer.run();
+
     return {std::move(tokens), std::move(errors), std::move(loc)};
 }
 
@@ -79,6 +83,45 @@ void expect_error(
     require(!output.errors.empty(), "Unexpected end of error list", loc);
     expect_eq(output.errors.front(), e, {}, loc);
     output.errors.erase(begin(output.errors));
+}
+
+void cdata_tests() {
+    etest::test("cdata, currently in html", [] {
+        auto tokens = run_tokenizer("<![CDATA["sv);
+        expect_error(tokens, ParseError::CdataInHtmlContent);
+        expect_token(tokens, CommentToken{.data = "[CDATA["});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("cdata, eof", [] {
+        auto tokens = run_tokenizer("<![CDATA["sv, false);
+        expect_error(tokens, html2::ParseError::EofInCdata);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("cdata, bracket", [] {
+        auto tokens = run_tokenizer("<![CDATA[]hello"sv, false);
+        expect_error(tokens, html2::ParseError::EofInCdata);
+        expect_text(tokens, "]hello");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("cdata, end", [] {
+        auto tokens = run_tokenizer("<![CDATA[]]>"sv, false);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("cdata, end, extra bracket", [] {
+        auto tokens = run_tokenizer("<![CDATA[]]]>"sv, false);
+        expect_token(tokens, CharacterToken{']'});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("cdata, end, extra text", [] {
+        auto tokens = run_tokenizer("<![CDATA[]]a]]>"sv, false);
+        expect_text(tokens, "]]a");
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 void doctype_system_keyword_tests() {
@@ -154,6 +197,7 @@ void doctype_system_keyword_tests() {
 } // namespace
 
 int main() {
+    cdata_tests();
     doctype_system_keyword_tests();
 
     etest::test("script, empty", [] {
