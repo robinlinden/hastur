@@ -103,4 +103,15 @@ int main(int argc, char **argv) {
             std::cout << e.name << ": " << static_cast<int>(e.type) << ':' << e.index << '\n';
         }
     }
+
+    if (auto const &s = module->code_section()) {
+        std::cout << "\n# Code\n";
+        for (auto const &e : s->entries) {
+            std::cout << e.code.size() << "B code, " << e.locals.size() << " locals";
+            for (auto const &local : e.locals) {
+                std::cout << " (" << local.type << ": " << local.count << ')';
+            }
+            std::cout << '\n';
+        }
+    }
 }
