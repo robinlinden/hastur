@@ -99,6 +99,26 @@ struct ExportSection {
     [[nodiscard]] bool operator==(ExportSection const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-codesec
+struct CodeEntry {
+    struct Local {
+        std::uint32_t count{};
+        ValueType type{};
+
+        [[nodiscard]] bool operator==(Local const &) const = default;
+    };
+
+    std::vector<std::uint8_t> code{};
+    std::vector<Local> locals{};
+
+    [[nodiscard]] bool operator==(CodeEntry const &) const = default;
+};
+struct CodeSection {
+    std::vector<CodeEntry> entries{};
+
+    [[nodiscard]] bool operator==(CodeSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/bikeshed/#modules
 struct Module {
     static std::optional<Module> parse_from(std::istream &&is) { return parse_from(is); }
@@ -109,6 +129,7 @@ struct Module {
     std::optional<TypeSection> type_section() const;
     std::optional<FunctionSection> function_section() const;
     std::optional<ExportSection> export_section() const;
+    std::optional<CodeSection> code_section() const;
 
     [[nodiscard]] bool operator==(Module const &) const = default;
 };

@@ -7,6 +7,7 @@
 #include "wasm/leb128.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <istream>
 #include <optional>
@@ -118,6 +119,55 @@ std::optional<Export> parse(std::istream &is) {
             .name = std::move(name),
             .type = static_cast<Export::Type>(type),
             .index = *index,
+    };
+}
+
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-codesec
+template<>
+std::optional<CodeEntry::Local> parse(std::istream &is) {
+    auto count = Leb128<std::uint32_t>::decode_from(is);
+    if (!count) {
+        return std::nullopt;
+    }
+
+    auto type = parse<ValueType>(is);
+    if (!type) {
+        return std::nullopt;
+    }
+
+    return CodeEntry::Local{
+            .count = *count,
+            .type = *type,
+    };
+}
+
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-codesec
+template<>
+std::optional<CodeEntry> parse(std::istream &is) {
+    auto size = Leb128<std::uint32_t>::decode_from(is);
+    if (!size) {
+        return std::nullopt;
+    }
+
+    auto cursor_before_locals = is.tellg();
+
+    auto locals = parse_vector<CodeEntry::Local>(is);
+    if (!locals) {
+        return std::nullopt;
+    }
+
+    auto bytes_consumed_by_locals = is.tellg() - cursor_before_locals;
+    assert(bytes_consumed_by_locals >= 0);
+
+    std::vector<std::uint8_t> code;
+    code.resize(*size - bytes_consumed_by_locals);
+    if (!is.read(reinterpret_cast<char *>(code.data()), code.size())) {
+        return std::nullopt;
+    }
+
+    return CodeEntry{
+            .code = std::move(code),
+            .locals = *std::move(locals),
     };
 }
 
@@ -243,6 +293,19 @@ std::optional<ExportSection> Module::export_section() const {
 
     if (auto maybe_exports = parse_vector<Export>(std::stringstream{*std::move(content)})) {
         return ExportSection{.exports = std::move(maybe_exports).value()};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<CodeSection> Module::code_section() const {
+    auto content = get_section_data(sections, SectionId::Code);
+    if (!content) {
+        return std::nullopt;
+    }
+
+    if (auto code_entries = parse_vector<CodeEntry>(std::stringstream{*std::move(content)})) {
+        return CodeSection{.entries = *std::move(code_entries)};
     }
 
     return std::nullopt;

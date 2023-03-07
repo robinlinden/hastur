@@ -243,6 +243,101 @@ void type_section_tests() {
     });
 }
 
+void code_section_tests() {
+    etest::test("code section, non-existent", [] {
+        auto module = wasm::Module{};
+        expect_eq(module.code_section(), std::nullopt);
+    });
+
+    etest::test("code section, missing type data", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{},
+        }}};
+
+        expect_eq(module.code_section(), std::nullopt);
+    });
+
+    etest::test("code section, empty", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{0},
+        }}};
+
+        expect_eq(module.code_section(), wasm::CodeSection{});
+    });
+
+    etest::test("code section, missing data after count", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{1},
+        }}};
+
+        expect_eq(module.code_section(), std::nullopt);
+    });
+
+    etest::test("code section, missing local count", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{1, 1, 1},
+        }}};
+
+        expect_eq(module.code_section(), std::nullopt);
+    });
+
+    etest::test("code section, missing local type", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{1, 1, 1, 1},
+        }}};
+
+        expect_eq(module.code_section(), std::nullopt);
+    });
+
+    etest::test("code section, not enough data", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{1, 6, 1, 1, 0x7f, 4, 4},
+        }}};
+
+        expect_eq(module.code_section(), std::nullopt);
+    });
+
+    etest::test("code section, one entry", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{1, 6, 1, 1, 0x7f, 4, 4, 4},
+        }}};
+
+        wasm::CodeSection expected{.entries{
+                wasm::CodeEntry{
+                        .code{4, 4, 4},
+                        .locals{{1, wasm::ValueType::Int32}},
+                },
+        }};
+        expect_eq(module.code_section(), expected);
+    });
+
+    etest::test("code section, two entries", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Code,
+                .content{2, 6, 1, 1, 0x7f, 4, 4, 4, 9, 2, 5, 0x7e, 6, 0x7d, 7, 8, 9, 10},
+        }}};
+
+        wasm::CodeSection expected{.entries{
+                wasm::CodeEntry{
+                        .code{4, 4, 4},
+                        .locals{{1, wasm::ValueType::Int32}},
+                },
+                wasm::CodeEntry{
+                        .code{7, 8, 9, 10},
+                        .locals{{5, wasm::ValueType::Int64}, {6, wasm::ValueType::Float32}},
+                },
+        }};
+        expect_eq(module.code_section(), expected);
+    });
+}
+
 } // namespace
 
 int main() {
@@ -316,6 +411,7 @@ int main() {
     type_section_tests();
     function_section_tests();
     export_section_tests();
+    code_section_tests();
 
     return etest::run_all_tests();
 }
