@@ -150,9 +150,6 @@ int main() {
     });
 
     etest::test("stylesheet link, unsupported Content-Encoding", [] {
-        protocol::Headers css_response_headers;
-        css_response_headers.add({"Content-Encoding", "really-borked-content-type"});
-
         std::map<std::string, Response> responses{
                 {
                         "hax://example.com"s,
@@ -167,7 +164,7 @@ int main() {
                         Response{
                                 .err = Error::Ok,
                                 .status_line = {.status_code = 200},
-                                .headers{std::move(css_response_headers)},
+                                .headers{{"Content-Encoding", "really-borked-content-type"}},
                                 .body{"p { font-size: 123em; }"},
                         },
                 },
