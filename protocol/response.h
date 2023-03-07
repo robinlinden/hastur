@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -7,6 +7,7 @@
 #define PROTOCOL_RESPONSE_H_
 
 #include <cstddef>
+#include <initializer_list>
 #include <map>
 #include <optional>
 #include <string>
@@ -32,6 +33,9 @@ struct StatusLine {
 
 class Headers {
 public:
+    Headers() = default;
+    Headers(std::initializer_list<std::map<std::string, std::string>::value_type> init) : headers_{std::move(init)} {}
+
     void add(std::pair<std::string_view, std::string_view> nv);
     [[nodiscard]] std::optional<std::string_view> get(std::string_view name) const;
     [[nodiscard]] std::string to_string() const;
