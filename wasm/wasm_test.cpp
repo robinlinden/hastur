@@ -343,12 +343,12 @@ void code_section_tests() {
 int main() {
     etest::test("invalid magic", [] {
         auto wasm_bytes = std::stringstream{"hello"};
-        expect_eq(wasm::Module::parse_from(wasm_bytes), std::nullopt);
+        expect_eq(wasm::Module::parse_from(wasm_bytes), tl::unexpected{wasm::ParseError::InvalidMagic});
     });
 
     etest::test("unsupported version", [] {
         auto wasm_bytes = std::stringstream{"\0asm\2\0\0\0"s};
-        expect_eq(wasm::Module::parse_from(wasm_bytes), std::nullopt);
+        expect_eq(wasm::Module::parse_from(wasm_bytes), tl::unexpected{wasm::ParseError::UnsupportedVersion});
     });
 
     // https://webassembly.github.io/spec/core/bikeshed/#modules
@@ -360,22 +360,22 @@ int main() {
 
     etest::test("invalid section id", [] {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\x0d"s};
-        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), std::nullopt);
+        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ParseError::InvalidSectionId});
     });
 
     etest::test("missing size", [] {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0"s};
-        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), std::nullopt);
+        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ParseError::Unknown});
     });
 
     etest::test("missing content", [] {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\4"s};
-        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), std::nullopt);
+        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ParseError::UnexpectedEof});
     });
 
     etest::test("not enough content", [] {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\4\0\0\0"s};
-        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), std::nullopt);
+        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ParseError::UnexpectedEof});
     });
 
     etest::test("one valid section", [] {

@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include <tl/expected.hpp>
+
 namespace wasm {
 
 // https://webassembly.github.io/spec/core/binary/modules.html#indices
@@ -119,10 +121,18 @@ struct CodeSection {
     [[nodiscard]] bool operator==(CodeSection const &) const = default;
 };
 
+enum class ParseError {
+    Unknown,
+    UnexpectedEof,
+    InvalidMagic,
+    UnsupportedVersion,
+    InvalidSectionId,
+};
+
 // https://webassembly.github.io/spec/core/bikeshed/#modules
 struct Module {
-    static std::optional<Module> parse_from(std::istream &&is) { return parse_from(is); }
-    static std::optional<Module> parse_from(std::istream &);
+    static tl::expected<Module, ParseError> parse_from(std::istream &&is) { return parse_from(is); }
+    static tl::expected<Module, ParseError> parse_from(std::istream &);
 
     std::vector<Section> sections{};
 

@@ -209,21 +209,21 @@ std::optional<std::string> get_section_data(std::vector<Section> const &sections
 
 } // namespace
 
-std::optional<Module> Module::parse_from(std::istream &is) {
+tl::expected<Module, ParseError> Module::parse_from(std::istream &is) {
     std::string buf;
 
     // https://webassembly.github.io/spec/core/bikeshed/#binary-magic
     buf.resize(kMagicSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\0asm"sv) {
-        return std::nullopt;
+        return tl::unexpected{ParseError::InvalidMagic};
     }
 
     // https://webassembly.github.io/spec/core/bikeshed/#binary-version
     buf.resize(kVersionSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\1\0\0\0"sv) {
-        return std::nullopt;
+        return tl::unexpected{ParseError::UnsupportedVersion};
     }
 
     Module module;
@@ -238,19 +238,20 @@ std::optional<Module> Module::parse_from(std::istream &is) {
         }
 
         if (!(id >= static_cast<int>(SectionId::Custom) && id <= static_cast<int>(SectionId::DataCount))) {
-            return std::nullopt;
+            return tl::unexpected{ParseError::InvalidSectionId};
         }
 
+        // TODO(robinlinden): Propagate error from leb128-parsing.
         auto size = Leb128<std::uint32_t>::decode_from(is);
         if (!size) {
-            return std::nullopt;
+            return tl::unexpected{ParseError::Unknown};
         }
 
         std::vector<std::uint8_t> content;
         content.resize(*size);
         is.read(reinterpret_cast<char *>(content.data()), *size);
         if (!is) {
-            return std::nullopt;
+            return tl::unexpected{ParseError::UnexpectedEof};
         }
 
         module.sections.push_back(Section{static_cast<SectionId>(id), std::move(content)});
