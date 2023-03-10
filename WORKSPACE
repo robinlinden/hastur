@@ -68,6 +68,14 @@ http_archive(
 )
 
 http_archive(
+    name = "expected",  # CC0-1.0
+    build_file = "//third_party:expected.BUILD",
+    sha256 = "67b4216c80eae2959222a5da93bb58839ebef0ed37f3c402b930fa5b263244f9",
+    strip_prefix = "expected-3e304a4bdd00feef8d41f5b388c37bd9d6108025",
+    url = "https://github.com/tartanllama/expected/archive/3e304a4bdd00feef8d41f5b388c37bd9d6108025.tar.gz",
+)
+
+http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
     sha256 = "5dea48d1fcddc3ec571ce2058e13910a0d4a6bab4cc09a809d8b1dd1c88ae6f2",
