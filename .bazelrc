@@ -61,6 +61,7 @@ build:asan --action_env=LSAN_OPTIONS=report_objects=1
 
 build:tsan --strip=never
 build:tsan --features=tsan
+build:tsan --action_env=TSAN_OPTIONS=halt_on_error=1
 
 build:ubsan --strip=never
 build:ubsan --features=ubsan
