@@ -153,6 +153,32 @@ int main() {
         expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
     });
 
+    etest::test("stylesheet link, parallel download", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head>"
+                      "<link rel=stylesheet href=one.css />"
+                      "<link rel=stylesheet href=two.css />"
+                      "</head></html>"},
+        };
+        responses["hax://example.com/one.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"p { font-size: 123em; }"},
+        };
+        responses["hax://example.com/two.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"p { color: green; }"},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect(contains(e.stylesheet(), {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        expect(contains(e.stylesheet(), {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+    });
+
     etest::test("stylesheet link, unsupported Content-Encoding", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
