@@ -31,6 +31,10 @@ private:
     std::map<std::string, Response> responses_;
 };
 
+bool contains(std::vector<css::Rule> const &stylesheet, css::Rule const &rule) {
+    return std::ranges::find(stylesheet, rule) != end(stylesheet);
+}
+
 } // namespace
 
 int main() {
@@ -150,33 +154,21 @@ int main() {
     });
 
     etest::test("stylesheet link, unsupported Content-Encoding", [] {
-        std::map<std::string, Response> responses{
-                {
-                        "hax://example.com"s,
-                        Response{
-                                .err = Error::Ok,
-                                .status_line = {.status_code = 200},
-                                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
-                        },
-                },
-                {
-                        "hax://example.com/lol.css"s,
-                        Response{
-                                .err = Error::Ok,
-                                .status_line = {.status_code = 200},
-                                .headers{{"Content-Encoding", "really-borked-content-type"}},
-                                .body{"p { font-size: 123em; }"},
-                        },
-                },
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
+        };
+        responses["hax://example.com/lol.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "really-borked-content-type"}},
+                .body{"p { font-size: 123em; }"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
-                       css::Rule{
-                               .selectors{"p"},
-                               .declarations{{css::PropertyId::FontSize, "123em"}},
-                       })
-                == end(e.stylesheet()));
+        expect(!contains(e.stylesheet(), {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
     });
 
     return etest::run_all_tests();
