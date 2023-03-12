@@ -13,6 +13,8 @@
 
 #include "etest/etest.h"
 
+// This is the header POSIX says we need to include.
+// NOLINTNEXTLINE(modernize-deprecated-headers)
 #include <stdlib.h>
 
 using etest::expect_eq;

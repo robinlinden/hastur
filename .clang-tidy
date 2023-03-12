@@ -32,10 +32,20 @@
 # -misc-no-recursion: We use a lot of recursion.
 #
 # -misc-non-private-member-variables-in-classes: TODO(robinlinden): Fix.
+#
+# -modernize-make-unique, -modernize-use-emplace: Clang doesn't implement p0960
+# yet, and we're not adding c-tors to all our structs.
+#
+# -modernize-use-nodiscard: Very noisy, and probably more meaningful if we only
+# add it where it matters.
+#
+# -modernize-use-trailing-return-type: Stylistic change, and something we
+# haven't been doing so far.
 Checks: >
   bugprone-*,
   google-*,
   misc-*,
+  modernize-*,
   readability-identifier-naming,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
@@ -48,6 +58,10 @@ Checks: >
   -misc-const-correctness,
   -misc-no-recursion,
   -misc-non-private-member-variables-in-classes,
+  -modernize-make-unique,
+  -modernize-use-emplace,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
 
 WarningsAsErrors: "*"
 

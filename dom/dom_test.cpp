@@ -37,8 +37,8 @@ void descendant_axis_tests() {
 
     etest::test("descendant axis, nested matches", [] {
         dom::Element const &first{"div", {}, {dom::Element{"div", {}, {dom::Element{"div"}}}}};
-        dom::Element const &second = std::get<dom::Element>(first.children[0]);
-        dom::Element const &third = std::get<dom::Element>(second.children[0]);
+        auto const &second = std::get<dom::Element>(first.children[0]);
+        auto const &third = std::get<dom::Element>(second.children[0]);
 
         auto nodes = nodes_by_xpath(first, "//div");
         expect_eq(nodes, std::vector{&first, &second, &third});
@@ -66,11 +66,11 @@ void descendant_axis_tests() {
                 },
         };
 
-        dom::Element const &div_first_span = std::get<dom::Element>(div.children[0]);
-        dom::Element const &p = std::get<dom::Element>(div.children[1]);
-        dom::Element const &p_span = std::get<dom::Element>(p.children[0]);
-        dom::Element const &p_span_a = std::get<dom::Element>(p_span.children[0]);
-        dom::Element const &div_last_span = std::get<dom::Element>(div.children[2]);
+        auto const &div_first_span = std::get<dom::Element>(div.children[0]);
+        auto const &p = std::get<dom::Element>(div.children[1]);
+        auto const &p_span = std::get<dom::Element>(p.children[0]);
+        auto const &p_span_a = std::get<dom::Element>(p_span.children[0]);
+        auto const &div_last_span = std::get<dom::Element>(div.children[2]);
 
         auto nodes = nodes_by_xpath(div, "//p");
         expect_eq(nodes, std::vector{&p});

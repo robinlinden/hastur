@@ -12,6 +12,7 @@
 #include <functional>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 namespace css2 {
 
@@ -37,7 +38,7 @@ enum class ParseError {
 class Tokenizer {
 public:
     Tokenizer(std::string_view input, std::function<void(Token &&)> on_emit, std::function<void(ParseError)> on_error)
-        : input_(input), on_emit_(on_emit), on_error_(on_error) {}
+        : input_(input), on_emit_(std::move(on_emit)), on_error_(std::move(on_error)) {}
 
     void run();
 

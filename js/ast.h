@@ -13,8 +13,7 @@
 #include <variant>
 #include <vector>
 
-namespace js {
-namespace ast {
+namespace js::ast {
 
 class Value;
 struct NativeFunction;
@@ -180,7 +179,6 @@ struct WhileStatement {
     std::shared_ptr<Statement> body;
 };
 
-} // namespace ast
-} // namespace js
+} // namespace js::ast
 
 #endif

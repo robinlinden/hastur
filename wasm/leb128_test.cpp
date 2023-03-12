@@ -27,6 +27,9 @@ void expect_decode_failure(std::string bytes, etest::source_location loc = etest
 } // namespace
 
 int main() {
+    // Clang-tidy's modernize-raw-string-literal wants all escaped literals that
+    // can be written as characters to be written as characters.
+    // NOLINTBEGIN(modernize-raw-string-literal)
     etest::test("decode unsigned", [] {
         expect_decoded<std::uint32_t>("\x80\x7f", 16256);
 
@@ -146,6 +149,7 @@ int main() {
         expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e");
         expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"s);
     });
+    // NOLINTEND(modernize-raw-string-literal)
 
     return etest::run_all_tests();
 }
