@@ -6,6 +6,7 @@
 #ifndef UTIL_UUID_H_
 #define UTIL_UUID_H_
 
+#include <array>
 #include <iomanip>
 #include <ios>
 #include <random>
@@ -14,14 +15,14 @@
 
 namespace util {
 inline std::string new_uuid() {
-    unsigned char data[16];
+    std::array<unsigned char, 16> data;
     std::stringstream uuid_string;
     uuid_string << std::setfill('0');
 
     std::random_device rando;
 
-    for (size_t i = 0; i < 16; i++) {
-        data[i] = static_cast<unsigned char>(rando());
+    for (auto &ch : data) {
+        ch = static_cast<unsigned char>(rando());
     }
 
     // Set UUID version bits
