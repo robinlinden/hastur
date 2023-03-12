@@ -542,7 +542,7 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"New Century Schoolbook\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == R"("New Century Schoolbook", serif)"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "x-large"s);
         expect(get_and_erase(body.declarations, css::PropertyId::LineHeight) == "110%"s);
         expect(check_initial_font_values(body.declarations));
@@ -554,7 +554,7 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == R"("Helvetica Neue", serif)"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "120%"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "italic"s);
         expect(check_initial_font_values(body.declarations));
@@ -566,7 +566,7 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == R"("Helvetica Neue", serif)"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "12pt"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique"s);
         expect(check_initial_font_values(body.declarations));
@@ -680,7 +680,7 @@ int main() {
 
         auto body = rules[0];
         expect(body.declarations.size() == 20);
-        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == "\"Helvetica Neue\", serif"s);
+        expect(get_and_erase(body.declarations, css::PropertyId::FontFamily) == R"("Helvetica Neue", serif)"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontSize) == "12pt"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontStretch) == "condensed"s);
         expect(get_and_erase(body.declarations, css::PropertyId::FontStyle) == "oblique 25deg"s);

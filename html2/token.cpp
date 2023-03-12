@@ -20,7 +20,7 @@ std::string to_string(Token const &token) {
         if (maybe_value) {
             os << ' ' << *maybe_value;
         } else {
-            os << " \"\"";
+            os << R"( "")";
         }
     };
 

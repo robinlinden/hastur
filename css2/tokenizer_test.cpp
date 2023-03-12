@@ -137,19 +137,19 @@ int main() {
     });
 
     etest::test("single quoted string", [] {
-        auto output = run_tokenizer("\'this is a string\'");
+        auto output = run_tokenizer("'this is a string'");
 
         expect_token(output, StringToken{"this is a string"});
     });
 
     etest::test("double quoted string", [] {
-        auto output = run_tokenizer("\"this is a string\"");
+        auto output = run_tokenizer(R"("this is a string")");
 
         expect_token(output, StringToken{"this is a string"});
     });
 
     etest::test("eof in string", [] {
-        auto output = run_tokenizer("\"this is a");
+        auto output = run_tokenizer(R"("this is a)");
 
         expect_error(output, ParseError::EofInString);
         expect_token(output, StringToken{"this is a"});

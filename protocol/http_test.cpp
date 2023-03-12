@@ -109,7 +109,7 @@ int main() {
         expect_eq(response.headers.get("Cache-Control"sv).value(), "max-age=604800");
         expect_eq(response.headers.get("Content-Type"sv).value(), "text/html; charset=UTF-8");
         expect_eq(response.headers.get("Date"sv).value(), "Mon, 25 Oct 2021 19:48:04 GMT");
-        expect_eq(response.headers.get("Etag"sv).value(), "\"3147526947\"");
+        expect_eq(response.headers.get("Etag"sv).value(), R"("3147526947")");
         expect_eq(response.headers.get("Expires"sv).value(), "Mon, 01 Nov 2021 19:48:04 GMT");
         expect_eq(response.headers.get("Last-Modified"sv).value(), "Thu, 17 Oct 2019 07:18:26 GMT");
         expect_eq(response.headers.get("Server"sv).value(), "ECS (nyb/1D2A)");
