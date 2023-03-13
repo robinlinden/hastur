@@ -45,18 +45,18 @@ hedron_compile_commands_setup()
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "cbcaaba0f66722787b1a7c33afe1befb3a012b5af3ad7da7ff0f6b8c9b7a8a5b",
-    strip_prefix = "asio-asio-1-24-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-24-0.tar.gz",
+    sha256 = "b31c63867daaba0e460ee2c85dc508a52c81db0a7318e0d2147f444b26f80ed7",
+    strip_prefix = "asio-asio-1-27-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-27-0.tar.gz",
 )
 
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "be8231e5f3b127d83eb156354dfa28c110e3c616c11ae119067c8184ef7a257f",
-    strip_prefix = "boringssl-3a3d0b5c7fddeea312b5ce032d9b84a2be399b32",
-    url = "https://github.com/google/boringssl/archive/3a3d0b5c7fddeea312b5ce032d9b84a2be399b32.tar.gz",
+    sha256 = "cee1d0e73a01454da2b5195eb4cce19a1cfd4b54620e8f4c5bf15f6349aadb22",
+    strip_prefix = "boringssl-b3e37ac6dc845f2ee3c2db928cb531825ce24ee5",
+    url = "https://github.com/google/boringssl/archive/b3e37ac6dc845f2ee3c2db928cb531825ce24ee5.tar.gz",
 )
 
 http_archive(
