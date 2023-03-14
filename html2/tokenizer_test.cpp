@@ -42,6 +42,7 @@ public:
 
 struct Options {
     bool in_html_namespace{true};
+    std::optional<html2::State> state_override{};
 };
 
 TokenizerOutput run_tokenizer(std::string_view input,
@@ -61,6 +62,9 @@ TokenizerOutput run_tokenizer(std::string_view input,
             [&](auto &, ParseError e) {
                 errors.push_back(e);
             }};
+    if (opts.state_override) {
+        tokenizer.set_state(*opts.state_override);
+    }
     tokenizer.set_adjusted_current_node_not_in_html_namespace(!opts.in_html_namespace);
     tokenizer.run();
 
