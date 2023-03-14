@@ -42,10 +42,15 @@ auto constexpr kMouseWheelScrollFactor = 10;
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view xpath) {
     auto nodes = dom::nodes_by_xpath(doc.html(), xpath);
-    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
+    if (nodes.empty() || nodes[0]->children.empty()) {
         return std::nullopt;
     }
-    return std::get<dom::Text>(nodes[0]->children[0]).text;
+
+    if (auto const *text = std::get_if<dom::Text>(&nodes[0]->children[0])) {
+        return text->text;
+    }
+
+    return std::nullopt;
 }
 
 void ensure_has_scheme(std::string &url) {
@@ -66,8 +71,8 @@ std::string element_text(std::vector<dom::Node const *> const &dom_nodes) {
         return "a: "s + std::string{*uri};
     }
 
-    if (std::holds_alternative<dom::Text>(*dom_nodes[0])) {
-        return std::get<dom::Text>(*dom_nodes[0]).text;
+    if (auto const *text = std::get_if<dom::Text>(dom_nodes[0])) {
+        return text->text;
     }
 
     return std::get<dom::Element>(*dom_nodes[0]).name;

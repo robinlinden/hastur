@@ -102,9 +102,9 @@ void style_tree_impl(StyledNode &current, dom::Node const &root, std::vector<css
         }
     }
 
-    current.properties = std::holds_alternative<dom::Element>(root)
-            ? matching_rules(std::get<dom::Element>(root), stylesheet)
-            : std::vector<std::pair<css::PropertyId, std::string>>{};
+    if (auto const *element = std::get_if<dom::Element>(&root)) {
+        current.properties = matching_rules(*element, stylesheet);
+    }
 }
 } // namespace
 

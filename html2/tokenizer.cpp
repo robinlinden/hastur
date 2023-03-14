@@ -263,8 +263,8 @@ void Tokenizer::run() {
                 }
 
                 auto append_to_tag_name = [&](auto text) {
-                    if (std::holds_alternative<StartTagToken>(current_token_)) {
-                        std::get<StartTagToken>(current_token_).tag_name += text;
+                    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
+                        start_tag->tag_name += text;
                     } else {
                         std::get<EndTagToken>(current_token_).tag_name += text;
                     }
@@ -907,8 +907,8 @@ void Tokenizer::run() {
                 }
 
                 auto append_to_current_attribute_name = [&](auto text) {
-                    if (std::holds_alternative<StartTagToken>(current_token_)) {
-                        std::get<StartTagToken>(current_token_).attributes.back().name += text;
+                    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
+                        start_tag->attributes.back().name += text;
                     } else {
                         std::get<EndTagToken>(current_token_).attributes.back().name += text;
                     }
@@ -1129,8 +1129,8 @@ void Tokenizer::run() {
 
                 switch (*c) {
                     case '>':
-                        if (std::holds_alternative<StartTagToken>(current_token_)) {
-                            std::get<StartTagToken>(current_token_).self_closing = true;
+                        if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
+                            start_tag->self_closing = true;
                         } else {
                             std::get<EndTagToken>(current_token_).self_closing = true;
                         }
@@ -2285,8 +2285,8 @@ void Tokenizer::emit(ParseError error) {
 }
 
 void Tokenizer::emit(Token &&token) {
-    if (std::holds_alternative<StartTagToken>(token)) {
-        last_start_tag_name_ = std::get<StartTagToken>(token).tag_name;
+    if (auto const *start_tag = std::get_if<StartTagToken>(&token)) {
+        last_start_tag_name_ = start_tag->tag_name;
     }
     on_emit_(*this, std::move(token));
 }
@@ -2313,16 +2313,16 @@ bool Tokenizer::is_eof() const {
 }
 
 void Tokenizer::start_attribute_in_current_tag_token(Attribute attr) {
-    if (std::holds_alternative<StartTagToken>(current_token_)) {
-        std::get<StartTagToken>(current_token_).attributes.push_back(std::move(attr));
+    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
+        start_tag->attributes.push_back(std::move(attr));
     } else {
         std::get<EndTagToken>(current_token_).attributes.push_back(std::move(attr));
     }
 }
 
 Attribute &Tokenizer::current_attribute() {
-    if (std::holds_alternative<StartTagToken>(current_token_)) {
-        return std::get<StartTagToken>(current_token_).attributes.back();
+    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
+        return start_tag->attributes.back();
     } else {
         return std::get<EndTagToken>(current_token_).attributes.back();
     }
@@ -2354,8 +2354,8 @@ void Tokenizer::emit_temporary_buffer_as_character_tokens() {
 }
 
 bool Tokenizer::is_appropriate_end_tag_token(Token const &token) const {
-    if (std::holds_alternative<EndTagToken>(token)) {
-        return std::get<EndTagToken>(token).tag_name == last_start_tag_name_;
+    if (auto const *end_tag = std::get_if<EndTagToken>(&token)) {
+        return end_tag->tag_name == last_start_tag_name_;
     }
     return false;
 }

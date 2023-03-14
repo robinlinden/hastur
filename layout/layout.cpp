@@ -126,10 +126,9 @@ void calculate_left_and_right_margin(LayoutBox &box,
 void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) {
     assert(box.node != nullptr);
 
-    if (std::holds_alternative<dom::Text>(box.node->node)) {
+    if (auto const *text_node = std::get_if<dom::Text>(&box.node->node)) {
         // TODO(robinlinden): Measure the text for real.
-        auto text_node = std::get<dom::Text>(box.node->node);
-        box.dimensions.content.width = std::min(parent.width, static_cast<int>(text_node.text.size()) * font_size / 2);
+        box.dimensions.content.width = std::min(parent.width, static_cast<int>(text_node->text.size()) * font_size / 2);
         return;
     }
 

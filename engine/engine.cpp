@@ -25,10 +25,15 @@ namespace {
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view xpath) {
     auto nodes = dom::nodes_by_xpath(doc.html(), xpath);
-    if (nodes.empty() || nodes[0]->children.empty() || !std::holds_alternative<dom::Text>(nodes[0]->children[0])) {
+    if (nodes.empty() || nodes[0]->children.empty()) {
         return std::nullopt;
     }
-    return std::get<dom::Text>(nodes[0]->children[0]).text;
+
+    if (auto const *text = std::get_if<dom::Text>(&nodes[0]->children[0])) {
+        return text->text;
+    }
+
+    return std::nullopt;
 }
 
 std::optional<std::string> zlib_decode(std::string_view data) {
