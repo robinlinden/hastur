@@ -40,8 +40,12 @@ public:
     etest::source_location loc;
 };
 
+struct Options {
+    bool in_html_namespace{true};
+};
+
 TokenizerOutput run_tokenizer(std::string_view input,
-        bool in_html_namespace = true,
+        Options const &opts = Options{},
         etest::source_location loc = etest::source_location::current()) {
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
@@ -57,7 +61,7 @@ TokenizerOutput run_tokenizer(std::string_view input,
             [&](auto &, ParseError e) {
                 errors.push_back(e);
             }};
-    tokenizer.set_adjusted_current_node_not_in_html_namespace(!in_html_namespace);
+    tokenizer.set_adjusted_current_node_not_in_html_namespace(!opts.in_html_namespace);
     tokenizer.run();
 
     return {std::move(tokens), std::move(errors), std::move(loc)};
@@ -94,31 +98,31 @@ void cdata_tests() {
     });
 
     etest::test("cdata, eof", [] {
-        auto tokens = run_tokenizer("<![CDATA["sv, false);
+        auto tokens = run_tokenizer("<![CDATA["sv, Options{.in_html_namespace = false});
         expect_error(tokens, html2::ParseError::EofInCdata);
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("cdata, bracket", [] {
-        auto tokens = run_tokenizer("<![CDATA[]hello"sv, false);
+        auto tokens = run_tokenizer("<![CDATA[]hello"sv, Options{.in_html_namespace = false});
         expect_error(tokens, html2::ParseError::EofInCdata);
         expect_text(tokens, "]hello");
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("cdata, end", [] {
-        auto tokens = run_tokenizer("<![CDATA[]]>"sv, false);
+        auto tokens = run_tokenizer("<![CDATA[]]>"sv, Options{.in_html_namespace = false});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("cdata, end, extra bracket", [] {
-        auto tokens = run_tokenizer("<![CDATA[]]]>"sv, false);
+        auto tokens = run_tokenizer("<![CDATA[]]]>"sv, Options{.in_html_namespace = false});
         expect_token(tokens, CharacterToken{']'});
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("cdata, end, extra text", [] {
-        auto tokens = run_tokenizer("<![CDATA[]]a]]>"sv, false);
+        auto tokens = run_tokenizer("<![CDATA[]]a]]>"sv, Options{.in_html_namespace = false});
         expect_text(tokens, "]]a");
         expect_token(tokens, EndOfFileToken{});
     });
