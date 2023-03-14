@@ -52,9 +52,11 @@ TokenizerOutput run_tokenizer(std::string_view input,
     std::vector<ParseError> errors;
     Tokenizer tokenizer{input,
             [&](Tokenizer &the, Token &&t) {
-                if (std::holds_alternative<StartTagToken>(t)) {
-                    if (std::get<StartTagToken>(t).tag_name == "script") {
+                if (auto const *start_tag = std::get_if<StartTagToken>(&t)) {
+                    if (start_tag->tag_name == "script") {
                         the.set_state(State::ScriptData);
+                    } else if (start_tag->tag_name == "style") {
+                        the.set_state(State::Rawtext);
                     }
                 }
                 tokens.push_back(std::move(t));
@@ -202,11 +204,71 @@ void doctype_system_keyword_tests() {
     });
 }
 
+// These tests set the initial state as normally that would be done from the
+// tree-builder wrapping the tokenizer, e.g. when encountering a <style> tag.
+void rawtext_tests() {
+    etest::test("rawtext", [] {
+        auto tokens = run_tokenizer("<these><aren't><tags!>", Options{.state_override = State::Rawtext});
+        expect_text(tokens, "<these><aren't><tags!>");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext, unexpected null", [] {
+        auto tokens = run_tokenizer("\0"sv, Options{.state_override = State::Rawtext});
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_text(tokens, kReplacementCharacter);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext inappropriate end tag", [] {
+        auto tokens = run_tokenizer("<hello></div>", Options{.state_override = State::Rawtext});
+        expect_text(tokens, "<hello></div>");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext in style, with attribute", [] {
+        auto tokens = run_tokenizer("<style>sometext</style>");
+        expect_token(tokens, StartTagToken{.tag_name = "style"});
+        expect_text(tokens, "sometext");
+        expect_token(tokens, EndTagToken{.tag_name = "style"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext in style, with attribute", [] {
+        auto tokens = run_tokenizer("<style><div></style hello='1'>");
+        expect_token(tokens, StartTagToken{.tag_name = "style"});
+        expect_text(tokens, "<div>");
+        expect_token(tokens, EndTagToken{.tag_name = "style", .attributes{{"hello", "1"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext in style, self-closing end tag", [] {
+        auto tokens = run_tokenizer("<style><div></style/>");
+        expect_token(tokens, StartTagToken{.tag_name = "style"});
+        expect_text(tokens, "<div>");
+        expect_token(tokens, EndTagToken{.tag_name = "style", .self_closing = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext, end tag open, eof", [] {
+        auto tokens = run_tokenizer("<hello></", Options{.state_override = State::Rawtext});
+        expect_text(tokens, "<hello></");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rawtext, end tag name, eof", [] {
+        auto tokens = run_tokenizer("<hello></a </b/ </c! </g", Options{.state_override = State::Rawtext});
+        expect_text(tokens, "<hello></a </b/ </c! </g");
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
     cdata_tests();
     doctype_system_keyword_tests();
+    rawtext_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

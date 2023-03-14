@@ -140,6 +140,28 @@ void Tokenizer::run() {
                 break;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-state
+            case State::Rawtext: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                switch (*c) {
+                    case '<':
+                        state_ = State::RawtextLessThanSign;
+                        continue;
+                    case '\0':
+                        emit(ParseError::UnexpectedNullCharacter);
+                        emit_replacement_character();
+                        continue;
+                    default:
+                        emit(CharacterToken{*c});
+                        continue;
+                }
+            }
+
             case State::ScriptData: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -257,6 +279,90 @@ void Tokenizer::run() {
                         append_to_tag_name(*c);
                         continue;
                 }
+            }
+
+            // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-less-than-sign-state
+            case State::RawtextLessThanSign: {
+                if (auto c = consume_next_input_character(); c == '/') {
+                    temporary_buffer_.clear();
+                    state_ = State::RawtextEndTagOpen;
+                    continue;
+                }
+
+                emit(CharacterToken{'<'});
+                reconsume_in(State::Rawtext);
+                continue;
+            }
+
+            // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-end-tag-open-state
+            case State::RawtextEndTagOpen: {
+                if (auto c = consume_next_input_character(); c && util::is_alpha(*c)) {
+                    current_token_ = EndTagToken{};
+                    reconsume_in(State::RawtextEndTagName);
+                    continue;
+                }
+
+                emit(CharacterToken{'<'});
+                emit(CharacterToken{'/'});
+                reconsume_in(State::Rawtext);
+                continue;
+            }
+
+            // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-end-tag-name-state
+            case State::RawtextEndTagName: {
+                auto anything_else = [this] {
+                    emit(CharacterToken{'<'});
+                    emit(CharacterToken{'/'});
+                    for (char ch : temporary_buffer_) {
+                        emit(CharacterToken{ch});
+                    }
+                    reconsume_in(State::Rawtext);
+                };
+
+                auto c = consume_next_input_character();
+                if (!c) {
+                    anything_else();
+                    continue;
+                }
+
+                switch (*c) {
+                    case '\t':
+                    case '\n':
+                    case '\f':
+                    case ' ':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::BeforeAttributeName;
+                            continue;
+                        }
+                        anything_else();
+                        continue;
+                    case '/':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::SelfClosingStartTag;
+                            continue;
+                        }
+                        anything_else();
+                        continue;
+                    case '>':
+                        if (is_appropriate_end_tag_token(current_token_)) {
+                            state_ = State::Data;
+                            emit(std::move(current_token_));
+                            continue;
+                        }
+                        anything_else();
+                        continue;
+                    default:
+                        break;
+                }
+
+                if (util::is_alpha(*c)) {
+                    std::get<EndTagToken>(current_token_).tag_name += util::lowercased(*c);
+                    temporary_buffer_ += *c;
+                    continue;
+                }
+
+                anything_else();
+                continue;
             }
 
             case State::ScriptDataLessThanSign: {
