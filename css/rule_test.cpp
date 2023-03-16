@@ -16,7 +16,7 @@ int main() {
         rule.selectors.emplace_back("div");
         rule.declarations.emplace(css::PropertyId::BackgroundColor, "black");
 
-        auto expected =
+        auto const *expected =
                 "Selectors: div\n"
                 "Declarations:\n"
                 "  background-color: black\n";
@@ -31,7 +31,7 @@ int main() {
         rule.declarations.emplace(css::PropertyId::FontFamily, "Arial");
         rule.declarations.emplace(css::PropertyId::TextAlign, "center");
 
-        auto expected =
+        auto const *expected =
                 "Selectors: h1, h2\n"
                 "Declarations:\n"
                 "  color: blue\n"
@@ -47,7 +47,7 @@ int main() {
         rule.declarations.emplace(css::PropertyId::TextAlign, "center");
         rule.media_query = "screen and (min-width: 900px)";
 
-        auto expected =
+        auto const *expected =
                 "Selectors: h1\n"
                 "Declarations:\n"
                 "  color: blue\n"

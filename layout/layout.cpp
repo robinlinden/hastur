@@ -359,7 +359,7 @@ LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
     }
 
     for (auto const &child : box.children) {
-        if (auto maybe = box_at_position(child, p)) {
+        if (auto const *maybe = box_at_position(child, p)) {
             return maybe;
         }
     }

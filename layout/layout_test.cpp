@@ -941,7 +941,7 @@ int main() {
             },
         };
 
-        auto expected =
+        auto const *expected =
                 "html\n"
                 "block {0,0,0,30} {0,0,0,0} {0,0,0,0}\n"
                 "  body\n"

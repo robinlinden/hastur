@@ -63,7 +63,7 @@ int main() {
     });
 
     // These are 100% identical right now as we treat all links as unvisited links.
-    for (auto const pc : std::array{"link", "any-link"}) {
+    for (auto const *pc : std::array{"link", "any-link"}) {
         etest::test(fmt::format("is_match: psuedo-class, {}", pc), [pc] {
             expect(style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format(":{}", pc)));
 

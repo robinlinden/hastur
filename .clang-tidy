@@ -45,6 +45,7 @@ Checks: >
   misc-*,
   modernize-*,
   readability-identifier-naming,
+  readability-qualified-auto,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,

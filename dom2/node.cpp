@@ -21,7 +21,7 @@ std::shared_ptr<Node> Node::pre_insert(std::shared_ptr<Node> node, Node const *c
     // TODO(robinlinden): Ensure pre-insertion validity.
 
     // 2. Let referenceChild be child.
-    auto reference_child = child;
+    auto const *reference_child = child;
 
     // 3. If referenceChild is node, then set referenceChild to node's next sibling.
     if (reference_child == node.get()) {

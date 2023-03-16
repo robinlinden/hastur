@@ -80,7 +80,7 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
 
     auto search_children = [&] {
         xpath.remove_prefix(1);
-        for (auto node : searching) {
+        for (auto const *node : searching) {
             auto name = dom_name(*node);
             if (xpath == name) {
                 goal_nodes.push_back(node);

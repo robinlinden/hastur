@@ -29,7 +29,7 @@ ftxui::Elements parse_children(layout::LayoutBox const &box) {
 ftxui::Element element_from_node(layout::LayoutBox const &box) {
     switch (box.type) {
         case layout::LayoutType::Inline: {
-            if (auto text = std::get_if<dom::Text>(&box.node->node)) {
+            if (auto const *text = std::get_if<dom::Text>(&box.node->node)) {
                 return ftxui::paragraph(text->text);
             }
             return hbox(parse_children(box));

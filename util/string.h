@@ -105,6 +105,8 @@ constexpr bool is_whitespace(char ch) {
 }
 
 constexpr std::string_view trim_start(std::string_view s) {
+    // clang-tidy says this is pointer-ish, but msvc disagrees.
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto it = std::ranges::find_if(s, [](char ch) { return !is_whitespace(ch); });
     s.remove_prefix(std::distance(cbegin(s), it));
     return s;
