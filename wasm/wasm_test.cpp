@@ -214,11 +214,11 @@ void type_section_tests() {
     });
 
     etest::test("type section, two types", [] {
-        auto const i32_byte = static_cast<std::uint8_t>(wasm::ValueType::Int32);
-        auto const f64_byte = static_cast<std::uint8_t>(wasm::ValueType::Float64);
+        constexpr std::uint8_t kInt32Byte = 0x7f;
+        constexpr std::uint8_t kFloat64Byte = 0x7c;
         auto module = wasm::Module{.sections{wasm::Section{
                 .id = wasm::SectionId::Type,
-                .content{2, 0x60, 0, 1, i32_byte, 0x60, 2, i32_byte, i32_byte, 1, f64_byte},
+                .content{2, 0x60, 0, 1, kInt32Byte, 0x60, 2, kInt32Byte, kInt32Byte, 1, kFloat64Byte},
         }}};
 
         expect_eq(module.type_section(),
@@ -228,6 +228,30 @@ void type_section_tests() {
                                 wasm::FunctionType{
                                         .parameters{wasm::ValueType::Int32, wasm::ValueType::Int32},
                                         .results{wasm::ValueType::Float64},
+                                },
+                        },
+                });
+    });
+
+    etest::test("type section, all types", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Type,
+                .content{1, 0x60, 7, 0x7f, 0x7e, 0x7d, 0x7c, 0x7b, 0x70, 0x6f, 0},
+        }}};
+
+        expect_eq(module.type_section(),
+                wasm::TypeSection{
+                        .types{
+                                wasm::FunctionType{
+                                        .parameters{
+                                                wasm::ValueType::Int32,
+                                                wasm::ValueType::Int64,
+                                                wasm::ValueType::Float32,
+                                                wasm::ValueType::Float64,
+                                                wasm::ValueType::Vector128,
+                                                wasm::ValueType::FunctionReference,
+                                                wasm::ValueType::ExternReference,
+                                        },
                                 },
                         },
                 });

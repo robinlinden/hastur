@@ -42,20 +42,20 @@ struct Section {
     [[nodiscard]] bool operator==(Section const &) const = default;
 };
 
-// https://webassembly.github.io/spec/core/binary/types.html#types
+// https://webassembly.github.io/spec/core/syntax/types.html
 enum class ValueType : std::uint8_t {
-    // https://webassembly.github.io/spec/core/binary/types.html#number-types
-    Int32 = 0x7f,
-    Int64 = 0x7e,
-    Float32 = 0x7d,
-    Float64 = 0x7c,
+    // Number types.
+    Int32,
+    Int64,
+    Float32,
+    Float64,
 
-    // https://webassembly.github.io/spec/core/binary/types.html#vector-types
-    Vector128 = 0x7b,
+    // Vector types.
+    Vector128,
 
-    // https://webassembly.github.io/spec/core/binary/types.html#reference-types
-    FunctionReference = 0x70,
-    ExternReference = 0x6f,
+    // Reference types.
+    FunctionReference,
+    ExternReference,
 };
 
 // https://webassembly.github.io/spec/core/binary/types.html#result-types

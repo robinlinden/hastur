@@ -38,6 +38,7 @@ std::optional<std::uint32_t> parse(std::istream &is) {
     return Leb128<std::uint32_t>::decode_from(is);
 }
 
+// https://webassembly.github.io/spec/core/binary/types.html
 template<>
 std::optional<ValueType> parse(std::istream &is) {
     std::uint8_t byte{};
@@ -45,17 +46,21 @@ std::optional<ValueType> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    // Cute hack to make sure that the byte we read is one of the valid enum values.
-    auto type = static_cast<ValueType>(byte);
-    switch (type) {
-        case ValueType::Int32:
-        case ValueType::Int64:
-        case ValueType::Float32:
-        case ValueType::Float64:
-        case ValueType::Vector128:
-        case ValueType::FunctionReference:
-        case ValueType::ExternReference:
-            return type;
+    switch (byte) {
+        case 0x7f:
+            return ValueType::Int32;
+        case 0x7e:
+            return ValueType::Int64;
+        case 0x7d:
+            return ValueType::Float32;
+        case 0x7c:
+            return ValueType::Float64;
+        case 0x7b:
+            return ValueType::Vector128;
+        case 0x70:
+            return ValueType::FunctionReference;
+        case 0x6f:
+            return ValueType::ExternReference;
         default:
             return std::nullopt;
     }
