@@ -59,7 +59,7 @@ int main() {
 
     etest::test("the ast is copyable", [] {
         Program p1;
-        auto p2 = p1;
+        auto p2 = p1; // NOLINT(performance-unnecessary-copy-initialization)
         std::ignore = p2;
     });
 

@@ -70,7 +70,7 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
     }
 
     auto remove_name_segment = [&] {
-        std::size_t separator_position{xpath.find_first_of("/")};
+        std::size_t separator_position{xpath.find_first_of('/')};
         if (separator_position == std::string_view::npos) {
             xpath = std::string_view{};
             return;

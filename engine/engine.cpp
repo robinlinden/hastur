@@ -135,6 +135,7 @@ void Engine::on_navigation_success() {
     // Start downloading all stylesheets.
     spdlog::info("Loading {} stylesheets", head_links.size());
     std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
+    future_new_rules.reserve(head_links.size());
     for (auto const *link : head_links) {
         future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
             auto const &href = link->attributes.at("href");

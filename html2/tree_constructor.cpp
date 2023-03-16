@@ -181,7 +181,7 @@ std::shared_ptr<dom2::Element> TreeConstructor::create_element([[maybe_unused]] 
     std::shared_ptr<dom2::Element> result{nullptr};
 
     // TODO(robinlinden): Everything.
-    result = std::make_shared<dom2::Element>(local_name);
+    result = std::make_shared<dom2::Element>(std::move(local_name));
 
     return result;
 }

@@ -53,7 +53,7 @@ private:
     std::vector<std::shared_ptr<Node>> child_nodes_{};
 
     std::shared_ptr<Node> pre_insert(std::shared_ptr<Node> node, Node const *child);
-    void insert(std::shared_ptr<Node> node, Node const *child, bool suppress_observers = false);
+    void insert(std::shared_ptr<Node> const &node, Node const *child, bool suppress_observers = false);
 };
 
 } // namespace dom2

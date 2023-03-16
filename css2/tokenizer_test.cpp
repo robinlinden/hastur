@@ -41,8 +41,9 @@ TokenizerOutput run_tokenizer(std::string_view input, etest::source_location loc
     return {std::move(tokens), std::move(errors), std::move(loc)};
 }
 
-void expect_token(
-        TokenizerOutput &output, Token t, etest::source_location const &loc = etest::source_location::current()) {
+void expect_token(TokenizerOutput &output,
+        Token const &t,
+        etest::source_location const &loc = etest::source_location::current()) {
     require(!output.tokens.empty(), "Unexpected end of token list", loc);
     expect_eq(output.tokens.front(), t, {}, loc);
     output.tokens.erase(begin(output.tokens));

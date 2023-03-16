@@ -39,11 +39,16 @@
 #
 # -modernize-use-trailing-return-type: Stylistic change, and something we
 # haven't been doing so far.
+#
+# -performance-move-const-arg: Having to know which types are trivially copyable
+# seems like unnecessary effort when calling std::move on them isn't really
+# harmful.
 Checks: >
   bugprone-*,
   google-*,
   misc-*,
   modernize-*,
+  performance-*,
   readability-identifier-naming,
   readability-inconsistent-declaration-parameter-name,
   readability-qualified-auto,
@@ -61,6 +66,7 @@ Checks: >
   -modernize-use-emplace,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
+  -performance-move-const-arg,
 
 WarningsAsErrors: "*"
 

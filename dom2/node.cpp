@@ -36,7 +36,7 @@ std::shared_ptr<Node> Node::pre_insert(std::shared_ptr<Node> node, Node const *c
 }
 
 // https://dom.spec.whatwg.org/#concept-node-insert
-void Node::insert(std::shared_ptr<Node> node, Node const *child, [[maybe_unused]] bool suppress_observers) {
+void Node::insert(std::shared_ptr<Node> const &node, Node const *child, [[maybe_unused]] bool suppress_observers) {
     // 1. Let nodes be node's children, if node is a DocumentFragment node; otherwise « node ».
     auto const &nodes =
             node->type() == NodeType::DocumentFragment ? node->child_nodes() : std::vector<std::shared_ptr<Node>>{node};
