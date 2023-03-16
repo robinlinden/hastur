@@ -129,7 +129,7 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
     return goal_nodes;
 }
 
-std::string to_string(Document const &node);
+std::string to_string(Document const &);
 
 } // namespace dom
 

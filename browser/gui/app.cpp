@@ -379,13 +379,13 @@ void App::on_layout_updated() {
     layout_str_ = layout != nullptr ? layout::to_string(*layout) : "";
 }
 
-std::vector<dom::Node const *> App::get_hovered_nodes(geom::Position p) const {
+std::vector<dom::Node const *> App::get_hovered_nodes(geom::Position document_position) const {
     auto const *layout = engine_.layout();
     if (!page_loaded_ || layout == nullptr) {
         return {};
     }
 
-    auto const *moused_over = layout::box_at_position(*layout, p);
+    auto const *moused_over = layout::box_at_position(*layout, document_position);
     if (moused_over == nullptr || moused_over->node == nullptr) {
         return {};
     }
