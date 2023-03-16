@@ -269,6 +269,35 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     return it->second;
 }
 
+BorderStyle StyledNode::get_border_style_property(css::PropertyId property) const {
+    auto raw = get_raw_property(property);
+
+    if (raw == "none") {
+        return BorderStyle::None;
+    } else if (raw == "hidden") {
+        return BorderStyle::Hidden;
+    } else if (raw == "dotted") {
+        return BorderStyle::Dotted;
+    } else if (raw == "dashed") {
+        return BorderStyle::Dashed;
+    } else if (raw == "solid") {
+        return BorderStyle::Solid;
+    } else if (raw == "double") {
+        return BorderStyle::Double;
+    } else if (raw == "groove") {
+        return BorderStyle::Groove;
+    } else if (raw == "ridge") {
+        return BorderStyle::Ridge;
+    } else if (raw == "inset") {
+        return BorderStyle::Inset;
+    } else if (raw == "outset") {
+        return BorderStyle::Outset;
+    }
+
+    spdlog::warn("Unhandled border-style value '{}'", raw);
+    return BorderStyle::None;
+}
+
 gfx::Color StyledNode::get_color_property(css::PropertyId property) const {
     auto color_text = get_raw_property(property);
 

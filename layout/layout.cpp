@@ -221,8 +221,6 @@ std::map<std::string_view, int> const kBorderWidthKeywords{
 };
 
 void calculate_border(LayoutBox &box, int const font_size) {
-    std::string_view default_style = "none";
-
     auto as_px = [&](std::string_view border_width_property) {
         if (kBorderWidthKeywords.contains(border_width_property)) {
             return kBorderWidthKeywords.at(border_width_property);
@@ -231,22 +229,22 @@ void calculate_border(LayoutBox &box, int const font_size) {
         return to_px(border_width_property, font_size);
     };
 
-    if (box.get_property<css::PropertyId::BorderLeftStyle>() != default_style) {
+    if (box.get_property<css::PropertyId::BorderLeftStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderLeftWidth>();
         box.dimensions.border.left = as_px(border_width);
     }
 
-    if (box.get_property<css::PropertyId::BorderRightStyle>() != default_style) {
+    if (box.get_property<css::PropertyId::BorderRightStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderRightWidth>();
         box.dimensions.border.right = as_px(border_width);
     }
 
-    if (box.get_property<css::PropertyId::BorderTopStyle>() != default_style) {
+    if (box.get_property<css::PropertyId::BorderTopStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderTopWidth>();
         box.dimensions.border.top = as_px(border_width);
     }
 
-    if (box.get_property<css::PropertyId::BorderBottomStyle>() != default_style) {
+    if (box.get_property<css::PropertyId::BorderBottomStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderBottomWidth>();
         box.dimensions.border.bottom = as_px(border_width);
     }

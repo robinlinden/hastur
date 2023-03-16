@@ -256,6 +256,23 @@ int main() {
     etest::test("get_property, unhandled display value",
             [] { expect_property_eq<css::PropertyId::Display>("i cant believe this", style::DisplayValue::Block); });
 
+    etest::test("get_property, border-style", [] {
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("none", style::BorderStyle::None);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("hidden", style::BorderStyle::Hidden);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("dotted", style::BorderStyle::Dotted);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("dashed", style::BorderStyle::Dashed);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("solid", style::BorderStyle::Solid);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("double", style::BorderStyle::Double);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("groove", style::BorderStyle::Groove);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("inset", style::BorderStyle::Inset);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("outset", style::BorderStyle::Outset);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>("???", style::BorderStyle::None);
+
+        expect_property_eq<css::PropertyId::BorderLeftStyle>("ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderRightStyle>("ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderTopStyle>("ridge", style::BorderStyle::Ridge);
+    });
 
     return etest::run_all_tests();
 }

@@ -19,6 +19,19 @@
 
 namespace style {
 
+enum class BorderStyle {
+    None,
+    Hidden,
+    Dotted,
+    Dashed,
+    Solid,
+    Double,
+    Groove,
+    Ridge,
+    Inset,
+    Outset,
+};
+
 enum class DisplayValue {
     None,
     Inline,
@@ -50,6 +63,9 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::BorderBottomColor || T == css::PropertyId::BorderLeftColor
                 || T == css::PropertyId::BorderRightColor || T == css::PropertyId::BorderTopColor) {
             return get_color_property(T);
+        } else if constexpr (T == css::PropertyId::BorderBottomStyle || T == css::PropertyId::BorderLeftStyle
+                || T == css::PropertyId::BorderRightStyle || T == css::PropertyId::BorderTopStyle) {
+            return get_border_style_property(T);
         } else if constexpr (T == css::PropertyId::Color) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
@@ -69,6 +85,7 @@ struct StyledNode {
     }
 
 private:
+    BorderStyle get_border_style_property(css::PropertyId) const;
     gfx::Color get_color_property(css::PropertyId) const;
     DisplayValue get_display_property() const;
     FontStyle get_font_style_property() const;
