@@ -6,11 +6,28 @@
 
 #include "etest/etest.h"
 
+#include <string>
 #include <tuple>
+#include <utility>
 
 using namespace std::literals;
 using etest::expect;
 using etest::expect_eq;
+
+namespace {
+template<css::PropertyId IdT>
+void expect_property_eq(
+        std::string value, auto expected, etest::source_location const &loc = etest::source_location::current()) {
+    dom::Node dom_node = dom::Element{"dummy"s};
+    style::StyledNode styled_node{
+            .node = dom_node,
+            .properties = {{IdT, std::move(value)}},
+            .children = {},
+    };
+
+    etest::expect_eq(styled_node.get_property<IdT>(), expected, std::nullopt, loc);
+};
+} // namespace
 
 int main() {
     etest::test("get_property", [] {
