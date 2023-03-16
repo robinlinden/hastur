@@ -72,7 +72,7 @@ int main() {
     });
 
     etest::test("trailing zeros", [] {
-        // From https://webassembly.github.io/spec/core/bikeshed/#binary-int
+        // From https://webassembly.github.io/spec/core/binary/values.html#integers
 
         // The side conditions N>7 in the productions for non-terminal bytes of
         // the u and s encodings restrict the encoding's length. However,
@@ -91,7 +91,7 @@ int main() {
     });
 
     etest::test("unused bits in terminal byte", [] {
-        // From https://webassembly.github.io/spec/core/bikeshed/#binary-int
+        // From https://webassembly.github.io/spec/core/binary/values.html#integers
 
         // The side conditions on the value n of terminal bytes further enforce
         // that any unused bits in these bytes must be 0 for positive values and

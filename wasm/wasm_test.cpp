@@ -351,7 +351,7 @@ int main() {
         expect_eq(wasm::Module::parse_from(wasm_bytes), tl::unexpected{wasm::ParseError::UnsupportedVersion});
     });
 
-    // https://webassembly.github.io/spec/core/bikeshed/#modules
+    // https://webassembly.github.io/spec/core/syntax/modules.html
     // Each of the vectors – and thus the entire module – may be empty
     etest::test("empty module", [] {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0"s};

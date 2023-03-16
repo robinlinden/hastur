@@ -13,7 +13,7 @@
 
 namespace wasm {
 
-// https://webassembly.github.io/spec/core/bikeshed/#binary-int
+// https://webassembly.github.io/spec/core/binary/values.html#integers
 template<typename T>
 requires std::integral<T>
 struct Leb128 {

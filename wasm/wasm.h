@@ -18,7 +18,7 @@ namespace wasm {
 // https://webassembly.github.io/spec/core/binary/modules.html#indices
 using TypeIdx = std::uint32_t;
 
-// https://webassembly.github.io/spec/core/bikeshed/#sections
+// https://webassembly.github.io/spec/core/binary/modules.html#sections
 enum class SectionId {
     Custom = 0,
     Type = 1,
@@ -83,7 +83,7 @@ struct FunctionSection {
     [[nodiscard]] bool operator==(FunctionSection const &) const = default;
 };
 
-// https://webassembly.github.io/spec/core/bikeshed/#binary-export
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-export
 struct Export {
     enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
 
@@ -94,7 +94,7 @@ struct Export {
     [[nodiscard]] bool operator==(Export const &) const = default;
 };
 
-// https://webassembly.github.io/spec/core/bikeshed/#export-section
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-exportsec
 struct ExportSection {
     std::vector<Export> exports{};
 
@@ -129,7 +129,7 @@ enum class ParseError {
     InvalidSectionId,
 };
 
-// https://webassembly.github.io/spec/core/bikeshed/#modules
+// https://webassembly.github.io/spec/core/syntax/modules.html
 struct Module {
     static tl::expected<Module, ParseError> parse_from(std::istream &&is) { return parse_from(is); }
     static tl::expected<Module, ParseError> parse_from(std::istream &);

@@ -85,10 +85,10 @@ std::optional<FunctionType> parse(std::istream &is) {
     };
 }
 
-// https://webassembly.github.io/spec/core/bikeshed/#export-section
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-exportsec
 template<>
 std::optional<Export> parse(std::istream &is) {
-    // https://webassembly.github.io/spec/core/bikeshed/#binary-utf8
+    // https://webassembly.github.io/spec/core/binary/values.html#names
     auto name_length = Leb128<std::uint32_t>::decode_from(is);
     if (!name_length) {
         return std::nullopt;
@@ -171,7 +171,7 @@ std::optional<CodeEntry> parse(std::istream &is) {
     };
 }
 
-// https://webassembly.github.io/spec/core/bikeshed/#binary-vec
+// https://webassembly.github.io/spec/core/binary/conventions.html#vectors
 template<typename T>
 std::optional<std::vector<T>> parse_vector(std::istream &is) {
     auto item_count = Leb128<std::uint32_t>::decode_from(is);
@@ -212,14 +212,14 @@ std::optional<std::string> get_section_data(std::vector<Section> const &sections
 tl::expected<Module, ParseError> Module::parse_from(std::istream &is) {
     std::string buf;
 
-    // https://webassembly.github.io/spec/core/bikeshed/#binary-magic
+    // https://webassembly.github.io/spec/core/binary/modules.html#binary-magic
     buf.resize(kMagicSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\0asm"sv) {
         return tl::unexpected{ParseError::InvalidMagic};
     }
 
-    // https://webassembly.github.io/spec/core/bikeshed/#binary-version
+    // https://webassembly.github.io/spec/core/binary/modules.html#binary-version
     buf.resize(kVersionSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\1\0\0\0"sv) {
@@ -228,7 +228,7 @@ tl::expected<Module, ParseError> Module::parse_from(std::istream &is) {
 
     Module module;
 
-    // https://webassembly.github.io/spec/core/bikeshed/#sections
+    // https://webassembly.github.io/spec/core/binary/modules.html#sections
     while (true) {
         std::uint8_t id{};
         is.read(reinterpret_cast<char *>(&id), sizeof(id));
