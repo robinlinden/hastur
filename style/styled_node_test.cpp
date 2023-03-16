@@ -11,7 +11,6 @@
 #include <utility>
 
 using namespace std::literals;
-using etest::expect;
 using etest::expect_eq;
 
 namespace {
@@ -30,16 +29,7 @@ void expect_property_eq(
 } // namespace
 
 int main() {
-    etest::test("get_property", [] {
-        dom::Node dom_node = dom::Element{"dummy"s};
-        style::StyledNode styled_node{
-                .node = dom_node,
-                .properties = {{css::PropertyId::Width, "15px"s}},
-                .children = {},
-        };
-
-        expect(styled_node.get_property<css::PropertyId::Width>() == "15px"sv);
-    });
+    etest::test("get_property", [] { expect_property_eq<css::PropertyId::Width>("15px", "15px"); });
 
     etest::test("property inheritance", [] {
         dom::Node dom_node = dom::Element{"dummy"s};
@@ -163,20 +153,14 @@ int main() {
     });
 
     etest::test("get_font_style_property", [] {
-        dom::Node dom_node = dom::Element{"dummy"s};
-        style::StyledNode styled_node{.node = dom_node, .properties = {{css::PropertyId::FontStyle, "oblique"s}}};
-
-        expect_eq(styled_node.get_property<css::PropertyId::FontStyle>(), style::FontStyle::Oblique);
+        expect_property_eq<css::PropertyId::FontStyle>("oblique", style::FontStyle::Oblique);
 
         // Unhandled properties don't break things.
-        styled_node.properties[0] = std::pair{css::PropertyId::FontStyle, "???"s};
-        expect_eq(styled_node.get_property<css::PropertyId::FontStyle>(), style::FontStyle::Normal);
+        expect_property_eq<css::PropertyId::FontStyle>("???", style::FontStyle::Normal);
     });
 
     etest::test("get_font_family_property", [] {
-        dom::Node dom_node = dom::Element{"dummy"s};
-        style::StyledNode styled_node{.node = dom_node, .properties = {{css::PropertyId::FontFamily, "abc, def"s}}};
-        expect_eq(styled_node.get_property<css::PropertyId::FontFamily>(), std::vector<std::string_view>{"abc", "def"});
+        expect_property_eq<css::PropertyId::FontFamily>("abc, def", std::vector<std::string_view>{"abc", "def"});
     });
 
     etest::test("get_font_size_property", [] {
@@ -269,16 +253,9 @@ int main() {
         expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::None);
     });
 
-    etest::test("get_property, unhandled display value", [] {
-        dom::Node dom_node = dom::Element{"dummy"s};
-        style::StyledNode styled_node{
-                .node = dom_node,
-                .properties = {{css::PropertyId::Display, "i cant believe this"s}},
-                .children = {},
-        };
+    etest::test("get_property, unhandled display value",
+            [] { expect_property_eq<css::PropertyId::Display>("i cant believe this", style::DisplayValue::Block); });
 
-        expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
-    });
 
     return etest::run_all_tests();
 }
