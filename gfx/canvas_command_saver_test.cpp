@@ -101,7 +101,7 @@ int main() {
         saver.fill_rect({9, 9, 9, 9}, {0x12, 0x34, 0x56});
         saver.draw_rect({9, 9, 9, 9}, {0x10, 0x11, 0x12}, {}, {});
         saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, FontStyle::Italic, {3, 2, 1});
-        saver.draw_text({1, 5}, "hello?"sv, {{"font1"}, {"font2"}}, {42}, FontStyle::Normal, {1, 2, 3});
+        saver.draw_text({1, 5}, "hello?"sv, {{{"font1"}, {"font2"}}}, {42}, FontStyle::Normal, {1, 2, 3});
         auto cmds = saver.take_commands();
 
         CanvasCommandSaver replayed;

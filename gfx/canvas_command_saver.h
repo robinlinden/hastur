@@ -95,7 +95,7 @@ public:
     }
     void draw_text(geom::Position position,
             std::string_view text,
-            std::vector<Font> const &font_options,
+            std::span<Font const> font_options,
             FontSize size,
             FontStyle style,
             Color color) override {

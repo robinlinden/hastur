@@ -152,7 +152,7 @@ void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders c
 
 void SfmlCanvas::draw_text(geom::Position p,
         std::string_view text,
-        std::vector<Font> const &font_options,
+        std::span<Font const> font_options,
         FontSize size,
         FontStyle style,
         Color color) {
