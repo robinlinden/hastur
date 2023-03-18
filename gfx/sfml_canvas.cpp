@@ -89,6 +89,9 @@ sf::Text::Style to_sfml(FontStyle style) {
     };
 
     transfer_enum_bit.template operator()<FontStyle::Italic, sf::Text::Style::Italic>();
+    transfer_enum_bit.template operator()<FontStyle::Bold, sf::Text::Style::Bold>();
+    transfer_enum_bit.template operator()<FontStyle::Underlined, sf::Text::Style::Underlined>();
+    transfer_enum_bit.template operator()<FontStyle::Strikethrough, sf::Text::Style::StrikeThrough>();
     return sf_style;
 }
 

@@ -21,6 +21,9 @@ struct FontSize {
 enum class FontStyle {
     Normal = 0,
     Italic = 1 << 0,
+    Bold = 1 << 1,
+    Underlined = 1 << 2,
+    Strikethrough = 1 << 3,
 };
 
 constexpr FontStyle operator|(FontStyle lhs, FontStyle rhs) {
