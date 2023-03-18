@@ -45,6 +45,7 @@ cc_binary(
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",
+        "@sfml//:system",
         "@sfml//:window",
         "@spdlog",
     ],

@@ -14,5 +14,8 @@ cc_library(
     includes = ["asio/include/"],
     strip_include_prefix = "asio/include",
     visibility = ["//visibility:public"],
-    deps = ["@boringssl//:ssl"],
+    deps = [
+        "@boringssl//:crypto",
+        "@boringssl//:ssl",
+    ],
 )

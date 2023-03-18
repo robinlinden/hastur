@@ -8,6 +8,7 @@ cc_library(
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
+        "//css",
         "//geom",
         "//style",
         "//util:from_chars",
