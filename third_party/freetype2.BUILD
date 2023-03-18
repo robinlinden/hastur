@@ -70,6 +70,10 @@ cc_test(
     name = "bbox_test",
     size = "small",
     srcs = ["src/tools/test_bbox.c"],
+    copts = select({
+        "@platforms//os:linux": ["-Wno-implicit-function-declaration"],
+        "//conditions:default": [],
+    }),
     local_defines = ["FT2_BUILD_LIBRARY"],
     deps = [":freetype2"],
 )
