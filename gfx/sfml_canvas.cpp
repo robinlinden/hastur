@@ -81,13 +81,15 @@ sf::Glsl::Vec4 to_vec4(Color const &color) {
 }
 
 sf::Text::Style to_sfml(FontStyle style) {
-    switch (style) {
-        case FontStyle::Italic:
-            return sf::Text::Italic;
-        case FontStyle::Normal:
-        default:
-            return sf::Text::Regular;
-    }
+    auto sf_style = sf::Text::Style::Regular;
+    auto transfer_enum_bit = [&]<FontStyle SourceBitT, sf::Text::Style TargetBitT> {
+        if ((style & SourceBitT) == SourceBitT) {
+            sf_style = static_cast<sf::Text::Style>(sf_style | TargetBitT);
+        }
+    };
+
+    transfer_enum_bit.template operator()<FontStyle::Italic, sf::Text::Style::Italic>();
+    return sf_style;
 }
 
 } // namespace
