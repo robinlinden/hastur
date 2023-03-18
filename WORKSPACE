@@ -16,14 +16,6 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.2.zip",
 )
 
-load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
-
-rules_fuzzing_dependencies()
-
-load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
-
-rules_fuzzing_init()
-
 # Misc tools
 # =========================================================
 
@@ -34,10 +26,6 @@ http_archive(
     strip_prefix = "bazel-compile-commands-extractor-c6cd079bef5836293ca18e55aac6ef05134c3a9d",
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/c6cd079bef5836293ca18e55aac6ef05134c3a9d.tar.gz",
 )
-
-load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
-
-hedron_compile_commands_setup()
 
 # Third-party
 # =========================================================
@@ -221,3 +209,21 @@ http_archive(
     strip_prefix = "zlib-1.2.13",
     url = "https://github.com/madler/zlib/archive/v1.2.13.tar.gz",
 )
+
+# Third-party setup
+# =========================================================
+
+# This needs to go last so that we can override any dependencies these calls may
+# pull in.
+
+load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
+
+rules_fuzzing_dependencies()
+
+load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
+
+rules_fuzzing_init()
+
+load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
+
+hedron_compile_commands_setup()
