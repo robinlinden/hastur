@@ -30,6 +30,15 @@ http_archive(
 # Third-party
 # =========================================================
 
+# We don't use this, but rules_fuzzing does, and the version they depend on
+# doesn't work with Clang 16 due to undeclared inclusions.
+http_archive(
+    name = "com_google_absl",  # Apache-2.0
+    sha256 = "81311c17599b3712069ded20cca09a62ab0bf2a89dfa16993786c8782b7ed145",
+    strip_prefix = "abseil-cpp-20230125.1",
+    url = "https://github.com/abseil/abseil-cpp/archive/20230125.1.tar.gz",
+)
+
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
