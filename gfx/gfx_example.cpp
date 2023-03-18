@@ -57,6 +57,25 @@ int main(int argc, char **argv) {
 
         canvas->draw_text({100, 50}, "hello!"sv, {"arial"}, {16}, gfx::FontStyle::Normal, gfx::Color{});
         canvas->draw_text({100, 80}, "hello, but fancy!"sv, {"arial"}, {16}, gfx::FontStyle::Italic, gfx::Color{});
+        canvas->draw_text({100, 110},
+                "hello, but *even fancier*!"sv,
+                {"arial"},
+                {32},
+                gfx::FontStyle::Italic | gfx::FontStyle::Bold,
+                gfx::Color{});
+        canvas->draw_text({120, 150},
+                "hmmmm"sv,
+                {"arial"},
+                {24},
+                gfx::FontStyle::Italic | gfx::FontStyle::Bold | gfx::FontStyle::Underlined,
+                gfx::Color{});
+        canvas->draw_text({150, 200},
+                "oh no"sv,
+                {"arial"},
+                {24},
+                gfx::FontStyle::Italic | gfx::FontStyle::Bold | gfx::FontStyle::Underlined
+                        | gfx::FontStyle::Strikethrough,
+                gfx::Color::from_css_name("hotpink").value());
 
         window.display();
     }
