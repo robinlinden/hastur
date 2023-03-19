@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#ifndef HTML_PARSER_H_
+#define HTML_PARSER_H_
+
 #include "dom/dom.h"
 #include "html2/tokenizer.h"
 
@@ -58,3 +61,5 @@ inline dom::Document parse(std::string_view input, ParserOptions const &opts = {
 }
 
 } // namespace html
+
+#endif
