@@ -59,17 +59,17 @@ http_archive(
 http_archive(
     name = "ctre",  # Apache-2.0
     build_file = "//third_party:ctre.BUILD",
-    sha256 = "d00d7eaa0e22f2fdaa947a532b81b6fc35880acf4887b50a5ac9bfb7411ced03",
-    strip_prefix = "compile-time-regular-expressions-3.7.1",
-    url = "https://github.com/hanickadot/compile-time-regular-expressions/archive/v3.7.1.tar.gz",
+    sha256 = "0711a6f97496e010f72adab69839939a9e50ba35ad87779e422ae3ff3b0edfc3",
+    strip_prefix = "compile-time-regular-expressions-3.7.2",
+    url = "https://github.com/hanickadot/compile-time-regular-expressions/archive/v3.7.2.tar.gz",
 )
 
 http_archive(
     name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
-    sha256 = "67b4216c80eae2959222a5da93bb58839ebef0ed37f3c402b930fa5b263244f9",
-    strip_prefix = "expected-3e304a4bdd00feef8d41f5b388c37bd9d6108025",
-    url = "https://github.com/tartanllama/expected/archive/3e304a4bdd00feef8d41f5b388c37bd9d6108025.tar.gz",
+    sha256 = "1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6",
+    strip_prefix = "expected-1.1.0",
+    url = "https://github.com/tartanllama/expected/archive/v1.1.0.tar.gz",
 )
 
 http_archive(
@@ -119,9 +119,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "3b665fadd5580b7ef494d5d8bb1c12b2ec53ee723034caf43332956381f5d631",
-    strip_prefix = "imgui-1.89.3",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.3.tar.gz",
+    sha256 = "69f1e83adcab3fdd27b522f5075f407361b0d3875e3522b13d33bc2ae2c7d48c",
+    strip_prefix = "imgui-1.89.4",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.4.tar.gz",
 )
 
 http_archive(
@@ -166,9 +166,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "c47cf5abe21e1d620afccd159c23fe71dfa86eb270015a7646a4f79e9bfd5503",
-    strip_prefix = "stb-8b5f1f37b5b75829fc72d38e7b5d4bcbf8a26d55",
-    url = "https://github.com/nothings/stb/archive/8b5f1f37b5b75829fc72d38e7b5d4bcbf8a26d55.tar.gz",
+    sha256 = "d00921d49b06af62aa6bfb97c1b136bec661dd11dd4eecbcb0da1f6da7cedb4c",
+    strip_prefix = "stb-5736b15f7ea0ffb08dd38af21067c314d6a3aae9",
+    url = "https://github.com/nothings/stb/archive/5736b15f7ea0ffb08dd38af21067c314d6a3aae9.tar.gz",
 )
 
 http_archive(
