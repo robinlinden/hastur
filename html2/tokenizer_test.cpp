@@ -264,12 +264,32 @@ void rawtext_tests() {
     });
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+// Once a start tag with the tag name "plaintext" has been seen, that will be
+// the last token ever seen other than character tokens (and the end-of-file
+// token), because there is no way to switch out of the PLAINTEXT state.
+void plaintext_tests() {
+    etest::test("plaintext", [] {
+        auto tokens = run_tokenizer("</plaintext>", Options{.state_override = State::Plaintext});
+        expect_text(tokens, "</plaintext>");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("plaintext, null character", [] {
+        auto tokens = run_tokenizer("\0"sv, Options{.state_override = State::Plaintext});
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_text(tokens, kReplacementCharacter);
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
     cdata_tests();
     doctype_system_keyword_tests();
     rawtext_tests();
+    plaintext_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

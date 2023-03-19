@@ -183,6 +183,24 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#plaintext-state
+            case State::Plaintext: {
+                auto c = consume_next_input_character();
+                if (!c) {
+                    emit(EndOfFileToken{});
+                    return;
+                }
+
+                if (c == '\0') {
+                    emit(ParseError::UnexpectedNullCharacter);
+                    emit_replacement_character();
+                    continue;
+                }
+
+                emit(CharacterToken{*c});
+                continue;
+            }
+
             case State::TagOpen: {
                 auto c = consume_next_input_character();
                 if (!c) {
