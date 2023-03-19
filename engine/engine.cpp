@@ -6,7 +6,7 @@
 
 #include "css/default.h"
 #include "css/parser.h"
-#include "html/parse.h"
+#include "html/parser.h"
 #include "style/style.h"
 
 #include <spdlog/spdlog.h>

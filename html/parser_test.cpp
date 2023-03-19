@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html/parse.h"
+#include "html/parser.h"
 
 #include "etest/etest.h"
 

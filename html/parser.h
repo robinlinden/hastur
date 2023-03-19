@@ -47,4 +47,8 @@ private:
     bool seen_html_tag_{false};
 };
 
+inline dom::Document parse(std::string_view input) {
+    return Parser::parse_document(input);
+}
+
 } // namespace html

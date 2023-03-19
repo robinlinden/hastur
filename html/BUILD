@@ -3,14 +3,8 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "html",
-    srcs = [
-        "parse.cpp",
-        "parser.cpp",
-    ],
-    hdrs = [
-        "parse.h",
-        "parser.h",
-    ],
+    srcs = ["parser.cpp"],
+    hdrs = ["parser.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
