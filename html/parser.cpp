@@ -178,7 +178,9 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
     }
 
     // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
-    if (open_elements_.top()->name == "head" && start_tag.tag_name == "style") {
+    // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+    if ((open_elements_.top()->name == "head" && start_tag.tag_name == "style")
+            || (start_tag.tag_name == "noscript" && scripting_)) {
         tokenizer_.set_state(html2::State::Rawtext);
     }
 

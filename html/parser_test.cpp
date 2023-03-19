@@ -299,5 +299,33 @@ int main() {
         expect_eq(text.text, "<body>");
     });
 
+    etest::test("<noscript> w/ scripting consumes everything as raw text", [] {
+        auto html = html::parse("<body><noscript><span>"sv, {.scripting = true}).html();
+
+        auto const &body = std::get<dom::Element>(html.children.at(1));
+        expect_eq(body.name, "body");
+
+        auto const &noscript = std::get<dom::Element>(body.children.at(0));
+        expect_eq(noscript.name, "noscript");
+        expect_eq(noscript.children.size(), std::size_t{1});
+
+        auto const &text = std::get<dom::Text>(noscript.children.at(0));
+        expect_eq(text.text, "<span>");
+    });
+
+    etest::test("<noscript> w/o scripting is treated as a normal dom node", [] {
+        auto html = html::parse("<body><noscript><span>"sv, {.scripting = false}).html();
+
+        auto const &body = std::get<dom::Element>(html.children.at(1));
+        expect_eq(body.name, "body");
+
+        auto const &noscript = std::get<dom::Element>(body.children.at(0));
+        expect_eq(noscript.name, "noscript");
+        expect_eq(noscript.children.size(), std::size_t{1});
+
+        auto const &span = std::get<dom::Element>(noscript.children.at(0));
+        expect_eq(span.name, "span");
+    });
+
     return etest::run_all_tests();
 }
