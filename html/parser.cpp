@@ -177,6 +177,11 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         open_elements_.pop();
     }
 
+    // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
+    if (open_elements_.top()->name == "head" && start_tag.tag_name == "style") {
+        tokenizer_.set_state(html2::State::Rawtext);
+    }
+
     auto &new_element = open_elements_.top()->children.emplace_back(
             dom::Element{start_tag.tag_name, into_dom_attributes(start_tag.attributes), {}});
 

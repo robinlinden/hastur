@@ -285,5 +285,19 @@ int main() {
         expect_eq(body_text, dom::Text{"hello?"});
     });
 
+    etest::test("<style> consumes everything as raw text", [] {
+        auto html = html::parse("<style><body>"sv).html();
+
+        auto const &head = std::get<dom::Element>(html.children.at(0));
+        expect_eq(head.name, "head");
+
+        auto const &style = std::get<dom::Element>(head.children.at(0));
+        expect_eq(style.name, "style");
+        expect_eq(style.children.size(), std::size_t{1});
+
+        auto const &text = std::get<dom::Text>(style.children.at(0));
+        expect_eq(text.text, "<body>");
+    });
+
     return etest::run_all_tests();
 }
