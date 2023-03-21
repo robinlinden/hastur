@@ -13,7 +13,7 @@
 namespace wasm {
 std::ostream &operator<<(std::ostream &, wasm::ValueType);
 std::ostream &operator<<(std::ostream &os, wasm::ValueType type) {
-    switch (type) {
+    switch (type.kind) {
         case ValueType::Int32:
             os << "i32";
             break;

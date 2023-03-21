@@ -38,32 +38,9 @@ std::optional<std::uint32_t> parse(std::istream &is) {
     return Leb128<std::uint32_t>::decode_from(is);
 }
 
-// https://webassembly.github.io/spec/core/binary/types.html
 template<>
 std::optional<ValueType> parse(std::istream &is) {
-    std::uint8_t byte{};
-    if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
-        return std::nullopt;
-    }
-
-    switch (byte) {
-        case 0x7f:
-            return ValueType::Int32;
-        case 0x7e:
-            return ValueType::Int64;
-        case 0x7d:
-            return ValueType::Float32;
-        case 0x7c:
-            return ValueType::Float64;
-        case 0x7b:
-            return ValueType::Vector128;
-        case 0x70:
-            return ValueType::FunctionReference;
-        case 0x6f:
-            return ValueType::ExternReference;
-        default:
-            return std::nullopt;
-    }
+    return ValueType::parse(is);
 }
 
 // https://webassembly.github.io/spec/core/binary/types.html#function-types
@@ -135,7 +112,7 @@ std::optional<CodeEntry::Local> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    auto type = parse<ValueType>(is);
+    auto type = ValueType::parse(is);
     if (!type) {
         return std::nullopt;
     }
@@ -213,6 +190,33 @@ std::optional<std::string> get_section_data(std::vector<Section> const &sections
 }
 
 } // namespace
+
+// https://webassembly.github.io/spec/core/binary/types.html
+std::optional<ValueType> ValueType::parse(std::istream &is) {
+    std::uint8_t byte{};
+    if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
+        return std::nullopt;
+    }
+
+    switch (byte) {
+        case 0x7f:
+            return ValueType{Kind::Int32};
+        case 0x7e:
+            return ValueType{Kind::Int64};
+        case 0x7d:
+            return ValueType{Kind::Float32};
+        case 0x7c:
+            return ValueType{Kind::Float64};
+        case 0x7b:
+            return ValueType{Kind::Vector128};
+        case 0x70:
+            return ValueType{Kind::FunctionReference};
+        case 0x6f:
+            return ValueType{Kind::ExternReference};
+        default:
+            return std::nullopt;
+    }
+}
 
 tl::expected<Module, ParseError> Module::parse_from(std::istream &is) {
     std::string buf;

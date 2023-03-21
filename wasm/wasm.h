@@ -43,19 +43,27 @@ struct Section {
 };
 
 // https://webassembly.github.io/spec/core/syntax/types.html
-enum class ValueType : std::uint8_t {
-    // Number types.
-    Int32,
-    Int64,
-    Float32,
-    Float64,
+struct ValueType {
+    enum Kind : std::uint8_t {
+        // Number types.
+        Int32,
+        Int64,
+        Float32,
+        Float64,
 
-    // Vector types.
-    Vector128,
+        // Vector types.
+        Vector128,
 
-    // Reference types.
-    FunctionReference,
-    ExternReference,
+        // Reference types.
+        FunctionReference,
+        ExternReference,
+    };
+
+    static std::optional<ValueType> parse(std::istream &);
+
+    Kind kind{};
+
+    [[nodiscard]] bool operator==(ValueType const &) const = default;
 };
 
 // https://webassembly.github.io/spec/core/binary/types.html#result-types

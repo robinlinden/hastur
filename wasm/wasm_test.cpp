@@ -224,10 +224,11 @@ void type_section_tests() {
         expect_eq(module.type_section(),
                 wasm::TypeSection{
                         .types{
-                                wasm::FunctionType{.results{wasm::ValueType::Int32}},
+                                wasm::FunctionType{.results{wasm::ValueType{wasm::ValueType::Int32}}},
                                 wasm::FunctionType{
-                                        .parameters{wasm::ValueType::Int32, wasm::ValueType::Int32},
-                                        .results{wasm::ValueType::Float64},
+                                        .parameters{wasm::ValueType{wasm::ValueType::Int32},
+                                                wasm::ValueType{wasm::ValueType::Int32}},
+                                        .results{wasm::ValueType{wasm::ValueType::Float64}},
                                 },
                         },
                 });
@@ -244,13 +245,13 @@ void type_section_tests() {
                         .types{
                                 wasm::FunctionType{
                                         .parameters{
-                                                wasm::ValueType::Int32,
-                                                wasm::ValueType::Int64,
-                                                wasm::ValueType::Float32,
-                                                wasm::ValueType::Float64,
-                                                wasm::ValueType::Vector128,
-                                                wasm::ValueType::FunctionReference,
-                                                wasm::ValueType::ExternReference,
+                                                wasm::ValueType{wasm::ValueType::Int32},
+                                                wasm::ValueType{wasm::ValueType::Int64},
+                                                wasm::ValueType{wasm::ValueType::Float32},
+                                                wasm::ValueType{wasm::ValueType::Float64},
+                                                wasm::ValueType{wasm::ValueType::Vector128},
+                                                wasm::ValueType{wasm::ValueType::FunctionReference},
+                                                wasm::ValueType{wasm::ValueType::ExternReference},
                                         },
                                 },
                         },
@@ -336,7 +337,7 @@ void code_section_tests() {
         wasm::CodeSection expected{.entries{
                 wasm::CodeEntry{
                         .code{4, 4, 4},
-                        .locals{{1, wasm::ValueType::Int32}},
+                        .locals{{1, wasm::ValueType{wasm::ValueType::Int32}}},
                 },
         }};
         expect_eq(module.code_section(), expected);
@@ -351,11 +352,12 @@ void code_section_tests() {
         wasm::CodeSection expected{.entries{
                 wasm::CodeEntry{
                         .code{4, 4, 4},
-                        .locals{{1, wasm::ValueType::Int32}},
+                        .locals{{1, wasm::ValueType{wasm::ValueType::Int32}}},
                 },
                 wasm::CodeEntry{
                         .code{7, 8, 9, 10},
-                        .locals{{5, wasm::ValueType::Int64}, {6, wasm::ValueType::Float32}},
+                        .locals{{5, wasm::ValueType{wasm::ValueType::Int64}},
+                                {6, wasm::ValueType{wasm::ValueType::Float32}}},
                 },
         }};
         expect_eq(module.code_section(), expected);
