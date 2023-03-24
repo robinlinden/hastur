@@ -180,6 +180,14 @@ http_archive(
 )
 
 http_archive(
+    name = "unifex",  # Apache-2.0 WITH LLVM-exception
+    build_file = "//third_party:unifex.BUILD",
+    sha256 = "782c61a527c9db0ee2e71fc647202261a120e842a49665318eb4054f907595b5",
+    strip_prefix = "libunifex-0.0.1",
+    url = "https://github.com/facebookexperimental/libunifex/archive/v0.0.1.tar.gz",
+)
+
+http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
     sha256 = "4ee7c8e588e3e90785636c7ac879ad7d0b8d363c26838f57d3e4a7b8a55c38f5",

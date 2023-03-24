@@ -3,5 +3,6 @@ test_suite(
     tests = [
         "@freetype2//:bbox_test",
         "@libpng//:pngtest",
+        "@unifex//:unifex_tests",
     ],
 )
