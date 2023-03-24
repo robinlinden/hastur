@@ -32,11 +32,13 @@ jobs:
             version: 14
             bazel: --config asan
 
+          # https://github.com/llvm/llvm-project/issues/49689
           - name: clang-ubsan
             os: ubuntu-22.04
             compiler: clang
-            version: 14
+            version: 15
             bazel: --config ubsan
+            apt: libclang-rt-15-dev
 
           - name: clang-15
             os: ubuntu-22.04
