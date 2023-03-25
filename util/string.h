@@ -73,7 +73,7 @@ constexpr char lowercased(char c) {
     return c + ('a' - 'A');
 }
 
-[[nodiscard]] inline std::string lowercased(std::string s) {
+[[nodiscard]] constexpr std::string lowercased(std::string s) {
     std::ranges::for_each(s, [](char &c) { c = lowercased(c); });
     return s;
 }
@@ -82,7 +82,7 @@ constexpr bool no_case_compare(std::string_view a, std::string_view b) {
     return std::ranges::equal(a, b, [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
 }
 
-inline std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
+constexpr std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
     std::vector<std::string_view> result{};
     for (auto p = str.find(sep); p != str.npos; p = str.find(sep)) {
         result.push_back(str.substr(0, p));
@@ -124,9 +124,8 @@ constexpr std::string_view trim(std::string_view s) {
     return s;
 }
 
-// To-Do(zero-one): specify constexpr when we drop gcc-11 support
 // https://url.spec.whatwg.org/#concept-ipv4-serializer
-inline std::string ipv4_serialize(std::uint32_t addr) {
+constexpr std::string ipv4_serialize(std::uint32_t addr) {
     std::string out = "";
     std::uint32_t n = addr;
 
@@ -143,7 +142,6 @@ inline std::string ipv4_serialize(std::uint32_t addr) {
     return out;
 }
 
-// To-Do(zero-one): specify constexpr when we drop gcc-11 support
 // https://url.spec.whatwg.org/#concept-ipv6-serializer
 inline std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
     std::stringstream out;

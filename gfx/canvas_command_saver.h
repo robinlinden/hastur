@@ -136,7 +136,7 @@ public:
         canvas_.draw_rect(cmd.rect, cmd.color, cmd.borders, cmd.corners);
     }
 
-    void operator()(DrawTextWithFontOptionsCmd const &cmd) {
+    constexpr void operator()(DrawTextWithFontOptionsCmd const &cmd) {
         std::vector<gfx::Font> fonts;
         std::ranges::transform(
                 cmd.font_options, std::back_inserter(fonts), [](auto const &font) { return gfx::Font{font}; });
@@ -151,7 +151,7 @@ private:
     ICanvas &canvas_;
 };
 
-inline void replay_commands(ICanvas &canvas, std::vector<CanvasCommand> const &commands) {
+constexpr void replay_commands(ICanvas &canvas, std::vector<CanvasCommand> const &commands) {
     CanvasCommandVisitor visitor{canvas};
     for (auto const &command : commands) {
         std::visit(visitor, command);

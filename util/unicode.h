@@ -34,7 +34,7 @@ constexpr int unicode_utf8_byte_count(std::uint32_t code_point) {
     return 0;
 }
 
-inline std::string unicode_to_utf8(std::uint32_t code_point) {
+constexpr std::string unicode_to_utf8(std::uint32_t code_point) {
     switch (unicode_utf8_byte_count(code_point)) {
         case 1:
             return {static_cast<char>(code_point & 0x7F)};
