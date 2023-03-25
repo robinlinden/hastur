@@ -23,19 +23,6 @@ using namespace std::literals;
 namespace engine {
 namespace {
 
-std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view xpath) {
-    auto nodes = dom::nodes_by_xpath(doc.html(), xpath);
-    if (nodes.empty() || nodes[0]->children.empty()) {
-        return std::nullopt;
-    }
-
-    if (auto const *text = std::get_if<dom::Text>(&nodes[0]->children[0])) {
-        return text->text;
-    }
-
-    return std::nullopt;
-}
-
 std::optional<std::string> zlib_decode(std::string_view data) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
@@ -123,8 +110,11 @@ void Engine::on_navigation_success() {
     dom_ = html::parse(response_.body);
     stylesheet_ = css::default_style();
 
-    if (auto style = try_get_text_content(dom_, "/html/head/style"sv)) {
-        auto new_rules = css::parse(*style);
+    if (auto style = dom::nodes_by_xpath(dom_.html(), "/html/head/style"sv);
+            !style.empty() && !style[0]->children.empty()) {
+        // Style can only contain text, and we enforce this in our HTML parser.
+        auto const &style_content = std::get<dom::Text>(style[0]->children[0]);
+        auto new_rules = css::parse(style_content.text);
         stylesheet_.reserve(stylesheet_.size() + new_rules.size());
         stylesheet_.insert(
                 end(stylesheet_), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
