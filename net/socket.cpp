@@ -65,9 +65,9 @@ struct BaseSocketImpl {
 } // namespace
 
 struct Socket::Impl : public BaseSocketImpl {
-    asio::io_service svc{};
-    asio::ip::tcp::resolver resolver{svc};
-    asio::ip::tcp::socket socket{svc};
+    asio::io_context io_ctx{};
+    asio::ip::tcp::resolver resolver{io_ctx};
+    asio::ip::tcp::socket socket{io_ctx};
 };
 
 Socket::Socket() : impl_(std::make_unique<Impl>()) {}
@@ -109,10 +109,10 @@ struct SecureSocket::Impl : public BaseSocketImpl {
         return false;
     }
 
-    asio::io_service svc{};
-    asio::ip::tcp::resolver resolver{svc};
+    asio::io_context io_ctx{};
+    asio::ip::tcp::resolver resolver{io_ctx};
     asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
-    asio::ssl::stream<asio::ip::tcp::socket> socket{svc, ctx};
+    asio::ssl::stream<asio::ip::tcp::socket> socket{io_ctx, ctx};
 };
 
 SecureSocket::SecureSocket() : impl_(std::make_unique<Impl>()) {}
