@@ -373,7 +373,7 @@ void App::on_page_loaded() {
     update_status_line();
     response_headers_str_ = engine_.response().headers.to_string();
     dom_str_ = dom::to_string(engine_.dom());
-    stylesheet_str_ = stylesheet_to_string(engine_.stylesheet());
+    stylesheet_str_ = stylesheet_to_string(engine_.stylesheet().rules);
     on_layout_updated();
 }
 

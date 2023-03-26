@@ -11,7 +11,7 @@
 
 namespace css {
 
-std::vector<css::Rule> default_style();
+StyleSheet default_style();
 
 } // namespace css
 

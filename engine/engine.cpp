@@ -114,10 +114,11 @@ void Engine::on_navigation_success() {
             !style.empty() && !style[0]->children.empty()) {
         // Style can only contain text, and we enforce this in our HTML parser.
         auto const &style_content = std::get<dom::Text>(style[0]->children[0]);
-        auto new_rules = css::parse(style_content.text);
-        stylesheet_.reserve(stylesheet_.size() + new_rules.size());
-        stylesheet_.insert(
-                end(stylesheet_), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
+        auto new_ss = css::parse(style_content.text);
+        // TODO(grayhatter) add method to merge stylesheets
+        stylesheet_.rules.reserve(stylesheet_.rules.size() + new_ss.rules.size());
+        stylesheet_.rules.insert(
+                end(stylesheet_.rules), std::make_move_iterator(begin(new_ss.rules)), std::make_move_iterator(end(new_ss.rules)));
     }
 
     auto head_links = dom::nodes_by_xpath(dom_.html(), "/html/head/link");
@@ -129,10 +130,10 @@ void Engine::on_navigation_success() {
 
     // Start downloading all stylesheets.
     spdlog::info("Loading {} stylesheets", head_links.size());
-    std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
+    std::vector<std::future<css::StyleSheet>> future_new_rules;
     future_new_rules.reserve(head_links.size());
     for (auto const *link : head_links) {
-        future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
+        future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> css::StyleSheet {
             auto const &href = link->attributes.at("href");
             auto stylesheet_url = uri::Uri::parse(href, uri_);
 
@@ -173,14 +174,14 @@ void Engine::on_navigation_success() {
 
     // In order, wait for the download to finish and merge with the big stylesheet.
     for (auto &future_rules : future_new_rules) {
-        auto rules = future_rules.get();
-        stylesheet_.reserve(stylesheet_.size() + rules.size());
-        stylesheet_.insert(
-                end(stylesheet_), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
+        auto ss = future_rules.get();
+        stylesheet_.rules.reserve(stylesheet_.rules.size() + ss.rules.size());
+        stylesheet_.rules.insert(
+                end(stylesheet_.rules), std::make_move_iterator(begin(ss.rules)), std::make_move_iterator(end(ss.rules)));
     }
 
-    spdlog::info("Styling dom w/ {} rules", stylesheet_.size());
-    styled_ = style::style_tree(dom_.html_node, stylesheet_);
+    spdlog::info("Styling dom w/ {} rules", stylesheet_.rules.size());
+    styled_ = style::style_tree(dom_.html_node, stylesheet_.rules);
     layout_ = layout::create_layout(*styled_, layout_width_);
     on_page_loaded_();
 }

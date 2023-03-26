@@ -37,7 +37,7 @@ public:
     uri::Uri const &uri() const { return uri_; }
     protocol::Response const &response() const { return response_; }
     dom::Document const &dom() const { return dom_; }
-    std::vector<css::Rule> const &stylesheet() const { return stylesheet_; }
+    css::StyleSheet const &stylesheet() const { return stylesheet_; }
     layout::LayoutBox const *layout() const { return layout_.has_value() ? &*layout_ : nullptr; }
 
 private:
@@ -55,7 +55,7 @@ private:
     uri::Uri uri_{};
     protocol::Response response_{};
     dom::Document dom_{};
-    std::vector<css::Rule> stylesheet_{};
+    css::StyleSheet stylesheet_{};
     std::unique_ptr<style::StyledNode> styled_{};
     std::optional<layout::LayoutBox> layout_{};
 
