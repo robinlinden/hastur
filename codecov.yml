@@ -1,2 +1,12 @@
 # https://docs.codecov.com/docs/pull-request-comments#disable-comment
 comment: false
+
+coverage:
+  status:
+    project:
+      default:
+        # Allow coverage to fluctuate a bit. This is mostly to work around gcc
+        # not always reporting e.g. functions' closing braces or lambda variable
+        # declarations as covered, leading to "indirect changes" that really
+        # aren't changes at all.
+        threshold: 1%
