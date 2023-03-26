@@ -3,8 +3,11 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "html",
-    srcs = ["parser.cpp"],
-    hdrs = ["parser.h"],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
@@ -15,13 +18,14 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "html_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["parser_test.cpp"],
+    srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
         ":html",
         "//etest",
+        "//html2",
     ],
-)
+) for src in glob(["*_test.cpp"])]
