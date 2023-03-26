@@ -5,6 +5,8 @@
 #ifndef HTML_PARSER_H_
 #define HTML_PARSER_H_
 
+#include "html/parser_states.h"
+
 #include "dom/dom.h"
 #include "html2/tokenizer.h"
 
@@ -52,8 +54,9 @@ private:
     dom::Document doc_{};
     std::stack<dom::Element *> open_elements_{};
     std::stringstream current_text_{};
-    bool seen_html_tag_{false};
     bool scripting_{false};
+    InsertionMode insertion_mode_{};
+    Actions actions_{doc_, tokenizer_, scripting_, open_elements_};
 };
 
 inline dom::Document parse(std::string_view input, ParserOptions const &opts = {}) {

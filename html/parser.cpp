@@ -93,22 +93,21 @@ constexpr std::array kDisallowsParagraphEndTagOmissionWhenClosed{
         "video"sv,
 };
 
-// https://html.spec.whatwg.org/multipage/dom.html#metadata-content-2
-constexpr std::array kMetadataContent{
-        "base"sv,
-        "link"sv,
-        "meta"sv,
-        "noscript"sv,
-        "script"sv,
-        "style"sv,
-        "template"sv,
-        "title"sv,
-};
-
 } // namespace
 
 void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
-    std::visit(*this, token);
+    // Everything in <head> and earlier is handled by the new parser.
+    if (!std::holds_alternative<AfterHead>(insertion_mode_)) {
+        insertion_mode_ = std::visit([&](auto &mode) { return mode.process(actions_, token); }, insertion_mode_)
+                                  .value_or(insertion_mode_);
+        if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr && end->tag_name == "head") {
+            return;
+        }
+    }
+
+    if (std::holds_alternative<AfterHead>(insertion_mode_)) {
+        std::visit(*this, token);
+    }
 }
 
 void Parser::operator()(html2::DoctypeToken const &doctype) {
@@ -118,21 +117,6 @@ void Parser::operator()(html2::DoctypeToken const &doctype) {
 }
 
 void Parser::operator()(html2::StartTagToken const &start_tag) {
-    if (start_tag.tag_name == "html"sv) {
-        doc_.html().name = start_tag.tag_name;
-        doc_.html().attributes = into_dom_attributes(start_tag.attributes);
-        open_elements_.push(&doc_.html());
-        seen_html_tag_ = true;
-        return;
-    }
-
-    // https://html.spec.whatwg.org/multipage/semantics.html#the-html-element
-    if (open_elements_.empty() && !seen_html_tag_) {
-        doc_.html().name = "html"s;
-        open_elements_.push(&doc_.html());
-        seen_html_tag_ = true;
-    }
-
     if (start_tag.tag_name == "script"sv) {
         tokenizer_.set_state(html2::State::ScriptData);
     }
@@ -142,32 +126,14 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         return;
     }
 
-    // https://html.spec.whatwg.org/multipage/semantics.html#the-head-element
-    // A head element's start tag can be omitted if the element is empty, or
-    // if the first thing inside the head element is an element.
-    if (start_tag.tag_name != "head") {
-        if (doc_.html().children.empty()) {
-            auto &head = open_elements_.top()->children.emplace_back(dom::Element{.name{"head"}});
-            open_elements_.push(&std::get<dom::Element>(head));
-        }
-
-        // A head element's end tag can be omitted if the head element is not
-        // immediately followed by ASCII whitespace or a comment.
-        if (open_elements_.top()->name == "head" && !is_in_array<kMetadataContent>(start_tag.tag_name)) {
-            open_elements_.pop();
-        }
-    }
-
     // https://html.spec.whatwg.org/multipage/semantics.html#the-body-element
     // A body element's start tag can be omitted if the element is empty, or if
     // the first thing inside the body element is not ASCII whitespace or a
     // comment, except if the first thing inside the body element is a meta,
     // noscript, link, script, style, or template element.
-    if (start_tag.tag_name != "body" && !is_in_array<kMetadataContent>(start_tag.tag_name)) {
-        if (doc_.html().children.size() == 1) {
-            auto &body = open_elements_.top()->children.emplace_back(dom::Element{.name{"body"}});
-            open_elements_.push(&std::get<dom::Element>(body));
-        }
+    if (doc_.html().children.size() == 1 && start_tag.tag_name != "body") {
+        auto &body = open_elements_.top()->children.emplace_back(dom::Element{.name{"body"}});
+        open_elements_.push(&std::get<dom::Element>(body));
     }
 
     generate_text_node_if_needed();
@@ -177,10 +143,8 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         open_elements_.pop();
     }
 
-    // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
     // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
-    if ((open_elements_.top()->name == "head" && start_tag.tag_name == "style")
-            || (start_tag.tag_name == "noscript" && scripting_)) {
+    if (start_tag.tag_name == "noscript" && scripting_) {
         tokenizer_.set_state(html2::State::Rawtext);
     }
 
@@ -206,16 +170,6 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
     if (open_elements_.empty()) {
         spdlog::warn("End tag [{}] encountered with no elements still open", end_tag.tag_name);
         return;
-    }
-
-    if (end_tag.tag_name == "html" && doc_.html().children.empty()) {
-        if (open_elements_.top()->name == "html") {
-            open_elements_.top()->children.emplace_back(dom::Element{.name = "head"});
-        }
-    }
-
-    if (end_tag.tag_name == "html" && open_elements_.top()->name == "head") {
-        open_elements_.pop();
     }
 
     if (end_tag.tag_name == "html" && doc_.html().children.size() == 1) {
@@ -256,20 +210,6 @@ void Parser::operator()(html2::CharacterToken const &character) {
 }
 
 void Parser::operator()(html2::EndOfFileToken const &) {
-    if (!seen_html_tag_) {
-        doc_.html().name = "html"s;
-        open_elements_.push(&doc_.html());
-        seen_html_tag_ = true;
-    }
-
-    if (!open_elements_.empty() && open_elements_.top()->name == "html" && open_elements_.top()->children.empty()) {
-        doc_.html().children.emplace_back(dom::Element{.name = "head"});
-    }
-
-    if (!open_elements_.empty() && open_elements_.top()->name == "head") {
-        open_elements_.pop();
-    }
-
     if (!open_elements_.empty() && open_elements_.top()->name == "html" && open_elements_.top()->children.size() == 1) {
         auto &body = doc_.html().children.emplace_back(dom::Element{.name = "body"});
         open_elements_.push(&std::get<dom::Element>(body));
