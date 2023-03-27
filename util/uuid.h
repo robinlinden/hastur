@@ -15,7 +15,7 @@
 
 namespace util {
 inline std::string new_uuid() {
-    std::array<unsigned char, 16> data;
+    std::array<unsigned char, 16> data{};
     std::stringstream uuid_string;
     uuid_string << std::setfill('0');
 

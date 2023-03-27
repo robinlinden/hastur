@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 
     bool running = true;
     while (running) {
-        sf::Event event;
+        sf::Event event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::Closed:

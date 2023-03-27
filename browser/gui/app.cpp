@@ -174,7 +174,7 @@ void App::set_scale(unsigned scale) {
 
 int App::run() {
     while (window_.isOpen()) {
-        sf::Event event;
+        sf::Event event{};
         while (window_.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);
 

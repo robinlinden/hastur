@@ -45,6 +45,7 @@
 # harmful.
 Checks: >
   bugprone-*,
+  cppcoreguidelines-pro-type-member-init,
   google-*,
   misc-*,
   modernize-*,

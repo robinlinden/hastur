@@ -25,7 +25,7 @@ enum class Error {
 
 struct StatusLine {
     std::string version;
-    int status_code;
+    int status_code{};
     std::string reason;
 
     [[nodiscard]] bool operator==(StatusLine const &) const = default;
@@ -52,7 +52,7 @@ private:
 };
 
 struct Response {
-    Error err;
+    Error err{};
     StatusLine status_line;
     Headers headers;
     std::string body;
