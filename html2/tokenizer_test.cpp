@@ -57,6 +57,8 @@ TokenizerOutput run_tokenizer(std::string_view input,
                         the.set_state(State::ScriptData);
                     } else if (start_tag->tag_name == "style") {
                         the.set_state(State::Rawtext);
+                    } else if (start_tag->tag_name == "title") {
+                        the.set_state(State::Rcdata);
                     }
                 }
                 tokens.push_back(std::move(t));
@@ -264,6 +266,71 @@ void rawtext_tests() {
     });
 }
 
+void rcdata_tests() {
+    etest::test("rcdata", [] {
+        auto tokens = run_tokenizer("<these><aren't><tags!>", Options{.state_override = State::Rcdata});
+        expect_text(tokens, "<these><aren't><tags!>");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata, unexpected null", [] {
+        auto tokens = run_tokenizer("\0"sv, Options{.state_override = State::Rcdata});
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_text(tokens, kReplacementCharacter);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata inappropriate end tag", [] {
+        auto tokens = run_tokenizer("<hello></div>", Options{.state_override = State::Rcdata});
+        expect_text(tokens, "<hello></div>");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata in title, with attribute", [] {
+        auto tokens = run_tokenizer("<title>sometext</title>");
+        expect_token(tokens, StartTagToken{.tag_name = "title"});
+        expect_text(tokens, "sometext");
+        expect_token(tokens, EndTagToken{.tag_name = "title"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata in title, with attribute", [] {
+        auto tokens = run_tokenizer("<title><div></title hello='1'>");
+        expect_token(tokens, StartTagToken{.tag_name = "title"});
+        expect_text(tokens, "<div>");
+        expect_token(tokens, EndTagToken{.tag_name = "title", .attributes{{"hello", "1"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata in title, self-closing end tag", [] {
+        auto tokens = run_tokenizer("<title><div></title/>");
+        expect_token(tokens, StartTagToken{.tag_name = "title"});
+        expect_text(tokens, "<div>");
+        expect_token(tokens, EndTagToken{.tag_name = "title", .self_closing = true});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata, end tag open, eof", [] {
+        auto tokens = run_tokenizer("<hello></", Options{.state_override = State::Rcdata});
+        expect_text(tokens, "<hello></");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata, end tag name, eof", [] {
+        auto tokens = run_tokenizer("<hello></a </b/ </c! </g", Options{.state_override = State::Rcdata});
+        expect_text(tokens, "<hello></a </b/ </c! </g");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("rcdata in title, character reference", [] {
+        auto tokens = run_tokenizer("<title>&lt;div&gt;</title>");
+        expect_token(tokens, StartTagToken{.tag_name = "title"});
+        expect_text(tokens, "<div>");
+        expect_token(tokens, EndTagToken{.tag_name = "title"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 // Once a start tag with the tag name "plaintext" has been seen, that will be
 // the last token ever seen other than character tokens (and the end-of-file
@@ -289,6 +356,7 @@ int main() {
     cdata_tests();
     doctype_system_keyword_tests();
     rawtext_tests();
+    rcdata_tests();
     plaintext_tests();
 
     etest::test("script, empty", [] {
