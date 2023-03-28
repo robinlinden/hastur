@@ -264,6 +264,14 @@ void rawtext_tests() {
         expect_text(tokens, "<hello></a </b/ </c! </g");
         expect_token(tokens, EndOfFileToken{});
     });
+
+    etest::test("rawtext in style, character reference", [] {
+        auto tokens = run_tokenizer("<style>&lt;div&gt;</style>");
+        expect_token(tokens, StartTagToken{.tag_name = "style"});
+        expect_text(tokens, "&lt;div&gt;");
+        expect_token(tokens, EndTagToken{.tag_name = "style"});
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 void rcdata_tests() {
