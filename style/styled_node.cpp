@@ -42,6 +42,11 @@ std::map<css::PropertyId, std::string_view> const kInitialValues{
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-style#formal_definition
         {css::PropertyId::FontStyle, "normal"sv},
 
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
+        {css::PropertyId::TextDecorationColor, "currentcolor"sv},
+        {css::PropertyId::TextDecorationLine, "none"sv},
+        {css::PropertyId::TextDecorationStyle, "solid"sv},
+
         // https://developer.mozilla.org/en-US/docs/Web/CSS/border-color#formal_definition
         {css::PropertyId::BorderBottomColor, "currentcolor"sv},
         {css::PropertyId::BorderLeftColor, "currentcolor"sv},

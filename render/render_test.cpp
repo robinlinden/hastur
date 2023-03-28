@@ -308,5 +308,57 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
     });
 
+    etest::test("render block with borders, custom color", [] {
+        dom::Node dom = dom::Text{"hello"};
+        auto styled = style::StyledNode{.node = dom,
+                .properties = {
+                        {css::PropertyId::TextDecorationLine, "line-through"},
+                        {css::PropertyId::FontFamily, "arial"},
+                        {css::PropertyId::FontSize, "16px"},
+                }};
+        auto layout = layout::LayoutBox{.node = &styled};
+
+        gfx::CanvasCommandSaver saver;
+        gfx::Painter painter{saver};
+        render::render_layout(painter, layout);
+
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
+                        {0, 0},
+                        "hello",
+                        {"arial"},
+                        16,
+                        gfx::FontStyle::Strikethrough,
+                        gfx::Color::from_css_name("canvastext").value(),
+                }});
+
+        styled.properties[0].second = "underline";
+        styled.properties.push_back({css::PropertyId::FontStyle, "italic"});
+
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
+                        {0, 0},
+                        "hello",
+                        {"arial"},
+                        16,
+                        gfx::FontStyle::Underlined | gfx::FontStyle::Italic,
+                        gfx::Color::from_css_name("canvastext").value(),
+                }});
+
+        styled.properties[0].second = "blink";
+
+        render::render_layout(painter, layout);
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
+                        {0, 0},
+                        "hello",
+                        {"arial"},
+                        16,
+                        gfx::FontStyle::Italic,
+                        gfx::Color::from_css_name("canvastext").value(),
+                }});
+    });
+
     return etest::run_all_tests();
 }

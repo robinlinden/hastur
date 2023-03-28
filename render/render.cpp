@@ -49,6 +49,26 @@ gfx::FontStyle to_gfx(style::FontStyle style) {
     }
 }
 
+gfx::FontStyle to_gfx(std::vector<style::TextDecorationLine> const &decorations) {
+    gfx::FontStyle style{};
+    for (auto const &decoration : decorations) {
+        switch (decoration) {
+            case style::TextDecorationLine::None:
+                return {};
+            case style::TextDecorationLine::Underline:
+                style |= gfx::FontStyle::Underlined;
+                break;
+            case style::TextDecorationLine::LineThrough:
+                style |= gfx::FontStyle::Strikethrough;
+                break;
+            default:
+                spdlog::warn("Unhandled text decoration line '{}'", std::to_underlying(decoration));
+                break;
+        }
+    }
+    return style;
+}
+
 void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
     auto font_families = layout.get_property<css::PropertyId::FontFamily>();
     auto fonts = [&font_families] {
@@ -57,9 +77,11 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
         return fs;
     }();
     auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>()};
-    auto style = layout.get_property<css::PropertyId::FontStyle>();
+    auto style = to_gfx(layout.get_property<css::PropertyId::FontStyle>());
     auto color = layout.get_property<css::PropertyId::Color>();
-    painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, to_gfx(style), color);
+    auto text_decoration_line = to_gfx(layout.get_property<css::PropertyId::TextDecorationLine>());
+    style |= text_decoration_line;
+    painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, style, color);
 }
 
 void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
