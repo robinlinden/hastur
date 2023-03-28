@@ -155,3 +155,16 @@ h6 {
   margin-top: 2.33em;
   margin-bottom: 2.33em;
 }
+
+/* Phrasing content */
+/* https://html.spec.whatwg.org/multipage/rendering.html#phrasing-content-3 */
+ins,
+u {
+  text-decoration: underline;
+}
+
+del,
+s,
+strike {
+  text-decoration: line-through;
+}
