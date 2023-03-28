@@ -44,6 +44,14 @@ enum class FontStyle {
     Oblique,
 };
 
+enum class TextDecorationLine {
+    None,
+    Underline,
+    Overline,
+    LineThrough,
+    Blink,
+};
+
 struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<css::PropertyId, std::string>> properties;
@@ -79,6 +87,8 @@ struct StyledNode {
             return get_font_size_property();
         } else if constexpr (T == css::PropertyId::FontStyle) {
             return get_font_style_property();
+        } else if constexpr (T == css::PropertyId::TextDecorationLine) {
+            return get_text_decoration_line_property();
         } else {
             return get_raw_property(T);
         }
@@ -90,6 +100,7 @@ private:
     DisplayValue get_display_property() const;
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;
+    std::vector<TextDecorationLine> get_text_decoration_line_property() const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

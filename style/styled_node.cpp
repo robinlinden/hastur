@@ -351,6 +351,38 @@ FontStyle StyledNode::get_font_style_property() const {
     return FontStyle::Normal;
 }
 
+std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() const {
+    auto into = [](std::string_view v) -> std::optional<TextDecorationLine> {
+        if (v == "none") {
+            return TextDecorationLine::None;
+        } else if (v == "underline") {
+            return TextDecorationLine::Underline;
+        } else if (v == "overline") {
+            return TextDecorationLine::Overline;
+        } else if (v == "line-through") {
+            return TextDecorationLine::LineThrough;
+        } else if (v == "blink") {
+            return TextDecorationLine::Blink;
+        }
+
+        spdlog::warn("Unhandled text-decoration-line value '{}'", v);
+        return std::nullopt;
+    };
+
+    std::vector<TextDecorationLine> lines;
+
+    auto parts = util::split(get_raw_property(css::PropertyId::TextDecorationLine), " ");
+    for (auto const &part : parts) {
+        if (auto line = into(part)) {
+            lines.push_back(*line);
+        } else {
+            return {};
+        }
+    }
+
+    return lines;
+}
+
 static int const kDefaultFontSize{10};
 // https://w3c.github.io/csswg-drafts/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;

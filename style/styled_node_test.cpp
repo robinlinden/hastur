@@ -285,5 +285,17 @@ int main() {
         expect_property_eq<css::PropertyId::Color>("rgba(1 2)", kErrorColor);
     });
 
+    etest::test("get_property, text-decoration-line", [] {
+        using enum style::TextDecorationLine;
+        expect_property_eq<css::PropertyId::TextDecorationLine>("none", std::vector{None});
+        expect_property_eq<css::PropertyId::TextDecorationLine>("underline", std::vector{Underline});
+        expect_property_eq<css::PropertyId::TextDecorationLine>("overline", std::vector{Overline});
+        expect_property_eq<css::PropertyId::TextDecorationLine>("line-through", std::vector{LineThrough});
+        expect_property_eq<css::PropertyId::TextDecorationLine>("blink", std::vector{Blink});
+        expect_property_eq<css::PropertyId::TextDecorationLine>("underline blink", std::vector{Underline, Blink});
+
+        expect_property_eq<css::PropertyId::TextDecorationLine>("unhandled!", std::vector<style::TextDecorationLine>{});
+    });
+
     return etest::run_all_tests();
 }
