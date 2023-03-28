@@ -2381,9 +2381,6 @@ void Tokenizer::run() {
                 state_ = return_state_;
                 continue;
             }
-
-            default:
-                std::terminate();
         }
     }
 }
