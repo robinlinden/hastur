@@ -11,6 +11,7 @@
 #include <utility>
 
 using namespace std::literals;
+using etest::expect;
 using etest::expect_eq;
 
 namespace {
@@ -295,6 +296,17 @@ int main() {
         expect_property_eq<css::PropertyId::TextDecorationLine>("underline blink", std::vector{Underline, Blink});
 
         expect_property_eq<css::PropertyId::TextDecorationLine>("unhandled!", std::vector<style::TextDecorationLine>{});
+    });
+
+    etest::test("get_property, non-inherited property for a text node", [] {
+        dom::Node dom = dom::Element{"hello"};
+        dom::Node text = dom::Text{"world"};
+        style::StyledNode styled_node{.node = dom, .properties = {{css::PropertyId::TextDecorationLine, "blink"s}}};
+        auto const &child = styled_node.children.emplace_back(style::StyledNode{.node = text, .parent = &styled_node});
+
+        expect(!css::is_inherited(css::PropertyId::TextDecorationLine));
+        expect_eq(child.get_property<css::PropertyId::TextDecorationLine>(),
+                std::vector{style::TextDecorationLine::Blink});
     });
 
     return etest::run_all_tests();

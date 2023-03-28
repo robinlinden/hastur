@@ -258,6 +258,13 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     auto it = std::ranges::find_if(
             rbegin(properties), rend(properties), [=](auto const &p) { return p.first == property; });
 
+    // TODO(robinlinden): Having a special case for dom::Text here doesn't feel good.
+    // You can't set properties on text nodes in HTML (even though we do in
+    // tests), so let's grab this from the parent node.
+    if (it == rend(properties) && std::holds_alternative<dom::Text>(node) && parent != nullptr) {
+        return parent->get_raw_property(property);
+    }
+
     if (it == rend(properties) || it->second == "unset") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/unset
         if (is_inherited(property) && parent != nullptr) {
