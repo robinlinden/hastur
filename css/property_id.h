@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -96,6 +96,9 @@ enum class PropertyId {
     SpeechRate,
     Stress,
     TextAlign,
+    TextDecorationColor,
+    TextDecorationLine,
+    TextDecorationStyle,
     TextIndent,
     TextTransform,
     Visibility,

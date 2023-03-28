@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -98,6 +98,9 @@ std::map<std::string_view, PropertyId> const kKnownProperties{
         {"speech-rate"sv, PropertyId::SpeechRate},
         {"stress"sv, PropertyId::Stress},
         {"text-align"sv, PropertyId::TextAlign},
+        {"text-decoration-color"sv, PropertyId::TextDecorationColor},
+        {"text-decoration-line"sv, PropertyId::TextDecorationLine},
+        {"text-decoration-style"sv, PropertyId::TextDecorationStyle},
         {"text-indent"sv, PropertyId::TextIndent},
         {"text-transform"sv, PropertyId::TextTransform},
         {"visibility"sv, PropertyId::Visibility},

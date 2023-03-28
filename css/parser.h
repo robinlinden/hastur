@@ -49,6 +49,8 @@ private:
     // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
     static void expand_border_radius_values(std::map<PropertyId, std::string> &declarations, std::string_view value);
 
+    static void expand_text_decoration_values(std::map<PropertyId, std::string> &declarations, std::string_view value);
+
     void expand_edge_values(
             std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const;
 

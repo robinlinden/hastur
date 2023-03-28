@@ -342,6 +342,8 @@ void Parser::add_declaration(
         expand_font(declarations, value);
     } else if (name == "border-radius") {
         expand_border_radius_values(declarations, value);
+    } else if (name == "text-decoration") {
+        expand_text_decoration_values(declarations, value);
     } else if (is_in_array<border_shorthand_properties>(name)) {
         expand_border(name, declarations, value);
     } else {
@@ -521,6 +523,20 @@ void Parser::expand_border_radius_values(std::map<PropertyId, std::string> &decl
     declarations.insert_or_assign(PropertyId::BorderTopRightRadius, top_right);
     declarations.insert_or_assign(PropertyId::BorderBottomRightRadius, bottom_right);
     declarations.insert_or_assign(PropertyId::BorderBottomLeftRadius, bottom_left);
+}
+
+// https://w3c.github.io/csswg-drafts/css-text-decor/#text-decoration-property
+void Parser::expand_text_decoration_values(std::map<PropertyId, std::string> &declarations, std::string_view value) {
+    Tokenizer tokenizer{value, ' '};
+    // TODO(robinlinden): CSS level 3 text-decorations.
+    if (tokenizer.size() != 1) {
+        spdlog::warn("Unsupported text-decoration value: '{}'", value);
+        return;
+    }
+
+    declarations.insert_or_assign(PropertyId::TextDecorationColor, "currentcolor");
+    declarations.insert_or_assign(PropertyId::TextDecorationLine, tokenizer.get().value());
+    declarations.insert_or_assign(PropertyId::TextDecorationStyle, "solid");
 }
 
 void Parser::expand_edge_values(

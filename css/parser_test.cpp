@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -82,9 +82,31 @@ ValueT get_and_erase(
     return value;
 }
 
+void text_decoration_tests() {
+    etest::test("parser: text-decoration, 1 value", [] {
+        auto rules = css::parse("p { text-decoration: underline; }");
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextDecorationColor, "currentcolor"},
+                        {css::PropertyId::TextDecorationLine, "underline"},
+                        {css::PropertyId::TextDecorationStyle, "solid"},
+                });
+    });
+
+    // This will fail once we support CSS Level 3 text-decorations.
+    etest::test("parser: text-decoration, 2 values", [] {
+        auto rules = css::parse("p { text-decoration: underline dotted; }");
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+}
+
 } // namespace
 
 int main() {
+    text_decoration_tests();
+
     etest::test("parser: simple rule", [] {
         auto rules = css::parse("body { width: 50px; }"sv);
         require(rules.size() == 1);
