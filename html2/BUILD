@@ -19,19 +19,12 @@ cc_library(
     ],
 )
 
-dependencies = {
-    "tree_constructor": ["//dom2"],
-}
-
 [cc_test(
     name = src[:-4],
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
-    deps = dependencies.get(
-        src[:-9],
-        [],
-    ) + [
+    deps = [
         ":html2",
         "//etest",
         "@fmt",
