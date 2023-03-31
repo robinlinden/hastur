@@ -197,9 +197,7 @@ std::optional<gfx::Color> try_from_rgba(std::string_view text) {
         return std::nullopt;
     }
 
-    if (a < 0.f || a > 1.f) {
-        return std::nullopt;
-    }
+    a = std::clamp(a, 0.f, 1.f);
 
     return gfx::Color{
             static_cast<std::uint8_t>(r),

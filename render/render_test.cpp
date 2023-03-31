@@ -273,7 +273,7 @@ int main() {
 
         // rgb, alpha out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 2)"}};
-        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
+        cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 0xFF}}};
         render::render_layout(painter, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
