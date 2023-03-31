@@ -274,5 +274,15 @@ int main() {
         expect_property_eq<css::PropertyId::BorderTopStyle>("ridge", style::BorderStyle::Ridge);
     });
 
+    etest::test("get_property, color", [] {
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3)", gfx::Color{1, 2, 3});
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});
+
+        // Invalid syntax.
+        constexpr gfx::Color kErrorColor{0xFF, 0, 0};
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2)", kErrorColor);
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / 1.5)", kErrorColor);
+    });
+
     return etest::run_all_tests();
 }

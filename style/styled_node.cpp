@@ -127,7 +127,6 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     return std::nullopt;
 }
 
-// TODO(robinlinden): space-separated values.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
 std::optional<gfx::Color> try_from_rgba(std::string_view text) {
     if (text.starts_with("rgb(")) {
@@ -143,7 +142,24 @@ std::optional<gfx::Color> try_from_rgba(std::string_view text) {
     }
     text.remove_suffix(std::strlen(")"));
 
+    // First try to handle rgba(1, 2, 3, .5)
     auto rgba = util::split(text, ",");
+    if (rgba.size() == 1) {
+        // And then rgba(1 2 3 / .5)
+        rgba = util::split(text, "/");
+        if (rgba.size() == 2) {
+            auto a = rgba[1];
+            rgba = util::split(rgba[0], " ");
+            rgba.push_back(a);
+        } else {
+            rgba = util::split(text, " ");
+        }
+
+        // Nuke any empty segments. This happens if you have more than 1 space
+        // between the rgba arguments.
+        std::erase_if(rgba, [](auto const &s) { return empty(s); });
+    }
+
     if (rgba.size() != 3 && rgba.size() != 4) {
         return std::nullopt;
     }
