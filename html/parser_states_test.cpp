@@ -119,6 +119,39 @@ void in_head_tests() {
     });
 }
 
+void in_head_noscript_tests() {
+    etest::test("InHeadNoscript: doctype is ignored", [] {
+        auto res = parse("<noscript><!doctype html></noscript>", {});
+        auto const &html = res.document.html();
+        expect_eq(html, dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"noscript"}}}}});
+    });
+
+    etest::test("InHeadNoscript: html attributes are reparented", [] {
+        auto res = parse("<html foo=bar><noscript><html foo=baz hello=world>", {});
+        auto const &head = std::get<dom::Element>(res.document.html().children.at(0));
+        expect_eq(res.document.html().attributes, dom::AttrMap{{"foo", "bar"}, {"hello", "world"}});
+        expect_eq(head, dom::Element{"head", {}, {dom::Element{"noscript"}}});
+    });
+
+    etest::test("InHeadNoScript: style", [] {
+        auto res = parse("<noscript><style>p { color: green; }", {});
+        auto noscript = dom::Element{"noscript", {}, {dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}}}};
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+    });
+
+    etest::test("InHeadNoScript: br", [] {
+        auto res = parse("<noscript></br>", {});
+        auto noscript = dom::Element{"noscript"};
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+    });
+
+    etest::test("InHeadNoScript: noscript", [] {
+        auto res = parse("<noscript><noscript>", {});
+        auto noscript = dom::Element{"noscript"};
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+    });
+}
+
 void after_head_tests() {
     // TODO(robinlinden): This is where this parser ends for now. :(
     etest::test("AfterHead: body", [] {
@@ -134,6 +167,7 @@ int main() {
     before_html_tests();
     before_head_tests();
     in_head_tests();
+    in_head_noscript_tests();
     after_head_tests();
     return etest::run_all_tests();
 }

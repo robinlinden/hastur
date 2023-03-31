@@ -7,10 +7,14 @@
 #include "dom/dom.h"
 #include "html2/tokenizer.h"
 
+#include <array>
 #include <cassert>
 #include <optional>
+#include <string_view>
 #include <variant>
 #include <vector>
+
+using namespace std::literals;
 
 namespace html {
 namespace {
@@ -41,6 +45,11 @@ bool is_boring_whitespace(html2::Token const &token) {
     }
 
     return false;
+}
+
+template<auto const &array>
+constexpr bool is_in_array(std::string_view str) {
+    return std::ranges::find(array, str) != std::cend(array);
 }
 } // namespace
 
@@ -132,6 +141,11 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
             return Text{};
         }
 
+        if (name == "noscript" && !a.scripting()) {
+            a.insert_element_for(*start);
+            return InHeadNoscript{};
+        }
+
         if (name == "style") {
             a.insert_element_for(*start);
             a.set_tokenizer_state(html2::State::Rawtext);
@@ -158,11 +172,65 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
     return AfterHead{}.process(a, token).value_or(AfterHead{});
 }
 
-std::optional<InsertionMode> InHeadNoscript::process(Actions &, html2::Token const &) {
-    return {};
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
+std::optional<InsertionMode> InHeadNoscript::process(Actions &a, html2::Token const &token) {
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
+    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    if (start && start->tag_name == "html") {
+        return InBody{}.process(a, token);
+    }
+
+    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    if (end && end->tag_name == "noscript") {
+        assert(a.open_elements().top()->name == "noscript");
+        a.open_elements().pop();
+        return InHead{};
+    }
+
+    static constexpr std::array kInHeadElements{"basefont"sv, "bgsound"sv, "link"sv, "meta"sv, "noframes"sv, "style"sv};
+    if ((start && is_in_array<kInHeadElements>(start->tag_name)) || std::holds_alternative<html2::CommentToken>(token)
+            || is_boring_whitespace(token)) {
+        return InHead{}.process(a, token);
+    }
+
+    static constexpr std::array kIgnoredStartTags{"head"sv, "noscript"sv};
+    if (end && end->tag_name == "br") {
+        // Let the anything-else case handle this.
+    } else if (start && is_in_array<kIgnoredStartTags>(start->tag_name)) {
+        // Parse error, ignore the token.
+        return {};
+    }
+
+    // Parse error.
+    assert(a.open_elements().top()->name == "noscript");
+    a.open_elements().pop();
+    assert(a.open_elements().top()->name == "head");
+    return InHead{}.process(a, token).value_or(InHead{});
 }
 
 std::optional<InsertionMode> AfterHead::process(Actions &, html2::Token const &) {
+    return {};
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+std::optional<InsertionMode> InBody::process(Actions &a, html2::Token const &token) {
+    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start && start->tag_name == "html") {
+        // Parse error.
+        // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
+        auto &html = a.document().html();
+        for (auto const &attr : start->attributes) {
+            if (html.attributes.contains(attr.name)) {
+                continue;
+            }
+
+            html.attributes[attr.name] = attr.value;
+        }
+    }
+
     return {};
 }
 

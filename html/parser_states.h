@@ -77,8 +77,6 @@ using InsertionMode = std::variant<Initial,
     >;
 // clang-format on
 
-struct InBody {};
-
 struct InTable {};
 struct InTableText {};
 struct InCaption {};
@@ -120,7 +118,6 @@ struct InHead {
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
-// Incomplete.
 struct InHeadNoscript {
     std::optional<InsertionMode> process(Actions &, html2::Token const &);
 };
@@ -128,6 +125,12 @@ struct InHeadNoscript {
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
 // Incomplete.
 struct AfterHead {
+    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+};
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+// Incomplete.
+struct InBody {
     std::optional<InsertionMode> process(Actions &, html2::Token const &);
 };
 
