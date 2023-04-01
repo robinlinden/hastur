@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef STYLE_STYLE_H_
 #define STYLE_STYLE_H_
 
+#include "css/media_query.h"
 #include "css/property_id.h"
 #include "css/rule.h"
 #include "dom/dom.h"
@@ -21,9 +22,10 @@ namespace style {
 bool is_match(dom::Element const &element, std::string_view selector);
 
 std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
-        dom::Element const &element, std::vector<css::Rule> const &stylesheet);
+        dom::Element const &element, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const & = {});
 
-std::unique_ptr<StyledNode> style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet);
+std::unique_ptr<StyledNode> style_tree(
+        dom::Node const &root, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const & = {});
 
 } // namespace style
 

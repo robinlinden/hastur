@@ -74,11 +74,11 @@ bool is_match(dom::Element const &element, std::string_view selector) {
 }
 
 std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
-        dom::Element const &element, std::vector<css::Rule> const &stylesheet) {
+        dom::Element const &element, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const &ctx) {
     std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
 
     for (auto const &rule : stylesheet) {
-        if (rule.media_query.has_value()) {
+        if (rule.media_query.has_value() && !rule.media_query->evaluate(ctx)) {
             continue;
         }
 
@@ -91,28 +91,32 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
 }
 
 namespace {
-void style_tree_impl(StyledNode &current, dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
+void style_tree_impl(StyledNode &current,
+        dom::Node const &root,
+        std::vector<css::Rule> const &stylesheet,
+        css::MediaQuery::Context const &ctx) {
     if (auto const *element = std::get_if<dom::Element>(&root)) {
         current.children.reserve(element->children.size());
         for (auto const &child : element->children) {
             // TODO(robinlinden): emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 14.
             current.children.push_back({child});
             auto &child_node = current.children.back();
-            style_tree_impl(child_node, child, stylesheet);
+            style_tree_impl(child_node, child, stylesheet, ctx);
             child_node.parent = &current;
         }
     }
 
     if (auto const *element = std::get_if<dom::Element>(&root)) {
-        current.properties = matching_rules(*element, stylesheet);
+        current.properties = matching_rules(*element, stylesheet, ctx);
     }
 }
 } // namespace
 
-std::unique_ptr<StyledNode> style_tree(dom::Node const &root, std::vector<css::Rule> const &stylesheet) {
+std::unique_ptr<StyledNode> style_tree(
+        dom::Node const &root, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const &ctx) {
     // TODO(robinlinden): std::make_unique once Clang supports it (C++20/p0960). Not supported as of Clang 14.
     auto tree_root = std::unique_ptr<StyledNode>(new StyledNode{root});
-    style_tree_impl(*tree_root, root, stylesheet);
+    style_tree_impl(*tree_root, root, stylesheet, ctx);
     return tree_root;
 }
 

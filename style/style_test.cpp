@@ -137,6 +137,9 @@ int main() {
 
         stylesheet[0].media_query = css::MediaQuery::parse("(min-width: 700px)");
         expect(style::matching_rules(dom::Element{"p"}, stylesheet).empty());
+
+        expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet, {.window_width = 700}),
+                std::vector{std::pair{css::PropertyId::Color, "red"s}});
     });
 
     etest::test("style_tree: structure", [] {
