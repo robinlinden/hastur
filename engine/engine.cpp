@@ -102,6 +102,7 @@ void Engine::set_layout_width(int width) {
         return;
     }
 
+    styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
     layout_ = layout::create_layout(*styled_, layout_width_);
     on_layout_update_();
 }
@@ -180,7 +181,7 @@ void Engine::on_navigation_success() {
     }
 
     spdlog::info("Styling dom w/ {} rules", stylesheet_.size());
-    styled_ = style::style_tree(dom_.html_node, stylesheet_);
+    styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
     layout_ = layout::create_layout(*styled_, layout_width_);
     on_page_loaded_();
 }
