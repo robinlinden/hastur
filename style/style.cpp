@@ -4,6 +4,7 @@
 
 #include "style/style.h"
 
+#include "css/media_query.h"
 #include "util/string.h"
 
 #include <algorithm>

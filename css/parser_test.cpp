@@ -252,7 +252,7 @@ int main() {
 
     etest::test("parser: media query", [] {
         auto rules = css::parse(R"(
-                @media screen and (min-width: 900px) {
+                @media (min-width: 900px) {
                     article { width: 50px; }
                     p { font-size: 9em; }
                 }
@@ -263,13 +263,13 @@ int main() {
         expect(article.selectors == std::vector{"article"s});
         require(article.declarations.contains(css::PropertyId::Width));
         expect(article.declarations.at(css::PropertyId::Width) == "50px"s);
-        expect(article.media_query == "screen and (min-width: 900px)");
+        expect_eq(article.media_query, css::MediaQuery{css::MediaQuery::Width{.min = 900}});
 
         auto p = rules[1];
         expect(p.selectors == std::vector{"p"s});
         require(p.declarations.contains(css::PropertyId::FontSize));
         expect(p.declarations.at(css::PropertyId::FontSize) == "9em"s);
-        expect(p.media_query == "screen and (min-width: 900px)");
+        expect_eq(p.media_query, css::MediaQuery{css::MediaQuery::Width{.min = 900}});
 
         auto a = rules[2];
         expect(a.selectors == std::vector{"a"s});
@@ -279,23 +279,36 @@ int main() {
     });
 
     etest::test("parser: minified media query", [] {
-        auto rules = css::parse("@media(prefers-color-scheme: dark){p{font-size:10px;}}");
+        auto rules = css::parse("@media(max-width:300px){p{font-size:10px;}}");
         require_eq(rules.size(), std::size_t{1});
         auto const &rule = rules[0];
-        expect_eq(rule.media_query, "(prefers-color-scheme: dark)");
+        expect_eq(rule.media_query, css::MediaQuery{css::MediaQuery::Width{.max = 300}});
+        expect_eq(rule.selectors, std::vector{"p"s});
+        require_eq(rule.declarations.size(), std::size_t{1});
+        expect_eq(rule.declarations.at(css::PropertyId::FontSize), "10px");
+    });
+
+    etest::test("parser: bad media query", [] {
+        auto rules = css::parse("@media (rip: 0) { p { font-size: 10px; } }");
+        auto const &rule = rules.at(0);
+        expect_eq(rule.media_query, std::nullopt);
         expect_eq(rule.selectors, std::vector{"p"s});
         require_eq(rule.declarations.size(), std::size_t{1});
         expect_eq(rule.declarations.at(css::PropertyId::FontSize), "10px");
     });
 
     etest::test("parser: 2 media queries in a row", [] {
-        auto rules = css::parse("@media screen { p { font-size: 1em; } } @media print { a { color: blue; } }");
+        auto rules = css::parse(
+                "@media (max-width: 1px) { p { font-size: 1em; } } @media (min-width: 2px) { a { color: blue; } }");
         require_eq(rules.size(), std::size_t{2});
         expect_eq(rules[0],
-                css::Rule{
-                        .selectors{{"p"}}, .declarations{{css::PropertyId::FontSize, "1em"}}, .media_query{"screen"}});
+                css::Rule{.selectors{{"p"}},
+                        .declarations{{css::PropertyId::FontSize, "1em"}},
+                        .media_query{css::MediaQuery{css::MediaQuery::Width{.max = 1}}}});
         expect_eq(rules[1],
-                css::Rule{.selectors{{"a"}}, .declarations{{css::PropertyId::Color, "blue"}}, .media_query{"print"}});
+                css::Rule{.selectors{{"a"}},
+                        .declarations{{css::PropertyId::Color, "blue"}},
+                        .media_query{css::MediaQuery{css::MediaQuery::Width{.min = 2}}}});
     });
 
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {

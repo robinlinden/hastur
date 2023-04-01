@@ -45,7 +45,7 @@ int main() {
         rule.selectors.emplace_back("h1");
         rule.declarations.emplace(css::PropertyId::Color, "blue");
         rule.declarations.emplace(css::PropertyId::TextAlign, "center");
-        rule.media_query = "screen and (min-width: 900px)";
+        rule.media_query = css::MediaQuery{css::MediaQuery::Width{.max = 900}};
 
         auto const *expected =
                 "Selectors: h1\n"
@@ -53,7 +53,7 @@ int main() {
                 "  color: blue\n"
                 "  text-align: center\n"
                 "Media query:\n"
-                "  screen and (min-width: 900px)\n";
+                "  0 <= width <= 900\n";
         expect_eq(css::to_string(rule), expected);
     });
 

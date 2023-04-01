@@ -5,6 +5,7 @@
 
 #include "css/parser.h"
 
+#include "css/media_query.h"
 #include "css/property_id.h"
 #include "css/rule.h"
 
@@ -226,7 +227,8 @@ std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) {
 
 std::vector<css::Rule> Parser::parse_rules() {
     std::vector<css::Rule> rules;
-    std::string_view media_query;
+    bool in_media_query{false};
+    std::optional<MediaQuery> media_query;
 
     skip_whitespace_and_comments();
     while (!is_eof()) {
@@ -234,10 +236,12 @@ std::vector<css::Rule> Parser::parse_rules() {
             advance(std::strlen("@media"));
             skip_whitespace_and_comments();
 
-            media_query = consume_while([](char c) { return c != '{'; });
-            if (auto last_char = media_query.find_last_not_of(' '); last_char != std::string_view::npos) {
-                media_query.remove_suffix(media_query.size() - (last_char + 1));
+            std::string_view tmp_query = consume_while([](char c) { return c != '{'; });
+            if (auto last_char = tmp_query.find_last_not_of(' '); last_char != std::string_view::npos) {
+                tmp_query.remove_suffix(tmp_query.size() - (last_char + 1));
             }
+            in_media_query = true;
+            media_query = MediaQuery::parse(tmp_query);
             consume_char(); // {
             skip_whitespace_and_comments();
         }
@@ -264,14 +268,13 @@ std::vector<css::Rule> Parser::parse_rules() {
         }
 
         rules.push_back(parse_rule());
-        if (!media_query.empty()) {
-            rules.back().media_query = std::string{media_query};
-        }
+        rules.back().media_query = media_query;
 
         skip_whitespace_and_comments();
 
-        if (!media_query.empty() && peek() == '}') {
+        if (in_media_query && peek() == '}') {
             media_query = {};
+            in_media_query = false;
             consume_char(); // }
             skip_whitespace_and_comments();
         }

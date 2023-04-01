@@ -6,6 +6,7 @@
 #ifndef CSS_RULE_H_
 #define CSS_RULE_H_
 
+#include "css/media_query.h"
 #include "css/property_id.h"
 
 #include <map>
@@ -18,7 +19,7 @@ namespace css {
 struct Rule {
     std::vector<std::string> selectors;
     std::map<PropertyId, std::string> declarations;
-    std::optional<std::string> media_query;
+    std::optional<MediaQuery> media_query;
     [[nodiscard]] bool operator==(Rule const &) const = default;
 };
 

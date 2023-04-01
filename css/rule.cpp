@@ -4,10 +4,12 @@
 
 #include "css/rule.h"
 
+#include "css/media_query.h"
 #include "css/property_id.h"
 
 #include <sstream>
 #include <utility>
+#include <variant>
 
 namespace css {
 
@@ -29,8 +31,10 @@ std::string to_string(Rule const &rule) {
         ss << "  " << to_string(property) << ": " << value << '\n';
     }
     if (rule.media_query.has_value()) {
+        // TODO(robinlinden): to_string for media queries.
+        auto query = std::get<MediaQuery::Width>(rule.media_query->query);
         ss << "Media query:\n";
-        ss << "  " << *rule.media_query << '\n';
+        ss << "  " << query.min << " <= width <= " << query.max << '\n';
     }
     return std::move(ss).str();
 }

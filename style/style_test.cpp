@@ -135,7 +135,7 @@ int main() {
         expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet),
                 std::vector{std::pair{css::PropertyId::Color, "red"s}});
 
-        stylesheet[0].media_query = "max-width: 700px"s;
+        stylesheet[0].media_query = css::MediaQuery::parse("(min-width: 700px)");
         expect(style::matching_rules(dom::Element{"p"}, stylesheet).empty());
     });
 
