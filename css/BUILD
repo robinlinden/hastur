@@ -20,6 +20,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//util:base_parser",
+        "//util:from_chars",
         "//util:string",
         "@fmt",
         "@spdlog",
