@@ -275,7 +275,7 @@ int main() {
         expect(a.selectors == std::vector{"a"s});
         require(a.declarations.contains(css::PropertyId::BackgroundColor));
         expect(a.declarations.at(css::PropertyId::BackgroundColor) == "indigo"s);
-        expect(a.media_query.empty());
+        expect(!a.media_query.has_value());
     });
 
     etest::test("parser: minified media query", [] {

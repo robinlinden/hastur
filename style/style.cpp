@@ -77,7 +77,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
     std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
 
     for (auto const &rule : stylesheet) {
-        if (!rule.media_query.empty()) {
+        if (rule.media_query.has_value()) {
             continue;
         }
 

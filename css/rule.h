@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -9,6 +9,7 @@
 #include "css/property_id.h"
 
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,7 @@ namespace css {
 struct Rule {
     std::vector<std::string> selectors;
     std::map<PropertyId, std::string> declarations;
-    std::string media_query;
+    std::optional<std::string> media_query;
     [[nodiscard]] bool operator==(Rule const &) const = default;
 };
 

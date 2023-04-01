@@ -28,9 +28,9 @@ std::string to_string(Rule const &rule) {
     for (auto const &[property, value] : rule.declarations) {
         ss << "  " << to_string(property) << ": " << value << '\n';
     }
-    if (!rule.media_query.empty()) {
+    if (rule.media_query.has_value()) {
         ss << "Media query:\n";
-        ss << "  " << rule.media_query << '\n';
+        ss << "  " << *rule.media_query << '\n';
     }
     return std::move(ss).str();
 }
