@@ -40,6 +40,14 @@ struct ScreenDescriptor {
     std::uint16_t width{};
     std::uint16_t height{};
 
+    bool global_color_table{};
+    std::uint8_t color_resolution{};
+    bool sort{};
+    std::uint8_t size_of_global_color_table{};
+
+    std::uint8_t background_color_index{};
+    std::uint8_t pixel_aspect_ratio{};
+
     static std::optional<ScreenDescriptor> from(std::istream &is) {
         ScreenDescriptor screen{};
 
@@ -48,6 +56,24 @@ struct ScreenDescriptor {
         }
 
         if (!is.read(reinterpret_cast<char *>(&screen.height), sizeof(screen.height))) {
+            return std::nullopt;
+        }
+
+        std::uint8_t packed_fields{};
+        if (!is.read(reinterpret_cast<char *>(&packed_fields), sizeof(packed_fields))) {
+            return std::nullopt;
+        }
+
+        screen.global_color_table = packed_fields & 0b1000'0000;
+        screen.color_resolution = (packed_fields & 0b0111'0000) >> 4;
+        screen.sort = packed_fields & 0b0000'1000;
+        screen.size_of_global_color_table = packed_fields & 0b0000'0111;
+
+        if (!is.read(reinterpret_cast<char *>(&screen.background_color_index), sizeof(screen.background_color_index))) {
+            return std::nullopt;
+        }
+
+        if (!is.read(reinterpret_cast<char *>(&screen.pixel_aspect_ratio), sizeof(screen.pixel_aspect_ratio))) {
             return std::nullopt;
         }
 
