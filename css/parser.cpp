@@ -242,6 +242,9 @@ std::vector<css::Rule> Parser::parse_rules() {
             }
             in_media_query = true;
             media_query = MediaQuery::parse(tmp_query);
+            if (!media_query) {
+                spdlog::warn("Unable to parse media query: '{}'", tmp_query);
+            }
             consume_char(); // {
             skip_whitespace_and_comments();
         }
