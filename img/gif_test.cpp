@@ -45,5 +45,14 @@ int main() {
         expect_eq(Gif::from(std::stringstream{"GIF89a\1\1\1\1\1\1"s}), std::nullopt); //
     });
 
+    etest::test("missing global color table", [] {
+        expect_eq(Gif::from(std::stringstream{"GIF89a\1\0\1\0\x80\0\0"s}), std::nullopt); //
+    });
+
+    etest::test("global color table", [] {
+        img::Gif expected{.version = img::Gif::Version::Gif89a, .width = 1, .height = 1};
+        expect_eq(Gif::from(std::stringstream{"GIF89a\1\0\1\0\x80\0\0\1\2\3\1\2\3"s}), expected);
+    });
+
     return etest::run_all_tests();
 }

@@ -7,6 +7,7 @@
 #include <istream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 using namespace std::literals;
 
@@ -81,6 +82,25 @@ struct ScreenDescriptor {
     }
 };
 
+// This block contains a color table, which is a sequence of bytes representing
+// red-green-blue color triplets. If present, it contains a number of bytes
+// equal to 3 x 2^(Size of Global Color Table+1).
+struct GlobalColorTable {
+    std::vector<std::uint8_t> data{};
+
+    static std::optional<GlobalColorTable> from(std::istream &is, std::uint8_t size) {
+        // 2^1 == 2 << 0, so no +1 here.
+        int actual_size = 3 * (2 << size);
+        GlobalColorTable table;
+        table.data.resize(actual_size);
+        if (!is.read(reinterpret_cast<char *>(table.data.data()), table.data.size())) {
+            return std::nullopt;
+        }
+
+        return table;
+    }
+};
+
 } // namespace
 
 // https://www.w3.org/Graphics/GIF/spec-gif87.txt
@@ -116,6 +136,14 @@ std::optional<Gif> Gif::from(std::istream &is) {
     auto screen = ScreenDescriptor::from(is);
     if (!screen) {
         return std::nullopt;
+    }
+
+    std::optional<GlobalColorTable> global_color_table;
+    if (screen->global_color_table) {
+        global_color_table = GlobalColorTable::from(is, screen->size_of_global_color_table);
+        if (!global_color_table) {
+            return std::nullopt;
+        }
     }
 
     return Gif{
