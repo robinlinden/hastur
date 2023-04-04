@@ -83,9 +83,9 @@ http_archive(
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "0e72cae32751598d126cfd4bceda909f646b7231ab8c52e28abb686c20a2bea1",
-    strip_prefix = "freetype-VER-2-12-1",
-    url = "https://github.com/freetype/freetype/archive/VER-2-12-1.tar.gz",
+    sha256 = "a683f1091aee95d2deaca9292d976f87415610b8ae1ea186abeebcb08e83ab12",
+    strip_prefix = "freetype-VER-2-13-0",
+    url = "https://github.com/freetype/freetype/archive/VER-2-13-0.tar.gz",
 )
 
 http_archive(
