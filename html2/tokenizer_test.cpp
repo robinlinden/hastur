@@ -826,12 +826,14 @@ int main() {
     etest::test("ambiguous ampersand", [] {
         auto tokens = run_tokenizer("&blah;");
         expect_text(tokens, "&blah;");
+        expect_error(tokens, ParseError::UnknownNamedCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
     etest::test("ambiguous ampersand in attribute", [] {
         auto tokens = run_tokenizer("<p attr='&blah;'>");
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes = {{"attr", "&blah;"}}});
+        expect_error(tokens, ParseError::UnknownNamedCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
@@ -898,6 +900,7 @@ int main() {
     etest::test("attribute, unquoted, with character reference", [] {
         auto tokens = run_tokenizer("<tag a=&amp>");
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "&"}}});
+        expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 

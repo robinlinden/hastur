@@ -2151,6 +2151,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
             case State::NamedCharacterReference: {
                 // TODO(robinlinden): -1 here isn't great, but it works right now.
                 auto maybe_reference = find_named_character_reference_for(input_.substr(pos_ - 1));
@@ -2174,7 +2175,7 @@ void Tokenizer::run() {
                 }
 
                 if (temporary_buffer_.back() != ';') {
-                    // This is a missing-semicolon-after-character-reference parse error.
+                    emit(ParseError::MissingSemicolonAfterCharacterReference);
                 }
 
                 temporary_buffer_.clear();
@@ -2188,6 +2189,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#ambiguous-ampersand-state
             case State::AmbiguousAmpersand: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2205,7 +2207,7 @@ void Tokenizer::run() {
                 }
 
                 if (*c == ';') {
-                    // This is an unknown-named-character-reference parse error.
+                    emit(ParseError::UnknownNamedCharacterReference);
                 }
 
                 reconsume_in(return_state_);

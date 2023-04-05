@@ -129,6 +129,7 @@ enum class ParseError {
     UnexpectedCharacterAfterDoctypeSystemIdentifier,
     UnexpectedCharacterInUnquotedAttributeValue,
     UnexpectedNullCharacter,
+    UnknownNamedCharacterReference,
 };
 
 class Tokenizer {
