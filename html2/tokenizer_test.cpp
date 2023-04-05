@@ -98,6 +98,16 @@ void expect_error(
     output.errors.erase(begin(output.errors));
 }
 
+void data_tests() {
+    etest::test("data, unexpected null", [] {
+        auto tokens = run_tokenizer("<p>nullp\0"sv);
+        expect_token(tokens, StartTagToken{.tag_name = "p"});
+        expect_text(tokens, "nullp\0"sv);
+        expect_error(tokens, ParseError::UnexpectedNullCharacter);
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 void cdata_tests() {
     etest::test("cdata, currently in html", [] {
         auto tokens = run_tokenizer("<![CDATA["sv);
@@ -361,6 +371,7 @@ void plaintext_tests() {
 } // namespace
 
 int main() {
+    data_tests();
     cdata_tests();
     doctype_system_keyword_tests();
     rawtext_tests();

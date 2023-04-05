@@ -112,6 +112,7 @@ void Tokenizer::set_state(State state) {
 void Tokenizer::run() {
     while (true) {
         switch (state_) {
+            // https://html.spec.whatwg.org/multipage/parsing.html#data-state
             case State::Data: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -127,10 +128,8 @@ void Tokenizer::run() {
                     case '<':
                         state_ = State::TagOpen;
                         continue;
-                    // TODO(robinlinden): Remove when the data state is more complete.
-                    // NOLINTNEXTLINE(bugprone-branch-clone)
                     case '\0':
-                        // This is an unexpected-null-character parse error.
+                        emit(ParseError::UnexpectedNullCharacter);
                         emit(CharacterToken{*c});
                         continue;
                     default:
