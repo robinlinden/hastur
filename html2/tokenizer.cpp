@@ -2153,7 +2153,6 @@ void Tokenizer::run() {
 
             // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
             case State::NamedCharacterReference: {
-                // TODO(robinlinden): -1 here isn't great, but it works right now.
                 auto maybe_reference = find_named_character_reference_for(input_.substr(pos_ - 1));
                 if (!maybe_reference) {
                     flush_code_points_consumed_as_a_character_reference();
@@ -2161,9 +2160,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                // -1 because of the TODO above.
                 pos_ += maybe_reference->name.size() - 1;
-                // Should be appending, but again, the TODO.
                 temporary_buffer_ = maybe_reference->name;
 
                 auto c = peek_next_input_character();
