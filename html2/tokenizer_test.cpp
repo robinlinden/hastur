@@ -928,9 +928,53 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("numeric character reference, no digits", [] {
+        auto tokens = run_tokenizer("&#b;");
+        expect_text(tokens, "&#b;");
+        expect_error(tokens, ParseError::AbsenceOfDigitsInNumericCharacterReference);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("numeric character reference, eof", [] {
+        auto tokens = run_tokenizer("&#9731"); // U+2603: SNOWMAN
+        expect_text(tokens, "\xe2\x98\x83");
+        expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("numeric character reference, missing semicolon", [] {
+        auto tokens = run_tokenizer("&#9731b"); // U+2603: SNOWMAN
+        expect_text(tokens, "\xe2\x98\x83");
+        expect_text(tokens, "b");
+        expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("numeric character reference, null", [] {
+        auto tokens = run_tokenizer("&#0;");
+        expect_text(tokens, kReplacementCharacter);
+        expect_error(tokens, ParseError::NullCharacterReference);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("numeric character reference, outside unicode range", [] {
+        auto tokens = run_tokenizer("&#x11ffff;");
+        expect_text(tokens, kReplacementCharacter);
+        expect_error(tokens, ParseError::CharacterReferenceOutsideUnicodeRange);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("numeric character reference, surrogate", [] {
+        auto tokens = run_tokenizer("&#xd900;");
+        expect_text(tokens, kReplacementCharacter);
+        expect_error(tokens, ParseError::SurrogateCharacterReference);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("numeric character reference, noncharacter", [] {
         auto tokens = run_tokenizer("&#xffff;");
         expect_text(tokens, "\xef\xbf\xbf");
+        expect_error(tokens, ParseError::NoncharacterCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 

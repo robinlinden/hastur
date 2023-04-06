@@ -2210,6 +2210,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-state
             case State::NumericCharacterReference: {
                 character_reference_code_ = 0;
                 auto c = consume_next_input_character();
@@ -2230,6 +2231,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-start-state
             case State::HexadecimalCharacterReferenceStart: {
                 auto c = consume_next_input_character();
                 if (c && util::is_hex_digit(*c)) {
@@ -2243,10 +2245,11 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-start-state
             case State::DecimalCharacterReferenceStart: {
                 auto c = consume_next_input_character();
                 if (!c || !util::is_digit(*c)) {
-                    // This is an absence-of-digits-in-numeric-character-reference parse error.
+                    emit(ParseError::AbsenceOfDigitsInNumericCharacterReference);
                     flush_code_points_consumed_as_a_character_reference();
                     reconsume_in(return_state_);
                     continue;
@@ -2256,6 +2259,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-state
             case State::HexadecimalCharacterReference: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2292,10 +2296,11 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-state
             case State::DecimalCharacterReference: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is a missing-semicolon-after-character-reference parse error.
+                    emit(ParseError::MissingSemicolonAfterCharacterReference);
                     reconsume_in(State::NumericCharacterReferenceEnd);
                     continue;
                 }
@@ -2311,7 +2316,7 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                // This is a missing-semicolon-after-character-reference parse error.
+                emit(ParseError::MissingSemicolonAfterCharacterReference);
                 reconsume_in(State::NumericCharacterReferenceEnd);
                 continue;
             }
@@ -2319,22 +2324,22 @@ void Tokenizer::run() {
             // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
             case State::NumericCharacterReferenceEnd: {
                 if (character_reference_code_ == 0) {
-                    // This is a null-character-reference parse error.
+                    emit(ParseError::NullCharacterReference);
                     character_reference_code_ = 0xFFFD;
                 }
 
                 if (character_reference_code_ > 0x10FFFF) {
-                    // This is a character-reference-outside-unicode-range parse error.
+                    emit(ParseError::CharacterReferenceOutsideUnicodeRange);
                     character_reference_code_ = 0xFFFD;
                 }
 
                 if (is_unicode_surrogate(character_reference_code_)) {
-                    // This is a surrogate-character-reference parse error.
+                    emit(ParseError::SurrogateCharacterReference);
                     character_reference_code_ = 0xFFFD;
                 }
 
                 if (is_unicode_noncharacter(character_reference_code_)) {
-                    // This is a noncharacter-character-reference parse error.
+                    emit(ParseError::NoncharacterCharacterReference);
                 }
 
                 if (character_reference_code_ == 0x0D
