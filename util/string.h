@@ -22,7 +22,7 @@
 namespace util {
 
 constexpr bool is_c0(char c) {
-    return c >= 0x00 && c <= 0x1f;
+    return static_cast<unsigned char>(c) <= 0x1f;
 }
 
 constexpr bool is_c0_or_space(char c) {
