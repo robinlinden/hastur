@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,7 +8,9 @@
 #include "etest/etest.h"
 
 #include <array>
+#include <climits>
 #include <iostream>
+#include <limits>
 
 using namespace std::literals;
 using namespace util;
@@ -18,6 +20,23 @@ using etest::expect_eq;
 using etest::require;
 
 int main() {
+    etest::test("is_c0", [] {
+#if CHAR_MIN < 0
+        // I would use constexpr-if here, but we still get warnings about c < 0
+        // always being false when char is unsigned unless we preprocess this
+        // out.
+        for (char c = std::numeric_limits<char>::min(); c < 0; ++c) {
+            expect(!is_c0(c));
+        }
+#endif
+        for (char c = 0; c < 0x20; ++c) {
+            expect(is_c0(c));
+        }
+        for (char c = 0x20; c < std::numeric_limits<char>::max(); ++c) {
+            expect(!is_c0(c));
+        }
+    });
+
     etest::test("is_upper_alpha", [] {
         expect(is_upper_alpha('A'));
         expect(!is_upper_alpha('a'));
