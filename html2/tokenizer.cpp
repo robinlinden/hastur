@@ -2316,6 +2316,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
             case State::NumericCharacterReferenceEnd: {
                 if (character_reference_code_ == 0) {
                     // This is a null-character-reference parse error.
@@ -2334,7 +2335,6 @@ void Tokenizer::run() {
 
                 if (is_unicode_noncharacter(character_reference_code_)) {
                     // This is a noncharacter-character-reference parse error.
-                    character_reference_code_ = 0xFFFD;
                 }
 
                 if (character_reference_code_ == 0x0D

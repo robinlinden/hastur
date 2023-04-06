@@ -928,6 +928,12 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("numeric character reference, noncharacter", [] {
+        auto tokens = run_tokenizer("&#xffff;");
+        expect_text(tokens, "\xef\xbf\xbf");
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("hexadecimal character reference", [] {
         auto tokens = run_tokenizer("&#x2721;"); // U+2721
         expect_text(tokens, "\xe2\x9c\xa1");
