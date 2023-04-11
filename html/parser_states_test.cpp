@@ -47,9 +47,20 @@ void initial_tests() {
         res = parse("\t\n\r <!DOCTYPE bad>", {});
         expect_eq(res.document.doctype, "bad");
     });
+
+    etest::test("Initial: comment", [] {
+        auto res = parse("<!-- hello --><!DOCTYPE html>", {});
+        expect_eq(res.document.doctype, "html");
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
 }
 
 void before_html_tests() {
+    etest::test("BeforeHtml: comment", [] {
+        auto res = parse("<!DOCTYPE html><!-- hello --><html foo='bar'>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
+    });
+
     etest::test("BeforeHtml: html tag", [] {
         auto res = parse("<html foo='bar'>", {});
         expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
@@ -62,6 +73,11 @@ void before_html_tests() {
 }
 
 void before_head_tests() {
+    etest::test("BeforeHead: comment", [] {
+        auto res = parse("<html><!-- comment --><head foo='bar'>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+    });
+
     etest::test("BeforeHead: head tag", [] {
         auto res = parse("<head foo='bar'>", {});
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
@@ -74,6 +90,11 @@ void before_head_tests() {
 }
 
 void in_head_tests() {
+    etest::test("InHead: comment", [] {
+        auto res = parse("<html><head><!-- comment --><meta>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}}});
+    });
+
     etest::test("InHead: base, basefont, bgsound, link", [] {
         auto res = parse("<base> <basefont> <bgsound> <link>", {});
 

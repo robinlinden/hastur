@@ -59,6 +59,11 @@ std::optional<InsertionMode> Initial::process(Actions &a, html2::Token const &to
         return {};
     }
 
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert as last child.
+        return {};
+    }
+
     if (auto const *doctype = std::get_if<html2::DoctypeToken>(&token)) {
         if (doctype->name) {
             a.document().doctype = *doctype->name;
@@ -72,6 +77,11 @@ std::optional<InsertionMode> Initial::process(Actions &a, html2::Token const &to
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
 std::optional<InsertionMode> BeforeHtml::process(Actions &a, html2::Token const &token) {
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert as last child.
+        return {};
+    }
+
     if (is_boring_whitespace(token)) {
         return {};
     }
@@ -96,6 +106,11 @@ std::optional<InsertionMode> BeforeHead::process(Actions &a, html2::Token const 
         return {};
     }
 
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert a comment.
+        return {};
+    }
+
     if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
         if (start->tag_name == "head") {
             a.insert_element_for(*start);
@@ -112,6 +127,11 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
     if (is_boring_whitespace(token)) {
         // TODO(robinlinden): Should be inserting characters, but our last
         // parser didn't do that so it will require rewriting tests.
+        return {};
+    }
+
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert a comment.
         return {};
     }
 
