@@ -151,12 +151,9 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
             return {};
         }
 
-        // These branches won't be the same once we've added support for rcdata in the tokenizer.
-        // NOLINTNEXTLINE(bugprone-branch-clone)
         if (name == "title") {
             a.insert_element_for(*start);
-            // TODO(robinlinden): Rcdata instead.
-            a.set_tokenizer_state(html2::State::Rawtext);
+            a.set_tokenizer_state(html2::State::Rcdata);
             a.store_original_insertion_mode(InHead{});
             return Text{};
         }

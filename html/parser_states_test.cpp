@@ -111,8 +111,8 @@ void in_head_tests() {
     });
 
     etest::test("InHead: title", [] {
-        auto res = parse("<title><body></title>", {});
-        auto title = dom::Element{"title", {}, {dom::Text{"<body>"}}};
+        auto res = parse("<title><body>&amp;</title>", {});
+        auto title = dom::Element{"title", {}, {dom::Text{"<body>&"}}};
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(title)}}}});
     });
 
