@@ -198,12 +198,12 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {{0, 0, 0, 20}},
+            .dimensions = {{0, 0, 0, 10}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 20}}, {
-                    {nullptr, LayoutType::AnonymousBlock, {{0, 0, 0, 20}}, {
-                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 0, 10}}, {}},
-                        {&style_root.children[0].children[1], LayoutType::Inline, {{0, 10, 0, 10}}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 10}}, {
+                    {nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {
+                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}},
+                        {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}},
                     }},
                 }},
             }

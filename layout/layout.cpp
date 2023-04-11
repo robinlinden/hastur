@@ -126,12 +126,6 @@ void calculate_left_and_right_margin(LayoutBox &box,
 void calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) {
     assert(box.node != nullptr);
 
-    if (auto const *text_node = std::get_if<dom::Text>(&box.node->node)) {
-        // TODO(robinlinden): Measure the text for real.
-        box.dimensions.content.width = std::min(parent.width, static_cast<int>(text_node->text.size()) * font_size / 2);
-        return;
-    }
-
     auto margin_top = box.get_property<css::PropertyId::MarginTop>();
     box.dimensions.margin.top = to_px(margin_top, font_size);
 
@@ -251,7 +245,34 @@ void calculate_border(LayoutBox &box, int const font_size) {
 
 void layout(LayoutBox &box, geom::Rect const &bounds) {
     switch (box.type) {
-        case LayoutType::Inline:
+        case LayoutType::Inline: {
+            assert(box.node);
+            auto font_size = box.get_property<css::PropertyId::FontSize>();
+            calculate_padding(box, font_size);
+            calculate_border(box, font_size);
+
+            if (auto const *text_node = std::get_if<dom::Text>(&box.node->node)) {
+                // TODO(robinlinden): Measure the text for real.
+                box.dimensions.content.width = static_cast<int>(text_node->text.size()) * font_size / 2;
+            }
+
+            if (box.node->parent) {
+                auto const &d = box.dimensions;
+                box.dimensions.content.x = bounds.x + d.padding.left + d.border.left + d.margin.left;
+                box.dimensions.content.y = bounds.y + d.border.top + d.padding.top + d.margin.top;
+            }
+
+            int last_child_end{};
+            for (auto &child : box.children) {
+                layout(child, box.dimensions.content.translated(last_child_end, 0));
+                last_child_end += child.dimensions.margin_box().width;
+                box.dimensions.content.height =
+                        std::max(box.dimensions.content.height, child.dimensions.margin_box().height);
+                box.dimensions.content.width += child.dimensions.margin_box().width;
+            }
+            calculate_height(box, font_size);
+            return;
+        }
         case LayoutType::Block: {
             assert(box.node);
             auto font_size = box.get_property<css::PropertyId::FontSize>();
@@ -266,14 +287,16 @@ void layout(LayoutBox &box, geom::Rect const &bounds) {
             calculate_height(box, font_size);
             return;
         }
-        // TODO(robinlinden): This needs to place its children side-by-side.
         // TODO(robinlinden): Children wider than the available area need to be split across multiple lines.
         case LayoutType::AnonymousBlock: {
-            box.dimensions.content.width = bounds.width;
             calculate_position(box, bounds);
+            int last_child_end{};
             for (auto &child : box.children) {
-                layout(child, box.dimensions.content);
-                box.dimensions.content.height += child.dimensions.margin_box().height;
+                layout(child, box.dimensions.content.translated(last_child_end, 0));
+                last_child_end += child.dimensions.margin_box().width;
+                box.dimensions.content.height =
+                        std::max(box.dimensions.content.height, child.dimensions.margin_box().height);
+                box.dimensions.content.width += child.dimensions.margin_box().width;
             }
             return;
         }
