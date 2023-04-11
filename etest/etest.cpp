@@ -57,6 +57,10 @@ int run_all_tests(RunOptions const &opts) noexcept {
         }
     }
 
+    if (tests_to_run.empty()) {
+        return 1;
+    }
+
     // TODO(robinlinden): std::ranges once clang-cl supports it. Last tested
     // with LLVM 15.0.0.
     auto const longest_name = std::max_element(tests_to_run.begin(),
