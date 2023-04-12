@@ -38,7 +38,6 @@ jobs:
             compiler: clang
             version: 15
             bazel: --config ubsan
-            apt: libclang-rt-15-dev
 
           - name: clang-15
             os: ubuntu-22.04
