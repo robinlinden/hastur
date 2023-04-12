@@ -36,11 +36,7 @@ cc_library(
     size = "small",
     srcs = [src],
     deps = [":unifex"],
-) for src in glob(
-    include = ["examples/*.cpp"],
-    # Fails ubsan due to integer overflow.
-    exclude = ["examples/reduce_with_trampoline.cpp"],
-)]
+) for src in glob(["examples/*.cpp"])]
 
 test_suite(
     name = "unifex_tests",

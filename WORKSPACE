@@ -51,9 +51,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "cee1d0e73a01454da2b5195eb4cce19a1cfd4b54620e8f4c5bf15f6349aadb22",
-    strip_prefix = "boringssl-b3e37ac6dc845f2ee3c2db928cb531825ce24ee5",
-    url = "https://github.com/google/boringssl/archive/b3e37ac6dc845f2ee3c2db928cb531825ce24ee5.tar.gz",
+    sha256 = "c00b2be76d2ba0966b194aeee0c82feae60e01697e3c501479745126d0e54214",
+    strip_prefix = "boringssl-d473ae3587b9fa15f19f54da6243de3c53f67dfe",
+    url = "https://github.com/google/boringssl/archive/d473ae3587b9fa15f19f54da6243de3c53f67dfe.tar.gz",
 )
 
 http_archive(
@@ -182,9 +182,9 @@ http_archive(
 http_archive(
     name = "unifex",  # Apache-2.0 WITH LLVM-exception
     build_file = "//third_party:unifex.BUILD",
-    sha256 = "782c61a527c9db0ee2e71fc647202261a120e842a49665318eb4054f907595b5",
-    strip_prefix = "libunifex-0.0.1",
-    url = "https://github.com/facebookexperimental/libunifex/archive/v0.0.1.tar.gz",
+    sha256 = "2abd177b8fd083ae11742f515baf7901b2d4c52eca550bcc7b23cac977a9d452",
+    strip_prefix = "libunifex-0.0.2",
+    url = "https://github.com/facebookexperimental/libunifex/archive/v0.0.2.tar.gz",
 )
 
 http_archive(
