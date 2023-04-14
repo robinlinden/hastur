@@ -34,9 +34,9 @@ http_archive(
 # doesn't work with Clang 16 due to undeclared inclusions.
 http_archive(
     name = "com_google_absl",  # Apache-2.0
-    sha256 = "81311c17599b3712069ded20cca09a62ab0bf2a89dfa16993786c8782b7ed145",
-    strip_prefix = "abseil-cpp-20230125.1",
-    url = "https://github.com/abseil/abseil-cpp/archive/20230125.1.tar.gz",
+    sha256 = "9a2b5752d7bfade0bdeee2701de17c9480620f8b237e1964c1b9967c75374906",
+    strip_prefix = "abseil-cpp-20230125.2",
+    url = "https://github.com/abseil/abseil-cpp/archive/20230125.2.tar.gz",
 )
 
 http_archive(
@@ -119,9 +119,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "69f1e83adcab3fdd27b522f5075f407361b0d3875e3522b13d33bc2ae2c7d48c",
-    strip_prefix = "imgui-1.89.4",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.4.tar.gz",
+    sha256 = "eab371005c86dd029523a0c4ba757840787163740d45c1f4e5a110eb21820546",
+    strip_prefix = "imgui-1.89.5",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.5.tar.gz",
 )
 
 http_archive(
