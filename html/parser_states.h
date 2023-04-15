@@ -48,7 +48,6 @@ struct AfterFrameset;
 struct AfterAfterBody;
 struct AfterAfterFrameset;
 
-// clang-format off
 using InsertionMode = std::variant<Initial,
         BeforeHtml,
         BeforeHead,
@@ -74,8 +73,7 @@ using InsertionMode = std::variant<Initial,
         AfterAfterBody,
         AfterAfterFrameset
 #endif
-    >;
-// clang-format on
+        >;
 
 struct InTable {};
 struct InTableText {};
