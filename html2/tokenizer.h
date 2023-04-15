@@ -136,6 +136,12 @@ enum class ParseError {
     UnknownNamedCharacterReference,
 };
 
+struct SourceLocation {
+    int line{};
+    int column{};
+    [[nodiscard]] bool operator==(SourceLocation const &) const = default;
+};
+
 class Tokenizer {
 public:
     Tokenizer(
@@ -146,6 +152,8 @@ public:
 
     void set_state(State);
     void run();
+
+    [[nodiscard]] SourceLocation current_source_location() const;
 
     // This will definitely change once we implement the tree construction, but this works for now.
     // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state

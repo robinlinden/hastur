@@ -28,6 +28,12 @@ namespace {
 
 static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 
+struct ParseErrorWithLocation {
+    ParseError error{};
+    SourceLocation location{};
+    [[nodiscard]] bool operator==(ParseErrorWithLocation const &) const = default;
+};
+
 class TokenizerOutput {
 public:
     ~TokenizerOutput() {
@@ -36,7 +42,7 @@ public:
     }
 
     std::vector<Token> tokens;
-    std::vector<ParseError> errors;
+    std::vector<ParseErrorWithLocation> errors;
     etest::source_location loc;
 };
 
@@ -49,7 +55,7 @@ TokenizerOutput run_tokenizer(std::string_view input,
         Options const &opts = Options{},
         etest::source_location loc = etest::source_location::current()) {
     std::vector<Token> tokens;
-    std::vector<ParseError> errors;
+    std::vector<ParseErrorWithLocation> errors;
     Tokenizer tokenizer{input,
             [&](Tokenizer &the, Token &&t) {
                 if (auto const *start_tag = std::get_if<StartTagToken>(&t)) {
@@ -63,8 +69,8 @@ TokenizerOutput run_tokenizer(std::string_view input,
                 }
                 tokens.push_back(std::move(t));
             },
-            [&](auto &, ParseError e) {
-                errors.push_back(e);
+            [&](Tokenizer &the, ParseError e) {
+                errors.push_back({e, the.current_source_location()});
             }};
     if (opts.state_override) {
         tokenizer.set_state(*opts.state_override);
@@ -93,6 +99,14 @@ void expect_text(TokenizerOutput &output,
 
 void expect_error(
         TokenizerOutput &output, ParseError e, etest::source_location const &loc = etest::source_location::current()) {
+    require(!output.errors.empty(), "Unexpected end of error list", loc);
+    expect_eq(output.errors.front().error, e, {}, loc);
+    output.errors.erase(begin(output.errors));
+}
+
+void expect_error(TokenizerOutput &output,
+        ParseErrorWithLocation const &e,
+        etest::source_location const &loc = etest::source_location::current()) {
     require(!output.errors.empty(), "Unexpected end of error list", loc);
     expect_eq(output.errors.front(), e, {}, loc);
     output.errors.erase(begin(output.errors));
@@ -368,6 +382,30 @@ void plaintext_tests() {
     });
 }
 
+void source_location_tests() {
+    etest::test("src loc: doctype eof", [] {
+        auto tokens = run_tokenizer("<!DOCTYPE HtMl");
+        expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
+        expect_error(tokens, {ParseError::EofInDoctype, {1, 15}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("src loc: doctype missing whitespace after public + eof", [] {
+        auto tokens = run_tokenizer("<!DOCTYPE a PUBLIC'\n\n\n\n");
+        expect_token(tokens, DoctypeToken{.name = "a", .public_identifier = "\n\n\n\n", .force_quirks = true});
+        expect_error(tokens, {ParseError::MissingWhitespaceAfterDoctypePublicKeyword, {1, 19}});
+        expect_error(tokens, {ParseError::EofInDoctype, {5, 1}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("src loc: cdata eof", [] {
+        auto tokens = run_tokenizer("\n", {.state_override = State::CdataSection});
+        expect_token(tokens, CharacterToken{'\n'});
+        expect_error(tokens, {ParseError::EofInCdata, {2, 1}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -377,6 +415,7 @@ int main() {
     rawtext_tests();
     rcdata_tests();
     plaintext_tests();
+    source_location_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

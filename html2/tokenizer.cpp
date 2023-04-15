@@ -8,6 +8,7 @@
 #include "util/string.h"
 #include "util/unicode.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <exception>
@@ -2386,6 +2387,12 @@ void Tokenizer::run() {
             }
         }
     }
+}
+
+SourceLocation Tokenizer::current_source_location() const {
+    int line = static_cast<int>(std::ranges::count(input_.substr(0, pos_), '\n')) + 1;
+    auto col = input_.rfind('\n', pos_);
+    return {.line = line, .column = static_cast<int>(line == 1 ? pos_ : pos_ - col - 1)};
 }
 
 void Tokenizer::emit(ParseError error) {
