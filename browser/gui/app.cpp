@@ -127,7 +127,6 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     : browser_title_{std::move(browser_title)}, window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY),
                                                         browser_title_},
       url_buf_{std::move(start_page_hint)} {
-    window_.setFramerateLimit(60);
     window_.setMouseCursor(cursor_);
     if (!ImGui::SFML::Init(window_)) {
         spdlog::critical("imgui-sfml initialization failed");
