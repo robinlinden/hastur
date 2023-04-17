@@ -176,6 +176,10 @@ int App::run() {
     while (window_.isOpen()) {
         sf::Event event{};
         while (window_.pollEvent(event)) {
+            // ImGui needs a few iterations to do what it wants to do. This was
+            // pretty much picked at random after I still occasionally got
+            // unexpected results when giving it 2 iterations.
+            process_iterations_ = 5;
             ImGui::SFML::ProcessEvent(event);
 
             switch (event.type) {
@@ -301,6 +305,13 @@ int App::run() {
                     break;
             }
         }
+
+        if (process_iterations_ == 0) {
+            // The sleep duration was picked at random.
+            std::this_thread::sleep_for(std::chrono::milliseconds{5});
+            continue;
+        }
+        process_iterations_ -= 1;
 
         run_overlay();
         run_nav_widget();

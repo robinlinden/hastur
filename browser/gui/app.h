@@ -66,6 +66,9 @@ private:
 
     unsigned scale_{1};
 
+    // ImGui needs a few iterations to settle.
+    int process_iterations_{10};
+
     util::History<uri::Uri> browse_history_;
 
     void on_navigation_failure(protocol::Error);
