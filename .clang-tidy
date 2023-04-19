@@ -4,8 +4,6 @@
 #
 # -bugprone-narrowing-conversions: Very noisy for not much gain.
 #
-# -bugprone-unchecked-optional-access: Lots of false positives.
-#
 # -clang-analyzer-cplusplus.NewDeleteLeaks: Lots of false positives w/
 # -std=c++2b when calling std::make_shared in the JS AST.
 # js/ast_executor_test.cpp:176:5: error: Potential leak of memory pointed to by
@@ -56,7 +54,6 @@ Checks: >
   readability-qualified-auto,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
-  -bugprone-unchecked-optional-access,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-diagnostic-builtin-macro-redefined,
