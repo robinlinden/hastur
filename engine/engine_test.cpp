@@ -290,5 +290,15 @@ int main() {
                 == end(e.stylesheet()));
     });
 
+    etest::test("redirect not providing Location header", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 301},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::InvalidResponse);
+    });
+
     return etest::run_all_tests();
 }

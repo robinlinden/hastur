@@ -76,11 +76,15 @@ protocol::Error Engine::navigate(uri::Uri uri) {
     uri_ = std::move(uri);
     response_ = protocol_handler_->handle(uri_);
     while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
-        spdlog::info("Following {} redirect from {} to {}",
-                response_.status_line.status_code,
-                uri_.uri,
-                response_.headers.get("Location").value());
-        uri_ = uri::Uri::parse(std::string(response_.headers.get("Location").value()), uri_);
+        auto location = response_.headers.get("Location");
+        if (!location) {
+            response_.err = protocol::Error::InvalidResponse;
+            on_navigation_failure_(protocol::Error::InvalidResponse);
+            return protocol::Error::InvalidResponse;
+        }
+
+        spdlog::info("Following {} redirect from {} to {}", response_.status_line.status_code, uri_.uri, *location);
+        uri_ = uri::Uri::parse(std::string(*location), uri_);
         response_ = protocol_handler_->handle(uri_);
     }
 
