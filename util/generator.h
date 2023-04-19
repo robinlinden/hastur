@@ -61,7 +61,8 @@ public:
     bool has_next() const { return !handle_.done(); }
     T next() {
         assert(has_next());
-        auto v = std::move(*handle_.promise().maybe_value);
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): Usage error, will crash, this is fine.
+        auto v = std::move(handle_.promise().maybe_value.value());
         handle_.resume();
         return v;
     }
@@ -81,6 +82,7 @@ private:
             return *this;
         }
 
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): Usage error, will crash, this is fine.
         T &operator*() const { return handle.promise().maybe_value.value(); }
         T *operator->() const { return &**this; }
     };
