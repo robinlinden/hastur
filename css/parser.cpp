@@ -165,6 +165,7 @@ std::optional<std::string> try_parse_font_family(Tokenizer &tokenizer) {
         if (!font_family.empty()) {
             font_family += ' ';
         }
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
         font_family += *str;
         tokenizer.next();
     }
@@ -422,6 +423,7 @@ void Parser::expand_border_impl(
 
     // TODO(robinlinden): Duplicate color/style/width shouldn't be
     // tolerated, but we have no way of propagating that info right now.
+    // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
         switch (guess_type(*v)) {
             case BorderPropertyType::Color:
@@ -435,6 +437,7 @@ void Parser::expand_border_impl(
                 break;
         }
     }
+    // NOLINTEND(bugprone-unchecked-optional-access)
 
     declarations.insert_or_assign(color_id, color.value_or("currentcolor"));
     declarations.insert_or_assign(style_id, style.value_or("none"));
@@ -455,6 +458,7 @@ void Parser::expand_background(std::map<PropertyId, std::string> &declarations, 
 
     Tokenizer tokenizer{value, ' '};
     if (tokenizer.size() == 1) {
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
         declarations[PropertyId::BackgroundColor] = tokenizer.get().value();
     }
 }
@@ -464,6 +468,7 @@ void Parser::expand_border_radius_values(std::map<PropertyId, std::string> &decl
     std::string top_left, top_right, bottom_right, bottom_left;
     auto [horizontal, vertical] = util::split_once(value, "/");
     Tokenizer tokenizer(horizontal, ' ');
+    // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     switch (tokenizer.size()) {
         case 1:
             top_left = top_right = bottom_right = bottom_left = tokenizer.get().value();
@@ -524,6 +529,7 @@ void Parser::expand_border_radius_values(std::map<PropertyId, std::string> &decl
             }
         }
     }
+    // NOLINTEND(bugprone-unchecked-optional-access)
 
     declarations.insert_or_assign(PropertyId::BorderTopLeftRadius, top_left);
     declarations.insert_or_assign(PropertyId::BorderTopRightRadius, top_right);
@@ -541,6 +547,7 @@ void Parser::expand_text_decoration_values(std::map<PropertyId, std::string> &de
     }
 
     declarations.insert_or_assign(PropertyId::TextDecorationColor, "currentcolor");
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
     declarations.insert_or_assign(PropertyId::TextDecorationLine, tokenizer.get().value());
     declarations.insert_or_assign(PropertyId::TextDecorationStyle, "solid");
 }
@@ -549,6 +556,7 @@ void Parser::expand_edge_values(
         std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const {
     std::string_view top = "", bottom = "", left = "", right = "";
     Tokenizer tokenizer(value, ' ');
+    // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     switch (tokenizer.size()) {
         case 1:
             top = bottom = left = right = tokenizer.get().value();
@@ -571,6 +579,7 @@ void Parser::expand_edge_values(
         default:
             break;
     }
+    // NOLINTEND(bugprone-unchecked-optional-access)
     std::string post_fix{""};
     if (property == "border-style") {
         // border-style is a bit special as we want border-top-style instead of border-style-top-style.
@@ -591,6 +600,7 @@ void Parser::expand_font(std::map<PropertyId, std::string> &declarations, std::s
     Tokenizer tokenizer(value, ' ');
     if (tokenizer.size() == 1) {
         // TODO(mkiael): Handle system properties correctly. Just forward it for now.
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
         declarations.insert_or_assign(PropertyId::FontFamily, std::string{tokenizer.get().value()});
         return;
     }
