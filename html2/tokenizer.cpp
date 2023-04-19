@@ -1596,6 +1596,10 @@ void Tokenizer::run() {
                 }
             }
 
+            // Only reachable via State::BeforeDoctypeName, and every branch
+            // there sets current_token_ to DoctypeToken and initalizes
+            // DoctypeToken::name to something not std::nullopt.
+            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             case State::DoctypeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1630,6 +1634,7 @@ void Tokenizer::run() {
                         std::get<DoctypeToken>(current_token_).name->append(1, *c);
                         continue;
                 }
+                // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
             case State::AfterDoctypeName: {
@@ -1751,6 +1756,10 @@ void Tokenizer::run() {
                 }
             }
 
+            // Reachable via State::AfterDoctypePublicKeyword and
+            // State::BeforeDoctypePublicIdentifier, both of which set
+            // DoctypeToken::public_identifier to an empty string.
+            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             case State::DoctypePublicIdentifierDoubleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1780,7 +1789,12 @@ void Tokenizer::run() {
                         continue;
                 }
             }
+            // NOLINTEND(bugprone-unchecked-optional-access)
 
+            // Reachable via State::AfterDoctypePublicKeyword and
+            // State::BeforeDoctypePublicIdentifier, both of which set
+            // DoctypeToken::public_identifier to an empty string.
+            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             case State::DoctypePublicIdentifierSingleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1809,6 +1823,7 @@ void Tokenizer::run() {
                         *std::get<DoctypeToken>(current_token_).public_identifier += *c;
                         continue;
                 }
+                // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
             case State::AfterDoctypePublicIdentifier: {
@@ -1965,6 +1980,12 @@ void Tokenizer::run() {
                 }
             }
 
+            // Reachable via State::AfterDoctypePublicIdentifier,
+            // State::BetweenDoctypePublicAndSystemIdentifiers,
+            // State::AfterDoctypeSystemKeyword, and
+            // State::BeforeDoctypeSystemIdentifier, all of which set
+            // DoctypeToken::system_identifier to an empty string.
+            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             case State::DoctypeSystemIdentifierDoubleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1994,7 +2015,14 @@ void Tokenizer::run() {
                         continue;
                 }
             }
+            // NOLINTEND(bugprone-unchecked-optional-access)
 
+            // Reachable via State::AfterDoctypePublicIdentifier,
+            // State::BetweenDoctypePublicAndSystemIdentifiers,
+            // State::AfterDoctypeSystemKeyword, and
+            // State::BeforeDoctypeSystemIdentifier, all of which set
+            // DoctypeToken::system_identifier to an empty string.
+            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             case State::DoctypeSystemIdentifierSingleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2023,6 +2051,7 @@ void Tokenizer::run() {
                         *std::get<DoctypeToken>(current_token_).system_identifier += *c;
                         continue;
                 }
+                // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
             case State::AfterDoctypeSystemIdentifier: {
