@@ -290,6 +290,26 @@ int main() {
                 == end(e.stylesheet()));
     });
 
+    etest::test("redirect", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 301},
+                .headers = {{"Location", "hax://example.com/redirected"}},
+        };
+        responses["hax://example.com/redirected"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><body>hello!</body></html>"},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::Ok);
+        expect_eq(e.uri().uri, "hax://example.com/redirected");
+
+        auto const &body = std::get<dom::Element>(e.dom().html().children.at(1));
+        expect_eq(std::get<dom::Text>(body.children.at(0)).text, "hello!"sv);
+    });
+
     etest::test("redirect not providing Location header", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
