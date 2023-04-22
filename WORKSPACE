@@ -206,17 +206,17 @@ http_archive(
 http_archive(
     name = "xrandr",  # MIT
     build_file = "//third_party:xrandr.BUILD",
-    sha256 = "1b46bad15e13eb22db31abf4b3e73dfdc13f8c709897dcf39ce6ca6827c7a741",
-    strip_prefix = "xorg-libXrandr-libXrandr-1.5.3",
-    url = "https://github.com/freedesktop/xorg-libXrandr/archive/libXrandr-1.5.3.tar.gz",
+    sha256 = "a58611b6de3932439ccf9330096e015925f1bd315d9b89a47297362b362fdbd8",
+    strip_prefix = "libxrandr-libXrandr-1.5.3",
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.3/libxrandr-libXrandr-1.5.3.tar.gz",
 )
 
 http_archive(
     name = "xrender",  # MIT
     build_file = "//third_party:xrender.BUILD",
-    sha256 = "9eaa3cc9f80d173b0d09937c56ca118701ed79dfa85cec334290ae53cf1a2e61",
-    strip_prefix = "xorg-libXrender-libXrender-0.9.11",
-    url = "https://github.com/freedesktop/xorg-libXrender/archive/libXrender-0.9.11.tar.gz",
+    sha256 = "4cd5aca5b948a80bb7c3d5060eb97b8a8199234c0c19fe34d35c5c838923230b",
+    strip_prefix = "libxrender-libXrender-0.9.11",
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
 )
 
 http_archive(
