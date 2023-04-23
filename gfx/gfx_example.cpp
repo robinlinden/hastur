@@ -14,6 +14,8 @@
 
 using namespace std::literals;
 
+constexpr auto kHotPink = gfx::Color::from_rgb(0xff'69'b4);
+
 int main(int argc, char **argv) {
     sf::RenderWindow window{sf::VideoMode{800, 600}, "gfx"};
     window.setVerticalSyncEnabled(true);
@@ -75,7 +77,7 @@ int main(int argc, char **argv) {
                 {24},
                 gfx::FontStyle::Italic | gfx::FontStyle::Bold | gfx::FontStyle::Underlined
                         | gfx::FontStyle::Strikethrough,
-                gfx::Color::from_css_name("hotpink").value());
+                kHotPink);
 
         window.display();
     }
