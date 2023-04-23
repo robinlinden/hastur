@@ -935,6 +935,8 @@ void Tokenizer::run() {
                 if (c == '/') {
                     temporary_buffer_ = "";
                     state_ = State::ScriptDataDoubleEscapeEnd;
+                    // False-positive when using clang-tidy-15.
+                    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
                     emit(CharacterToken{*c});
                     continue;
                 }
