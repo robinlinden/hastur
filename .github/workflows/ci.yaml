@@ -181,13 +181,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-14
-      - run: echo "CC=clang-14" >>$GITHUB_ENV && echo "CXX=clang++-14" >>$GITHUB_ENV
+      - name: Set up the llvm repository
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-15
+      - run: echo "CC=clang-15" >>$GITHUB_ENV && echo "CXX=clang++-15" >>$GITHUB_ENV
       # Make sure all generated files are around so clang-tidy doesn't get
       # confused by missing headers.
       - run: bazel build `bazel query 'kind("genrule", "...")'`
       - run: bazel run refresh_compile_commands
-      - run: run-clang-tidy-14 -quiet `find . -name "*.cpp"`
+      - run: run-clang-tidy-15 -quiet `find . -name "*.cpp"`
 
   buildifier:
     runs-on: ubuntu-22.04
