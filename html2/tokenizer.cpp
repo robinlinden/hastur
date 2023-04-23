@@ -1564,8 +1564,7 @@ void Tokenizer::run() {
                 }
 
                 if (util::is_upper_alpha(*c)) {
-                    current_token_ = DoctypeToken{.name = std::string{}};
-                    std::get<DoctypeToken>(current_token_).name->append(1, util::lowercased(*c));
+                    current_token_ = DoctypeToken{.name = std::string{util::lowercased(*c)}};
                     state_ = State::DoctypeName;
                     continue;
                 }
@@ -1578,8 +1577,7 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        current_token_ = DoctypeToken{.name = std::string{}};
-                        *std::get<DoctypeToken>(current_token_).name += kReplacementCharacter;
+                        current_token_ = DoctypeToken{.name = std::string{kReplacementCharacter}};
                         state_ = State::DoctypeName;
                         continue;
                     case '>':
@@ -1589,8 +1587,7 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        current_token_ = DoctypeToken{.name = std::string{}};
-                        std::get<DoctypeToken>(current_token_).name->append(1, *c);
+                        current_token_ = DoctypeToken{.name = std::string{*c}};
                         state_ = State::DoctypeName;
                         continue;
                 }
