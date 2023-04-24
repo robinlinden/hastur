@@ -83,13 +83,11 @@ build:clang14-coverage --experimental_generate_llvm_lcov
 # * https://github.com/bazelbuild/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/BUILD
 # * https://github.com/bazelbuild/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/private/instrum_opts.bzl
 
-build:asan-libfuzzer --config=asan
-build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
-build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer
+build:libfuzzer --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
+build:libfuzzer --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer
 
-build:asan-honggfuzz --config=asan
-build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:honggfuzz
-build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine_instrumentation=honggfuzz
+build:honggfuzz --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:honggfuzz
+build:honggfuzz --@rules_fuzzing//fuzzing:cc_engine_instrumentation=honggfuzz
 
 # Misc configuration
 # =========================================================
