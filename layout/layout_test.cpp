@@ -1167,5 +1167,28 @@ int main() {
         expect_eq(dom::nodes_by_xpath(layout, "//div"), NodeVec{&layout.children[0], &anon_block.children[1]});
     });
 
+    etest::test("rem units", [] {
+        dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
+        auto const &div = std::get<dom::Element>(dom).children[0];
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::FontSize, "10px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        style::StyledNode{
+                                .node{div},
+                                .properties{{css::PropertyId::Width, "2rem"}, {css::PropertyId::Display, "block"}},
+                        },
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.children.at(0).dimensions.border_box().width, 20);
+
+        style.properties.at(0).second = "16px";
+        layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
+    });
+
     return etest::run_all_tests();
 }
