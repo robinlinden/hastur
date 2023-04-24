@@ -70,10 +70,6 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     return std::visit(visitor, node.node);
 }
 
-// TODO(robinlinden):
-// * margin, border, etc.
-// * Not all measurements have to be in pixels.
-// * %
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 int to_px(std::string_view property, int const font_size, int const root_font_size) {
     // Special case for 0 since it won't ever have a unit that needs to be handled.
