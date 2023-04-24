@@ -98,7 +98,7 @@ struct Leb128<T> {
         }
 
         if ((shift < sizeof(T) * 8) && (byte & kSignBit)) {
-            result |= ~0 << shift;
+            result |= ~T{0} << shift;
         }
 
         return result;
