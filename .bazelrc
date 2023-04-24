@@ -73,15 +73,23 @@ build:clang14-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
 build:clang14-coverage --action_env=GCOV=llvm-profdata-14
 build:clang14-coverage --experimental_generate_llvm_lcov
 
+# Fuzzing options
+# =========================================================
+
+# https://github.com/bazelbuild/rules_fuzzing says to also set
+# @rules_fuzzing//fuzzing:cc_engine_sanitizer=asan or similar which sets things
+# like -fsanitize=asan. We don't use this as we set these options ourselves.
+# See:
+# * https://github.com/bazelbuild/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/BUILD
+# * https://github.com/bazelbuild/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/private/instrum_opts.bzl
+
 build:asan-libfuzzer --config=asan
 build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
 build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer
-build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_sanitizer=asan
 
 build:asan-honggfuzz --config=asan
 build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:honggfuzz
 build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine_instrumentation=honggfuzz
-build:asan-honggfuzz --@rules_fuzzing//fuzzing:cc_engine_sanitizer=asan
 
 # Misc configuration
 # =========================================================
