@@ -9,7 +9,7 @@
 #include <optional>
 #include <string_view>
 
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size);
+extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size); // NOLINT
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size) {
     html2::Tokenizer{std::string_view{reinterpret_cast<char const *>(data), size},

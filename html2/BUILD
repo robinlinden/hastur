@@ -38,7 +38,6 @@ cc_library(
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
-    tags = ["manual"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":html2"],
 ) for src in glob(["*_fuzz_test.cpp"])]
