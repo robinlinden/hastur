@@ -8,6 +8,7 @@ jobs:
   linux-ci:
     name: linux-${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false
@@ -100,6 +101,7 @@ jobs:
 
   linux-gcc-12-coverage:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
         with:
@@ -130,6 +132,7 @@ jobs:
 
   windows-msvc:
     runs-on: windows-2022
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -151,6 +154,7 @@ jobs:
 
   windows-clang-cl:
     runs-on: windows-2022
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -169,6 +173,7 @@ jobs:
 
   clang-format:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-14
@@ -179,6 +184,7 @@ jobs:
 
   clang-tidy:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - name: Set up the llvm repository
@@ -195,6 +201,7 @@ jobs:
 
   buildifier:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - name: Install
@@ -206,6 +213,7 @@ jobs:
 
   prettier:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - run: npm install --global prettier@2.8.8
@@ -216,6 +224,7 @@ jobs:
 
   shfmt:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - run: pip install shfmt-py==3.4.3.1
@@ -224,12 +233,14 @@ jobs:
 
   link-liveness:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - run: grep --recursive --no-filename --only-matching --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider
 
   gitlint:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
         with:
