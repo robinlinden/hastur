@@ -174,9 +174,9 @@ http_archive(
 http_archive(
     name = "udev-zero",  # ISC
     build_file = "//third_party:udev-zero.BUILD",
-    sha256 = "c4cf149ea96295c1e6e86038d10c725344c751982ed4a790b06c76776923e0ea",
-    strip_prefix = "libudev-zero-1.0.1",
-    url = "https://github.com/illiliti/libudev-zero/archive/1.0.1.tar.gz",
+    sha256 = "29dff942cab9519994fb92ba6407f57e08d3dd6e6c0b86bb93d7b1d681994ff8",
+    strip_prefix = "libudev-zero-1.0.2",
+    url = "https://github.com/illiliti/libudev-zero/archive/1.0.2.tar.gz",
 )
 
 http_archive(
