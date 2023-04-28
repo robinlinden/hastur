@@ -5,13 +5,19 @@
 #ifndef ARCHIVE_ZLIB_H_
 #define ARCHIVE_ZLIB_H_
 
-#include <optional>
+#include <tl/expected.hpp>
+
 #include <string>
 #include <string_view>
 
 namespace archive {
 
-std::optional<std::string> zlib_decode(std::string_view);
+struct ZlibError {
+    std::string message{};
+    int code{};
+};
+
+tl::expected<std::string, ZlibError> zlib_decode(std::string_view);
 
 } // namespace archive
 

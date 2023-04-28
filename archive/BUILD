@@ -8,7 +8,7 @@ cc_library(
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
-        "@spdlog",
+        "@expected",
         "@zlib",
     ],
 )

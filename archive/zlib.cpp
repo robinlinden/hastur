@@ -4,12 +4,13 @@
 
 #include "archive/zlib.h"
 
-#include <spdlog/spdlog.h>
 #include <zlib.h>
+
+#include <utility>
 
 namespace archive {
 
-std::optional<std::string> zlib_decode(std::string_view data) {
+tl::expected<std::string, ZlibError> zlib_decode(std::string_view data) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
             .avail_in = static_cast<uInt>(data.size()),
@@ -26,8 +27,8 @@ std::optional<std::string> zlib_decode(std::string_view data) {
     // only the gzip format <...>.
     constexpr int kWindowBits = 15;
     constexpr int kEnableGzip = 32;
-    if (inflateInit2(&s, kWindowBits + kEnableGzip) != Z_OK) {
-        return std::nullopt;
+    if (auto error = inflateInit2(&s, kWindowBits + kEnableGzip); error != Z_OK) {
+        return tl::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
     }
 
     std::string out{};
@@ -39,9 +40,9 @@ std::optional<std::string> zlib_decode(std::string_view data) {
         s.avail_out = static_cast<uInt>(buf.size());
         int ret = inflate(&s, Z_NO_FLUSH);
         if (ret != Z_OK && ret != Z_STREAM_END) {
-            spdlog::error("Error '{}: {}' during zlib inflation", ret, s.msg);
+            std::string msg = s.msg;
             inflateEnd(&s);
-            return std::nullopt;
+            return tl::unexpected{ZlibError{.message = std::move(msg), .code = ret}};
         }
 
         uInt inflated_bytes = static_cast<uInt>(buf.size()) - s.avail_out;
