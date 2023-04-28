@@ -114,7 +114,12 @@ void Engine::on_navigation_success() {
             if (encoding == "gzip" || encoding == "x-gzip") {
                 auto decoded = archive::zlib_decode(style_data.body);
                 if (!decoded) {
-                    spdlog::error("Failed {}-decoding of '{}'", *encoding, stylesheet_url.uri);
+                    auto const &err = decoded.error();
+                    spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
+                            *encoding,
+                            stylesheet_url.uri,
+                            err.code,
+                            err.message);
                     return {};
                 }
 
