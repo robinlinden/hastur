@@ -4,6 +4,7 @@
 
 #include "img/gif.h"
 #include "img/png.h"
+#include "img/qoi.h"
 
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -23,7 +24,7 @@
 
 using namespace std::literals;
 
-using Image = std::variant<img::Gif, img::Png>;
+using Image = std::variant<img::Gif, img::Png, img::Qoi>;
 
 int main(int argc, char **argv) {
     if (argc != 2 && argc != 3) {
@@ -49,6 +50,13 @@ int main(int argc, char **argv) {
 
         if (auto gif = img::Gif::from(fs)) {
             return *gif;
+        }
+
+        fs.clear();
+        fs.seekg(0);
+
+        if (auto qoi = img::Qoi::from(fs)) {
+            return *qoi;
         }
 
         return std::nullopt;
