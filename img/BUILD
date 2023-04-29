@@ -14,6 +14,7 @@ cc_library(
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
+        "@expected",
         "@libpng",
     ],
 )
@@ -41,6 +42,7 @@ extra_srcs = {
     deps = [
         ":img",
         "//etest",
+        "@expected",
     ],
 ) for src in glob(["*_test.cpp"])]
 
