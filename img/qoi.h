@@ -15,6 +15,8 @@ namespace img {
 enum class QoiError {
     AbruptEof,
     InvalidMagic,
+    InvalidChannels,
+    InvalidColorspace,
 };
 
 class Qoi {

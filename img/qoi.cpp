@@ -5,6 +5,7 @@
 #include "img/qoi.h"
 
 #include <bit>
+#include <cstdint>
 #include <istream>
 #include <string>
 
@@ -49,6 +50,24 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     if constexpr (std::endian::native != std::endian::big) {
         width = std::byteswap(width);
         height = std::byteswap(height);
+    }
+
+    std::uint8_t channels{};
+    if (!is.read(reinterpret_cast<char *>(&channels), sizeof(channels))) {
+        return tl::unexpected{QoiError::AbruptEof};
+    }
+
+    if (channels != 3 && channels != 4) {
+        return tl::unexpected{QoiError::InvalidChannels};
+    }
+
+    std::uint8_t colorspace{};
+    if (!is.read(reinterpret_cast<char *>(&colorspace), sizeof(colorspace))) {
+        return tl::unexpected{QoiError::AbruptEof};
+    }
+
+    if (colorspace != 0 && colorspace != 1) {
+        return tl::unexpected{QoiError::InvalidColorspace};
     }
 
     return Qoi{

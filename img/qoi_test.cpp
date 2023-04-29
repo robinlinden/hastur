@@ -34,8 +34,19 @@ int main() {
         expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0"s}), tl::unexpected{QoiError::AbruptEof}); //
     });
 
+    etest::test("channels error handling", [] {
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0"s}), tl::unexpected{QoiError::AbruptEof});
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0\5"s}), tl::unexpected{QoiError::InvalidChannels});
+    });
+
+    etest::test("colorspace error handling", [] {
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0\3"s}), tl::unexpected{QoiError::AbruptEof});
+        expect_eq(
+                Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0\3\2"s}), tl::unexpected{QoiError::InvalidColorspace});
+    });
+
     etest::test("it works", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2"s}), Qoi{.width = 1, .height = 2}); //
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1"s}), Qoi{.width = 1, .height = 2}); //
     });
 
     return etest::run_all_tests();
