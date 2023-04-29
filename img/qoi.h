@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <vector>
 
 namespace img {
 
@@ -17,6 +18,7 @@ enum class QoiError {
     InvalidMagic,
     InvalidChannels,
     InvalidColorspace,
+    UnhandledChunk,
 };
 
 class Qoi {
@@ -26,6 +28,7 @@ public:
 
     std::uint32_t width{};
     std::uint32_t height{};
+    std::vector<unsigned char> bytes{};
 
     [[nodiscard]] bool operator==(Qoi const &) const = default;
 };

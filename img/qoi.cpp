@@ -5,11 +5,25 @@
 #include "img/qoi.h"
 
 #include <bit>
+#include <cstddef>
 #include <cstdint>
 #include <istream>
 #include <string>
+#include <vector>
 
 namespace img {
+namespace {
+
+constexpr std::uint8_t kQoiOpRgb = 0b1111'1110;
+
+struct Px {
+    std::uint8_t r{};
+    std::uint8_t g{};
+    std::uint8_t b{};
+    std::uint8_t a{};
+};
+
+} // namespace
 
 // https://qoiformat.org/qoi-specification.pdf
 tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
@@ -70,9 +84,36 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
         return tl::unexpected{QoiError::InvalidColorspace};
     }
 
+    std::vector<unsigned char> pixels{};
+    auto const bytes_needed = std::size_t{width} * height * 4;
+    pixels.reserve(bytes_needed);
+
+    Px previous_pixel{0, 0, 0, 255};
+    while (pixels.size() != bytes_needed) {
+        std::uint8_t chunk{};
+        if (!is.read(reinterpret_cast<char *>(&chunk), sizeof(chunk))) {
+            return tl::unexpected{QoiError::AbruptEof};
+        }
+
+        if (chunk == kQoiOpRgb) {
+            if (!is.read(reinterpret_cast<char *>(&previous_pixel), 3)) {
+                return tl::unexpected{QoiError::AbruptEof};
+            }
+
+            pixels.push_back(previous_pixel.r);
+            pixels.push_back(previous_pixel.g);
+            pixels.push_back(previous_pixel.b);
+            pixels.push_back(previous_pixel.a);
+            continue;
+        }
+
+        return tl::unexpected{QoiError::UnhandledChunk};
+    }
+
     return Qoi{
             .width = width,
             .height = height,
+            .bytes = std::move(pixels),
     };
 }
 
