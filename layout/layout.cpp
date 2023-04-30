@@ -178,8 +178,8 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
 
 void calculate_height(LayoutBox &box, int const font_size, int const root_font_size) {
     assert(box.node != nullptr);
-    if (auto const *text = std::get_if<dom::Text>(&box.node->node)) {
-        int lines = static_cast<int>(std::ranges::count(text->text, '\n')) + 1;
+    if (auto text = box.text()) {
+        int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
         box.dimensions.content.height = lines * font_size;
     }
 
@@ -255,9 +255,9 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             calculate_padding(box, font_size, root_font_size);
             calculate_border(box, font_size, root_font_size);
 
-            if (auto const *text_node = std::get_if<dom::Text>(&box.node->node)) {
+            if (auto text = box.text()) {
                 // TODO(robinlinden): Measure the text for real.
-                box.dimensions.content.width = static_cast<int>(text_node->text.size()) * font_size / 2;
+                box.dimensions.content.width = static_cast<int>(text->size()) * font_size / 2;
             }
 
             if (box.node->parent) {
@@ -368,6 +368,18 @@ int get_root_font_size(style::StyledNode const &node) {
 }
 
 } // namespace
+
+std::optional<std::string_view> LayoutBox::text() const {
+    if (node == nullptr) {
+        return std::nullopt;
+    }
+
+    if (auto const *text = std::get_if<dom::Text>(&node->node)) {
+        return text->text;
+    }
+
+    return std::nullopt;
+}
 
 std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) const {
     auto raw = node->get_raw_property(id);

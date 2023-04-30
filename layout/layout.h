@@ -34,6 +34,8 @@ struct LayoutBox {
     std::vector<LayoutBox> children;
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
+    std::optional<std::string_view> text() const;
+
     template<css::PropertyId T>
     auto get_property() const {
         // Calling get_property on an anonymous block (the only type that

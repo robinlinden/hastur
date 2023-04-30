@@ -1190,5 +1190,19 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
     });
 
+    etest::test("layout box text accessor", [] {
+        dom::Node dom = dom::Text{"hello"s};
+        style::StyledNode style{.node = dom};
+        layout::LayoutBox layout{.node = &style};
+
+        expect_eq(layout.text(), "hello");
+
+        dom = dom::Element{.name = "asdf"};
+        expect_eq(layout.text(), std::nullopt);
+
+        layout.node = nullptr;
+        expect_eq(layout.text(), std::nullopt);
+    });
+
     return etest::run_all_tests();
 }
