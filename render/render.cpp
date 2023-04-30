@@ -6,7 +6,6 @@
 #include "render/render.h"
 
 #include "css/property_id.h"
-#include "dom/dom.h"
 #include "gfx/color.h"
 #include "util/from_chars.h"
 #include "util/string.h"
@@ -28,10 +27,6 @@ namespace {
 
 bool has_any_border(geom::EdgeSize const &border) {
     return border != geom::EdgeSize{};
-}
-
-dom::Text const *try_get_text(layout::LayoutBox const &layout) {
-    return std::get_if<dom::Text>(&layout.node->node);
 }
 
 constexpr bool is_fully_transparent(gfx::Color const &c) {
@@ -69,7 +64,7 @@ gfx::FontStyle to_gfx(std::vector<style::TextDecorationLine> const &decorations)
     return style;
 }
 
-void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, dom::Text const &text) {
+void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::string_view text) {
     auto font_families = layout.get_property<css::PropertyId::FontFamily>();
     auto fonts = [&font_families] {
         std::vector<gfx::Font> fs;
@@ -81,7 +76,7 @@ void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, dom::Te
     auto color = layout.get_property<css::PropertyId::Color>();
     auto text_decoration_line = to_gfx(layout.get_property<css::PropertyId::TextDecorationLine>());
     style |= text_decoration_line;
-    painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, style, color);
+    painter.draw_text(layout.dimensions.content.position(), text, fonts, font_size, style, color);
 }
 
 void render_element(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
@@ -116,7 +111,7 @@ void render_element(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
 }
 
 void do_render(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
-    if (auto const *text = try_get_text(layout)) {
+    if (auto text = layout.text()) {
         render_text(painter, layout, *text);
     } else {
         render_element(painter, layout);
