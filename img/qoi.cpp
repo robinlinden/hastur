@@ -4,6 +4,7 @@
 
 #include "img/qoi.h"
 
+#include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
@@ -14,7 +15,11 @@
 namespace img {
 namespace {
 
+// 8-bit tags.
 constexpr std::uint8_t kQoiOpRgb = 0b1111'1110;
+
+// 2-bit tags.
+constexpr std::uint8_t kQoiOpIndex = 0b0000'0000;
 
 struct Px {
     std::uint8_t r{};
@@ -22,6 +27,10 @@ struct Px {
     std::uint8_t b{};
     std::uint8_t a{};
 };
+
+std::size_t seen_pixels_index(Px const &px) {
+    return (std::size_t{px.r} * 3 + std::size_t{px.g} * 5 + std::size_t{px.b} * 7 + std::size_t{px.a} * 11) % 64;
+}
 
 } // namespace
 
@@ -89,25 +98,31 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     pixels.reserve(bytes_needed);
 
     Px previous_pixel{0, 0, 0, 255};
+    std::array<Px, 64> seen_pixels{};
     while (pixels.size() != bytes_needed) {
         std::uint8_t chunk{};
         if (!is.read(reinterpret_cast<char *>(&chunk), sizeof(chunk))) {
             return tl::unexpected{QoiError::AbruptEof};
         }
 
+        auto const short_tag = chunk & 0b1100'0000;
+        auto const short_value = chunk & 0b0011'1111;
+
         if (chunk == kQoiOpRgb) {
             if (!is.read(reinterpret_cast<char *>(&previous_pixel), 3)) {
                 return tl::unexpected{QoiError::AbruptEof};
             }
-
-            pixels.push_back(previous_pixel.r);
-            pixels.push_back(previous_pixel.g);
-            pixels.push_back(previous_pixel.b);
-            pixels.push_back(previous_pixel.a);
-            continue;
+        } else if (short_tag == kQoiOpIndex) {
+            previous_pixel = seen_pixels[short_value];
+        } else {
+            return tl::unexpected{QoiError::UnhandledChunk};
         }
 
-        return tl::unexpected{QoiError::UnhandledChunk};
+        pixels.push_back(previous_pixel.r);
+        pixels.push_back(previous_pixel.g);
+        pixels.push_back(previous_pixel.b);
+        pixels.push_back(previous_pixel.a);
+        seen_pixels[seen_pixels_index(previous_pixel)] = previous_pixel;
     }
 
     return Qoi{
