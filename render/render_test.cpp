@@ -37,8 +37,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         expect_eq(
                 saver.take_commands(), CanvasCommands{gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"arial"}, 10}});
@@ -64,8 +63,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         expect_eq(saver.take_commands(),
                 CanvasCommands{
@@ -86,8 +84,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         geom::Rect expected_rect{10, 20, 100, 100};
         gfx::Color expected_color{0xA, 0xB, 0xC};
@@ -109,8 +106,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         expect_eq(saver.take_commands(), CanvasCommands{});
     });
@@ -129,8 +125,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         geom::Rect expected_rect{0, 0, 20, 40};
         gfx::Color expected_color{0xA, 0xB, 0xC};
@@ -158,8 +153,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         geom::Rect expected_rect{0, 0, 20, 40};
         gfx::Color expected_color{0, 0, 0, 0};
@@ -188,8 +182,7 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         auto cmd = gfx::DrawRectCmd{
                 .rect{0, 0, 20, 20},
@@ -208,30 +201,29 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
 
         // #rgba
         styled.properties = {{css::PropertyId::BackgroundColor, "#abcd"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc, 0xdd}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // #rrggbbaa
         styled.properties = {{css::PropertyId::BackgroundColor, "#12345678"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56, 0x78}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // #rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "#abc"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // #rrggbb
         styled.properties = {{css::PropertyId::BackgroundColor, "#123456"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
     });
 
@@ -245,65 +237,64 @@ int main() {
         };
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
 
         // rgb, working
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3)"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, rgba should be an alias of rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "rgba(100, 200, 255)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{100, 200, 255}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.5)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 127}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 51}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, alpha out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 0xFF}}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, garbage values in alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, blergh)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, missing closing paren
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, value out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(-1, 2, 3)"}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, wrong number of arguments
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2)"}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
 
         // rgb, garbage value
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(a, 2, 3)"}};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
     });
@@ -319,8 +310,7 @@ int main() {
         auto layout = layout::LayoutBox{.node = &styled};
 
         gfx::CanvasCommandSaver saver;
-        gfx::Painter painter{saver};
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
 
         expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
@@ -335,7 +325,7 @@ int main() {
         styled.properties[0].second = "underline";
         styled.properties.push_back({css::PropertyId::FontStyle, "italic"});
 
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
                         {0, 0},
@@ -348,7 +338,7 @@ int main() {
 
         styled.properties[0].second = "blink";
 
-        render::render_layout(painter, layout);
+        render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
                         {0, 0},

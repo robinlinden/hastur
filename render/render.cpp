@@ -69,7 +69,7 @@ gfx::FontStyle to_gfx(std::vector<style::TextDecorationLine> const &decorations)
     return style;
 }
 
-void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Text const &text) {
+void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, dom::Text const &text) {
     auto font_families = layout.get_property<css::PropertyId::FontFamily>();
     auto fonts = [&font_families] {
         std::vector<gfx::Font> fs;
@@ -84,7 +84,7 @@ void render_text(gfx::Painter &painter, layout::LayoutBox const &layout, dom::Te
     painter.draw_text(layout.dimensions.content.position(), text.text, fonts, font_size, style, color);
 }
 
-void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
+void render_element(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     auto background_color = layout.get_property<css::PropertyId::BackgroundColor>();
     auto const &border_size = layout.dimensions.border;
 
@@ -115,7 +115,7 @@ void render_element(gfx::Painter &painter, layout::LayoutBox const &layout) {
     }
 }
 
-void do_render(gfx::Painter &painter, layout::LayoutBox const &layout) {
+void do_render(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     if (auto const *text = try_get_text(layout)) {
         render_text(painter, layout, *text);
     } else {
@@ -129,7 +129,7 @@ bool should_render(layout::LayoutBox const &layout) {
 
 } // namespace
 
-void render_layout(gfx::Painter &painter, layout::LayoutBox const &layout) {
+void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     if (should_render(layout)) {
         do_render(painter, layout);
     }
@@ -141,7 +141,7 @@ void render_layout(gfx::Painter &painter, layout::LayoutBox const &layout) {
 
 namespace debug {
 
-void render_layout_depth(gfx::Painter &painter, layout::LayoutBox const &layout) {
+void render_layout_depth(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     painter.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
     for (auto const &child : layout.children) {
         render_layout_depth(painter, child);
