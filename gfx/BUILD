@@ -9,7 +9,6 @@ cc_library(
         "color.h",
         "font.h",
         "icanvas.h",
-        "painter.h",
     ],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
