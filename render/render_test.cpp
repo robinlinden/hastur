@@ -92,6 +92,28 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawRectCmd{expected_rect, expected_color, {}}});
     });
 
+    etest::test("debug-render block", [] {
+        dom::Node dom = dom::Element{"div"};
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties = {{css::PropertyId::Display, "block"}},
+        };
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {{10, 20, 100, 100}, {}, {}, {}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+        render::debug::render_layout_depth(saver, layout);
+
+        geom::Rect expected_rect{10, 20, 100, 100};
+        gfx::Color expected_color{0xFF, 0xFF, 0xFF, 0x30};
+
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::FillRectCmd{expected_rect, expected_color}});
+    });
+
     etest::test("render block with transparent background-color", [] {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
