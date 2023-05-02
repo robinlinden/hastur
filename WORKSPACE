@@ -42,18 +42,18 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "b31c63867daaba0e460ee2c85dc508a52c81db0a7318e0d2147f444b26f80ed7",
-    strip_prefix = "asio-asio-1-27-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-27-0.tar.gz",
+    sha256 = "226438b0798099ad2a202563a83571ce06dd13b570d8fded4840dbc1f97fa328",
+    strip_prefix = "asio-asio-1-28-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-0.tar.gz",
 )
 
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "c00b2be76d2ba0966b194aeee0c82feae60e01697e3c501479745126d0e54214",
-    strip_prefix = "boringssl-d473ae3587b9fa15f19f54da6243de3c53f67dfe",
-    url = "https://github.com/google/boringssl/archive/d473ae3587b9fa15f19f54da6243de3c53f67dfe.tar.gz",
+    sha256 = "e8016871403f5acc51fdf8927dde81e4adbd5531c3f5d2442edbc80d0ea65735",
+    strip_prefix = "boringssl-cbe6df8ae3554efdadd8f2ec1180b28ebdcfd77e",
+    url = "https://github.com/google/boringssl/archive/cbe6df8ae3554efdadd8f2ec1180b28ebdcfd77e.tar.gz",
 )
 
 http_archive(
@@ -182,9 +182,9 @@ http_archive(
 http_archive(
     name = "unifex",  # Apache-2.0 WITH LLVM-exception
     build_file = "//third_party:unifex.BUILD",
-    sha256 = "2abd177b8fd083ae11742f515baf7901b2d4c52eca550bcc7b23cac977a9d452",
-    strip_prefix = "libunifex-0.0.2",
-    url = "https://github.com/facebookexperimental/libunifex/archive/v0.0.2.tar.gz",
+    sha256 = "bf62a6541d63e688fb073d4bcaee35134bc1a76012a3526c7201b1d648f44c62",
+    strip_prefix = "libunifex-v.0.0.3",
+    url = "https://github.com/facebookexperimental/libunifex/archive/v.0.0.3.tar.gz",
 )
 
 http_archive(
