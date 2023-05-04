@@ -7,6 +7,7 @@
 
 #include "util/from_chars.h"
 #include "util/overloaded.h"
+#include "util/string.h"
 
 #include <spdlog/spdlog.h>
 
@@ -257,7 +258,14 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
 
             if (auto text = box.text()) {
                 // TODO(robinlinden): Measure the text for real.
-                box.dimensions.content.width = static_cast<int>(text->size()) * font_size / 2;
+                if (text->contains('\n')) {
+                    std::size_t longest_line = std::ranges::max(util::split(*text, "\n"), {}, [](auto const &line) {
+                        return line.size();
+                    }).size();
+                    box.dimensions.content.width = static_cast<int>(longest_line) * font_size / 2;
+                } else {
+                    box.dimensions.content.width = static_cast<int>(text->size()) * font_size / 2;
+                }
             }
 
             if (box.node->parent) {

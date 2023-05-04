@@ -13,6 +13,7 @@ cc_library(
         "//style",
         "//util:from_chars",
         "//util:overloaded",
+        "//util:string",
         "@spdlog",
     ],
 )

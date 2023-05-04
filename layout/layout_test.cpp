@@ -1105,21 +1105,23 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto get_text_height = [](layout::LayoutBox const &layout) {
+        auto get_text_dimensions = [](layout::LayoutBox const &layout) {
             require_eq(layout.children.size(), std::size_t{1});
             require_eq(layout.children[0].children.size(), std::size_t{1});
-            return layout.children[0].children[0].dimensions.content.height;
+            auto const &content_dims = layout.children[0].children[0].dimensions.content;
+            return std::pair{content_dims.width, content_dims.height};
         };
 
         auto single_line_layout = layout::create_layout(style, 1000).value();
-        auto single_line_layout_height = get_text_height(single_line_layout);
-        require(single_line_layout_height > 0);
+        auto single_line_layout_dims = get_text_dimensions(single_line_layout);
+        require(single_line_layout_dims.second > 0);
 
-        std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nbye"s;
+        std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nhi"s;
         auto two_line_layout = layout::create_layout(style, 1000).value();
-        auto two_line_layout_height = get_text_height(two_line_layout);
+        auto two_line_layout_dims = get_text_dimensions(two_line_layout);
 
-        expect(two_line_layout_height >= 2 * single_line_layout_height);
+        expect(two_line_layout_dims.second >= 2 * single_line_layout_dims.second);
+        expect_eq(single_line_layout_dims.first, two_line_layout_dims.first);
     });
 
     etest::test("display:none on root node", [] {
