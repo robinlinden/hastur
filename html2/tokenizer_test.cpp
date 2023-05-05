@@ -420,6 +420,13 @@ void tag_open_tests() {
         expect_token(tokens, CommentToken{"?hello"});
         expect_token(tokens, EndOfFileToken{});
     });
+
+    etest::test("tag open: invalid first character", [] {
+        auto tokens = run_tokenizer("<#bogus");
+        expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
+        expect_text(tokens, "<#bogus");
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 } // namespace
