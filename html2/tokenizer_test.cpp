@@ -413,6 +413,13 @@ void tag_open_tests() {
         expect_token(tokens, CharacterToken{'<'});
         expect_token(tokens, EndOfFileToken{});
     });
+
+    etest::test("tag open: question mark is a bogus comment", [] {
+        auto tokens = run_tokenizer("<?hello");
+        expect_error(tokens, ParseError::UnexpectedQuestionMarkInsteadOfTagName);
+        expect_token(tokens, CommentToken{"?hello"});
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 } // namespace
@@ -1290,8 +1297,8 @@ int main() {
 
     etest::test("pages served as xml don't break everything", [] {
         auto tokens = run_tokenizer("<?xml?><!DOCTYPE HTML>");
-        expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
-        expect_text(tokens, "<?xml?>");
+        expect_error(tokens, ParseError::UnexpectedQuestionMarkInsteadOfTagName);
+        expect_token(tokens, CommentToken{"?xml?"});
         expect_token(tokens, DoctypeToken{.name = "html"});
         expect_token(tokens, EndOfFileToken{});
     });

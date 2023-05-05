@@ -134,6 +134,7 @@ enum class ParseError {
     UnexpectedCharacterAfterDoctypeSystemIdentifier,
     UnexpectedCharacterInUnquotedAttributeValue,
     UnexpectedNullCharacter,
+    UnexpectedQuestionMarkInsteadOfTagName,
     UnknownNamedCharacterReference,
 };
 

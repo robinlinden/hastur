@@ -250,6 +250,11 @@ void Tokenizer::run() {
                     case '/':
                         state_ = State::EndTagOpen;
                         continue;
+                    case '?':
+                        emit(ParseError::UnexpectedQuestionMarkInsteadOfTagName);
+                        current_token_ = CommentToken{""};
+                        reconsume_in(State::BogusComment);
+                        continue;
                     default:
                         emit(ParseError::InvalidFirstCharacterOfTagName);
                         emit(CharacterToken{'<'});
