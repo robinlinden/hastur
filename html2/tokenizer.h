@@ -108,6 +108,7 @@ enum class ParseError {
     CdataInHtmlContent,
     CharacterReferenceOutsideUnicodeRange,
     ControlCharacterReference,
+    EofBeforeTagName,
     EofInCdata,
     EofInComment,
     EofInDoctype,

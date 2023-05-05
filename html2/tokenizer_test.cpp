@@ -406,6 +406,15 @@ void source_location_tests() {
     });
 }
 
+void tag_open_tests() {
+    etest::test("tag open: eof", [] {
+        auto tokens = run_tokenizer("<");
+        expect_error(tokens, ParseError::EofBeforeTagName);
+        expect_token(tokens, CharacterToken{'<'});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -416,6 +425,7 @@ int main() {
     rcdata_tests();
     plaintext_tests();
     source_location_tests();
+    tag_open_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

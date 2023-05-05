@@ -227,10 +227,11 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state
             case State::TagOpen: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-before-tag-name parse error.
+                    emit(ParseError::EofBeforeTagName);
                     emit(CharacterToken{'<'});
                     emit(EndOfFileToken{});
                     return;
