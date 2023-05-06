@@ -5,11 +5,13 @@
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
+#include "gfx/vulkan_canvas.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include <memory>
+#include <stdexcept>
 #include <string_view>
 
 using namespace std::literals;
@@ -25,7 +27,13 @@ int main(int argc, char **argv) {
         if (argc == 2 && argv[1] == "--sf"sv) {
             return std::make_unique<gfx::SfmlCanvas>(window);
         }
+        gfx::VulkanCanvasBuilder builder;
+        auto canvas = builder.validation_layers({}).build("hastur");
+        if (canvas.has_value()) {
+            return std::make_unique<gfx::VulkanCanvas>(canvas.value());
+        }
         return std::make_unique<gfx::OpenGLCanvas>();
+        // throw std::runtime_error(canvas.error());
     }();
 
     canvas->set_viewport_size(window.getSize().x, window.getSize().y);

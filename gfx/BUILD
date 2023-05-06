@@ -77,6 +77,20 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "vulkan",
+    srcs = ["vulkan_canvas.cpp"],
+    hdrs = ["vulkan_canvas.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":gfx",
+        "@glew",
+        "@expected",
+        "@vulkan",
+    ],
+)
+
 [cc_test(
     name = src[:-4],
     size = "small",
@@ -96,6 +110,7 @@ cc_binary(
         ":gfx",
         ":opengl",
         ":sfml",
+        ":vulkan",
         "@sfml//:graphics",
         "@sfml//:window",
     ],

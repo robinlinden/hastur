@@ -5,6 +5,7 @@
 """Common copts for Hastur targets."""
 
 HASTUR_LINUX_WARNING_FLAGS = [
+    "-Wno-gnu-statement-expression",
     "-Wall",
     "-Wextra",
     "-pedantic-errors",
