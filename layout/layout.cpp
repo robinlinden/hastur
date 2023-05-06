@@ -210,7 +210,7 @@ void calculate_padding(LayoutBox &box, int const font_size, int const root_font_
     box.dimensions.padding.bottom = to_px(padding_bottom, font_size, root_font_size);
 }
 
-// https://w3c.github.io/csswg-drafts/css-backgrounds/#the-border-width
+// https://drafts.csswg.org/css-backgrounds/#the-border-width
 std::map<std::string_view, int> const kBorderWidthKeywords{
         {"thin", 3},
         {"medium", 5},

@@ -396,7 +396,7 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
 }
 
 static int const kDefaultFontSize{10};
-// https://w3c.github.io/csswg-drafts/css-fonts-4/#absolute-size-mapping
+// https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;
 std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
         {"xx-small", 3 / 5.f},

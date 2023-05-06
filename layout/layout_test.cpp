@@ -1035,7 +1035,7 @@ int main() {
         expect(medium_layout_width > 0);
 
         // font-size: xxx-large should be 3x font-size: medium.
-        // https://w3c.github.io/csswg-drafts/css-fonts-4/#absolute-size-mapping
+        // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
         expect_eq(medium_layout_width * 3, xxxlarge_layout_width);
     });
 

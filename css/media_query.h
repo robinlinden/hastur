@@ -44,7 +44,7 @@ public:
     Query query{};
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
-    // https://w3c.github.io/csswg-drafts/mediaqueries/#mq-syntax
+    // https://drafts.csswg.org/mediaqueries/#mq-syntax
     static constexpr std::optional<MediaQuery> parse(std::string_view s) {
         // We only handle media-in-parens right now.
         if (!(s.starts_with('(') && s.ends_with(')'))) {

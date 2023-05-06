@@ -537,7 +537,7 @@ void Parser::expand_border_radius_values(std::map<PropertyId, std::string> &decl
     declarations.insert_or_assign(PropertyId::BorderBottomLeftRadius, bottom_left);
 }
 
-// https://w3c.github.io/csswg-drafts/css-text-decor/#text-decoration-property
+// https://drafts.csswg.org/css-text-decor/#text-decoration-property
 void Parser::expand_text_decoration_values(std::map<PropertyId, std::string> &declarations, std::string_view value) {
     Tokenizer tokenizer{value, ' '};
     // TODO(robinlinden): CSS level 3 text-decorations.
