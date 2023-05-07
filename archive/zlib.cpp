@@ -10,7 +10,7 @@
 
 namespace archive {
 
-tl::expected<std::string, ZlibError> zlib_decode(std::string_view data) {
+tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode mode) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
             .avail_in = static_cast<uInt>(data.size()),
@@ -25,9 +25,19 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data) {
     // decoding. Add 32 to windowBits to enable zlib and gzip
     // decoding with automatic header detection, or add 16 to decode
     // only the gzip format <...>.
+    int const zlib_mode = [mode] {
+        switch (mode) {
+            case ZlibMode::Zlib:
+                return 0;
+            case ZlibMode::Gzip:
+                return 15;
+            case ZlibMode::GzipAndZlib:
+            default:
+                return 32;
+        }
+    }();
     constexpr int kWindowBits = 15;
-    constexpr int kEnableGzip = 32;
-    if (auto error = inflateInit2(&s, kWindowBits + kEnableGzip); error != Z_OK) {
+    if (auto error = inflateInit2(&s, kWindowBits + zlib_mode); error != Z_OK) {
         return tl::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
     }
 

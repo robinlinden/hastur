@@ -112,7 +112,7 @@ void Engine::on_navigation_success() {
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding#directives
             auto encoding = style_data.headers.get("Content-Encoding");
             if (encoding == "gzip" || encoding == "x-gzip") {
-                auto decoded = archive::zlib_decode(style_data.body);
+                auto decoded = archive::zlib_decode(style_data.body, archive::ZlibMode::GzipAndZlib);
                 if (!decoded) {
                     auto const &err = decoded.error();
                     spdlog::error("Failed {}-decoding of '{}': '{}: {}'",

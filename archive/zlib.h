@@ -17,7 +17,13 @@ struct ZlibError {
     int code{};
 };
 
-tl::expected<std::string, ZlibError> zlib_decode(std::string_view);
+enum class ZlibMode {
+    Zlib,
+    Gzip,
+    GzipAndZlib,
+};
+
+tl::expected<std::string, ZlibError> zlib_decode(std::string_view, ZlibMode);
 
 } // namespace archive
 
