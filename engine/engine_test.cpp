@@ -201,6 +201,9 @@ int main() {
     std::string gzipped_css =
             "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03\x2b\x50\xa8\x56\x48\xcb\xcf\x2b\xd1\x2d\xce\xac\x4a\xb5\x52\x30\x34\x32\x4e\xcd\xb5\x56\xa8\xe5\x02\x00\x0c\x97\x72\x35\x18\x00\x00\x00"s;
 
+    std::string zlibbed_css =
+            "\x78\x5e\x2b\x50\xa8\x56\x48\xcb\xcf\x2b\xd1\x2d\xce\xac\x4a\xb5\x52\x30\x34\x32\x4e\xcd\xb5\x56\xa8\xe5\x02\x00\x63\xc3\x07\x6f"s;
+
     etest::test("stylesheet link, gzip Content-Encoding", [gzipped_css] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
@@ -281,6 +284,29 @@ int main() {
                 .body{std::move(gzipped_css)},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect(std::ranges::find(e.stylesheet(),
+                       css::Rule{
+                               .selectors{"p"},
+                               .declarations{{css::PropertyId::FontSize, "123em"}},
+                       })
+                == end(e.stylesheet()));
+    });
+
+    etest::test("stylesheet link, gzip Content-Encoding, served zlib", [zlibbed_css] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
+        };
+        responses["hax://example.com/lol.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "gzip"}},
+                .body{zlibbed_css},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         e.navigate(uri::Uri::parse("hax://example.com"));
         expect(std::ranges::find(e.stylesheet(),
                        css::Rule{
