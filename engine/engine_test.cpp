@@ -316,6 +316,29 @@ int main() {
                 == end(e.stylesheet()));
     });
 
+    etest::test("stylesheet link, deflate Content-Encoding", [zlibbed_css] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
+        };
+        responses["hax://example.com/lol.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "deflate"}},
+                .body{zlibbed_css},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        expect(std::ranges::find(e.stylesheet(),
+                       css::Rule{
+                               .selectors{"p"},
+                               .declarations{{css::PropertyId::FontSize, "123em"}},
+                       })
+                != end(e.stylesheet()));
+    });
+
     etest::test("redirect", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
