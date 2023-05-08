@@ -130,6 +130,25 @@ jobs:
           chmod +x codecov
           ./codecov -f bazel-out/_coverage/_coverage_report.dat
 
+  linux-gcc-13:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    container: gcc:13.1.0
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: gcc-13-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
+          restore-keys: gcc-13-
+      - run: apt-get update && apt-get install -y --no-install-recommends libgl-dev xxd
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.16.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: ./bazelisk test ...
+      - name: Run tui
+        run: |
+          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+          ./bazelisk run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
+
   windows-msvc:
     runs-on: windows-2022
     timeout-minutes: 30
