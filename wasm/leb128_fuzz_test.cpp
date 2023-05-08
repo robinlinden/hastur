@@ -4,9 +4,9 @@
 
 #include "wasm/leb128.h"
 
-#include <cstddef>
-#include <cstdint>
 #include <sstream>
+#include <stddef.h> // NOLINT
+#include <stdint.h> // NOLINT
 #include <string>
 #include <tuple>
 

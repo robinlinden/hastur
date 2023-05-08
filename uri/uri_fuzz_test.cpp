@@ -4,8 +4,8 @@
 
 #include "uri/uri.h"
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h> // NOLINT
+#include <stdint.h> // NOLINT
 #include <string>
 #include <tuple>
 

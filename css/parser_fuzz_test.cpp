@@ -4,8 +4,8 @@
 
 #include "css/parse.h"
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h> // NOLINT
+#include <stdint.h> // NOLINT
 #include <string_view>
 #include <tuple>
 

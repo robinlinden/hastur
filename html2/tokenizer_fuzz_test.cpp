@@ -4,9 +4,9 @@
 
 #include "html2/tokenizer.h"
 
-#include <cstddef>
-#include <cstdint>
 #include <optional>
+#include <stddef.h> // NOLINT
+#include <stdint.h> // NOLINT
 #include <string_view>
 
 extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size); // NOLINT
