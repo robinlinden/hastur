@@ -15,6 +15,7 @@
 #include <cassert>
 #include <cerrno>
 #include <charconv>
+#include <cstdint>
 #include <cstdlib>
 #include <map>
 #include <optional>
@@ -348,7 +349,7 @@ std::string to_str(geom::EdgeSize const &edge) {
     return std::move(ss).str();
 }
 
-void print_box(LayoutBox const &box, std::ostream &os, uint8_t depth = 0) {
+void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
     for (std::uint8_t i = 0; i < depth; ++i) {
         os << "  ";
     }

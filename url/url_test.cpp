@@ -31,7 +31,7 @@ int main() {
 
         etest::expect(std::regex_match(blob, std::regex("blob:https://8.8.8.8:8080/" + regex_uuid)));
 
-        std::array<uint16_t, 8> v6 = {0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
+        std::array<std::uint16_t, 8> v6 = {0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
         h = url::Host{url::HostType::Ip6Addr, v6};
         o = {"https", h, std::uint16_t{8080}, std::nullopt, false};
 

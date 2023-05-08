@@ -6,6 +6,7 @@
 
 #include "util/overloaded.h"
 
+#include <cstdint>
 #include <ostream>
 #include <sstream>
 #include <utility>
@@ -14,7 +15,7 @@
 namespace dom {
 namespace {
 
-void print_node(dom::Node const &node, std::ostream &os, uint8_t depth = 0) {
+void print_node(dom::Node const &node, std::ostream &os, std::uint8_t depth = 0) {
     for (std::uint8_t i = 0; i < depth; ++i) {
         os << "  ";
     }
