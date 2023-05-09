@@ -1,8 +1,6 @@
 #ifndef VULKAN_CANVAS_H_
 #define VULKAN_CANVAS_H_
 
-#include <list>
-
 #include "gfx/icanvas.h"
 #include "vulkan/vulkan.h"
 #include <memory>
@@ -19,26 +17,39 @@ enum class VulkanError {
     CreateInstanceFailed,
 };
 
-class VulkanCanvas;
+struct VulkanCanvasOptions {
+    int scale;
+};
 
-class VulkanCanvasBuilder {
+struct Queues {
+    VkQueue graphics_queue;
+    VkQueue present_queue;
+};
+
+class VulkanDevice {
 public:
-    explicit VulkanCanvasBuilder();
+    struct Options {
+        VkDevice device;
+        VkQueue graphics_queue;
+        VkQueue present_queue;
+    };
 
-    VulkanCanvasBuilder &validation_layer(std::string_view);
-    VulkanCanvasBuilder &validation_layers(std::vector<std::string_view> const &);
-
-    tl::expected<VulkanCanvas, VulkanError> build(std::string_view);
+    explicit VulkanDevice(Options options);
+    static tl::expected<VulkanDevice, VulkanError> create(VkInstance instance);
 
 private:
-    std::vector<std::string_view> validation_layers_;
+    VkDevice device_;
+    VkQueue graphics_queue_;
+    VkQueue present_queue_;
 
-    tl::expected<void, VulkanError> check_validation_layers();
+    void emplace_graphics();
+    void emplace_presentation();
 };
 
 class VulkanCanvas : public ICanvas {
 public:
-    explicit VulkanCanvas(VkApplicationInfo, VkInstance);
+    VulkanCanvas(int scale, VulkanDevice device, VkApplicationInfo app_info, VkInstance instance);
+    static tl::expected<VulkanCanvas, VulkanError> create(std::string_view app_name, VulkanCanvasOptions options);
 
     void set_viewport_size(int width, int height) override;
     void set_scale(int scale) override { scale_ = scale; }
@@ -57,6 +68,7 @@ private:
     int scale_;
     int tx_;
     int ty_;
+    VulkanDevice device_;
     VkApplicationInfo app_info_;
     VkInstance instance_;
 

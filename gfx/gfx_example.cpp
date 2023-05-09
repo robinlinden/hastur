@@ -10,6 +10,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string_view>
@@ -27,13 +28,12 @@ int main(int argc, char **argv) {
         if (argc == 2 && argv[1] == "--sf"sv) {
             return std::make_unique<gfx::SfmlCanvas>(window);
         }
-        gfx::VulkanCanvasBuilder builder;
-        auto canvas = builder.validation_layers({}).build("hastur");
+        auto canvas = gfx::VulkanCanvas::create("hastur", {.scale = 1});
         if (canvas.has_value()) {
             return std::make_unique<gfx::VulkanCanvas>(canvas.value());
         }
+        std::cout << static_cast<int>(canvas.error()) << std::endl;
         return std::make_unique<gfx::OpenGLCanvas>();
-        // throw std::runtime_error(canvas.error());
     }();
 
     canvas->set_viewport_size(window.getSize().x, window.getSize().y);
