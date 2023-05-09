@@ -21,6 +21,7 @@ constexpr std::uint8_t kQoiOpRgba = 0b1111'1111;
 
 // 2-bit tags.
 constexpr std::uint8_t kQoiOpIndex = 0b0000'0000;
+constexpr std::uint8_t kQoiOpDiff = 0b0100'0000;
 constexpr std::uint8_t kQoiOpRun = 0b1100'0000;
 
 struct Px {
@@ -120,6 +121,14 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
             }
         } else if (short_tag == kQoiOpIndex) {
             previous_pixel = seen_pixels[short_value];
+        } else if (short_tag == kQoiOpDiff) {
+            // Stored with a bias of 2.
+            auto const db = (short_value & 0b11) - 2;
+            auto const dg = ((short_value >> 2) & 0b11) - 2;
+            auto const dr = ((short_value >> 4) & 0b11) - 2;
+            previous_pixel.b = static_cast<std::uint8_t>(previous_pixel.b + db);
+            previous_pixel.g = static_cast<std::uint8_t>(previous_pixel.g + dg);
+            previous_pixel.r = static_cast<std::uint8_t>(previous_pixel.r + dr);
         } else if (short_tag == kQoiOpRun) {
             // Stored with a bias of -1.
             auto const run_length = short_value + 1;

@@ -50,7 +50,7 @@ int main() {
     });
 
     etest::test("unsupported chunk", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\x40"s}),
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xaa"s}),
                 tl::unexpected{QoiError::UnhandledChunk}); //
     });
 
@@ -83,6 +83,12 @@ int main() {
     etest::test("QOI_OP_RUN", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\3\0\0\0\1\3\1\xc2"s}),
                 Qoi{.width = 3, .height = 1, .bytes{0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255}});
+    });
+
+    etest::test("QOI_OP_DIFF", [] {
+        // diff of {-2, -1, 1}, {1, 1, 1}
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\x47\x7f"s}),
+                Qoi{.width = 1, .height = 2, .bytes{254, 255, 1, 255, 255, 0, 2, 255}});
     });
 
     etest::test("0x0 image", [] {
