@@ -21,10 +21,28 @@
 #include <string_view>
 #include <utility>
 #include <variant>
+#include <vector>
 
 using namespace std::literals;
 
+namespace {
 using Image = std::variant<img::Gif, img::Png, img::Qoi>;
+
+struct PixelDataGetter {
+    template<typename T>
+    std::vector<unsigned char> const *operator()(T const &) {
+        return nullptr;
+    }
+
+    template<typename T>
+    requires requires(T img) { img.bytes; }
+    std::vector<unsigned char> const *operator()(T const &img) {
+        // This comment is a workaround for clang-format-14 formatting things
+        // differently from 15 and 16.
+        return &img.bytes;
+    }
+};
+} // namespace
 
 int main(int argc, char **argv) {
     if (argc != 2 && argc != 3) {
@@ -75,12 +93,12 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    if (!std::holds_alternative<img::Png>(img)) {
+    auto const *maybe_pixel_data = std::visit(PixelDataGetter{}, img);
+    if (maybe_pixel_data == nullptr) {
         std::cerr << "Only --metadata is supported for this file-type\n";
         return 1;
     }
-
-    auto const &bytes = std::get<img::Png>(img).bytes;
+    auto const &bytes = *maybe_pixel_data;
 
     if (bytes.size() != (static_cast<std::size_t>(width) * height * 4)) {
         std::cerr << "Unsupported pixel format, expected 32-bit rgba pixels\n";
