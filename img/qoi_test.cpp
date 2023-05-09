@@ -50,7 +50,7 @@ int main() {
     });
 
     etest::test("unsupported chunk", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xff"s}),
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\x40"s}),
                 tl::unexpected{QoiError::UnhandledChunk}); //
     });
 
@@ -68,6 +68,11 @@ int main() {
         // Carefully crafted pixel to have it end up in slot 0 in the seen pixels array.
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\2\0\0\0\1\3\1\xfe\1\x28\0\0"s}),
                 Qoi{.width = 2, .height = 1, .bytes{1, 40, 0, 255, 1, 40, 0, 255}}); //
+    });
+
+    etest::test("QOI_OP_RUN", [] {
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\3\0\0\0\1\3\1\xc2"s}),
+                Qoi{.width = 3, .height = 1, .bytes{0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255}});
     });
 
     etest::test("0x0 image", [] {

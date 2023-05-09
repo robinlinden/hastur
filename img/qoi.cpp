@@ -20,6 +20,7 @@ constexpr std::uint8_t kQoiOpRgb = 0b1111'1110;
 
 // 2-bit tags.
 constexpr std::uint8_t kQoiOpIndex = 0b0000'0000;
+constexpr std::uint8_t kQoiOpRun = 0b1100'0000;
 
 struct Px {
     std::uint8_t r{};
@@ -114,6 +115,16 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
             }
         } else if (short_tag == kQoiOpIndex) {
             previous_pixel = seen_pixels[short_value];
+        } else if (short_tag == kQoiOpRun) {
+            // Stored with a bias of -1.
+            auto const run_length = short_value + 1;
+            for (int i = 0; i < run_length; ++i) {
+                pixels.push_back(previous_pixel.r);
+                pixels.push_back(previous_pixel.g);
+                pixels.push_back(previous_pixel.b);
+                pixels.push_back(previous_pixel.a);
+            }
+            continue;
         } else {
             return tl::unexpected{QoiError::UnhandledChunk};
         }
