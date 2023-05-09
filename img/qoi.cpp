@@ -17,6 +17,7 @@ namespace {
 
 // 8-bit tags.
 constexpr std::uint8_t kQoiOpRgb = 0b1111'1110;
+constexpr std::uint8_t kQoiOpRgba = 0b1111'1111;
 
 // 2-bit tags.
 constexpr std::uint8_t kQoiOpIndex = 0b0000'0000;
@@ -111,6 +112,10 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
 
         if (chunk == kQoiOpRgb) {
             if (!is.read(reinterpret_cast<char *>(&previous_pixel), 3)) {
+                return tl::unexpected{QoiError::AbruptEof};
+            }
+        } else if (chunk == kQoiOpRgba) {
+            if (!is.read(reinterpret_cast<char *>(&previous_pixel), 4)) {
                 return tl::unexpected{QoiError::AbruptEof};
             }
         } else if (short_tag == kQoiOpIndex) {

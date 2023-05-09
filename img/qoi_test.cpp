@@ -59,6 +59,16 @@ int main() {
                 tl::unexpected{QoiError::AbruptEof}); //
     });
 
+    etest::test("QOI_OP_RGBA w/o pixel data", [] {
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xff\1\2"s}),
+                tl::unexpected{QoiError::AbruptEof}); //
+    });
+
+    etest::test("QOI_OP_RGBA", [] {
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3\1\xff\1\2\3\4"s}),
+                img::Qoi{.width = 1, .height = 1, .bytes{1, 2, 3, 4}}); //
+    });
+
     etest::test("QOI_OP_INDEX w/o any pixel values seen", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3\1\0"s}),
                 Qoi{.width = 1, .height = 1, .bytes{0, 0, 0, 0}}); //
