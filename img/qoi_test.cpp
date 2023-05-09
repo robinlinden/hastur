@@ -49,11 +49,6 @@ int main() {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1"s}), tl::unexpected{QoiError::AbruptEof}); //
     });
 
-    etest::test("unsupported chunk", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xaa"s}),
-                tl::unexpected{QoiError::UnhandledChunk}); //
-    });
-
     etest::test("QOI_OP_RGB w/o pixel data", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xfe\1\2"s}),
                 tl::unexpected{QoiError::AbruptEof}); //
@@ -89,6 +84,18 @@ int main() {
         // diff of {-2, -1, 1}, {1, 1, 1}
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\x47\x7f"s}),
                 Qoi{.width = 1, .height = 2, .bytes{254, 255, 1, 255, 255, 0, 2, 255}});
+    });
+
+    etest::test("QOI_OP_LUMA", [] {
+        // diff of {-24, -16, -9}, {25, 18, 22}
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\2\0\0\0\1\3\1\x90\x0f\xb2\xfc"s}),
+                Qoi{.width = 2, .height = 1, .bytes{232, 240, 247, 255, 1, 2, 13, 255}});
+    });
+
+    etest::test("QOI_OP_LUMA, missing extra byte", [] {
+        // diff of {-24, -16, -9}, {25, 18, 22}
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\2\0\0\0\1\3\1\x90"s}), //
+                tl::unexpected{QoiError::AbruptEof});
     });
 
     etest::test("0x0 image", [] {

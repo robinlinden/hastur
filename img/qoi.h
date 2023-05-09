@@ -18,7 +18,6 @@ enum class QoiError {
     InvalidMagic,
     InvalidChannels,
     InvalidColorspace,
-    UnhandledChunk,
 };
 
 class Qoi {

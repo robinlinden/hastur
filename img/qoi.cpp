@@ -22,6 +22,7 @@ constexpr std::uint8_t kQoiOpRgba = 0b1111'1111;
 // 2-bit tags.
 constexpr std::uint8_t kQoiOpIndex = 0b0000'0000;
 constexpr std::uint8_t kQoiOpDiff = 0b0100'0000;
+constexpr std::uint8_t kQoiOpLuma = 0b1000'0000;
 constexpr std::uint8_t kQoiOpRun = 0b1100'0000;
 
 struct Px {
@@ -129,6 +130,20 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
             previous_pixel.b = static_cast<std::uint8_t>(previous_pixel.b + db);
             previous_pixel.g = static_cast<std::uint8_t>(previous_pixel.g + dg);
             previous_pixel.r = static_cast<std::uint8_t>(previous_pixel.r + dr);
+        } else if (short_tag == kQoiOpLuma) {
+            std::uint8_t extra_data{};
+            if (!is.read(reinterpret_cast<char *>(&extra_data), sizeof(extra_data))) {
+                return tl::unexpected{QoiError::AbruptEof};
+            }
+
+            static constexpr auto kGreenBias = -32;
+            static constexpr auto kRedBlueBias = -8;
+            auto const diff_green = short_value + kGreenBias;
+            auto const diff_blue = (extra_data & 0b1111) + diff_green + kRedBlueBias;
+            auto const diff_red = ((extra_data >> 4) & 0b1111) + diff_green + kRedBlueBias;
+            previous_pixel.b = static_cast<std::uint8_t>(previous_pixel.b + diff_blue);
+            previous_pixel.g = static_cast<std::uint8_t>(previous_pixel.g + diff_green);
+            previous_pixel.r = static_cast<std::uint8_t>(previous_pixel.r + diff_red);
         } else if (short_tag == kQoiOpRun) {
             // Stored with a bias of -1.
             auto const run_length = short_value + 1;
@@ -139,8 +154,6 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
                 pixels.push_back(previous_pixel.a);
             }
             continue;
-        } else {
-            return tl::unexpected{QoiError::UnhandledChunk};
         }
 
         pixels.push_back(previous_pixel.r);
