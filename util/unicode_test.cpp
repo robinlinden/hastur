@@ -71,8 +71,7 @@ int main() {
         // Every 0x10000 pair of values ending in FFFE and FFFF are noncharacters.
         for (int i = 0xFFFE; i <= 0x10FFFE; i += 0x10000) {
             expect(!is_unicode_noncharacter(i - 1));
-            // TODO(robinlinden): Fix bug.
-            // expect(is_unicode_noncharacter(i));
+            expect(is_unicode_noncharacter(i));
             expect(is_unicode_noncharacter(i + 1));
             expect(!is_unicode_noncharacter(i + 2));
         }

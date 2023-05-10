@@ -75,7 +75,7 @@ constexpr bool is_unicode_noncharacter(int code_point) {
     switch (code_point) {
         case 0xFFFE:
         case 0xFFFF:
-        case 0x1FFF:
+        case 0x1FFFE:
         case 0x1FFFF:
         case 0x2FFFE:
         case 0x2FFFF:
