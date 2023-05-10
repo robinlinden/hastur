@@ -66,8 +66,8 @@ public:
 
 private:
     int scale_;
-    int tx_;
-    int ty_;
+    int tx_{0};
+    int ty_{0};
     VulkanDevice device_;
     VkApplicationInfo app_info_;
     VkInstance instance_;

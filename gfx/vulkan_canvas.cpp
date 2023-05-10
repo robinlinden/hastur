@@ -31,12 +31,21 @@ struct QueueIndices {
 namespace {
 
 const std::vector<std::string> validation_layers = {
-        // "HELLO",
+        "VK_LAYER_GOOGLE_threading",
+        "VK_LAYER_LUNARG_parameter_validation",
+        "VK_LAYER_LUNARG_device_limits",
+        "VK_LAYER_LUNARG_object_tracker",
+        "VK_LAYER_LUNARG_image",
+        "VK_LAYER_LUNARG_core_validation",
+        "VK_LAYER_LUNARG_swapchain",
+        "VK_LAYER_GOOGLE_unique_objects",
 };
 
 void get_available_validation_layers(std::vector<VkLayerProperties> &validation_layers_out) {
     uint32_t layer_count;
     vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+
+    validation_layers_out.resize(layer_count);
 
     vkEnumerateInstanceLayerProperties(&layer_count, validation_layers_out.data());
 }
@@ -48,10 +57,12 @@ bool check_validation_layers(std::vector<std::string> const &layers) {
     for (std::string_view layer : layers) {
         auto const layer_loc = std::find_if(
                 available_layers.begin(), available_layers.end(), [&layer](VkLayerProperties const &properties) {
+                    printf("%s\n", properties.layerName);
                     return !std::strcmp(properties.layerName, layer.data());
                 });
 
         if (layer_loc == available_layers.end()) {
+            printf("ERROR: %s is not supported.\n", layer.data());
             return false;
         }
     }
@@ -249,7 +260,7 @@ tl::expected<VulkanDevice, VulkanError> VulkanDevice::create(VkInstance instance
 }
 
 VulkanCanvas::VulkanCanvas(int scale, VulkanDevice device, VkApplicationInfo app_info, VkInstance instance)
-    : scale_(scale), tx_(0), ty_(0), device_(device), app_info_(app_info), instance_(instance) {}
+    : scale_(scale), device_(device), app_info_(app_info), instance_(instance) {}
 
 tl::expected<VulkanCanvas, VulkanError> VulkanCanvas::create(std::string_view app_name, VulkanCanvasOptions options) {
     if (!check_validation_layers(validation_layers)) {
@@ -270,6 +281,7 @@ tl::expected<VulkanCanvas, VulkanError> VulkanCanvas::create(std::string_view ap
         return tl::make_unexpected(device.error());
     }
 
+    // NOTE: device, app_info and instance are pointers.
     return VulkanCanvas{
             options.scale,
             device.value(),
