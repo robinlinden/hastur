@@ -190,9 +190,9 @@ http_archive(
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "4ee7c8e588e3e90785636c7ac879ad7d0b8d363c26838f57d3e4a7b8a55c38f5",
-    strip_prefix = "Vulkan-Headers-1.3.242",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.242.tar.gz",
+    sha256 = "c4c5a706a1f8f4d329fec2909b8c3fef4a4be043f393dbde5ce1439daa1194ab",
+    strip_prefix = "Vulkan-Headers-1.3.250",
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.250.tar.gz",
 )
 
 http_archive(
