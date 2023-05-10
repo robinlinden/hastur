@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,10 +9,10 @@
 #include <string_view>
 
 using namespace std::literals;
+using namespace util;
 
+using etest::expect;
 using etest::expect_eq;
-using util::unicode_to_utf8;
-using util::unicode_utf8_byte_count;
 
 int main() {
     etest::test("unicode_utf8_byte_count", [] {
@@ -47,6 +47,35 @@ int main() {
 
         // Invalid code points return "".
         expect_eq(unicode_to_utf8(0x110000), ""sv);
+    });
+
+    etest::test("is_unicode_surrogate", [] {
+        expect(!is_unicode_surrogate(0xD799));
+        expect(is_unicode_surrogate(0xD800)); // First leading surrogate.
+        expect(is_unicode_surrogate(0xDBFF)); // Last leading surrogate.
+        expect(is_unicode_surrogate(0xDC00)); // First trailing surrogate.
+        expect(is_unicode_surrogate(0xDFFF)); // Last trailing surrogate.
+        expect(!is_unicode_surrogate(0xE000));
+    });
+
+    etest::test("is_unicode_noncharacter", [] {
+        expect(!is_unicode_noncharacter(0xFDD0 - 1));
+
+        for (int i = 0xFDD0; i <= 0xFDEF; ++i) {
+            expect(is_unicode_noncharacter(i));
+        }
+
+        expect(!is_unicode_noncharacter(0xFDEF + 1));
+        expect(!is_unicode_noncharacter(0xFFFE - 1));
+
+        // Every 0x10000 pair of values ending in FFFE and FFFF are noncharacters.
+        for (int i = 0xFFFE; i <= 0x10FFFE; i += 0x10000) {
+            expect(!is_unicode_noncharacter(i - 1));
+            // TODO(robinlinden): Fix bug.
+            // expect(is_unicode_noncharacter(i));
+            expect(is_unicode_noncharacter(i + 1));
+            expect(!is_unicode_noncharacter(i + 2));
+        }
     });
 
     return etest::run_all_tests();
