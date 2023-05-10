@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 cc_library(
     name = "hpp",
@@ -6,4 +6,11 @@ cc_library(
     includes = ["."],
     visibility = ["//visibility:public"],
     deps = ["@vulkan"],
+)
+
+cc_binary(
+    name = "dispatch_loader_dynamic_test",
+    srcs = ["tests/DispatchLoaderDynamic/DispatchLoaderDynamic.cpp"],
+    visibility = ["//visibility:public"],
+    deps = [":hpp"],
 )
