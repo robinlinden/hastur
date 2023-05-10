@@ -187,12 +187,22 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v.0.0.3.tar.gz",
 )
 
+VULKAN_TAG = "1.3.250"
+
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
     sha256 = "c4c5a706a1f8f4d329fec2909b8c3fef4a4be043f393dbde5ce1439daa1194ab",
-    strip_prefix = "Vulkan-Headers-1.3.250",
-    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.250.tar.gz",
+    strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
+    url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
+)
+
+http_archive(
+    name = "vulkan_hpp",  # Apache-2.0
+    build_file = "//third_party:vulkan_hpp.BUILD",
+    sha256 = "2bdcd60cbca37cb165e1bb86e6295c8db3bb233223f5713248077417d97ded35",
+    strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
+    url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
 http_archive(
