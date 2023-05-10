@@ -62,12 +62,12 @@ constexpr std::string unicode_to_utf8(std::uint32_t code_point) {
 }
 
 // https://infra.spec.whatwg.org/#surrogate
-constexpr bool is_unicode_surrogate(int code_point) {
+constexpr bool is_unicode_surrogate(std::uint32_t code_point) {
     return code_point >= 0xD800 && code_point <= 0xDFFF;
 }
 
 // https://infra.spec.whatwg.org/#noncharacter
-constexpr bool is_unicode_noncharacter(int code_point) {
+constexpr bool is_unicode_noncharacter(std::uint32_t code_point) {
     if (code_point >= 0xFDD0 && code_point <= 0xFDEF) {
         return true;
     }

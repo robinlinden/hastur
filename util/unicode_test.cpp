@@ -6,6 +6,7 @@
 
 #include "etest/etest.h"
 
+#include <cstdint>
 #include <string_view>
 
 using namespace std::literals;
@@ -61,7 +62,7 @@ int main() {
     etest::test("is_unicode_noncharacter", [] {
         expect(!is_unicode_noncharacter(0xFDD0 - 1));
 
-        for (int i = 0xFDD0; i <= 0xFDEF; ++i) {
+        for (std::uint32_t i = 0xFDD0; i <= 0xFDEF; ++i) {
             expect(is_unicode_noncharacter(i));
         }
 
@@ -69,7 +70,7 @@ int main() {
         expect(!is_unicode_noncharacter(0xFFFE - 1));
 
         // Every 0x10000 pair of values ending in FFFE and FFFF are noncharacters.
-        for (int i = 0xFFFE; i <= 0x10FFFE; i += 0x10000) {
+        for (std::uint32_t i = 0xFFFE; i <= 0x10FFFE; i += 0x10000) {
             expect(!is_unicode_noncharacter(i - 1));
             expect(is_unicode_noncharacter(i));
             expect(is_unicode_noncharacter(i + 1));
