@@ -436,6 +436,12 @@ void end_tag_open_tests() {
         expect_text(tokens, "</");
         expect_token(tokens, EndOfFileToken{});
     });
+
+    etest::test("end tag open: missing tag name", [] {
+        auto tokens = run_tokenizer("</>");
+        expect_error(tokens, ParseError::MissingEndTagName);
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 void tag_name_tests() {

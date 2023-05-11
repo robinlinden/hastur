@@ -229,6 +229,12 @@ void Tokenizer::run() {
                     continue;
                 }
 
+                if (c == '>') {
+                    emit(ParseError::MissingEndTagName);
+                    state_ = State::Data;
+                    continue;
+                }
+
                 emit(ParseError::InvalidFirstCharacterOfTagName);
                 current_token_ = CommentToken{};
                 reconsume_in(State::BogusComment);

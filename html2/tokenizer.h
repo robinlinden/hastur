@@ -120,6 +120,7 @@ enum class ParseError {
     MissingDoctypeName,
     MissingDoctypePublicIdentifier,
     MissingDoctypeSystemIdentifier,
+    MissingEndTagName,
     MissingQuoteBeforeDoctypePublicIdentifier,
     MissingQuoteBeforeDoctypeSystemIdentifier,
     MissingSemicolonAfterCharacterReference,
