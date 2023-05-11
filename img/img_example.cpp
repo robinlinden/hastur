@@ -37,8 +37,6 @@ struct PixelDataGetter {
     template<typename T>
     requires requires(T img) { img.bytes; }
     std::vector<unsigned char> const *operator()(T const &img) {
-        // This comment is a workaround for clang-format-14 formatting things
-        // differently from 15 and 16.
         return &img.bytes;
     }
 };

@@ -11,9 +11,6 @@
 
 namespace util {
 
-// clang-format-14 really doesn't get along well with `requires`.
-// clang-format off
-
 // https://www.w3.org/TR/2022/WD-png-3-20221025/#5CRC-algorithm
 template<typename T, std::size_t U = std::dynamic_extent>
 requires(sizeof(T) == 1)

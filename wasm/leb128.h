@@ -16,11 +16,7 @@ namespace wasm {
 // https://webassembly.github.io/spec/core/binary/values.html#integers
 template<typename T>
 requires std::integral<T>
-struct Leb128 {
-    // clang-format-14 adds a newline between the braces and clang-format-15
-    // removes it. This comment keeps the formatting stable until we update to
-    // clang-format-15.
-};
+struct Leb128 {};
 
 // https://en.wikipedia.org/wiki/LEB128#Decode_unsigned_integer
 template<std::unsigned_integral T>

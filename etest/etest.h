@@ -18,9 +18,10 @@
 namespace etest {
 
 template<typename T>
-concept Printable = requires(std::ostream &os, T t) {
-    { os << t } -> std::same_as<std::ostream &>;
-};
+concept Printable = // Hack comment to get clang-format 15 and 16 to agree on the indentation.
+        requires(std::ostream &os, T t) {
+            { os << t } -> std::same_as<std::ostream &>;
+        };
 
 struct RunOptions {
     bool run_disabled_tests{false};
