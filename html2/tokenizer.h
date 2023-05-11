@@ -112,6 +112,7 @@ enum class ParseError {
     EofInCdata,
     EofInComment,
     EofInDoctype,
+    EofInScriptHtmlCommentLikeText,
     EofInTag,
     IncorrectlyClosedComment,
     IncorrectlyOpenedComment,
