@@ -13,6 +13,7 @@
 #include "protocol/handler_factory.h"
 #include "uri/uri.h"
 #include "util/history.h"
+#include "browser/branding.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -33,9 +34,7 @@ public:
     int run();
 
 private:
-    // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
-    engine::Engine engine_{protocol::HandlerFactory::create(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0")};
+    engine::Engine engine_{protocol::HandlerFactory::create(ua_default)};
     bool page_loaded_{};
 
     std::string browser_title_{};
