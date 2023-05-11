@@ -75,9 +75,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "5dea48d1fcddc3ec571ce2058e13910a0d4a6bab4cc09a809d8b1dd1c88ae6f2",
-    strip_prefix = "fmt-9.1.0",
-    url = "https://github.com/fmtlib/fmt/archive/9.1.0.tar.gz",
+    sha256 = "ede1b6b42188163a3f2e0f25ad5c0637eca564bd8df74d02e31a311dd6b37ad8",
+    strip_prefix = "fmt-10.0.0",
+    url = "https://github.com/fmtlib/fmt/archive/10.0.0.tar.gz",
 )
 
 http_archive(
@@ -154,13 +154,13 @@ http_archive(
     url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
 )
 
-# 1.11.0 + fixes for -Wshadow.
+# 1.11.0 + fixes for -Wshadow + compatibility w/ fmt 10.0.0.
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "6be1b1c8ec9ed82b1f5c4d793678d5d9446e000eb38bb53c7d470365171722fd",
-    strip_prefix = "spdlog-6df64c6c34997e298a81150b9ce55c440c6f503f",
-    url = "https://github.com/gabime/spdlog/archive/6df64c6c34997e298a81150b9ce55c440c6f503f.tar.gz",
+    sha256 = "f516c1267a3f854d38d7fa8bc246e238a8c700a038ef4b2c2f669de8a9c7a25c",
+    strip_prefix = "spdlog-0ca574ae168820da0268b3ec7607ca7b33024d05",
+    url = "https://github.com/gabime/spdlog/archive/0ca574ae168820da0268b3ec7607ca7b33024d05.tar.gz",
 )
 
 http_archive(
