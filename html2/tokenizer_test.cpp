@@ -429,6 +429,23 @@ void tag_open_tests() {
     });
 }
 
+void end_tag_open_tests() {
+    etest::test("end tag open: eof", [] {
+        auto tokens = run_tokenizer("</");
+        expect_error(tokens, ParseError::EofBeforeTagName);
+        expect_text(tokens, "</");
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void tag_name_tests() {
+    etest::test("tag name: eof", [] {
+        auto tokens = run_tokenizer("<imtrappedinabrowserfactorypleasesendhel");
+        expect_error(tokens, ParseError::EofInTag);
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -440,6 +457,8 @@ int main() {
     plaintext_tests();
     source_location_tests();
     tag_open_tests();
+    end_tag_open_tests();
+    tag_name_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

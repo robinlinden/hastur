@@ -212,10 +212,11 @@ void Tokenizer::run() {
                 break;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
             case State::EndTagOpen: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-before-tag-name parse error.
+                    emit(ParseError::EofBeforeTagName);
                     emit(CharacterToken{'<'});
                     emit(CharacterToken{'/'});
                     emit(EndOfFileToken{});
@@ -234,10 +235,11 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#tag-name-state
             case State::TagName: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
