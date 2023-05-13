@@ -453,6 +453,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-less-than-sign-state
             case State::ScriptDataLessThanSign: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -478,6 +479,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-open-state
             case State::ScriptDataEndTagOpen: {
                 auto c = consume_next_input_character();
                 if (c && util::is_alpha(*c)) {
@@ -492,6 +494,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-name-state
             case State::ScriptDataEndTagName: {
                 auto c = consume_next_input_character();
 
@@ -551,6 +554,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-state
             case State::ScriptDataEscapeStart: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -569,6 +573,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-dash-state
             case State::ScriptDataEscapeStartDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -675,6 +680,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-less-than-sign-state
             case State::ScriptDataEscapedLessThanSign: {
                 auto c = consume_next_input_character();
                 if (c == '/') {
@@ -695,6 +701,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-open-state
             case State::ScriptDataEscapedEndTagOpen: {
                 auto c = consume_next_input_character();
                 if (c && util::is_alpha(*c)) {
@@ -709,6 +716,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-name-state
             case State::ScriptDataEscapedEndTagName: {
                 auto c = consume_next_input_character();
 
@@ -768,6 +776,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-start-state
             case State::ScriptDataDoubleEscapeStart: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -898,6 +907,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-less-than-sign-state
             case State::ScriptDataDoubleEscapedLessThanSign: {
                 auto c = consume_next_input_character();
                 if (c == '/') {
@@ -913,6 +923,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-end-state
             case State::ScriptDataDoubleEscapeEnd: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1128,6 +1139,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(unquoted)-state
             case State::AttributeValueUnquoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
