@@ -2425,8 +2425,22 @@ void Tokenizer::emit(ParseError error) {
 }
 
 void Tokenizer::emit(Token &&token) {
-    if (auto const *start_tag = std::get_if<StartTagToken>(&token)) {
+    auto deduplicate = [](std::vector<Attribute> &attrs) {
+        for (std::size_t i = 0; i < attrs.size(); ++i) {
+            std::string_view name = attrs[i].name;
+            for (std::size_t j = i + 1; j < attrs.size(); ++j) {
+                if (attrs[j].name == name) {
+                    attrs.erase(attrs.begin() + j);
+                }
+            }
+        }
+    };
+
+    if (auto *start_tag = std::get_if<StartTagToken>(&token)) {
         last_start_tag_name_ = start_tag->tag_name;
+        deduplicate(start_tag->attributes);
+    } else if (auto *end_tag = std::get_if<EndTagToken>(&token)) {
+        deduplicate(end_tag->attributes);
     }
     on_emit_(*this, std::move(token));
 }
