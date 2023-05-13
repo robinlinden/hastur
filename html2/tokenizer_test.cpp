@@ -528,6 +528,14 @@ void attribute_name_tests() {
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a<b", "true"}}});
         expect_token(tokens, EndOfFileToken{});
     });
+
+    // TODO(robinlinden): Deduplicate attributes.
+    etest::test("attribute name: duplicate attribute", [] {
+        auto tokens = run_tokenizer("<p a=1 a=2>");
+        expect_error(tokens, ParseError::DuplicateAttribute);
+        expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a", "1"}, {"a", "2"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
 }
 
 void after_attribute_name_tests() {

@@ -991,8 +991,20 @@ void Tokenizer::run() {
 
             // https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state
             case State::AttributeName: {
+                auto warn_on_duplicate_attributes = [&] {
+                    auto const &all_attrs = attributes_for_current_element();
+                    auto const &current_attr = all_attrs.back();
+                    for (std::size_t i = 0; i < all_attrs.size() - 1; ++i) {
+                        if (all_attrs[i].name == current_attr.name) {
+                            emit(ParseError::DuplicateAttribute);
+                            break;
+                        }
+                    }
+                };
+
                 auto c = consume_next_input_character();
                 if (!c || *c == '\t' || *c == '\n' || *c == '\f' || *c == ' ' || *c == '/' || *c == '>') {
+                    warn_on_duplicate_attributes();
                     reconsume_in(State::AfterAttributeName);
                     continue;
                 }
@@ -1008,6 +1020,7 @@ void Tokenizer::run() {
 
                 switch (*c) {
                     case '=':
+                        warn_on_duplicate_attributes();
                         state_ = State::BeforeAttributeValue;
                         continue;
                     case '\0':
