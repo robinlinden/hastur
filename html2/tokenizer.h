@@ -191,6 +191,7 @@ private:
     std::optional<char> peek_next_input_character() const;
     bool is_eof() const;
 
+    std::vector<Attribute> &attributes_for_current_element();
     void start_attribute_in_current_tag_token(Attribute);
     Attribute &current_attribute();
     void reconsume_in(State);

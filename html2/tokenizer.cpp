@@ -998,11 +998,7 @@ void Tokenizer::run() {
                 }
 
                 auto append_to_current_attribute_name = [&](auto text) {
-                    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
-                        start_tag->attributes.back().name += text;
-                    } else {
-                        std::get<EndTagToken>(current_token_).attributes.back().name += text;
-                    }
+                    attributes_for_current_element().back().name += text;
                 };
 
                 if (util::is_upper_alpha(*c)) {
@@ -2443,20 +2439,19 @@ bool Tokenizer::is_eof() const {
     return pos_ >= input_.size();
 }
 
-void Tokenizer::start_attribute_in_current_tag_token(Attribute attr) {
+std::vector<Attribute> &Tokenizer::attributes_for_current_element() {
     if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
-        start_tag->attributes.push_back(std::move(attr));
-    } else {
-        std::get<EndTagToken>(current_token_).attributes.push_back(std::move(attr));
+        return start_tag->attributes;
     }
+    return std::get<EndTagToken>(current_token_).attributes;
+}
+
+void Tokenizer::start_attribute_in_current_tag_token(Attribute attr) {
+    attributes_for_current_element().push_back(std::move(attr));
 }
 
 Attribute &Tokenizer::current_attribute() {
-    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
-        return start_tag->attributes.back();
-    } else {
-        return std::get<EndTagToken>(current_token_).attributes.back();
-    }
+    return attributes_for_current_element().back();
 }
 
 void Tokenizer::reconsume_in(State state) {
