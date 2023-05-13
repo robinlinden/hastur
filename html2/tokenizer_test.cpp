@@ -512,6 +512,72 @@ void script_data_double_escaped_dash_dash_tests() {
     });
 }
 
+void before_attribute_name_tests() {
+    etest::test("before attribute name: =", [] {
+        auto tokens = run_tokenizer("<p =hello=13>");
+        expect_error(tokens, ParseError::UnexpectedEqualsSignBeforeAttributeName);
+        expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"=hello", "13"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void attribute_name_tests() {
+    etest::test("attribute name: unexpected character", [] {
+        auto tokens = run_tokenizer("<p a<b=true>");
+        expect_error(tokens, ParseError::UnexpectedCharacterInAttributeName);
+        expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a<b", "true"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void after_attribute_name_tests() {
+    etest::test("after attribute name: eof", [] {
+        auto tokens = run_tokenizer("<p a ");
+        expect_error(tokens, ParseError::EofInTag);
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void before_attribute_value_tests() {
+    etest::test("before attribute name: missing value", [] {
+        auto tokens = run_tokenizer("<p a=>");
+        expect_error(tokens, ParseError::MissingAttributeValue);
+        expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a", ""}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void attribute_value_double_quoted_tests() {
+    etest::test("attribute value double quoted: eof", [] {
+        auto tokens = run_tokenizer(R"(<p a=">)");
+        expect_error(tokens, ParseError::EofInTag);
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void attribute_value_single_quoted_tests() {
+    etest::test("attribute value single quoted: eof", [] {
+        auto tokens = run_tokenizer("<p a='>");
+        expect_error(tokens, ParseError::EofInTag);
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void after_attribute_value_quoted_tests() {
+    etest::test("after attribute value quoted: eof", [] {
+        auto tokens = run_tokenizer("<p foo='1'");
+        expect_error(tokens, ParseError::EofInTag);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("after attribute value quoted: missing whitespace", [] {
+        auto tokens = run_tokenizer("<p foo='1'bar='2'>");
+        expect_error(tokens, ParseError::MissingWhitespaceBetweenAttributes);
+        expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"foo", "1"}, {"bar", "2"}}});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -531,6 +597,13 @@ int main() {
     script_data_double_escaped_tests();
     script_data_double_escaped_dash_tests();
     script_data_double_escaped_dash_dash_tests();
+    before_attribute_name_tests();
+    attribute_name_tests();
+    after_attribute_name_tests();
+    before_attribute_value_tests();
+    attribute_value_double_quoted_tests();
+    attribute_value_single_quoted_tests();
+    after_attribute_value_quoted_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

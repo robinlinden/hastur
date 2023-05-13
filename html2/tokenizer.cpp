@@ -963,6 +963,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-name-state
             case State::BeforeAttributeName: {
                 auto c = consume_next_input_character();
                 if (!c || *c == '/' || *c == '>') {
@@ -977,7 +978,7 @@ void Tokenizer::run() {
                     case ' ':
                         continue;
                     case '=':
-                        // This is an unexpected-equals-sign-before-attribute-name parse error.
+                        emit(ParseError::UnexpectedEqualsSignBeforeAttributeName);
                         start_attribute_in_current_tag_token({.name = "="});
                         state_ = State::AttributeName;
                         continue;
@@ -988,6 +989,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state
             case State::AttributeName: {
                 auto c = consume_next_input_character();
                 if (!c || *c == '\t' || *c == '\n' || *c == '\f' || *c == ' ' || *c == '/' || *c == '>') {
@@ -1019,17 +1021,19 @@ void Tokenizer::run() {
                     case '"':
                     case '\'':
                     case '<':
-                        // This is an unexpected-character-in-attribute-name parse error.
+                        emit(ParseError::UnexpectedCharacterInAttributeName);
+                        [[fallthrough]];
                     default:
                         append_to_current_attribute_name(*c);
                         continue;
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-name-state
             case State::AfterAttributeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -1057,6 +1061,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-value-state
             case State::BeforeAttributeValue: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1077,7 +1082,7 @@ void Tokenizer::run() {
                         state_ = State::AttributeValueSingleQuoted;
                         continue;
                     case '>':
-                        // This is a missing-attribute-value parse error.
+                        emit(ParseError::MissingAttributeValue);
                         state_ = State::Data;
                         emit(std::move(current_token_));
                         continue;
@@ -1087,10 +1092,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(double-quoted)-state
             case State::AttributeValueDoubleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -1113,10 +1119,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(single-quoted)-state
             case State::AttributeValueSingleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -1180,10 +1187,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-value-(quoted)-state
             case State::AfterAttributeValueQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -1203,7 +1211,7 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        // This is a missing-whitespace-between-attributes parse error.
+                        emit(ParseError::MissingWhitespaceBetweenAttributes);
                         reconsume_in(State::BeforeAttributeName);
                         continue;
                 }
