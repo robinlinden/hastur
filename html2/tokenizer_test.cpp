@@ -482,6 +482,36 @@ void script_data_escaped_dash_dash_tests() {
     });
 }
 
+void script_data_double_escaped_tests() {
+    etest::test("script data double escaped: eof", [] {
+        auto tokens = run_tokenizer("<script><!--<script>"sv);
+        expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>");
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void script_data_double_escaped_dash_tests() {
+    etest::test("script data double escaped dash: eof", [] {
+        auto tokens = run_tokenizer("<script><!--<script>-"sv);
+        expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>-");
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void script_data_double_escaped_dash_dash_tests() {
+    etest::test("script data double escaped dash dash: eof", [] {
+        auto tokens = run_tokenizer("<script><!--<script>--"sv);
+        expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_text(tokens, "<!--<script>--");
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -498,6 +528,9 @@ int main() {
     script_data_escaped_tests();
     script_data_escaped_dash_tests();
     script_data_escaped_dash_dash_tests();
+    script_data_double_escaped_tests();
+    script_data_double_escaped_dash_tests();
+    script_data_double_escaped_dash_dash_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

@@ -807,10 +807,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-state
             case State::ScriptDataDoubleEscaped: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(ParseError::EofInScriptHtmlCommentLikeText);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -834,10 +835,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-dash-state
             case State::ScriptDataDoubleEscapedDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(ParseError::EofInScriptHtmlCommentLikeText);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -863,10 +865,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-dash-dash-state
             case State::ScriptDataDoubleEscapedDashDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-script-html-comment-like-text parse error.
+                    emit(ParseError::EofInScriptHtmlCommentLikeText);
                     emit(EndOfFileToken{});
                     return;
                 }
