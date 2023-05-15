@@ -37,6 +37,14 @@ struct Element {
 struct Document {
     std::string doctype;
     Node html_node;
+
+    // https://dom.spec.whatwg.org/#concept-document-mode
+    enum class Mode {
+        NoQuirks,
+        Quirks,
+        LimitedQuirks,
+    } mode{};
+
     Element const &html() const { return std::get<Element>(html_node); }
     Element &html() { return std::get<Element>(html_node); }
     [[nodiscard]] bool operator==(Document const &) const = default;
