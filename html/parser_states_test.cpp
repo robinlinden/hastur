@@ -53,6 +53,58 @@ void initial_tests() {
         expect_eq(res.document.doctype, "html");
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
     });
+
+    etest::test("Initial: doctype, sane", [] {
+        auto res = parse("<!DOCTYPE html>", {});
+        expect_eq(res.document.doctype, "html");
+        expect_eq(res.document.mode, dom::Document::Mode::NoQuirks);
+    });
+
+    etest::test("Initial: doctype, sane-ish", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::NoQuirks);
+    });
+
+    etest::test("Initial: doctype, also sane-ish", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "def" "abc">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::NoQuirks);
+    });
+
+    etest::test("Initial: doctype, quirky 0", [] {
+        auto res = parse("<!DOCTYPE is_this_the_abyss?>", {});
+        expect_eq(res.document.doctype, "is_this_the_abyss?");
+        expect_eq(res.document.mode, dom::Document::Mode::Quirks);
+    });
+
+    etest::test("Initial: doctype, quirky 1", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 FRAMESET//">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::Quirks);
+    });
+
+    etest::test("Initial: doctype, quirky 2", [] {
+        auto res = parse("<!DOCTYPE html SYSTEM http://www.IBM.com/data/dtd/v11/ibmxhtml1-transitional.dtd>", {});
+        expect_eq(res.document.mode, dom::Document::Mode::Quirks);
+    });
+
+    etest::test("Initial: doctype, quirky 3", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "HTML">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::Quirks);
+    });
+
+    etest::test("Initial: doctype, quirky 4", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "-//sun microsystems corp.//dtd hotjava html// i love this">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::Quirks);
+    });
+
+    etest::test("Initial: doctype, quirky-ish 0", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.0 transitional//hello">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::LimitedQuirks);
+    });
+
+    etest::test("Initial: doctype, quirky-ish 1", [] {
+        auto res = parse(R"(<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 FRAMESET//" "">)", {});
+        expect_eq(res.document.mode, dom::Document::Mode::LimitedQuirks);
+    });
 }
 
 void before_html_tests() {
