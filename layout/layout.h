@@ -45,6 +45,12 @@ struct LayoutBox {
         if constexpr (T == css::PropertyId::BorderBottomLeftRadius || T == css::PropertyId::BorderBottomRightRadius
                 || T == css::PropertyId::BorderTopLeftRadius || T == css::PropertyId::BorderTopRightRadius) {
             return get_border_radius_property(T);
+        } else if constexpr (T == css::PropertyId::MinWidth) {
+            return get_min_width_property();
+        } else if constexpr (T == css::PropertyId::Width) {
+            return get_width_property();
+        } else if constexpr (T == css::PropertyId::MaxWidth) {
+            return get_max_width_property();
         } else {
             return node->get_property<T>();
         }
@@ -52,6 +58,9 @@ struct LayoutBox {
 
 private:
     std::pair<int, int> get_border_radius_property(css::PropertyId) const;
+    std::optional<int> get_min_width_property() const;
+    std::optional<int> get_width_property() const;
+    std::optional<int> get_max_width_property() const;
 };
 
 std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width);

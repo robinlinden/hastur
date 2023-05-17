@@ -138,10 +138,12 @@ void calculate_width_and_margin(
     auto margin_bottom = box.get_property<css::PropertyId::MarginBottom>();
     box.dimensions.margin.bottom = to_px(margin_bottom, font_size, root_font_size);
 
-    auto width = box.get_property<css::PropertyId::Width>();
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
-    if (width == "auto") {
+    if (auto width = box.get_property<css::PropertyId::Width>()) {
+        box.dimensions.content.width = *width;
+        calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
+    } else {
         if (margin_left != "auto") {
             box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size);
         }
@@ -149,23 +151,18 @@ void calculate_width_and_margin(
             box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size);
         }
         box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
-    } else {
-        box.dimensions.content.width = to_px(width, font_size, root_font_size);
-        calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
     }
 
-    if (auto min = box.get_property<css::PropertyId::MinWidth>(); min != "auto") {
-        int min_width_px = to_px(min, font_size, root_font_size);
-        if (box.dimensions.content.width < min_width_px) {
-            box.dimensions.content.width = min_width_px;
+    if (auto min = box.get_property<css::PropertyId::MinWidth>()) {
+        if (box.dimensions.content.width < *min) {
+            box.dimensions.content.width = *min;
             calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
         }
     }
 
-    if (auto max = box.get_property<css::PropertyId::MaxWidth>(); max != "none") {
-        int max_width_px = to_px(max, font_size, root_font_size);
-        if (box.dimensions.content.width > max_width_px) {
-            box.dimensions.content.width = max_width_px;
+    if (auto max = box.get_property<css::PropertyId::MaxWidth>()) {
+        if (box.dimensions.content.width > *max) {
+            box.dimensions.content.width = *max;
             calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
         }
     }
@@ -397,6 +394,39 @@ std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) co
     int font_size = node->get_property<css::PropertyId::FontSize>();
     int root_font_size = get_root_font_size(*node);
     return {to_px(horizontal, font_size, root_font_size), to_px(vertical, font_size, root_font_size)};
+}
+
+std::optional<int> LayoutBox::get_min_width_property() const {
+    auto raw = node->get_raw_property(css::PropertyId::MinWidth);
+    if (raw == "auto") {
+        return std::nullopt;
+    }
+
+    int font_size = node->get_property<css::PropertyId::FontSize>();
+    int root_font_size = get_root_font_size(*node);
+    return to_px(raw, font_size, root_font_size);
+}
+
+std::optional<int> LayoutBox::get_width_property() const {
+    auto raw = node->get_raw_property(css::PropertyId::Width);
+    if (raw == "auto") {
+        return std::nullopt;
+    }
+
+    int font_size = node->get_property<css::PropertyId::FontSize>();
+    int root_font_size = get_root_font_size(*node);
+    return to_px(raw, font_size, root_font_size);
+}
+
+std::optional<int> LayoutBox::get_max_width_property() const {
+    auto raw = node->get_raw_property(css::PropertyId::MaxWidth);
+    if (raw == "none") {
+        return std::nullopt;
+    }
+
+    int font_size = node->get_property<css::PropertyId::FontSize>();
+    int root_font_size = get_root_font_size(*node);
+    return to_px(raw, font_size, root_font_size);
 }
 
 std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width) {
