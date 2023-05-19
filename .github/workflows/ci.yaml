@@ -142,7 +142,7 @@ jobs:
           key: gcc-13-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
           restore-keys: gcc-13-
       - run: apt-get update && apt-get install -y --no-install-recommends libgl-dev xxd
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.16.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.17.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - run: ./bazelisk test ...
       - name: Run tui
         run: |
