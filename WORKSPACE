@@ -47,13 +47,14 @@ http_archive(
     url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-0.tar.gz",
 )
 
+# https://github.com/google/boringssl
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "e8016871403f5acc51fdf8927dde81e4adbd5531c3f5d2442edbc80d0ea65735",
-    strip_prefix = "boringssl-cbe6df8ae3554efdadd8f2ec1180b28ebdcfd77e",
-    url = "https://github.com/google/boringssl/archive/cbe6df8ae3554efdadd8f2ec1180b28ebdcfd77e.tar.gz",
+    sha256 = "69bf85e29a556dacb320c2a88525176219436994990361ec1d46f11089a3b5a3",
+    strip_prefix = "boringssl-d93ea9c50da806ac5bff701578ced2d4793ce045",
+    url = "https://github.com/google/boringssl/archive/d93ea9c50da806ac5bff701578ced2d4793ce045.tar.gz",
 )
 
 http_archive(
@@ -88,12 +89,13 @@ http_archive(
     url = "https://github.com/freetype/freetype/archive/VER-2-13-0.tar.gz",
 )
 
+# https://github.com/ArthurSonzogni/FTXUI
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "7276e4117429ebf8e34ea371c3ea4e66eb99e0f234cb4c5c85fca17174a53dfa",
-    strip_prefix = "FTXUI-4.0.0",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v4.0.0.tar.gz",
+    sha256 = "6f03f5917b44c9bc12335ad891a93813bbb6e738e0bd0c44f97bcc6077c45980",
+    strip_prefix = "FTXUI-4.1.0",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v4.1.0.tar.gz",
 )
 
 http_archive(
@@ -179,12 +181,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.2.tar.gz",
 )
 
+# https://github.com/facebookexperimental/libunifex
 http_archive(
     name = "unifex",  # Apache-2.0 WITH LLVM-exception
     build_file = "//third_party:unifex.BUILD",
-    sha256 = "bf62a6541d63e688fb073d4bcaee35134bc1a76012a3526c7201b1d648f44c62",
-    strip_prefix = "libunifex-v.0.0.3",
-    url = "https://github.com/facebookexperimental/libunifex/archive/v.0.0.3.tar.gz",
+    sha256 = "e5780cfe8b6ffe64079e26a827a6893174361749f78545a899a34640f5ca3b75",
+    strip_prefix = "libunifex-0.2.0",
+    url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
 VULKAN_TAG = "1.3.250"
