@@ -64,8 +64,8 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 
                 return box;
             },
-            [&node](dom::Text const &) -> std::optional<LayoutBox> {
-                return LayoutBox{&node, LayoutType::Inline};
+            [&node](dom::Text const &text) -> std::optional<LayoutBox> {
+                return LayoutBox{.node = &node, .type = LayoutType::Inline, .layout_text = text.text};
             },
     };
 
@@ -376,15 +376,7 @@ int get_root_font_size(style::StyledNode const &node) {
 } // namespace
 
 std::optional<std::string_view> LayoutBox::text() const {
-    if (node == nullptr) {
-        return std::nullopt;
-    }
-
-    if (auto const *text = std::get_if<dom::Text>(&node->node)) {
-        return text->text;
-    }
-
-    return std::nullopt;
+    return layout_text;
 }
 
 std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) const {

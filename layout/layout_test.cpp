@@ -202,8 +202,8 @@ int main() {
             .children = {
                 {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 10}}, {
                     {nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {
-                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}},
-                        {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}},
+                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}, "hello"},
+                        {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}, "goodbye"},
                     }},
                 }},
             }
@@ -211,6 +211,9 @@ int main() {
 
         auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
+
+        expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
+        expect_eq(expected_layout.children.at(0).children.at(0).children.at(1).text(), "goodbye");
     });
 
     etest::test("simple width", [] {
@@ -1190,20 +1193,6 @@ int main() {
         style.properties.at(0).second = "16px";
         layout = layout::create_layout(style, 1000).value();
         expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
-    });
-
-    etest::test("layout box text accessor", [] {
-        dom::Node dom = dom::Text{"hello"s};
-        style::StyledNode style{.node = dom};
-        layout::LayoutBox layout{.node = &style};
-
-        expect_eq(layout.text(), "hello");
-
-        dom = dom::Element{.name = "asdf"};
-        expect_eq(layout.text(), std::nullopt);
-
-        layout.node = nullptr;
-        expect_eq(layout.text(), std::nullopt);
     });
 
     return etest::run_all_tests();

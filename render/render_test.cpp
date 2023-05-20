@@ -33,7 +33,7 @@ int main() {
                 .node = &styled,
                 .type = layout::LayoutType::Inline,
                 .dimensions = {},
-                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}}},
+                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"}},
         };
 
         gfx::CanvasCommandSaver saver;
@@ -59,7 +59,7 @@ int main() {
         auto layout = layout::LayoutBox{
                 .node = &styled,
                 .type = layout::LayoutType::Inline,
-                .children = {{&styled.children[0], layout::LayoutType::Inline}},
+                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"}},
         };
 
         gfx::CanvasCommandSaver saver;
@@ -329,7 +329,7 @@ int main() {
                         {css::PropertyId::FontFamily, "arial"},
                         {css::PropertyId::FontSize, "16px"},
                 }};
-        auto layout = layout::LayoutBox{.node = &styled};
+        auto layout = layout::LayoutBox{.node = &styled, .layout_text = "hello"};
 
         gfx::CanvasCommandSaver saver;
         render::render_layout(saver, layout);
