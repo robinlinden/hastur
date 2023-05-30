@@ -31,7 +31,6 @@ cc_fuzz_test(
     name = "css_parser_fuzz_test",
     srcs = ["parser_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
-    tags = ["manual"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":css"],
 )
