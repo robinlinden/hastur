@@ -52,9 +52,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "69bf85e29a556dacb320c2a88525176219436994990361ec1d46f11089a3b5a3",
-    strip_prefix = "boringssl-d93ea9c50da806ac5bff701578ced2d4793ce045",
-    url = "https://github.com/google/boringssl/archive/d93ea9c50da806ac5bff701578ced2d4793ce045.tar.gz",
+    sha256 = "62939a56062a3be7417a4e195c8bf0e7f07fdc26a9c49ef42ffd9b4030e3e921",
+    strip_prefix = "boringssl-3c13ec0a400cfe5a29c5e0726cecaa51d2bffcc9",
+    url = "https://github.com/google/boringssl/archive/3c13ec0a400cfe5a29c5e0726cecaa51d2bffcc9.tar.gz",
 )
 
 http_archive(
@@ -93,9 +93,9 @@ http_archive(
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "6f03f5917b44c9bc12335ad891a93813bbb6e738e0bd0c44f97bcc6077c45980",
-    strip_prefix = "FTXUI-4.1.0",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v4.1.0.tar.gz",
+    sha256 = "9009d093e48b3189487d67fc3e375a57c7b354c0e43fc554ad31bec74a4bc2dd",
+    strip_prefix = "FTXUI-4.1.1",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v4.1.1.tar.gz",
 )
 
 http_archive(
@@ -118,12 +118,13 @@ http_archive(
     url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz",
 )
 
+# https://github.com/ocornut/imgui
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "eab371005c86dd029523a0c4ba757840787163740d45c1f4e5a110eb21820546",
-    strip_prefix = "imgui-1.89.5",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.5.tar.gz",
+    sha256 = "e95d1cba1481e66386acda3e7da19cd738da86c6c2a140a48fa55046e5f6e208",
+    strip_prefix = "imgui-1.89.6",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.6.tar.gz",
 )
 
 http_archive(
@@ -190,20 +191,22 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.250"
+VULKAN_TAG = "1.3.251"
 
+# https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "c4c5a706a1f8f4d329fec2909b8c3fef4a4be043f393dbde5ce1439daa1194ab",
+    sha256 = "e14ac3a6868d9cffcd76e8e92eb0373eb675ab5725672af35b4ba664348e8261",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
+# https://github.com/KhronosGroup/Vulkan-Hpp
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "2bdcd60cbca37cb165e1bb86e6295c8db3bb233223f5713248077417d97ded35",
+    sha256 = "068009952cb2e83e8d1c77a22abe1758f93ff3b45cb0cd6ba9951da67ad1fabf",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
