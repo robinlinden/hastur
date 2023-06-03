@@ -149,46 +149,48 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           ./bazelisk run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
 
-  windows-msvc:
-    runs-on: windows-2022
-    timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/bazel
-          key: windows_msvc-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-      - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
-      - name: Build
-        run: bazel build ... -c dbg
-      - name: Test
-        run: bazel test ... -c dbg
-      # TODO(robinlinden): This no longer runs in CI due to http://example.com
-      # being inaccessible.
-      # - name: Run
-      #   run: bazel run browser:tui -c dbg
+  # Windows jobs are disabled until
+  # https://github.com/actions/runner-images/issues/7662 is resolved.
+  # windows-msvc:
+  #   runs-on: windows-2022
+  #   timeout-minutes: 30
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: windows_msvc-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+  #     - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
+  #     - name: Build
+  #       run: bazel build ... -c dbg
+  #     - name: Test
+  #       run: bazel test ... -c dbg
+  #     # TODO(robinlinden): This no longer runs in CI due to http://example.com
+  #     # being inaccessible.
+  #     # - name: Run
+  #     #   run: bazel run browser:tui -c dbg
 
-  windows-clang-cl:
-    runs-on: windows-2022
-    timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/bazel
-          key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-      - run: echo "build --config clang-cl" >.bazelrc.local
-      - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
-      - run: bazel test ...
-      # TODO(robinlinden): This no longer runs in CI due to http://example.com
-      # being inaccessible.
-      # - run: bazel run browser:tui
+  # windows-clang-cl:
+  #   runs-on: windows-2022
+  #   timeout-minutes: 30
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+  #     - run: echo "build --config clang-cl" >.bazelrc.local
+  #     - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
+  #     - run: bazel test ...
+  #     # TODO(robinlinden): This no longer runs in CI due to http://example.com
+  #     # being inaccessible.
+  #     # - run: bazel run browser:tui
 
   clang-format:
     runs-on: ubuntu-22.04
