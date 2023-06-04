@@ -1195,7 +1195,7 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
     });
 
-    etest::test("whitespace collapsing", [] {
+    etest::test("whitespace collapsing: simple", [] {
         constexpr auto kText = "   hello   "sv;
         constexpr auto kCollapsedText = util::trim(kText);
         constexpr auto kTextWidth = kCollapsedText.length() * 5;
@@ -1235,6 +1235,82 @@ int main() {
                         .node = nullptr,
                         .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, kTextWidth, 10}},
+                        .children{std::move(p_layout)},
+                }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+
+    etest::test("whitespace collapsing: less simple", [] {
+        // This will break when we add more complete ws-collapsing to the layout
+        // system as the 2 spaces between "cr" and "lf" will be collapsed to
+        // only being 1 space.
+        constexpr auto kFirstText = "   cr "sv;
+        constexpr auto kSecondText = " lf   "sv;
+        constexpr auto kCollapsedFirst = util::trim_start(kFirstText);
+        constexpr auto kFirstWidth = kCollapsedFirst.length() * 5;
+        constexpr auto kCollapsedSecond = util::trim_end(kSecondText);
+        constexpr auto kSecondWidth = kCollapsedSecond.length() * 5;
+
+        dom::Element a{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kFirstText}}, std::move(a)}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
+        auto const &html_element = std::get<dom::Element>(html);
+        auto const &p_element = std::get<dom::Element>(html_element.children.at(0));
+        auto const &a_element = std::get<dom::Element>(p_element.children.at(1));
+
+        style::StyledNode a_style{
+                .node{a_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{a_element.children.at(0)}},
+        };
+        style::StyledNode p_style{
+                .node{p_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{p_element.children.at(0)}, std::move(a_style)},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(p_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox a_layout{
+                .node = &style.children.at(0).children.at(1),
+                .type = LayoutType::Inline,
+                .dimensions{{kFirstWidth, 0, kSecondWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(1).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{kFirstWidth, 0, kSecondWidth, 10}},
+                        .layout_text{kCollapsedSecond},
+                }},
+        };
+        layout::LayoutBox p_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, kFirstWidth + kSecondWidth, 10}},
+                .children{
+                        layout::LayoutBox{
+                                .node = &style.children.at(0).children.at(0),
+                                .type = LayoutType::Inline,
+                                .dimensions{{0, 0, kFirstWidth, 10}},
+                                .layout_text{kCollapsedFirst},
+                        },
+                        std::move(a_layout),
+                },
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, kFirstWidth + kSecondWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
