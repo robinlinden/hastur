@@ -1195,5 +1195,52 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
     });
 
+    etest::test("whitespace collapsing", [] {
+        constexpr auto kText = "   hello   "sv;
+        constexpr auto kTextWidth = kText.length() * 5;
+
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kText}}}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
+        dom::Element const &html_element = std::get<dom::Element>(html);
+
+        style::StyledNode p_style{
+                .node{html_element.children[0]},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{std::get<dom::Element>(html_element.children.at(0)).children.at(0)}},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(p_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox p_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, kTextWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .layout_text{kText},
+                }},
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .children{std::move(p_layout)},
+                }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+
     return etest::run_all_tests();
 }
