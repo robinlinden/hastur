@@ -17,6 +17,7 @@
 #include <charconv>
 #include <cstdint>
 #include <cstdlib>
+#include <list>
 #include <map>
 #include <optional>
 #include <sstream>
@@ -71,6 +72,44 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 
     return std::visit(visitor, node.node);
 }
+
+// TODO(robinlinden): Collapse whitespace inside text runs.
+// NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
+void collapse_whitespace(LayoutBox &box) {
+    LayoutBox *last_text_box = nullptr;
+    std::list<LayoutBox *> to_collapse{&box};
+
+    auto starts_text_run = [&](LayoutBox const &l) {
+        return last_text_box == nullptr && l.layout_text.has_value();
+    };
+    auto ends_text_run = [&](LayoutBox const &l) {
+        return last_text_box != nullptr && l.type != LayoutType::Inline;
+    };
+
+    for (auto it = to_collapse.begin(); it != to_collapse.end(); ++it) {
+        auto *current = *it;
+        if (starts_text_run(*current)) {
+            last_text_box = current;
+            last_text_box->layout_text = util::trim_start(*last_text_box->layout_text);
+        } else if (current->layout_text.has_value()) {
+            last_text_box = current;
+        } else if (ends_text_run(*current)) {
+            last_text_box->layout_text = util::trim_end(*last_text_box->layout_text);
+            last_text_box = nullptr;
+        }
+
+        for (std::size_t child_idx = 0; child_idx < current->children.size(); ++child_idx) {
+            auto insertion_point = it;
+            std::advance(insertion_point, 1 + child_idx);
+            to_collapse.insert(insertion_point, &current->children[child_idx]);
+        }
+    }
+
+    if (last_text_box != nullptr) {
+        last_text_box->layout_text = util::trim_end(*last_text_box->layout_text);
+    }
+}
+// NOLINTEND(bugprone-unchecked-optional-access)
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 int to_px(std::string_view property, int const font_size, int const root_font_size) {
@@ -427,6 +466,7 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width)
         return {};
     }
 
+    collapse_whitespace(*tree);
     layout(*tree, {0, 0, width, 0}, node.get_property<css::PropertyId::FontSize>());
     return *tree;
 }

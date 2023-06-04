@@ -1197,7 +1197,8 @@ int main() {
 
     etest::test("whitespace collapsing", [] {
         constexpr auto kText = "   hello   "sv;
-        constexpr auto kTextWidth = kText.length() * 5;
+        constexpr auto kCollapsedText = util::trim(kText);
+        constexpr auto kTextWidth = kCollapsedText.length() * 5;
 
         dom::Element p{.name{"p"}, .children{dom::Text{std::string{kText}}}};
         dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
@@ -1223,7 +1224,7 @@ int main() {
                         .node = &style.children.at(0).children.at(0),
                         .type = LayoutType::Inline,
                         .dimensions{{0, 0, kTextWidth, 10}},
-                        .layout_text{kText},
+                        .layout_text{kCollapsedText},
                 }},
         };
         layout::LayoutBox expected_layout{
