@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
 name: ci
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  contents: read
+
 jobs:
   linux-ci:
     name: linux-${{ matrix.name }}
