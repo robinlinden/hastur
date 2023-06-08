@@ -1243,7 +1243,7 @@ int main() {
         expect_eq(actual, expected_layout);
     });
 
-    etest::test("whitespace collapsing: less simple", [] {
+    etest::test("whitespace collapsing: text split across multiple inline elements", [] {
         // This will break when we add more complete ws-collapsing to the layout
         // system as the 2 spaces between "cr" and "lf" will be collapsed to
         // only being 1 space.
@@ -1313,6 +1313,92 @@ int main() {
                         .dimensions{{0, 0, kFirstWidth + kSecondWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+
+    etest::test("whitespace collapsing: text separated by a block element", [] {
+        constexpr auto kFirstText = "  a  "sv;
+        constexpr auto kSecondText = "  b  "sv;
+        constexpr auto kCollapsedFirst = util::trim(kFirstText);
+        constexpr auto kFirstWidth = kCollapsedFirst.length() * 5;
+        constexpr auto kCollapsedSecond = util::trim(kSecondText);
+        constexpr auto kSecondWidth = kCollapsedSecond.length() * 5;
+
+        dom::Element first{.name{"p"}, .children{dom::Text{std::string{kFirstText}}}};
+        dom::Element block{.name{"div"}};
+        dom::Element second{.name{"p"}, .children{dom::Text{std::string{kSecondText}}}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(first), std::move(block), std::move(second)}};
+        auto const &html_element = std::get<dom::Element>(html);
+        auto const &first_text_element = std::get<dom::Element>(html_element.children.at(0));
+        auto const &block_element = std::get<dom::Element>(html_element.children.at(1));
+        auto const &second_text_element = std::get<dom::Element>(html_element.children.at(2));
+
+        style::StyledNode first_style{
+                .node{first_text_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{first_text_element.children.at(0)}},
+        };
+        style::StyledNode block_style{.node{block_element}, .properties{{css::PropertyId::Display, "block"}}};
+        style::StyledNode second_style{
+                .node{second_text_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{second_text_element.children.at(0)}},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(first_style), std::move(block_style), std::move(second_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox first_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, kFirstWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 0, kFirstWidth, 10}},
+                        .layout_text{kCollapsedFirst},
+                }},
+        };
+        layout::LayoutBox second_layout{
+                .node = &style.children.at(2),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 10, kSecondWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(2).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 10, kSecondWidth, 10}},
+                        .layout_text{kCollapsedSecond},
+                }},
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 20}},
+                .children{
+                        layout::LayoutBox{
+                                .node = nullptr,
+                                .type = LayoutType::AnonymousBlock,
+                                .dimensions{{0, 0, kFirstWidth, 10}},
+                                .children{std::move(first_layout)},
+                        },
+                        layout::LayoutBox{
+                                .node = &style.children.at(1),
+                                .type = LayoutType::Block,
+                                .dimensions{{0, 10, 1234, 0}},
+                        },
+                        layout::LayoutBox{
+                                .node = nullptr,
+                                .type = LayoutType::AnonymousBlock,
+                                .dimensions{{0, 10, kSecondWidth, 10}},
+                                .children{std::move(second_layout)},
+                        },
+                },
         };
 
         auto actual = layout::create_layout(style, 1234);
