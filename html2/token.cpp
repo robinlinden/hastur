@@ -32,8 +32,12 @@ std::string to_string(Token const &token) {
                            try_print(ss, t.public_identifier);
                            try_print(ss, t.system_identifier);
                        },
-                       [&ss](StartTagToken const &t) { ss << "StartTag " << t.tag_name << ' ' << t.self_closing; },
-                       [&ss](EndTagToken const &t) { ss << "EndTag " << t.tag_name << ' ' << t.self_closing; },
+                       [&ss](StartTagToken const &t) {
+                           ss << "StartTag " << t.tag_name << ' ' << (t.self_closing ? "true" : "false");
+                       },
+                       [&ss](EndTagToken const &t) {
+                           ss << "EndTag " << t.tag_name << ' ' << (t.self_closing ? "true" : "false");
+                       },
                        [&ss](CommentToken const &t) { ss << "Comment " << t.data; },
                        [&ss](CharacterToken const &t) { ss << "Character " << t.data; },
                        [&ss](EndOfFileToken const &) { ss << "EndOfFile"; },

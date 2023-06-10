@@ -22,13 +22,13 @@ int main() {
     });
 
     etest::test("to_string(StartTag)", [] {
-        expect_eq(to_string(StartTagToken{.tag_name = "p", .self_closing = false}), "StartTag p 0");
-        expect_eq(to_string(StartTagToken{.tag_name = "img", .self_closing = true}), "StartTag img 1");
+        expect_eq(to_string(StartTagToken{.tag_name = "p", .self_closing = false}), "StartTag p false");
+        expect_eq(to_string(StartTagToken{.tag_name = "img", .self_closing = true}), "StartTag img true");
     });
 
     etest::test("to_string(EndTag)", [] {
-        expect_eq(to_string(EndTagToken{.tag_name = "p", .self_closing = false}), "EndTag p 0");
-        expect_eq(to_string(EndTagToken{.tag_name = "img", .self_closing = true}), "EndTag img 1");
+        expect_eq(to_string(EndTagToken{.tag_name = "p", .self_closing = false}), "EndTag p false");
+        expect_eq(to_string(EndTagToken{.tag_name = "img", .self_closing = true}), "EndTag img true");
     });
 
     etest::test("to_string(Comment)", [] {
