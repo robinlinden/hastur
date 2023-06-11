@@ -585,6 +585,21 @@ void after_attribute_value_quoted_tests() {
     });
 }
 
+void self_closing_start_tag_tests() {
+    etest::test("self-closing start tag: eof", [] {
+        auto tokens = run_tokenizer("<p/");
+        expect_error(tokens, ParseError::EofInTag);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    etest::test("self-closing start tag: unexpected solidus", [] {
+        auto tokens = run_tokenizer("<p/ >");
+        expect_error(tokens, ParseError::UnexpectedSolidusInTag);
+        expect_token(tokens, StartTagToken{"p"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -611,6 +626,7 @@ int main() {
     attribute_value_double_quoted_tests();
     attribute_value_single_quoted_tests();
     after_attribute_value_quoted_tests();
+    self_closing_start_tag_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

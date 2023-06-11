@@ -142,6 +142,7 @@ enum class ParseError {
     UnexpectedEqualsSignBeforeAttributeName,
     UnexpectedNullCharacter,
     UnexpectedQuestionMarkInsteadOfTagName,
+    UnexpectedSolidusInTag,
     UnknownNamedCharacterReference,
 };
 

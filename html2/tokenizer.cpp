@@ -1226,10 +1226,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#self-closing-start-tag-state
             case State::SelfClosingStartTag: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-tag parse error.
+                    emit(ParseError::EofInTag);
                     emit(EndOfFileToken{});
                     return;
                 }
@@ -1245,7 +1246,7 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        // This is a missing-whitespace-between-attributes parse error.
+                        emit(ParseError::UnexpectedSolidusInTag);
                         reconsume_in(State::BeforeAttributeName);
                         continue;
                 }
