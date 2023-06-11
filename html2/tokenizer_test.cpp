@@ -600,6 +600,42 @@ void self_closing_start_tag_tests() {
     });
 }
 
+void comment_start_dash_tests() {
+    etest::test("comment start dash: eof", [] {
+        auto tokens = run_tokenizer("<!---");
+        expect_error(tokens, ParseError::EofInComment);
+        expect_token(tokens, CommentToken{});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void comment_end_dash_tests() {
+    etest::test("comment end dash: eof", [] {
+        auto tokens = run_tokenizer("<!-- -");
+        expect_error(tokens, ParseError::EofInComment);
+        expect_token(tokens, CommentToken{" "});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void comment_end_tests() {
+    etest::test("comment end: eof", [] {
+        auto tokens = run_tokenizer("<!-- --");
+        expect_error(tokens, ParseError::EofInComment);
+        expect_token(tokens, CommentToken{" "});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
+void comment_end_bang_tests() {
+    etest::test("comment end bang: eof", [] {
+        auto tokens = run_tokenizer("<!-- --!");
+        expect_error(tokens, ParseError::EofInComment);
+        expect_token(tokens, CommentToken{" "});
+        expect_token(tokens, EndOfFileToken{});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -627,6 +663,10 @@ int main() {
     attribute_value_single_quoted_tests();
     after_attribute_value_quoted_tests();
     self_closing_start_tag_tests();
+    comment_start_dash_tests();
+    comment_end_dash_tests();
+    comment_end_tests();
+    comment_end_bang_tests();
 
     etest::test("script, empty", [] {
         auto tokens = run_tokenizer("<script></script>");

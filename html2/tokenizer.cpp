@@ -1252,6 +1252,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#bogus-comment-state
             case State::BogusComment: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1308,6 +1309,7 @@ void Tokenizer::run() {
                 state_ = State::BogusComment;
                 continue;
 
+            // https://html.spec.whatwg.org/#comment-start-state
             case State::CommentStart: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1330,10 +1332,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-start-dash-state
             case State::CommentStartDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-comment parse error.
+                    emit(ParseError::EofInComment);
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
                     return;
@@ -1355,6 +1358,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-state
             case State::Comment: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1382,6 +1386,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-less-than-sign-state
             case State::CommentLessThanSign: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1403,6 +1408,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-less-than-sign-bang-state
             case State::CommentLessThanSignBang: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1420,6 +1426,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-less-than-sign-bang-dash-state
             case State::CommentLessThanSignBangDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1437,6 +1444,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-less-than-sign-bang-dash-dash-state
             case State::CommentLessThanSignBangDashDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1455,10 +1463,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-end-dash-state
             case State::CommentEndDash: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-comment parse error.
+                    emit(ParseError::EofInComment);
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
                     return;
@@ -1475,10 +1484,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-end-state
             case State::CommentEnd: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-comment parse error.
+                    emit(ParseError::EofInComment);
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
                     return;
@@ -1502,10 +1512,11 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#comment-end-bang-state
             case State::CommentEndBang: {
                 auto c = consume_next_input_character();
                 if (!c) {
-                    // This is an eof-in-comment parse error.
+                    emit(ParseError::EofInComment);
                     emit(std::move(current_token_));
                     emit(EndOfFileToken{});
                     return;
