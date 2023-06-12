@@ -5,6 +5,7 @@
 #include "etest/etest.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -13,6 +14,14 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+
+#if defined(_MSC_VER)
+// MSVC doesn't seem to have a way of disabling exceptions.
+#define ETEST_EXCEPTIONS
+#elif defined(__EXCEPTIONS)
+// __EXCEPTIONS is set in gcc and Clang unless -fno-exceptions is used.
+#define ETEST_EXCEPTIONS
+#endif
 
 namespace etest {
 namespace {
@@ -72,6 +81,7 @@ int run_all_tests(RunOptions const &opts) noexcept {
 
         int const before = assertion_failures;
 
+#ifdef ETEST_EXCEPTIONS
         try {
             test.body();
         } catch (TestFailure const &) {
@@ -83,6 +93,9 @@ int run_all_tests(RunOptions const &opts) noexcept {
             ++assertion_failures;
             test_log << "Unhandled unknown exception in test body.\n";
         }
+#else
+        test.body();
+#endif
 
         if (before == assertion_failures) {
             std::cout << "\u001b[32mPASSED\u001b[0m\n";
@@ -135,7 +148,11 @@ void require(bool b, std::optional<std::string_view> log_message, etest::source_
         test_log << *log_message << "\n\n";
     }
 
+#ifdef ETEST_EXCEPTIONS
     throw TestFailure{};
+#else
+    std::abort();
+#endif
 }
 
 } // namespace etest
