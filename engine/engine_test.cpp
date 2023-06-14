@@ -153,6 +153,30 @@ int main() {
         expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
     });
 
+    etest::test("multiple inline <head><style> elements are allowed", [] {
+        std::map<std::string, Response> responses{{
+                "hax://example.com"s,
+                Response{
+                        .err = Error::Ok,
+                        .status_line = {.status_code = 200},
+                        .body{"<html><head><style>"
+                              "a { color: red; } "
+                              "p { color: green; }"
+                              "</style>"
+                              "<style></style>"
+                              "<style>p { color: cyan; }</style>"
+                              "<p><a>"},
+                },
+        }};
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        e.navigate(uri::Uri::parse("hax://example.com"));
+        require(e.layout());
+        auto const *a = dom::nodes_by_xpath(*e.layout(), "//a"sv).at(0);
+        expect_eq(a->get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("red"));
+        auto const *p = dom::nodes_by_xpath(*e.layout(), "//p"sv).at(0);
+        expect_eq(p->get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("cyan"));
+    });
+
     etest::test("stylesheet link, parallel download", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{

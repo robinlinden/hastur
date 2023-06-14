@@ -67,10 +67,13 @@ void Engine::on_navigation_success() {
     dom_ = html::parse(response_.body);
     stylesheet_ = css::default_style();
 
-    if (auto style = dom::nodes_by_xpath(dom_.html(), "/html/head/style"sv);
-            !style.empty() && !style[0]->children.empty()) {
+    for (auto const &style : dom::nodes_by_xpath(dom_.html(), "/html/head/style"sv)) {
+        if (style->children.empty()) {
+            continue;
+        }
+
         // Style can only contain text, and we enforce this in our HTML parser.
-        auto const &style_content = std::get<dom::Text>(style[0]->children[0]);
+        auto const &style_content = std::get<dom::Text>(style->children[0]);
         auto new_rules = css::parse(style_content.text);
         stylesheet_.reserve(stylesheet_.size() + new_rules.size());
         stylesheet_.insert(
