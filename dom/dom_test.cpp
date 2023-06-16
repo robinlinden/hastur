@@ -86,10 +86,32 @@ void descendant_axis_tests() {
     });
 }
 
+void union_operator_tests() {
+    etest::test("union operator", [] {
+        dom::Element div{
+                .name{"div"},
+                .children{
+                        dom::Element{"span", {}, {dom::Text{"oh no"}}},
+                        dom::Element{"p", {}, {dom::Element{"span", {}, {dom::Element{"a"}}}}},
+                        dom::Element{"span"},
+                },
+        };
+
+        auto const &div_first_span = std::get<dom::Element>(div.children[0]);
+        auto const &p = std::get<dom::Element>(div.children[1]);
+        auto const &p_span = std::get<dom::Element>(p.children[0]);
+        auto const &div_last_span = std::get<dom::Element>(div.children[2]);
+
+        auto nodes = nodes_by_xpath(div, "/div/p|//span");
+        expect_eq(nodes, std::vector{&p, &div_first_span, &p_span, &div_last_span});
+    });
+}
+
 } // namespace
 
 int main() {
     descendant_axis_tests();
+    union_operator_tests();
 
     etest::test("to_string", [] {
         auto document = dom::Document{.doctype{"html5"}};

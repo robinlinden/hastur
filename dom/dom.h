@@ -77,8 +77,13 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
         return {};
     }
 
+    static constexpr std::string_view kSeparators{"|/"};
+    auto is_separator = [](char c) {
+        return kSeparators.contains(c);
+    };
+
     auto remove_name_segment = [&] {
-        std::size_t separator_position{xpath.find_first_of('/')};
+        std::size_t separator_position{xpath.find_first_of(kSeparators)};
         if (separator_position == std::string_view::npos) {
             xpath = std::string_view{};
             return;
@@ -90,12 +95,12 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
         xpath.remove_prefix(1);
         for (auto const *node : searching) {
             auto name = dom_name(*node);
-            if (xpath == name) {
+            if (xpath.substr(0, xpath.find_first_of('|')) == name) {
                 goal_nodes.push_back(node);
                 continue;
             }
 
-            if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && xpath[name.size()] == '/') {
+            if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && is_separator(xpath[name.size()])) {
                 for (auto const *child : dom_children(*node)) {
                     next_search.push_back(child);
                 }
@@ -109,12 +114,12 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
             auto const *node = searching[i];
 
             auto name = dom_name(*node);
-            if (xpath == name) {
+            if (xpath.substr(0, xpath.find_first_of('|')) == name) {
                 // TODO(robinlinden): Less terrible way of deduplicating goal nodes.
                 if (std::ranges::find(goal_nodes, node) == end(goal_nodes)) {
                     goal_nodes.push_back(node);
                 }
-            } else if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && xpath[name.size()] == '/') {
+            } else if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && is_separator(xpath[name.size()])) {
                 std::ranges::move(dom_children(*node), std::back_inserter(next_search));
             }
 
@@ -132,6 +137,11 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
             search_children();
         }
         remove_name_segment();
+
+        if (xpath.starts_with('|')) {
+            next_search = {&root};
+            xpath.remove_prefix(1);
+        }
     }
 
     return goal_nodes;
