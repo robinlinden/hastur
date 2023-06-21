@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -55,11 +55,14 @@ int main() {
     });
 
     etest::test("skip_whitespace, consume_char", [] {
-        auto p = BaseParser("      \t       \n         h          \n\n\ni");
+        auto p = BaseParser("      \t       \n         h          \n\n\ni  ");
         p.skip_whitespace();
         expect_eq(p.consume_char(), 'h');
 
         p.skip_whitespace();
         expect_eq(p.consume_char(), 'i');
+
+        p.skip_whitespace();
+        expect(p.is_eof());
     });
 }

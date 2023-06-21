@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -18,7 +18,6 @@ namespace util {
 template<typename T>
 concept Predicate = std::predicate<T, char>;
 
-// NOLINTBEGIN(bugprone-unchecked-optional-access)
 class BaseParser {
 public:
     constexpr explicit BaseParser(std::string_view input) : input_{input} {}
@@ -72,7 +71,7 @@ public:
     }
 
     constexpr void skip_whitespace() {
-        while (!is_eof() && util::is_whitespace(*peek())) {
+        for (auto c = peek(); c && util::is_whitespace(*c); c = peek()) {
             advance(1);
         }
     }
@@ -81,7 +80,6 @@ private:
     std::string_view input_;
     std::size_t pos_{0};
 };
-// NOLINTEND(bugprone-unchecked-optional-access)
 
 } // namespace util
 
