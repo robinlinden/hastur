@@ -106,6 +106,7 @@ http_archive(
     url = "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz",
 )
 
+# https://github.com/unicode-org/icu
 http_archive(
     name = "icu",  # Unicode-DFS-2016
     build_file = "//third_party:icu.BUILD",
@@ -113,16 +114,17 @@ http_archive(
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
     ],
-    sha256 = "a2d2d38217092a7ed56635e34467f92f976b370e20182ad325edea6681a71d68",
+    sha256 = "818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
     strip_prefix = "icu",
-    url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz",
+    url = "https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz",
 )
 
+# https://github.com/unicode-org/icu
 http_archive(
     name = "icu-data",  # Unicode-DFS-2016
-    build_file_content = "exports_files([\"icudt72l.dat\"])",
-    sha256 = "1bc02487cbeaec3fc2d0dc941e8b243e7d35cd79899a201df88dc9ec9667a162",
-    url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-data-bin-l.zip",
+    build_file_content = "exports_files([\"icudt73l.dat\"])",
+    sha256 = "2657bd18c23b930ddf63f466192832cc083256515e07b5a5e7d79c5c1db058a1",
+    url = "https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-data-bin-l.zip",
 )
 
 # https://github.com/ocornut/imgui
@@ -198,13 +200,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.251"
+VULKAN_TAG = "1.3.254"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "e14ac3a6868d9cffcd76e8e92eb0373eb675ab5725672af35b4ba664348e8261",
+    sha256 = "6be000a33b665ecac05971819b4c29ba5e21b800627f288f4d3a0b28e86b290f",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -213,7 +215,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "068009952cb2e83e8d1c77a22abe1758f93ff3b45cb0cd6ba9951da67ad1fabf",
+    sha256 = "d0836a0d7e830d079ed27f5d3c44c20e46bf7485f8b51cdac0e4b8c494ae801b",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )

@@ -18,7 +18,7 @@ cc_library(
     srcs = ["url.cpp"],
     hdrs = ["url.h"],
     copts = HASTUR_COPTS,
-    data = ["@icu-data//:icudt72l.dat"],
+    data = ["@icu-data//:icudt73l.dat"],
     visibility = ["//visibility:public"],
     deps = [
         ":rtti_hack",
