@@ -118,7 +118,6 @@ http_archive(
     url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz",
 )
 
-# https://github.com/ocornut/imgui
 http_archive(
     name = "icu-data",  # Unicode-DFS-2016
     build_file_content = "exports_files([\"icudt72l.dat\"])",
@@ -126,6 +125,7 @@ http_archive(
     url = "https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-data-bin-l.zip",
 )
 
+# https://github.com/ocornut/imgui
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
