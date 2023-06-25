@@ -152,7 +152,7 @@ constexpr std::string ipv4_serialize(std::uint32_t addr) {
 }
 
 // https://url.spec.whatwg.org/#concept-ipv6-serializer
-inline std::string ipv6_serialize(std::span<std::uint16_t, 8> addr) {
+inline std::string ipv6_serialize(std::span<std::uint16_t const, 8> addr) {
     std::stringstream out;
 
     std::size_t compress = 0;

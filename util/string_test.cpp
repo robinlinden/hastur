@@ -271,7 +271,7 @@ int main() {
     });
 
     etest::test("IPv6 serialization", [] {
-        std::array<std::uint16_t, 8> loopback{0, 0, 0, 0, 0, 0, 0, 1};
+        std::array<std::uint16_t, 8> const loopback{0, 0, 0, 0, 0, 0, 0, 1};
         std::array<std::uint16_t, 8> global{0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
 
         std::cout << "Serialized IPv6 Loopback Address: " << util::ipv6_serialize(loopback) << "\n";
