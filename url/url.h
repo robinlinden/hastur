@@ -167,7 +167,7 @@ private:
     bool starts_with_windows_drive_letter(std::string_view) const;
     void shorten_url_path(Url &) const;
 
-    constexpr bool includes_credentials(Url &url) const { return !url.user.empty() || !url.user.empty(); }
+    constexpr bool includes_credentials(Url &url) const { return !url.user.empty() || !url.passwd.empty(); }
 
     constexpr bool has_opaque_path(Url &url) const { return std::holds_alternative<std::string>(url.path); }
 
