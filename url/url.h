@@ -26,6 +26,8 @@ struct Host {
     HostType type;
 
     std::variant<std::string, std::uint32_t, std::array<std::uint16_t, 8>> data;
+
+    std::string serialize() const;
 };
 
 struct Origin {
@@ -51,6 +53,15 @@ struct Url {
     std::variant<std::string, std::vector<std::string>> path;
     std::optional<std::string> query;
     std::optional<std::string> fragment;
+
+    std::string serialize(bool exclude_fragment = false) const;
+    std::string serialize_path() const;
+
+    constexpr bool includes_credentials() const { return !user.empty() || !passwd.empty(); }
+    constexpr bool has_opaque_path() const { return std::holds_alternative<std::string>(path); }
+
+    // https://url.spec.whatwg.org/#url-equivalence
+    bool operator==(Url const &b) const { return serialize() == b.serialize(); }
 };
 
 // This parser is current with the WHATWG URL specification as of 1 March 2023
@@ -166,10 +177,6 @@ private:
     // Misc
     bool starts_with_windows_drive_letter(std::string_view) const;
     void shorten_url_path(Url &) const;
-
-    constexpr bool includes_credentials(Url &url) const { return !url.user.empty() || !url.passwd.empty(); }
-
-    constexpr bool has_opaque_path(Url &url) const { return std::holds_alternative<std::string>(url.path); }
 
     constexpr bool is_windows_drive_letter(std::string_view input) const {
         return input.size() == 2 && util::is_alpha(input[0]) && (input[1] == ':' || input[1] == '|');

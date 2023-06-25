@@ -64,6 +64,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "index.html");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://example.com:8080/index.html");
     });
 
     etest::test("URL parsing: 1 unicode char", [] {
@@ -79,6 +81,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "http://xn--bcher-kva.de/");
     });
 
     etest::test("URL parsing: 1 unicode char with path", [] {
@@ -95,6 +99,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[1], "itunes.gif");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://xn--19g.com/i/itunes.gif");
     });
 
     etest::test("URL parsing: unicode path", [] {
@@ -111,6 +117,9 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[1], "%D9%86%D8%AC%D9%8A%D8%A8_%D9%85%D8%AD%D9%81%D9%88%D8%B8");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(),
+                "https://ar.wikipedia.org/wiki/%D9%86%D8%AC%D9%8A%D8%A8_%D9%85%D8%AD%D9%81%D9%88%D8%B8");
     });
 
     etest::test("URL parsing: tel URI", [] {
@@ -126,6 +135,8 @@ int main() {
         etest::expect_eq(std::get<0>(url->path), "+1-555-555-5555");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "tel:+1-555-555-5555");
     });
 
     etest::test("URL parsing: username and passwd in authority", [] {
@@ -143,6 +154,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "login.php");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://zero-one:testpass123@example.com/login.php");
     });
 
     etest::test("URL parsing: query", [] {
@@ -159,6 +172,9 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "watch");
         etest::expect_eq(url->query, "v=2g5xkLqIElUlist=PLHwvDXmNUa92NlFPooY1P5tfDo4T85ORzindex=3");
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(),
+                "https://www.youtube.com/watch?v=2g5xkLqIElUlist=PLHwvDXmNUa92NlFPooY1P5tfDo4T85ORzindex=3");
     });
 
     etest::test("URL parsing: Welsh", [] {
@@ -177,6 +193,9 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[1], "platformticket.gif");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(),
+                "https://llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk/images/platformticket.gif");
     });
 
     // This domain exceeds the maximum length of both a domain component/label and a FQDN
@@ -202,6 +221,13 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(),
+                "https://"
+                "llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochanfairpwllgw"
+                "yngyllgogerychgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochllanfairpwllgwyngy"
+                "llgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochanfairpwllgwyngyllgogerychgoge"
+                "rychwyrndrobwllllantysiliogogogochobwllllantysiliogogogoch.co.uk/");
     });
 
     etest::test("URL parsing: path, query, and fragment", [] {
@@ -224,6 +250,9 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[6], "7795829478");
         etest::expect_eq(url->query, "pr=476");
         etest::expect_eq(url->fragment, "step:7:31");
+
+        etest::expect_eq(url->serialize(),
+                "https://github.com/robinlinden/hastur/actions/runs/4441133331/jobs/7795829478?pr=476#step:7:31");
     });
 
     etest::test("URL parsing: ipv4 and port", [] {
@@ -239,6 +268,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://127.0.0.1:631/");
     });
 
     etest::test("URL parsing: ipv6 and port", [] {
@@ -256,6 +287,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://[2001:db8:85a3::8a2e:370:7334]:631/");
     });
 
     etest::test("URL parsing: ipv6 v4-mapped with port", [] {
@@ -273,6 +306,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://[::ffff:4ccb:8c22]:631/");
     });
 
     etest::test("URL parsing: ipv6 v4-mapped compressed with dot-decimal", [] {
@@ -290,6 +325,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[0], "");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://[::ffff:4ccb:8c22]:631/");
     });
 
     etest::test("URL parsing: empty input", [] {
@@ -314,6 +351,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[1], "index.php");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://example.com:8080/test/index.php");
     });
 
     etest::test("URL parsing: query input with base URL", [&base] {
@@ -330,6 +369,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[1], "index.php");
         etest::expect_eq(url->query, "view=table");
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "https://example.com:8080/test/index.php?view=table");
     });
 
     etest::test("URL parsing: file URL", [] {
@@ -349,6 +390,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[4], "README.md");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "file:///home/zero-one/repos/hastur/README.md");
     });
 
     etest::test("URL parsing: file URL with double-dot", [] {
@@ -367,6 +410,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[3], "README.md");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "file:///home/zero-one/hastur/README.md");
     });
 
     etest::test("URL parsing: file URL with double-dot 2", [] {
@@ -384,6 +429,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[2], "README.md");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "file:///home/zero-one/README.md");
     });
 
     etest::test("URL parsing: file URL with double-dot 3", [] {
@@ -401,6 +448,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[2], "repos");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "file:///home/zero-one/repos/");
     });
 
     etest::test("URL parsing: file URL with single-dot", [] {
@@ -420,6 +469,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[4], "README.md");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), "file:///home/zero-one/repos/hastur/README.md");
     });
 
     etest::test("URL parsing: file URL with windows path", [] {
@@ -440,6 +491,8 @@ int main() {
         etest::expect_eq(std::get<1>(url->path)[5], "README.md");
         etest::expect(!url->query.has_value());
         etest::expect(!url->fragment.has_value());
+
+        etest::expect_eq(url->serialize(), R"(file:///C:/Users/zero-one/repos/hastur/README.md)");
     });
 
     int ret = etest::run_all_tests();

@@ -191,6 +191,74 @@ std::string blob_url_create(Origin const &origin) {
     return result;
 }
 
+// https://url.spec.whatwg.org/#concept-host-serializer
+std::string Host::serialize() const {
+    if (type == HostType::Ip4Addr) {
+        return util::ipv4_serialize(std::get<std::uint32_t>(data));
+    } else if (type == HostType::Ip6Addr) {
+        return "[" + util::ipv6_serialize(std::get<2>(data)) + "]";
+    }
+
+    return std::get<std::string>(data);
+}
+
+// https://url.spec.whatwg.org/#url-path-serializer
+std::string Url::serialize_path() const {
+    if (has_opaque_path()) {
+        return std::get<0>(path);
+    }
+
+    std::string output = "";
+
+    for (auto const &part : std::get<1>(path)) {
+        output += "/" + part;
+    }
+
+    return output;
+}
+
+// https://url.spec.whatwg.org/#concept-url-serializer
+std::string Url::serialize(bool exclude_fragment) const {
+    std::string output = scheme + ":";
+
+    if (host.has_value()) {
+        output += "//";
+
+        if (includes_credentials()) {
+            output += user;
+
+            if (!passwd.empty()) {
+                output += ":" + passwd;
+            }
+
+            output += "@";
+        }
+
+        output += host->serialize();
+
+        if (port.has_value()) {
+            output += ":" + std::to_string(*port);
+        }
+    }
+
+    if (!host.has_value() && std::holds_alternative<std::vector<std::string>>(path) && std::get<1>(path).size() > 1
+            && std::get<1>(path)[0].empty()) {
+        output += "/.";
+    }
+
+    output += serialize_path();
+
+    if (query.has_value()) {
+        output += "?" + *query;
+    }
+
+    if (!exclude_fragment && fragment.has_value()) {
+        output += "#" + *fragment;
+    }
+
+    return output;
+}
+
 void UrlParser::validation_error(ValidationError err) const {
     spdlog::debug("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
             current_pos(),
@@ -381,7 +449,7 @@ void UrlParser::state_scheme() {
 
                 return;
             }
-            if ((includes_credentials(url_) || url_.port.has_value()) && buffer_ == "file") {
+            if ((url_.includes_credentials() || url_.port.has_value()) && buffer_ == "file") {
                 state_ = ParserState::Terminate;
 
                 return;
@@ -443,13 +511,13 @@ void UrlParser::state_scheme() {
 
 // https://url.spec.whatwg.org/#no-scheme-state
 void UrlParser::state_no_scheme() {
-    if (auto c = peek(); !base_.has_value() || (has_opaque_path(*base_) && c != '#')) {
+    if (auto c = peek(); !base_.has_value() || (base_->has_opaque_path() && c != '#')) {
         validation_error(ValidationError::MissingSchemeNonRelativeUrl);
 
         state_ = ParserState::Failure;
 
         return;
-    } else if (has_opaque_path(*base_) && c == '#') {
+    } else if (base_->has_opaque_path() && c == '#') {
         url_.scheme = base_->scheme;
         url_.path = base_->path;
         url_.query = base_->query;
@@ -678,7 +746,7 @@ void UrlParser::state_host() {
 
             return;
         } else if (state_override_.has_value() && buffer_.empty()
-                && (includes_credentials(url_) || url_.port.has_value())) {
+                && (url_.includes_credentials() || url_.port.has_value())) {
             state_ = ParserState::Terminate;
 
             return;
