@@ -131,9 +131,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "e95d1cba1481e66386acda3e7da19cd738da86c6c2a140a48fa55046e5f6e208",
-    strip_prefix = "imgui-1.89.6",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.6.tar.gz",
+    sha256 = "115ee9e242af98a884302ac0f6ca3b2b26b1f10c660205f5e7ad9f1d1c96d269",
+    strip_prefix = "imgui-1.89.7",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.7.tar.gz",
 )
 
 http_archive(
@@ -166,13 +166,13 @@ http_archive(
     url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
 )
 
-# 1.11.0 + fixes for -Wshadow + compatibility w/ fmt 10.0.0.
+# https://github.com/gabime/spdlog
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "f516c1267a3f854d38d7fa8bc246e238a8c700a038ef4b2c2f669de8a9c7a25c",
-    strip_prefix = "spdlog-0ca574ae168820da0268b3ec7607ca7b33024d05",
-    url = "https://github.com/gabime/spdlog/archive/0ca574ae168820da0268b3ec7607ca7b33024d05.tar.gz",
+    sha256 = "4dccf2d10f410c1e2feaff89966bfc49a1abb29ef6f08246335b110e001e09a9",
+    strip_prefix = "spdlog-1.12.0",
+    url = "https://github.com/gabime/spdlog/archive/v1.12.0.tar.gz",
 )
 
 http_archive(
@@ -183,12 +183,13 @@ http_archive(
     url = "https://github.com/nothings/stb/archive/5736b15f7ea0ffb08dd38af21067c314d6a3aae9.tar.gz",
 )
 
+# https://github.com/illiliti/libudev-zero
 http_archive(
     name = "udev-zero",  # ISC
     build_file = "//third_party:udev-zero.BUILD",
-    sha256 = "29dff942cab9519994fb92ba6407f57e08d3dd6e6c0b86bb93d7b1d681994ff8",
-    strip_prefix = "libudev-zero-1.0.2",
-    url = "https://github.com/illiliti/libudev-zero/archive/1.0.2.tar.gz",
+    sha256 = "0bd89b657d62d019598e6c7ed726ff8fed80e8ba092a83b484d66afb80b77da5",
+    strip_prefix = "libudev-zero-1.0.3",
+    url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
 # https://github.com/facebookexperimental/libunifex
@@ -200,13 +201,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.254"
+VULKAN_TAG = "1.3.257"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "6be000a33b665ecac05971819b4c29ba5e21b800627f288f4d3a0b28e86b290f",
+    sha256 = "e3ee02eff07ebcdb0ddfd06366d986c889f3392b6c4d79615bb06aefc1fda900",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -215,7 +216,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "d0836a0d7e830d079ed27f5d3c44c20e46bf7485f8b51cdac0e4b8c494ae801b",
+    sha256 = "92c08be54fb9796baac093a7f1b0924a41645881574ff7af0c91fd608758fdc2",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
