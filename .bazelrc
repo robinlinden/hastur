@@ -74,6 +74,11 @@ build:clang14-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
 build:clang14-coverage --action_env=GCOV=llvm-profdata-14
 build:clang14-coverage --experimental_generate_llvm_lcov
 
+build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
+build:clang-tidy --output_groups=report
+build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
+build:clang-tidy --build_tag_filters=-no-clang-tidy
+
 # Fuzzing options
 # =========================================================
 
