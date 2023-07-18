@@ -45,7 +45,6 @@ using Statement = std::variant<Declaration,
         WhileStatement,
         EmptyStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
-using Node = std::variant<Expression, Statement, Pattern, Program, Function, VariableDeclarator>;
 
 struct NativeFunction {
     std::function<Value(std::vector<Value> const &)> f;
