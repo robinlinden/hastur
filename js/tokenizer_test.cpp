@@ -15,6 +15,11 @@ using etest::expect_eq;
 using Tokens = std::vector<Token>;
 
 int main() {
+    etest::test("int literal", [] {
+        expect_eq(tokenize("13"), Tokens{IntLiteral{13}, Eof{}});
+        expect_eq(tokenize("0"), Tokens{IntLiteral{0}, Eof{}});
+    });
+
     etest::test("identifier", [] {
         expect_eq(tokenize("hello"), Tokens{Identifier{"hello"}, Eof{}}); //
     });
@@ -29,6 +34,11 @@ int main() {
 
     etest::test("function call w/ whitespace", [] {
         expect_eq(tokenize("func  (   )    ;"), Tokens{Identifier{"func"}, LParen{}, RParen{}, Semicolon{}, Eof{}}); //
+    });
+
+    etest::test("function call w/ numeric argument", [] {
+        expect_eq(tokenize("func(9)"), Tokens{Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}, Eof{}});
+        expect_eq(tokenize("func( 9 )"), Tokens{Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}, Eof{}});
     });
 
     return etest::run_all_tests();

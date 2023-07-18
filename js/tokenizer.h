@@ -15,6 +15,11 @@
 
 namespace js::parse {
 
+struct IntLiteral {
+    int value{};
+    bool operator==(IntLiteral const &) const = default;
+};
+
 struct Identifier {
     std::string name;
     bool operator==(Identifier const &) const = default;
@@ -37,6 +42,7 @@ struct Eof {
 };
 
 using Token = std::variant< //
+        IntLiteral,
         Identifier,
         LParen,
         RParen,
@@ -67,6 +73,10 @@ public:
                 break;
         }
 
+        if (is_numeric(current)) {
+            return tokenize_int_literal(current);
+        }
+
         assert(is_alpha(current));
         return tokenize_identifier(current);
     }
@@ -80,6 +90,22 @@ private:
             return input_[pos_];
         }
         return std::nullopt;
+    }
+
+    Token tokenize_int_literal(char current) {
+        int value{};
+        while (true) {
+            value += current - '0';
+            auto next = peek();
+            if (!next || !is_numeric(*next)) {
+                break;
+            }
+            value *= 10;
+            current = *next;
+            pos_ += 1;
+        }
+
+        return IntLiteral{value};
     }
 
     Token tokenize_identifier(char current) {
@@ -98,6 +124,7 @@ private:
     }
 
     static constexpr bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+    static constexpr bool is_numeric(char c) { return (c >= '0' && c <= '9'); }
     static constexpr bool is_whitespace(char c) {
         switch (c) {
             case ' ':
