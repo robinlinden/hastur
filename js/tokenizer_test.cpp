@@ -41,5 +41,10 @@ int main() {
         expect_eq(tokenize("func( 9 )"), Tokens{Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}, Eof{}});
     });
 
+    etest::test("function call w/ multiple arguments", [] {
+        expect_eq(tokenize("nh(5, 20)"),
+                Tokens{Identifier{"nh"}, LParen{}, IntLiteral{5}, Comma{}, IntLiteral{20}, RParen{}, Eof{}});
+    });
+
     return etest::run_all_tests();
 }

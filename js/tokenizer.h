@@ -37,6 +37,10 @@ struct Semicolon {
     bool operator==(Semicolon const &) const = default;
 };
 
+struct Comma {
+    bool operator==(Comma const &) const = default;
+};
+
 struct Eof {
     bool operator==(Eof const &) const = default;
 };
@@ -47,6 +51,7 @@ using Token = std::variant< //
         LParen,
         RParen,
         Semicolon,
+        Comma,
         Eof>;
 
 class Tokenizer {
@@ -69,6 +74,8 @@ public:
                 return RParen{};
             case ';':
                 return Semicolon{};
+            case ',':
+                return Comma{};
             default:
                 break;
         }
