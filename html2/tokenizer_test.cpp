@@ -75,7 +75,7 @@ TokenizerOutput run_tokenizer(std::string_view input,
     if (opts.state_override) {
         tokenizer.set_state(*opts.state_override);
     }
-    tokenizer.set_adjusted_current_node_not_in_html_namespace(!opts.in_html_namespace);
+    tokenizer.set_adjusted_current_node_in_html_namespace(opts.in_html_namespace);
     tokenizer.run();
 
     return {std::move(tokens), std::move(errors), std::move(loc)};

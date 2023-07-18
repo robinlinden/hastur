@@ -1290,7 +1290,7 @@ void Tokenizer::run() {
 
                 if (input_.substr(pos_, std::strlen("[CDATA[")) == "[CDATA["sv) {
                     pos_ += std::strlen("[CDATA[");
-                    if (adjusted_current_node_not_in_html_namespace_) {
+                    if (!adjusted_current_node_in_html_namespace_) {
                         state_ = State::CdataSection;
                         continue;
                     }
