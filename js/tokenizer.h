@@ -48,11 +48,14 @@ public:
     explicit Tokenizer(std::string_view input) : input_{input} {}
 
     Token tokenize() {
-        if (pos_ >= input_.size()) {
-            return Eof{};
-        }
+        char current{};
+        do {
+            if (pos_ >= input_.size()) {
+                return Eof{};
+            }
+            current = input_[pos_++];
+        } while (is_whitespace(current));
 
-        char current = input_[pos_++];
         switch (current) {
             case '(':
                 return LParen{};
@@ -91,6 +94,19 @@ private:
     }
 
     static constexpr bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+    static constexpr bool is_whitespace(char c) {
+        switch (c) {
+            case ' ':
+            case '\n':
+            case '\r':
+            case '\f':
+            case '\v':
+            case '\t':
+                return true;
+            default:
+                return false;
+        }
+    }
 };
 
 inline std::vector<Token> tokenize(std::string_view input) {

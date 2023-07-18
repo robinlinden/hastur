@@ -19,8 +19,16 @@ int main() {
         expect_eq(tokenize("hello"), Tokens{Identifier{"hello"}, Eof{}}); //
     });
 
+    etest::test("identifiers w/ whitespace", [] {
+        expect_eq(tokenize(" lol no "), Tokens{Identifier{"lol"}, Identifier{"no"}, Eof{}}); //
+    });
+
     etest::test("function call", [] {
         expect_eq(tokenize("func();"), Tokens{Identifier{"func"}, LParen{}, RParen{}, Semicolon{}, Eof{}}); //
+    });
+
+    etest::test("function call w/ whitespace", [] {
+        expect_eq(tokenize("func  (   )    ;"), Tokens{Identifier{"func"}, LParen{}, RParen{}, Semicolon{}, Eof{}}); //
     });
 
     return etest::run_all_tests();
