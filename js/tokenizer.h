@@ -68,6 +68,21 @@ public:
         }
 
         assert(is_alpha(current));
+        return tokenize_identifier(current);
+    }
+
+private:
+    std::string_view input_;
+    std::size_t pos_{};
+
+    std::optional<char> peek() const {
+        if ((pos_) < input_.size()) {
+            return input_[pos_];
+        }
+        return std::nullopt;
+    }
+
+    Token tokenize_identifier(char current) {
         Identifier id{};
         while (true) {
             id.name += current;
@@ -80,17 +95,6 @@ public:
         }
 
         return id;
-    }
-
-private:
-    std::string_view input_;
-    std::size_t pos_{};
-
-    std::optional<char> peek() const {
-        if ((pos_) < input_.size()) {
-            return input_[pos_];
-        }
-        return std::nullopt;
     }
 
     static constexpr bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
