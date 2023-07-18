@@ -13,8 +13,9 @@ using namespace js::parse;
 namespace {
 
 void expect_tokens(std::string_view input,
-        std::vector<Token> const &tokens,
+        std::vector<Token> tokens,
         etest::source_location const &loc = etest::source_location::current()) {
+    tokens.push_back(Eof{});
     etest::expect_eq(tokenize(input), tokens, std::nullopt, loc);
 }
 
@@ -22,34 +23,33 @@ void expect_tokens(std::string_view input,
 
 int main() {
     etest::test("int literal", [] {
-        expect_tokens("13", {IntLiteral{13}, Eof{}});
-        expect_tokens("0", {IntLiteral{0}, Eof{}});
+        expect_tokens("13", {IntLiteral{13}});
+        expect_tokens("0", {IntLiteral{0}});
     });
 
     etest::test("identifier", [] {
-        expect_tokens("hello", {Identifier{"hello"}, Eof{}}); //
+        expect_tokens("hello", {Identifier{"hello"}}); //
     });
 
     etest::test("identifiers w/ whitespace", [] {
-        expect_tokens(" lol no ", {Identifier{"lol"}, Identifier{"no"}, Eof{}}); //
+        expect_tokens(" lol no ", {Identifier{"lol"}, Identifier{"no"}}); //
     });
 
     etest::test("function call", [] {
-        expect_tokens("func();", {Identifier{"func"}, LParen{}, RParen{}, Semicolon{}, Eof{}}); //
+        expect_tokens("func();", {Identifier{"func"}, LParen{}, RParen{}, Semicolon{}}); //
     });
 
     etest::test("function call w/ whitespace", [] {
-        expect_tokens("func  (   )    ;", {Identifier{"func"}, LParen{}, RParen{}, Semicolon{}, Eof{}}); //
+        expect_tokens("func  (   )    ;", {Identifier{"func"}, LParen{}, RParen{}, Semicolon{}}); //
     });
 
     etest::test("function call w/ numeric argument", [] {
-        expect_tokens("func(9)", {Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}, Eof{}});
-        expect_tokens("func( 9 )", {Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}, Eof{}});
+        expect_tokens("func(9)", {Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}});
+        expect_tokens("func( 9 )", {Identifier{"func"}, LParen{}, IntLiteral{9}, RParen{}});
     });
 
     etest::test("function call w/ multiple arguments", [] {
-        expect_tokens(
-                "nh(5, 20)", {Identifier{"nh"}, LParen{}, IntLiteral{5}, Comma{}, IntLiteral{20}, RParen{}, Eof{}});
+        expect_tokens("nh(5, 20)", {Identifier{"nh"}, LParen{}, IntLiteral{5}, Comma{}, IntLiteral{20}, RParen{}});
     });
 
     return etest::run_all_tests();
