@@ -1539,6 +1539,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#doctype-state
             case State::Doctype: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1565,6 +1566,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#before-doctype-name-state
             case State::BeforeDoctypeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1608,6 +1610,7 @@ void Tokenizer::run() {
             // there sets current_token_ to DoctypeToken and initalizes
             // DoctypeToken::name to something not std::nullopt.
             // NOLINTBEGIN(bugprone-unchecked-optional-access)
+            // https://html.spec.whatwg.org/#doctype-name-state
             case State::DoctypeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1645,6 +1648,7 @@ void Tokenizer::run() {
                 // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
+            // https://html.spec.whatwg.org/#after-doctype-name-state
             case State::AfterDoctypeName: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1685,6 +1689,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#after-doctype-public-keyword-state
             case State::AfterDoctypePublicKeyword: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1726,6 +1731,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#before-doctype-public-identifier-state
             case State::BeforeDoctypePublicIdentifier: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1768,6 +1774,7 @@ void Tokenizer::run() {
             // State::BeforeDoctypePublicIdentifier, both of which set
             // DoctypeToken::public_identifier to an empty string.
             // NOLINTBEGIN(bugprone-unchecked-optional-access)
+            // https://html.spec.whatwg.org/#doctype-public-identifier-(double-quoted)-state
             case State::DoctypePublicIdentifierDoubleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1803,6 +1810,7 @@ void Tokenizer::run() {
             // State::BeforeDoctypePublicIdentifier, both of which set
             // DoctypeToken::public_identifier to an empty string.
             // NOLINTBEGIN(bugprone-unchecked-optional-access)
+            // https://html.spec.whatwg.org/#doctype-public-identifier-(single-quoted)-state
             case State::DoctypePublicIdentifierSingleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1834,6 +1842,7 @@ void Tokenizer::run() {
                 // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
+            // https://html.spec.whatwg.org/#after-doctype-public-identifier-state
             case State::AfterDoctypePublicIdentifier: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1873,6 +1882,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#between-doctype-public-and-system-identifiers-state
             case State::BetweenDoctypePublicAndSystemIdentifiers: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1909,6 +1919,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#after-doctype-system-keyword-state
             case State::AfterDoctypeSystemKeyword: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1950,6 +1961,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#before-doctype-system-identifier-state
             case State::BeforeDoctypeSystemIdentifier: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -1994,6 +2006,7 @@ void Tokenizer::run() {
             // State::BeforeDoctypeSystemIdentifier, all of which set
             // DoctypeToken::system_identifier to an empty string.
             // NOLINTBEGIN(bugprone-unchecked-optional-access)
+            // https://html.spec.whatwg.org/#doctype-system-identifier-(double-quoted)-state
             case State::DoctypeSystemIdentifierDoubleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2031,6 +2044,7 @@ void Tokenizer::run() {
             // State::BeforeDoctypeSystemIdentifier, all of which set
             // DoctypeToken::system_identifier to an empty string.
             // NOLINTBEGIN(bugprone-unchecked-optional-access)
+            // https://html.spec.whatwg.org/#doctype-system-identifier-(single-quoted)-state
             case State::DoctypeSystemIdentifierSingleQuoted: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2062,6 +2076,7 @@ void Tokenizer::run() {
                 // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
+            // https://html.spec.whatwg.org/#after-doctype-system-identifier-state
             case State::AfterDoctypeSystemIdentifier: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2089,6 +2104,7 @@ void Tokenizer::run() {
                 }
             }
 
+            // https://html.spec.whatwg.org/#bogus-doctype-state
             case State::BogusDoctype: {
                 auto c = consume_next_input_character();
                 if (!c) {
@@ -2161,6 +2177,7 @@ void Tokenizer::run() {
                 continue;
             }
 
+            // https://html.spec.whatwg.org/#character-reference-state
             case State::CharacterReference: {
                 temporary_buffer_ = "&"s;
 
