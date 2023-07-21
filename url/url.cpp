@@ -154,6 +154,40 @@ static void icu_init() {
     delete uts;
 }
 
+// https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
+std::string Origin::serialize() const {
+    if (opaque) {
+        return "null";
+    }
+
+    std::string result = scheme;
+
+    result += "://";
+
+    result += host.serialize();
+
+    if (port.has_value()) {
+        result += ":";
+
+        result += std::to_string(*port);
+    }
+
+    return result;
+}
+
+// https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-effective-domain
+std::variant<std::monostate, std::string, Host> Origin::effective_domain() const {
+    if (opaque) {
+        return std::monostate{};
+    }
+
+    if (domain.has_value()) {
+        return *domain;
+    }
+
+    return host;
+}
+
 // https://w3c.github.io/FileAPI/#unicodeBlobURL
 std::string blob_url_create(Origin const &origin) {
     std::string result = "blob:";
@@ -180,7 +214,7 @@ std::string blob_url_create(Origin const &origin) {
         }
 
         if (origin.port.has_value()) {
-            serialized += ":" + std::to_string(origin.port.value());
+            serialized += ":" + std::to_string(*origin.port);
         }
     }
 
@@ -257,6 +291,38 @@ std::string Url::serialize(bool exclude_fragment) const {
     }
 
     return output;
+}
+
+// https://url.spec.whatwg.org/#concept-url-origin
+Origin Url::origin() const {
+    // Return tuple origin of the path URL
+    if (scheme == "blob") {
+        // TODO(dzero): Implement checking blob URL entry, once those are implemented
+        UrlParser p;
+
+        std::optional<Url> path_url = p.parse(serialize_path());
+
+        if (!path_url.has_value()) {
+            return Origin{"", Host{}, std::nullopt, std::nullopt, true};
+        }
+
+        if (path_url->scheme != "http" && path_url->scheme != "https") {
+            return Origin{"", Host{}, std::nullopt, std::nullopt, true};
+        }
+
+        return path_url->origin();
+    }
+    // Return a tuple origin
+    else if (scheme == "ftp" || scheme == "http" || scheme == "https" || scheme == "ws" || scheme == "wss") {
+        // These schemes all require a host in a valid URL
+        assert(host.has_value());
+
+        return Origin{scheme, *host, port, std::nullopt};
+    }
+    // Return a new opaque origin
+    else {
+        return Origin{"", Host{}, std::nullopt, std::nullopt, true};
+    }
 }
 
 void UrlParser::validation_error(ValidationError err) const {

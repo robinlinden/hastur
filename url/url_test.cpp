@@ -495,6 +495,136 @@ int main() {
         etest::expect_eq(url->serialize(), R"(file:///C:/Users/zero-one/repos/hastur/README.md)");
     });
 
+    etest::test("URL origin", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("https://example.com:8080/index.html");
+        std::optional<url::Url> url2 = p.parse("https://example.com:9999/index.php");
+        std::optional<url::Url> url3 = p.parse("http://example.com:8080/index.html");
+        std::optional<url::Url> url4 = p.parse("https://example.com:8080/index.php?foo=bar");
+
+        etest::require(url.has_value());
+        etest::require(url2.has_value());
+        etest::require(url3.has_value());
+        etest::require(url4.has_value());
+
+        url::Origin o = url->origin();
+        url::Origin o2 = url2->origin();
+        url::Origin o3 = url3->origin();
+        url::Origin o4 = url4->origin();
+        url::Origin o5{"https", {url::HostType::DnsDomain, "example.com"}, std::uint16_t{8080}, "example.com"};
+
+        etest::require(o.port.has_value());
+        etest::require(o2.port.has_value());
+        etest::require(o3.port.has_value());
+        etest::require(o4.port.has_value());
+
+        etest::expect(!o.domain.has_value());
+        etest::expect(!o2.domain.has_value());
+        etest::expect(!o3.domain.has_value());
+        etest::expect(!o4.domain.has_value());
+
+        etest::expect_eq(o.scheme, "https");
+        etest::expect_eq(o2.scheme, "https");
+        etest::expect_eq(o3.scheme, "http");
+        etest::expect_eq(o4.scheme, "https");
+
+        etest::expect_eq(o.host.serialize(), "example.com");
+        etest::expect_eq(o2.host.serialize(), "example.com");
+        etest::expect_eq(o3.host.serialize(), "example.com");
+        etest::expect_eq(o4.host.serialize(), "example.com");
+
+        etest::expect_eq(*o.port, 8080);
+        etest::expect_eq(*o2.port, 9999);
+        etest::expect_eq(*o3.port, 8080);
+        etest::expect_eq(*o4.port, 8080);
+
+        etest::expect(!o.opaque);
+        etest::expect(!o2.opaque);
+        etest::expect(!o3.opaque);
+        etest::expect(!o4.opaque);
+
+        etest::expect_eq(o.serialize(), "https://example.com:8080");
+        etest::expect_eq(o2.serialize(), "https://example.com:9999");
+        etest::expect_eq(o3.serialize(), "http://example.com:8080");
+        etest::expect_eq(o4.serialize(), "https://example.com:8080");
+
+        etest::expect(o != o2);
+        etest::expect(o != o3);
+        etest::expect(o == o4);
+        etest::expect(o == o5);
+
+        etest::expect(!o.is_same_origin_domain(o2));
+        etest::expect(!o.is_same_origin_domain(o3));
+        etest::expect(o.is_same_origin_domain(o4));
+        etest::expect(!o.is_same_origin_domain(o5));
+
+        etest::expect(std::holds_alternative<url::Host>(o.effective_domain()));
+        etest::expect(std::holds_alternative<url::Host>(o2.effective_domain()));
+        etest::expect(std::holds_alternative<url::Host>(o3.effective_domain()));
+        etest::expect(std::holds_alternative<url::Host>(o4.effective_domain()));
+        etest::expect(std::holds_alternative<std::string>(o5.effective_domain()));
+
+        etest::expect_eq(std::get<std::string>(o5.effective_domain()), "example.com");
+    });
+
+    etest::test("URL origin: opaque origin", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("file:///usr/local/bin/foo");
+        std::optional<url::Url> url2 = p.parse("file:///etc/passwd");
+        std::optional<url::Url> url3 = p.parse("http://example.com");
+
+        etest::require(url.has_value());
+        etest::require(url2.has_value());
+        etest::require(url3.has_value());
+
+        url::Origin o = url->origin();
+        url::Origin o2 = url2->origin();
+        url::Origin o3 = url3->origin();
+
+        etest::expect(o.opaque);
+        etest::expect(o2.opaque);
+        etest::expect(!o3.opaque);
+
+        etest::expect_eq(o.serialize(), "null");
+        etest::expect_eq(o2.serialize(), "null");
+
+        etest::expect(std::holds_alternative<std::monostate>(o.effective_domain()));
+        etest::expect(std::holds_alternative<std::monostate>(o2.effective_domain()));
+
+        etest::expect(o == o2);
+        etest::expect(o != o3);
+
+        etest::expect(o.is_same_origin_domain(o2));
+        etest::expect(!o.is_same_origin_domain(o3));
+    });
+
+    etest::test("URL origin: blob URL", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("blob:https://whatwg.org/d0360e2f-caee-469f-9a2f-87d5b0456f6f");
+        std::optional<url::Url> url2 = p.parse("blob:ws://whatwg.org/d0360e2f-caee-469f-9a2f-87d5b0456f6f");
+
+        etest::require(url.has_value());
+        etest::require(url2.has_value());
+
+        url::Origin o = url->origin();
+        url::Origin o2 = url2->origin();
+
+        etest::expect(!o.opaque);
+        etest::expect(o2.opaque);
+
+        etest::expect(!o.port.has_value());
+        etest::expect(!o.domain.has_value());
+
+        etest::expect_eq(o.scheme, "https");
+        etest::expect_eq(o.host.serialize(), "whatwg.org");
+
+        etest::expect_eq(o.serialize(), "https://whatwg.org");
+        etest::expect_eq(o2.serialize(), "null");
+    });
+
     int ret = etest::run_all_tests();
 
     url::icu_cleanup();

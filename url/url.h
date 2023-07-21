@@ -28,6 +28,8 @@ struct Host {
     std::variant<std::string, std::uint32_t, std::array<std::uint16_t, 8>> data;
 
     std::string serialize() const;
+
+    bool operator==(Host const &) const = default;
 };
 
 struct Origin {
@@ -35,8 +37,46 @@ struct Origin {
     Host host;
     std::optional<std::uint16_t> port;
     std::optional<std::string> domain;
-    // Need this placeholder until I figure out what "opaqueness" means for an origin in this context
-    bool opaque;
+    // If opaque, then this Origin should serialize to (null). All opaque origins are equal to each other, and not equal
+    // to all non-opaque origins.
+    bool opaque = false;
+
+    std::string serialize() const;
+    std::variant<std::monostate, std::string, Host> effective_domain() const;
+
+    // https://html.spec.whatwg.org/multipage/browsers.html#same-origin
+    bool operator==(Origin const &b) const {
+        if (opaque && b.opaque) {
+            return true;
+        }
+
+        if (!opaque && !b.opaque) {
+            if (scheme == b.scheme && host == b.host && port == b.port) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // https://html.spec.whatwg.org/multipage/browsers.html#same-origin-domain
+    constexpr bool is_same_origin_domain(Origin const &b) const {
+        if (opaque && b.opaque) {
+            return true;
+        }
+
+        if (!opaque && !b.opaque) {
+            if (scheme == b.scheme && domain == b.domain && domain.has_value() && b.domain.has_value()) {
+                return true;
+            }
+
+            if (*this == b && domain == b.domain && !domain.has_value() && !b.domain.has_value()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 /**
@@ -56,6 +96,8 @@ struct Url {
 
     std::string serialize(bool exclude_fragment = false) const;
     std::string serialize_path() const;
+
+    Origin origin() const;
 
     constexpr bool includes_credentials() const { return !user.empty() || !passwd.empty(); }
     constexpr bool has_opaque_path() const { return std::holds_alternative<std::string>(path); }
