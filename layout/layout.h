@@ -32,7 +32,7 @@ struct LayoutBox {
     LayoutType type;
     BoxModel dimensions;
     std::vector<LayoutBox> children;
-    std::optional<std::string_view> layout_text;
+    std::variant<std::monostate, std::string_view, std::string> layout_text;
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
     std::optional<std::string_view> text() const;

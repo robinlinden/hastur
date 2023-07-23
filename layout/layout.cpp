@@ -69,13 +69,12 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 }
 
 // TODO(robinlinden): Collapse whitespace inside text runs.
-// NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
 void collapse_whitespace(LayoutBox &box) {
     LayoutBox *last_text_box = nullptr;
     std::list<LayoutBox *> to_collapse{&box};
 
     auto starts_text_run = [&](LayoutBox const &l) {
-        return last_text_box == nullptr && l.layout_text.has_value();
+        return last_text_box == nullptr && !std::holds_alternative<std::monostate>(l.layout_text);
     };
     auto ends_text_run = [&](LayoutBox const &l) {
         return last_text_box != nullptr && l.type != LayoutType::Inline;
@@ -85,11 +84,11 @@ void collapse_whitespace(LayoutBox &box) {
         auto *current = *it;
         if (starts_text_run(*current)) {
             last_text_box = current;
-            last_text_box->layout_text = util::trim_start(*last_text_box->layout_text);
-        } else if (current->layout_text.has_value()) {
+            last_text_box->layout_text = util::trim_start(std::get<std::string_view>(last_text_box->layout_text));
+        } else if (!std::holds_alternative<std::monostate>(current->layout_text)) {
             last_text_box = current;
         } else if (ends_text_run(*current)) {
-            last_text_box->layout_text = util::trim_end(*last_text_box->layout_text);
+            last_text_box->layout_text = util::trim_end(std::get<std::string_view>(last_text_box->layout_text));
             last_text_box = nullptr;
         }
 
@@ -101,10 +100,9 @@ void collapse_whitespace(LayoutBox &box) {
     }
 
     if (last_text_box != nullptr) {
-        last_text_box->layout_text = util::trim_end(*last_text_box->layout_text);
+        last_text_box->layout_text = util::trim_end(std::get<std::string_view>(last_text_box->layout_text));
     }
 }
-// NOLINTEND(bugprone-unchecked-optional-access)
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 int to_px(std::string_view property, int const font_size, int const root_font_size) {
@@ -410,7 +408,12 @@ int get_root_font_size(style::StyledNode const &node) {
 } // namespace
 
 std::optional<std::string_view> LayoutBox::text() const {
-    return layout_text;
+    struct Visitor {
+        std::optional<std::string_view> operator()(std::monostate) { return std::nullopt; }
+        std::optional<std::string_view> operator()(std::string const &s) { return s; }
+        std::optional<std::string_view> operator()(std::string_view const &s) { return s; }
+    };
+    return std::visit(Visitor{}, layout_text);
 }
 
 std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) const {
