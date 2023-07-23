@@ -37,7 +37,7 @@ bool last_node_was_anonymous(LayoutBox const &box) {
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     if (auto const *text = std::get_if<dom::Text>(&node.node)) {
-        return LayoutBox{.node = &node, .type = LayoutType::Inline, .layout_text = text->text};
+        return LayoutBox{.node = &node, .type = LayoutType::Inline, .layout_text = std::string_view{text->text}};
     }
 
     assert(std::holds_alternative<dom::Element>(node.node));

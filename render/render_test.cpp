@@ -12,9 +12,13 @@
 #include "layout/layout.h"
 #include "style/styled_node.h"
 
+#include <string_view>
+
 using etest::expect_eq;
 
 using CanvasCommands = std::vector<gfx::CanvasCommand>;
+
+using namespace std::literals;
 
 constexpr auto kInvalidColor = gfx::Color{0xFF, 0, 0};
 
@@ -33,7 +37,7 @@ int main() {
                 .node = &styled,
                 .type = layout::LayoutType::Inline,
                 .dimensions = {},
-                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"}},
+                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"sv}},
         };
 
         gfx::CanvasCommandSaver saver;
@@ -59,7 +63,7 @@ int main() {
         auto layout = layout::LayoutBox{
                 .node = &styled,
                 .type = layout::LayoutType::Inline,
-                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"}},
+                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"sv}},
         };
 
         gfx::CanvasCommandSaver saver;
@@ -329,7 +333,7 @@ int main() {
                         {css::PropertyId::FontFamily, "arial"},
                         {css::PropertyId::FontSize, "16px"},
                 }};
-        auto layout = layout::LayoutBox{.node = &styled, .layout_text = "hello"};
+        auto layout = layout::LayoutBox{.node = &styled, .layout_text = "hello"sv};
 
         gfx::CanvasCommandSaver saver;
         render::render_layout(saver, layout);
