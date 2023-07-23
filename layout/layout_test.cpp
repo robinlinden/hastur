@@ -1259,14 +1259,11 @@ int main() {
     });
 
     etest::test("whitespace collapsing: text split across multiple inline elements", [] {
-        // This will break when we add more complete ws-collapsing to the layout
-        // system as the 2 spaces between "cr" and "lf" will be collapsed to
-        // only being 1 space.
         constexpr auto kFirstText = "   cr "sv;
         constexpr auto kSecondText = " lf   "sv;
         constexpr auto kCollapsedFirst = util::trim_start(kFirstText);
         constexpr auto kFirstWidth = kCollapsedFirst.length() * 5;
-        constexpr auto kCollapsedSecond = util::trim_end(kSecondText);
+        constexpr auto kCollapsedSecond = util::trim(kSecondText);
         constexpr auto kSecondWidth = kCollapsedSecond.length() * 5;
 
         dom::Element a{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};

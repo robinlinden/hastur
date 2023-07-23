@@ -86,6 +86,12 @@ void collapse_whitespace(LayoutBox &box) {
             last_text_box = current;
             last_text_box->layout_text = util::trim_start(std::get<std::string_view>(last_text_box->layout_text));
         } else if (!std::holds_alternative<std::monostate>(current->layout_text)) {
+            if (last_text_box != nullptr
+                    && last_text_box->text()
+                               .transform([](auto sv) { return sv.empty() || util::is_whitespace(sv.back()); })
+                               .value_or(false)) {
+                current->layout_text = util::trim_start(std::get<std::string_view>(current->layout_text));
+            }
             last_text_box = current;
         } else if (ends_text_run(*current)) {
             last_text_box->layout_text = util::trim_end(std::get<std::string_view>(last_text_box->layout_text));
