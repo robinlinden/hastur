@@ -167,9 +167,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: windows_msvc-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-      # Hack to work around https://github.com/bazelbuild/bazel/issues/18592
-      - run: rm -rf "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/vcpkg"
-        name: Trick Bazel into detecting Visual Studio
       - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
       - name: Build
         run: bazel build ... -c dbg
@@ -192,9 +189,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-      # Hack to work around https://github.com/bazelbuild/bazel/issues/18592
-      - run: rm -rf "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/vcpkg"
-        name: Trick Bazel into detecting Visual Studio
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
       - run: bazel test ...
