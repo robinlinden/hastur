@@ -924,24 +924,35 @@ int main() {
         expect(box_at_position(layout, {47, 47}) == &layout.children[0].children[1]);
     });
 
+    // clang-format on
     etest::test("to_string", [] {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node body = dom::Element{.name{"body"}, .children{dom::Element{"p"}, dom::Element{"p"}}};
+        dom::Node dom_root = dom::Element{.name{"html"}, .children{std::move(body)}};
 
-        auto const &children = std::get<dom::Element>(dom_root).children;
+        auto const &html_children = std::get<dom::Element>(dom_root).children;
+        auto const &body_children = std::get<dom::Element>(html_children[0]).children;
+
+        auto body_style_children = std::vector<style::StyledNode>{
+                {
+                        body_children[0],
+                        {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}},
+                },
+                {
+                        body_children[1],
+                        {{css::PropertyId::PaddingTop, "5px"},
+                                {css::PropertyId::PaddingRight, "15px"},
+                                {css::PropertyId::Display, "block"}},
+                },
+        };
+        auto body_style = style::StyledNode{
+                html_children[0],
+                {{css::PropertyId::Width, "50px"}, {css::PropertyId::Display, "block"}},
+                std::move(body_style_children),
+        };
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Width, "50px"}, {css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::PaddingTop, "5px"}, {css::PropertyId::PaddingRight, "15px"}, {css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{{std::move(body_style)}},
         };
 
         auto const *expected =
@@ -956,7 +967,6 @@ int main() {
         expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);
     });
 
-    // clang-format on
     etest::test("max-width: none", [] {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
