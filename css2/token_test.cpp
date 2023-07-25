@@ -44,6 +44,14 @@ int main() {
         etest::expect_eq("BadStringToken", to_string(t));
     });
 
+    etest::test("to_string UrlToken", [] {
+        etest::expect_eq("UrlToken evilcorp.ltd", to_string(UrlToken{"evilcorp.ltd"})); //
+    });
+
+    etest::test("to_string BadUrlToken", [] {
+        etest::expect_eq("BadUrlToken", to_string(BadUrlToken{})); //
+    });
+
     etest::test("to_string DelimToken", [] {
         DelimToken t{','};
         etest::expect_eq("DelimToken ,", to_string(t));
