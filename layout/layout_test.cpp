@@ -926,16 +926,18 @@ int main() {
 
     // clang-format on
     etest::test("to_string", [] {
-        dom::Node body = dom::Element{.name{"body"}, .children{dom::Element{"p"}, dom::Element{"p"}}};
+        dom::Node body = dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"!!!"}}}, dom::Element{"p"}}};
         dom::Node dom_root = dom::Element{.name{"html"}, .children{std::move(body)}};
 
         auto const &html_children = std::get<dom::Element>(dom_root).children;
         auto const &body_children = std::get<dom::Element>(html_children[0]).children;
 
+        auto text_child = style::StyledNode{std::get<dom::Element>(body_children[0]).children[0]};
         auto body_style_children = std::vector<style::StyledNode>{
                 {
                         body_children[0],
                         {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}},
+                        {std::move(text_child)},
                 },
                 {
                         body_children[1],
@@ -951,7 +953,7 @@ int main() {
         };
         auto style_root = style::StyledNode{
                 .node = dom_root,
-                .properties = {{css::PropertyId::Display, "block"}},
+                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
                 .children{{std::move(body_style)}},
         };
 
@@ -962,6 +964,9 @@ int main() {
                 "  block {0,0,50,30} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,0,50,25} {0,0,0,0} {0,0,0,0}\n"
+                "      ablock {0,0,15,10} {0,0,0,0} {0,0,0,0}\n"
+                "        !!!\n"
+                "        inline {0,0,15,10} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
         expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);
