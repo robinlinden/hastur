@@ -11,7 +11,6 @@ cc_library(
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
-        "//util:overloaded",
         "//util:string",
     ],
 )

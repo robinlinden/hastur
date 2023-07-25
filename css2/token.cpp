@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "css2/token.h"
-
-#include "util/overloaded.h"
 
 #include <sstream>
 #include <variant>
@@ -30,37 +29,40 @@ std::ostream &operator<<(std::ostream &os, std::variant<int, double> const &data
     return os;
 }
 
+struct StringifyVisitor {
+    std::ostream &ss;
+
+    void operator()(IdentToken const &t) { ss << "IdentToken " << t.data; }
+    void operator()(FunctionToken const &t) { ss << "FunctionToken " << t.data; }
+    void operator()(AtKeywordToken const &t) { ss << "AtKeywordToken " << t.data; }
+    void operator()(HashToken const &t) { ss << "HashToken " << t.data << " " << t.type; }
+    void operator()(StringToken const &t) { ss << "StringToken " << t.data; }
+    void operator()(BadStringToken const &) { ss << "BadStringToken"; }
+    void operator()(UrlToken const &t) { ss << "UrlToken " << t.data; }
+    void operator()(BadUrlToken const &) { ss << "BadUrlToken"; }
+    void operator()(DelimToken const &t) { ss << "DelimToken " << t.data; }
+    void operator()(NumberToken const &t) { ss << "NumberToken " << t.data; }
+    void operator()(PercentageToken const &t) { ss << "PercentageToken " << t.data; }
+    void operator()(DimensionToken const &t) { ss << "DimensionToken " << t.data << t.unit; }
+    void operator()(WhitespaceToken const &) { ss << "WhitespaceToken"; }
+    void operator()(CdoToken const &) { ss << "CdoToken"; }
+    void operator()(CdcToken const &) { ss << "CdcToken"; }
+    void operator()(ColonToken const &) { ss << "ColonToken"; }
+    void operator()(SemiColonToken const &) { ss << "SemiColonToken"; }
+    void operator()(CommaToken const &) { ss << "CommaToken"; }
+    void operator()(OpenSquareToken const &) { ss << "OpenSquareToken"; }
+    void operator()(CloseSquareToken const &) { ss << "CloseSquareToken"; }
+    void operator()(OpenParenToken const &) { ss << "OpenParenToken"; }
+    void operator()(CloseParenToken const &) { ss << "CloseParenToken"; }
+    void operator()(OpenCurlyToken const &) { ss << "OpenCurlyToken"; }
+    void operator()(CloseCurlyToken const &) { ss << "CloseCurlyToken"; }
+};
+
 } // namespace
 
 std::string to_string(Token const &token) {
     std::stringstream ss;
-    std::visit(util::Overloaded{
-                       [&ss](IdentToken const &t) { ss << "IdentToken " << t.data; },
-                       [&ss](FunctionToken const &t) { ss << "FunctionToken " << t.data; },
-                       [&ss](AtKeywordToken const &t) { ss << "AtKeywordToken " << t.data; },
-                       [&ss](HashToken const &t) { ss << "HashToken " << t.data << " " << t.type; },
-                       [&ss](StringToken const &t) { ss << "StringToken " << t.data; },
-                       [&ss](BadStringToken const &) { ss << "BadStringToken"; },
-                       [&ss](UrlToken const &t) { ss << "UrlToken " << t.data; },
-                       [&ss](BadUrlToken const &) { ss << "BadUrlToken"; },
-                       [&ss](DelimToken const &t) { ss << "DelimToken " << t.data; },
-                       [&ss](NumberToken const &t) { ss << "NumberToken " << t.data; },
-                       [&ss](PercentageToken const &t) { ss << "PercentageToken " << t.data; },
-                       [&ss](DimensionToken const &t) { ss << "DimensionToken " << t.data << t.unit; },
-                       [&ss](WhitespaceToken const &) { ss << "WhitespaceToken"; },
-                       [&ss](CdoToken const &) { ss << "CdoToken"; },
-                       [&ss](CdcToken const &) { ss << "CdcToken"; },
-                       [&ss](ColonToken const &) { ss << "ColonToken"; },
-                       [&ss](SemiColonToken const &) { ss << "SemiColonToken"; },
-                       [&ss](CommaToken const &) { ss << "CommaToken"; },
-                       [&ss](OpenSquareToken const &) { ss << "OpenSquareToken"; },
-                       [&ss](CloseSquareToken const &) { ss << "CloseSquareToken"; },
-                       [&ss](OpenParenToken const &) { ss << "OpenParenToken"; },
-                       [&ss](CloseParenToken const &) { ss << "CloseParenToken"; },
-                       [&ss](OpenCurlyToken const &) { ss << "OpenCurlyToken"; },
-                       [&ss](CloseCurlyToken const &) { ss << "CloseCurlyToken"; },
-               },
-            token);
+    std::visit(StringifyVisitor{ss}, token);
     return std::move(ss).str();
 }
 
