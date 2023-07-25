@@ -4,8 +4,6 @@
 
 #include "dom/dom.h"
 
-#include "util/overloaded.h"
-
 #include <cstdint>
 #include <ostream>
 #include <sstream>
@@ -19,16 +17,15 @@ void print_node(dom::Node const &node, std::ostream &os, std::uint8_t depth = 0)
     for (std::uint8_t i = 0; i < depth; ++i) {
         os << "  ";
     }
-    std::visit(util::Overloaded{
-                       [&os, depth](dom::Element const &element) {
-                           os << "tag: " << element.name << '\n';
-                           for (auto const &child : element.children) {
-                               print_node(child, os, depth + 1);
-                           }
-                       },
-                       [&os](dom::Text const &text) { os << "value: " << text.text << '\n'; },
-               },
-            node);
+
+    if (auto const *element = std::get_if<dom::Element>(&node)) {
+        os << "tag: " << element->name << '\n';
+        for (auto const &child : element->children) {
+            print_node(child, os, depth + 1);
+        }
+    } else {
+        os << "value: " << std::get<dom::Text>(node).text << '\n';
+    }
 }
 
 } // namespace

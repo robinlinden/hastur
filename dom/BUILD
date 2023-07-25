@@ -7,9 +7,6 @@ cc_library(
     hdrs = ["dom.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = [
-        "//util:overloaded",
-    ],
 )
 
 cc_test(
