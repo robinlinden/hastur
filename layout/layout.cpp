@@ -6,7 +6,6 @@
 #include "layout/layout.h"
 
 #include "util/from_chars.h"
-#include "util/overloaded.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -37,40 +36,36 @@ bool last_node_was_anonymous(LayoutBox const &box) {
 
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
-    auto visitor = util::Overloaded{
-            [&node](dom::Element const &) -> std::optional<LayoutBox> {
-                auto display = node.get_property<css::PropertyId::Display>();
-                if (display == style::DisplayValue::None) {
-                    return std::nullopt;
-                }
+    if (auto const *text = std::get_if<dom::Text>(&node.node)) {
+        return LayoutBox{.node = &node, .type = LayoutType::Inline, .layout_text = text->text};
+    }
 
-                LayoutBox box{&node, display == style::DisplayValue::Inline ? LayoutType::Inline : LayoutType::Block};
+    assert(std::holds_alternative<dom::Element>(node.node));
+    auto display = node.get_property<css::PropertyId::Display>();
+    if (display == style::DisplayValue::None) {
+        return std::nullopt;
+    }
 
-                for (auto const &child : node.children) {
-                    auto child_box = create_tree(child);
-                    if (!child_box) {
-                        continue;
-                    }
+    LayoutBox box{&node, display == style::DisplayValue::Inline ? LayoutType::Inline : LayoutType::Block};
 
-                    if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
-                        if (!last_node_was_anonymous(box)) {
-                            box.children.push_back(LayoutBox{nullptr, LayoutType::AnonymousBlock});
-                        }
+    for (auto const &child : node.children) {
+        auto child_box = create_tree(child);
+        if (!child_box) {
+            continue;
+        }
 
-                        box.children.back().children.push_back(std::move(*child_box));
-                    } else {
-                        box.children.push_back(std::move(*child_box));
-                    }
-                }
+        if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
+            if (!last_node_was_anonymous(box)) {
+                box.children.push_back(LayoutBox{nullptr, LayoutType::AnonymousBlock});
+            }
 
-                return box;
-            },
-            [&node](dom::Text const &text) -> std::optional<LayoutBox> {
-                return LayoutBox{.node = &node, .type = LayoutType::Inline, .layout_text = text.text};
-            },
-    };
+            box.children.back().children.push_back(std::move(*child_box));
+        } else {
+            box.children.push_back(std::move(*child_box));
+        }
+    }
 
-    return std::visit(visitor, node.node);
+    return box;
 }
 
 // TODO(robinlinden): Collapse whitespace inside text runs.
@@ -366,11 +361,11 @@ std::string_view to_str(LayoutType type) {
 }
 
 std::string_view to_str(dom::Node const &node) {
-    return std::visit(util::Overloaded{
-                              [](dom::Element const &element) -> std::string_view { return element.name; },
-                              [](dom::Text const &text) -> std::string_view { return text.text; },
-                      },
-            node);
+    if (auto const *element = std::get_if<dom::Element>(&node)) {
+        return element->name;
+    }
+
+    return std::get<dom::Text>(node).text;
 }
 
 std::string to_str(geom::Rect const &rect) {

@@ -12,7 +12,6 @@ cc_library(
         "//geom",
         "//style",
         "//util:from_chars",
-        "//util:overloaded",
         "//util:string",
         "@spdlog",
     ],
