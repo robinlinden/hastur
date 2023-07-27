@@ -9,8 +9,8 @@
 #include "css/property_id.h"
 #include "css/rule.h"
 
-#include "util/base_parser.h"
-
+#include <concepts>
+#include <cstddef>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -18,15 +18,35 @@
 
 namespace css {
 
-class Parser final : util::BaseParser {
+template<typename T>
+concept Predicate = std::predicate<T, char>;
+
+class Parser {
 public:
-    explicit Parser(std::string_view input) : BaseParser{input} {}
+    explicit Parser(std::string_view input) : input_{input} {}
 
     std::vector<css::Rule> parse_rules();
 
 private:
-    void skip_whitespace_and_comments();
+    std::string_view input_;
+    std::size_t pos_{};
+
+    // Parse helpers.
+    constexpr bool is_eof() const { return pos_ >= input_.size(); }
+    constexpr std::optional<char> peek() const;
+    constexpr std::optional<std::string_view> peek(std::size_t) const;
+    constexpr bool starts_with(std::string_view) const;
+    constexpr void advance(std::size_t n) { pos_ += n; }
     constexpr void skip_if_neq(char);
+    constexpr char consume_char() { return input_[pos_++]; }
+
+    template<Predicate T>
+    constexpr std::string_view consume_while(T const &pred);
+
+    constexpr void skip_whitespace();
+
+    // CSS-specific parsing bits.
+    void skip_whitespace_and_comments();
 
     css::Rule parse_rule();
     std::pair<std::string_view, std::string_view> parse_declaration();

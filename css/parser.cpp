@@ -225,6 +225,17 @@ std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) {
 
 } // namespace
 
+// Not in header order, but must be defined before Parser::parse_rules() that
+// uses this.
+template<Predicate T>
+constexpr std::string_view Parser::consume_while(T const &pred) {
+    std::size_t start = pos_;
+    while (pred(input_[pos_])) {
+        ++pos_;
+    }
+    return input_.substr(start, pos_ - start);
+}
+
 std::vector<css::Rule> Parser::parse_rules() {
     std::vector<css::Rule> rules;
     bool in_media_query{false};
@@ -286,6 +297,38 @@ std::vector<css::Rule> Parser::parse_rules() {
     return rules;
 }
 
+constexpr std::optional<char> Parser::peek() const {
+    if (is_eof()) {
+        return std::nullopt;
+    }
+
+    return input_[pos_];
+}
+
+constexpr std::optional<std::string_view> Parser::peek(std::size_t chars) const {
+    if (is_eof()) {
+        return std::nullopt;
+    }
+
+    return input_.substr(pos_, chars);
+}
+
+constexpr bool Parser::starts_with(std::string_view prefix) const {
+    return peek(prefix.size()) == prefix;
+}
+
+constexpr void Parser::skip_if_neq(char c) {
+    if (peek() != c) {
+        advance(1);
+    }
+}
+
+constexpr void Parser::skip_whitespace() {
+    for (auto c = peek(); c && util::is_whitespace(*c); c = peek()) {
+        advance(1);
+    }
+}
+
 void Parser::skip_whitespace_and_comments() {
     if (starts_with("/*")) {
         advance(2);
@@ -297,12 +340,6 @@ void Parser::skip_whitespace_and_comments() {
 
     if (starts_with("/*")) {
         skip_whitespace_and_comments();
-    }
-}
-
-constexpr void Parser::skip_if_neq(char c) {
-    if (peek() != c) {
-        advance(1);
     }
 }
 
