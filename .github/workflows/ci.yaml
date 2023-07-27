@@ -235,6 +235,7 @@ jobs:
           sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-15
       - run: echo "CC=clang-15" >>$GITHUB_ENV && echo "CXX=clang++-15" >>$GITHUB_ENV
+      - run: clang-tidy --version
       - run: bazel build ... --config clang-tidy --keep_going
 
   buildifier:
