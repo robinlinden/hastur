@@ -31,4 +31,6 @@ int main() {
         p.advance(1);
         expect(p.is_eof());
     });
+
+    return etest::run_all_tests();
 }
