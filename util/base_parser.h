@@ -8,15 +8,11 @@
 
 #include "util/string.h"
 
-#include <concepts>
 #include <cstddef>
 #include <optional>
 #include <string_view>
 
 namespace util {
-
-template<typename T>
-concept Predicate = std::predicate<T, char>;
 
 class BaseParser {
 public:
@@ -42,11 +38,7 @@ public:
         return pos_ + skip >= input_.size() ? "" : input_.substr(pos_ + skip);
     }
 
-    constexpr bool starts_with(std::string_view prefix) const { return peek(prefix.size()) == prefix; }
-
     constexpr bool is_eof() const { return pos_ >= input_.size(); }
-
-    constexpr char consume_char() { return input_[pos_++]; }
 
     constexpr void advance(std::size_t n) { pos_ += n; }
 
@@ -60,21 +52,6 @@ public:
     }
 
     constexpr std::size_t current_pos() const { return pos_; }
-
-    template<Predicate T>
-    constexpr std::string_view consume_while(T const &pred) {
-        std::size_t start = pos_;
-        while (pred(input_[pos_])) {
-            ++pos_;
-        }
-        return input_.substr(start, pos_ - start);
-    }
-
-    constexpr void skip_whitespace() {
-        for (auto c = peek(); c && util::is_whitespace(*c); c = peek()) {
-            advance(1);
-        }
-    }
 
 private:
     std::string_view input_;
