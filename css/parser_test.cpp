@@ -16,6 +16,7 @@
 #include <fmt/format.h>
 
 #include <array>
+#include <tuple>
 
 using namespace std::literals;
 using etest::expect;
@@ -994,6 +995,25 @@ int main() {
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+
+    etest::test("parser: incomplete media-query crash", [] {
+        std::ignore = css::parse("@media("); //
+    });
+
+    etest::test("parser: incomplete at-rule crash", [] {
+        std::ignore = css::parse("@lol"); //
+    });
+
+    etest::test("parser: incomplete rule in unknown at-rule crash", [] {
+        std::ignore = css::parse("@lol ");
+        std::ignore = css::parse("@lol { p {"); //
+    });
+
+    etest::test("parser: incomplete rule crash", [] {
+        std::ignore = css::parse("p");
+        std::ignore = css::parse("p {");
+        std::ignore = css::parse("p { font-size:");
     });
 
     return etest::run_all_tests();

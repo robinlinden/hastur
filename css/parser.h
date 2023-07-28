@@ -38,18 +38,18 @@ private:
     constexpr bool starts_with(std::string_view) const;
     constexpr void advance(std::size_t n) { pos_ += n; }
     constexpr void skip_if_neq(char);
-    constexpr char consume_char() { return input_[pos_++]; }
+    constexpr std::optional<char> consume_char();
 
     template<Predicate T>
-    constexpr std::string_view consume_while(T const &pred);
+    constexpr std::optional<std::string_view> consume_while(T const &pred);
 
     constexpr void skip_whitespace();
 
     // CSS-specific parsing bits.
     void skip_whitespace_and_comments();
 
-    css::Rule parse_rule();
-    std::pair<std::string_view, std::string_view> parse_declaration();
+    std::optional<css::Rule> parse_rule();
+    std::optional<std::pair<std::string_view, std::string_view>> parse_declaration();
 
     void add_declaration(
             std::map<PropertyId, std::string> &declarations, std::string_view name, std::string_view value) const;

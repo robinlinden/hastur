@@ -228,11 +228,16 @@ std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) {
 // Not in header order, but must be defined before Parser::parse_rules() that
 // uses this.
 template<Predicate T>
-constexpr std::string_view Parser::consume_while(T const &pred) {
+constexpr std::optional<std::string_view> Parser::consume_while(T const &pred) {
     std::size_t start = pos_;
-    while (pred(input_[pos_])) {
+    while (!is_eof() && pred(input_[pos_])) {
         ++pos_;
     }
+
+    if (is_eof()) {
+        return std::nullopt;
+    }
+
     return input_.substr(start, pos_ - start);
 }
 
@@ -247,14 +252,19 @@ std::vector<css::Rule> Parser::parse_rules() {
             advance(std::strlen("@media"));
             skip_whitespace_and_comments();
 
-            std::string_view tmp_query = consume_while([](char c) { return c != '{'; });
-            if (auto last_char = tmp_query.find_last_not_of(' '); last_char != std::string_view::npos) {
-                tmp_query.remove_suffix(tmp_query.size() - (last_char + 1));
+            auto tmp_query = consume_while([](char c) { return c != '{'; });
+            if (!tmp_query) {
+                spdlog::error("Eof while looking for end of media-query");
+                return rules;
+            }
+
+            if (auto last_char = tmp_query->find_last_not_of(' '); last_char != std::string_view::npos) {
+                tmp_query->remove_suffix(tmp_query->size() - (last_char + 1));
             }
             in_media_query = true;
-            media_query = MediaQuery::parse(tmp_query);
+            media_query = MediaQuery::parse(*tmp_query);
             if (!media_query) {
-                spdlog::warn("Unable to parse media query: '{}'", tmp_query);
+                spdlog::warn("Unable to parse media query: '{}'", *tmp_query);
             }
             consume_char(); // {
             skip_whitespace_and_comments();
@@ -264,7 +274,12 @@ std::vector<css::Rule> Parser::parse_rules() {
         // @font-face works fine with the normal parsing-logic.
         if (starts_with("@") && !starts_with("@font-face")) {
             auto kind = consume_while([](char c) { return c != ' ' && c != '{' && c != '('; });
-            spdlog::warn("Encountered unhandled {} at-rule", kind);
+            if (!kind) {
+                spdlog::error("Eof while looking for end of at-rule");
+                return rules;
+            }
+
+            spdlog::warn("Encountered unhandled {} at-rule", *kind);
 
             skip_whitespace_and_comments();
             std::ignore = consume_while([](char c) { return c != '{'; });
@@ -272,7 +287,11 @@ std::vector<css::Rule> Parser::parse_rules() {
             skip_whitespace_and_comments();
 
             while (peek() != '}') {
-                std::ignore = parse_rule();
+                if (auto rule = parse_rule(); !rule) {
+                    spdlog::error("Eof while looking for end of rule in unknown at-rule");
+                    return rules;
+                }
+
                 skip_whitespace_and_comments();
             }
 
@@ -281,7 +300,13 @@ std::vector<css::Rule> Parser::parse_rules() {
             continue;
         }
 
-        rules.push_back(parse_rule());
+        auto rule = parse_rule();
+        if (!rule) {
+            spdlog::error("Eof while parsing rule");
+            return rules;
+        }
+
+        rules.push_back(*std::move(rule));
         rules.back().media_query = media_query;
 
         skip_whitespace_and_comments();
@@ -323,6 +348,14 @@ constexpr void Parser::skip_if_neq(char c) {
     }
 }
 
+constexpr std::optional<char> Parser::consume_char() {
+    if (is_eof()) {
+        return std::nullopt;
+    }
+
+    return input_[pos_++];
+}
+
 constexpr void Parser::skip_whitespace() {
     for (auto c = peek(); c && util::is_whitespace(*c); c = peek()) {
         advance(1);
@@ -343,11 +376,15 @@ void Parser::skip_whitespace_and_comments() {
     }
 }
 
-css::Rule Parser::parse_rule() {
+std::optional<css::Rule> Parser::parse_rule() {
     Rule rule{};
     while (peek() != '{') {
         auto selector = consume_while([](char c) { return c != ',' && c != '{'; });
-        rule.selectors.push_back(std::string{util::trim(selector)});
+        if (!selector) {
+            return std::nullopt;
+        }
+
+        rule.selectors.push_back(std::string{util::trim(*selector)});
         skip_if_neq('{'); // ' ' or ','
         skip_whitespace_and_comments();
     }
@@ -356,7 +393,12 @@ css::Rule Parser::parse_rule() {
     skip_whitespace_and_comments();
 
     while (peek() != '}') {
-        auto [name, value] = parse_declaration();
+        auto decl = parse_declaration();
+        if (!decl) {
+            return std::nullopt;
+        }
+
+        auto [name, value] = *decl;
         add_declaration(rule.declarations, name, value);
         skip_whitespace_and_comments();
     }
@@ -366,13 +408,21 @@ css::Rule Parser::parse_rule() {
     return rule;
 }
 
-std::pair<std::string_view, std::string_view> Parser::parse_declaration() {
+std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration() {
     auto name = consume_while([](char c) { return c != ':'; });
+    if (!name) {
+        return std::nullopt;
+    }
+
     consume_char(); // :
     skip_whitespace_and_comments();
     auto value = consume_while([](char c) { return c != ';' && c != '}'; });
+    if (!value) {
+        return std::nullopt;
+    }
+
     skip_if_neq('}'); // ;
-    return {name, value};
+    return std::pair{*name, *value};
 }
 
 void Parser::add_declaration(
