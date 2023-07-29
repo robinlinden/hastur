@@ -5,8 +5,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "platforms",  # Apache-2.0
-    sha256 = "5308fc1d8865406a49427ba24a9ab53087f17f5266a7aabbfc28823f3916e1ca",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.6/platforms-0.0.6.tar.gz",
+    sha256 = "3a561c99e7bdbe9173aa653fd579fe849f1d8d67395780ab4770b1f381431d51",
+    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.7/platforms-0.0.7.tar.gz",
 )
 
 http_archive(
@@ -70,9 +70,9 @@ http_archive(
 http_archive(
     name = "ctre",  # Apache-2.0
     build_file = "//third_party:ctre.BUILD",
-    sha256 = "0711a6f97496e010f72adab69839939a9e50ba35ad87779e422ae3ff3b0edfc3",
-    strip_prefix = "compile-time-regular-expressions-3.7.2",
-    url = "https://github.com/hanickadot/compile-time-regular-expressions/archive/v3.7.2.tar.gz",
+    sha256 = "6462ee41fa6aa12075f6b9d13f42358091d32963087443a6669d2c94232eea04",
+    strip_prefix = "compile-time-regular-expressions-3.8",
+    url = "https://github.com/hanickadot/compile-time-regular-expressions/archive/v3.8.tar.gz",
 )
 
 http_archive(
@@ -211,13 +211,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.257"
+VULKAN_TAG = "1.3.259"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "e3ee02eff07ebcdb0ddfd06366d986c889f3392b6c4d79615bb06aefc1fda900",
+    sha256 = "da9e625935014e8aa1c31c4ab45d7b015d73185586b1bdf70c646d66cbddc3d3",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -226,7 +226,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "92c08be54fb9796baac093a7f1b0924a41645881574ff7af0c91fd608758fdc2",
+    sha256 = "c99ee3acf9d43c642f721a42172c9a321dc7e5398fac9701def3bfc34000a9e4",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
