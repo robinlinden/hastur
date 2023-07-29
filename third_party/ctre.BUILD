@@ -7,3 +7,9 @@ cc_library(
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
 )
+
+[cc_library(
+    name = src[:-4],
+    srcs = [src],
+    deps = [":ctre"],
+) for src in glob(["tests/*.cpp"])]
