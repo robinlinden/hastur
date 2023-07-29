@@ -34,6 +34,7 @@ build:windows --cxxopt='/std:c++latest'
 build:windows --cxxopt='/GR-' # Disable rtti.
 build:windows --copt='/permissive-' # Conform to the standard.
 build:windows --copt='/Zc:__cplusplus' # Report the real supported C++ version, not just C++98.
+#build:windows --copt='-utf-8' # Use UTF-8 as the source and execution character sets.
 
 # Special build options
 # =========================================================
