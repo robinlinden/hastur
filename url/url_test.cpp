@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -623,6 +624,14 @@ int main() {
 
         etest::expect_eq(o.serialize(), "https://whatwg.org");
         etest::expect_eq(o2.serialize(), "null");
+    });
+
+    etest::test("URL parsing: parse_host w/ empty input", [] {
+        url::UrlParser p;
+        auto url = p.parse("a://");
+
+        etest::require(url.has_value());
+        etest::expect_eq(*url, url::Url{.scheme = "a", .host = url::Host{.type = url::HostType::Opaque}});
     });
 
     int ret = etest::run_all_tests();

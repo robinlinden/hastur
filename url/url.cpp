@@ -1271,8 +1271,6 @@ void UrlParser::shorten_url_path(Url &url) const {
 
 // https://url.spec.whatwg.org/#concept-host-parser
 std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_not_special) const {
-    assert(!input.empty());
-
     if (input.starts_with("[")) {
         if (!input.ends_with("]")) {
             validation_error(ValidationError::IPv6Unclosed);
@@ -1301,6 +1299,8 @@ std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_not_sp
 
         return Host{HostType::Opaque, *host};
     }
+
+    assert(!input.empty());
 
     std::string domain = util::percent_decode(input);
 
