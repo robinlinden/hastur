@@ -22,6 +22,8 @@ enum class QoiError {
     ImageTooLarge,
 };
 
+// Compliant with the qoi specification version 1.0, 2022-01-05.
+// https://qoiformat.org/
 class Qoi {
 public:
     static tl::expected<Qoi, QoiError> from(std::istream &&is) { return from(is); }
