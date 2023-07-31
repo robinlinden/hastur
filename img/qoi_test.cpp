@@ -99,7 +99,7 @@ int main() {
     });
 
     etest::test("0x0 image", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\0\0\0\0\0\3\1\xfe\1\2\3\xfe\6\5\4"s}), Qoi{}); //
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\0\0\0\0\0\3\1"s}), Qoi{}); //
     });
 
     etest::test("it works", [] {
