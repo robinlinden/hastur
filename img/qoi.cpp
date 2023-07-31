@@ -79,6 +79,13 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
         height = std::byteswap(height);
     }
 
+    // We don't support images larger than 400 million pixels (~1.5GiB).
+    // This matches the implementation at https://github.com/phoboslab/qoi
+    static constexpr std::size_t kMaxPixelCount{400'000'000};
+    if ((width > 0) && (height > kMaxPixelCount / width)) {
+        return tl::unexpected{QoiError::ImageTooLarge};
+    }
+
     std::uint8_t channels{};
     if (!is.read(reinterpret_cast<char *>(&channels), sizeof(channels))) {
         return tl::unexpected{QoiError::AbruptEof};

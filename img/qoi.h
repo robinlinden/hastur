@@ -19,6 +19,7 @@ enum class QoiError {
     InvalidChannels,
     InvalidColorspace,
     InvalidEndMarker,
+    ImageTooLarge,
 };
 
 class Qoi {

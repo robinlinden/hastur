@@ -34,6 +34,10 @@ int main() {
         expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0"s}), tl::unexpected{QoiError::AbruptEof}); //
     });
 
+    etest::test("unreasonably large image", [] {
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0"s}), tl::unexpected{QoiError::ImageTooLarge}); //
+    });
+
     etest::test("channels error handling", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1"s}), tl::unexpected{QoiError::AbruptEof});
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\5"s}), tl::unexpected{QoiError::InvalidChannels});
