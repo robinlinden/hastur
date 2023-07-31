@@ -35,14 +35,14 @@ int main() {
     });
 
     etest::test("channels error handling", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0"s}), tl::unexpected{QoiError::AbruptEof});
-        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0\5"s}), tl::unexpected{QoiError::InvalidChannels});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1"s}), tl::unexpected{QoiError::AbruptEof});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\5"s}), tl::unexpected{QoiError::InvalidChannels});
     });
 
     etest::test("colorspace error handling", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0\3"s}), tl::unexpected{QoiError::AbruptEof});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3"s}), tl::unexpected{QoiError::AbruptEof});
         expect_eq(
-                Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0\3\2"s}), tl::unexpected{QoiError::InvalidColorspace});
+                Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3\2"s}), tl::unexpected{QoiError::InvalidColorspace});
     });
 
     etest::test("missing pixel data", [] {
