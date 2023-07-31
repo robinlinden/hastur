@@ -163,6 +163,17 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
         seen_pixels[seen_pixels_index(previous_pixel)] = previous_pixel;
     }
 
+    // The byte stream's end is marked with 7 0x00 bytes followed by a single
+    // 0x01 byte.
+    std::array<std::uint8_t, 8> footer{};
+    if (!is.read(reinterpret_cast<char *>(footer.data()), footer.size())) {
+        return tl::unexpected{QoiError::AbruptEof};
+    }
+
+    if (footer != decltype(footer){0, 0, 0, 0, 0, 0, 0, 1}) {
+        return tl::unexpected{QoiError::InvalidEndMarker};
+    }
+
     return Qoi{
             .width = width,
             .height = height,
