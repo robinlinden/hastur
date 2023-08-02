@@ -497,13 +497,13 @@ void App::run_layout_widget() const {
 
 void App::clear_render_surface() {
     if (render_debug_) {
-        window_.clear();
+        canvas_->clear(gfx::Color{});
         return;
     }
 
     auto const *layout = engine_.layout();
     if (!page_loaded_ || layout == nullptr) {
-        window_.clear(sf::Color(255, 255, 255));
+        canvas_->clear(gfx::Color{255, 255, 255});
         return;
     }
 
@@ -513,23 +513,23 @@ void App::clear_render_surface() {
     //                    //gfx APIs that I want to think a bit about.
     if (auto html_bg = layout->get_property<css::PropertyId::BackgroundColor>();
             html_bg != gfx::Color::from_css_name("transparent")) {
-        window_.clear(sf::Color(html_bg.as_rgba_u32()));
+        canvas_->clear(html_bg);
         return;
     }
 
     auto body = dom::nodes_by_xpath(*layout, "/html/body");
     if (body.empty()) {
-        window_.clear(sf::Color(255, 255, 255));
+        canvas_->clear(gfx::Color{255, 255, 255});
         return;
     }
 
     if (auto body_bg = body[0]->get_property<css::PropertyId::BackgroundColor>();
             body_bg != gfx::Color::from_css_name("transparent")) {
-        window_.clear(sf::Color(body_bg.as_rgba_u32()));
+        canvas_->clear(body_bg);
         return;
     }
 
-    window_.clear(sf::Color(255, 255, 255));
+    canvas_->clear(gfx::Color{255, 255, 255});
 }
 
 void App::render_layout() {
