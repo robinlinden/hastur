@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -49,6 +49,12 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{AddTranslationCmd{-10, 10}});
     });
 
+    etest::test("CanvasCommandSaver::clear", [] {
+        CanvasCommandSaver saver;
+        saver.clear({0xab, 0xcd, 0xef});
+        expect_eq(saver.take_commands(), CanvasCommands{ClearCmd{{0xab, 0xcd, 0xef}}});
+    });
+
     etest::test("CanvasCommandSaver::fill_rect", [] {
         CanvasCommandSaver saver;
         saver.fill_rect({1, 2, 3, 4}, {0xab, 0xcd, 0xef});
@@ -93,6 +99,7 @@ int main() {
 
     etest::test("replay_commands", [] {
         CanvasCommandSaver saver;
+        saver.clear(gfx::Color{});
         saver.set_scale(10);
         saver.set_scale(5);
         saver.set_viewport_size(1, 2);
@@ -102,6 +109,7 @@ int main() {
         saver.draw_rect({9, 9, 9, 9}, {0x10, 0x11, 0x12}, {}, {});
         saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, FontStyle::Italic, {3, 2, 1});
         saver.draw_text({1, 5}, "hello?"sv, {{{"font1"}, {"font2"}}}, {42}, FontStyle::Normal, {1, 2, 3});
+        saver.clear(gfx::Color{1, 2, 3});
         auto cmds = saver.take_commands();
 
         CanvasCommandSaver replayed;

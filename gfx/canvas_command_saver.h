@@ -36,6 +36,12 @@ struct AddTranslationCmd {
     [[nodiscard]] constexpr bool operator==(AddTranslationCmd const &) const = default;
 };
 
+struct ClearCmd {
+    Color color{};
+
+    [[nodiscard]] constexpr bool operator==(ClearCmd const &) const = default;
+};
+
 struct FillRectCmd {
     geom::Rect rect{};
     Color color{};
@@ -77,6 +83,7 @@ struct DrawTextCmd {
 using CanvasCommand = std::variant<SetViewportSizeCmd,
         SetScaleCmd,
         AddTranslationCmd,
+        ClearCmd,
         FillRectCmd,
         DrawRectCmd,
         DrawTextWithFontOptionsCmd,
@@ -88,6 +95,7 @@ public:
     void set_viewport_size(int width, int height) override { cmds_.emplace_back(SetViewportSizeCmd{width, height}); }
     void set_scale(int scale) override { cmds_.emplace_back(SetScaleCmd{scale}); }
     void add_translation(int dx, int dy) override { cmds_.emplace_back(AddTranslationCmd{dx, dy}); }
+    void clear(Color c) override { cmds_.emplace_back(ClearCmd{c}); }
     void fill_rect(geom::Rect const &rect, Color color) override { cmds_.emplace_back(FillRectCmd{rect, color}); }
     void draw_rect(
             geom::Rect const &rect, Color const &color, Borders const &borders, Corners const &corners) override {
@@ -130,6 +138,7 @@ public:
     constexpr void operator()(SetViewportSizeCmd const &cmd) { canvas_.set_viewport_size(cmd.width, cmd.height); }
     constexpr void operator()(SetScaleCmd const &cmd) { canvas_.set_scale(cmd.scale); }
     constexpr void operator()(AddTranslationCmd const &cmd) { canvas_.add_translation(cmd.dx, cmd.dy); }
+    constexpr void operator()(ClearCmd const &cmd) { canvas_.clear(cmd.color); }
     constexpr void operator()(FillRectCmd const &cmd) { canvas_.fill_rect(cmd.rect, cmd.color); }
 
     constexpr void operator()(DrawRectCmd const &cmd) {

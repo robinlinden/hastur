@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -20,6 +20,11 @@ void OpenGLCanvas::set_viewport_size(int width, int height) {
     glViewport(0, 0, width, height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+}
+
+void OpenGLCanvas::clear(Color c) {
+    glClearColor(c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void OpenGLCanvas::fill_rect(geom::Rect const &rect, Color color) {

@@ -46,6 +46,7 @@ public:
     virtual void set_viewport_size(int width, int height) = 0;
     virtual void set_scale(int scale) = 0;
     virtual void add_translation(int dx, int dy) = 0;
+    virtual void clear(Color) = 0;
     virtual void fill_rect(geom::Rect const &, Color) = 0;
     virtual void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) = 0;
     virtual void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) = 0;

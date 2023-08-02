@@ -108,6 +108,10 @@ void SfmlCanvas::set_viewport_size(int width, int height) {
     target_.setView(viewport);
 }
 
+void SfmlCanvas::clear(Color c) {
+    target_.clear(sf::Color(c.as_rgba_u32()));
+}
+
 void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
     auto translated{rect.translated(tx_, ty_)};
     auto scaled{translated.scaled(scale_)};

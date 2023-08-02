@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,6 +21,7 @@ public:
         translation_y_ += dy;
     }
 
+    void clear(Color) override;
     void fill_rect(geom::Rect const &, Color) override;
     void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override {}
     void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) override {}
