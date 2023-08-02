@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
         auto x = static_cast<int>(size.x);
         auto y = static_cast<int>(size.y);
 
-        canvas->fill_rect({0, 0, x, y}, gfx::Color{0xFF, 0xFF, 0xFF});
+        canvas->clear(gfx::Color{0xFF, 0xFF, 0xFF});
 
         canvas->fill_rect({200, 200, 100, 100}, gfx::Color{0, 0, 0xAA});
         canvas->fill_rect({x / 4 + 50, y / 3 + 50, x / 2, y / 3}, gfx::Color{0xAA, 0, 0, 0x33});
