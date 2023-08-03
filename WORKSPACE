@@ -62,9 +62,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "62939a56062a3be7417a4e195c8bf0e7f07fdc26a9c49ef42ffd9b4030e3e921",
-    strip_prefix = "boringssl-3c13ec0a400cfe5a29c5e0726cecaa51d2bffcc9",
-    url = "https://github.com/google/boringssl/archive/3c13ec0a400cfe5a29c5e0726cecaa51d2bffcc9.tar.gz",
+    sha256 = "4698dc96c78e326fe5281786be39a56c64f1b10d85a2bbccb7d448a8a7fe2fc2",
+    strip_prefix = "boringssl-ff486433e9de2ff89be07418125fbfa6f2b1f859",
+    url = "https://github.com/google/boringssl/archive/ff486433e9de2ff89be07418125fbfa6f2b1f859.tar.gz",
 )
 
 http_archive(
@@ -141,9 +141,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "115ee9e242af98a884302ac0f6ca3b2b26b1f10c660205f5e7ad9f1d1c96d269",
-    strip_prefix = "imgui-1.89.7",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.7.tar.gz",
+    sha256 = "6680ccc32430009a8204291b1268b2367d964bd6d1b08a4e0358a017eb8e8c9e",
+    strip_prefix = "imgui-1.89.8",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.8.tar.gz",
 )
 
 http_archive(
@@ -211,13 +211,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.259"
+VULKAN_TAG = "1.3.260"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "da9e625935014e8aa1c31c4ab45d7b015d73185586b1bdf70c646d66cbddc3d3",
+    sha256 = "f6e44769c42685fd5d380aea280a2406a431fe584d7ae3256ce83958cd0899f4",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -226,7 +226,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "c99ee3acf9d43c642f721a42172c9a321dc7e5398fac9701def3bfc34000a9e4",
+    sha256 = "debf412edfabf4cbd6d837bc20bfc66c147b45fde38c8ec5fbff778b91841bd8",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
