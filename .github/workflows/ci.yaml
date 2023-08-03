@@ -55,32 +55,19 @@ jobs:
             compiler: clang
             version: 16
 
-          # libc++ jobs are disabled due to apt.llvm.org being broken:
-          # https://github.com/llvm/llvm-project/issues/64120
-          # The following packages have unmet dependencies:
-          # libc++1-14 : Conflicts: libc++-x.y
-          # libc++1-15 : Conflicts: libc++-x.y
-          # libc++abi1-14 : Conflicts: libc++abi-x.y
-          # libc++abi1-15 : Conflicts: libc++abi-x.y
-          # libunwind-14 : Conflicts: libunwind-x.y
-          # libunwind-14-dev : Conflicts: libunwind-x.y-dev
-          #                     Breaks: libunwind-dev
-          # libunwind-15 : Conflicts: libunwind-x.y
-          # libunwind-15-dev : Conflicts: libunwind-x.y-dev
-          # E: Error, pkgProblemResolver::Resolve generated breaks, this may be caused by held packages.
-          # - name: clang-15-libc++
-          #   os: ubuntu-22.04
-          #   compiler: clang
-          #   version: 15
-          #   bazel: --config libc++
-          #   apt: libc++abi-15-dev libc++-15-dev
+          - name: clang-15-libc++
+            os: ubuntu-22.04
+            compiler: clang
+            version: 15
+            bazel: --config libc++
+            apt: libc++abi-15-dev libc++-15-dev
 
-          # - name: clang-16-libc++
-          #   os: ubuntu-22.04
-          #   compiler: clang
-          #   version: 16
-          #   bazel: --config libc++
-          #   apt: libc++abi-16-dev libc++-16-dev
+          - name: clang-16-libc++
+            os: ubuntu-22.04
+            compiler: clang
+            version: 16
+            bazel: --config libc++
+            apt: libc++abi-16-dev libc++-16-dev
 
     steps:
       - name: Prepare clang install
