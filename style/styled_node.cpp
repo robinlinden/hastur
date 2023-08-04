@@ -99,6 +99,9 @@ std::map<css::PropertyId, std::string_view> const initial_values{
         {css::PropertyId::Width, "auto"sv},
         {css::PropertyId::MaxWidth, "none"sv},
         {css::PropertyId::MinWidth, "auto"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/white-space
+        {css::PropertyId::WhiteSpace, "normal"sv},
 };
 
 std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
@@ -479,6 +482,36 @@ int StyledNode::get_font_size_property() const {
 
     spdlog::warn("Unhandled unit '{}'", unit);
     return 0;
+}
+
+std::optional<WhiteSpace> StyledNode::get_white_space_property() const {
+    auto raw = get_raw_property(css::PropertyId::WhiteSpace);
+    if (raw == "normal") {
+        return WhiteSpace::Normal;
+    }
+
+    if (raw == "pre") {
+        return WhiteSpace::Pre;
+    }
+
+    if (raw == "nowrap") {
+        return WhiteSpace::Nowrap;
+    }
+
+    if (raw == "pre-wrap") {
+        return WhiteSpace::PreWrap;
+    }
+
+    if (raw == "break-spaces") {
+        return WhiteSpace::BreakSpaces;
+    }
+
+    if (raw == "pre-line") {
+        return WhiteSpace::PreLine;
+    }
+
+    spdlog::warn("Unhandled white-space '{}'", raw);
+    return std::nullopt;
 }
 
 } // namespace style

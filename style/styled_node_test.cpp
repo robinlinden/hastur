@@ -298,6 +298,17 @@ int main() {
         expect_property_eq<css::PropertyId::TextDecorationLine>("unhandled!", std::vector<style::TextDecorationLine>{});
     });
 
+    etest::test("get_property, white-space", [] {
+        expect_property_eq<css::PropertyId::WhiteSpace>("normal", style::WhiteSpace::Normal);
+        expect_property_eq<css::PropertyId::WhiteSpace>("pre", style::WhiteSpace::Pre);
+        expect_property_eq<css::PropertyId::WhiteSpace>("nowrap", style::WhiteSpace::Nowrap);
+        expect_property_eq<css::PropertyId::WhiteSpace>("pre-wrap", style::WhiteSpace::PreWrap);
+        expect_property_eq<css::PropertyId::WhiteSpace>("break-spaces", style::WhiteSpace::BreakSpaces);
+        expect_property_eq<css::PropertyId::WhiteSpace>("pre-line", style::WhiteSpace::PreLine);
+
+        expect_property_eq<css::PropertyId::WhiteSpace>("unhandled!", std::nullopt);
+    });
+
     etest::test("get_property, non-inherited property for a text node", [] {
         dom::Node dom = dom::Element{"hello"};
         dom::Node text = dom::Text{"world"};

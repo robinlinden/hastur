@@ -52,6 +52,15 @@ enum class TextDecorationLine {
     Blink,
 };
 
+enum class WhiteSpace {
+    Normal,
+    Pre,
+    Nowrap,
+    PreWrap,
+    BreakSpaces,
+    PreLine,
+};
+
 struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<css::PropertyId, std::string>> properties;
@@ -89,6 +98,8 @@ struct StyledNode {
             return get_font_style_property();
         } else if constexpr (T == css::PropertyId::TextDecorationLine) {
             return get_text_decoration_line_property();
+        } else if constexpr (T == css::PropertyId::WhiteSpace) {
+            return get_white_space_property();
         } else {
             return get_raw_property(T);
         }
@@ -101,6 +112,7 @@ private:
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;
     std::vector<TextDecorationLine> get_text_decoration_line_property() const;
+    std::optional<WhiteSpace> get_white_space_property() const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
