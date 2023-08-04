@@ -104,6 +104,7 @@ enum class PropertyId {
     Visibility,
     VoiceFamily,
     Volume,
+    WhiteSpace,
     Widows,
     Width,
     WordSpacing, // When adding an id after this, remember to update the property id -> string test.
@@ -153,6 +154,7 @@ constexpr bool is_inherited(PropertyId id) {
         case css::PropertyId::Visibility:
         case css::PropertyId::VoiceFamily:
         case css::PropertyId::Volume:
+        case css::PropertyId::WhiteSpace:
         case css::PropertyId::Widows:
         case css::PropertyId::WordSpacing:
             return true;

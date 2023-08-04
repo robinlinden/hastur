@@ -106,6 +106,7 @@ std::map<std::string_view, PropertyId> const known_properties{
         {"visibility"sv, PropertyId::Visibility},
         {"voice-family"sv, PropertyId::VoiceFamily},
         {"volume"sv, PropertyId::Volume},
+        {"white-space"sv, PropertyId::WhiteSpace},
         {"widows"sv, PropertyId::Widows},
         {"width"sv, PropertyId::Width},
         {"word-spacing"sv, PropertyId::WordSpacing},
