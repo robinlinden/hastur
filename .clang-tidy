@@ -70,7 +70,10 @@ Checks: >
   -modernize-use-trailing-return-type,
   -performance-move-const-arg,
 
-WarningsAsErrors: "*"
+# Workaround for https://github.com/llvm/llvm-project/issues/56709 making it
+# impossible to disable the clang-diagnostic-builtin-macro-redefined warning in
+# clang-tidy-16.
+WarningsAsErrors: "*,-clang-diagnostic-builtin-macro-redefined"
 
 HeaderFilterRegex: "\\./(archive|browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|img|js|layout|net|os|protocol|render|style|tui|uri|url|util|wasm)/"
 
