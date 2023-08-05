@@ -115,13 +115,8 @@ struct PercentEncodeSet {
 
     static constexpr bool component(char c) { return userinfo(c) || (c >= '$' && c <= '&') || c == '+' || c == ','; }
 };
-} // namespace
 
-void icu_cleanup() {
-    u_cleanup();
-}
-
-static void icu_init() {
+void icu_init() {
     static std::atomic<bool> called_once = false;
 
     if (called_once.exchange(true)) {
@@ -152,6 +147,11 @@ static void icu_init() {
     assert(!U_FAILURE(err));
 
     delete uts;
+}
+} // namespace
+
+void icu_cleanup() {
+    u_cleanup();
 }
 
 // https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
