@@ -2,11 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html/parser_actions.h"
-#include "html/parser_states.h"
+#include "html2/parser_states.h"
+
+#include "html2/tokenizer.h"
 
 #include "etest/etest.h"
-#include "html2/tokenizer.h"
+#include "html/parser_actions.h"
 
 using etest::expect_eq;
 
@@ -18,7 +19,7 @@ struct ParseResult {
 };
 
 struct ParseOptions {
-    html::InsertionMode initial_insertion_mode{};
+    html2::InsertionMode initial_insertion_mode{};
     bool scripting{false};
 };
 
@@ -28,7 +29,7 @@ ParseResult parse(std::string_view html, ParseOptions opts) {
                                }};
 
     ParseResult res{};
-    html::InsertionMode mode{opts.initial_insertion_mode};
+    html2::InsertionMode mode{opts.initial_insertion_mode};
     std::stack<dom::Element *> open_elements{};
     html::Actions actions{res.document, tokenizer, opts.scripting, open_elements};
 

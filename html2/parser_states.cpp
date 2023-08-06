@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html/parser_states.h"
+#include "html2/parser_states.h"
 
-#include "html/iparser_actions.h"
-
+#include "html2/iparser_actions.h"
 #include "html2/tokenizer.h"
+
 #include "util/string.h"
 
 #include <array>
@@ -18,7 +18,7 @@
 
 using namespace std::literals;
 
-namespace html {
+namespace html2 {
 namespace {
 
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
@@ -352,4 +352,4 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
     return {};
 }
 
-} // namespace html
+} // namespace html2

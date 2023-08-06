@@ -2,18 +2,17 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML_IPARSER_ACTIONS_H_
-#define HTML_IPARSER_ACTIONS_H_
+#ifndef HTML2_IPARSER_ACTIONS_H_
+#define HTML2_IPARSER_ACTIONS_H_
 
-#include "html/parser_states.h"
-
+#include "html2/parser_states.h"
 #include "html2/tokenizer.h"
 
 #include <span>
 #include <string>
 #include <string_view>
 
-namespace html {
+namespace html2 {
 
 enum class QuirksMode {
     NoQuirks,
@@ -38,6 +37,6 @@ public:
     virtual InsertionMode original_insertion_mode() = 0;
 };
 
-} // namespace html
+} // namespace html2
 
 #endif

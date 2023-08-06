@@ -5,10 +5,9 @@
 #ifndef HTML_PARSER_ACTIONS_H_
 #define HTML_PARSER_ACTIONS_H_
 
-#include "html/iparser_actions.h"
-#include "html/parser_states.h"
-
 #include "dom/dom.h"
+#include "html2/iparser_actions.h"
+#include "html2/parser_states.h"
 #include "html2/tokenizer.h"
 
 #include <algorithm>
@@ -21,7 +20,7 @@
 
 namespace html {
 
-class Actions : public IActions {
+class Actions : public html2::IActions {
 public:
     Actions(dom::Document &document,
             html2::Tokenizer &tokenizer,
@@ -31,14 +30,14 @@ public:
 
     void set_doctype_name(std::string name) override { document_.doctype = std::move(name); }
 
-    void set_quirks_mode(QuirksMode mode) override {
+    void set_quirks_mode(html2::QuirksMode mode) override {
         document_.mode = [=] {
             switch (mode) {
-                case QuirksMode::NoQuirks:
+                case html2::QuirksMode::NoQuirks:
                     return dom::Document::Mode::NoQuirks;
-                case QuirksMode::Quirks:
+                case html2::QuirksMode::Quirks:
                     return dom::Document::Mode::Quirks;
-                case QuirksMode::LimitedQuirks:
+                case html2::QuirksMode::LimitedQuirks:
                     break;
             }
             return dom::Document::Mode::LimitedQuirks;
@@ -85,8 +84,11 @@ public:
 
     void set_tokenizer_state(html2::State state) override { tokenizer_.set_state(state); }
 
-    void store_original_insertion_mode(InsertionMode mode) override { original_insertion_mode_ = std::move(mode); }
-    InsertionMode original_insertion_mode() override { return std::move(original_insertion_mode_); }
+    void store_original_insertion_mode(html2::InsertionMode mode) override {
+        original_insertion_mode_ = std::move(mode);
+    }
+
+    html2::InsertionMode original_insertion_mode() override { return std::move(original_insertion_mode_); }
 
 private:
     void insert(dom::Element element) {
@@ -105,7 +107,7 @@ private:
     dom::Document &document_;
     html2::Tokenizer &tokenizer_;
     bool scripting_;
-    InsertionMode original_insertion_mode_;
+    html2::InsertionMode original_insertion_mode_;
     std::stack<dom::Element *> &open_elements_;
 };
 

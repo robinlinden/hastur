@@ -6,9 +6,9 @@
 #define HTML_PARSER_H_
 
 #include "html/parser_actions.h"
-#include "html/parser_states.h"
 
 #include "dom/dom.h"
+#include "html2/parser_states.h"
 #include "html2/tokenizer.h"
 
 #include <functional>
@@ -56,7 +56,7 @@ private:
     std::stack<dom::Element *> open_elements_{};
     std::stringstream current_text_{};
     bool scripting_{false};
-    InsertionMode insertion_mode_{};
+    html2::InsertionMode insertion_mode_{};
     Actions actions_{doc_, tokenizer_, scripting_, open_elements_};
 };
 

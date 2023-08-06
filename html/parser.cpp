@@ -97,7 +97,7 @@ constexpr std::array kDisallowsParagraphEndTagOmissionWhenClosed{
 
 void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
     // Everything in <head> and earlier is handled by the new parser.
-    if (!std::holds_alternative<AfterHead>(insertion_mode_)) {
+    if (!std::holds_alternative<html2::AfterHead>(insertion_mode_)) {
         insertion_mode_ = std::visit([&](auto &mode) { return mode.process(actions_, token); }, insertion_mode_)
                                   .value_or(insertion_mode_);
         if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr && end->tag_name == "head") {
@@ -105,7 +105,7 @@ void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
         }
     }
 
-    if (std::holds_alternative<AfterHead>(insertion_mode_)) {
+    if (std::holds_alternative<html2::AfterHead>(insertion_mode_)) {
         std::visit(*this, token);
     }
 }

@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML_PARSER_STATES_H_
-#define HTML_PARSER_STATES_H_
+#ifndef HTML2_PARSER_STATES_H_
+#define HTML2_PARSER_STATES_H_
 
 #include "html2/tokenizer.h"
 
 #include <variant>
 
-namespace html {
+namespace html2 {
 
 class IActions;
 
@@ -127,6 +127,6 @@ struct Text {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
-} // namespace html
+} // namespace html2
 
 #endif

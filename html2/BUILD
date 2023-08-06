@@ -18,6 +18,14 @@ cc_library(
     ],
 )
 
+# TODO(robinlinden): Remove.
+extra_deps = {
+    "parser_states": [
+        "//dom",
+        "//html",
+    ],
+}
+
 [cc_test(
     name = src[:-4],
     size = "small",
@@ -27,7 +35,10 @@ cc_library(
         ":html2",
         "//etest",
         "@fmt",
-    ],
+    ] + extra_deps.get(
+        src[:-9],
+        [],
+    ),
 ) for src in glob(
     include = ["*_test.cpp"],
     exclude = ["*_fuzz_test.cpp"],
