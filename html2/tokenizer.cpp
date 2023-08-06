@@ -39,7 +39,7 @@ constexpr bool is_ascii_whitespace(int code_point) {
     }
 }
 
-std::string const kReplacementCharacter = util::unicode_to_utf8(0xFFFD);
+constexpr auto kReplacementCharacter = "\xEF\xBF\xBD"sv;
 
 } // namespace
 

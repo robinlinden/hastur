@@ -21,8 +21,8 @@
 using namespace std::literals;
 
 namespace {
-auto const kBrowserTitle{"hastur"};
-auto const kStartpage{"http://example.com"s};
+constexpr auto kBrowserTitle{"hastur"};
+constexpr auto kStartpage{"http://example.com"sv};
 } // namespace
 
 int main(int argc, char **argv) {
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    browser::gui::App app{kBrowserTitle, page_provided.value_or(kStartpage), page_provided.has_value()};
+    browser::gui::App app{kBrowserTitle, page_provided.value_or(std::string{kStartpage}), page_provided.has_value()};
     app.set_scale(scale.value_or(os::active_window_scale_factor()));
     return app.run();
 }

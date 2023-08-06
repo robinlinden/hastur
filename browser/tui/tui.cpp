@@ -19,7 +19,7 @@
 using namespace std::literals;
 
 namespace {
-char const *const kDefaultUri = "http://www.example.com";
+constexpr char const *kDefaultUri = "http://www.example.com";
 } // namespace
 
 int main(int argc, char **argv) {
