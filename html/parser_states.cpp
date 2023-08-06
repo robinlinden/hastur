@@ -6,7 +6,6 @@
 
 #include "html/parser_actions.h"
 
-#include "dom/dom.h"
 #include "html2/tokenizer.h"
 #include "util/string.h"
 
@@ -21,14 +20,6 @@ using namespace std::literals;
 
 namespace html {
 namespace {
-dom::AttrMap into_dom_attributes(std::vector<html2::Attribute> const &attributes) {
-    dom::AttrMap attrs{};
-    for (auto const &[name, value] : attributes) {
-        attrs[name] = value;
-    }
-
-    return attrs;
-}
 
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
 // FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020
@@ -153,7 +144,7 @@ std::optional<InsertionMode> Initial::process(Actions &a, html2::Token const &to
 
     if (auto const *doctype = std::get_if<html2::DoctypeToken>(&token)) {
         if (doctype->name) {
-            a.document().doctype = *doctype->name;
+            a.set_doctype_name(*doctype->name);
         }
 
         using StringOverload = std::string (*)(std::string);
@@ -165,12 +156,12 @@ std::optional<InsertionMode> Initial::process(Actions &a, html2::Token const &to
                 || pub_id.transform(is_quirky_public_identifier).value_or(false)
                 || sys_id == "http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd"
                 || (!sys_id.has_value() && quirky_when_sys_id_is_empty)) {
-            a.document().mode = dom::Document::Mode::Quirks;
+            a.set_quirks_mode(QuirksMode::Quirks);
         } else if (pub_id.has_value()
                 && (pub_id->starts_with("-//w3c//dtd xhtml 1.0 frameset//")
                         || pub_id->starts_with("-//w3c//dtd xhtml 1.0 transitional//")
                         || (sys_id.has_value() && quirky_when_sys_id_is_empty))) {
-            a.document().mode = dom::Document::Mode::LimitedQuirks;
+            a.set_quirks_mode(QuirksMode::LimitedQuirks);
         }
 
         return BeforeHtml{};
@@ -191,16 +182,11 @@ std::optional<InsertionMode> BeforeHtml::process(Actions &a, html2::Token const 
     }
 
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
-        auto &html = a.document().html();
-        html.name = start->tag_name;
-        html.attributes = into_dom_attributes(start->attributes);
-        a.open_elements().push(&html);
+        a.insert_element_for(*start);
         return BeforeHead{};
     }
 
-    auto &html = a.document().html();
-    html.name = "html";
-    a.open_elements().push(&html);
+    a.insert_element_for(html2::StartTagToken{.tag_name = "html"});
     return BeforeHead{}.process(a, token).value_or(BeforeHead{});
 }
 
@@ -222,7 +208,7 @@ std::optional<InsertionMode> BeforeHead::process(Actions &a, html2::Token const 
         }
     }
 
-    a.insert({.name = "head"});
+    a.insert_element_for(html2::StartTagToken{.tag_name = "head"});
     return InHead{}.process(a, token).value_or(InHead{});
 }
 
@@ -245,13 +231,13 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
         // NOLINTNEXTLINE(bugprone-branch-clone)
         if (name == "base" || name == "basefont" || name == "bgsound" || name == "link") {
             a.insert_element_for(*start);
-            a.open_elements().pop();
+            a.pop_current_node();
             return {};
         }
 
         if (name == "meta") {
             a.insert_element_for(*start);
-            a.open_elements().pop();
+            a.pop_current_node();
             return {};
         }
 
@@ -282,14 +268,14 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
         }
     } else if (auto const *end = std::get_if<html2::EndTagToken>(&token)) {
         if (end->tag_name == "head") {
-            assert(a.open_elements().top()->name == "head");
-            a.open_elements().pop();
+            assert(a.current_node_name() == "head");
+            a.pop_current_node();
             return AfterHead{};
         }
     }
 
-    assert(a.open_elements().top()->name == "head");
-    a.open_elements().pop();
+    assert(a.current_node_name() == "head");
+    a.pop_current_node();
     return AfterHead{}.process(a, token).value_or(AfterHead{});
 }
 
@@ -307,8 +293,8 @@ std::optional<InsertionMode> InHeadNoscript::process(Actions &a, html2::Token co
 
     auto const *end = std::get_if<html2::EndTagToken>(&token);
     if (end && end->tag_name == "noscript") {
-        assert(a.open_elements().top()->name == "noscript");
-        a.open_elements().pop();
+        assert(a.current_node_name() == "noscript");
+        a.pop_current_node();
         return InHead{};
     }
 
@@ -327,9 +313,9 @@ std::optional<InsertionMode> InHeadNoscript::process(Actions &a, html2::Token co
     }
 
     // Parse error.
-    assert(a.open_elements().top()->name == "noscript");
-    a.open_elements().pop();
-    assert(a.open_elements().top()->name == "head");
+    assert(a.current_node_name() == "noscript");
+    a.pop_current_node();
+    assert(a.current_node_name() == "head");
     return InHead{}.process(a, token).value_or(InHead{});
 }
 
@@ -342,14 +328,10 @@ std::optional<InsertionMode> InBody::process(Actions &a, html2::Token const &tok
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start && start->tag_name == "html") {
         // Parse error.
         // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
-        auto &html = a.document().html();
-        for (auto const &attr : start->attributes) {
-            if (html.attributes.contains(attr.name)) {
-                continue;
-            }
 
-            html.attributes[attr.name] = attr.value;
-        }
+        // The spec says to add attributes not already in the top element of the
+        // stack of open elements. By top, they obviously mean the <html> tag.
+        a.merge_into_html_node(start->attributes);
     }
 
     return {};
@@ -358,18 +340,12 @@ std::optional<InsertionMode> InBody::process(Actions &a, html2::Token const &tok
 std::optional<InsertionMode> Text::process(Actions &a, html2::Token const &token) {
     if (auto const *character = std::get_if<html2::CharacterToken>(&token)) {
         assert(character->data != '\0');
-
-        auto &current_element = a.open_elements().top();
-        if (current_element->children.empty() || !std::holds_alternative<dom::Text>(current_element->children.back())) {
-            current_element->children.emplace_back(dom::Text{});
-        }
-
-        std::get<dom::Text>(current_element->children.back()).text += character->data;
+        a.insert_character(*character);
         return {};
     }
 
     if ([[maybe_unused]] auto const *end = std::get_if<html2::EndTagToken>(&token)) {
-        a.open_elements().pop();
+        a.pop_current_node();
         return a.original_insertion_mode();
     }
 
