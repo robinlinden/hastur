@@ -5,6 +5,7 @@
 #ifndef HTML_PARSER_H_
 #define HTML_PARSER_H_
 
+#include "html/parser_actions.h"
 #include "html/parser_states.h"
 
 #include "dom/dom.h"

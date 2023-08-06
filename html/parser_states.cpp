@@ -4,6 +4,8 @@
 
 #include "html/parser_states.h"
 
+#include "html/parser_actions.h"
+
 #include "dom/dom.h"
 #include "html2/tokenizer.h"
 #include "util/string.h"
