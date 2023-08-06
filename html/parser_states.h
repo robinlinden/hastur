@@ -11,7 +11,7 @@
 
 namespace html {
 
-class Actions;
+class IActions;
 
 struct Initial;
 struct BeforeHtml;
@@ -83,48 +83,48 @@ struct AfterAfterFrameset {};
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
 // Incomplete.
 struct Initial {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
 // Incomplete.
 struct BeforeHtml {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
 // Incomplete.
 struct BeforeHead {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
 // Incomplete.
 struct InHead {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
 struct InHeadNoscript {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
 // Incomplete.
 struct AfterHead {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 // Incomplete.
 struct InBody {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
 // Incomplete.
 struct Text {
-    std::optional<InsertionMode> process(Actions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 
 } // namespace html

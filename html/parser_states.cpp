@@ -4,7 +4,7 @@
 
 #include "html/parser_states.h"
 
-#include "html/parser_actions.h"
+#include "html/iparser_actions.h"
 
 #include "html2/tokenizer.h"
 #include "util/string.h"
@@ -132,7 +132,7 @@ constexpr bool is_quirky_when_system_identifier_is_empty(std::string_view public
 } // namespace
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
-std::optional<InsertionMode> Initial::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         return {};
     }
@@ -171,7 +171,7 @@ std::optional<InsertionMode> Initial::process(Actions &a, html2::Token const &to
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
-std::optional<InsertionMode> BeforeHtml::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const &token) {
     if (std::holds_alternative<html2::CommentToken>(token)) {
         // TODO(robinlinden): Insert as last child.
         return {};
@@ -191,7 +191,7 @@ std::optional<InsertionMode> BeforeHtml::process(Actions &a, html2::Token const 
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
-std::optional<InsertionMode> BeforeHead::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         return {};
     }
@@ -213,7 +213,7 @@ std::optional<InsertionMode> BeforeHead::process(Actions &a, html2::Token const 
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
-std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         // TODO(robinlinden): Should be inserting characters, but our last
         // parser didn't do that so it will require rewriting tests.
@@ -280,7 +280,7 @@ std::optional<InsertionMode> InHead::process(Actions &a, html2::Token const &tok
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
-std::optional<InsertionMode> InHeadNoscript::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token const &token) {
     if (std::holds_alternative<html2::DoctypeToken>(token)) {
         // Parse error.
         return {};
@@ -319,12 +319,12 @@ std::optional<InsertionMode> InHeadNoscript::process(Actions &a, html2::Token co
     return InHead{}.process(a, token).value_or(InHead{});
 }
 
-std::optional<InsertionMode> AfterHead::process(Actions &, html2::Token const &) {
+std::optional<InsertionMode> AfterHead::process(IActions &, html2::Token const &) {
     return {};
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
-std::optional<InsertionMode> InBody::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start && start->tag_name == "html") {
         // Parse error.
         // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
@@ -337,7 +337,7 @@ std::optional<InsertionMode> InBody::process(Actions &a, html2::Token const &tok
     return {};
 }
 
-std::optional<InsertionMode> Text::process(Actions &a, html2::Token const &token) {
+std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &token) {
     if (auto const *character = std::get_if<html2::CharacterToken>(&token)) {
         assert(character->data != '\0');
         a.insert_character(*character);
