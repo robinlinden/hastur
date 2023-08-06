@@ -248,7 +248,7 @@ void calculate_padding(LayoutBox &box, int const font_size, int const root_font_
 }
 
 // https://drafts.csswg.org/css-backgrounds/#the-border-width
-std::map<std::string_view, int> const kBorderWidthKeywords{
+std::map<std::string_view, int> const border_width_keywords{
         {"thin", 3},
         {"medium", 5},
         {"thick", 7},
@@ -256,8 +256,8 @@ std::map<std::string_view, int> const kBorderWidthKeywords{
 
 void calculate_border(LayoutBox &box, int const font_size, int const root_font_size) {
     auto as_px = [&](std::string_view border_width_property) {
-        if (kBorderWidthKeywords.contains(border_width_property)) {
-            return kBorderWidthKeywords.at(border_width_property);
+        if (border_width_keywords.contains(border_width_property)) {
+            return border_width_keywords.at(border_width_property);
         }
 
         return to_px(border_width_property, font_size, root_font_size);

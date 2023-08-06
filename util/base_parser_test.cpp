@@ -12,24 +12,24 @@ using util::BaseParser;
 
 int main() {
     etest::test("peek", [] {
-        constexpr auto abcd = BaseParser("abcd");
-        expect(abcd.peek() == 'a');
-        expect(abcd.peek(2) == "ab");
-        expect(abcd.peek(3) == "abc");
-        expect(abcd.peek(4) == "abcd");
+        constexpr auto kAbcd = BaseParser("abcd");
+        expect(kAbcd.peek() == 'a');
+        expect(kAbcd.peek(2) == "ab");
+        expect(kAbcd.peek(3) == "abc");
+        expect(kAbcd.peek(4) == "abcd");
         expect(BaseParser(" ").peek() == ' ');
     });
 
     etest::test("starts_with", [] {
-        constexpr auto abcd = BaseParser("abcd");
-        expect(!abcd.starts_with("hello"));
-        expect(abcd.starts_with("ab"));
-        expect(abcd.starts_with("abcd"));
+        constexpr auto kAbcd = BaseParser("abcd");
+        expect(!kAbcd.starts_with("hello"));
+        expect(kAbcd.starts_with("ab"));
+        expect(kAbcd.starts_with("abcd"));
     });
 
     etest::test("is_eof, advance", [] {
-        constexpr auto abcd = BaseParser("abcd");
-        expect(!abcd.is_eof());
+        constexpr auto kAbcd = BaseParser("abcd");
+        expect(!kAbcd.is_eof());
         expect(BaseParser("").is_eof());
 
         auto p = BaseParser("abcd");

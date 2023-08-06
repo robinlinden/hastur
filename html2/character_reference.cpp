@@ -29,7 +29,7 @@ namespace {
 //     print(f'"{key}"sv', *codepoints, sep=', ', end='')
 //     print('},')
 // ```
-static constexpr std::array references = std::to_array<CharacterReference>({{"&AElig"sv, 198},
+static constexpr std::array kReferences = std::to_array<CharacterReference>({{"&AElig"sv, 198},
         {"&AElig;"sv, 198},
         {"&AMP"sv, 38},
         {"&AMP;"sv, 38},
@@ -2266,7 +2266,7 @@ static constexpr std::array references = std::to_array<CharacterReference>({{"&A
 std::optional<CharacterReference> find_named_character_reference_for(std::string_view buffer) {
     std::optional<CharacterReference> maybe_reference{std::nullopt};
 
-    for (auto const &reference : references) {
+    for (auto const &reference : kReferences) {
         if (buffer.starts_with(reference.name)
                 && (!maybe_reference || reference.name.size() > maybe_reference->name.size())) {
             maybe_reference = reference;

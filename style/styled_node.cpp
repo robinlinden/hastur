@@ -28,7 +28,7 @@ namespace style {
 namespace {
 
 // https://www.w3.org/TR/css-cascade/#initial-values
-std::map<css::PropertyId, std::string_view> const kInitialValues{
+std::map<css::PropertyId, std::string_view> const initial_values{
         // https://developer.mozilla.org/en-US/docs/Web/CSS/background-color#formal_definition
         {css::PropertyId::BackgroundColor, "transparent"sv},
 
@@ -234,7 +234,7 @@ std::string_view get_parent_raw_property(style::StyledNode const &node, css::Pro
         return node.parent->get_raw_property(property);
     }
 
-    return kInitialValues.at(property);
+    return initial_values.at(property);
 }
 
 std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std::string_view property) {
@@ -271,10 +271,10 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
             return parent->get_raw_property(property);
         }
 
-        return kInitialValues.at(property);
+        return initial_values.at(property);
     } else if (it->second == "initial") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/initial
-        return kInitialValues.at(property);
+        return initial_values.at(property);
     } else if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
         return get_parent_raw_property(*this, property);
@@ -398,7 +398,7 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
 static constexpr int kDefaultFontSize{10};
 // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;
-std::map<std::string_view, float> const kFontSizeAbsoluteSizeKeywords{
+std::map<std::string_view, float> const font_size_absolute_size_keywords{
         {"xx-small", 3 / 5.f},
         {"x-small", 3 / 4.f},
         {"small", 8 / 9.f},
@@ -430,8 +430,8 @@ int StyledNode::get_font_size_property() const {
     }
     auto raw_value = closest->first;
 
-    if (kFontSizeAbsoluteSizeKeywords.contains(raw_value)) {
-        return std::lround(kFontSizeAbsoluteSizeKeywords.at(raw_value) * kMediumFontSize);
+    if (font_size_absolute_size_keywords.contains(raw_value)) {
+        return std::lround(font_size_absolute_size_keywords.at(raw_value) * kMediumFontSize);
     }
 
     auto value_and_unit = split_into_value_and_unit(raw_value);

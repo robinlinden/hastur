@@ -28,26 +28,25 @@
 namespace css {
 namespace {
 
-constexpr std::array border_shorthand_properties{
-        "border", "border-left", "border-right", "border-top", "border-bottom"};
+constexpr std::array kBorderShorthandProperties{"border", "border-left", "border-right", "border-top", "border-bottom"};
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border-style
-constexpr std::array border_style_keywords{
+constexpr std::array kBorderStyleKeywords{
         "none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"};
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border-width
-constexpr std::array border_width_keywords{"thin", "medium", "thick"};
+constexpr std::array kBorderWidthKeywords{"thin", "medium", "thick"};
 
-constexpr auto shorthand_edge_property = std::array{"padding", "margin", "border-style"};
+constexpr auto kShorthandEdgeProperties = std::array{"padding", "margin", "border-style"};
 
-constexpr auto absolute_size_keywords =
+constexpr auto kAbsoluteSizeKeywords =
         std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
 
-constexpr auto relative_size_keywords = std::array{"larger", "smaller"};
+constexpr auto kRelativeSizeKeywords = std::array{"larger", "smaller"};
 
-constexpr auto weight_keywords = std::array{"bold", "bolder", "lighter"};
+constexpr auto kWeightKeywords = std::array{"bold", "bolder", "lighter"};
 
-constexpr auto stretch_keywords = std::array{"ultra-condensed",
+constexpr auto kStretchKeywords = std::array{"ultra-condensed",
         "extra-condensed",
         "condensed",
         "semi-condensed",
@@ -56,7 +55,7 @@ constexpr auto stretch_keywords = std::array{"ultra-condensed",
         "extra-expanded",
         "ultra-expanded"};
 
-constexpr std::string_view dot_and_digits = ".0123456789";
+constexpr std::string_view kDotAndDigits = ".0123456789";
 
 template<auto const &array>
 constexpr bool is_in_array(std::string_view str) {
@@ -64,28 +63,28 @@ constexpr bool is_in_array(std::string_view str) {
 }
 
 constexpr bool is_shorthand_edge_property(std::string_view str) {
-    return is_in_array<shorthand_edge_property>(str);
+    return is_in_array<kShorthandEdgeProperties>(str);
 }
 
 constexpr bool is_absolute_size(std::string_view str) {
-    return is_in_array<absolute_size_keywords>(str);
+    return is_in_array<kAbsoluteSizeKeywords>(str);
 }
 
 constexpr bool is_relative_size(std::string_view str) {
-    return is_in_array<relative_size_keywords>(str);
+    return is_in_array<kRelativeSizeKeywords>(str);
 }
 
 constexpr bool is_weight(std::string_view str) {
-    return is_in_array<weight_keywords>(str);
+    return is_in_array<kWeightKeywords>(str);
 }
 
 constexpr bool is_stretch(std::string_view str) {
-    return is_in_array<stretch_keywords>(str);
+    return is_in_array<kStretchKeywords>(str);
 }
 
 constexpr bool is_length_or_percentage(std::string_view str) {
     // TODO(mkiael): Make this check more reliable.
-    std::size_t pos = str.find_first_not_of(dot_and_digits);
+    std::size_t pos = str.find_first_not_of(kDotAndDigits);
     return pos > 0 && pos != std::string_view::npos;
 }
 
@@ -351,7 +350,7 @@ void Parser::add_declaration(
         expand_border_radius_values(declarations, value);
     } else if (name == "text-decoration") {
         expand_text_decoration_values(declarations, value);
-    } else if (is_in_array<border_shorthand_properties>(name)) {
+    } else if (is_in_array<kBorderShorthandProperties>(name)) {
         expand_border(name, declarations, value);
     } else {
         declarations.insert_or_assign(property_id_from_string(name), std::string{value});
@@ -406,11 +405,11 @@ void Parser::expand_border_impl(
 
     enum class BorderPropertyType { Color, Style, Width };
     auto guess_type = [](std::string_view v) -> BorderPropertyType {
-        if (is_in_array<border_style_keywords>(v)) {
+        if (is_in_array<kBorderStyleKeywords>(v)) {
             return BorderPropertyType::Style;
         }
 
-        if (v.find_first_of(dot_and_digits) == 0 || is_in_array<border_width_keywords>(v)) {
+        if (v.find_first_of(kDotAndDigits) == 0 || is_in_array<kBorderWidthKeywords>(v)) {
             return BorderPropertyType::Width;
         }
 

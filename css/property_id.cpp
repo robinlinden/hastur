@@ -13,7 +13,7 @@ using namespace std::literals;
 namespace css {
 namespace {
 
-std::map<std::string_view, PropertyId> const kKnownProperties{
+std::map<std::string_view, PropertyId> const known_properties{
         {"azimuth"sv, PropertyId::Azimuth},
         {"background-attachment"sv, PropertyId::BackgroundAttachment},
         {"background-clip"sv, PropertyId::BackgroundClip},
@@ -114,16 +114,16 @@ std::map<std::string_view, PropertyId> const kKnownProperties{
 } // namespace
 
 PropertyId property_id_from_string(std::string_view id) {
-    if (!kKnownProperties.contains(id)) {
+    if (!known_properties.contains(id)) {
         return PropertyId::Unknown;
     }
 
-    return kKnownProperties.at(id);
+    return known_properties.at(id);
 }
 
 std::string_view to_string(PropertyId id) {
-    auto it = std::ranges::find_if(kKnownProperties, [id](auto const &entry) { return entry.second == id; });
-    if (it != end(kKnownProperties)) {
+    auto it = std::ranges::find_if(known_properties, [id](auto const &entry) { return entry.second == id; });
+    if (it != end(known_properties)) {
         return it->first;
     }
 

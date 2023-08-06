@@ -22,7 +22,7 @@ struct CaseInsensitiveLess {
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/named-color#list_of_all_color_keywords
-std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const kNamedColors{
+std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
         // System colors.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#system_colors
         // TODO(robinlinden): Move these elsewhere and actually grab them from the system.
@@ -192,11 +192,11 @@ std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const kNamedColors{
 } // namespace
 
 std::optional<Color> Color::from_css_name(std::string_view name) {
-    if (!kNamedColors.contains(name)) {
+    if (!named_colors.contains(name)) {
         return std::nullopt;
     }
 
-    return kNamedColors.at(name);
+    return named_colors.at(name);
 }
 
 } // namespace gfx

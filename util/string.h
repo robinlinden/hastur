@@ -109,8 +109,8 @@ constexpr std::pair<std::string_view, std::string_view> split_once(std::string_v
 }
 
 constexpr bool is_whitespace(char ch) {
-    constexpr std::array ws_chars = {' ', '\n', '\r', '\f', '\v', '\t'};
-    return std::ranges::any_of(ws_chars, [ch](char ws_ch) { return ch == ws_ch; });
+    constexpr std::array kWsChars = {' ', '\n', '\r', '\f', '\v', '\t'};
+    return std::ranges::any_of(kWsChars, [ch](char ws_ch) { return ch == ws_ch; });
 }
 
 constexpr std::string_view trim_start(std::string_view s) {
