@@ -262,6 +262,24 @@ int main() {
         expect_eq(response.status_line.reason, "Not Found");
     });
 
+    etest::test("connect failure", [] {
+        FakeSocket socket{.connect_result = false};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        expect_eq(response, protocol::Response{.err = protocol::Error::Unresolved});
+    });
+
+    etest::test("empty response", [] {
+        FakeSocket socket{};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        expect_eq(response, protocol::Response{.err = protocol::Error::Unresolved});
+    });
+
+    etest::test("empty status line", [] {
+        FakeSocket socket{.read_data = "\r\n"};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        expect_eq(response, protocol::Response{.err = protocol::Error::InvalidResponse});
+    });
+
     etest::test("no headers", [] {
         FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\n \r\n\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
