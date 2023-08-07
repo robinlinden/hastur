@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -11,11 +11,17 @@
 
 #include <charconv>
 #include <sstream>
+#include <string_view>
 #include <utility>
 
 using namespace std::string_view_literals;
 
 namespace protocol {
+namespace {
+constexpr bool is_valid_header(std::pair<std::string_view, std::string_view> const &header) {
+    return !header.first.empty() && !header.second.empty();
+}
+} // namespace
 
 bool Http::use_port(uri::Uri const &uri) {
     if (uri.scheme == "http"sv) {
@@ -77,10 +83,18 @@ std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) 
 Headers Http::parse_headers(std::string_view header) {
     Headers headers;
     for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
-        headers.add(util::split_once(header.substr(0, sep), ": "));
+        auto kv = util::split_once(header.substr(0, sep), ": ");
+        if (is_valid_header(kv)) {
+            headers.add(std::move(kv));
+        }
+
         header.remove_prefix(sep + 2);
     }
-    headers.add(util::split_once(header, ": "));
+
+    auto kv = util::split_once(header, ": ");
+    if (is_valid_header(kv)) {
+        headers.add(std::move(kv));
+    }
 
     return headers;
 }

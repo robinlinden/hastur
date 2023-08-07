@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -259,6 +260,24 @@ int main() {
         expect_eq(response.status_line.version, "HTTP/1.1"sv);
         expect_eq(response.status_line.status_code, 404);
         expect_eq(response.status_line.reason, "Not Found");
+    });
+
+    etest::test("no headers", [] {
+        FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\n \r\n\r\n"};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        expect_eq(response,
+                protocol::Response{.err = protocol::Error::InvalidResponse, .status_line{"HTTP/1.1", 200, "OK"}});
+    });
+
+    etest::test("mixed valid and invalid headers", [] {
+        FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\none: 1\r\nBAD\r\ntwo: 2\r\n\r\n"};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        expect_eq(response,
+                protocol::Response{
+                        .err = protocol::Error::Ok,
+                        .status_line{"HTTP/1.1", 200, "OK"},
+                        .headers{{"one", "1"}, {"two", "2"}},
+                });
     });
 
     return etest::run_all_tests();
