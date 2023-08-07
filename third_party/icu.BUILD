@@ -24,6 +24,7 @@ cc_library(
             "-I source/common/",
             "-I source/common/unicode/",
             "-I source/stubdata/",
+            "-Wno-deprecated-declarations",
         ],
     }) + select({
         "@bazel_tools//tools/cpp:clang-cl": [
