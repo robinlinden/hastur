@@ -288,7 +288,7 @@ int main() {
     });
 
     etest::test("mixed valid and invalid headers", [] {
-        FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\none: 1\r\nBAD\r\ntwo: 2\r\n\r\n"};
+        FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\none: 1\r\nBAD\r\ntwo: 2 \r\n\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
         expect_eq(response,
                 protocol::Response{
