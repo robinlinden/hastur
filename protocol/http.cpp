@@ -55,6 +55,7 @@ std::string Http::create_get_request(uri::Uri const &uri, std::optional<std::str
     return std::move(ss).str();
 }
 
+// https://datatracker.ietf.org/doc/html/rfc9112#section-4
 std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) {
     auto sep1 = status_line.find(' ');
     if (sep1 == std::string_view::npos) {
@@ -80,6 +81,7 @@ std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) 
     };
 }
 
+// https://datatracker.ietf.org/doc/html/rfc9112#section-5
 Headers Http::parse_headers(std::string_view header) {
     Headers headers;
     for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
