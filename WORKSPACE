@@ -52,9 +52,9 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "226438b0798099ad2a202563a83571ce06dd13b570d8fded4840dbc1f97fa328",
-    strip_prefix = "asio-asio-1-28-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-0.tar.gz",
+    sha256 = "5ff6111ec8cbe73a168d997c547f562713aa7bd004c5c02326f0e9d579a5f2ce",
+    strip_prefix = "asio-asio-1-28-1",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-1.tar.gz",
 )
 
 # https://github.com/google/boringssl
@@ -62,9 +62,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "4698dc96c78e326fe5281786be39a56c64f1b10d85a2bbccb7d448a8a7fe2fc2",
-    strip_prefix = "boringssl-ff486433e9de2ff89be07418125fbfa6f2b1f859",
-    url = "https://github.com/google/boringssl/archive/ff486433e9de2ff89be07418125fbfa6f2b1f859.tar.gz",
+    sha256 = "d270c7e0429726722c367064b79731fa534c34e25811ac8a35e825b9ec803198",
+    strip_prefix = "boringssl-76eb3579aad8db9b21e89459c87408621fcb1226",
+    url = "https://github.com/google/boringssl/archive/76eb3579aad8db9b21e89459c87408621fcb1226.tar.gz",
 )
 
 http_archive(
@@ -211,13 +211,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.260"
+VULKAN_TAG = "1.3.261"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "f6e44769c42685fd5d380aea280a2406a431fe584d7ae3256ce83958cd0899f4",
+    sha256 = "0c67b2b76a7d6534c0f98085dbbcd4a1ac945b15b269bc81ee7dbe6cf28d53bb",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -226,7 +226,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "debf412edfabf4cbd6d837bc20bfc66c147b45fde38c8ec5fbff778b91841bd8",
+    sha256 = "d9aee19265da2ecc1fb691509f3087da37d2b8c4dc6f1e95c57d9182544a160e",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
