@@ -3,12 +3,16 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "layout",
-    srcs = ["layout.cpp"],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
         "//css",
+        "//dom",
         "//geom",
         "//style",
         "//util:from_chars",
@@ -23,6 +27,7 @@ cc_library(
     srcs = [src],
     deps = [
         ":layout",
+        "//dom",
         "//etest",
     ],
 ) for src in glob(["*_test.cpp"])]
