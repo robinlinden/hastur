@@ -29,23 +29,14 @@ void set_up_parent_ptrs(style::StyledNode &parent) {
     }
 }
 
-// TODO(robinlinden): Remove.
-dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::vector<dom::Node> children) {
-    return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
-}
-
 } // namespace
 
 int main() {
-    // clang-format off
     etest::test("text", [] {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                dom::Text{"hello"},
-                dom::Text{"goodbye"},
-            }),
-        });
+        dom::Node dom_root =
+                dom::Element{"html", {}, {dom::Element{"body", {}, {dom::Text{"hello"}, dom::Text{"goodbye"}}}}};
 
+        // clang-format off
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
