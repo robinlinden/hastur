@@ -78,6 +78,16 @@ void collapse_whitespace(LayoutBox &box) {
             last_text_box = current;
             last_text_box->layout_text = util::trim_start(std::get<std::string_view>(last_text_box->layout_text));
         } else if (!std::holds_alternative<std::monostate>(current->layout_text)) {
+            // Remove all but 1 trailing space.
+            auto &text = std::get<std::string_view>(last_text_box->layout_text);
+            auto last_non_whitespace_idx = text.find_last_not_of(" \n\r\f\v\t");
+            if (last_non_whitespace_idx != std::string_view::npos) {
+                auto trailing_whitespace_count = text.size() - last_non_whitespace_idx - 1;
+                if (trailing_whitespace_count > 1) {
+                    text.remove_suffix(trailing_whitespace_count - 1);
+                }
+            }
+
             if (last_text_box != nullptr
                     && last_text_box->text()
                                .transform([](auto sv) { return sv.empty() || util::is_whitespace(sv.back()); })
