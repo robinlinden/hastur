@@ -1018,16 +1018,6 @@ int main() {
         expect_eq(layout, expected_layout);
     });
 
-    etest::test("get_property", [] {
-        dom::Node dom_root = dom::Element{.name{"html"}, .attributes{}, .children{}};
-        auto style_root =
-                style::StyledNode{.node = dom_root, .properties = {{css::PropertyId::Color, "green"}}, .children{}};
-
-        auto layout = layout::create_layout(style_root, 0).value();
-        expect_eq(layout.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("green"));
-        expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
-    });
-
     etest::test("border-width keywords", [] {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{

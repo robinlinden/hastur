@@ -13,6 +13,7 @@
 #include <vector>
 
 using namespace std::literals;
+using etest::expect_eq;
 
 namespace {
 template<css::PropertyId IdT>
@@ -42,6 +43,15 @@ void expect_property_eq(std::optional<std::string> value,
 } // namespace
 
 int main() {
+    etest::test("get_property", [] {
+        dom::Node dom_root = dom::Element{.name{"html"}};
+        auto style_root = style::StyledNode{.node = dom_root, .properties = {{css::PropertyId::Color, "green"}}};
+
+        auto layout = layout::create_layout(style_root, 0).value();
+        expect_eq(layout.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("green"));
+        expect_eq(layout.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
+    });
+
     using enum css::PropertyId;
     etest::test("border radius", [] {
         expect_property_eq<BorderTopLeftRadius>("2em", std::pair{60, 60}, {{FontSize, "30px"}});
