@@ -156,6 +156,14 @@ http_archive(
     url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.6.tar.gz",
 )
 
+http_archive(
+    name = "simdjson",  # Apache-2.0
+    build_file = "//third_party:simdjson.BUILD",
+    sha256 = "13a702536e051db612cdca82bf8585f2c69d9c6fd156ef291b170f13202c1b4c",
+    strip_prefix = "simdjson-3.2.2",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.2.2.tar.gz",
+)
+
 # https://github.com/glennrp/libpng
 http_archive(
     name = "libpng",  # Libpng
@@ -232,6 +240,14 @@ http_archive(
     sha256 = "a55555b9e553accbab90b6e15d55a9f1fec47fab12af34c05ba3150b61dd59a5",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
+)
+
+http_archive(
+    name = "wpt",  # BSD-3-Clause
+    build_file_content = "exports_files([\"url/resources/urltestdata.json\"])",
+    sha256 = "0bec4b1c5bbae0f30b83049d61109186b69ce98cb2af32a0f95eb44be96228c8",
+    strip_prefix = "wpt-merge_pr_41277",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41277.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.

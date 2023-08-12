@@ -7,8 +7,11 @@
 
 #include "etest/etest.h"
 
+#include <simdjson.h>
+
 #include <array>
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <optional>
 #include <regex>
@@ -632,6 +635,142 @@ int main() {
 
         etest::require(url.has_value());
         etest::expect_eq(*url, url::Url{.scheme = "a", .host = url::Host{.type = url::HostType::Opaque}});
+    });
+
+    etest::test("URL parsing: file url with base", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> file_base = p.parse("file:///usr/bin/vim");
+
+        etest::require(file_base.has_value());
+
+        std::optional<url::Url> url = p.parse("file:usr/bin/emacs", file_base);
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->scheme, "file");
+        etest::expect_eq(url->serialize(), "file:///usr/bin/usr/bin/emacs");
+        etest::expect_eq(url->host->serialize(), "");
+        etest::expect_eq(url->serialize_path(), "/usr/bin/usr/bin/emacs");
+    });
+
+    etest::test("URL parsing: file url backslash with base", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> file_base = p.parse("file:///usr/bin/vim");
+
+        etest::require(file_base.has_value());
+
+        std::optional<url::Url> url = p.parse("file:\\usr/bin/emacs", file_base);
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->scheme, "file");
+        etest::expect_eq(url->serialize(), "file:///usr/bin/emacs");
+        etest::expect_eq(url->host->serialize(), "");
+        etest::expect_eq(url->serialize_path(), "/usr/bin/emacs");
+    });
+
+    etest::test("Web Platform Tests", [] {
+        url::UrlParser p;
+
+        simdjson::ondemand::parser parser;
+
+        auto json = simdjson::padded_string::load("external/wpt/url/resources/urltestdata.json");
+
+        simdjson::ondemand::document doc = parser.iterate(json);
+
+        simdjson::ondemand::array arr = doc.get_array();
+
+        for (auto obj : arr) {
+            // Skip strings, those are just comments
+            if (obj.type() == simdjson::ondemand::json_type::string) {
+                continue;
+            }
+
+            bool should_fail = false;
+
+            // Check if test expects failure
+            if (obj.find_field("failure").error() != simdjson::error_code::NO_SUCH_FIELD) {
+                should_fail = true;
+            }
+
+            // Get input URL
+            std::string_view input = obj["input"].get_string(true);
+
+            // Parse base URL if it exists
+            std::optional<url::Url> base_test;
+
+            if (!obj["base"].is_null()) {
+                std::string_view base_str = obj["base"].get_string(true);
+
+                base_test = p.parse(std::string{base_str});
+
+                if (!should_fail) {
+                    etest::expect(base_test.has_value(), "Parsing base URL:(" + std::string{base_str} + ") failed");
+
+                    continue;
+                }
+            }
+
+            // Parse input URL
+            std::optional<url::Url> url = p.parse(std::string{input}, base_test);
+
+            if (!should_fail) {
+                etest::expect(url.has_value(), "Parsing input URL:(" + std::string{input} + ") failed");
+
+                if (!url.has_value()) {
+                    continue;
+                }
+            } else {
+                etest::require(!url.has_value(),
+                        "Parsing input URL:(" + std::string{input} + ") succeeded when it was supposed to fail");
+
+                // If this test was an expected failure, test ends here
+                continue;
+            }
+
+            // Check URL fields against test
+
+            std::string_view href = obj["href"];
+            etest::expect_eq(url->serialize(), href);
+
+            if (obj.find_field("failure").error() != simdjson::error_code::NO_SUCH_FIELD) {
+                std::string_view origin = obj["origin"];
+
+                etest::expect_eq(url->origin().serialize(), origin);
+            }
+
+            std::string_view protocol = obj["protocol"];
+            etest::expect_eq(url->scheme + ":", protocol);
+
+            std::string_view username = obj["username"];
+            etest::expect_eq(url->user, username);
+
+            std::string_view password = obj["password"];
+            etest::expect_eq(url->passwd, password);
+
+            std::string_view hostname = obj["hostname"];
+            etest::expect_eq(url->host.has_value() ? url->host->serialize() : "", hostname);
+
+            std::string_view host = obj["host"];
+            std::string host_serialized = url->host.has_value() ? url->host->serialize() : "";
+            std::string host_port = url->port.has_value() ? std::string{":"} + std::to_string(*url->port) : "";
+            etest::expect_eq(host_serialized + host_port, host);
+
+            std::string_view port = obj["port"];
+            etest::expect_eq(url->port.has_value() ? std::to_string(*url->port) : "", port);
+
+            std::string_view pathname = obj["pathname"];
+            etest::expect_eq(url->serialize_path(), pathname);
+
+            std::string_view search = obj["search"];
+            etest::expect_eq(url->query.has_value() && *url->query != "" ? std::string{"?"} + *url->query : "", search);
+
+            std::string_view hash = obj["hash"];
+            etest::expect_eq(
+                    url->fragment.has_value() && *url->fragment != "" ? std::string{"#"} + *url->fragment : "", hash);
+        }
     });
 
     int ret = etest::run_all_tests();

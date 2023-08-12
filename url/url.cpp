@@ -329,7 +329,7 @@ Origin Url::origin() const {
 }
 
 void UrlParser::validation_error(ValidationError err) const {
-    spdlog::debug("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
+    spdlog::warn("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
             current_pos(),
             std::to_underlying(state_),
             std::to_underlying(err),
@@ -571,6 +571,9 @@ void UrlParser::state_scheme() {
         state_ = ParserState::NoScheme;
 
         reset();
+
+        // This can underflow pos_; that's ok, because it's incremented again before it's ever used.
+        back(1);
     } else {
         state_ = ParserState::Failure;
 
@@ -932,7 +935,7 @@ void UrlParser::state_file() {
         } else if (!is_eof()) {
             url_.query = std::nullopt;
 
-            if (!starts_with_windows_drive_letter(remaining_from(1))) {
+            if (!starts_with_windows_drive_letter(remaining_from(0))) {
                 shorten_url_path(url_);
             } else {
                 validation_error(ValidationError::FileInvalidWindowsDriveLetter);
@@ -963,7 +966,7 @@ void UrlParser::state_file_slash() {
         if (base_.has_value() && base_->scheme == "file") {
             url_.host = base_->host;
 
-            if (!starts_with_windows_drive_letter(remaining_from(1))
+            if (!starts_with_windows_drive_letter(remaining_from(0))
                     && is_normal_windows_drive_letter(std::get<1>(base_->path)[0])) {
                 std::get<1>(url_.path).push_back(std::get<1>(base_->path)[0]);
             }
@@ -1223,12 +1226,13 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
     proc_err &= ~UIDNA_ERROR_HYPHEN_3_4;
 
     if (!be_strict) {
+        proc_err &= ~UIDNA_ERROR_EMPTY_LABEL;
         proc_err &= ~UIDNA_ERROR_LABEL_TOO_LONG;
         proc_err &= ~UIDNA_ERROR_DOMAIN_NAME_TOO_LONG;
     }
 
     // If domain or any label is empty, proc_err should contain UIDNA_ERROR_EMPTY_LABEL
-    if (U_FAILURE(err) || proc_err != 0) {
+    if (U_FAILURE(err) || proc_err != 0 || ascii_domain.empty()) {
         validation_error(ValidationError::DomainToAscii);
 
         return std::nullopt;
@@ -1460,14 +1464,23 @@ std::optional<std::tuple<std::uint64_t, bool>> UrlParser::parse_ipv4_number(std:
         }
     }
 
+    // TODO(zero-one): Differ width based on largest integer value supported by platform?
     std::uint64_t out;
 
     auto res = std::from_chars(input.data(), input.data() + input.size(), out, r);
 
-    if (res.ec == std::errc::invalid_argument || res.ec == std::errc::result_out_of_range) {
-        spdlog::info("Invalid ipv4 number");
+    if (res.ec == std::errc::invalid_argument) {
+        spdlog::info("Invalid IPv4 number");
 
         return std::nullopt;
+    }
+
+    // This deviation from the spec is necessary, because the spec assumes arbitrary precision
+    if (res.ec == std::errc::result_out_of_range) {
+        spdlog::info("IPv4 number > 2^64");
+
+        // The number returned here is an error value
+        return {{-1, true}};
     }
 
     return {{out, v_err}};

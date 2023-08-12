@@ -35,11 +35,19 @@ cc_test(
     name = "url_test",
     size = "small",
     srcs = ["url_test.cpp"],
-    copts = HASTUR_COPTS,
+    copts = HASTUR_COPTS + select({
+        "@platforms//os:windows": [
+            "/wd4100",
+            "/wd4706",
+        ],
+        "//conditions:default": [],
+    }),
+    data = ["@wpt//:url/resources/urltestdata.json"],
     deps = [
         ":url",
         "//etest",
         "@icu//:common",
+        "@simdjson",
     ],
 )
 

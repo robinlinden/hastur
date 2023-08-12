@@ -214,7 +214,7 @@ inline std::string percent_encode(
         if (space_as_plus && i == ' ') {
             out << '+';
         } else if (in_encode_set(i)) {
-            out << '%' << std::setw(2) << std::uppercase << std::hex
+            out << '%' << std::setfill('0') << std::setw(2) << std::uppercase << std::hex
                 << static_cast<unsigned int>(static_cast<unsigned char>(i));
         } else {
             out << i;
