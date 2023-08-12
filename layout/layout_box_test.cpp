@@ -11,6 +11,7 @@
 #include "etest/etest.h"
 
 #include <string_view>
+#include <utility>
 #include <vector>
 
 using etest::expect;
@@ -36,33 +37,34 @@ int main() {
         dom::Node dom_root =
                 dom::Element{"html", {}, {dom::Element{"body", {}, {dom::Text{"hello"}, dom::Text{"goodbye"}}}}};
 
-        // clang-format off
         auto const &children = std::get<dom::Element>(dom_root).children;
+
+        std::vector<style::StyledNode> style_children{
+                {std::get<dom::Element>(children[0]).children[0], {}, {}},
+                {std::get<dom::Element>(children[0]).children[1], {}, {}},
+        };
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{
+                        {children[0], {{css::PropertyId::Display, "block"}}, {std::move(style_children)}},
+                },
         };
         set_up_parent_ptrs(style_root);
 
-        auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .type = LayoutType::Block,
-            .dimensions = {{0, 0, 0, 10}},
-            .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 10}}, {
-                    {nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {
-                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}, "hello"sv},
-                        {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}, "goodbye"sv},
-                    }},
-                }},
-            }
+        std::vector<layout::LayoutBox> layout_children{
+                {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}, "hello"sv},
+                {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}, "goodbye"sv},
         };
+        auto expected_layout = layout::LayoutBox{.node = &style_root,
+                .type = LayoutType::Block,
+                .dimensions = {{0, 0, 0, 10}},
+                .children{{
+                        &style_root.children[0],
+                        LayoutType::Block,
+                        {{0, 0, 0, 10}},
+                        {{nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {std::move(layout_children)}}},
+                }}};
 
         auto layout_root = layout::create_layout(style_root, 0);
         expect(expected_layout == layout_root);
@@ -72,16 +74,18 @@ int main() {
     });
 
     etest::test("box_at_position", [] {
+        std::vector<layout::LayoutBox> children{
+                {nullptr, LayoutType::AnonymousBlock, {{30, 30, 5, 5}}, {}},
+                {nullptr, LayoutType::Block, {{45, 45, 5, 5}}, {}},
+        };
+
         auto layout = layout::LayoutBox{
-            .node = nullptr,
-            .type = LayoutType::Block,
-            .dimensions = {{0, 0, 100, 100}},
-            .children = {
-                {nullptr, LayoutType::Block, {{25, 25, 50, 50}}, {
-                    {nullptr, LayoutType::AnonymousBlock, {{30, 30, 5, 5}}, {}},
-                    {nullptr, LayoutType::Block, {{45, 45, 5, 5}}, {}},
-                }},
-            }
+                .node = nullptr,
+                .type = LayoutType::Block,
+                .dimensions = {{0, 0, 100, 100}},
+                .children{
+                        {nullptr, LayoutType::Block, {{25, 25, 50, 50}}, {std::move(children)}},
+                },
         };
 
         expect(box_at_position(layout, {-1, -1}) == nullptr);
@@ -96,8 +100,6 @@ int main() {
         expect(box_at_position(layout, {75, 75}) == &layout.children[0]);
         expect(box_at_position(layout, {47, 47}) == &layout.children[0].children[1]);
     });
-
-    // clang-format on
 
     etest::test("xpath", [] {
         dom::Node html_node = dom::Element{"html"s};
