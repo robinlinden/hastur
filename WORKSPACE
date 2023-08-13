@@ -83,12 +83,13 @@ http_archive(
     url = "https://github.com/tartanllama/expected/archive/v1.1.0.tar.gz",
 )
 
+# https://github.com/fmtlib/fmt
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "ede1b6b42188163a3f2e0f25ad5c0637eca564bd8df74d02e31a311dd6b37ad8",
-    strip_prefix = "fmt-10.0.0",
-    url = "https://github.com/fmtlib/fmt/archive/10.0.0.tar.gz",
+    sha256 = "deb0a3ad2f5126658f2eefac7bf56a042488292de3d7a313526d667f3240ca0a",
+    strip_prefix = "fmt-10.1.0",
+    url = "https://github.com/fmtlib/fmt/archive/10.1.0.tar.gz",
 )
 
 http_archive(
@@ -154,12 +155,13 @@ http_archive(
     url = "https://github.com/eliasdaler/imgui-sfml/archive/49dbecb43040449cccb3bfc43e3472cee94da417.tar.gz",
 )
 
+# https://github.com/glennrp/libpng
 http_archive(
     name = "libpng",  # Libpng
     build_file = "//third_party:libpng.BUILD",
-    sha256 = "a00e9d2f2f664186e4202db9299397f851aea71b36a35e74910b8820e380d441",
-    strip_prefix = "libpng-1.6.39",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.39.tar.gz",
+    sha256 = "62d25af25e636454b005c93cae51ddcd5383c40fa14aa3dae8f6576feb5692c2",
+    strip_prefix = "libpng-1.6.40",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.40.tar.gz",
 )
 
 http_archive(
@@ -206,9 +208,9 @@ http_archive(
 http_archive(
     name = "unifex",  # Apache-2.0 WITH LLVM-exception
     build_file = "//third_party:unifex.BUILD",
-    sha256 = "e5780cfe8b6ffe64079e26a827a6893174361749f78545a899a34640f5ca3b75",
-    strip_prefix = "libunifex-0.2.0",
-    url = "https://github.com/facebookexperimental/libunifex/archive/v0.2.0.tar.gz",
+    sha256 = "da6b65227adcf1ce3e3410865cc2974b1aacaa20d0f03905bd3bd4fb4e6e4d44",
+    strip_prefix = "libunifex-0.3.0",
+    url = "https://github.com/facebookexperimental/libunifex/archive/v0.3.0.tar.gz",
 )
 
 VULKAN_TAG = "1.3.261"
