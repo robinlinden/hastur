@@ -5,6 +5,8 @@
 #ifndef GFX_OPENGL_CANVAS_H_
 #define GFX_OPENGL_CANVAS_H_
 
+#include "gfx/opengl_shader.h"
+
 #include "gfx/icanvas.h"
 
 namespace gfx {
@@ -23,11 +25,15 @@ public:
 
     void clear(Color) override;
     void fill_rect(geom::Rect const &, Color) override;
-    void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override {}
+    void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override;
     void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) override {}
     void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) override {}
 
 private:
+    OpenGLShader border_shader_;
+
+    int size_x_{};
+    int size_y_{};
     int translation_x_{};
     int translation_y_{};
     int scale_{1};

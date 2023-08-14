@@ -18,18 +18,6 @@ cc_library(
     ],
 )
 
-cc_library(
-    name = "opengl",
-    srcs = ["opengl_canvas.cpp"],
-    hdrs = ["opengl_canvas.h"],
-    copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
-        ":gfx",
-        "@glew",
-    ],
-)
-
 genrule(
     name = "basic_vertex_shader",
     srcs = ["basic_shader.vert"],
@@ -42,6 +30,26 @@ genrule(
     srcs = ["rect_shader.frag"],
     outs = ["rect_fragment_shader.h"],
     cmd = "xxd -i $< >$@",
+)
+
+cc_library(
+    name = "opengl",
+    srcs = [
+        "opengl_canvas.cpp",
+        "opengl_shader.cpp",
+        ":basic_vertex_shader",
+        ":rect_fragment_shader",
+    ],
+    hdrs = [
+        "opengl_canvas.h",
+        "opengl_shader.h",
+    ],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":gfx",
+        "@glew",
+    ],
 )
 
 cc_library(
