@@ -562,6 +562,9 @@ void App::switch_canvas() {
         selected_canvas_ = Canvas::OpenGL;
         canvas_ = std::make_unique<gfx::OpenGLCanvas>();
     }
+    canvas_->set_scale(scale_);
+    auto [width, height] = window_.getSize();
+    canvas_->set_viewport_size(width, height);
 }
 
 } // namespace browser::gui
