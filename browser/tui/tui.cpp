@@ -8,11 +8,14 @@
 #include "protocol/handler_factory.h"
 
 #include <spdlog/cfg/env.h>
+#include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -23,7 +26,9 @@ constexpr char const *kDefaultUri = "http://www.example.com";
 } // namespace
 
 int main(int argc, char **argv) {
-    spdlog::set_default_logger(spdlog::stderr_color_mt("hastur"));
+    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_mt>(std::chrono::seconds{10});
+    dup_filter->add_sink(std::make_shared<spdlog::sinks::stderr_color_sink_mt>());
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>("hastur", std::move(dup_filter)));
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
