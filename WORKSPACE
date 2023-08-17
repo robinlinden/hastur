@@ -62,9 +62,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
-    sha256 = "d270c7e0429726722c367064b79731fa534c34e25811ac8a35e825b9ec803198",
-    strip_prefix = "boringssl-76eb3579aad8db9b21e89459c87408621fcb1226",
-    url = "https://github.com/google/boringssl/archive/76eb3579aad8db9b21e89459c87408621fcb1226.tar.gz",
+    sha256 = "9c57392053ae549e971a7abb248cb582c3709b4f9c61886c34e89061f00712ad",
+    strip_prefix = "boringssl-db6963d75d64c158e0478a94b5b7dd4ac5246425",
+    url = "https://github.com/google/boringssl/archive/db6963d75d64c158e0478a94b5b7dd4ac5246425.tar.gz",
 )
 
 http_archive(
@@ -147,12 +147,13 @@ http_archive(
     url = "https://github.com/ocornut/imgui/archive/v1.89.8.tar.gz",
 )
 
+# https://github.com/SFML/imgui-sfml
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    sha256 = "c9f5f5ed92ad30afb64f32e2e0d4b4050c59de465f759330e972b90891798581",
-    strip_prefix = "imgui-sfml-49dbecb43040449cccb3bfc43e3472cee94da417",
-    url = "https://github.com/eliasdaler/imgui-sfml/archive/49dbecb43040449cccb3bfc43e3472cee94da417.tar.gz",
+    sha256 = "b1195ca1210dd46c8049cfc8cae7f31cd34f1591da7de1c56297b277ac9c5cc0",
+    strip_prefix = "imgui-sfml-2.6",
+    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.6.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
