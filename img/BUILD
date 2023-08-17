@@ -3,21 +3,29 @@ load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
 cc_library(
-    name = "img",
-    srcs = glob(
-        include = ["*.cpp"],
-        exclude = [
-            "*_example.cpp",
-            "*_test.cpp",
-        ],
-    ),
-    hdrs = glob(["*.h"]),
+    name = "gif",
+    srcs = ["gif.cpp"],
+    hdrs = ["gif.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = [
-        "@expected",
-        "@libpng",
-    ],
+)
+
+cc_library(
+    name = "png",
+    srcs = ["png.cpp"],
+    hdrs = ["png.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = ["@libpng"],
+)
+
+cc_library(
+    name = "qoi",
+    srcs = ["qoi.cpp"],
+    hdrs = ["qoi.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = ["@expected"],
 )
 
 # See: https://www.mjt.me.uk/posts/smallest-png/
@@ -40,8 +48,7 @@ extra_srcs = {
         [],
     ),
     copts = HASTUR_COPTS,
-    deps = [
-        ":img",
+    deps = [":%s" % src[:-9]] + [
         "//etest",
         "@expected",
     ],
@@ -56,7 +63,7 @@ extra_srcs = {
     srcs = [src],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
-    deps = [":img"],
+    deps = [":%s" % src[:-14]],
 ) for src in glob(["*_fuzz_test.cpp"])]
 
 cc_binary(
@@ -64,7 +71,9 @@ cc_binary(
     srcs = ["img_example.cpp"],
     copts = HASTUR_COPTS,
     deps = [
-        ":img",
+        ":gif",
+        ":png",
+        ":qoi",
         "@sfml//:graphics",
         "@sfml//:window",
     ],
