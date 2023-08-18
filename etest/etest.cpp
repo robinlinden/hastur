@@ -125,10 +125,7 @@ void expect(bool b, std::optional<std::string_view> log_message, etest::source_l
     }
 
     ++assertion_failures;
-    // Check if we're using the real source_location by checking for line == 0.
-    if (loc.line() != 0) {
-        test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
-    }
+    test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
 
     if (log_message) {
         test_log << *log_message << "\n\n";
@@ -140,9 +137,7 @@ void require(bool b, std::optional<std::string_view> log_message, etest::source_
         return;
     }
 
-    if (loc.line() != 0) {
-        test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
-    }
+    test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
 
     if (log_message) {
         test_log << *log_message << "\n\n";
