@@ -1,12 +1,15 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef ETEST_CXX_COMPAT_H_
 #define ETEST_CXX_COMPAT_H_
 
-// Clang has the header, but it doesn't yet contain std::source_location.
-#if __has_include(<source_location>) && !defined(__clang__)
+#include <version>
+
+// Clang 15 has the feature, but reports the wrong file and row, making it less than useful.
+#if defined(__cpp_lib_source_location) && (__cpp_lib_source_location >= 201907L) \
+        && !(defined(__clang_major__) && (__clang_major__ == 15))
 
 #include <source_location>
 namespace etest {
