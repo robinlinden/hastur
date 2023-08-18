@@ -22,12 +22,26 @@ using source_location = std::source_location;
 namespace etest {
 // https://en.cppreference.com/w/cpp/utility/source_location
 // NOLINTNEXTLINE(readability-identifier-naming)
-struct source_location {
-    static constexpr source_location current() noexcept { return source_location{}; }
-    constexpr std::uint_least32_t line() const noexcept { return 0; }
-    constexpr std::uint_least32_t column() const noexcept { return 0; }
-    constexpr char const *file_name() const noexcept { return ""; }
+class source_location {
+public:
+    static constexpr source_location current(std::uint_least32_t line = __builtin_LINE(),
+            std::uint_least32_t column = __builtin_COLUMN(),
+            char const *file_name = __builtin_FILE()) noexcept {
+        return {line, column, file_name};
+    }
+    constexpr std::uint_least32_t line() const noexcept { return line_; }
+    constexpr std::uint_least32_t column() const noexcept { return column_; }
+    constexpr char const *file_name() const noexcept { return file_name_; }
     constexpr char const *function_name() const noexcept { return ""; }
+
+private:
+    std::uint_least32_t line_{};
+    std::uint_least32_t column_{};
+    char const *file_name_{};
+
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    constexpr source_location(std::uint_least32_t line, std::uint_least32_t column, char const *file_name) noexcept
+        : line_{line}, column_(column), file_name_{file_name} {}
 };
 } // namespace etest
 
