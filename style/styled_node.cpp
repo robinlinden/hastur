@@ -28,6 +28,7 @@ namespace style {
 namespace {
 
 // https://www.w3.org/TR/css-cascade/#initial-values
+// NOLINTNEXTLINE(cert-err58-cpp)
 std::map<css::PropertyId, std::string_view> const initial_values{
         // https://developer.mozilla.org/en-US/docs/Web/CSS/background-color#formal_definition
         {css::PropertyId::BackgroundColor, "transparent"sv},
@@ -401,6 +402,7 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
 static constexpr int kDefaultFontSize{10};
 // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;
+// NOLINTNEXTLINE(cert-err58-cpp)
 std::map<std::string_view, float> const font_size_absolute_size_keywords{
         {"xx-small", 3 / 5.f},
         {"x-small", 3 / 4.f},

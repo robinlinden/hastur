@@ -45,6 +45,7 @@
 # harmful.
 Checks: >
   bugprone-*,
+  cert-*,
   cppcoreguidelines-pro-type-cstyle-cast,
   cppcoreguidelines-pro-type-member-init,
   google-*,

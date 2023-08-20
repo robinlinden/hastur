@@ -205,6 +205,7 @@ void calculate_padding(LayoutBox &box, int const font_size, int const root_font_
 }
 
 // https://drafts.csswg.org/css-backgrounds/#the-border-width
+// NOLINTNEXTLINE(cert-err58-cpp)
 std::map<std::string_view, int> const border_width_keywords{
         {"thin", 3},
         {"medium", 5},

@@ -45,6 +45,7 @@ Registry &registry() {
 
 struct TestFailure : public std::exception {};
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 std::stringstream test_log{};
 
 } // namespace

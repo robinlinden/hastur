@@ -53,6 +53,7 @@ std::optional<Png> Png::from(std::istream &is) {
     // See: https://learn.microsoft.com/en-us/cpp/cpp/using-setjmp-longjmp?view=msvc-170
 #pragma warning(disable : 4611)
 #endif
+    // NOLINTNEXTLINE(cert-err52-cpp): libpng offers us this or aborting.
     if (setjmp(png_jmpbuf(png))) {
         png_destroy_read_struct(&png, &info, nullptr);
         return std::nullopt;

@@ -37,6 +37,7 @@ namespace url {
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
 
 namespace {
+// NOLINTNEXTLINE(cert-err58-cpp)
 const std::map<std::string, std::uint16_t> special_schemes = {{"ftp", std::uint16_t{21}},
         {"file", std::uint16_t{0}},
         {"http", std::uint16_t{80}},
@@ -44,6 +45,7 @@ const std::map<std::string, std::uint16_t> special_schemes = {{"ftp", std::uint1
         {"ws", std::uint16_t{80}},
         {"wss", std::uint16_t{443}}};
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 const std::map<UrlParser::ValidationError, std::string> validation_error_str = {
         {UrlParser::ValidationError::DomainToAscii, "Unicode ToASCII records an error or returns the empty string"},
         {UrlParser::ValidationError::DomainToUnicode, "Unicode ToUnicode records an error"},

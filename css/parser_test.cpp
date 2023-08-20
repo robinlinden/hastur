@@ -31,6 +31,7 @@ namespace {
     return os;
 }
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 auto const initial_background_values =
         std::map<css::PropertyId, std::string>{{css::PropertyId::BackgroundImage, "none"},
                 {css::PropertyId::BackgroundPosition, "0% 0%"},
@@ -48,6 +49,7 @@ bool check_initial_background_values(std::map<css::PropertyId, std::string> cons
     });
 }
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 auto const initial_font_values = std::map<css::PropertyId, std::string>{{css::PropertyId::FontStretch, "normal"},
         {css::PropertyId::FontVariant, "normal"},
         {css::PropertyId::FontWeight, "normal"},

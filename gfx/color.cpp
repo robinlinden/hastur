@@ -22,6 +22,7 @@ struct CaseInsensitiveLess {
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/named-color#list_of_all_color_keywords
+// NOLINTNEXTLINE(cert-err58-cpp)
 std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
         // System colors.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#system_colors

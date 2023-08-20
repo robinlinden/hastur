@@ -13,6 +13,7 @@ using namespace std::literals;
 namespace css {
 namespace {
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 std::map<std::string_view, PropertyId> const known_properties{
         {"azimuth"sv, PropertyId::Azimuth},
         {"background-attachment"sv, PropertyId::BackgroundAttachment},
