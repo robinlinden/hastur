@@ -16,7 +16,7 @@ using etest::expect_eq;
 
 namespace {
 #include "img/tiny_png.h"
-std::string const png_bytes(reinterpret_cast<char const *>(img_tiny_png), img_tiny_png_len);
+std::string_view const png_bytes(reinterpret_cast<char const *>(img_tiny_png), img_tiny_png_len);
 } // namespace
 
 int main() {
@@ -34,18 +34,18 @@ int main() {
             return expected;
         }();
 
-        auto png = img::Png::from(std::stringstream(png_bytes)).value();
+        auto png = img::Png::from(std::stringstream(std::string{png_bytes})).value();
         expect_eq(png, img::Png{.width = 256, .height = 256, .bytes = std::move(expected_pixels)});
     });
 
     etest::test("invalid signatures are rejected", [] {
-        auto invalid_signature_bytes = png_bytes;
+        auto invalid_signature_bytes = std::string{png_bytes};
         invalid_signature_bytes[7] = 'b';
         expect_eq(img::Png::from(std::stringstream(std::move(invalid_signature_bytes))), std::nullopt);
     });
 
     etest::test("it handles truncated files", [] {
-        auto truncated_bytes = png_bytes.substr(0, 30);
+        auto truncated_bytes = std::string{png_bytes.substr(0, 30)};
         expect_eq(img::Png::from(std::stringstream(std::move(truncated_bytes))), std::nullopt);
     });
 
