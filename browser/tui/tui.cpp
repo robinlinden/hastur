@@ -7,6 +7,7 @@
 #include "engine/engine.h"
 #include "protocol/handler_factory.h"
 
+#include <fmt/format.h>
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -23,6 +24,13 @@ using namespace std::literals;
 
 namespace {
 constexpr char const *kDefaultUri = "http://www.example.com";
+
+void ensure_has_scheme(std::string &url) {
+    if (!url.contains("://")) {
+        spdlog::info("Url missing scheme, assuming https");
+        url = fmt::format("https://{}", url);
+    }
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -32,7 +40,9 @@ int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
-    auto uri = argc > 1 ? uri::Uri::parse(argv[1]) : uri::Uri::parse(kDefaultUri);
+    auto uri_str = argc > 1 ? std::string{argv[1]} : kDefaultUri;
+    ensure_has_scheme(uri_str);
+    auto uri = uri::Uri::parse(uri_str);
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"s;
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};

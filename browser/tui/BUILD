@@ -12,6 +12,7 @@ cc_binary(
         "//protocol",
         "//tui",
         "//uri",
+        "@fmt",
         "@spdlog",
     ],
 )
