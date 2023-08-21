@@ -14,7 +14,6 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
-#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -48,7 +47,7 @@ int main(int argc, char **argv) {
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
         spdlog::error("Got error {} from {}", static_cast<int>(err), uri.uri);
-        std::exit(1);
+        return 1;
     }
 
     std::cout << dom::to_string(engine.dom());
