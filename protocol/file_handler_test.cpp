@@ -10,7 +10,6 @@
 #include <fmt/format.h>
 
 #include <cerrno>
-#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -36,8 +35,7 @@ public:
 
         std::fstream file{location, std::fstream::in | std::fstream::out | std::fstream::trunc};
         if (!file) {
-            std::cerr << "Unable to create file at " << location.generic_string() << " [" << std::strerror(errno)
-                      << "]\n";
+            std::cerr << "Unable to create file at " << location.generic_string() << " (" << errno << ")\n";
             return std::nullopt;
         }
 
