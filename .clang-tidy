@@ -46,6 +46,7 @@
 Checks: >
   bugprone-*,
   cert-*,
+  concurrency-*,
   cppcoreguidelines-pro-type-cstyle-cast,
   cppcoreguidelines-pro-type-member-init,
   google-*,

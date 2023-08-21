@@ -13,6 +13,9 @@ using namespace std::literals;
 
 namespace os {
 
+// This is okay as long as we don't call e.g. setenv(), unsetenv(), or putenv().
+// NOLINTBEGIN(concurrency-mt-unsafe)
+
 std::vector<std::string> font_paths() {
     std::vector<std::string> paths{};
     if (char const *xdg_data_home = std::getenv("XDG_DATA_HOME")) {
@@ -45,5 +48,7 @@ unsigned active_window_scale_factor() {
 
     return 1;
 }
+
+// NOLINTEND(concurrency-mt-unsafe)
 
 } // namespace os

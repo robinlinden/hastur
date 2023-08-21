@@ -19,6 +19,8 @@
 
 using etest::expect_eq;
 
+// NOLINTBEGIN(concurrency-mt-unsafe): No threads here.
+
 int main() {
     // Ensure that the system's environment doesn't affect the test result.
     unsetenv("HST_SCALE");
@@ -45,3 +47,5 @@ int main() {
 
     return etest::run_all_tests();
 }
+
+// NOLINTEND(concurrency-mt-unsafe)

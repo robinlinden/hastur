@@ -125,6 +125,7 @@ void icu_init() {
         return;
     }
 
+    // NOLINTNEXTLINE(concurrency-mt-unsafe): This is going away soon.
     char *data = std::getenv("HASTUR_ICU_DATA");
 
     if (data != nullptr) {

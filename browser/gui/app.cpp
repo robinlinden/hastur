@@ -132,6 +132,8 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
         std::abort();
     }
 
+    // This is okay as long as we don't call e.g. setenv(), unsetenv(), or putenv().
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (std::getenv("HST_DISABLE_DISK_IO")) {
         // TODO(robinlinden): Support for things like HST_DISABLE_DISK_IO=0 to
         // re-enable IO.
