@@ -45,6 +45,18 @@ void parser_tests() {
     });
 }
 
+void to_string_tests() {
+    etest::test("to_string", [] {
+        expect_eq(css::to_string(css::MediaQuery::parse("(width: 300px)").value()), //
+                "300 <= width <= 300");
+    });
+
+    etest::test("to_string: width", [] {
+        expect_eq(css::to_string(css::MediaQuery::Width{.min = 299, .max = 301}), //
+                "299 <= width <= 301");
+    });
+}
+
 void width_tests() {
     etest::test("width: width", [] {
         expect_eq(css::MediaQuery::parse("(width: 300px)"),
@@ -78,6 +90,7 @@ void width_tests() {
 
 int main() {
     parser_tests();
+    to_string_tests();
     width_tests();
     return etest::run_all_tests();
 }

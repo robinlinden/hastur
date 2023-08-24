@@ -11,6 +11,7 @@
 #include <charconv>
 #include <limits>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <variant>
 
@@ -104,6 +105,15 @@ public:
         return std::visit([&](auto const &q) { return q.evaluate(ctx); }, query);
     }
 };
+
+inline std::string to_string(MediaQuery::Width const &width) {
+    return std::to_string(width.min) + " <= width <= " + std::to_string(width.max);
+}
+
+constexpr std::string to_string(MediaQuery const &query) {
+    return std::visit([](auto const &q) { return to_string(q); }, query.query);
+}
+
 } // namespace css
 
 #endif
