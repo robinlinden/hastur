@@ -11,18 +11,21 @@
 
 namespace util {
 
-template<typename T, typename... Ts, typename... VariantTypesT, std::size_t SpanSizeT>
-constexpr bool matches(std::span<std::variant<VariantTypesT...> const, SpanSizeT> variants) {
-    if (variants.size() != sizeof...(Ts) + 1) {
-        return false;
-    }
+template<typename T, typename... Ts>
+struct Sequence {
+    template<typename... VariantTypesT, std::size_t SpanSizeT>
+    static constexpr bool match(std::span<std::variant<VariantTypesT...> const, SpanSizeT> variants) {
+        if (variants.size() != sizeof...(Ts) + 1) {
+            return false;
+        }
 
-    if constexpr (sizeof...(Ts) > 0) {
-        return std::holds_alternative<T>(variants[0]) && matches<Ts...>(variants.subspan(1));
-    } else {
-        return std::holds_alternative<T>(variants[0]);
+        if constexpr (sizeof...(Ts) > 0) {
+            return std::holds_alternative<T>(variants[0]) && Sequence<Ts...>::match(variants.subspan(1));
+        } else {
+            return std::holds_alternative<T>(variants[0]);
+        }
     }
-}
+};
 
 } // namespace util
 

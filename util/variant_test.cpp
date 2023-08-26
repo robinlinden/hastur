@@ -17,7 +17,7 @@ namespace {
 // This is to help turn arrays into spans.
 template<typename... Ts>
 constexpr bool matches(auto const &buffer) {
-    return util::matches<Ts...>(std::span{buffer});
+    return util::Sequence<Ts...>::match(std::span{buffer});
 }
 
 } // namespace
