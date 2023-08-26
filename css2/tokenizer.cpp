@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -84,6 +84,21 @@ void Tokenizer::run() {
                     case '}':
                         emit(CloseCurlyToken{});
                         continue;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9': {
+                        // TODO(robinlinden): https://www.w3.org/TR/css-syntax-3/#consume-a-numeric-token
+                        auto number = consume_number(*c);
+                        emit(NumberToken{number.second, number.first});
+                        continue;
+                    }
                     default:
                         emit(DelimToken{*c});
                         continue;
@@ -296,6 +311,28 @@ bool Tokenizer::is_eof() const {
 void Tokenizer::reconsume_in(State state) {
     --pos_;
     state_ = state;
+}
+
+// https://www.w3.org/TR/css-syntax-3/#consume-a-number
+std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char first_byte) {
+    NumericType type{NumericType::Integer};
+    std::variant<int, double> result{};
+    std::string repr{};
+
+    // TODO(robinlinden): Step 2
+
+    for (std::optional<char> next_input = first_byte; next_input && util::is_digit(*next_input);
+            next_input = consume_next_input_character()) {
+        repr += *next_input;
+    }
+
+    // TODO(robinlinden): Step 4, 5
+
+    [[maybe_unused]] auto fc_res = std::from_chars(repr.data(), repr.data() + repr.size(), std::get<int>(result));
+    // The tokenizer will verify that this is a number before calling consume_number.
+    assert(fc_res.ec == std::errc{});
+
+    return {result, type};
 }
 
 } // namespace css2

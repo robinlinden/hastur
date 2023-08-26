@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -13,6 +13,7 @@
 #include <optional>
 #include <string_view>
 #include <utility>
+#include <variant>
 
 namespace css2 {
 
@@ -62,6 +63,8 @@ private:
     bool inputs_starts_ident_sequence(char first_character) const;
     bool is_eof() const;
     void reconsume_in(State);
+
+    std::pair<std::variant<int, double>, NumericType> consume_number(char first_byte);
 };
 
 } // namespace css2

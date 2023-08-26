@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -304,6 +304,16 @@ int main() {
         auto output = run_tokenizer("}");
 
         expect_token(output, CloseCurlyToken{});
+    });
+
+    etest::test("number: ez", [] {
+        auto output = run_tokenizer("13");
+        expect_token(output, NumberToken{.data = 13});
+    });
+
+    etest::test("number: leading 0", [] {
+        auto output = run_tokenizer("00000001");
+        expect_token(output, NumberToken{.data = 1});
     });
 
     return etest::run_all_tests();
