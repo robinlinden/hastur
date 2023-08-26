@@ -63,6 +63,16 @@ void Tokenizer::run() {
                     case ')':
                         emit(CloseParenToken{});
                         continue;
+                    case '+': {
+                        // TODO(robinlinden): This only handles integers.
+                        if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+                            auto number = consume_number(*c);
+                            emit(NumberToken{number.second, number.first});
+                        } else {
+                            emit(DelimToken{'+'});
+                        }
+                        continue;
+                    }
                     case ',':
                         emit(CommaToken{});
                         continue;
@@ -319,10 +329,14 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
     std::variant<int, double> result{};
     std::string repr{};
 
-    // TODO(robinlinden): Step 2
+    std::optional<char> next_input;
+    if (first_byte == '+') {
+        next_input = consume_next_input_character();
+    } else {
+        next_input = first_byte;
+    }
 
-    for (std::optional<char> next_input = first_byte; next_input && util::is_digit(*next_input);
-            next_input = consume_next_input_character()) {
+    for (; next_input && util::is_digit(*next_input); next_input = consume_next_input_character()) {
         repr += *next_input;
     }
 

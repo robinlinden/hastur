@@ -316,5 +316,21 @@ int main() {
         expect_token(output, NumberToken{.data = 1});
     });
 
+    etest::test("plus: number", [] {
+        auto output = run_tokenizer("+13");
+        expect_token(output, NumberToken{.data = 13});
+    });
+
+    etest::test("plus: number w/ leading 0", [] {
+        auto output = run_tokenizer("+00000001");
+        expect_token(output, NumberToken{.data = 1});
+    });
+
+    etest::test("plus: delim", [] {
+        auto output = run_tokenizer("+hello");
+        expect_token(output, DelimToken{'+'});
+        expect_token(output, IdentToken{"hello"});
+    });
+
     return etest::run_all_tests();
 }
