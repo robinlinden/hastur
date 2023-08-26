@@ -332,5 +332,21 @@ int main() {
         expect_token(output, IdentToken{"hello"});
     });
 
+    etest::test("hyphen: negative number", [] {
+        auto output = run_tokenizer("-13");
+        expect_token(output, NumberToken{.data = -13});
+    });
+
+    etest::test("hyphen: negative number w/ leading 0", [] {
+        auto output = run_tokenizer("-00000001");
+        expect_token(output, NumberToken{.data = -1});
+    });
+
+    etest::test("hyphen: cdc", [] {
+        auto output = run_tokenizer("-->lol");
+        expect_token(output, CdcToken{});
+        expect_token(output, IdentToken{"lol"});
+    });
+
     return etest::run_all_tests();
 }

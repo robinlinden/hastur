@@ -33,12 +33,6 @@ void Tokenizer::run() {
                     return;
                 }
 
-                if (inputs_starts_ident_sequence(*c)) {
-                    temporary_buffer_ = *c;
-                    state_ = State::IdentLike;
-                    continue;
-                }
-
                 switch (*c) {
                     case ' ':
                     case '\n':
@@ -76,6 +70,28 @@ void Tokenizer::run() {
                     case ',':
                         emit(CommaToken{});
                         continue;
+                    case '-': {
+                        // TODO(robinlinden): This only handles integers.
+                        if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+                            auto number = consume_number(*c);
+                            emit(NumberToken{number.second, number.first});
+                            continue;
+                        }
+
+                        if (peek_input(0) == '-' && peek_input(1) == '>') {
+                            emit(CdcToken{});
+                            pos_ += 2;
+                            continue;
+                        }
+
+                        if (inputs_starts_ident_sequence(*c)) {
+                            reconsume_in(State::IdentLike);
+                            continue;
+                        }
+
+                        emit(DelimToken{'-'});
+                        continue;
+                    }
                     case ':':
                         emit(ColonToken{});
                         continue;
@@ -110,9 +126,17 @@ void Tokenizer::run() {
                         continue;
                     }
                     default:
-                        emit(DelimToken{*c});
-                        continue;
+                        break;
                 }
+
+                if (inputs_starts_ident_sequence(*c)) {
+                    temporary_buffer_ = *c;
+                    state_ = State::IdentLike;
+                    continue;
+                }
+
+                emit(DelimToken{*c});
+                continue;
             }
 
             case State::CommentStart: {
@@ -330,7 +354,10 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
     std::string repr{};
 
     std::optional<char> next_input;
-    if (first_byte == '+') {
+    if (first_byte == '-') {
+        repr += first_byte;
+        next_input = consume_next_input_character();
+    } else if (first_byte == '+') {
         next_input = consume_next_input_character();
     } else {
         next_input = first_byte;
