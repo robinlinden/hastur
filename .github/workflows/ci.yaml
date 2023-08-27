@@ -147,7 +147,7 @@ jobs:
           key: gcc-13-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
           restore-keys: gcc-13-
       - run: apt-get update && apt-get install -y --no-install-recommends libgl-dev xxd
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.17.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - run: ./bazelisk test ...
       - run: ./bazelisk test etest/... --copt=-fno-exceptions
       - name: Run tui
@@ -236,7 +236,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install
         run: |
-          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v6.3.2/buildifier-linux-amd64
+          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v6.3.3/buildifier-linux-amd64
           sudo chmod +x buildifier
       - name: Check
         run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl")
