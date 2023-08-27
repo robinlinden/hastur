@@ -234,12 +234,16 @@ http_archive(
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
+# The freedesktop GitLab goes down too often to be trusted.
 http_archive(
     name = "xext",  # MIT
     build_file = "//third_party:xext.BUILD",
     sha256 = "dcf5fd6defbe474912fb6c617f8b926e53f828698c8491a8abab955ab071fc3f",
     strip_prefix = "libxext-libXext-1.3.5",
-    url = "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.5/libxext-libXext-1.3.5.tar.gz",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.5/libxext-libXext-1.3.5.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/libxext/archive/refs/tags/libXext-1.3.5.tar.gz",
+    ],
 )
 
 http_archive(
@@ -247,7 +251,10 @@ http_archive(
     build_file = "//third_party:xrandr.BUILD",
     sha256 = "a58611b6de3932439ccf9330096e015925f1bd315d9b89a47297362b362fdbd8",
     strip_prefix = "libxrandr-libXrandr-1.5.3",
-    url = "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.3/libxrandr-libXrandr-1.5.3.tar.gz",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.3/libxrandr-libXrandr-1.5.3.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/libxrandr/archive/libXrandr-1.5.3.tar.gz",
+    ],
 )
 
 http_archive(
@@ -255,7 +262,10 @@ http_archive(
     build_file = "//third_party:xrender.BUILD",
     sha256 = "4cd5aca5b948a80bb7c3d5060eb97b8a8199234c0c19fe34d35c5c838923230b",
     strip_prefix = "libxrender-libXrender-0.9.11",
-    url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/libxrender/archive/refs/tags/libXrender-0.9.11.tar.gz",
+    ],
 )
 
 http_archive(
