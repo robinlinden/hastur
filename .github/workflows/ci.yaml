@@ -177,24 +177,31 @@ jobs:
       # - name: Run
       #   run: bazel run browser:tui -c dbg
 
-  windows-clang-cl:
-    runs-on: windows-2022
-    timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/bazel
-          key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
-      - run: echo "build --config clang-cl" >.bazelrc.local
-      - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
-      - run: bazel test ...
-      # TODO(robinlinden): This no longer runs in CI due to http://example.com
-      # being inaccessible.
-      # - run: bazel run browser:tui
+  # windows-2022 ships with incompatible versions of Clang and MSVC.
+  # see: https://github.com/actions/runner-images/issues/8153
+  #
+  # error: static assertion failed: Error in C++ Standard Library usage.
+  # _EMIT_STL_ERROR(STL1000, "Unexpected compiler version, expected Clang 16.0.0 or newer.");
+  # ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  #
+  # windows-clang-cl:
+  #   runs-on: windows-2022
+  #   timeout-minutes: 30
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+  #     - run: echo "build --config clang-cl" >.bazelrc.local
+  #     - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
+  #     - run: bazel test ...
+  #     # TODO(robinlinden): This no longer runs in CI due to http://example.com
+  #     # being inaccessible.
+  #     # - run: bazel run browser:tui
 
   clang-format:
     runs-on: ubuntu-22.04
