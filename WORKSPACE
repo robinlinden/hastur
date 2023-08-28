@@ -87,9 +87,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "deb0a3ad2f5126658f2eefac7bf56a042488292de3d7a313526d667f3240ca0a",
-    strip_prefix = "fmt-10.1.0",
-    url = "https://github.com/fmtlib/fmt/archive/10.1.0.tar.gz",
+    sha256 = "78b8c0a72b1c35e4443a7e308df52498252d1cefc2b08c9a97bc9ee6cfe61f8b",
+    strip_prefix = "fmt-10.1.1",
+    url = "https://github.com/fmtlib/fmt/archive/10.1.1.tar.gz",
 )
 
 http_archive(
@@ -104,9 +104,9 @@ http_archive(
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
-    sha256 = "9009d093e48b3189487d67fc3e375a57c7b354c0e43fc554ad31bec74a4bc2dd",
-    strip_prefix = "FTXUI-4.1.1",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v4.1.1.tar.gz",
+    sha256 = "a2991cb222c944aee14397965d9f6b050245da849d8c5da7c72d112de2786b5b",
+    strip_prefix = "FTXUI-5.0.0",
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v5.0.0.tar.gz",
 )
 
 http_archive(
@@ -214,13 +214,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.3.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.261"
+VULKAN_TAG = "1.3.262"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "0c67b2b76a7d6534c0f98085dbbcd4a1ac945b15b269bc81ee7dbe6cf28d53bb",
+    sha256 = "317e467a5fb2eaa6a18b984ec70fdbfaccd93595a3e6f4bcceca7d3fab280505",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -229,7 +229,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "d9aee19265da2ecc1fb691509f3087da37d2b8c4dc6f1e95c57d9182544a160e",
+    sha256 = "a55555b9e553accbab90b6e15d55a9f1fec47fab12af34c05ba3150b61dd59a5",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
