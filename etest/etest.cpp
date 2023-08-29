@@ -10,7 +10,7 @@
 namespace etest {
 namespace {
 Suite &registry() {
-    static Suite test_registry{""};
+    static Suite test_registry{};
     return test_registry;
 }
 

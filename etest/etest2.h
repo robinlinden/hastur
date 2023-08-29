@@ -91,7 +91,7 @@ struct Test {
 
 class Suite {
 public:
-    explicit Suite(std::string name) : name_(std::move(name)) {}
+    explicit Suite(std::optional<std::string> name = std::nullopt) : name_(std::move(name)) {}
 
     void add_test(std::string name, std::function<void(IActions &)> test) {
         tests_.push_back({std::move(name), std::move(test)});
@@ -101,10 +101,10 @@ public:
         disabled_tests_.push_back({std::move(name), std::move(test)});
     }
 
-    [[nodiscard]] int run(RunOptions const &);
+    [[nodiscard]] int run(RunOptions const & = {});
 
 private:
-    std::string name_{};
+    std::optional<std::string> name_{};
     std::vector<Test> tests_{};
     std::vector<Test> disabled_tests_{};
 };
