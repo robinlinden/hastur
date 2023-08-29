@@ -6,8 +6,8 @@
 #define ETEST_TEST_H_
 
 #include "etest/cxx_compat.h"
+#include "etest/etest2.h"
 
-#include <concepts>
 #include <functional>
 #include <optional>
 #include <sstream>
@@ -16,16 +16,6 @@
 #include <utility>
 
 namespace etest {
-
-template<typename T>
-concept Printable = // Hack comment to get clang-format 15 and 16 to agree on the indentation.
-        requires(std::ostream &os, T t) {
-            { os << t } -> std::same_as<std::ostream &>;
-        };
-
-struct RunOptions {
-    bool run_disabled_tests{false};
-};
 
 [[nodiscard]] int run_all_tests(RunOptions const & = {}) noexcept;
 

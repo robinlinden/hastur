@@ -28,14 +28,14 @@ namespace {
 
 int assertion_failures = 0;
 
-struct Test {
+struct OldTest {
     std::string name;
     std::function<void()> body;
 };
 
 struct Registry {
-    std::vector<Test> tests;
-    std::vector<Test> disabled_tests;
+    std::vector<OldTest> tests;
+    std::vector<OldTest> disabled_tests;
 };
 
 Registry &registry() {
@@ -54,7 +54,7 @@ int run_all_tests(RunOptions const &opts) noexcept {
     auto const &tests = registry().tests;
     auto const &disabled = registry().disabled_tests;
 
-    std::vector<Test> tests_to_run;
+    std::vector<OldTest> tests_to_run;
     std::ranges::copy(begin(tests), end(tests), std::back_inserter(tests_to_run));
 
     std::cout << tests.size() + disabled.size() << " test(s) registered";

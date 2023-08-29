@@ -4,11 +4,11 @@ load("//bzl:defs.bzl", "cc_xfail_test")
 
 cc_library(
     name = "etest",
-    srcs = ["etest.cpp"],
-    hdrs = [
-        "cxx_compat.h",
-        "etest.h",
-    ],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
 )
