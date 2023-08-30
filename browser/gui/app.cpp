@@ -214,6 +214,13 @@ int App::run() {
                             switch_canvas();
                             break;
                         }
+                        case sf::Keyboard::Key::F3: {
+                            auto mode = engine_.whitespace_mode();
+                            engine_.set_whitespace_mode(mode == layout::WhitespaceMode::Preserve
+                                            ? layout::WhitespaceMode::Collapse
+                                            : layout::WhitespaceMode::Preserve);
+                            break;
+                        }
                         case sf::Keyboard::Key::Left: {
                             if (!event.key.alt) {
                                 break;
