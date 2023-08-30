@@ -13,7 +13,14 @@
 
 namespace layout {
 
-std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width);
+// Being able to toggle this is a debug feature that will go away once both it
+// and text wrapping are more ready.
+enum class WhitespaceMode {
+    Preserve,
+    Collapse,
+};
+
+std::optional<LayoutBox> create_layout(style::StyledNode const &, int width, WhitespaceMode = WhitespaceMode::Collapse);
 
 } // namespace layout
 
