@@ -27,6 +27,7 @@ cc_test(
     copts = HASTUR_COPTS,
     deps = [
         ":engine",
+        "//dom",
         "//etest",
         "//protocol",
         "//uri",
