@@ -158,7 +158,7 @@ void whitespace_collapsing_tests() {
     etest::test("whitespace collapsing: allocating collapsing", [] {
         constexpr auto kFirstText = "c  r"sv;
         constexpr auto kSecondText = "l\nf"sv;
-        auto const collapsed_first = "c  r"sv;
+        auto const collapsed_first = "c r"s;
         auto const first_width = static_cast<int>(collapsed_first.length() * 5);
         auto const collapsed_second = "l f"s;
         auto const second_width = static_cast<int>(collapsed_second.length() * 5);

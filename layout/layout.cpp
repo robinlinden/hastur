@@ -76,12 +76,18 @@ void collapse_whitespace(LayoutBox &box) {
         return last_text_box != nullptr && l.type != LayoutType::Inline;
     };
     auto needs_allocating_whitespace_collapsing = [](std::string_view text) {
-        return std::ranges::find_if(text, is_non_space_whitespace) != std::ranges::end(text);
+        return (std::ranges::adjacent_find(
+                        text, [](char a, char b) { return util::is_whitespace(a) && util::is_whitespace(b); })
+                       != std::ranges::end(text))
+                || (std::ranges::find_if(text, is_non_space_whitespace) != std::ranges::end(text));
     };
     auto perform_allocating_collapsing = [](LayoutBox &l) {
-        // Copy the string, transforming all whitespace to spaces.
+        // Copy the string, removing consecutive whitespace, and transforming all whitespace to spaces.
         auto text = std::get<std::string_view>(l.layout_text);
-        std::string collapsed{text};
+        std::string collapsed;
+        std::ranges::unique_copy(text, std::back_inserter(collapsed), [](char a, char b) {
+            return util::is_whitespace(a) && util::is_whitespace(b);
+        });
         std::ranges::for_each(collapsed, [](char &c) { c = util::is_whitespace(c) ? ' ' : c; });
         l.layout_text = std::move(collapsed);
     };
