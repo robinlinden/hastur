@@ -13,6 +13,7 @@
 #include <list>
 #include <map>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <variant>
@@ -60,7 +61,10 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     return box;
 }
 
-// TODO(robinlinden): Collapse whitespace inside text runs.
+constexpr bool is_non_space_whitespace(char c) {
+    return c != ' ' && util::is_whitespace(c);
+}
+
 void collapse_whitespace(LayoutBox &box) {
     LayoutBox *last_text_box = nullptr;
     std::list<LayoutBox *> to_collapse{&box};
@@ -70,6 +74,16 @@ void collapse_whitespace(LayoutBox &box) {
     };
     auto ends_text_run = [&](LayoutBox const &l) {
         return last_text_box != nullptr && l.type != LayoutType::Inline;
+    };
+    auto needs_allocating_whitespace_collapsing = [](std::string_view text) {
+        return std::ranges::find_if(text, is_non_space_whitespace) != std::ranges::end(text);
+    };
+    auto perform_allocating_collapsing = [](LayoutBox &l) {
+        // Copy the string, transforming all whitespace to spaces.
+        auto text = std::get<std::string_view>(l.layout_text);
+        std::string collapsed{text};
+        std::ranges::for_each(collapsed, [](char &c) { c = util::is_whitespace(c) ? ' ' : c; });
+        l.layout_text = std::move(collapsed);
     };
 
     for (auto it = to_collapse.begin(); it != to_collapse.end(); ++it) {
@@ -94,9 +108,16 @@ void collapse_whitespace(LayoutBox &box) {
                                .value_or(false)) {
                 current->layout_text = util::trim_start(std::get<std::string_view>(current->layout_text));
             }
+            if (last_text_box != nullptr
+                    && needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
+                perform_allocating_collapsing(*last_text_box);
+            }
             last_text_box = current;
         } else if (ends_text_run(*current)) {
             last_text_box->layout_text = util::trim_end(std::get<std::string_view>(last_text_box->layout_text));
+            if (needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
+                perform_allocating_collapsing(*last_text_box);
+            }
             last_text_box = nullptr;
         }
 
@@ -109,6 +130,9 @@ void collapse_whitespace(LayoutBox &box) {
 
     if (last_text_box != nullptr) {
         last_text_box->layout_text = util::trim_end(std::get<std::string_view>(last_text_box->layout_text));
+        if (needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
+            perform_allocating_collapsing(*last_text_box);
+        }
     }
 }
 

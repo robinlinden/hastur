@@ -155,6 +155,79 @@ void whitespace_collapsing_tests() {
         expect_eq(actual, expected_layout);
     });
 
+    etest::test("whitespace collapsing: allocating collapsing", [] {
+        constexpr auto kFirstText = "c  r"sv;
+        constexpr auto kSecondText = "l\nf"sv;
+        auto const collapsed_first = "c  r"sv;
+        auto const first_width = static_cast<int>(collapsed_first.length() * 5);
+        auto const collapsed_second = "l f"s;
+        auto const second_width = static_cast<int>(collapsed_second.length() * 5);
+
+        dom::Element a{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kFirstText}}, std::move(a)}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
+        auto const &html_element = std::get<dom::Element>(html);
+        auto const &p_element = std::get<dom::Element>(html_element.children.at(0));
+        auto const &a_element = std::get<dom::Element>(p_element.children.at(1));
+
+        style::StyledNode a_style{
+                .node{a_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{a_element.children.at(0)}},
+        };
+        style::StyledNode p_style{
+                .node{p_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{p_element.children.at(0)}, std::move(a_style)},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(p_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox a_layout{
+                .node = &style.children.at(0).children.at(1),
+                .type = LayoutType::Inline,
+                .dimensions{{first_width, 0, second_width, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(1).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{first_width, 0, second_width, 10}},
+                        .layout_text{collapsed_second},
+                }},
+        };
+        layout::LayoutBox p_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, first_width + second_width, 10}},
+                .children{
+                        layout::LayoutBox{
+                                .node = &style.children.at(0).children.at(0),
+                                .type = LayoutType::Inline,
+                                .dimensions{{0, 0, first_width, 10}},
+                                .layout_text{collapsed_first},
+                        },
+                        std::move(a_layout),
+                },
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, first_width + second_width, 10}},
+                        .children{std::move(p_layout)},
+                }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+
     etest::test("whitespace collapsing: text separated by a block element", [] {
         constexpr auto kFirstText = "  a  "sv;
         constexpr auto kSecondText = "  b  "sv;
@@ -1260,12 +1333,14 @@ int main() {
         auto single_line_layout_dims = get_text_dimensions(single_line_layout);
         require(single_line_layout_dims.second > 0);
 
+        // This will get collapsed to a single line.
         std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nhi"s;
         auto two_line_layout = layout::create_layout(style, 1000).value();
         auto two_line_layout_dims = get_text_dimensions(two_line_layout);
+        expect_eq(std::get<std::string>(two_line_layout.children.at(0).children.at(0).layout_text), "hi hi"sv);
 
-        expect(two_line_layout_dims.second >= 2 * single_line_layout_dims.second);
-        expect_eq(single_line_layout_dims.first, two_line_layout_dims.first);
+        expect_eq(two_line_layout_dims.second, single_line_layout_dims.second);
+        expect(two_line_layout_dims.first >= 2 * single_line_layout_dims.first);
     });
 
     etest::test("display:none on root node", [] {
