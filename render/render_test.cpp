@@ -29,9 +29,10 @@ int main() {
         auto const &children = std::get<dom::Element>(dom).children;
         auto styled = style::StyledNode{
                 .node = dom,
-                .properties = {{css::PropertyId::Display, "inline"}},
+                .properties = {{css::PropertyId::FontSize, "10px"}, {css::PropertyId::Display, "inline"}},
                 .children = {{children[0], {{css::PropertyId::Display, "inline"}}, {}}},
         };
+        styled.children[0].parent = &styled;
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
@@ -57,6 +58,7 @@ int main() {
                 .children = {{children[0],
                         {{css::PropertyId::Display, "inline"},
                                 {css::PropertyId::FontFamily, "comic sans"},
+                                {css::PropertyId::FontSize, "10px"},
                                 {css::PropertyId::FontStyle, "italic"}}}},
         };
 
