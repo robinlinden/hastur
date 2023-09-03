@@ -167,6 +167,7 @@ int main() {
                 .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
                 .children{{std::move(body_style)}},
         };
+        set_up_parent_ptrs(style_root);
 
         auto const *expected =
                 "html\n"
@@ -175,9 +176,9 @@ int main() {
                 "  block {0,0,50,30} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,0,50,25} {0,0,0,0} {0,0,0,0}\n"
-                "      ablock {0,0,15,10} {0,0,0,0} {0,0,0,0}\n"
+                "      ablock {0,0,15,25} {0,0,0,0} {0,0,0,0}\n"
                 "        !!!\n"
-                "        inline {0,0,15,10} {0,0,0,0} {0,0,0,0}\n"
+                "        inline {0,0,15,25} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
         expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);
