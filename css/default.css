@@ -158,6 +158,10 @@ h6 {
 
 /* Phrasing content */
 /* https://html.spec.whatwg.org/multipage/rendering.html#phrasing-content-3 */
+:link {
+  color: #0000ee;
+}
+
 ins,
 u {
   text-decoration: underline;
