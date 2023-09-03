@@ -399,7 +399,7 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
     return lines;
 }
 
-static constexpr int kDefaultFontSize{10};
+static constexpr int kDefaultFontSize{16};
 // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;
 // NOLINTNEXTLINE(cert-err58-cpp)
