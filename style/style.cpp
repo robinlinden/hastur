@@ -40,8 +40,38 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
         // We only check the parent and up here, and if they all match, we fall
         // through and check this node.
         auto const *current = node.parent;
+        for (auto part : parts) {
+            part = util::trim(part);
+            // TODO(robinlinden): Handle descendant and child combinators in the same selector.
+            if (part.contains(' ')) {
+                return false;
+            }
+
+            if (current == nullptr || !is_match(*current, part)) {
+                return false;
+            }
+
+            current = current->parent;
+        }
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/Descendant_combinator
+    if (selector_.contains(' ')) {
+        // TODO(robinlinden): std::views::reverse and friends when we drop Clang 14 and 15.
+        auto parts = util::split(selector_, " ");
+        selector_ = util::trim(parts.back());
+        parts.pop_back();
+        std::ranges::reverse(parts);
+
+        // We only check the parent and up here, and if they all match, we fall
+        // through and check this node.
+        auto const *current = node.parent;
         for (auto const &part : parts) {
-            if (current == nullptr || !is_match(*current, util::trim(part))) {
+            while (current != nullptr && !is_match(*current, util::trim(part))) {
+                current = current->parent;
+            }
+
+            if (current == nullptr) {
                 return false;
             }
 

@@ -94,6 +94,32 @@ int main() {
         expect(style::is_match(node.children[0], ".logo > span"sv));
     });
 
+    etest::test("is_match: descendant", [] {
+        using style::StyledNode;
+        // DOM for div[.logo] { span { a } }
+        dom::Element dom = dom::Element{"div", {{"class", "logo"}}, {dom::Element{"span", {}, {dom::Element{"a"}}}}};
+        StyledNode node{dom, {}, {{dom.children[0], {}, {{std::get<dom::Element>(dom.children[0]).children[0]}}}}};
+        node.children[0].parent = &node;
+        node.children[0].children[0].parent = &node.children[0];
+
+        expect(style::is_match(node.children[0], ".logo span"sv));
+        expect(style::is_match(node.children[0], "div span"sv));
+        expect(!style::is_match(node, ".logo span"sv));
+
+        std::get<dom::Element>(dom.children[0]).attributes["class"] = "ohno";
+        expect(style::is_match(node.children[0], ".logo .ohno"sv));
+        expect(style::is_match(node.children[0], ".logo span"sv));
+
+        expect(style::is_match(node.children[0].children[0], "div a"sv));
+        expect(style::is_match(node.children[0].children[0], ".logo a"sv));
+        expect(style::is_match(node.children[0].children[0], "span a"sv));
+        expect(style::is_match(node.children[0].children[0], ".ohno a"sv));
+        expect(style::is_match(node.children[0].children[0], "div span a"sv));
+        expect(style::is_match(node.children[0].children[0], ".logo span a"sv));
+        expect(style::is_match(node.children[0].children[0], "div .ohno a"sv));
+        expect(style::is_match(node.children[0].children[0], ".logo .ohno a"sv));
+    });
+
     etest::test("matching_rules: simple names", [] {
         std::vector<css::Rule> stylesheet;
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
