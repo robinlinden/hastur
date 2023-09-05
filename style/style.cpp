@@ -24,7 +24,8 @@ bool has_class(dom::Element const &element, std::string_view needle_class) {
 } // namespace
 
 // TODO(robinlinden): This needs to match more things.
-bool is_match(dom::Element const &element, std::string_view selector) {
+bool is_match(style::StyledNode const &node, std::string_view selector) {
+    auto const &element = std::get<dom::Element>(node.node);
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
     auto [selector_, psuedo_class] = util::split_once(selector, ":");
 
@@ -74,7 +75,7 @@ bool is_match(dom::Element const &element, std::string_view selector) {
 }
 
 std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
-        dom::Element const &element, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const &ctx) {
+        style::StyledNode const &node, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const &ctx) {
     std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
 
     for (auto const &rule : stylesheet) {
@@ -82,7 +83,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
             continue;
         }
 
-        if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(element, selector); })) {
+        if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(node, selector); })) {
             std::ranges::copy(rule.declarations, std::back_inserter(matched_rules));
         }
     }
@@ -109,7 +110,7 @@ void style_tree_impl(StyledNode &current,
         child_node.parent = &current;
     }
 
-    current.properties = matching_rules(*element, stylesheet, ctx);
+    current.properties = matching_rules(current, stylesheet, ctx);
 }
 } // namespace
 
