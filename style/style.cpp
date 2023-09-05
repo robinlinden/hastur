@@ -29,6 +29,26 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
     auto [selector_, psuedo_class] = util::split_once(selector, ":");
 
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/Child_combinator
+    if (selector_.contains('>')) {
+        // TODO(robinlinden): std::views::reverse and friends when we drop Clang 14 and 15.
+        auto parts = util::split(selector_, ">");
+        selector_ = util::trim(parts.back());
+        parts.pop_back();
+        std::ranges::reverse(parts);
+
+        // We only check the parent and up here, and if they all match, we fall
+        // through and check this node.
+        auto const *current = node.parent;
+        for (auto const &part : parts) {
+            if (current == nullptr || !is_match(*current, util::trim(part))) {
+                return false;
+            }
+
+            current = current->parent;
+        }
+    }
+
     if (!psuedo_class.empty()) {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/:any-link
         // https://developer.mozilla.org/en-US/docs/Web/CSS/:link

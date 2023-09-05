@@ -82,6 +82,18 @@ int main() {
         });
     }
 
+    etest::test("is_match: child", [] {
+        dom::Element dom = dom::Element{"div", {{"class", "logo"}}, {dom::Element{"span"}}};
+        style::StyledNode node{dom, {}, {style::StyledNode{dom.children[0]}}};
+        node.children[0].parent = &node;
+        expect(style::is_match(node.children[0], ".logo > span"sv));
+        expect(!style::is_match(node, ".logo > span"sv));
+
+        std::get<dom::Element>(dom.children[0]).attributes["class"] = "ohno";
+        expect(style::is_match(node.children[0], ".logo > .ohno"sv));
+        expect(style::is_match(node.children[0], ".logo > span"sv));
+    });
+
     etest::test("matching_rules: simple names", [] {
         std::vector<css::Rule> stylesheet;
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
