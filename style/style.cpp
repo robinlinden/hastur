@@ -95,20 +95,21 @@ void style_tree_impl(StyledNode &current,
         dom::Node const &root,
         std::vector<css::Rule> const &stylesheet,
         css::MediaQuery::Context const &ctx) {
-    if (auto const *element = std::get_if<dom::Element>(&root)) {
-        current.children.reserve(element->children.size());
-        for (auto const &child : element->children) {
-            // TODO(robinlinden): emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 14.
-            current.children.push_back({child});
-            auto &child_node = current.children.back();
-            style_tree_impl(child_node, child, stylesheet, ctx);
-            child_node.parent = &current;
-        }
+    auto const *element = std::get_if<dom::Element>(&root);
+    if (element == nullptr) {
+        return;
     }
 
-    if (auto const *element = std::get_if<dom::Element>(&root)) {
-        current.properties = matching_rules(*element, stylesheet, ctx);
+    current.children.reserve(element->children.size());
+    for (auto const &child : element->children) {
+        // TODO(robinlinden): emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 14.
+        current.children.push_back({child});
+        auto &child_node = current.children.back();
+        style_tree_impl(child_node, child, stylesheet, ctx);
+        child_node.parent = &current;
     }
+
+    current.properties = matching_rules(*element, stylesheet, ctx);
 }
 } // namespace
 
