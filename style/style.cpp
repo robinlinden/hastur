@@ -106,8 +106,8 @@ void style_tree_impl(StyledNode &current,
         // TODO(robinlinden): emplace_back once Clang supports it (C++20/p0960). Not supported as of Clang 14.
         current.children.push_back({child});
         auto &child_node = current.children.back();
-        style_tree_impl(child_node, child, stylesheet, ctx);
         child_node.parent = &current;
+        style_tree_impl(child_node, child, stylesheet, ctx);
     }
 
     current.properties = matching_rules(current, stylesheet, ctx);
