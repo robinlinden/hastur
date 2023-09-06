@@ -84,10 +84,7 @@ aside,
 blockquote,
 details,
 dialog,
-dd,
 div,
-dl,
-dt,
 fieldset,
 figcaption,
 figure,
@@ -99,11 +96,9 @@ hr,
 li,
 main,
 nav,
-ol,
 pre,
 section,
-table,
-ul {
+table {
   display: block;
 }
 
@@ -171,4 +166,37 @@ del,
 s,
 strike {
   text-decoration: line-through;
+}
+
+/* Lists */
+/* https://html.spec.whatwg.org/multipage/rendering.html#lists */
+/* TODO(robinlinden): Finish section. */
+dir,
+dd,
+dl,
+dt,
+menu,
+ol,
+ul {
+  display: block;
+}
+
+dir,
+dl,
+menu,
+ol,
+ul {
+  margin-top: 1em;
+  margin-top: 1em;
+}
+
+dd {
+  margin-left: 40px;
+}
+
+dir,
+menu,
+ol,
+ul {
+  padding-left: 40px;
 }
