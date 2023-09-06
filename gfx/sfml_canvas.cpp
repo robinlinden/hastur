@@ -38,12 +38,16 @@ std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesys
     return {};
 }
 
-std::optional<std::string> find_path_to_fallback_font() {
+std::optional<std::shared_ptr<sf::Font>> load_fallback_font() {
+    auto font = std::make_shared<sf::Font>();
     for (auto const &path : os::font_paths()) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
-                spdlog::info("Using fallback {}", entry.path().string());
-                return std::make_optional(entry.path().string());
+                spdlog::info("Trying fallback {}", entry.path().string());
+                if (font->loadFromFile(entry.path().string())) {
+                    spdlog::info("Using fallback {}", entry.path().string());
+                    return font;
+                }
             }
         }
     }
@@ -203,13 +207,15 @@ void SfmlCanvas::draw_text(
         }
 
         auto font_path = find_path_to_font(font.font);
-        if (!font_path) {
-            spdlog::warn("Unable to find font {}, looking for literally any font", font.font);
-            font_path = find_path_to_fallback_font();
-        }
-
         auto entry = std::make_shared<sf::Font>();
         if (!font_path || !entry->loadFromFile(*font_path)) {
+            spdlog::warn("Unable to load font {}, looking for literally any font", font.font);
+            if (auto fallback = load_fallback_font()) {
+                entry = *std::move(fallback);
+            }
+        }
+
+        if (!entry) {
             return nullptr;
         }
 
