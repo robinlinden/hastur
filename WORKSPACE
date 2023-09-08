@@ -61,7 +61,7 @@ http_archive(
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    patch_cmds = ["sed -i '33i package(features=[\"-layering_check\"])' BUILD"],
+    patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
     sha256 = "9c57392053ae549e971a7abb248cb582c3709b4f9c61886c34e89061f00712ad",
     strip_prefix = "boringssl-db6963d75d64c158e0478a94b5b7dd4ac5246425",
     url = "https://github.com/google/boringssl/archive/db6963d75d64c158e0478a94b5b7dd4ac5246425.tar.gz",
@@ -133,7 +133,7 @@ http_archive(
 # https://github.com/unicode-org/icu
 http_archive(
     name = "icu-data",  # Unicode-DFS-2016
-    build_file_content = "exports_files([\"icudt73l.dat\"])",
+    build_file_content = """exports_files(["icudt73l.dat"])""",
     sha256 = "2657bd18c23b930ddf63f466192832cc083256515e07b5a5e7d79c5c1db058a1",
     url = "https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-data-bin-l.zip",
 )
@@ -244,7 +244,7 @@ http_archive(
 
 http_archive(
     name = "wpt",  # BSD-3-Clause
-    build_file_content = "exports_files([\"url/resources/urltestdata.json\"])",
+    build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
     sha256 = "0bec4b1c5bbae0f30b83049d61109186b69ce98cb2af32a0f95eb44be96228c8",
     strip_prefix = "wpt-merge_pr_41277",
     url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41277.tar.gz",
