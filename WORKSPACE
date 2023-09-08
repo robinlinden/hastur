@@ -62,9 +62,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "9c57392053ae549e971a7abb248cb582c3709b4f9c61886c34e89061f00712ad",
-    strip_prefix = "boringssl-db6963d75d64c158e0478a94b5b7dd4ac5246425",
-    url = "https://github.com/google/boringssl/archive/db6963d75d64c158e0478a94b5b7dd4ac5246425.tar.gz",
+    sha256 = "f8a2c39bdb771ef92814dcfe3d2ecb565f30fb1e4919def9809ae34ef054ee06",
+    strip_prefix = "boringssl-4adc543e3a87fac054c1d11b8f6baa48ee30de14",
+    url = "https://github.com/google/boringssl/archive/4adc543e3a87fac054c1d11b8f6baa48ee30de14.tar.gz",
 )
 
 http_archive(
@@ -142,9 +142,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "6680ccc32430009a8204291b1268b2367d964bd6d1b08a4e0358a017eb8e8c9e",
-    strip_prefix = "imgui-1.89.8",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.8.tar.gz",
+    sha256 = "1acc27a778b71d859878121a3f7b287cd81c29d720893d2b2bf74455bf9d52d6",
+    strip_prefix = "imgui-1.89.9",
+    url = "https://github.com/ocornut/imgui/archive/v1.89.9.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -156,12 +156,13 @@ http_archive(
     url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.6.tar.gz",
 )
 
+# https://github.com/simdjson/simdjson
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    sha256 = "13a702536e051db612cdca82bf8585f2c69d9c6fd156ef291b170f13202c1b4c",
-    strip_prefix = "simdjson-3.2.2",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.2.2.tar.gz",
+    sha256 = "ab72701b8560c4f93a5de525657b3bf34094f99a1e63bd9db3195d1bcb90aa09",
+    strip_prefix = "simdjson-3.2.3",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.2.3.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -242,12 +243,13 @@ http_archive(
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
+# https://github.com/web-platform-tests/wpt
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    sha256 = "0bec4b1c5bbae0f30b83049d61109186b69ce98cb2af32a0f95eb44be96228c8",
-    strip_prefix = "wpt-merge_pr_41277",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41277.tar.gz",
+    sha256 = "36ec9a777fffc93f0527138134388a31653441922863c273a4d8de4e0ca623af",
+    strip_prefix = "wpt-merge_pr_41528",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41528.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
