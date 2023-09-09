@@ -18,4 +18,4 @@ build -c dbg
 # build --config ubsan
 
 # build --config libc++ # only supported when compiling with Clang.
-# build --config clang14-coverage # required to generate code coverage reports with Clang 14.
+# build --config clang16-coverage # required to generate code coverage reports with Clang 16.
