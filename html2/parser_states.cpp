@@ -201,10 +201,28 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
         return {};
     }
 
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
     if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
+        if (start->tag_name == "html") {
+            InBody{}.process(a, token);
+            return {};
+        }
+
         if (start->tag_name == "head") {
             a.insert_element_for(*start);
             return InHead{};
+        }
+    } else if (auto const *end = std::get_if<html2::EndTagToken>(&token)) {
+        static constexpr std::array kSortOfHandledEndTags{"head"sv, "body"sv, "html"sv, "br"sv};
+        if (is_in_array<kSortOfHandledEndTags>(end->tag_name)) {
+            // Treat as "anything else."
+        } else {
+            // Parse error.
+            return {};
         }
     }
 

@@ -132,8 +132,30 @@ void before_head_tests() {
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
     });
 
+    etest::test("BeforeHead: doctype", [] {
+        auto res = parse("<html><!DOCTYPE html><head foo='bar'>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+    });
+
+    etest::test("BeforeHead: html tag", [] {
+        auto res = parse("<html foo=bar><html foo=baz hello=world>", {});
+        auto const &head = std::get<dom::Element>(res.document.html().children.at(0));
+        expect_eq(res.document.html().attributes, dom::AttrMap{{"foo", "bar"}, {"hello", "world"}});
+        expect_eq(head, dom::Element{"head"});
+    });
+
     etest::test("BeforeHead: head tag", [] {
         auto res = parse("<head foo='bar'>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+    });
+
+    etest::test("BeforeHead: end-tag fallthrough", [] {
+        auto res = parse("</head>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("BeforeHead: ignored end-tag", [] {
+        auto res = parse("</p><head foo=bar>", {});
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
     });
 

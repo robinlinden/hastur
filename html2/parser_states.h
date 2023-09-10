@@ -93,7 +93,6 @@ struct BeforeHtml {
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
-// Incomplete.
 struct BeforeHead {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
