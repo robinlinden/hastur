@@ -59,7 +59,21 @@ void ensure_has_scheme(std::string &url) {
     }
 }
 
-std::optional<std::string_view> try_get_uri(layout::LayoutBox const *);
+std::optional<std::string_view> try_get_uri(layout::LayoutBox const *from) {
+    if (from == nullptr) {
+        return std::nullopt;
+    }
+
+    for (auto const *node = from->node; node != nullptr; node = node->parent) {
+        auto const *element = std::get_if<dom::Element>(&node->node);
+        if (element && element->name == "a"sv && element->attributes.contains("href")) {
+            return element->attributes.at("href");
+        }
+    }
+
+    return std::nullopt;
+}
+
 std::string element_text(layout::LayoutBox const *element) {
     if (element == nullptr || element->node == nullptr) {
         return ""s;
@@ -76,21 +90,6 @@ std::string element_text(layout::LayoutBox const *element) {
     }
 
     return std::get<dom::Element>(dom_node).name;
-}
-
-std::optional<std::string_view> try_get_uri(layout::LayoutBox const *from) {
-    if (from == nullptr) {
-        return std::nullopt;
-    }
-
-    for (auto const *node = from->node; node != nullptr; node = node->parent) {
-        auto const *element = std::get_if<dom::Element>(&node->node);
-        if (element && element->name == "a"sv && element->attributes.contains("href")) {
-            return element->attributes.at("href");
-        }
-    }
-
-    return std::nullopt;
 }
 
 std::string stylesheet_to_string(std::vector<css::Rule> const &stylesheet) {
