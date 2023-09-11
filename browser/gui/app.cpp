@@ -84,12 +84,11 @@ std::string element_text(layout::LayoutBox const *element) {
         return "a: "s + std::string{*uri};
     }
 
-    auto const &dom_node = element->node->node;
-    if (auto const *text = std::get_if<dom::Text>(&dom_node)) {
-        return text->text;
+    if (auto text = element->text()) {
+        return std::string{*text};
     }
 
-    return std::get<dom::Element>(dom_node).name;
+    return std::get<dom::Element>(element->node->node).name;
 }
 
 std::string stylesheet_to_string(std::vector<css::Rule> const &stylesheet) {
