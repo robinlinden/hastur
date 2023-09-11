@@ -6,6 +6,9 @@
 #
 # -bugprone-unchecked-optional-access: Makes clang-tidy hang during CI.
 #
+# -cert-dcl21-cpp: Deprecated, will be removed in clang-tidy 19.
+# https://clang.llvm.org/extra/clang-tidy/checks/cert/dcl21-cpp.html
+#
 # -clang-analyzer-cplusplus.NewDeleteLeaks: Lots of false positives w/
 # -std=c++2b when calling std::make_shared in the JS AST.
 # js/ast_executor_test.cpp:176:5: error: Potential leak of memory pointed to by
@@ -59,6 +62,7 @@ Checks: >
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,
+  -cert-dcl21-cpp,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-diagnostic-builtin-macro-redefined,
