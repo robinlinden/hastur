@@ -9,7 +9,7 @@
 #include "engine/engine.h"
 #include "gfx/icanvas.h"
 #include "gfx/sfml_canvas.h"
-#include "layout/layout.h"
+#include "layout/layout_box.h"
 #include "protocol/handler_factory.h"
 #include "uri/uri.h"
 #include "util/history.h"
@@ -79,7 +79,7 @@ private:
     void navigate();
     void layout();
 
-    std::vector<dom::Node const *> get_hovered_nodes(geom::Position document_position) const;
+    layout::LayoutBox const *get_hovered_node(geom::Position document_position) const;
     geom::Position to_document_position(geom::Position window_position) const;
 
     void reset_scroll();
