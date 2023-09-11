@@ -51,9 +51,13 @@ public:
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             etest::source_location const &loc = etest::source_location::current()) noexcept {
+        if (a == b) {
+            return;
+        }
+
         std::stringstream ss;
         ss << a << " !=\n" << b;
-        expect(a == b, log_message ? std::move(log_message) : std::move(ss).str(), loc);
+        expect(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
     }
 
     template<typename T, typename U>
@@ -70,9 +74,13 @@ public:
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             etest::source_location const &loc = etest::source_location::current()) {
+        if (a == b) {
+            return;
+        }
+
         std::stringstream ss;
         ss << a << " !=\n" << b;
-        require(a == b, log_message ? std::move(log_message) : std::move(ss).str(), loc);
+        require(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
     }
 
     template<typename T, typename U>
