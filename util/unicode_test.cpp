@@ -102,5 +102,30 @@ int main() {
         expect_eq(utf8_length(invalid), std::nullopt);
     });
 
+    etest::test("CodePointView", [] {
+        auto into_code_points = [](std::string_view s) {
+            std::vector<std::uint32_t> code_points{};
+            for (auto cp : CodePointView{s}) {
+                code_points.push_back(cp);
+            }
+            return code_points;
+        };
+
+        // 3x ROBOT FACE
+        expect_eq(into_code_points("🤖🤖🤖"sv), std::vector<std::uint32_t>{0x1f916, 0x1f916, 0x1f916});
+
+        // GOTHIC LETTER HWAIR.
+        expect_eq(into_code_points("\xf0\x90\x8d\x88"sv), std::vector<std::uint32_t>{0x10348});
+
+        // Boring ASCII.
+        expect_eq(into_code_points("abcd"sv), std::vector<std::uint32_t>{'a', 'b', 'c', 'd'});
+
+        // REGISTERED SIGN
+        expect_eq(into_code_points("\xc2\xae"sv), std::vector<std::uint32_t>{0xae});
+
+        // BUGINESE END OF SECTION
+        expect_eq(into_code_points("\xe1\xa8\x9f"sv), std::vector<std::uint32_t>{0x1a1f});
+    });
+
     return etest::run_all_tests();
 }

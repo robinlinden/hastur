@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 
 namespace util {
 
@@ -177,6 +178,67 @@ constexpr std::optional<std::size_t> utf8_length(std::string_view input) {
 
     return len;
 }
+
+// TODO(robinlinden): Only allow use w/ valid UTF-8.
+class CodePointView {
+    class CodePointIterator;
+
+public:
+    constexpr explicit CodePointView(std::string_view utf8_data) : view_{std::move(utf8_data)} {}
+
+    constexpr CodePointIterator begin() const { return CodePointIterator{view_.begin()}; }
+    constexpr CodePointIterator end() const { return CodePointIterator{view_.end()}; }
+
+private:
+    std::string_view view_;
+
+    class CodePointIterator {
+    public:
+        constexpr explicit CodePointIterator(std::string_view::const_iterator it) : it_{std::move(it)} {}
+
+        constexpr CodePointIterator &operator++() {
+            it_ += current_code_point_length();
+            return *this;
+        }
+
+        constexpr CodePointIterator operator++(int) {
+            auto copy = *this;
+            ++*this;
+            return copy;
+        }
+
+        constexpr std::uint32_t operator*() const {
+            return utf8_to_utf32(std::string_view{it_, it_ + current_code_point_length()});
+        }
+
+        [[nodiscard]] constexpr bool operator==(CodePointIterator const &) const = default;
+
+    private:
+        static constexpr auto kTwoByteMask = 0b1100'0000;
+        static constexpr auto kThreeByteMask = 0b1110'0000;
+        static constexpr auto kFourByteMask = 0b1111'0000;
+
+        std::string_view::const_iterator it_;
+
+        constexpr int current_code_point_length() const {
+            auto const current = *it_;
+
+            if ((current & kFourByteMask) == kFourByteMask) {
+                return 4;
+            }
+
+            if ((current & kThreeByteMask) == kThreeByteMask) {
+                return 3;
+            }
+
+            if ((current & kTwoByteMask) == kTwoByteMask) {
+                return 2;
+            }
+
+            return 1;
+        }
+    };
+};
 
 } // namespace util
 
