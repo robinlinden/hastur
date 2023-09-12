@@ -1,6 +1,16 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
+
+cc_import(
+    name = "icudata",
+    static_library = select({
+        "@platforms//os:windows": "@icu//:sicudt73l.lib",
+        "//conditions:default": "@icu//:libicudt73l.a",
+    }),
+    visibility = ["//visibility:private"],
+    alwayslink = True,
+)
 
 cc_library(
     name = "rtti_hack",
@@ -15,12 +25,14 @@ cc_library(
 
 cc_library(
     name = "url",
-    srcs = ["url.cpp"],
+    srcs = [
+        "url.cpp",
+    ],
     hdrs = ["url.h"],
     copts = HASTUR_COPTS,
-    data = ["@icu-data//:icudt73l.dat"],
     visibility = ["//visibility:public"],
     deps = [
+        ":icudata",
         ":rtti_hack",
         "//util:base_parser",
         "//util:string",

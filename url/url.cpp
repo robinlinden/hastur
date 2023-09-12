@@ -118,39 +118,6 @@ struct PercentEncodeSet {
     static constexpr bool component(char c) { return userinfo(c) || (c >= '$' && c <= '&') || c == '+' || c == ','; }
 };
 
-void icu_init() {
-    static std::atomic<bool> called_once = false;
-
-    if (called_once.exchange(true)) {
-        return;
-    }
-
-    // NOLINTNEXTLINE(concurrency-mt-unsafe): This is going away soon.
-    char *data = std::getenv("HASTUR_ICU_DATA");
-
-    if (data != nullptr) {
-        std::filesystem::path env_path{data};
-
-        if (std::filesystem::is_directory(env_path)) {
-            u_setDataDirectory(env_path.string().c_str());
-        }
-    } else {
-        // Use current working directory as a last resort.
-        // TODO(zero-one): Look at engine config for paths.
-        u_setDataDirectory(std::filesystem::current_path().string().c_str());
-    }
-
-    UErrorCode err = U_ZERO_ERROR;
-
-    std::uint32_t opts =
-            UIDNA_NONTRANSITIONAL_TO_ASCII | UIDNA_CHECK_BIDI | UIDNA_CHECK_CONTEXTJ | UIDNA_USE_STD3_RULES;
-
-    [[maybe_unused]] auto *uts = icu::IDNA::createUTS46Instance(opts, err);
-
-    assert(!U_FAILURE(err));
-
-    delete uts;
-}
 } // namespace
 
 void icu_cleanup() {
@@ -1189,8 +1156,6 @@ void UrlParser::state_fragment() {
 
 // https://url.spec.whatwg.org/#concept-domain-to-ascii
 std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, bool be_strict) const {
-    icu_init();
-
     std::string ascii_domain;
     icu::StringByteSink<std::string> tmp{&ascii_domain};
 

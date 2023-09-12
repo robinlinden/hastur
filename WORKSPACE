@@ -128,18 +128,12 @@ http_archive(
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
+        "rm source/tools/toolutil/BUILD.bazel",
+        "rm source/i18n/BUILD.bazel",
     ],
-    sha256 = "818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
-    strip_prefix = "icu",
-    url = "https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz",
-)
-
-# https://github.com/unicode-org/icu
-http_archive(
-    name = "icu-data",  # Unicode-DFS-2016
-    build_file_content = """exports_files(["icudt73l.dat"])""",
-    sha256 = "2657bd18c23b930ddf63f466192832cc083256515e07b5a5e7d79c5c1db058a1",
-    url = "https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-data-bin-l.zip",
+    sha256 = "4b6c4a79b0648d228d505601e58780a59e9ad4eaad54be75cc637bd635aa46d6",
+    strip_prefix = "icu-release-73-2/icu4c",
+    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-73-2.zip",
 )
 
 # https://github.com/ocornut/imgui

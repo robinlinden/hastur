@@ -5,7 +5,6 @@
 common --noenable_bzlmod
 
 build --enable_platform_specific_config
-build --test_env=HASTUR_ICU_DATA=external/icu-data/
 coverage --combined_report=lcov
 test --test_output=errors
 test --test_summary=terse
@@ -35,11 +34,14 @@ build:linux --cxxopt='-fno-rtti'
 build:linux --copt='-gdwarf-4'
 
 build:windows --enable_runfiles
+build:windows --action_env=LOCALAPPDATA # Quirk for running vswhere, remove when icu no-longer needed
+build:windows --action_env=ProgramData # Quirk for running vswhere, remove when icu no-longer needed
 build:windows --cxxopt='/std:c++latest'
 build:windows --cxxopt='/GR-' # Disable rtti.
 build:windows --copt='/permissive-' # Conform to the standard.
 build:windows --copt='/Zc:__cplusplus' # Report the real supported C++ version, not just C++98.
 build:windows --copt='-utf-8' # Use UTF-8 as the source and execution character sets.
+build:windows --host_copt='-utf-8' # Use UTF-8 as the source and execution character sets.
 
 # Special build options
 # =========================================================
