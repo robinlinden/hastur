@@ -33,8 +33,8 @@ using namespace std::literals;
 namespace browser::gui {
 namespace {
 
-auto constexpr kDefaultResolutionX = 640;
-auto constexpr kDefaultResolutionY = 480;
+auto constexpr kDefaultResolutionX = 1024;
+auto constexpr kDefaultResolutionY = 768;
 
 // Magic number that felt right during testing.
 auto constexpr kMouseWheelScrollFactor = 10;
