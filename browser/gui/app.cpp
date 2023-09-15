@@ -221,6 +221,10 @@ int App::run() {
                                             : layout::WhitespaceMode::Preserve);
                             break;
                         }
+                        case sf::Keyboard::Key::F4: {
+                            display_debug_gui_ = !display_debug_gui_;
+                            break;
+                        }
                         case sf::Keyboard::Key::Left: {
                             if (!event.key.alt) {
                                 break;
@@ -322,10 +326,12 @@ int App::run() {
 
         run_overlay();
         run_nav_widget();
-        run_http_response_widget();
-        run_dom_widget();
-        run_stylesheet_widget();
-        run_layout_widget();
+        if (display_debug_gui_) {
+            run_http_response_widget();
+            run_dom_widget();
+            run_stylesheet_widget();
+            run_layout_widget();
+        }
 
         clear_render_surface();
 

@@ -63,6 +63,7 @@ private:
     int scroll_offset_y_{};
 
     bool render_debug_{};
+    bool display_debug_gui_{};
 
     unsigned scale_{1};
 
