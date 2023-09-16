@@ -4,6 +4,10 @@ body {
   display: block;
 }
 
+body {
+  margin: 8px;
+}
+
 /* https://html.spec.whatwg.org/#hidden-elements */
 area,
 base,
