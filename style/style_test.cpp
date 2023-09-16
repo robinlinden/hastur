@@ -30,6 +30,24 @@ bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {
 
     return *a.parent == *b.parent;
 }
+
+void inline_css_tests() {
+    etest::test("inline css: is applied", [] {
+        dom::Node dom = dom::Element{"div", {{"style", {"font-size:2px"}}}};
+        auto styled = style::style_tree(dom, {}, {});
+        expect_eq(styled->properties, std::vector{std::pair{css::PropertyId::FontSize, "2px"s}});
+    });
+
+    etest::test("inline css: overrides the stylesheet", [] {
+        dom::Node dom = dom::Element{"div", {{"style", {"font-size:2px"}}}};
+        auto styled = style::style_tree(dom, {css::Rule{{"div"}, {{css::PropertyId::FontSize, "2000px"}}}}, {});
+
+        // The last property is the one that's applied.
+        expect_eq(styled->properties,
+                std::vector{
+                        std::pair{css::PropertyId::FontSize, "2000px"s}, std::pair{css::PropertyId::FontSize, "2px"s}});
+    });
+}
 } // namespace
 
 int main() {
@@ -220,5 +238,6 @@ int main() {
         expect(check_parents(*style::style_tree(root, stylesheet), expected));
     });
 
+    inline_css_tests();
     return etest::run_all_tests();
 }

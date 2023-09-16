@@ -5,11 +5,15 @@
 #include "style/style.h"
 
 #include "css/media_query.h"
+#include "css/parser.h"
 #include "util/string.h"
 
 #include <algorithm>
 #include <iterator>
+#include <string>
 #include <utility>
+
+using namespace std::literals;
 
 namespace style {
 namespace {
@@ -135,6 +139,20 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
 
         if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(node, selector); })) {
             std::ranges::copy(rule.declarations, std::back_inserter(matched_rules));
+        }
+    }
+
+    if (auto const *element = std::get_if<dom::Element>(&node.node)) {
+        auto style_attr = element->attributes.find("style");
+        if (style_attr != element->attributes.end()) {
+            // TODO(robinlinden): Incredibly hacky, but our //css parser doesn't support
+            // parsing only declarations. Replace with the //css2 parser once possible.
+            auto element_style = css::parse("dummy{"s + style_attr->second + "}"s);
+            // The above should always parse to 1 rule when using the old parser.
+            assert(element_style.size() == 1);
+            if (element_style.size() == 1) {
+                std::ranges::copy(element_style[0].declarations, std::back_inserter(matched_rules));
+            }
         }
     }
 
