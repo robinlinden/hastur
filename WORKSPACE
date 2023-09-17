@@ -9,11 +9,12 @@ http_archive(
     url = "https://github.com/bazelbuild/platforms/releases/download/0.0.7/platforms-0.0.7.tar.gz",
 )
 
+# https://github.com/bazelbuild/rules_fuzzing
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "d9002dd3cd6437017f08593124fdd1b13b3473c7b929ceb0e60d317cb9346118",
-    strip_prefix = "rules_fuzzing-0.3.2",
-    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.2.zip",
+    sha256 = "61e246849f77571f79a2bd6899b81636aac68334386a86ff925769f14ee203a5",
+    strip_prefix = "rules_fuzzing-0.4.0",
+    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.4.0.tar.gz",
 )
 
 # Misc tools
@@ -62,9 +63,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "f8a2c39bdb771ef92814dcfe3d2ecb565f30fb1e4919def9809ae34ef054ee06",
-    strip_prefix = "boringssl-4adc543e3a87fac054c1d11b8f6baa48ee30de14",
-    url = "https://github.com/google/boringssl/archive/4adc543e3a87fac054c1d11b8f6baa48ee30de14.tar.gz",
+    sha256 = "5438b74ed2eb0174df9d13d98ec064b36a9feaaf4b5abd70e6a80c0c2382967e",
+    strip_prefix = "boringssl-85d27e799d48302ad1c690cc6017226862498e89",
+    url = "https://github.com/google/boringssl/archive/85d27e799d48302ad1c690cc6017226862498e89.tar.gz",
 )
 
 http_archive(
@@ -92,12 +93,13 @@ http_archive(
     url = "https://github.com/fmtlib/fmt/archive/10.1.1.tar.gz",
 )
 
+# https://github.com/freetype/freetype
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "a683f1091aee95d2deaca9292d976f87415610b8ae1ea186abeebcb08e83ab12",
-    strip_prefix = "freetype-VER-2-13-0",
-    url = "https://github.com/freetype/freetype/archive/VER-2-13-0.tar.gz",
+    sha256 = "427201f5d5151670d05c1f5b45bef5dda1f2e7dd971ef54f0feaaa7ffd2ab90c",
+    strip_prefix = "freetype-VER-2-13-2",
+    url = "https://github.com/freetype/freetype/archive/VER-2-13-2.tar.gz",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
@@ -247,9 +249,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    sha256 = "36ec9a777fffc93f0527138134388a31653441922863c273a4d8de4e0ca623af",
-    strip_prefix = "wpt-merge_pr_41528",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41528.tar.gz",
+    sha256 = "85ffb24af261a49ed055d2983c616e96d6bb14e55663d307a03770b97336e0c5",
+    strip_prefix = "wpt-merge_pr_41997",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41997.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
@@ -307,6 +309,10 @@ rules_fuzzing_dependencies()
 load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
 
 rules_fuzzing_init()
+
+load("@fuzzing_py_deps//:requirements.bzl", fuzzing_py_deps_install_deps = "install_deps")
+
+fuzzing_py_deps_install_deps()
 
 load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
 
