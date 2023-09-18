@@ -137,7 +137,7 @@ int main() {
     });
 
     etest::test("to_string", [] {
-        dom::Node body = dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"!!!"}}}, dom::Element{"p"}}};
+        auto body = dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"!!!\n\n!!!"}}}, dom::Element{"p"}}};
         dom::Node dom_root = dom::Element{.name{"html"}, .children{std::move(body)}};
 
         auto const &html_children = std::get<dom::Element>(dom_root).children;
@@ -176,9 +176,9 @@ int main() {
                 "  block {0,0,50,30} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,0,50,25} {0,0,0,0} {0,0,0,0}\n"
-                "      ablock {0,0,15,25} {0,0,0,0} {0,0,0,0}\n"
-                "        !!!\n"
-                "        inline {0,0,15,25} {0,0,0,0} {0,0,0,0}\n"
+                "      ablock {0,0,35,25} {0,0,0,0} {0,0,0,0}\n"
+                "        !!! !!!\n"
+                "        inline {0,0,35,25} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
         expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);

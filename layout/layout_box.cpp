@@ -36,14 +36,6 @@ std::string_view to_str(LayoutType type) {
     std::abort();
 }
 
-std::string_view to_str(dom::Node const &node) {
-    if (auto const *element = std::get_if<dom::Element>(&node)) {
-        return element->name;
-    }
-
-    return std::get<dom::Text>(node).text;
-}
-
 std::string to_str(geom::Rect const &rect) {
     std::stringstream ss;
     ss << "{" << rect.x << "," << rect.y << "," << rect.width << "," << rect.height << "}";
@@ -62,7 +54,12 @@ void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
     }
 
     if (box.node != nullptr) {
-        os << to_str(box.node->node) << '\n';
+        if (auto const *element = std::get_if<dom::Element>(&box.node->node)) {
+            os << element->name << '\n';
+        } else {
+            os << box.text().value() << '\n';
+        }
+
         for (std::uint8_t i = 0; i < depth; ++i) {
             os << "  ";
         }
