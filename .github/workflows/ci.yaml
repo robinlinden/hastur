@@ -177,12 +177,8 @@ jobs:
       # - name: Run
       #   run: bazel run browser:tui -c dbg
 
-  # windows-2022 ships with incompatible versions of Clang and MSVC.
-  # see: https://github.com/actions/runner-images/issues/8153
-  #
-  # error: static assertion failed: Error in C++ Standard Library usage.
-  # _EMIT_STL_ERROR(STL1000, "Unexpected compiler version, expected Clang 16.0.0 or newer.");
-  # ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Bazel doesn't understand the clang-cl 16 include path yet.
+  # see: https://github.com/bazelbuild/bazel/issues/17863
   #
   # windows-clang-cl:
   #   runs-on: windows-2022
