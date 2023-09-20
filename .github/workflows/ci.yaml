@@ -55,6 +55,11 @@ jobs:
             compiler: clang
             version: 16
 
+          - name: clang-17
+            os: ubuntu-22.04
+            compiler: clang
+            version: 17
+
           - name: clang-15-libc++
             os: ubuntu-22.04
             compiler: clang
@@ -68,6 +73,13 @@ jobs:
             version: 16
             bazel: --config libc++
             apt: libc++abi-16-dev libc++-16-dev
+
+          - name: clang-17-libc++
+            os: ubuntu-22.04
+            compiler: clang
+            version: 17
+            bazel: --config libc++
+            apt: libc++abi-17-dev libc++-17-dev
 
     steps:
       - name: Prepare clang install
