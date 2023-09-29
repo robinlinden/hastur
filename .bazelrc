@@ -68,6 +68,7 @@ build:ubsan --strip=never
 build:ubsan --features=ubsan
 build:ubsan --copt=-fno-omit-frame-pointer
 build:ubsan --linkopt=-fsanitize-link-c++-runtime
+build:ubsan --host_linkopt=-fsanitize-link-c++-runtime
 build:ubsan --action_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
 
 build:clang-coverage
