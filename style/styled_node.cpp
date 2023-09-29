@@ -439,6 +439,25 @@ int StyledNode::get_font_size_property() const {
         return std::lround(font_size_absolute_size_keywords.at(raw_value) * kMediumFontSize);
     }
 
+    auto parent_or_default_font_size = [&] {
+        auto const *owner = closest->second;
+        if (owner->parent == nullptr) {
+            return kDefaultFontSize;
+        }
+
+        return owner->parent->get_font_size_property();
+    };
+
+    // https://drafts.csswg.org/css-fonts-4/#valdef-font-size-relative-size
+    constexpr auto kRelativeFontSizeRatio = 1.2f;
+    if (raw_value == "larger") {
+        return static_cast<int>(parent_or_default_font_size() * kRelativeFontSizeRatio);
+    }
+
+    if (raw_value == "smaller") {
+        return static_cast<int>(parent_or_default_font_size() / kRelativeFontSizeRatio);
+    }
+
     auto value_and_unit = split_into_value_and_unit(raw_value);
     if (!value_and_unit) {
         return kDefaultFontSize;
@@ -452,15 +471,6 @@ int StyledNode::get_font_size_property() const {
     if (unit == "px") {
         return static_cast<int>(value);
     }
-
-    auto parent_or_default_font_size = [&] {
-        auto const *owner = closest->second;
-        if (owner->parent == nullptr) {
-            return kDefaultFontSize;
-        }
-
-        return owner->parent->get_font_size_property();
-    };
 
     if (unit == "em") {
         return static_cast<int>(value * parent_or_default_font_size());

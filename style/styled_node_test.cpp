@@ -191,6 +191,11 @@ int main() {
         child.properties[0] = {css::PropertyId::FontSize, "50%"};
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
 
+        child.properties[0] = {css::PropertyId::FontSize, "larger"};
+        expect(child.get_property<css::PropertyId::FontSize>() > 50);
+        child.properties[0] = {css::PropertyId::FontSize, "smaller"};
+        expect(child.get_property<css::PropertyId::FontSize>() < 50);
+
         // rem
         auto &child2 = child.children.emplace_back(
                 style::StyledNode{.node{dom_node}, .properties{{css::PropertyId::FontSize, "2rem"}}, .parent = &child});
