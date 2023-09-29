@@ -21,13 +21,6 @@
 #
 # -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
 #
-# -google-readability-braces-around-statements: Crashes clang-tidy-14/15.
-# Stack dump:
-# 0.      Program arguments: clang-tidy-15 -p=/home/robin/code/hastur -quiet /home/robin/code/hastur/dom2/character_data_test.cpp
-# 1.      <eof> parser at end of file
-# 2.      ASTMatcher: Processing 'google-readability-braces-around-statements' against:
-#         IfStmt : </usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:520:5, col:56>
-#
 # -misc-const-correctness: Consts some things that can't be const, and very very noisy.
 #
 # -misc-no-recursion: We use a lot of recursion.
@@ -64,7 +57,6 @@ Checks: >
   -clang-analyzer-cplusplus.NewDeleteLeaks,
   -clang-diagnostic-builtin-macro-redefined,
   -google-build-using-namespace,
-  -google-readability-braces-around-statements,
   -misc-const-correctness,
   -misc-no-recursion,
   -modernize-make-unique,
