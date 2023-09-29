@@ -16,9 +16,6 @@
 # field '_M_pi' [clang-analyzer-cplusplus.NewDeleteLeaks,-warnings-as-errors]
 # Very similar call stack to https://github.com/llvm/llvm-project/issues/55219
 #
-# -clang-analyzer-optin.cplusplus.UninitializedObject: Triggered by libfmt
-# format strings on the line we instantiate them.
-#
 # -clang-diagnostic-builtin-macro-redefined: Bazel redefines a lot of builtin
 # macros to set up a reproducible build.
 #
@@ -65,7 +62,6 @@ Checks: >
   -bugprone-unchecked-optional-access,
   -cert-dcl21-cpp,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
-  -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-diagnostic-builtin-macro-redefined,
   -google-build-using-namespace,
   -google-readability-braces-around-statements,
