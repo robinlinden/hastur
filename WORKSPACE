@@ -25,6 +25,16 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_python/releases/download/0.25.0/rules_python-0.25.0.tar.gz",
 )
 
+# Third-party Bazel
+# =========================================================
+
+# https://github.com/uber/hermetic_cc_toolchain
+http_archive(
+    name = "hermetic_cc_toolchain",
+    sha256 = "28fc71b9b3191c312ee83faa1dc65b38eb70c3a57740368f7e7c7a49bedf3106",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.1.2/hermetic_cc_toolchain-v2.1.2.tar.gz",
+)
+
 # Misc tools
 # =========================================================
 
@@ -343,6 +353,10 @@ pip_parse(
 load("@pypi//:requirements.bzl", pypi_install_deps = "install_deps")
 
 pypi_install_deps()
+
+load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
+
+zig_toolchains()
 
 load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
 
