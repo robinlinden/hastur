@@ -53,9 +53,9 @@ http_archive(
 # doesn't work with Clang 16 due to undeclared inclusions.
 http_archive(
     name = "com_google_absl",  # Apache-2.0
-    sha256 = "9a2b5752d7bfade0bdeee2701de17c9480620f8b237e1964c1b9967c75374906",
-    strip_prefix = "abseil-cpp-20230125.2",
-    url = "https://github.com/abseil/abseil-cpp/archive/20230125.2.tar.gz",
+    sha256 = "987ce98f02eefbaf930d6e38ab16aa05737234d7afbab2d5c4ea7adbe50c28ed",
+    strip_prefix = "abseil-cpp-20230802.1",
+    url = "https://github.com/abseil/abseil-cpp/archive/20230802.1.tar.gz",
 )
 
 http_archive(
