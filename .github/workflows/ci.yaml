@@ -165,6 +165,30 @@ jobs:
       - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - run: ./bazelisk test etest/... --copt=-fno-exceptions
 
+  linux-aarch64-muslc:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
+          restore-keys: aarch64_linux_muslc-
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
+      # TODO(robinlinden): Improve. We shouldn't be excluding targets like this.
+      # Include all targets except for
+      # * fuzzing_regression_test, sh_test, and py_test targets: not sure, scripts
+      #     probably don't get along with --run_under=qemu-aarch64-static.
+      # * targets that depend on sfml: it pulls in host dependencies.
+      - run: ./bazelisk test -- $(bazel query '... except (kind("fuzzing_regression_test|sh_test|py_test", ...) union rdeps(..., @sfml//:window))')
+      - name: Run tui
+        run: |
+          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+          ./bazelisk run browser:tui file://$(pwd)/example.html
+
   windows-msvc:
     runs-on: windows-2022
     timeout-minutes: 30
