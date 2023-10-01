@@ -48,7 +48,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
-        "@glew",
+        "@glad",
     ],
 )
 

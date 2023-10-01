@@ -4,7 +4,7 @@
 
 #include "gfx/opengl_canvas.h"
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 
 #include <array>
 

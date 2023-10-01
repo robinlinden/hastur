@@ -4,7 +4,7 @@
 
 #include "gfx/opengl_shader.h"
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 
 #include <cassert>
 #include <cstdlib>
@@ -13,9 +13,10 @@
 namespace gfx {
 
 std::optional<OpenGLShader> OpenGLShader::create(std::string_view vertex_src, std::string_view fragment_src) {
-    // TODO(robinlinden): Move this somewhere more sensible. Calling it multiple
-    // times is fine, so it living here for now won't cause issues.
-    if (glewInit() != GLEW_OK) {
+    // TODO(robinlinden): Move this somewhere more sensible. I think calling it
+    // multiple times is fine, so it living here for now probably won't cause
+    // issues.
+    if (gladLoaderLoadGL() == 0) {
         std::abort();
     }
 
