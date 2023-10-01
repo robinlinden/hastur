@@ -59,6 +59,8 @@ public:
         ty_ += dy;
     }
 
+    void clear(Color) override {}
+
     void fill_rect(geom::Rect const &, Color) override;
     void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override;
     void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) override;
