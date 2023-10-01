@@ -119,6 +119,12 @@ http_archive(
     url = "https://github.com/ArthurSonzogni/FTXUI/archive/v5.0.0.tar.gz",
 )
 
+# https://github.com/Dav1dde/glad/
+local_repository(
+    name = "glad",  # MIT
+    path = "third_party/glad",
+)
+
 http_archive(
     name = "glew",  # BSD-3-Clause
     build_file = "//third_party:glew.BUILD",
@@ -332,6 +338,19 @@ python_register_toolchains(
     ignore_root_user_error = True,
     python_version = "3.11.4",
 )
+
+load("@python_3_11//:defs.bzl", "interpreter")
+load("@rules_python//python:pip.bzl", "pip_parse")
+
+pip_parse(
+    name = "pypi",
+    python_interpreter_target = interpreter,
+    requirements_lock = "//third_party:requirements.txt",
+)
+
+load("@pypi//:requirements.bzl", pypi_install_deps = "install_deps")
+
+pypi_install_deps()
 
 load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
 
