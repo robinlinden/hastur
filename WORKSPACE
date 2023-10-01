@@ -17,6 +17,14 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.4.0.tar.gz",
 )
 
+# https://github.com/bazelbuild/rules_python
+http_archive(
+    name = "rules_python",  # Apache-2.0
+    sha256 = "5868e73107a8e85d8f323806e60cad7283f34b32163ea6ff1020cf27abef6036",
+    strip_prefix = "rules_python-0.25.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.25.0/rules_python-0.25.0.tar.gz",
+)
+
 # Misc tools
 # =========================================================
 
@@ -313,6 +321,17 @@ rules_fuzzing_init()
 load("@fuzzing_py_deps//:requirements.bzl", fuzzing_py_deps_install_deps = "install_deps")
 
 fuzzing_py_deps_install_deps()
+
+load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
+
+py_repositories()
+
+python_register_toolchains(
+    name = "python_3_11",
+    # Running the build as root works, but leads to cache-misses for .pyc files.
+    ignore_root_user_error = True,
+    python_version = "3.11.4",
+)
 
 load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
 
