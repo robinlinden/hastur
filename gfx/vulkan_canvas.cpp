@@ -1,5 +1,8 @@
 #include "vulkan_canvas.h"
 
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+
+#include <vulkan/vulkan.hpp>
 #include "vulkan/vulkan.h"
 #include <GL/glew.h>
 #include <algorithm>
@@ -19,6 +22,8 @@
     }                                                                                                                  \
     m_.value();                                                                                                        \
     })
+
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace gfx {
 
@@ -40,18 +45,8 @@ const std::vector<std::string> validation_layers = {
         "VK_LAYER_GOOGLE_unique_objects",
 };
 
-void get_available_validation_layers(std::vector<VkLayerProperties> &validation_layers_out) {
-    uint32_t layer_count;
-    vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-
-    validation_layers_out.resize(layer_count);
-
-    vkEnumerateInstanceLayerProperties(&layer_count, validation_layers_out.data());
-}
-
 bool check_validation_layers(std::vector<std::string> const &layers) {
-    std::vector<VkLayerProperties> available_layers = {};
-    get_available_validation_layers(available_layers);
+    std::vector<vk::LayerProperties> available_layers = vk::enumerateInstanceLayerProperties();
 
     for (std::string_view layer : layers) {
         auto const layer_loc = std::find_if(
@@ -92,11 +87,7 @@ tl::expected<std::tuple<VkApplicationInfo, VkInstance>, VulkanError> build_insta
             .ppEnabledExtensionNames = nullptr,
     };
 
-    VkInstance instance;
-
-    if (auto res = vkCreateInstance(&inst_info, nullptr, &instance); res != VK_SUCCESS) {
-        return tl::unexpected{VulkanError::CreateInstanceFailed};
-    }
+    VkInstance instance = vk::createInstance(inst_info, nullptr);
 
     return std::tuple{
             app_info,
@@ -104,16 +95,11 @@ tl::expected<std::tuple<VkApplicationInfo, VkInstance>, VulkanError> build_insta
     };
 }
 
-bool device_supports_swapchain(VkPhysicalDevice device) {
-    uint32_t extension_count = 0;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
-
-    if (extension_count == 0) {
+bool device_supports_swapchain(vk::PhysicalDevice device) {
+    std::vector<vk::ExtensionProperties> device_extensions = device.enumerateDeviceExtensionProperties();
+    if (device_extensions.empty()) {
         return false;
     }
-
-    std::vector<VkExtensionProperties> device_extensions(extension_count);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, device_extensions.data());
 
     for (auto const &extension : device_extensions) {
         if (std::strcmp(extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
@@ -124,19 +110,15 @@ bool device_supports_swapchain(VkPhysicalDevice device) {
     return false;
 }
 
-std::optional<QueueIndices> find_device_queue_families(VkPhysicalDevice device) {
-    uint32_t queue_family_count = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
-
-    std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
+std::optional<QueueIndices> find_device_queue_families(vk::PhysicalDevice device) {
+    auto queue_families = device.getQueueFamilyProperties();
 
     std::optional<uint32_t> graphics_index = {};
     std::optional<uint32_t> present_index = 0;
 
     uint32_t index = 0;
     for (auto const &queue_family : queue_families) {
-        if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+        if (queue_family.queueFlags & vk::QueueFlagBits::eGraphics) {
             graphics_index = index;
         }
 
@@ -168,7 +150,7 @@ bool is_device_suitable(VkPhysicalDevice device) {
     return true;
 }
 
-std::optional<VkDevice> build_logical_device(VkPhysicalDevice device) {
+std::optional<vk::Device> build_logical_device(vk::PhysicalDevice device) {
     float queue_priority = 1.0f;
 
     auto indices = find_device_queue_families(device);
@@ -191,25 +173,14 @@ std::optional<VkDevice> build_logical_device(VkPhysicalDevice device) {
             .pEnabledFeatures = &device_features,
     };
 
-    VkDevice device_out;
-
-    if (vkCreateDevice(device, &create_info, nullptr, &device_out) == VK_SUCCESS) {
-        return device_out;
-    }
-
-    return std::nullopt;
+    return device.createDevice(create_info, nullptr);
 }
 
-std::optional<VkPhysicalDevice> get_suitable_device(VkInstance instance) {
-    uint32_t device_count = 0;
-    vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
-
-    if (device_count == 0) {
+std::optional<VkPhysicalDevice> get_suitable_device(vk::Instance instance) {
+    std::vector<vk::PhysicalDevice> devices = instance.enumeratePhysicalDevices();
+    if (devices.empty()) {
         return std::nullopt;
     }
-
-    std::vector<VkPhysicalDevice> devices(device_count);
-    vkEnumeratePhysicalDevices(instance, &device_count, devices.data());
 
     for (auto const &device : devices) {
         if (device == VK_NULL_HANDLE) {
@@ -245,11 +216,8 @@ tl::expected<VulkanDevice, VulkanError> VulkanDevice::create(VkInstance instance
         return tl::make_unexpected(VulkanError::NoSuitableDevice);
     }
 
-    VkQueue graphics_queue;
-    VkQueue present_queue;
-
-    vkGetDeviceQueue(vk_device.value(), indices->graphics_index, 0, &graphics_queue);
-    vkGetDeviceQueue(vk_device.value(), indices->present_index, 0, &present_queue);
+    VkQueue graphics_queue = vk_device->getQueue(indices->graphics_index, 0);
+    VkQueue present_queue = vk_device->getQueue(indices->present_index, 0);
 
     return VulkanDevice({
             .device = vk_device.value(),
@@ -262,6 +230,10 @@ VulkanCanvas::VulkanCanvas(int scale, VulkanDevice device, VkApplicationInfo app
     : scale_(scale), device_(device), app_info_(app_info), instance_(instance) {}
 
 tl::expected<VulkanCanvas, VulkanError> VulkanCanvas::create(std::string_view app_name, VulkanCanvasOptions options) {
+    vk::DynamicLoader dl;
+    auto *vk_get_instance_proc_addr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(vk_get_instance_proc_addr);
+
     if (!check_validation_layers(validation_layers)) {
         return tl::make_unexpected(VulkanError::InvalidValidationLayer);
     }
@@ -274,6 +246,8 @@ tl::expected<VulkanCanvas, VulkanError> VulkanCanvas::create(std::string_view ap
     }
 
     auto [app_info, instance] = instance_res.value();
+
+    VULKAN_HPP_DEFAULT_DISPATCHER.init( instance );
 
     auto device = VulkanDevice::create(instance);
     if (!device) {

@@ -88,6 +88,7 @@ cc_library(
         "@glew",
         "@expected",
         "@vulkan",
+        "@vulkan_hpp//:hpp",
     ],
 )
 
