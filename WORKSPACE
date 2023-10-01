@@ -125,14 +125,6 @@ local_repository(
     path = "third_party/glad",
 )
 
-http_archive(
-    name = "glew",  # BSD-3-Clause
-    build_file = "//third_party:glew.BUILD",
-    sha256 = "d4fc82893cfb00109578d0a1a2337fb8ca335b3ceccf97b97e5cc7f08e4353e1",
-    strip_prefix = "glew-2.2.0",
-    url = "https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz",
-)
-
 # https://github.com/unicode-org/icu
 http_archive(
     name = "icu",  # Unicode-DFS-2016
