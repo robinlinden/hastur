@@ -63,9 +63,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "5438b74ed2eb0174df9d13d98ec064b36a9feaaf4b5abd70e6a80c0c2382967e",
-    strip_prefix = "boringssl-85d27e799d48302ad1c690cc6017226862498e89",
-    url = "https://github.com/google/boringssl/archive/85d27e799d48302ad1c690cc6017226862498e89.tar.gz",
+    sha256 = "0a2b7a10fdce3d5ccdc6abf4f5701dca24b97efa75b00d203c50221269605476",
+    strip_prefix = "boringssl-ea4425fbb276871cfec5c4e19c12796b3cd1c9ab",
+    url = "https://github.com/google/boringssl/archive/ea4425fbb276871cfec5c4e19c12796b3cd1c9ab.tar.gz",
 )
 
 http_archive(
@@ -162,9 +162,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    sha256 = "ab72701b8560c4f93a5de525657b3bf34094f99a1e63bd9db3195d1bcb90aa09",
-    strip_prefix = "simdjson-3.2.3",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.2.3.tar.gz",
+    sha256 = "a8c9feff2f19c3ff281d42f0b6b4b18f02236513b99229756fa9a1b14787a58a",
+    strip_prefix = "simdjson-3.3.0",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.3.0.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -225,13 +225,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.3.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.262"
+VULKAN_TAG = "1.3.265"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "317e467a5fb2eaa6a18b984ec70fdbfaccd93595a3e6f4bcceca7d3fab280505",
+    sha256 = "24076540521da1eceecfb56235cb0361a01fb24a306cbefe874c949bf2d2e9a4",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -240,7 +240,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "a55555b9e553accbab90b6e15d55a9f1fec47fab12af34c05ba3150b61dd59a5",
+    sha256 = "9c9de0e0cb850a6b9f3c9df2c6eae44183b46deb4128f60d966c45cfcf907a24",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
