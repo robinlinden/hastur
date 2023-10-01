@@ -10,7 +10,6 @@
 #include <string_view>
 #include <tl/expected.hpp>
 #include <tuple>
-#include <unistd.h>
 #include <vector>
 
 #define try_unwrap(...) ({ auto m_ = (__VA_ARGS__);
