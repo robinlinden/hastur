@@ -33,10 +33,6 @@
 #
 # -modernize-use-trailing-return-type: Stylistic change, and something we
 # haven't been doing so far.
-#
-# -performance-move-const-arg: Having to know which types are trivially copyable
-# seems like unnecessary effort when calling std::move on them isn't really
-# harmful.
 Checks: >
   bugprone-*,
   cert-*,
@@ -63,7 +59,6 @@ Checks: >
   -modernize-use-emplace,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
-  -performance-move-const-arg,
 
 # Workaround for https://github.com/llvm/llvm-project/issues/56709 making it
 # impossible to disable the clang-diagnostic-builtin-macro-redefined warning in
@@ -73,6 +68,10 @@ WarningsAsErrors: "*,-clang-diagnostic-builtin-macro-redefined"
 HeaderFilterRegex: "\\./(archive|browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|idna|img|js|layout|net|os|protocol|render|style|tui|uri|url|util|wasm)/"
 
 CheckOptions:
+  # performance-move-const-arg
+  - key: performance-move-const-arg.CheckTriviallyCopyableMove
+    value: false
+
   # readability-identifier-naming
   # Classes, structs, ...
   - key: readability-identifier-naming.NamespaceCase

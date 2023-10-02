@@ -229,7 +229,7 @@ int main() {
     std::string zlibbed_css =
             "\x78\x5e\x2b\x50\xa8\x56\x48\xcb\xcf\x2b\xd1\x2d\xce\xac\x4a\xb5\x52\x30\x34\x32\x4e\xcd\xb5\x56\xa8\xe5\x02\x00\x63\xc3\x07\x6f"s;
 
-    etest::test("stylesheet link, gzip Content-Encoding", [gzipped_css] {
+    etest::test("stylesheet link, gzip Content-Encoding", [gzipped_css]() mutable {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
                 .err = Error::Ok,
