@@ -26,6 +26,12 @@ jobs:
             bazel: --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: g++-12 valgrind
 
+          - name: gcc-13
+            os: ubuntu-22.04
+            compiler: gcc
+            version: 13
+            apt: g++-13
+
           - name: clang-14-tsan
             os: ubuntu-22.04
             compiler: clang
@@ -82,6 +88,9 @@ jobs:
             apt: libc++abi-17-dev libc++-17-dev
 
     steps:
+      - name: Prepare gcc install
+        if: startsWith(matrix.compiler, 'gcc') && matrix.version >= 13
+        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
       - name: Prepare clang install
         if: startsWith(matrix.compiler, 'clang') && matrix.version >= 15
         run: |
@@ -147,25 +156,14 @@ jobs:
           chmod +x codecov
           ./codecov -f bazel-out/_coverage/_coverage_report.dat
 
-  linux-gcc-13:
+  linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     container: gcc:13.1.0
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/bazel
-          key: gcc-13-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: gcc-13-
-      - run: apt-get update && apt-get install -y --no-install-recommends libgl-dev xxd
       - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && chmod +x bazelisk
-      - run: ./bazelisk test ...
       - run: ./bazelisk test etest/... --copt=-fno-exceptions
-      - name: Run tui
-        run: |
-          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          ./bazelisk run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
 
   windows-msvc:
     runs-on: windows-2022
