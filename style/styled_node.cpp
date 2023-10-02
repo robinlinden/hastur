@@ -492,6 +492,12 @@ int StyledNode::get_font_size_property() const {
         return static_cast<int>(value * root_font_size);
     }
 
+    if (unit == "pt") {
+        // 12pt seems to generally equal 16px.
+        static constexpr float kPtToPxRatio = 16.f / 12.f;
+        return static_cast<int>(value * kPtToPxRatio);
+    }
+
     spdlog::warn("Unhandled unit '{}'", unit);
     return 0;
 }

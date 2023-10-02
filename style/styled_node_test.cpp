@@ -221,6 +221,10 @@ int main() {
         child.properties[0] = {css::PropertyId::FontSize, "0"};
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 0);
 
+        // pt
+        expect_property_eq<css::PropertyId::FontSize>("12pt", 16);
+        expect_property_eq<css::PropertyId::FontSize>("24pt", 32);
+
         // Invalid, shouldn't crash.
         // TODO(robinlinden): Make this do whatever other browsers do.
         child.properties[0] = {css::PropertyId::FontSize, "abcd"};
