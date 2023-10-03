@@ -282,6 +282,10 @@ void calculate_border(LayoutBox &box, int const font_size, int const root_font_s
     }
 }
 
+int text_width(std::string_view text, int const font_size) {
+    return static_cast<int>(text.size()) * font_size / 2;
+}
+
 void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) {
     switch (box.type) {
         case LayoutType::Inline: {
@@ -293,12 +297,12 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             if (auto text = box.text()) {
                 // TODO(robinlinden): Measure the text for real.
                 if (text->contains('\n')) {
-                    std::size_t longest_line = std::ranges::max(util::split(*text, "\n"), {}, [](auto const &line) {
-                        return line.size();
-                    }).size();
-                    box.dimensions.content.width = static_cast<int>(longest_line) * font_size / 2;
+                    for (auto const &line : util::split(*text, "\n")) {
+                        box.dimensions.content.width =
+                                std::max(box.dimensions.content.width, text_width(line, font_size));
+                    }
                 } else {
-                    box.dimensions.content.width = static_cast<int>(text->size()) * font_size / 2;
+                    box.dimensions.content.width = text_width(*text, font_size);
                 }
             }
 
@@ -333,16 +337,53 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             calculate_height(box, font_size, root_font_size);
             return;
         }
-        // TODO(robinlinden): Children wider than the available area need to be split across multiple lines.
         case LayoutType::AnonymousBlock: {
             calculate_position(box, bounds);
             int last_child_end{};
-            for (auto &child : box.children) {
-                layout(child, box.dimensions.content.translated(last_child_end, 0), root_font_size);
-                last_child_end += child.dimensions.margin_box().width;
-                box.dimensions.content.height =
-                        std::max(box.dimensions.content.height, child.dimensions.margin_box().height);
-                box.dimensions.content.width += child.dimensions.margin_box().width;
+            int current_line{};
+            auto font_size = box.children.size() > 0 ? box.children[0].get_property<css::PropertyId::FontSize>() : 0;
+            for (std::size_t i = 0; i < box.children.size(); ++i) {
+                auto *child = &box.children[i];
+                layout(*child,
+                        box.dimensions.content.translated(last_child_end, current_line * font_size),
+                        root_font_size);
+                // TODO(robinlinden): Handle cases where the text isn't a direct child of the anonymous block.
+                if (last_child_end + child->dimensions.margin_box().width > bounds.width) {
+                    auto text = child->text();
+                    if (text) {
+                        std::size_t best_split_point = std::string_view::npos;
+                        for (auto split_point = text->find(' '); split_point != std::string_view::npos;
+                                split_point = text->find(' ', split_point + 1)) {
+                            if (last_child_end + text_width(text->substr(0, split_point), font_size) > bounds.width) {
+                                break;
+                            }
+
+                            best_split_point = split_point;
+                        }
+
+                        if (best_split_point != std::string_view::npos) {
+                            child->dimensions.content.width = text_width(text->substr(0, best_split_point), font_size);
+                            auto bonus_child = *child;
+                            bonus_child.layout_text = std::string{text->substr(best_split_point + 1)};
+                            box.children.insert(box.children.begin() + i + 1, std::move(bonus_child));
+                            current_line += 1;
+                            last_child_end = 0;
+
+                            // Adding a child may have had to relocate the container content.
+                            child = &box.children[i];
+                            child->layout_text = std::string{text->substr(0, best_split_point)};
+                        } else {
+                            child->dimensions.content.width = text_width(*text, font_size);
+                            last_child_end += child->dimensions.margin_box().width;
+                        }
+                    }
+                } else {
+                    last_child_end += child->dimensions.margin_box().width;
+                }
+                box.dimensions.content.height = std::max(
+                        box.dimensions.content.height, child->dimensions.margin_box().height * (current_line + 1));
+                box.dimensions.content.width = std::max(
+                        box.dimensions.content.width, std::max(last_child_end, child->dimensions.content.width));
             }
             return;
         }

@@ -58,15 +58,15 @@ int main() {
         };
         auto expected_layout = layout::LayoutBox{.node = &style_root,
                 .type = LayoutType::Block,
-                .dimensions = {{0, 0, 0, 10}},
+                .dimensions = {{0, 0, 100, 10}},
                 .children{{
                         &style_root.children[0],
                         LayoutType::Block,
-                        {{0, 0, 0, 10}},
+                        {{0, 0, 100, 10}},
                         {{nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {std::move(layout_children)}}},
                 }}};
 
-        auto layout_root = layout::create_layout(style_root, 0);
+        auto layout_root = layout::create_layout(style_root, 100);
         expect(expected_layout == layout_root);
 
         expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");

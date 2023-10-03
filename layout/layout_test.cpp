@@ -480,9 +480,9 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {{0, 0, 0, 10}},
+            .dimensions = {{0, 0, 100, 10}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 10}}, {
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 10}}, {
                     {nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {
                         {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}, "hello"sv},
                         {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}, "goodbye"sv},
@@ -491,7 +491,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root, 0);
+        auto layout_root = layout::create_layout(style_root, 100);
         expect(expected_layout == layout_root);
 
         expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
@@ -1341,6 +1341,115 @@ int main() {
 
         expect_eq(two_line_layout_dims.second, single_line_layout_dims.second);
         expect(two_line_layout_dims.first >= 2 * single_line_layout_dims.first);
+    });
+
+    etest::test("text too long for its container", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi hello"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
+        };
+        set_up_parent_ptrs(style);
+
+        // TODO(robinlinden): It should be possible for the text here to be
+        // views into the dom text.
+        layout::LayoutBox expected{
+                .node = &style,
+                .type = LayoutType::Block,
+                // 2 lines, where the widest one is 5 characters.
+                .dimensions{{0, 0, 30, 20}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, 25, 20}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{0, 0, 10, 10}},
+                                        .layout_text = "hi"s,
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{0, 10, 25, 10}},
+                                        .layout_text = "hello"s,
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 30).value();
+        expect_eq(l, expected);
+    });
+
+    etest::test("text too long for its container, better split point later", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"oh no !! !"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 30, 20}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, 25, 20}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{0, 0, 25, 10}},
+                                        .layout_text = "oh no"s,
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{0, 10, 20, 10}},
+                                        .layout_text = "!! !"s,
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 30).value();
+        expect_eq(l, expected);
+    });
+
+    etest::test("text too long for its container, but no split point available", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 15, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, 25, 10}},
+                        .children{layout::LayoutBox{
+                                .node = &style.children[0],
+                                .type = LayoutType::Inline,
+                                .dimensions{{0, 0, 25, 10}},
+                                .layout_text = "hello"sv,
+                        }},
+                }},
+        };
+
+        auto l = layout::create_layout(style, 15).value();
+        expect_eq(l, expected);
     });
 
     etest::test("display:none on root node", [] {
