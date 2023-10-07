@@ -21,6 +21,35 @@ using namespace std::literals;
 namespace html2 {
 namespace {
 
+class InternalActions : public IActions {
+public:
+    explicit InternalActions(IActions &wrapped, InsertionMode mode_override)
+        : wrapped_{wrapped}, current_insertion_mode_override_{mode_override} {}
+
+    void set_doctype_name(std::string name) override { wrapped_.set_doctype_name(std::move(name)); }
+    void set_quirks_mode(QuirksMode quirks) override { wrapped_.set_quirks_mode(quirks); }
+    bool scripting() const override { return wrapped_.scripting(); }
+    void insert_element_for(html2::StartTagToken const &token) override { wrapped_.insert_element_for(token); }
+    void pop_current_node() override { wrapped_.pop_current_node(); }
+    std::string_view current_node_name() const override { return wrapped_.current_node_name(); }
+    void merge_into_html_node(std::span<html2::Attribute const> attributes) override {
+        wrapped_.merge_into_html_node(attributes);
+    }
+    void insert_character(html2::CharacterToken const &token) override { wrapped_.insert_character(token); }
+    void set_tokenizer_state(html2::State state) override { wrapped_.set_tokenizer_state(state); }
+    void store_original_insertion_mode(InsertionMode mode) override { wrapped_.store_original_insertion_mode(mode); }
+    InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
+    InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
+
+private:
+    IActions &wrapped_;
+    InsertionMode current_insertion_mode_override_;
+};
+
+InternalActions current_insertion_mode_override(IActions &a, InsertionMode override) {
+    return InternalActions{a, override};
+}
+
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
 // FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020
 // SPACE.
@@ -181,7 +210,8 @@ std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &t
         return BeforeHtml{};
     }
 
-    return BeforeHtml{}.process(a, token).value_or(BeforeHtml{});
+    auto mode_override = current_insertion_mode_override(a, BeforeHtml{});
+    return BeforeHtml{}.process(mode_override, token).value_or(BeforeHtml{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
@@ -201,7 +231,8 @@ std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const
     }
 
     a.insert_element_for(html2::StartTagToken{.tag_name = "html"});
-    return BeforeHead{}.process(a, token).value_or(BeforeHead{});
+    auto mode_override = current_insertion_mode_override(a, BeforeHead{});
+    return BeforeHead{}.process(mode_override, token).value_or(BeforeHead{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
@@ -241,7 +272,8 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
     }
 
     a.insert_element_for(html2::StartTagToken{.tag_name = "head"});
-    return InHead{}.process(a, token).value_or(InHead{});
+    auto mode_override = current_insertion_mode_override(a, InHead{});
+    return InHead{}.process(mode_override, token).value_or(InHead{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
