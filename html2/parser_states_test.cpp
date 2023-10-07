@@ -236,6 +236,12 @@ void in_head_noscript_tests() {
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
     });
 
+    etest::test("InHeadNoScript: style w/ end tags", [] {
+        auto res = parse("<noscript><style>p { color: green; }</style></noscript>", {});
+        auto noscript = dom::Element{"noscript", {}, {dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}}}};
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+    });
+
     etest::test("InHeadNoScript: br", [] {
         auto res = parse("<noscript></br>", {});
         auto noscript = dom::Element{"noscript"};

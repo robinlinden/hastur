@@ -161,14 +161,14 @@ constexpr bool is_quirky_when_system_identifier_is_empty(std::string_view public
 [[nodiscard]] InsertionMode generic_raw_text_parse(IActions &a, html2::StartTagToken const &token) {
     a.insert_element_for(token);
     a.set_tokenizer_state(html2::State::Rawtext);
-    a.store_original_insertion_mode(InHead{});
+    a.store_original_insertion_mode(a.current_insertion_mode());
     return Text{};
 }
 
 [[nodiscard]] InsertionMode generic_rcdata_parse(IActions &a, html2::StartTagToken const &token) {
     a.insert_element_for(token);
     a.set_tokenizer_state(html2::State::Rcdata);
-    a.store_original_insertion_mode(InHead{});
+    a.store_original_insertion_mode(a.current_insertion_mode());
     return Text{};
 }
 
