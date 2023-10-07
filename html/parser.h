@@ -57,7 +57,7 @@ private:
     std::stringstream current_text_{};
     bool scripting_{false};
     html2::InsertionMode insertion_mode_{};
-    Actions actions_{doc_, tokenizer_, scripting_, open_elements_};
+    Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_};
 };
 
 inline dom::Document parse(std::string_view input, ParserOptions const &opts = {}) {

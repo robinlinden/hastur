@@ -31,7 +31,7 @@ ParseResult parse(std::string_view html, ParseOptions opts) {
     ParseResult res{};
     html2::InsertionMode mode{opts.initial_insertion_mode};
     std::stack<dom::Element *> open_elements{};
-    html::Actions actions{res.document, tokenizer, opts.scripting, open_elements};
+    html::Actions actions{res.document, tokenizer, opts.scripting, mode, open_elements};
 
     auto on_token = [&](html2::Tokenizer &, html2::Token const &token) {
         mode = std::visit([&](auto &v) { return v.process(actions, token); }, mode).value_or(mode);

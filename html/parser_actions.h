@@ -25,8 +25,10 @@ public:
     Actions(dom::Document &document,
             html2::Tokenizer &tokenizer,
             bool scripting,
+            html2::InsertionMode &current_insertion_mode,
             std::stack<dom::Element *> &open_elements)
-        : document_{document}, tokenizer_{tokenizer}, scripting_{scripting}, open_elements_{open_elements} {}
+        : document_{document}, tokenizer_{tokenizer}, scripting_{scripting},
+          current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements} {}
 
     void set_doctype_name(std::string name) override { document_.doctype = std::move(name); }
 
@@ -90,6 +92,8 @@ public:
 
     html2::InsertionMode original_insertion_mode() override { return std::move(original_insertion_mode_); }
 
+    html2::InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
+
 private:
     void insert(dom::Element element) {
         if (element.name == "html") {
@@ -108,6 +112,7 @@ private:
     html2::Tokenizer &tokenizer_;
     bool scripting_;
     html2::InsertionMode original_insertion_mode_;
+    html2::InsertionMode &current_insertion_mode_;
     std::stack<dom::Element *> &open_elements_;
 };
 
