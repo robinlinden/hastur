@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <string_view>
+#include <type_traits>
 
 using namespace std::string_view_literals;
 
@@ -34,6 +35,15 @@ int main() {
         expect_eq(headers.size(), std::size_t{1});
         expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
         expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
+    });
+
+    etest::test("error, to_string", [] {
+        using protocol::Error;
+        expect_eq(to_string(Error::Ok), "Ok"sv);
+        expect_eq(to_string(Error::Unresolved), "Unresolved"sv);
+        expect_eq(to_string(Error::Unhandled), "Unhandled"sv);
+        expect_eq(to_string(Error::InvalidResponse), "InvalidResponse"sv);
+        expect_eq(to_string(static_cast<Error>(std::underlying_type_t<Error>{20})), "Unknown"sv);
     });
 
     return etest::run_all_tests();

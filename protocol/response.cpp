@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -12,6 +12,20 @@
 #include <utility>
 
 namespace protocol {
+
+std::string_view to_string(Error e) {
+    switch (e) {
+        case Error::Ok:
+            return "Ok";
+        case Error::Unresolved:
+            return "Unresolved";
+        case Error::Unhandled:
+            return "Unhandled";
+        case Error::InvalidResponse:
+            return "InvalidResponse";
+    }
+    return "Unknown";
+}
 
 void Headers::add(std::pair<std::string_view, std::string_view> nv) {
     headers_.emplace(nv);

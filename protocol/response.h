@@ -23,6 +23,8 @@ enum class Error {
     InvalidResponse,
 };
 
+std::string_view to_string(Error);
+
 struct StatusLine {
     std::string version;
     int status_code{};
