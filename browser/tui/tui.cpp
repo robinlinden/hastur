@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"s;
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
-        spdlog::error("Got error {} from {}", static_cast<int>(err), uri.uri);
+        spdlog::error(R"(Error loading "{}": {})", uri.uri, to_string(err));
         return 1;
     }
 
