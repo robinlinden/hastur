@@ -89,7 +89,6 @@ build:clang-tidy --build_tag_filters=-no-clang-tidy
 
 build:linux-aarch64-musl --platforms=@zig_sdk//platform:linux_arm64
 build:linux-aarch64-musl --extra_toolchains=@zig_sdk//toolchain:linux_arm64_musl
-build:linux-aarch64-musl --run_under=qemu-aarch64-static
 build:linux-aarch64-musl --copt=-fPIC
 build:linux-aarch64-musl --dynamic_mode=off
 # TODO(robinlinden): asio assumes __GLIBC__ is defined.
