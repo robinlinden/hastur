@@ -81,9 +81,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "0a2b7a10fdce3d5ccdc6abf4f5701dca24b97efa75b00d203c50221269605476",
-    strip_prefix = "boringssl-ea4425fbb276871cfec5c4e19c12796b3cd1c9ab",
-    url = "https://github.com/google/boringssl/archive/ea4425fbb276871cfec5c4e19c12796b3cd1c9ab.tar.gz",
+    sha256 = "e3f0fc8856e5469a3398ade487b8a119a31bd858eb492fa150e4bb95815e49c7",
+    strip_prefix = "boringssl-99f652dbeda9640e70fb7e1a8f70c27103c621b7",
+    url = "https://github.com/google/boringssl/archive/99f652dbeda9640e70fb7e1a8f70c27103c621b7.tar.gz",
 )
 
 http_archive(
@@ -241,13 +241,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.3.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.265"
+VULKAN_TAG = "1.3.267"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "24076540521da1eceecfb56235cb0361a01fb24a306cbefe874c949bf2d2e9a4",
+    sha256 = "72120553215bb631275a38a5359ad812837165ab8ddd8e33597dd52c7d80d627",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -256,7 +256,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "9c9de0e0cb850a6b9f3c9df2c6eae44183b46deb4128f60d966c45cfcf907a24",
+    sha256 = "c763d8a7af8e30c40a087c00b58cb6ab4853ab47a60a1a5f3ab658d0c269ff10",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -265,9 +265,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    sha256 = "85ffb24af261a49ed055d2983c616e96d6bb14e55663d307a03770b97336e0c5",
-    strip_prefix = "wpt-merge_pr_41997",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_41997.tar.gz",
+    sha256 = "a841acfb7560ec262d7781ab639bc71539b0d00eb38230aeb119f837d2072115",
+    strip_prefix = "wpt-merge_pr_42460",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_42460.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
@@ -282,14 +282,15 @@ http_archive(
     ],
 )
 
+# https://gitlab.freedesktop.org/xorg/lib/libxrandr
 http_archive(
     name = "xrandr",  # MIT
     build_file = "//third_party:xrandr.BUILD",
-    sha256 = "a58611b6de3932439ccf9330096e015925f1bd315d9b89a47297362b362fdbd8",
-    strip_prefix = "libxrandr-libXrandr-1.5.3",
+    sha256 = "a1909cbe9ded94187b6420ae8c347153f8278955265cb80a64cdae5501433396",
+    strip_prefix = "libxrandr-libXrandr-1.5.4",
     urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.3/libxrandr-libXrandr-1.5.3.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxrandr/archive/libXrandr-1.5.3.tar.gz",
+        "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.4/libxrandr-libXrandr-1.5.4.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/libxrandr/archive/libXrandr-1.5.4.tar.gz",
     ],
 )
 
