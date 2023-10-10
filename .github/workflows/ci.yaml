@@ -152,7 +152,7 @@ jobs:
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          wget --no-verbose --output-document=codecov https://github.com/codecov/uploader/releases/download/v0.6.2/codecov-linux
+          wget --no-verbose --output-document=codecov https://github.com/codecov/uploader/releases/download/v0.6.3/codecov-linux
           chmod +x codecov
           ./codecov -f bazel-out/_coverage/_coverage_report.dat
 
