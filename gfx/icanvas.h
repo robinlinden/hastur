@@ -51,6 +51,7 @@ public:
     virtual void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) = 0;
     virtual void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) = 0;
     virtual void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) = 0;
+    virtual void draw_pixels(geom::Rect const &, std::span<std::uint8_t const> rgba_data) = 0;
 };
 
 } // namespace gfx

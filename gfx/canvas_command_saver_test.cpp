@@ -97,6 +97,12 @@ int main() {
                         {1, 2}, "hello!"s, {{"comic sans"}}, 11, FontStyle::Normal, {1, 2, 3}}});
     });
 
+    etest::test("CanvasCommandSaver::draw_pixels", [] {
+        CanvasCommandSaver saver;
+        saver.draw_pixels({1, 2, 3, 4}, {{0x12, 0x34, 0x56, 0x78}});
+        expect_eq(saver.take_commands(), CanvasCommands{DrawPixelsCmd{{1, 2, 3, 4}, {0x12, 0x34, 0x56, 0x78}}});
+    });
+
     etest::test("replay_commands", [] {
         CanvasCommandSaver saver;
         saver.clear(gfx::Color{});
@@ -110,6 +116,7 @@ int main() {
         saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, FontStyle::Italic, {3, 2, 1});
         saver.draw_text({1, 5}, "hello?"sv, {{{"font1"}, {"font2"}}}, {42}, FontStyle::Normal, {1, 2, 3});
         saver.clear(gfx::Color{1, 2, 3});
+        saver.draw_pixels({1, 2, 3, 4}, {{0x12, 0x34, 0x56, 0x78}});
         auto cmds = saver.take_commands();
 
         CanvasCommandSaver replayed;

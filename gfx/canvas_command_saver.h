@@ -80,6 +80,13 @@ struct DrawTextCmd {
     [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;
 };
 
+struct DrawPixelsCmd {
+    geom::Rect rect{};
+    std::vector<std::uint8_t> rgba_data{};
+
+    [[nodiscard]] bool operator==(DrawPixelsCmd const &) const = default;
+};
+
 using CanvasCommand = std::variant<SetViewportSizeCmd,
         SetScaleCmd,
         AddTranslationCmd,
@@ -87,7 +94,8 @@ using CanvasCommand = std::variant<SetViewportSizeCmd,
         FillRectCmd,
         DrawRectCmd,
         DrawTextWithFontOptionsCmd,
-        DrawTextCmd>;
+        DrawTextCmd,
+        DrawPixelsCmd>;
 
 class CanvasCommandSaver : public ICanvas {
 public:
@@ -124,6 +132,10 @@ public:
         cmds_.emplace_back(DrawTextCmd{position, std::string{text}, std::string{font.font}, size.px, style, color});
     }
 
+    void draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) override {
+        cmds_.emplace_back(DrawPixelsCmd{rect, {rgba_data.begin(), rgba_data.end()}});
+    }
+
     //
     [[nodiscard]] std::vector<CanvasCommand> take_commands() { return std::exchange(cmds_, {}); }
 
@@ -155,6 +167,8 @@ public:
     void operator()(DrawTextCmd const &cmd) {
         canvas_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.style, cmd.color);
     }
+
+    void operator()(DrawPixelsCmd const &cmd) { canvas_.draw_pixels(cmd.rect, cmd.rgba_data); }
 
 private:
     ICanvas &canvas_;
