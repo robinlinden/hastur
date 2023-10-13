@@ -8,9 +8,11 @@
 #include "gfx/icanvas.h"
 
 #include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace sf {
 class Font;
@@ -36,12 +38,13 @@ public:
     void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override;
     void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) override;
     void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) override;
-    void draw_pixels(geom::Rect const &, std::span<std::uint8_t const>) override {}
+    void draw_pixels(geom::Rect const &, std::span<std::uint8_t const> rgba_data) override;
 
 private:
     sf::RenderTarget &target_;
     sf::Shader border_shader_{};
     std::map<std::string, std::shared_ptr<sf::Font>, std::less<>> font_cache_;
+    std::vector<sf::Texture> textures_;
 
     int scale_{1};
     int tx_{0};

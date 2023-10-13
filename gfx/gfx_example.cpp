@@ -9,6 +9,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include <array>
 #include <memory>
 #include <string_view>
 
@@ -78,6 +79,9 @@ int main(int argc, char **argv) {
                 gfx::FontStyle::Italic | gfx::FontStyle::Bold | gfx::FontStyle::Underlined
                         | gfx::FontStyle::Strikethrough,
                 kHotPink);
+        auto px = std::to_array<std::uint8_t>(
+                {100, 100, 100, 0xff, 200, 200, 200, 0xff, 50, 50, 50, 0xff, 200, 0, 0, 0xff});
+        canvas->draw_pixels({1, 1, 2, 2}, px);
 
         window.display();
     }

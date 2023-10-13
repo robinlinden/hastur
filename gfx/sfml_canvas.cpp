@@ -10,11 +10,13 @@
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cassert>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -114,6 +116,7 @@ void SfmlCanvas::set_viewport_size(int width, int height) {
 
 void SfmlCanvas::clear(Color c) {
     target_.clear(sf::Color(c.as_rgba_u32()));
+    textures_.clear();
 }
 
 void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
@@ -236,6 +239,22 @@ void SfmlCanvas::draw_text(
     drawable.setStyle(to_sfml(style));
     drawable.setPosition(static_cast<float>(p.x), static_cast<float>(p.y));
     target_.draw(drawable);
+}
+
+void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) {
+    assert(rgba_data.size() == static_cast<std::size_t>(rect.width * rect.height * 4));
+    sf::Image img;
+    // Textures need to be kept around while they're displayed. This will be
+    // cleared when the canvas is cleared.
+    sf::Texture &texture = textures_.emplace_back();
+    texture.create(static_cast<unsigned>(rect.width), static_cast<unsigned>(rect.height));
+    texture.update(rgba_data.data());
+    sf::Sprite sprite{texture};
+    sprite.setPosition(static_cast<float>(rect.x), static_cast<float>(rect.y));
+    target_.draw(sprite);
+    sf::RectangleShape shape{{static_cast<float>(rect.width), static_cast<float>(rect.height)}};
+    shape.setTexture(&texture);
+    target_.draw(shape);
 }
 
 } // namespace gfx
