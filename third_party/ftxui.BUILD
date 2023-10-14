@@ -11,10 +11,7 @@ cc_library(
         ],
     ),
     hdrs = glob(["include/**/*.hpp"]),
-    copts = ["-Iexternal/ftxui/src"] + select({
-        "@platforms//os:linux": [],
-        "@platforms//os:windows": ["-utf-8"],
-    }),
+    copts = ["-Iexternal/ftxui/src"],
     includes = ["include/"],
     local_defines = select({
         "@platforms//os:linux": [],
