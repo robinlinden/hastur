@@ -1,4 +1,4 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
 # Bazel
 # =========================================================
@@ -148,6 +148,13 @@ http_archive(
     ],
     strip_prefix = "icu-release-74-2/icu4c",
     url = "https://github.com/unicode-org/icu/archive/refs/tags/release-74-2.tar.gz",
+)
+
+# https://www.unicode.org/Public/idna/
+http_file(
+    name = "idna_mapping_table",
+    sha256 = "402cbd285f1f952fcd0834b63541d54f69d3d8f1b8f8599bf71a1a14935f82c4",
+    url = "https://www.unicode.org/Public/idna/15.1.0/IdnaMappingTable.txt",
 )
 
 # https://github.com/ocornut/imgui
