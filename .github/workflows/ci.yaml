@@ -356,6 +356,15 @@ jobs:
       - run: pip install gitlint==0.19.1
       - run: gitlint --commits origin/master..
 
+  # https://github.com/psf/black
+  black:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install black==23.11.0
+      - run: black --check --diff .
+
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
