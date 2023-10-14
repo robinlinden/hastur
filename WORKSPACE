@@ -87,14 +87,6 @@ http_archive(
 )
 
 http_archive(
-    name = "ctre",  # Apache-2.0
-    build_file = "//third_party:ctre.BUILD",
-    sha256 = "6462ee41fa6aa12075f6b9d13f42358091d32963087443a6669d2c94232eea04",
-    strip_prefix = "compile-time-regular-expressions-3.8",
-    url = "https://github.com/hanickadot/compile-time-regular-expressions/archive/v3.8.tar.gz",
-)
-
-http_archive(
     name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
     sha256 = "1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6",
