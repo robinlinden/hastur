@@ -62,16 +62,6 @@ void Engine::set_layout_width(int width) {
     on_layout_update_();
 }
 
-void Engine::set_whitespace_mode(layout::WhitespaceMode mode) {
-    whitespace_mode_ = mode;
-    if (!styled_) {
-        return;
-    }
-
-    layout_ = layout::create_layout(*styled_, layout_width_, mode);
-    on_layout_update_();
-}
-
 void Engine::on_navigation_success() {
     dom_ = html::parse(response_.body);
     stylesheet_ = css::default_style();
@@ -150,7 +140,7 @@ void Engine::on_navigation_success() {
 
     spdlog::info("Styling dom w/ {} rules", stylesheet_.rules.size());
     styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
-    layout_ = layout::create_layout(*styled_, layout_width_, whitespace_mode_);
+    layout_ = layout::create_layout(*styled_, layout_width_);
     on_page_loaded_();
 }
 

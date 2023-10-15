@@ -29,8 +29,6 @@ public:
     protocol::Error navigate(uri::Uri uri);
 
     void set_layout_width(int width);
-    void set_whitespace_mode(layout::WhitespaceMode);
-    layout::WhitespaceMode whitespace_mode() const { return whitespace_mode_; }
 
     void set_on_navigation_failure(auto cb) { on_navigation_failure_ = std::move(cb); }
     void set_on_page_loaded(auto cb) { on_page_loaded_ = std::move(cb); }
@@ -51,7 +49,6 @@ private:
     }};
 
     int layout_width_{};
-    layout::WhitespaceMode whitespace_mode_{layout::WhitespaceMode::Collapse};
 
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
 

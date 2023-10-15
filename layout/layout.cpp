@@ -392,15 +392,13 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
 
 } // namespace
 
-std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width, WhitespaceMode ws_mode) {
+std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width) {
     auto tree = create_tree(node);
     if (!tree) {
         return {};
     }
 
-    if (ws_mode == WhitespaceMode::Collapse) {
-        collapse_whitespace(*tree);
-    }
+    collapse_whitespace(*tree);
 
     layout(*tree, {0, 0, width, 0}, node.get_property<css::PropertyId::FontSize>());
     return *tree;

@@ -394,31 +394,5 @@ int main() {
         expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::InvalidResponse);
     });
 
-    etest::test("whitespace mode", [] {
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map<std::string, Response>{
-                {"hax://example.com", Response{Error::Ok, {.status_code = 200}, {}, "<p>  hello  </p>"}},
-        })};
-
-        // Check that the engine is happy changing this even without a page loaded.
-        e.set_whitespace_mode(layout::WhitespaceMode::Preserve);
-        expect_eq(e.whitespace_mode(), layout::WhitespaceMode::Preserve);
-
-        e.navigate(uri::Uri::parse("hax://example.com"));
-
-        e.set_whitespace_mode(layout::WhitespaceMode::Collapse);
-        expect_eq(e.whitespace_mode(), layout::WhitespaceMode::Collapse);
-
-        auto const *p = dom::nodes_by_xpath(*e.layout(), "/html/body/p").at(0);
-        auto text = p->children.at(0).children.at(0).layout_text; // anon block -> text
-        expect_eq(std::get<std::string_view>(text), "hello"sv);
-
-        e.set_whitespace_mode(layout::WhitespaceMode::Preserve);
-        expect_eq(e.whitespace_mode(), layout::WhitespaceMode::Preserve);
-
-        p = dom::nodes_by_xpath(*e.layout(), "/html/body/p").at(0);
-        text = p->children.at(0).children.at(0).layout_text; // anon block -> text
-        expect_eq(std::get<std::string_view>(text), "  hello  "sv);
-    });
-
     return etest::run_all_tests();
 }
