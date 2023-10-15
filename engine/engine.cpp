@@ -13,7 +13,6 @@
 #include <spdlog/spdlog.h>
 
 #include <future>
-#include <iterator>
 #include <utility>
 
 using namespace std::literals;
@@ -84,11 +83,7 @@ void Engine::on_navigation_success() {
 
         // Style can only contain text, and we enforce this in our HTML parser.
         auto const &style_content = std::get<dom::Text>(style->children[0]);
-        auto new_rules = css::parse(style_content.text).rules;
-        stylesheet_.rules.reserve(stylesheet_.rules.size() + new_rules.size());
-        stylesheet_.rules.insert(end(stylesheet_.rules),
-                std::make_move_iterator(begin(new_rules)),
-                std::make_move_iterator(end(new_rules)));
+        stylesheet_.splice(css::parse(style_content.text));
     }
 
     auto head_links = dom::nodes_by_xpath(dom_.html(), "/html/head/link");
@@ -100,10 +95,10 @@ void Engine::on_navigation_success() {
 
     // Start downloading all stylesheets.
     spdlog::info("Loading {} stylesheets", head_links.size());
-    std::vector<std::future<std::vector<css::Rule>>> future_new_rules;
+    std::vector<std::future<css::StyleSheet>> future_new_rules;
     future_new_rules.reserve(head_links.size());
     for (auto const *link : head_links) {
-        future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> std::vector<css::Rule> {
+        future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> css::StyleSheet {
             auto const &href = link->attributes.at("href");
             auto stylesheet_url = uri::Uri::parse(href, uri_);
 
@@ -144,16 +139,13 @@ void Engine::on_navigation_success() {
                 return {};
             }
 
-            return css::parse(style_data.body).rules;
+            return css::parse(style_data.body);
         }));
     }
 
     // In order, wait for the download to finish and merge with the big stylesheet.
     for (auto &future_rules : future_new_rules) {
-        auto rules = future_rules.get();
-        stylesheet_.rules.reserve(stylesheet_.rules.size() + rules.size());
-        stylesheet_.rules.insert(
-                end(stylesheet_.rules), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
+        stylesheet_.splice(future_rules.get());
     }
 
     spdlog::info("Styling dom w/ {} rules", stylesheet_.rules.size());
