@@ -87,7 +87,7 @@ ValueT get_and_erase(
 
 void text_decoration_tests() {
     etest::test("parser: text-decoration, 1 value", [] {
-        auto rules = css::parse("p { text-decoration: underline; }");
+        auto rules = css::parse("p { text-decoration: underline; }").rules;
         auto const &p = rules.at(0);
         expect_eq(p.declarations,
                 std::map<css::PropertyId, std::string>{
@@ -99,7 +99,7 @@ void text_decoration_tests() {
 
     // This will fail once we support CSS Level 3 text-decorations.
     etest::test("parser: text-decoration, 2 values", [] {
-        auto rules = css::parse("p { text-decoration: underline dotted; }");
+        auto rules = css::parse("p { text-decoration: underline dotted; }").rules;
         auto const &p = rules.at(0);
         expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
     });
@@ -111,7 +111,7 @@ int main() {
     text_decoration_tests();
 
     etest::test("parser: simple rule", [] {
-        auto rules = css::parse("body { width: 50px; }"sv);
+        auto rules = css::parse("body { width: 50px; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -121,7 +121,7 @@ int main() {
     });
 
     etest::test("selector with spaces", [] {
-        auto rules = css::parse("p a { color: green; }");
+        auto rules = css::parse("p a { color: green; }").rules;
         expect_eq(rules,
                 std::vector<css::Rule>{{
                         .selectors{{"p a"}},
@@ -130,7 +130,7 @@ int main() {
     });
 
     etest::test("parser: minified", [] {
-        auto rules = css::parse("body{width:50px;font-family:inherit}head,p{display:none}"sv);
+        auto rules = css::parse("body{width:50px;font-family:inherit}head,p{display:none}"sv).rules;
         require(rules.size() == 2);
 
         auto first = rules[0];
@@ -146,7 +146,7 @@ int main() {
     });
 
     etest::test("parser: multiple rules", [] {
-        auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv);
+        auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv).rules;
         require(rules.size() == 2);
 
         auto body = rules[0];
@@ -161,7 +161,7 @@ int main() {
     });
 
     etest::test("parser: multiple selectors", [] {
-        auto rules = css::parse("body, p { width: 50px; }"sv);
+        auto rules = css::parse("body, p { width: 50px; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -171,7 +171,7 @@ int main() {
     });
 
     etest::test("parser: multiple declarations", [] {
-        auto rules = css::parse("body { width: 50px; height: 300px; }"sv);
+        auto rules = css::parse("body { width: 50px; height: 300px; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -182,7 +182,7 @@ int main() {
     });
 
     etest::test("parser: class", [] {
-        auto rules = css::parse(".cls { width: 50px; }"sv);
+        auto rules = css::parse(".cls { width: 50px; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -192,7 +192,7 @@ int main() {
     });
 
     etest::test("parser: id", [] {
-        auto rules = css::parse("#cls { width: 50px; }"sv);
+        auto rules = css::parse("#cls { width: 50px; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -202,7 +202,7 @@ int main() {
     });
 
     etest::test("parser: empty rule", [] {
-        auto rules = css::parse("body {}"sv);
+        auto rules = css::parse("body {}"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -211,12 +211,12 @@ int main() {
     });
 
     etest::test("parser: no rules", [] {
-        auto rules = css::parse(""sv);
+        auto rules = css::parse(""sv).rules;
         expect(rules.empty());
     });
 
     etest::test("parser: top-level comments", [] {
-        auto rules = css::parse("body { width: 50px; }/* comment. */ p { font-size: 8em; } /* comment. */"sv);
+        auto rules = css::parse("body { width: 50px; }/* comment. */ p { font-size: 8em; } /* comment. */"sv).rules;
         require(rules.size() == 2);
 
         auto body = rules[0];
@@ -233,10 +233,11 @@ int main() {
     etest::test("parser: comments almost everywhere", [] {
         // body { width: 50px; } p { padding: 8em 4em; } with comments added everywhere currently supported.
         auto rules = css::parse(R"(/**/body {/**/width:50px;/**/}/*
-                */p {/**/padding:/**/8em 4em;/**//**/}/**/)"sv);
+                */p {/**/padding:/**/8em 4em;/**//**/}/**/)"sv)
+                             .rules;
         // TODO(robinlinden): Support comments in more places.
         // auto rules = css::parse(R"(/**/body/**/{/**/width/**/:/**/50px/**/;/**/}/*
-        //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"sv);
+        //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"sv).rules;
         require_eq(rules.size(), 2UL);
 
         auto body = rules[0];
@@ -259,7 +260,8 @@ int main() {
                     article { width: 50px; }
                     p { font-size: 9em; }
                 }
-                a { background-color: indigo; })"sv);
+                a { background-color: indigo; })"sv)
+                             .rules;
         require(rules.size() == 3);
 
         auto article = rules[0];
@@ -282,7 +284,7 @@ int main() {
     });
 
     etest::test("parser: minified media query", [] {
-        auto rules = css::parse("@media(max-width:300px){p{font-size:10px;}}");
+        auto rules = css::parse("@media(max-width:300px){p{font-size:10px;}}").rules;
         require_eq(rules.size(), std::size_t{1});
         auto const &rule = rules[0];
         expect_eq(rule.media_query, css::MediaQuery{css::MediaQuery::Width{.max = 300}});
@@ -292,7 +294,7 @@ int main() {
     });
 
     etest::test("parser: bad media query", [] {
-        auto rules = css::parse("@media (rip: 0) { p { font-size: 10px; } }");
+        auto rules = css::parse("@media (rip: 0) { p { font-size: 10px; } }").rules;
         auto const &rule = rules.at(0);
         expect_eq(rule.media_query, std::nullopt);
         expect_eq(rule.selectors, std::vector{"p"s});
@@ -302,7 +304,8 @@ int main() {
 
     etest::test("parser: 2 media queries in a row", [] {
         auto rules = css::parse(
-                "@media (max-width: 1px) { p { font-size: 1em; } } @media (min-width: 2px) { a { color: blue; } }");
+                "@media (max-width: 1px) { p { font-size: 1em; } } @media (min-width: 2px) { a { color: blue; } }")
+                             .rules;
         require_eq(rules.size(), std::size_t{2});
         expect_eq(rules[0],
                 css::Rule{.selectors{{"p"}},
@@ -316,7 +319,7 @@ int main() {
 
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {
         return [=]() mutable {
-            auto rules = css::parse(fmt::format("p {{ {}: {}; }}"sv, property, value));
+            auto rules = css::parse(fmt::format("p {{ {}: {}; }}"sv, property, value)).rules;
             require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -350,7 +353,7 @@ int main() {
                                             std::array<std::string, 2> values,
                                             std::string post_fix = "") {
         return [=]() mutable {
-            auto rules = css::parse(fmt::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1]));
+            auto rules = css::parse(fmt::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1])).rules;
             require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -384,7 +387,8 @@ int main() {
                                               std::array<std::string, 3> values,
                                               std::string post_fix = "") {
         return [=]() mutable {
-            auto rules = css::parse(fmt::format("p {{ {}: {} {} {}; }}"sv, property, values[0], values[1], values[2]));
+            auto rules =
+                    css::parse(fmt::format("p {{ {}: {} {} {}; }}"sv, property, values[0], values[1], values[2])).rules;
             require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -419,7 +423,8 @@ int main() {
                                              std::string post_fix = "") {
         return [=]() mutable {
             auto rules = css::parse(
-                    fmt::format("p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]));
+                    fmt::format("p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]))
+                                 .rules;
             require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -460,12 +465,13 @@ int main() {
                                {5}-top{1}: {3};
                                {5}-left{1}: {4};
                             }})"sv,
-                    property,
-                    post_fix,
-                    values[0],
-                    values[1],
-                    values[2],
-                    workaround_for_border_style));
+                                            property,
+                                            post_fix,
+                                            values[0],
+                                            values[1],
+                                            values[2],
+                                            workaround_for_border_style))
+                                 .rules;
             require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -506,13 +512,14 @@ int main() {
                                {6}-left{1}: {3};
                                {0}: {4} {5};
                             }})"sv,
-                    property,
-                    post_fix,
-                    values[0],
-                    values[1],
-                    values[2],
-                    values[3],
-                    workaround_for_border_style));
+                                            property,
+                                            post_fix,
+                                            values[0],
+                                            values[1],
+                                            values[2],
+                                            values[3],
+                                            workaround_for_border_style))
+                                 .rules;
             require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -543,7 +550,7 @@ int main() {
     }
 
     etest::test("parser: shorthand background color", [] {
-        auto rules = css::parse("p { background: red }"sv);
+        auto rules = css::parse("p { background: red }"sv).rules;
         require(rules.size() == 1);
 
         auto &p = rules[0];
@@ -552,7 +559,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with only size and generic font family", [] {
-        auto rules = css::parse("p { font: 1.5em sans-serif; }"sv);
+        auto rules = css::parse("p { font: 1.5em sans-serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -563,7 +570,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with size, line height, and generic font family", [] {
-        auto rules = css::parse("p { font: 10%/2.5 monospace; }"sv);
+        auto rules = css::parse("p { font: 10%/2.5 monospace; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -575,7 +582,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with absolute size, line height, and font family", [] {
-        auto rules = css::parse(R"(p { font: x-large/110% "New Century Schoolbook", serif; })"sv);
+        auto rules = css::parse(R"(p { font: x-large/110% "New Century Schoolbook", serif; })"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -587,7 +594,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with italic font style", [] {
-        auto rules = css::parse(R"(p { font: italic 120% "Helvetica Neue", serif; })"sv);
+        auto rules = css::parse(R"(p { font: italic 120% "Helvetica Neue", serif; })"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -599,7 +606,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with oblique font style", [] {
-        auto rules = css::parse(R"(p { font: oblique 12pt "Helvetica Neue", serif; })"sv);
+        auto rules = css::parse(R"(p { font: oblique 12pt "Helvetica Neue", serif; })"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -611,7 +618,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with font style oblique with angle", [] {
-        auto rules = css::parse("p { font: oblique 25deg 10px serif; }"sv);
+        auto rules = css::parse("p { font: oblique 25deg 10px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -623,7 +630,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with bold font weight", [] {
-        auto rules = css::parse("p { font: italic bold 20em/50% serif; }"sv);
+        auto rules = css::parse("p { font: italic bold 20em/50% serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -637,7 +644,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with bolder font weight", [] {
-        auto rules = css::parse("p { font: normal bolder 100px serif; }"sv);
+        auto rules = css::parse("p { font: normal bolder 100px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -649,7 +656,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with lighter font weight", [] {
-        auto rules = css::parse("p { font: lighter 100px serif; }"sv);
+        auto rules = css::parse("p { font: lighter 100px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -661,7 +668,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with 1000 font weight", [] {
-        auto rules = css::parse("p { font: 1000 oblique 100px serif; }"sv);
+        auto rules = css::parse("p { font: 1000 oblique 100px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -674,7 +681,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with 550 font weight", [] {
-        auto rules = css::parse("p { font: italic 550 100px serif; }"sv);
+        auto rules = css::parse("p { font: italic 550 100px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -687,7 +694,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with 1 font weight", [] {
-        auto rules = css::parse("p { font: oblique 1 100px serif; }"sv);
+        auto rules = css::parse("p { font: oblique 1 100px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -700,7 +707,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with smal1-caps font variant", [] {
-        auto rules = css::parse("p { font: small-caps 900 100px serif; }"sv);
+        auto rules = css::parse("p { font: small-caps 900 100px serif; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -713,7 +720,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with condensed font stretch", [] {
-        auto rules = css::parse(R"(p { font: condensed oblique 25deg 753 12pt "Helvetica Neue", serif; })"sv);
+        auto rules = css::parse(R"(p { font: condensed oblique 25deg 753 12pt "Helvetica Neue", serif; })"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -727,7 +734,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with exapnded font stretch", [] {
-        auto rules = css::parse("p { font: italic expanded bold xx-smal/80% monospace; }"sv);
+        auto rules = css::parse("p { font: italic expanded bold xx-smal/80% monospace; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -742,7 +749,7 @@ int main() {
     });
 
     etest::test("parser: font, single-argument", [] {
-        auto rules = css::parse("p { font: status-bar; }"sv);
+        auto rules = css::parse("p { font: status-bar; }"sv).rules;
         require(rules.size() == 1);
 
         auto p = rules[0];
@@ -751,7 +758,7 @@ int main() {
     });
 
     etest::test("parser: shorthand font with ultra-exapnded font stretch", [] {
-        auto rules = css::parse("p { font: small-caps italic ultra-expanded bold medium Arial, monospace; }"sv);
+        auto rules = css::parse("p { font: small-caps italic ultra-expanded bold medium Arial, monospace; }"sv).rules;
         require(rules.size() == 1);
 
         auto body = rules[0];
@@ -766,7 +773,7 @@ int main() {
     });
 
     etest::test("parser: border-radius shorthand, 1 value", [] {
-        auto rules = css::parse("div { border-radius: 5px; }");
+        auto rules = css::parse("div { border-radius: 5px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -779,7 +786,7 @@ int main() {
     });
 
     etest::test("parser: border-radius shorthand, 2 values", [] {
-        auto rules = css::parse("div { border-radius: 1px 2px; }");
+        auto rules = css::parse("div { border-radius: 1px 2px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -792,7 +799,7 @@ int main() {
     });
 
     etest::test("parser: border-radius shorthand, 3 values", [] {
-        auto rules = css::parse("div { border-radius: 1px 2px 3px; }");
+        auto rules = css::parse("div { border-radius: 1px 2px 3px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -805,7 +812,7 @@ int main() {
     });
 
     etest::test("parser: border-radius shorthand, 4 values", [] {
-        auto rules = css::parse("div { border-radius: 1px 2px 3px 4px; }");
+        auto rules = css::parse("div { border-radius: 1px 2px 3px 4px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -818,7 +825,7 @@ int main() {
     });
 
     etest::test("parser: border-radius, 1 value, separate horizontal and vertical", [] {
-        auto rules = css::parse("div { border-radius: 5px / 10px; }");
+        auto rules = css::parse("div { border-radius: 5px / 10px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -831,7 +838,7 @@ int main() {
     });
 
     etest::test("parser: border-radius, 2 values, separate horizontal and vertical", [] {
-        auto rules = css::parse("div { border-radius: 5px / 10px 15px; }");
+        auto rules = css::parse("div { border-radius: 5px / 10px 15px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -844,7 +851,7 @@ int main() {
     });
 
     etest::test("parser: border-radius, 3 values, separate horizontal and vertical", [] {
-        auto rules = css::parse("div { border-radius: 5px / 10px 15px 20px; }");
+        auto rules = css::parse("div { border-radius: 5px / 10px 15px 20px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -857,7 +864,7 @@ int main() {
     });
 
     etest::test("parser: border-radius, 4 values, separate horizontal and vertical", [] {
-        auto rules = css::parse("div { border-radius: 5px / 10px 15px 20px 25px; }");
+        auto rules = css::parse("div { border-radius: 5px / 10px 15px 20px 25px; }").rules;
         require(rules.size() == 1);
         auto const &div = rules[0];
         expect_eq(div.declarations,
@@ -882,7 +889,7 @@ int main() {
             })"sv;
 
         // No rules produced (yet!) since this isn't handled aside from not crashing.
-        auto rules = css::parse(css);
+        auto rules = css::parse(css).rules;
         expect(rules.empty());
     });
 
@@ -898,7 +905,7 @@ int main() {
             })"sv;
 
         // No rules produced (yet!) since this isn't handled aside from not crashing.
-        auto rules = css::parse(css);
+        auto rules = css::parse(css).rules;
         expect(rules.empty());
     });
 
@@ -911,7 +918,7 @@ int main() {
                      url("/fonts/OpenSans-Regular-webfont.woff") format("woff");
             })"sv;
 
-        auto rules = css::parse(css);
+        auto rules = css::parse(css).rules;
         expect_eq(rules.size(), std::size_t{1});
         expect_eq(rules[0].selectors, std::vector{"@font-face"s});
         expect_eq(rules[0].declarations.size(), std::size_t{2});
@@ -924,7 +931,7 @@ int main() {
     });
 
     etest::test("parser: border shorthand, all values", [] {
-        auto rules = css::parse("p { border: 5px black solid; }");
+        auto rules = css::parse("p { border: 5px black solid; }").rules;
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations,
@@ -945,7 +952,7 @@ int main() {
     });
 
     etest::test("parser: border shorthand, color+style", [] {
-        auto rules = css::parse("p { border-bottom: #123 dotted; }");
+        auto rules = css::parse("p { border-bottom: #123 dotted; }").rules;
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations,
@@ -957,7 +964,7 @@ int main() {
     });
 
     etest::test("parser: border shorthand, width+style", [] {
-        auto rules = css::parse("p { border-left: ridge 30em; }");
+        auto rules = css::parse("p { border-left: ridge 30em; }").rules;
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations,
@@ -969,7 +976,7 @@ int main() {
     });
 
     etest::test("parser: border shorthand, width", [] {
-        auto rules = css::parse("p { border-right: thin; }");
+        auto rules = css::parse("p { border-right: thin; }").rules;
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations,
@@ -981,7 +988,7 @@ int main() {
     });
 
     etest::test("parser: border shorthand, width, first character a dot", [] {
-        auto rules = css::parse("p { border-right: .3em; }");
+        auto rules = css::parse("p { border-right: .3em; }").rules;
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations,
@@ -993,7 +1000,7 @@ int main() {
     });
 
     etest::test("parser: border shorthand, too many values", [] {
-        auto rules = css::parse("p { border-top: outset #123 none solid; }");
+        auto rules = css::parse("p { border-top: outset #123 none solid; }").rules;
         require(rules.size() == 1);
         auto const &p = rules[0];
         expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});

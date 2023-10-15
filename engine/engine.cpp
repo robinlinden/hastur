@@ -84,10 +84,11 @@ void Engine::on_navigation_success() {
 
         // Style can only contain text, and we enforce this in our HTML parser.
         auto const &style_content = std::get<dom::Text>(style->children[0]);
-        auto new_rules = css::parse(style_content.text);
-        stylesheet_.reserve(stylesheet_.size() + new_rules.size());
-        stylesheet_.insert(
-                end(stylesheet_), std::make_move_iterator(begin(new_rules)), std::make_move_iterator(end(new_rules)));
+        auto new_rules = css::parse(style_content.text).rules;
+        stylesheet_.rules.reserve(stylesheet_.rules.size() + new_rules.size());
+        stylesheet_.rules.insert(end(stylesheet_.rules),
+                std::make_move_iterator(begin(new_rules)),
+                std::make_move_iterator(end(new_rules)));
     }
 
     auto head_links = dom::nodes_by_xpath(dom_.html(), "/html/head/link");
@@ -143,19 +144,19 @@ void Engine::on_navigation_success() {
                 return {};
             }
 
-            return css::parse(style_data.body);
+            return css::parse(style_data.body).rules;
         }));
     }
 
     // In order, wait for the download to finish and merge with the big stylesheet.
     for (auto &future_rules : future_new_rules) {
         auto rules = future_rules.get();
-        stylesheet_.reserve(stylesheet_.size() + rules.size());
-        stylesheet_.insert(
-                end(stylesheet_), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
+        stylesheet_.rules.reserve(stylesheet_.rules.size() + rules.size());
+        stylesheet_.rules.insert(
+                end(stylesheet_.rules), std::make_move_iterator(begin(rules)), std::make_move_iterator(end(rules)));
     }
 
-    spdlog::info("Styling dom w/ {} rules", stylesheet_.size());
+    spdlog::info("Styling dom w/ {} rules", stylesheet_.rules.size());
     styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
     layout_ = layout::create_layout(*styled_, layout_width_, whitespace_mode_);
     on_page_loaded_();

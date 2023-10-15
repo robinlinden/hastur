@@ -6,6 +6,7 @@
 #include "style/styled_node.h"
 
 #include "css/rule.h"
+#include "css/style_sheet.h"
 #include "etest/etest.h"
 
 #include <fmt/format.h>
@@ -40,7 +41,7 @@ void inline_css_tests() {
 
     etest::test("inline css: overrides the stylesheet", [] {
         dom::Node dom = dom::Element{"div", {{"style", {"font-size:2px"}}}};
-        auto styled = style::style_tree(dom, {css::Rule{{"div"}, {{css::PropertyId::FontSize, "2000px"}}}}, {});
+        auto styled = style::style_tree(dom, {{css::Rule{{"div"}, {{css::PropertyId::FontSize, "2000px"}}}}}, {});
 
         // The last property is the one that's applied.
         expect_eq(styled->properties,
@@ -139,10 +140,11 @@ int main() {
     });
 
     etest::test("matching_rules: simple names", [] {
-        std::vector<css::Rule> stylesheet;
+        css::StyleSheet stylesheet;
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
 
-        stylesheet.push_back(css::Rule{.selectors = {"span", "p"}, .declarations = {{css::PropertyId::Width, "80px"}}});
+        stylesheet.rules.push_back(
+                css::Rule{.selectors = {"span", "p"}, .declarations = {{css::PropertyId::Width, "80px"}}});
 
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
 
@@ -158,7 +160,7 @@ int main() {
             expect(p_rules[0] == std::pair{css::PropertyId::Width, "80px"s});
         }
 
-        stylesheet.push_back(
+        stylesheet.rules.push_back(
                 css::Rule{.selectors = {"span", "hr"}, .declarations = {{css::PropertyId::Height, "auto"}}});
 
         expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
@@ -184,14 +186,14 @@ int main() {
     });
 
     etest::test("matching_rules: media query", [] {
-        std::vector<css::Rule> stylesheet{
+        css::StyleSheet stylesheet{{
                 css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "red"}}},
-        };
+        }};
 
         expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet),
                 std::vector{std::pair{css::PropertyId::Color, "red"s}});
 
-        stylesheet[0].media_query = css::MediaQuery::parse("(min-width: 700px)");
+        stylesheet.rules[0].media_query = css::MediaQuery::parse("(min-width: 700px)");
         expect(style::matching_rules(dom::Element{"p"}, stylesheet).empty());
 
         expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet, {.window_width = 700}),
@@ -219,10 +221,10 @@ int main() {
         root.children.emplace_back(dom::Element{"head"});
         root.children.emplace_back(dom::Element{"body", {}, {dom::Element{"p"}}});
 
-        std::vector<css::Rule> stylesheet{
+        css::StyleSheet stylesheet{{
                 {.selectors = {"p"}, .declarations = {{css::PropertyId::Height, "100px"}}},
                 {.selectors = {"body"}, .declarations = {{css::PropertyId::FontSize, "500em"}}},
-        };
+        }};
 
         style::StyledNode expected{root};
         expected.children.push_back({root.children[0], {}, {}, &expected});

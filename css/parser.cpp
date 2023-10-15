@@ -241,8 +241,8 @@ constexpr std::optional<std::string_view> Parser::consume_while(T const &pred) {
     return input_.substr(start, pos_ - start);
 }
 
-std::vector<css::Rule> Parser::parse_rules() {
-    std::vector<css::Rule> rules;
+StyleSheet Parser::parse_rules() {
+    StyleSheet style;
     bool in_media_query{false};
     std::optional<MediaQuery> media_query;
 
@@ -255,7 +255,7 @@ std::vector<css::Rule> Parser::parse_rules() {
             auto tmp_query = consume_while([](char c) { return c != '{'; });
             if (!tmp_query) {
                 spdlog::error("Eof while looking for end of media-query");
-                return rules;
+                return style;
             }
 
             if (auto last_char = tmp_query->find_last_not_of(' '); last_char != std::string_view::npos) {
@@ -276,7 +276,7 @@ std::vector<css::Rule> Parser::parse_rules() {
             auto kind = consume_while([](char c) { return c != ' ' && c != '{' && c != '('; });
             if (!kind) {
                 spdlog::error("Eof while looking for end of at-rule");
-                return rules;
+                return style;
             }
 
             spdlog::warn("Encountered unhandled {} at-rule", *kind);
@@ -289,7 +289,7 @@ std::vector<css::Rule> Parser::parse_rules() {
             while (peek() != '}') {
                 if (auto rule = parse_rule(); !rule) {
                     spdlog::error("Eof while looking for end of rule in unknown at-rule");
-                    return rules;
+                    return style;
                 }
 
                 skip_whitespace_and_comments();
@@ -303,11 +303,11 @@ std::vector<css::Rule> Parser::parse_rules() {
         auto rule = parse_rule();
         if (!rule) {
             spdlog::error("Eof while parsing rule");
-            return rules;
+            return style;
         }
 
-        rules.push_back(*std::move(rule));
-        rules.back().media_query = media_query;
+        style.rules.push_back(*std::move(rule));
+        style.rules.back().media_query = media_query;
 
         skip_whitespace_and_comments();
 
@@ -319,7 +319,7 @@ std::vector<css::Rule> Parser::parse_rules() {
         }
     }
 
-    return rules;
+    return style;
 }
 
 constexpr std::optional<char> Parser::peek() const {

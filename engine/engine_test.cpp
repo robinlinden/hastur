@@ -63,7 +63,7 @@ int main() {
         }};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect_eq(e.stylesheet().back(),
+        expect_eq(e.stylesheet().rules.back(),
                 css::Rule{
                         .selectors{"p"},
                         .declarations{{css::PropertyId::FontSize, "123em"}},
@@ -200,8 +200,8 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(contains(e.stylesheet(), {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
-        expect(contains(e.stylesheet(), {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+        expect(contains(e.stylesheet().rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        expect(contains(e.stylesheet().rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
 
     etest::test("stylesheet link, unsupported Content-Encoding", [] {
@@ -219,7 +219,7 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(!contains(e.stylesheet(), {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        expect(!contains(e.stylesheet().rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
     });
 
     // p { font-size: 123em; }, gzipped.
@@ -244,12 +244,12 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
+        expect(std::ranges::find(e.stylesheet().rules,
                        css::Rule{
                                .selectors{"p"},
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
-                != end(e.stylesheet()));
+                != end(e.stylesheet().rules));
 
         // And again, but with x-gzip instead.
         responses["hax://example.com/lol.css"s] = Response{
@@ -260,12 +260,12 @@ int main() {
         };
         e = engine::Engine{std::make_unique<FakeProtocolHandler>(responses)};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
+        expect(std::ranges::find(e.stylesheet().rules,
                        css::Rule{
                                .selectors{"p"},
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
-                != end(e.stylesheet()));
+                != end(e.stylesheet().rules));
     });
 
     etest::test("stylesheet link, gzip Content-Encoding, bad header", [gzipped_css]() mutable {
@@ -285,12 +285,12 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
+        expect(std::ranges::find(e.stylesheet().rules,
                        css::Rule{
                                .selectors{"p"},
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
-                == end(e.stylesheet()));
+                == end(e.stylesheet().rules));
     });
 
     etest::test("stylesheet link, gzip Content-Encoding, crc32 mismatch", [gzipped_css]() mutable {
@@ -310,12 +310,12 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
+        expect(std::ranges::find(e.stylesheet().rules,
                        css::Rule{
                                .selectors{"p"},
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
-                == end(e.stylesheet()));
+                == end(e.stylesheet().rules));
     });
 
     etest::test("stylesheet link, gzip Content-Encoding, served zlib", [zlibbed_css] {
@@ -333,12 +333,12 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
+        expect(std::ranges::find(e.stylesheet().rules,
                        css::Rule{
                                .selectors{"p"},
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
-                == end(e.stylesheet()));
+                == end(e.stylesheet().rules));
     });
 
     etest::test("stylesheet link, deflate Content-Encoding", [zlibbed_css] {
@@ -356,12 +356,12 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        expect(std::ranges::find(e.stylesheet(),
+        expect(std::ranges::find(e.stylesheet().rules,
                        css::Rule{
                                .selectors{"p"},
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
-                != end(e.stylesheet()));
+                != end(e.stylesheet().rules));
     });
 
     etest::test("redirect", [] {

@@ -8,13 +8,13 @@
 
 #include "css/property_id.h"
 #include "css/rule.h"
+#include "css/style_sheet.h"
 
 #include <concepts>
 #include <cstddef>
 #include <optional>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 namespace css {
 
@@ -25,7 +25,7 @@ class Parser {
 public:
     explicit Parser(std::string_view input) : input_{input} {}
 
-    std::vector<css::Rule> parse_rules();
+    StyleSheet parse_rules();
 
 private:
     std::string_view input_;
@@ -77,7 +77,7 @@ private:
     void expand_font(std::map<PropertyId, std::string> &declarations, std::string_view value) const;
 };
 
-inline std::vector<Rule> parse(std::string_view input) {
+inline StyleSheet parse(std::string_view input) {
     return Parser{input}.parse_rules();
 }
 

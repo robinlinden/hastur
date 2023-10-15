@@ -129,10 +129,10 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
 }
 
 std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
-        style::StyledNode const &node, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const &ctx) {
+        style::StyledNode const &node, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
     std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
 
-    for (auto const &rule : stylesheet) {
+    for (auto const &rule : stylesheet.rules) {
         if (rule.media_query.has_value() && !rule.media_query->evaluate(ctx)) {
             continue;
         }
@@ -147,7 +147,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         if (style_attr != element->attributes.end()) {
             // TODO(robinlinden): Incredibly hacky, but our //css parser doesn't support
             // parsing only declarations. Replace with the //css2 parser once possible.
-            auto element_style = css::parse("dummy{"s + style_attr->second + "}"s);
+            auto element_style = css::parse("dummy{"s + style_attr->second + "}"s).rules;
             // The above should always parse to 1 rule when using the old parser.
             assert(element_style.size() == 1);
             if (element_style.size() == 1) {
@@ -162,7 +162,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
 namespace {
 void style_tree_impl(StyledNode &current,
         dom::Node const &root,
-        std::vector<css::Rule> const &stylesheet,
+        css::StyleSheet const &stylesheet,
         css::MediaQuery::Context const &ctx) {
     auto const *element = std::get_if<dom::Element>(&root);
     if (element == nullptr) {
@@ -183,7 +183,7 @@ void style_tree_impl(StyledNode &current,
 } // namespace
 
 std::unique_ptr<StyledNode> style_tree(
-        dom::Node const &root, std::vector<css::Rule> const &stylesheet, css::MediaQuery::Context const &ctx) {
+        dom::Node const &root, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
     // TODO(robinlinden): std::make_unique once Clang supports it (C++20/p0960). Not supported as of Clang 14.
     auto tree_root = std::unique_ptr<StyledNode>(new StyledNode{root});
     style_tree_impl(*tree_root, root, stylesheet, ctx);
