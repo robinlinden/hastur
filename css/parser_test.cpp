@@ -1025,5 +1025,47 @@ int main() {
         std::ignore = css::parse("p { font-size:");
     });
 
+    etest::test("parser: flex-flow shorthand, global value", [] {
+        expect_eq(css::parse("p { flex-flow: revert; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::FlexDirection, "revert"s},
+                        {css::PropertyId::FlexWrap, "revert"s},
+                });
+        expect_eq(css::parse("p { flex-flow: revert row; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{});
+    });
+
+    etest::test("parser: flex-flow shorthand, one value", [] {
+        expect_eq(css::parse("p { flex-flow: column; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::FlexDirection, "column"s},
+                        {css::PropertyId::FlexWrap, "nowrap"s},
+                });
+        expect_eq(css::parse("p { flex-flow: wrap; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::FlexDirection, "row"s},
+                        {css::PropertyId::FlexWrap, "wrap"s},
+                });
+        expect_eq(css::parse("p { flex-flow: aaaaaaaaaa; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{});
+    });
+
+    etest::test("parser: flex-flow shorthand, two values", [] {
+        expect_eq(css::parse("p { flex-flow: column wrap; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::FlexDirection, "column"s},
+                        {css::PropertyId::FlexWrap, "wrap"s},
+                });
+        expect_eq(css::parse("p { flex-flow: wrap wrap; }").rules.at(0).declarations, //
+                std::map<css::PropertyId, std::string>{});
+        expect_eq(css::parse("p { flex-flow: wrap asdf; }").rules.at(0).declarations, //
+                std::map<css::PropertyId, std::string>{});
+    });
+
+    etest::test("parser: flex-flow shorthand, too many values :(", [] {
+        expect_eq(css::parse("p { flex-flow: column wrap nowrap; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{});
+    });
+
     return etest::run_all_tests();
 }

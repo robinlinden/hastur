@@ -71,6 +71,9 @@ private:
 
     static void expand_text_decoration_values(std::map<PropertyId, std::string> &declarations, std::string_view value);
 
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
+    static void expand_flex_flow(std::map<PropertyId, std::string> &, std::string_view);
+
     void expand_edge_values(
             std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const;
 

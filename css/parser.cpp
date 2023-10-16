@@ -437,6 +437,8 @@ void Parser::add_declaration(
         expand_border_radius_values(declarations, value);
     } else if (name == "text-decoration") {
         expand_text_decoration_values(declarations, value);
+    } else if (name == "flex-flow") {
+        expand_flex_flow(declarations, value);
     } else if (is_in_array<kBorderShorthandProperties>(name)) {
         expand_border(name, declarations, value);
     } else {
@@ -636,6 +638,62 @@ void Parser::expand_text_decoration_values(std::map<PropertyId, std::string> &de
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
     declarations.insert_or_assign(PropertyId::TextDecorationLine, tokenizer.get().value());
     declarations.insert_or_assign(PropertyId::TextDecorationStyle, "solid");
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
+void Parser::expand_flex_flow(std::map<PropertyId, std::string> &declarations, std::string_view value) {
+    static constexpr std::array kGlobalValues{"inherit", "initial", "revert", "revert-layer", "unset"};
+
+    auto is_wrap = [](std::string_view str) {
+        return str == "wrap" || str == "nowrap" || str == "wrap-reverse";
+    };
+    auto is_direction = [](std::string_view str) {
+        return str == "row" || str == "row-reverse" || str == "column" || str == "column-reverse";
+    };
+
+    std::string direction{"row"};
+    std::string wrap{"nowrap"};
+
+    Tokenizer tokenizer{value, ' '};
+    if (tokenizer.size() != 1 && tokenizer.size() != 2) {
+        spdlog::warn("Unsupported flex-flow value: '{}'", value);
+        return;
+    }
+
+    auto first = tokenizer.get();
+    auto second = tokenizer.next().get();
+    // Global values are only allowed if there's a single value.
+    if (first && !second && is_in_array<kGlobalValues>(*first)) {
+        wrap = direction = *first;
+        declarations.insert_or_assign(PropertyId::FlexDirection, std::move(direction));
+        declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
+        return;
+    }
+
+    // No duplicates of wrap or direction allowed.
+    if ((first && second)
+            && ((is_wrap(*first) && !is_direction(*second)) || (is_direction(*first) && !is_wrap(*second)))) {
+        spdlog::warn("Unsupported flex-flow value: '{}'", value);
+        return;
+    }
+
+    for (auto const &v : std::array{first, second}) {
+        if (!v) {
+            continue;
+        }
+
+        if (is_wrap(*v)) {
+            wrap = *v;
+        } else if (is_direction(*v)) {
+            direction = *v;
+        } else {
+            spdlog::warn("Unsupported flex-flow value: '{}'", value);
+            return;
+        }
+    }
+
+    declarations.insert_or_assign(PropertyId::FlexDirection, std::move(direction));
+    declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
 }
 
 void Parser::expand_edge_values(
