@@ -36,6 +36,17 @@ std::map<css::PropertyId, std::string_view> const initial_values{
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color#formal_definition
         {css::PropertyId::Color, "canvastext"sv},
 
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis#formal_definition
+        {css::PropertyId::FlexBasis, "auto"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction#formal_definition
+        {css::PropertyId::FlexDirection, "row"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-grow#formal_definition
+        {css::PropertyId::FlexGrow, "0"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink#formal_definition
+        {css::PropertyId::FlexShrink, "1"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap#formal_definition
+        {css::PropertyId::FlexWrap, "nowrap"sv},
+
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-size#formal_definition
         {css::PropertyId::FontSize, "medium"sv},
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#formal_definition
