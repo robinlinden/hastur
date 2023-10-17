@@ -11,32 +11,24 @@ alias(
 # TODO(robinlinden): Modernize our GL setup.
 GLAD_CMD = "$(location :run_glad) --reproducible --api 'gl:core=3.1' --out-path $(RULEDIR) c --loader ;"
 
-genrule(
-    name = "generate_glad_hdrs",
-    outs = [
-        "glad/gl.h",
-        "KHR/khrplatform.h",
-    ],
-    cmd = GLAD_CMD + """
-        mv $(RULEDIR)/include/glad $(RULEDIR) ;
-        mv $(RULEDIR)/include/KHR $(RULEDIR)
-    """,
-    tools = [":run_glad"],
-)
+GLAD_HDRS = [
+    "KHR/khrplatform.h",
+    "glad/gl.h",
+]
+
+GLAD_SRCS = ["src/gl.c"]
 
 genrule(
-    name = "generate_glad_srcs",
-    outs = ["gl.c"],
-    cmd = GLAD_CMD + """
-        mv $(RULEDIR)/src/gl.c $(RULEDIR)
-    """,
+    name = "generate_glad",
+    outs = GLAD_HDRS + GLAD_SRCS,
+    cmd = GLAD_CMD + "mv $(RULEDIR)/include/* $(RULEDIR)",
     tools = [":run_glad"],
 )
 
 cc_library(
     name = "glad",
-    srcs = [":generate_glad_srcs"],
-    hdrs = [":generate_glad_hdrs"],
+    srcs = GLAD_SRCS,
+    hdrs = GLAD_HDRS,
     includes = ["."],
     visibility = ["//visibility:public"],
 )
