@@ -296,14 +296,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
 
             if (auto text = box.text()) {
                 // TODO(robinlinden): Measure the text for real.
-                if (text->contains('\n')) {
-                    for (auto const &line : util::split(*text, "\n")) {
-                        box.dimensions.content.width =
-                                std::max(box.dimensions.content.width, text_width(line, font_size));
-                    }
-                } else {
-                    box.dimensions.content.width = text_width(*text, font_size);
-                }
+                box.dimensions.content.width = text_width(*text, font_size);
             }
 
             if (box.node->parent) {
