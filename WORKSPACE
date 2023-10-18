@@ -21,9 +21,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    sha256 = "5868e73107a8e85d8f323806e60cad7283f34b32163ea6ff1020cf27abef6036",
-    strip_prefix = "rules_python-0.25.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.25.0/rules_python-0.25.0.tar.gz",
+    sha256 = "9d04041ac92a0985e344235f5d946f71ac543f1b1565f2cdbc9a2aaee8adf55b",
+    strip_prefix = "rules_python-0.26.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.26.0/rules_python-0.26.0.tar.gz",
 )
 
 # Third-party Bazel
@@ -312,18 +312,7 @@ http_archive(
 # This needs to go last so that we can override any dependencies these calls may
 # pull in.
 
-load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
-
-rules_fuzzing_dependencies()
-
-load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
-
-rules_fuzzing_init()
-
-load("@fuzzing_py_deps//:requirements.bzl", fuzzing_py_deps_install_deps = "install_deps")
-
-fuzzing_py_deps_install_deps()
-
+# rules_python
 load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
 
 py_repositories()
@@ -332,7 +321,7 @@ python_register_toolchains(
     name = "python_3_11",
     # Running the build as root works, but leads to cache-misses for .pyc files.
     ignore_root_user_error = True,
-    python_version = "3.11.4",
+    python_version = "3.11.6",
 )
 
 load("@python_3_11//:defs.bzl", "interpreter")
@@ -348,10 +337,26 @@ load("@pypi//:requirements.bzl", pypi_install_deps = "install_deps")
 
 pypi_install_deps()
 
+# rules_fuzzing
+# Must be after rules_python due to not calling py_repositories when it should.
+load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
+
+rules_fuzzing_dependencies()
+
+load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
+
+rules_fuzzing_init()
+
+load("@fuzzing_py_deps//:requirements.bzl", fuzzing_py_deps_install_deps = "install_deps")
+
+fuzzing_py_deps_install_deps()
+
+# hermetic_cc_toolchain
 load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
 
 zig_toolchains()
 
+# hedron_compile_commands
 load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
 
 hedron_compile_commands_setup()
