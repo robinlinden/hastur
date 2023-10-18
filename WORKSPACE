@@ -3,10 +3,11 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Bazel
 # =========================================================
 
+# https://github.com/bazelbuild/platforms
 http_archive(
     name = "platforms",  # Apache-2.0
-    sha256 = "3a561c99e7bdbe9173aa653fd579fe849f1d8d67395780ab4770b1f381431d51",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.7/platforms-0.0.7.tar.gz",
+    sha256 = "8150406605389ececb6da07cbcb509d5637a3ab9a24bc69b1101531367d89d74",
+    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.8/platforms-0.0.8.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
@@ -81,9 +82,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "e3f0fc8856e5469a3398ade487b8a119a31bd858eb492fa150e4bb95815e49c7",
-    strip_prefix = "boringssl-99f652dbeda9640e70fb7e1a8f70c27103c621b7",
-    url = "https://github.com/google/boringssl/archive/99f652dbeda9640e70fb7e1a8f70c27103c621b7.tar.gz",
+    sha256 = "0573cc6da0a1dd33133bb7ea8d80faa9f81a6aa09d13d0e0639c2355db058aea",
+    strip_prefix = "boringssl-b4cb94936fc6eeeb89d0bd5a596c03aa58f57661",
+    url = "https://github.com/google/boringssl/archive/b4cb94936fc6eeeb89d0bd5a596c03aa58f57661.tar.gz",
 )
 
 http_archive(
@@ -233,13 +234,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.3.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.267"
+VULKAN_TAG = "1.3.268"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "72120553215bb631275a38a5359ad812837165ab8ddd8e33597dd52c7d80d627",
+    sha256 = "d5c59d5fc3ab264006dfea1eb1a11f609ea5dfa8319a5aaca061007828012a78",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -248,7 +249,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "c763d8a7af8e30c40a087c00b58cb6ab4853ab47a60a1a5f3ab658d0c269ff10",
+    sha256 = "f04433c20b32c8f4f2769ce2910639746b65ae2548f2bbe0be3f1a81ef89c4c2",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
