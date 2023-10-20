@@ -13,9 +13,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_fuzzing
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "61e246849f77571f79a2bd6899b81636aac68334386a86ff925769f14ee203a5",
-    strip_prefix = "rules_fuzzing-0.4.0",
-    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.4.0.tar.gz",
+    sha256 = "f6f3f42c48576acd5653bf07637deee2ae4ebb77ccdb0dacc67c184508bedc8c",
+    strip_prefix = "rules_fuzzing-0.4.1",
+    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.4.1.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_python
@@ -59,15 +59,6 @@ http_archive(
 
 # Third-party
 # =========================================================
-
-# We don't use this, but rules_fuzzing does, and the version they depend on
-# doesn't work with Clang 16 due to undeclared inclusions.
-http_archive(
-    name = "com_google_absl",  # Apache-2.0
-    sha256 = "987ce98f02eefbaf930d6e38ab16aa05737234d7afbab2d5c4ea7adbe50c28ed",
-    strip_prefix = "abseil-cpp-20230802.1",
-    url = "https://github.com/abseil/abseil-cpp/archive/20230802.1.tar.gz",
-)
 
 http_archive(
     name = "asio",  # BSL-1.0
