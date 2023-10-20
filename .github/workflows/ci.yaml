@@ -51,16 +51,6 @@ jobs:
             version: 15
             bazel: --config ubsan
 
-          - name: clang-15
-            os: ubuntu-22.04
-            compiler: clang
-            version: 15
-
-          - name: clang-16
-            os: ubuntu-22.04
-            compiler: clang
-            version: 16
-
           - name: clang-17
             os: ubuntu-22.04
             compiler: clang
@@ -72,13 +62,6 @@ jobs:
             version: 15
             bazel: --config libc++
             apt: libc++abi-15-dev libc++-15-dev
-
-          - name: clang-16-libc++
-            os: ubuntu-22.04
-            compiler: clang
-            version: 16
-            bazel: --config libc++
-            apt: libc++abi-16-dev libc++-16-dev
 
           - name: clang-17-libc++
             os: ubuntu-22.04
