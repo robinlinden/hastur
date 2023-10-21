@@ -11,6 +11,7 @@
 #include "render/render.h"
 #include "uri/uri.h"
 
+#include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Event.hpp>
 #include <fmt/format.h>
 #include <imgui-SFML.h>
@@ -370,6 +371,7 @@ int App::run() {
 }
 
 void App::navigate() {
+    window_.setIcon(16, 16, kBrowserIcon.data());
     page_loaded_ = false;
     auto uri = uri::Uri::parse(url_buf_, engine_.uri());
     browse_history_.push(uri);
@@ -441,6 +443,32 @@ void App::on_page_loaded() {
         window_.setTitle(fmt::format("{} - {}", *page_title, browser_title_));
     } else {
         window_.setTitle(browser_title_);
+    }
+
+    // TODO(robinlinden): Non-blocking load of favicon.
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel#icon
+    auto is_favicon_link = [](dom::Element const *v) {
+        auto rel = v->attributes.find("rel");
+        return rel != end(v->attributes) && rel->second == "icon" && v->attributes.contains("href");
+    };
+
+    auto links = dom::nodes_by_xpath(engine_.dom().html(), "/html/head/link");
+    std::ranges::reverse(links);
+    for (auto const &link : links) {
+        if (!is_favicon_link(link)) {
+            continue;
+        }
+
+        auto uri = uri::Uri::parse(link->attributes.at("href"), engine_.uri());
+        auto icon = engine_.load(uri).response;
+        sf::Image favicon;
+        if (icon.err != protocol::Error::Ok || !favicon.loadFromMemory(icon.body.data(), icon.body.size())) {
+            spdlog::warn("Error loading favicon from '{}': {}", uri.uri, to_string(icon.err));
+            continue;
+        }
+
+        window_.setIcon(favicon.getSize().x, favicon.getSize().y, favicon.getPixelsPtr());
+        break;
     }
 
     update_status_line();
