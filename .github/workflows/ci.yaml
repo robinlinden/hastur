@@ -194,9 +194,6 @@ jobs:
       # - name: Run
       #   run: bazel run browser:tui -c dbg
 
-  # The current Bazel release doesn't understand the clang-cl 16 include path
-  # yet, so patch the .bazelversion to a version that does.
-  # see: https://github.com/bazelbuild/bazel/issues/17863
   windows-clang-cl:
     runs-on: windows-2022
     timeout-minutes: 45
@@ -211,8 +208,6 @@ jobs:
           key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
-      - run: echo "6.4.0rc1" >.bazelversion
-      - run: bazel --version
       - run: bazel test ...
       # TODO(robinlinden): This no longer runs in CI due to http://example.com
       # being inaccessible.
