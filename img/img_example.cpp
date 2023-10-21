@@ -6,10 +6,9 @@
 #include "img/png.h"
 #include "img/qoi.h"
 
-#include <SFML/Graphics/Image.hpp>
+#include "gfx/sfml_canvas.h"
+
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include <algorithm>
@@ -110,12 +109,7 @@ int main(int argc, char **argv) {
     window.setVerticalSyncEnabled(true);
     window.setActive(true);
 
-    sf::Image sf_image{};
-    sf_image.create(width, height, bytes.data());
-    sf::Texture texture{};
-    texture.loadFromImage(sf_image);
-    sf::Sprite sprite{};
-    sprite.setTexture(texture);
+    gfx::SfmlCanvas canvas{window};
 
     bool running = true;
     while (running) {
@@ -126,16 +120,15 @@ int main(int argc, char **argv) {
                     running = false;
                     break;
                 case sf::Event::Resized:
-                    window.setView(sf::View{sf::FloatRect{
-                            0, 0, static_cast<float>(event.size.width), static_cast<float>(event.size.height)}});
+                    canvas.set_viewport_size(event.size.width, event.size.height);
                     break;
                 default:
                     break;
             }
         }
 
-        window.clear();
-        window.draw(sprite);
+        canvas.clear(gfx::Color{});
+        canvas.draw_pixels({0, 0, static_cast<int>(width), static_cast<int>(height)}, bytes);
         window.display();
     }
 }
