@@ -233,6 +233,11 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: clang_tidy-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
+          restore-keys: clang_tidy-
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
