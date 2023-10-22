@@ -5,6 +5,7 @@
 #ifndef WASM_LEB128_H_
 #define WASM_LEB128_H_
 
+#include <cassert>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
@@ -35,6 +36,7 @@ struct Leb128<T> {
             if (i == max_bytes - 1) {
                 // This is the last byte we'll read. Check that any extra bits are all 0.
                 auto remaining_value_bits = sizeof(T) * 8 - (max_bytes - 1) * std::size_t{7};
+                assert(remaining_value_bits < 8);
                 auto extra_bits_mask = (0xff << remaining_value_bits) & 0b0111'1111;
                 auto extra_bits = byte & extra_bits_mask;
                 if (extra_bits != 0) {
@@ -75,6 +77,7 @@ struct Leb128<T> {
             if (i == max_bytes - 1) {
                 // This is the last byte we'll read. Check that any extra bits are all 0.
                 auto remaining_value_bits = sizeof(T) * 8 - (max_bytes - 1) * std::size_t{7} - 1;
+                assert(remaining_value_bits < 8);
                 auto extra_bits_mask = (0xff << remaining_value_bits) & kNonContinuationBits;
                 auto extra_bits = byte & extra_bits_mask;
                 if (extra_bits != 0 && extra_bits != extra_bits_mask) {
