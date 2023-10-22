@@ -183,7 +183,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/bazel
-          key: windows_msvc-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+          key: windows_msvc-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
       - name: Build
         run: bazel build ... -c dbg
@@ -205,7 +205,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/bazel
-          key: windows_clang_cl-${{ hashFiles('WORKSPACE', 'third_party/**') }}
+          key: windows_clang_cl-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
       - run: bazel test ...
