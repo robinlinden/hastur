@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "wasm/instructions.h"
 #include "wasm/wasm.h"
 
 #include <algorithm>
@@ -9,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <sstream>
 
 namespace wasm {
 std::ostream &operator<<(std::ostream &, wasm::ValueType);
@@ -112,6 +114,14 @@ int main(int argc, char **argv) {
                 std::cout << " (" << local.type << ": " << local.count << ')';
             }
             std::cout << '\n';
+
+            std::stringstream ss{std::string{reinterpret_cast<char const *>(e.code.data()), e.code.size()}};
+            auto instructions = wasm::instructions::parse(ss);
+            if (!instructions) {
+                std::cout << "Unable to parse instructions!\n";
+            } else {
+                std::cout << "Entry has " << instructions->size() << " instruction\n";
+            }
         }
     }
 }
