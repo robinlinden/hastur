@@ -6,6 +6,7 @@
 #define AZM_ASSEMBLER_H_
 
 #include <cstdint>
+#include <iostream>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -42,12 +43,28 @@ class Amd64Assembler {
 public:
     [[nodiscard]] std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
 
+    void add(Reg32 dst, Imm32 imm32) {
+        if (dst != Reg32::Eax) {
+            std::cerr << "add: Unhandled dst " << static_cast<int>(dst) << '\n';
+            ud2();
+            return;
+        }
+
+        emit(0x05);
+        emit(imm32);
+    }
+
     void mov(Reg32 dst, Imm32 imm32) {
         emit(0xb8 + register_index(dst).value());
         emit(imm32);
     }
 
     void ret() { emit(0xc3); }
+
+    void ud2() {
+        emit(0x0f);
+        emit(0x0b);
+    }
 
 private:
     void emit(std::uint8_t byte) { assembled_.push_back(byte); }

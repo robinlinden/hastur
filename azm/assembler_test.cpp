@@ -24,6 +24,23 @@ int main() {
         a.expect_eq(register_index(static_cast<Reg32>(std::underlying_type_t<Reg32>{30})), std::nullopt);
     });
 
+    s.add_test("ADD EAX, imm32", [](etest::IActions &a) {
+        Amd64Assembler assembler;
+
+        assembler.add(Reg32::Eax, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x05, 0x42, 0, 0, 0});
+    });
+
+    s.add_test("ADD w/ unsupported dst is ud2", [](etest::IActions &a) {
+        Amd64Assembler assembler;
+
+        assembler.add(Reg32::Edx, Imm32{0x42});
+        auto unsupported_add_code = assembler.take_assembled();
+
+        assembler.ud2();
+        a.expect_eq(unsupported_add_code, assembler.take_assembled());
+    });
+
     s.add_test("MOV r32, imm32", [](etest::IActions &a) {
         Amd64Assembler assembler;
 
@@ -39,6 +56,13 @@ int main() {
 
         assembler.ret();
         a.expect_eq(assembler.take_assembled(), CodeVec{0xc3});
+    });
+
+    s.add_test("UD2", [](etest::IActions &a) {
+        Amd64Assembler assembler;
+
+        assembler.ud2();
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x0f, 0x0b});
     });
 
     return s.run();
