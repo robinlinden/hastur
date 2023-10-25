@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
@@ -11,5 +11,20 @@ cc_library(
         "//layout",
         "@ftxui",
         "@spdlog",
+    ],
+)
+
+cc_test(
+    name = "tui_test",
+    size = "small",
+    srcs = ["tui_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":tui",
+        "//dom",
+        "//etest",
+        "//layout",
+        "//style",
+        "//util:string",
     ],
 )
