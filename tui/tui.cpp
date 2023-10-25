@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -29,8 +29,8 @@ ftxui::Elements parse_children(layout::LayoutBox const &box) {
 ftxui::Element element_from_node(layout::LayoutBox const &box) {
     switch (box.type) {
         case layout::LayoutType::Inline: {
-            if (auto const *text = std::get_if<dom::Text>(&box.node->node)) {
-                return ftxui::paragraph(text->text);
+            if (auto text = box.text()) {
+                return ftxui::paragraph(std::string{*text});
             }
             return hbox(parse_children(box));
         }

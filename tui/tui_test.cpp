@@ -23,5 +23,13 @@ int main() {
         a.expect_eq(util::trim(rendered), "Hello, world!");
     });
 
+    s.add_test("Whitespace-collapsing", [](etest::IActions &a) {
+        dom::Node dom{dom::Element{"div", {}, {dom::Text{"Hello,              world!"}}}};
+        auto style = style::style_tree(dom, {{css::Rule{{"div"}, {{css::PropertyId::Display, "block"}}}}});
+        auto layout = layout::create_layout(*style, 9000);
+        auto rendered = tui::render(layout.value());
+        a.expect_eq(util::trim(rendered), "Hello, world!");
+    });
+
     return s.run();
 }
