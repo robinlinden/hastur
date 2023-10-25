@@ -3,13 +3,13 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "azm",
-    hdrs = ["assembler.h"],
+    hdrs = glob(["**/*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
 )
 
 [cc_test(
-    name = src[:-4],
+    name = src[:-4].replace("/", "_"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
@@ -18,7 +18,7 @@ cc_library(
         "//etest",
     ],
 ) for src in glob(
-    include = ["*_test.cpp"],
+    include = ["**/*_test.cpp"],
 )]
 
 cc_binary(

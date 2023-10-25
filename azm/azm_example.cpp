@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "azm/assembler.h"
+#include "azm/amd64/assembler.h"
 
 #include <algorithm>
 #include <iostream>
 #include <iterator>
 
 int main() {
-    using namespace azm;
-    Amd64Assembler assembler;
+    using namespace azm::amd64;
+    Assembler assembler;
     assembler.mov(Reg32::Eax, Imm32{3});
     assembler.add(Reg32::Eax, Imm32{39});
     assembler.mov(Reg32::Ecx, Imm32{0x4321});

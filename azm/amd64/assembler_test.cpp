@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "azm/assembler.h"
+#include "azm/amd64/assembler.h"
 
 #include "etest/etest2.h"
 
@@ -14,7 +14,7 @@ using CodeVec = std::vector<std::uint8_t>;
 
 int main() {
     etest::Suite s{"assembler::amd64"};
-    using namespace azm;
+    using namespace azm::amd64;
 
     s.add_test("Register index", [](etest::IActions &a) {
         a.expect_eq(register_index(Reg32::Eax), 0);
@@ -25,14 +25,14 @@ int main() {
     });
 
     s.add_test("ADD EAX, imm32", [](etest::IActions &a) {
-        Amd64Assembler assembler;
+        Assembler assembler;
 
         assembler.add(Reg32::Eax, Imm32{0x42});
         a.expect_eq(assembler.take_assembled(), CodeVec{0x05, 0x42, 0, 0, 0});
     });
 
     s.add_test("ADD w/ unsupported dst is ud2", [](etest::IActions &a) {
-        Amd64Assembler assembler;
+        Assembler assembler;
 
         assembler.add(Reg32::Edx, Imm32{0x42});
         auto unsupported_add_code = assembler.take_assembled();
@@ -42,7 +42,7 @@ int main() {
     });
 
     s.add_test("MOV r32, imm32", [](etest::IActions &a) {
-        Amd64Assembler assembler;
+        Assembler assembler;
 
         assembler.mov(Reg32::Eax, Imm32{0xdeadbeef});
         a.expect_eq(assembler.take_assembled(), CodeVec{0xb8, 0xef, 0xbe, 0xad, 0xde});
@@ -52,14 +52,14 @@ int main() {
     });
 
     s.add_test("RET", [](etest::IActions &a) {
-        Amd64Assembler assembler;
+        Assembler assembler;
 
         assembler.ret();
         a.expect_eq(assembler.take_assembled(), CodeVec{0xc3});
     });
 
     s.add_test("UD2", [](etest::IActions &a) {
-        Amd64Assembler assembler;
+        Assembler assembler;
 
         assembler.ud2();
         a.expect_eq(assembler.take_assembled(), CodeVec{0x0f, 0x0b});

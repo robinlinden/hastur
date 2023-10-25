@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef AZM_ASSEMBLER_H_
-#define AZM_ASSEMBLER_H_
+#ifndef AZM_AMD64_ASSEMBLER_H_
+#define AZM_AMD64_ASSEMBLER_H_
 
 #include <cstdint>
 #include <iostream>
@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-namespace azm {
+namespace azm::amd64 {
 
 enum class Reg32 {
     Eax,
@@ -39,7 +39,7 @@ constexpr std::optional<std::uint8_t> register_index(Reg32 reg) {
 }
 
 // https://www.felixcloutier.com/x86/
-class Amd64Assembler {
+class Assembler {
 public:
     [[nodiscard]] std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
 
@@ -78,6 +78,6 @@ private:
     std::vector<std::uint8_t> assembled_;
 };
 
-} // namespace azm
+} // namespace azm::amd64
 
 #endif
