@@ -220,21 +220,21 @@ std::optional<ValueType> ValueType::parse(std::istream &is) {
     }
 }
 
-tl::expected<Module, ParseError> Module::parse_from(std::istream &is) {
+tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
     std::string buf;
 
     // https://webassembly.github.io/spec/core/binary/modules.html#binary-magic
     buf.resize(kMagicSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\0asm"sv) {
-        return tl::unexpected{ParseError::InvalidMagic};
+        return tl::unexpected{ModuleParseError::InvalidMagic};
     }
 
     // https://webassembly.github.io/spec/core/binary/modules.html#binary-version
     buf.resize(kVersionSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\1\0\0\0"sv) {
-        return tl::unexpected{ParseError::UnsupportedVersion};
+        return tl::unexpected{ModuleParseError::UnsupportedVersion};
     }
 
     Module module;
@@ -249,20 +249,20 @@ tl::expected<Module, ParseError> Module::parse_from(std::istream &is) {
         }
 
         if (!(id >= static_cast<int>(SectionId::Custom) && id <= static_cast<int>(SectionId::DataCount))) {
-            return tl::unexpected{ParseError::InvalidSectionId};
+            return tl::unexpected{ModuleParseError::InvalidSectionId};
         }
 
         // TODO(robinlinden): Propagate error from leb128-parsing.
         auto size = Leb128<std::uint32_t>::decode_from(is);
         if (!size) {
-            return tl::unexpected{ParseError::Unknown};
+            return tl::unexpected{ModuleParseError::Unknown};
         }
 
         std::vector<std::uint8_t> content;
         content.resize(*size);
         is.read(reinterpret_cast<char *>(content.data()), *size);
         if (!is) {
-            return tl::unexpected{ParseError::UnexpectedEof};
+            return tl::unexpected{ModuleParseError::UnexpectedEof};
         }
 
         module.sections.push_back(Section{static_cast<SectionId>(id), std::move(content)});

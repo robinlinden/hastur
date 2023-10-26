@@ -129,7 +129,7 @@ struct CodeSection {
     [[nodiscard]] bool operator==(CodeSection const &) const = default;
 };
 
-enum class ParseError {
+enum class ModuleParseError {
     Unknown,
     UnexpectedEof,
     InvalidMagic,
@@ -139,8 +139,8 @@ enum class ParseError {
 
 // https://webassembly.github.io/spec/core/syntax/modules.html
 struct Module {
-    static tl::expected<Module, ParseError> parse_from(std::istream &&is) { return parse_from(is); }
-    static tl::expected<Module, ParseError> parse_from(std::istream &);
+    static tl::expected<Module, ModuleParseError> parse_from(std::istream &&is) { return parse_from(is); }
+    static tl::expected<Module, ModuleParseError> parse_from(std::istream &);
 
     std::vector<Section> sections{};
 
