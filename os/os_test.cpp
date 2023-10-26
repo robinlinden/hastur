@@ -1,18 +1,17 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "os/os.h"
 
-#include "etest/etest.h"
-
-using etest::expect;
+#include "etest/etest2.h"
 
 int main() {
-    etest::test("font_paths", [] {
+    etest::Suite s{"os"};
+    s.add_test("font_paths", [](etest::IActions &a) {
         auto font_paths = os::font_paths();
-        expect(!font_paths.empty());
+        a.expect(!font_paths.empty());
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
