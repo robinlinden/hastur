@@ -37,7 +37,8 @@ std::optional<T> parse(std::istream &) = delete;
 
 template<>
 std::optional<std::uint32_t> parse(std::istream &is) {
-    return Leb128<std::uint32_t>::decode_from(is);
+    auto v = Leb128<std::uint32_t>::decode_from(is);
+    return v ? std::optional{*v} : std::nullopt;
 }
 
 template<>

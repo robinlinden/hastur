@@ -17,6 +17,7 @@
 using namespace std::literals;
 using etest::expect_eq;
 using wasm::Leb128;
+using wasm::Leb128ParseError;
 
 namespace {
 template<typename T>
@@ -25,8 +26,12 @@ void expect_decoded(std::string bytes, T expected, etest::source_location loc = 
 };
 
 template<typename T>
-void expect_decode_failure(std::string bytes, etest::source_location loc = etest::source_location::current()) {
-    expect_eq(Leb128<T>::decode_from(std::stringstream{std::move(bytes)}), std::nullopt, std::nullopt, std::move(loc));
+void expect_decode_failure(
+        std::string bytes, Leb128ParseError error, etest::source_location loc = etest::source_location::current()) {
+    expect_eq(Leb128<T>::decode_from(std::stringstream{std::move(bytes)}),
+            tl::unexpected{error},
+            std::nullopt,
+            std::move(loc));
 };
 } // namespace
 
@@ -38,9 +43,9 @@ int main() {
         expect_decoded<std::uint32_t>("\x80\x7f", 16256);
 
         // Missing termination.
-        expect_decode_failure<std::uint32_t>("\x80");
+        expect_decode_failure<std::uint32_t>("\x80", Leb128ParseError::UnexpectedEof);
         // Too many bytes with no termination.
-        expect_decode_failure<std::uint32_t>("\x80\x80\x80\x80\x80\x80");
+        expect_decode_failure<std::uint32_t>("\x80\x80\x80\x80\x80\x80", Leb128ParseError::Invalid);
 
         // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L119-L142
         expect_decoded<std::uint32_t>("\0"s, 0);
@@ -67,12 +72,13 @@ int main() {
 
         // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L160-L166
         // Buffer overflow.
-        expect_decode_failure<std::uint64_t>("");
-        expect_decode_failure<std::uint64_t>("\x80");
+        expect_decode_failure<std::uint64_t>("", Leb128ParseError::UnexpectedEof);
+        expect_decode_failure<std::uint64_t>("\x80", Leb128ParseError::UnexpectedEof);
 
         // Does not fit in 64 bits.
-        expect_decode_failure<std::uint64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02");
-        expect_decode_failure<std::uint64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02");
+        expect_decode_failure<std::uint64_t>(
+                "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02", Leb128ParseError::NonZeroExtraBits);
+        expect_decode_failure<std::uint64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02", Leb128ParseError::Invalid);
     });
 
     etest::test("trailing zeros", [] {
@@ -102,11 +108,11 @@ int main() {
         // 1 for negative ones.
 
         // For example, 0x83 0x10 is malformed as a u8 encoding.
-        expect_decode_failure<std::uint8_t>("\x83\x10");
+        expect_decode_failure<std::uint8_t>("\x83\x10", Leb128ParseError::NonZeroExtraBits);
 
         // Similarly, both 0x83 0x3E and 0xFF 0x7B are malformed as s8 encodings
-        expect_decode_failure<std::int8_t>("\x83\x3e");
-        expect_decode_failure<std::int8_t>("\xff\x7b");
+        expect_decode_failure<std::int8_t>("\x83\x3e", Leb128ParseError::NonZeroExtraBits);
+        expect_decode_failure<std::int8_t>("\xff\x7b", Leb128ParseError::NonZeroExtraBits);
     });
 
     etest::test("decode signed", [&] {
@@ -142,16 +148,20 @@ int main() {
         expect_decoded<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"s, kInt64Max);
 
         // https://github.com/llvm/llvm-project/blob/34aff47521c3e0cbac58b0d5793197f76a304295/llvm/unittests/Support/LEB128Test.cpp#L229-L240
-        expect_decode_failure<std::int8_t>("");
-        expect_decode_failure<std::int8_t>("\x80");
+        expect_decode_failure<std::int8_t>("", Leb128ParseError::UnexpectedEof);
+        expect_decode_failure<std::int8_t>("\x80", Leb128ParseError::UnexpectedEof);
 
-        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01");
-        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x7e");
-        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02");
-        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e");
-        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01");
-        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e");
-        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"s);
+        expect_decode_failure<std::int64_t>(
+                "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01", Leb128ParseError::NonZeroExtraBits);
+        expect_decode_failure<std::int64_t>(
+                "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x7e", Leb128ParseError::NonZeroExtraBits);
+        expect_decode_failure<std::int64_t>("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x02", Leb128ParseError::Invalid);
+        expect_decode_failure<std::int64_t>(
+                "\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e", Leb128ParseError::NonZeroExtraBits);
+        expect_decode_failure<std::int64_t>(
+                "\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01", Leb128ParseError::NonZeroExtraBits);
+        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x7e", Leb128ParseError::Invalid);
+        expect_decode_failure<std::int64_t>("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00"s, Leb128ParseError::Invalid);
     });
     // NOLINTEND(modernize-raw-string-literal)
 
