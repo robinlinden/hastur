@@ -44,6 +44,7 @@ std::vector<std::string> font_paths() {
 }
 
 unsigned active_window_scale_factor() {
+    // NOLINTNEXTLINE(concurrency-mt-unsafe): We never modify the environment variables.
     if (auto const *env_var = std::getenv("HST_SCALE")) {
         if (int result{}; std::from_chars(env_var, env_var + std::strlen(env_var), result).ec == std::errc{}) {
             return result;
