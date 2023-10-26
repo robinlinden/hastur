@@ -253,10 +253,12 @@ tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
             return tl::unexpected{ModuleParseError::InvalidSectionId};
         }
 
-        // TODO(robinlinden): Propagate error from leb128-parsing.
         auto size = Leb128<std::uint32_t>::decode_from(is);
         if (!size) {
-            return tl::unexpected{ModuleParseError::Unknown};
+            if (size.error() == Leb128ParseError::UnexpectedEof) {
+                return tl::unexpected{ModuleParseError::UnexpectedEof};
+            }
+            return tl::unexpected{ModuleParseError::InvalidSize};
         }
 
         std::vector<std::uint8_t> content;

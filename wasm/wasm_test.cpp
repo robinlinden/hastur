@@ -395,7 +395,13 @@ int main() {
 
     etest::test("missing size", [] {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0"s};
-        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ModuleParseError::Unknown});
+        expect_eq(
+                wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ModuleParseError::UnexpectedEof});
+    });
+
+    etest::test("invalid size", [] {
+        auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\x80\x80\x80\x80\x80\x80"s};
+        expect_eq(wasm::Module::parse_from(std::move(wasm_bytes)), tl::unexpected{wasm::ModuleParseError::InvalidSize});
     });
 
     etest::test("missing content", [] {

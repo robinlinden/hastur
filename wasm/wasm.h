@@ -130,11 +130,11 @@ struct CodeSection {
 };
 
 enum class ModuleParseError {
-    Unknown,
     UnexpectedEof,
     InvalidMagic,
     UnsupportedVersion,
     InvalidSectionId,
+    InvalidSize,
 };
 
 // https://webassembly.github.io/spec/core/syntax/modules.html
