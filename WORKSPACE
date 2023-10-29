@@ -60,12 +60,13 @@ http_archive(
 # Third-party
 # =========================================================
 
+# https://github.com/chriskohlhoff/asio
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "5ff6111ec8cbe73a168d997c547f562713aa7bd004c5c02326f0e9d579a5f2ce",
-    strip_prefix = "asio-asio-1-28-1",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-1.tar.gz",
+    sha256 = "5705a0e403017eba276625107160498518838064a6dd7fd8b00b2e30c0ffbdee",
+    strip_prefix = "asio-asio-1-28-2",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-2.tar.gz",
 )
 
 # https://github.com/google/boringssl
@@ -73,9 +74,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "0573cc6da0a1dd33133bb7ea8d80faa9f81a6aa09d13d0e0639c2355db058aea",
-    strip_prefix = "boringssl-b4cb94936fc6eeeb89d0bd5a596c03aa58f57661",
-    url = "https://github.com/google/boringssl/archive/b4cb94936fc6eeeb89d0bd5a596c03aa58f57661.tar.gz",
+    sha256 = "f8b81f1741667e4a5aa9f0cc3e873875f7f832b3b141b8ee3a5d5863f992b8ba",
+    strip_prefix = "boringssl-add3674f646bcc3dfa828f308454fb3b37919512",
+    url = "https://github.com/google/boringssl/archive/add3674f646bcc3dfa828f308454fb3b37919512.tar.gz",
 )
 
 http_archive(
@@ -162,9 +163,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    sha256 = "a8c9feff2f19c3ff281d42f0b6b4b18f02236513b99229756fa9a1b14787a58a",
-    strip_prefix = "simdjson-3.3.0",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.3.0.tar.gz",
+    sha256 = "942c9462b3c046e12b898cbf5e198f31a377ab40bb2bde5be98440d1f9212ee0",
+    strip_prefix = "simdjson-3.5.0",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.5.0.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -199,12 +200,13 @@ http_archive(
     url = "https://github.com/gabime/spdlog/archive/v1.12.0.tar.gz",
 )
 
+# https://github.com/nothings/stb
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "d00921d49b06af62aa6bfb97c1b136bec661dd11dd4eecbcb0da1f6da7cedb4c",
-    strip_prefix = "stb-5736b15f7ea0ffb08dd38af21067c314d6a3aae9",
-    url = "https://github.com/nothings/stb/archive/5736b15f7ea0ffb08dd38af21067c314d6a3aae9.tar.gz",
+    sha256 = "2fb3c1bb1d796f159c08ae7bfc230f7b257fcacbd393fa67ad0f66f32070f741",
+    strip_prefix = "stb-beebb24b945efdea3b9bba23affb8eb3ba8982e7",
+    url = "https://github.com/nothings/stb/archive/beebb24b945efdea3b9bba23affb8eb3ba8982e7.tar.gz",
 )
 
 # https://github.com/illiliti/libudev-zero
@@ -220,18 +222,18 @@ http_archive(
 http_archive(
     name = "unifex",  # Apache-2.0 WITH LLVM-exception
     build_file = "//third_party:unifex.BUILD",
-    sha256 = "da6b65227adcf1ce3e3410865cc2974b1aacaa20d0f03905bd3bd4fb4e6e4d44",
-    strip_prefix = "libunifex-0.3.0",
-    url = "https://github.com/facebookexperimental/libunifex/archive/v0.3.0.tar.gz",
+    sha256 = "d5ce3b616e166da31e6b4284764a1feeba52aade868bcbffa94cfd86b402716e",
+    strip_prefix = "libunifex-0.4.0",
+    url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.268"
+VULKAN_TAG = "1.3.269"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "d5c59d5fc3ab264006dfea1eb1a11f609ea5dfa8319a5aaca061007828012a78",
+    sha256 = "1637f36a023bd148315f66efb7974861adf22cd1f6d690bdf00ee15ce91d5367",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -240,7 +242,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "f04433c20b32c8f4f2769ce2910639746b65ae2548f2bbe0be3f1a81ef89c4c2",
+    sha256 = "79d24c48f82852bbf3121d82a5f701373e694bc05bde081d93259f9967053463",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -249,9 +251,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    sha256 = "a841acfb7560ec262d7781ab639bc71539b0d00eb38230aeb119f837d2072115",
-    strip_prefix = "wpt-merge_pr_42460",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_42460.tar.gz",
+    sha256 = "c64489866d8678d183b465632e313f30a1fd1683a59cd6f89ef577b516e99a1c",
+    strip_prefix = "wpt-merge_pr_42831",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_42831.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
