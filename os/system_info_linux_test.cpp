@@ -9,7 +9,7 @@
 // NOLINTNEXTLINE: The only option is to mess with this reserved identifier.
 #define _POSIX_C_SOURCE 200112L
 
-#include "os/os.h"
+#include "os/system_info.h"
 
 #include "etest/etest2.h"
 
@@ -20,7 +20,7 @@
 // NOLINTBEGIN(concurrency-mt-unsafe): No threads here.
 
 int main() {
-    etest::Suite s{"os/linux"};
+    etest::Suite s{"os/linux::system_info"};
 
     // Ensure that the system's environment doesn't affect the test result.
     unsetenv("HST_SCALE");

@@ -3,48 +3,120 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "os",
-    srcs = select({
-        "@platforms//os:linux": ["linux.cpp"],
-        "@platforms//os:windows": ["windows.cpp"],
-    }),
     hdrs = ["os.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":memory",
+        ":system_info",
+        ":xdg",
+    ],
+)
+
+cc_library(
+    name = "windows_setup",
+    hdrs = ["windows_setup.h"],
+)
+
+OS_DEPS = select({
+    "@platforms//os:linux": [],
+    "@platforms//os:windows": [":windows_setup"],
+})
+
+OS_LOCAL_DEFINES = select({
+    "@platforms//os:linux": [],
+    "@platforms//os:windows": ["WIN32_LEAN_AND_MEAN"],
+})
+
+cc_library(
+    name = "memory",
+    srcs = select({
+        "@platforms//os:linux": ["memory_linux.cpp"],
+        "@platforms//os:windows": ["memory_windows.cpp"],
+    }),
+    hdrs = ["memory.h"],
     copts = HASTUR_COPTS,
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:Kernel32",
-            "-DEFAULTLIB:Ole32",
-            "-DEFAULTLIB:Shcore",
-            "-DEFAULTLIB:Shell32",
-            "-DEFAULTLIB:User32",
         ],
     }),
-    local_defines = select({
-        "@platforms//os:linux": [],
-        "@platforms//os:windows": ["WIN32_LEAN_AND_MEAN"],
-    }),
+    local_defines = OS_LOCAL_DEFINES,
     visibility = ["//visibility:public"],
+    deps = OS_DEPS,
 )
 
 cc_test(
-    name = "os_test",
+    name = "memory_test",
     size = "small",
-    srcs = ["os_test.cpp"],
+    srcs = ["memory_test.cpp"],
     copts = HASTUR_COPTS,
     deps = [
-        ":os",
+        ":memory",
         "//etest",
     ],
 )
 
+cc_library(
+    name = "system_info",
+    srcs = select({
+        "@platforms//os:linux": ["system_info_linux.cpp"],
+        "@platforms//os:windows": ["system_info_windows.cpp"],
+    }),
+    hdrs = ["system_info.h"],
+    copts = HASTUR_COPTS,
+    linkopts = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:windows": [
+            "-DEFAULTLIB:Shcore",
+            "-DEFAULTLIB:User32",
+        ],
+    }),
+    local_defines = OS_LOCAL_DEFINES,
+    visibility = ["//visibility:public"],
+    deps = OS_DEPS,
+)
+
 cc_test(
-    name = "linux_test",
+    name = "system_info_linux_test",
     size = "small",
-    srcs = ["linux_test.cpp"],
+    srcs = ["system_info_linux_test.cpp"],
     copts = HASTUR_COPTS,
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
-        ":os",
+        ":system_info",
+        "//etest",
+    ],
+)
+
+cc_library(
+    name = "xdg",
+    srcs = select({
+        "@platforms//os:linux": ["xdg_linux.cpp"],
+        "@platforms//os:windows": ["xdg_windows.cpp"],
+    }),
+    hdrs = ["xdg.h"],
+    copts = HASTUR_COPTS,
+    linkopts = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:windows": [
+            "-DEFAULTLIB:Shell32",
+            "-DEFAULTLIB:Kernel32",
+            "-DEFAULTLIB:Ole32",
+        ],
+    }),
+    local_defines = OS_LOCAL_DEFINES,
+    visibility = ["//visibility:public"],
+    deps = OS_DEPS,
+)
+
+cc_test(
+    name = "xdg_test",
+    size = "small",
+    srcs = ["xdg_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":xdg",
         "//etest",
     ],
 )

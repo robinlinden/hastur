@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "os/os.h"
+#include "os/memory.h"
 
 #include "etest/etest2.h"
 
@@ -14,11 +14,7 @@
 #endif
 
 int main() {
-    etest::Suite s{"os"};
-    s.add_test("font_paths", [](etest::IActions &a) {
-        auto font_paths = os::font_paths();
-        a.expect(!font_paths.empty());
-    });
+    etest::Suite s{"os/memory"};
 
     s.add_test("ExecutableMemory, normal use", [](etest::IActions &a) {
         // MOV EAX, 42 ; b8 2a 0 0 0
