@@ -2,17 +2,6 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
-    name = "os",
-    hdrs = ["os.h"],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":memory",
-        ":system_info",
-        ":xdg",
-    ],
-)
-
-cc_library(
     name = "windows_setup",
     hdrs = ["windows_setup.h"],
 )

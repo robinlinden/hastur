@@ -4,7 +4,7 @@
 
 #include "browser/gui/app.h"
 
-#include "os/os.h"
+#include "os/system_info.h"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/dup_filter_sink.h>

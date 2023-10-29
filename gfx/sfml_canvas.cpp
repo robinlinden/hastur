@@ -5,7 +5,7 @@
 
 #include "gfx/sfml_canvas.h"
 
-#include "os/os.h"
+#include "os/xdg.h"
 #include "util/string.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
