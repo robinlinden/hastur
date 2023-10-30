@@ -25,6 +25,7 @@ cc_library(
     deps = [
         ":wasm",
         "//etest",
+        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include <string>
 
 namespace wasm {
 std::ostream &operator<<(std::ostream &, wasm::ValueType);

@@ -5,11 +5,17 @@
 #include "wasm/instructions.h"
 
 #include "wasm/leb128.h"
+#include "wasm/wasm.h"
 
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <istream>
+#include <optional>
 #include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace wasm::instructions {
 

@@ -4,11 +4,15 @@
 
 #include "wasm/leb128.h"
 
+#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <cstdint>
 #include <limits>
+#include <optional>
 #include <sstream>
 #include <string>
+#include <utility>
 
 using namespace std::literals;
 using etest::expect_eq;

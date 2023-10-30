@@ -4,6 +4,8 @@
 
 #include "wasm/instructions.h"
 
+#include "wasm/wasm.h"
+
 #include "etest/etest2.h"
 
 #include <optional>

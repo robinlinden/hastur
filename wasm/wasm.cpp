@@ -6,6 +6,8 @@
 
 #include "wasm/leb128.h"
 
+#include <tl/expected.hpp>
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>

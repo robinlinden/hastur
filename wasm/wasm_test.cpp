@@ -6,6 +6,9 @@
 
 #include "etest/etest.h"
 
+#include <tl/expected.hpp>
+
+#include <cstdint>
 #include <optional>
 #include <sstream>
 #include <string>
