@@ -40,7 +40,7 @@ inline from_chars_result from_chars(char const *first, char const *last, float &
     // back into the string the user provided.
     auto map_end_into_argument_string = [&] {
         auto parsed_length = std::distance(to_parse.c_str(), static_cast<char const *>(end));
-        auto new_end = first;
+        auto const *new_end = first;
         std::advance(new_end, parsed_length);
         return new_end;
     };
