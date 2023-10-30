@@ -94,7 +94,7 @@ std::string element_text(layout::LayoutBox const *element) {
 std::string stylesheet_to_string(css::StyleSheet const &stylesheet) {
     std::stringstream ss;
     for (auto const &rule : stylesheet.rules) {
-        ss << css::to_string(rule) << std::endl;
+        ss << css::to_string(rule) << '\n';
     }
     return std::move(ss).str();
 }

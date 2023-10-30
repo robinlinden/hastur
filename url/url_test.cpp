@@ -32,7 +32,7 @@ int main() {
         url::Origin o = {"https", h, std::uint16_t{8080}, std::nullopt, false};
 
         std::string blob = url::blob_url_create(o);
-        std::cout << std::endl << "Generated Blob URL: " << blob << std::endl;
+        std::cout << "\nGenerated Blob URL: " << blob << '\n';
 
         etest::expect(std::regex_match(blob, std::regex("blob:https://example.com:8080/" + regex_uuid)));
 
@@ -40,7 +40,7 @@ int main() {
         o = {"https", h, std::uint16_t{8080}, std::nullopt, false};
 
         blob = url::blob_url_create(o);
-        std::cout << "Generated Blob URL: " << blob << std::endl;
+        std::cout << "Generated Blob URL: " << blob << '\n';
 
         etest::expect(std::regex_match(blob, std::regex("blob:https://8.8.8.8:8080/" + regex_uuid)));
 
@@ -49,7 +49,7 @@ int main() {
         o = {"https", h, std::uint16_t{8080}, std::nullopt, false};
 
         blob = url::blob_url_create(o);
-        std::cout << "Generated Blob URL: " << blob << std::endl;
+        std::cout << "Generated Blob URL: " << blob << '\n';
 
         etest::expect(std::regex_match(
                 blob, std::regex("blob:https://\\[2001:db8:85a3::8a2e:370:7334\\]:8080/" + regex_uuid)));
