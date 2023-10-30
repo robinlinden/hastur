@@ -6,13 +6,16 @@
 #include "img/png.h"
 #include "img/qoi.h"
 
+#include "gfx/color.h"
 #include "gfx/sfml_canvas.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <optional>

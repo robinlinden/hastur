@@ -4,12 +4,15 @@
 
 #include "img/qoi.h"
 
+#include <tl/expected.hpp>
+
 #include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <istream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace img {

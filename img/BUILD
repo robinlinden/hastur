@@ -74,6 +74,7 @@ cc_binary(
         ":gif",
         ":png",
         ":qoi",
+        "//gfx",
         "//gfx:sfml",
         "@sfml//:graphics",
         "@sfml//:window",

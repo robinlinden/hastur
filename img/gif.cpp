@@ -4,7 +4,9 @@
 
 #include "img/gif.h"
 
+#include <cstdint>
 #include <istream>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>

@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <png.h>
+#include <pngconf.h>
 
 namespace img {
 namespace {
