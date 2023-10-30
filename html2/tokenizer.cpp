@@ -1267,10 +1267,10 @@ void Tokenizer::run() {
                         emit(ParseError::UnexpectedNullCharacter);
                         std::get<CommentToken>(current_token_).data += kReplacementCharacter;
                         continue;
+                    default:
+                        std::get<CommentToken>(current_token_).data += *c;
+                        continue;
                 }
-
-                std::get<CommentToken>(current_token_).data += *c;
-                continue;
             }
 
             // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state

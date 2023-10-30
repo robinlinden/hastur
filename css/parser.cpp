@@ -615,6 +615,8 @@ void Parser::expand_border_radius_values(std::map<PropertyId, std::string> &decl
                 bottom_left += fmt::format(" / {}", tokenizer.next().get().value());
                 break;
             }
+            default:
+                break;
         }
     }
     // NOLINTEND(bugprone-unchecked-optional-access)
