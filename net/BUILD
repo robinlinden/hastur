@@ -5,6 +5,7 @@ NET_COPTS = HASTUR_COPTS + select({
     "@platforms//os:linux": [
         # asio leaks this into our code.
         "-Wno-shadow",
+        "-Wno-unknown-pragmas",
     ],
     "//conditions:default": [],
 })
