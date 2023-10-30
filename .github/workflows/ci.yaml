@@ -248,18 +248,12 @@ jobs:
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-16
-      # See: https://github.com/actions/runner-images/issues/8659
-      - name: Work around libstdc++ and Clang incompabilities
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
-          sudo apt-get update
-          sudo apt-get install --allow-downgrades libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04
-      - run: echo "CC=clang-16" >>$GITHUB_ENV && echo "CXX=clang++-16" >>$GITHUB_ENV
+          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-17
+      - run: echo "CC=clang-17" >>$GITHUB_ENV && echo "CXX=clang++-17" >>$GITHUB_ENV
       - run: |
-          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-16 100
-          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-16
+          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-17 100
+          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-17
           update-alternatives --query clang-tidy
           clang-tidy --version
       - run: bazel build ... --config clang-tidy --keep_going
