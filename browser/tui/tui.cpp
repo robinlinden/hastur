@@ -42,8 +42,7 @@ int main(int argc, char **argv) {
     auto uri_str = argc > 1 ? std::string{argv[1]} : kDefaultUri;
     ensure_has_scheme(uri_str);
     auto uri = uri::Uri::parse(uri_str);
-    // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
-    auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"s;
+    auto user_agent = "Mozilla/5.0 (Linux; tui) Hastur/pre-0.1.0"s;
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
         spdlog::error(R"(Error loading "{}": {})", uri.uri, to_string(err));
