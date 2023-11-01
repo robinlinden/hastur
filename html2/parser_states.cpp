@@ -9,6 +9,7 @@
 
 #include "util/string.h"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <optional>
@@ -145,14 +146,10 @@ constexpr bool is_quirky_public_identifier(std::string_view identifier) {
         return true;
     }
 
-    for (auto start : kQuirkyStartsOfPublicIdentifier) {
-        if (identifier.starts_with(start)) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::ranges::any_of(
+            kQuirkyStartsOfPublicIdentifier, [&](auto start) { return identifier.starts_with(start); });
 }
+
 constexpr bool is_quirky_when_system_identifier_is_empty(std::string_view public_identifier) {
     return public_identifier.starts_with("-//w3c//dtd html 4.01 frameset//")
             || public_identifier.starts_with("-//w3c//dtd html 4.01 transitional//");

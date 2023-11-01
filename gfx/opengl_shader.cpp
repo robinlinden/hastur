@@ -10,6 +10,9 @@
 #include <cstdlib>
 #include <limits>
 
+// NOLINTBEGIN(readability-make-member-function-const): The drawing code
+// shouldn't be thought of as const, even if it technically doesn't modify any
+// class members.
 namespace gfx {
 
 std::optional<OpenGLShader> OpenGLShader::create(std::string_view vertex_src, std::string_view fragment_src) {
@@ -100,3 +103,4 @@ void OpenGLShader::set_uniform(char const *name, std::span<float const, 4> data)
 }
 
 } // namespace gfx
+// NOLINTEND(readability-make-member-function-const)

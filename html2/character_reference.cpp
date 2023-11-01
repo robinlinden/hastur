@@ -29,7 +29,7 @@ namespace {
 //     print(f'"{key}"sv', *codepoints, sep=', ', end='')
 //     print('},')
 // ```
-static constexpr std::array kReferences = std::to_array<CharacterReference>({{"&AElig"sv, 198},
+constexpr std::array kReferences = std::to_array<CharacterReference>({{"&AElig"sv, 198},
         {"&AElig;"sv, 198},
         {"&AMP"sv, 38},
         {"&AMP;"sv, 38},

@@ -26,7 +26,7 @@ using namespace html2;
 
 namespace {
 
-static constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
+constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 
 struct ParseErrorWithLocation {
     ParseError error{};
