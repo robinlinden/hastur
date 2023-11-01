@@ -68,7 +68,7 @@ int Suite::run(RunOptions const &opts) {
     std::ranges::copy(begin(tests_), end(tests_), std::back_inserter(tests_to_run));
 
     std::cout << tests_.size() + disabled_tests_.size() << " test(s) registered";
-    if (disabled_tests_.size() == 0) {
+    if (disabled_tests_.empty()) {
         std::cout << ".\n" << std::flush;
     } else {
         std::cout << ", " << disabled_tests_.size() << " disabled.\n" << std::flush;

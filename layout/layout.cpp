@@ -334,7 +334,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             calculate_position(box, bounds);
             int last_child_end{};
             int current_line{};
-            auto font_size = box.children.size() > 0 ? box.children[0].get_property<css::PropertyId::FontSize>() : 0;
+            auto font_size = !box.children.empty() ? box.children[0].get_property<css::PropertyId::FontSize>() : 0;
             for (std::size_t i = 0; i < box.children.size(); ++i) {
                 auto *child = &box.children[i];
                 layout(*child,

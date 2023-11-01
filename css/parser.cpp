@@ -487,7 +487,7 @@ void Parser::expand_border_impl(
     }();
 
     Tokenizer tokenizer(value, ' ');
-    if (tokenizer.size() == 0 || tokenizer.size() > 3) {
+    if (tokenizer.empty() || tokenizer.size() > 3) {
         // TODO(robinlinden): Propagate info about invalid properties.
         return;
     }

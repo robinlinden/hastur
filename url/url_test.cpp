@@ -765,11 +765,13 @@ int main() {
             etest::expect_eq(url->serialize_path(), pathname);
 
             std::string_view search = obj["search"];
-            etest::expect_eq(url->query.has_value() && *url->query != "" ? std::string{"?"} + *url->query : "", search);
+            etest::expect_eq(
+                    url->query.has_value() && !url->query->empty() ? std::string{"?"} + *url->query : "", search);
 
             std::string_view hash = obj["hash"];
             etest::expect_eq(
-                    url->fragment.has_value() && *url->fragment != "" ? std::string{"#"} + *url->fragment : "", hash);
+                    url->fragment.has_value() && !url->fragment->empty() ? std::string{"#"} + *url->fragment : "",
+                    hash);
         }
     });
 
