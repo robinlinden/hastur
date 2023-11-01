@@ -1247,7 +1247,7 @@ bool UrlParser::starts_with_windows_drive_letter(std::string_view input) const {
         return false;
     }
 
-    if (!util::is_alpha(input[0]) || !(input[1] == ':' || input[1] == '|')) {
+    if (!util::is_alpha(input[0]) || (input[1] != ':' && input[1] != '|')) {
         return false;
     }
 

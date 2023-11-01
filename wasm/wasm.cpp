@@ -249,7 +249,7 @@ tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
             break;
         }
 
-        if (!(id >= static_cast<int>(SectionId::Custom) && id <= static_cast<int>(SectionId::DataCount))) {
+        if (id < static_cast<int>(SectionId::Custom) || id > static_cast<int>(SectionId::DataCount)) {
             return tl::unexpected{ModuleParseError::InvalidSectionId};
         }
 

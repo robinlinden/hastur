@@ -83,11 +83,8 @@ public:
     bool as_bool() const {
         // TODO(robinlinden): false, 0n, null, NaN, objects with an [[IsHTMLDDA]] internal slot.
         // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-        if (*this == Value{0} || *this == Value{-0} || *this == Value{""} || *this == Value{}) {
-            return false;
-        }
-
-        return true;
+        bool is_false = *this == Value{0} || *this == Value{-0} || *this == Value{""} || *this == Value{};
+        return !is_false;
     }
 
     [[nodiscard]] bool operator==(Value const &) const = default;
