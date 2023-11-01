@@ -194,7 +194,7 @@ std::variant<std::monostate, std::string, Host> Origin::effective_domain() const
 // https://w3c.github.io/FileAPI/#unicodeBlobURL
 std::string blob_url_create(Origin const &origin) {
     std::string result = "blob:";
-    std::string serialized = "";
+    std::string serialized;
 
     // https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
     if (origin.opaque) {
@@ -245,7 +245,7 @@ std::string Url::serialize_path() const {
         return std::get<0>(path);
     }
 
-    std::string output = "";
+    std::string output;
 
     for (auto const &part : std::get<1>(path)) {
         output += "/" + part;

@@ -135,7 +135,7 @@ constexpr std::string_view trim(std::string_view s) {
 
 // https://url.spec.whatwg.org/#concept-ipv4-serializer
 constexpr std::string ipv4_serialize(std::uint32_t addr) {
-    std::string out = "";
+    std::string out;
     std::uint32_t n = addr;
 
     for (std::size_t i = 1; i < 5; i++) {

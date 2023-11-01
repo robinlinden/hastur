@@ -159,7 +159,7 @@ std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_
 }
 
 std::optional<std::string> try_parse_font_family(Tokenizer &tokenizer) {
-    std::string font_family = "";
+    std::string font_family;
     while (auto str = tokenizer.get()) {
         if (!font_family.empty()) {
             font_family += ' ';
@@ -172,7 +172,7 @@ std::optional<std::string> try_parse_font_family(Tokenizer &tokenizer) {
 }
 
 std::optional<std::string> try_parse_font_style(Tokenizer &tokenizer) {
-    std::string font_style = "";
+    std::string font_style;
     if (auto maybe_font_style = tokenizer.get()) {
         if (maybe_font_style->starts_with("italic")) {
             font_style = *maybe_font_style;
@@ -700,7 +700,7 @@ void Parser::expand_flex_flow(std::map<PropertyId, std::string> &declarations, s
 
 void Parser::expand_edge_values(
         std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const {
-    std::string_view top = "", bottom = "", left = "", right = "";
+    std::string_view top, bottom, left, right;
     Tokenizer tokenizer(value, ' ');
     // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     switch (tokenizer.size()) {
@@ -726,7 +726,7 @@ void Parser::expand_edge_values(
             break;
     }
     // NOLINTEND(bugprone-unchecked-optional-access)
-    std::string post_fix{""};
+    std::string post_fix;
     if (property == "border-style") {
         // border-style is a bit special as we want border-top-style instead of border-style-top-style.
         property = "border";
@@ -751,9 +751,9 @@ void Parser::expand_font(std::map<PropertyId, std::string> &declarations, std::s
         return;
     }
 
-    std::string font_family = "";
+    std::string font_family;
     std::string font_style = "normal";
-    std::string_view font_size = "";
+    std::string_view font_size;
     std::string_view font_stretch = "normal";
     std::string_view font_variant = "normal";
     std::string_view font_weight = "normal";

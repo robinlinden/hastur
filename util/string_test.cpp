@@ -159,7 +159,7 @@ int main() {
     });
 
     etest::test("split, empty string", [] {
-        std::string_view str{""};
+        std::string_view str;
         auto s = split(str, ";");
         require(s.size() == 1);
         expect_eq(s[0], "");
