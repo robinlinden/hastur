@@ -171,6 +171,23 @@ void in_head_tests() {
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}}});
     });
 
+    etest::test("InHead: doctype", [] {
+        auto res = parse("<head><!doctype HTML>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("InHead: end tag parse error", [] {
+        auto res = parse("<head></p>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("InHead: html attributes are reparented", [] {
+        auto res = parse("<html foo=bar><head><html foo=baz hello=world>", {});
+        auto const &head = std::get<dom::Element>(res.document.html().children.at(0));
+        expect_eq(res.document.html().attributes, dom::AttrMap{{"foo", "bar"}, {"hello", "world"}});
+        expect_eq(head, dom::Element{"head"});
+    });
+
     etest::test("InHead: base, basefont, bgsound, link", [] {
         auto res = parse("<base> <basefont> <bgsound> <link>", {});
 

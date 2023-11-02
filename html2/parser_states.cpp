@@ -274,6 +274,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
+// TODO(robinlinden): Template nonsense.
 std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         // TODO(robinlinden): Should be inserting characters, but our last
@@ -286,19 +287,30 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
         return {};
     }
 
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
     if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
         auto const &name = start->tag_name;
-        // These branches won't be the same once we're more spec-complete.
-        // NOLINTNEXTLINE(bugprone-branch-clone)
+        if (name == "html") {
+            InBody{}.process(a, token);
+            return {};
+        }
+
         if (name == "base" || name == "basefont" || name == "bgsound" || name == "link") {
             a.insert_element_for(*start);
             a.pop_current_node();
+            // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
             return {};
         }
 
         if (name == "meta") {
             a.insert_element_for(*start);
             a.pop_current_node();
+            // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+            // TODO(robinlinden): Active speculative HTML parser nonsense.
             return {};
         }
 
@@ -306,16 +318,17 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
             return generic_rcdata_parse(a, *start);
         }
 
+        if ((name == "noscript" && a.scripting()) || name == "noframes" || name == "style") {
+            return generic_raw_text_parse(a, *start);
+        }
+
         if (name == "noscript" && !a.scripting()) {
             a.insert_element_for(*start);
             return InHeadNoscript{};
         }
 
-        if (name == "style") {
-            return generic_raw_text_parse(a, *start);
-        }
-
         if (name == "script") {
+            // TODO(robinlinden): A lot of things. See spec.
             a.insert_element_for(*start);
             a.set_tokenizer_state(html2::State::ScriptData);
             a.store_original_insertion_mode(InHead{});
@@ -326,6 +339,13 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
             assert(a.current_node_name() == "head");
             a.pop_current_node();
             return AfterHead{};
+        }
+
+        if (end->tag_name == "body" || end->tag_name == "html" || end->tag_name == "br") {
+            // Fall through to "anything else."
+        } else {
+            // Parse error.
+            return {};
         }
     }
 
