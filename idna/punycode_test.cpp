@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace {
-std::string unicode_as_utf8_string(std::vector<int> const &code_points) {
+constexpr std::string unicode_as_utf8_string(std::vector<int> const &code_points) {
     std::string result{};
     for (auto const code_point : code_points) {
         result += unicode::to_utf8(code_point);
@@ -25,7 +25,7 @@ int main() {
     etest::Suite s{};
 
     // https://datatracker.ietf.org/doc/html/rfc3492#section-7
-    s.add_test("(A) Arabic (Egyptian)", [](etest::IActions &a) {
+    s.constexpr_test("(A) Arabic (Egyptian)", [](etest::IActions &a) {
         // u+0644 u+064A u+0647 u+0645 u+0627 u+0628 u+062A u+0643 u+0644
         // u+0645 u+0648 u+0634 u+0639 u+0631 u+0628 u+064A u+061F
         // Punycode: egbpdaj6bu4bxfgehfvwxn
