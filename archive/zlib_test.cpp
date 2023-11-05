@@ -36,7 +36,7 @@ int main() {
 
     etest::test("gzip", [] {
         expect(!zlib_decode("", ZlibMode::Gzip).has_value());
-        expect(!zlib_decode(kZlibbedCss, ZlibMode::Gzip), std::nullopt);
+        expect(!zlib_decode(kZlibbedCss, ZlibMode::Gzip).has_value());
 
         expect_eq(zlib_decode(kGzippedCss, ZlibMode::Gzip), kExpected);
     });
