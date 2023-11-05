@@ -6,6 +6,7 @@
 #define ETEST_ETEST2_H_
 
 #include <concepts>
+#include <exception>
 #include <functional>
 #include <iosfwd>
 #include <optional>
@@ -45,7 +46,7 @@ public:
 
     // Weak test requirement. Prints the types compared on failure (if printable).
     template<Printable T, Printable U>
-    void expect_eq(T const &a,
+    constexpr void expect_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) noexcept {
@@ -59,7 +60,7 @@ public:
     }
 
     template<typename T, typename U>
-    void expect_eq(T const &a,
+    constexpr void expect_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) noexcept {
@@ -68,7 +69,7 @@ public:
 
     // Hard test requirement. Prints the types compared on failure (if printable).
     template<Printable T, Printable U>
-    void require_eq(T const &a,
+    constexpr void require_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) {
@@ -82,7 +83,7 @@ public:
     }
 
     template<typename T, typename U>
-    void require_eq(T const &a,
+    constexpr void require_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) {
@@ -101,6 +102,29 @@ public:
 
     void add_test(std::string name, std::function<void(IActions &)> test) {
         tests_.push_back({std::move(name), std::move(test)});
+    }
+
+    constexpr void constexpr_test(std::string name, auto test) {
+        static_assert([test] {
+            struct ConstexprActions : IActions {
+                void expect(bool b, std::optional<std::string_view>, std::source_location const &) noexcept override {
+                    if (!b) {
+                        std::terminate();
+                    }
+                }
+
+                void require(bool b, std::optional<std::string_view>, std::source_location const &) override {
+                    if (!b) {
+                        std::terminate();
+                    }
+                }
+            };
+            ConstexprActions a;
+            test(a);
+            return true;
+        }());
+
+        add_test(std::move(name), std::move(test));
     }
 
     void disabled_test(std::string name, std::function<void(IActions &)> test) {
