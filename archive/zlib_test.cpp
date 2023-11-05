@@ -37,10 +37,5 @@ int main() {
         expect_eq(zlib_decode(kGzippedCss, ZlibMode::Gzip), kExpected);
     });
 
-    etest::test("zlib and gzip", [] {
-        expect_eq(zlib_decode(kZlibbedCss, ZlibMode::GzipAndZlib), kExpected);
-        expect_eq(zlib_decode(kGzippedCss, ZlibMode::GzipAndZlib), kExpected);
-    });
-
     return etest::run_all_tests();
 }

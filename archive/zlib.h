@@ -20,7 +20,6 @@ struct ZlibError {
 enum class ZlibMode {
     Zlib,
     Gzip,
-    GzipAndZlib,
 };
 
 tl::expected<std::string, ZlibError> zlib_decode(std::string_view, ZlibMode);

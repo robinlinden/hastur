@@ -27,13 +27,11 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode
     // only the gzip format <...>.
     int const zlib_mode = [mode] {
         switch (mode) {
-            case ZlibMode::Zlib:
-                return 0;
             case ZlibMode::Gzip:
                 return 15;
-            case ZlibMode::GzipAndZlib:
             default:
-                return 32;
+            case ZlibMode::Zlib:
+                return 0;
         }
     }();
     constexpr int kWindowBits = 15;
