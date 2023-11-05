@@ -48,7 +48,10 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode
         s.avail_out = static_cast<uInt>(buf.size());
         int ret = inflate(&s, Z_NO_FLUSH);
         if (ret != Z_OK && ret != Z_STREAM_END) {
-            std::string msg = s.msg;
+            std::string msg;
+            if (s.msg != nullptr) {
+                msg = s.msg;
+            }
             inflateEnd(&s);
             return tl::unexpected{ZlibError{.message = std::move(msg), .code = ret}};
         }

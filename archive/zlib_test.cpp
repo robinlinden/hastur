@@ -28,12 +28,16 @@ constexpr auto kZlibbedCss =
 
 int main() {
     etest::test("zlib", [] {
-        expect_eq(zlib_decode(kZlibbedCss, ZlibMode::Zlib), kExpected);
+        expect(!zlib_decode("", ZlibMode::Zlib).has_value());
         expect(!zlib_decode(kGzippedCss, ZlibMode::Zlib).has_value());
+
+        expect_eq(zlib_decode(kZlibbedCss, ZlibMode::Zlib), kExpected);
     });
 
     etest::test("gzip", [] {
+        expect(!zlib_decode("", ZlibMode::Gzip).has_value());
         expect(!zlib_decode(kZlibbedCss, ZlibMode::Gzip), std::nullopt);
+
         expect_eq(zlib_decode(kGzippedCss, ZlibMode::Gzip), kExpected);
     });
 
