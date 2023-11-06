@@ -26,6 +26,11 @@ struct Context {
     int window_width{};
 };
 
+struct False {
+    [[nodiscard]] bool operator==(False const &) const = default;
+    constexpr bool evaluate(Context const &) const { return false; }
+};
+
 struct Width {
     int min{};
     int max{std::numeric_limits<int>::max()};
@@ -39,9 +44,10 @@ struct Width {
 class MediaQuery {
 public:
     using Context = detail::Context;
+    using False = detail::False;
     using Width = detail::Width;
 
-    using Query = std::variant<Width>;
+    using Query = std::variant<False, Width>;
     Query query{};
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
@@ -108,6 +114,10 @@ public:
 
 inline std::string to_string(MediaQuery::Width const &width) {
     return std::to_string(width.min) + " <= width <= " + std::to_string(width.max);
+}
+
+constexpr std::string to_string(MediaQuery::False const &) {
+    return "false";
 }
 
 constexpr std::string to_string(MediaQuery const &query) {

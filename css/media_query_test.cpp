@@ -55,6 +55,16 @@ void to_string_tests() {
         expect_eq(css::to_string(css::MediaQuery::Width{.min = 299, .max = 301}), //
                 "299 <= width <= 301");
     });
+
+    etest::test("to_string: false", [] {
+        expect_eq(css::to_string(css::MediaQuery::False{}), "false"); //
+    });
+}
+
+void false_tests() {
+    etest::test("false", [] {
+        expect(!css::MediaQuery::False{}.evaluate({.window_width = 299})); //
+    });
 }
 
 void width_tests() {
@@ -91,6 +101,7 @@ void width_tests() {
 int main() {
     parser_tests();
     to_string_tests();
+    false_tests();
     width_tests();
     return etest::run_all_tests();
 }
