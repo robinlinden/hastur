@@ -296,7 +296,7 @@ int main() {
     etest::test("parser: bad media query", [] {
         auto rules = css::parse("@media (rip: 0) { p { font-size: 10px; } }").rules;
         auto const &rule = rules.at(0);
-        expect_eq(rule.media_query, std::nullopt);
+        expect_eq(rule.media_query, css::MediaQuery{css::MediaQuery::False{}});
         expect_eq(rule.selectors, std::vector{"p"s});
         require_eq(rule.declarations.size(), std::size_t{1});
         expect_eq(rule.declarations.at(css::PropertyId::FontSize), "10px");
