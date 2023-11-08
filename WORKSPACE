@@ -74,9 +74,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "f8b81f1741667e4a5aa9f0cc3e873875f7f832b3b141b8ee3a5d5863f992b8ba",
-    strip_prefix = "boringssl-add3674f646bcc3dfa828f308454fb3b37919512",
-    url = "https://github.com/google/boringssl/archive/add3674f646bcc3dfa828f308454fb3b37919512.tar.gz",
+    sha256 = "9db77d36cb2656808463ccf8f4c1c4a02b6a59c54fcde43d490d87be00b5b558",
+    strip_prefix = "boringssl-38314c88e85527ffc4ae0a7f642b6fd39777e0a9",
+    url = "https://github.com/google/boringssl/archive/38314c88e85527ffc4ae0a7f642b6fd39777e0a9.tar.gz",
 )
 
 http_archive(
@@ -163,9 +163,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    sha256 = "942c9462b3c046e12b898cbf5e198f31a377ab40bb2bde5be98440d1f9212ee0",
-    strip_prefix = "simdjson-3.5.0",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.5.0.tar.gz",
+    sha256 = "9eab3197231382b8b99d14d8ca647d6ab6bea1b40008df086d25e6f687309bf6",
+    strip_prefix = "simdjson-3.6.0",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.6.0.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
