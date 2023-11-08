@@ -9,6 +9,7 @@
 #include "util/unicode.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <map>
@@ -910,8 +911,6 @@ void Tokenizer::run() {
                 if (c == '/') {
                     temporary_buffer_ = "";
                     state_ = State::ScriptDataDoubleEscapeEnd;
-                    // False-positive when using clang-tidy-15.
-                    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
                     emit(CharacterToken{*c});
                     continue;
                 }
@@ -1606,7 +1605,6 @@ void Tokenizer::run() {
             // Only reachable via State::BeforeDoctypeName, and every branch
             // there sets current_token_ to DoctypeToken and initalizes
             // DoctypeToken::name to something not std::nullopt.
-            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             // https://html.spec.whatwg.org/#doctype-name-state
             case State::DoctypeName: {
                 auto c = consume_next_input_character();
@@ -1618,8 +1616,12 @@ void Tokenizer::run() {
                     return;
                 }
 
+                // Help bugprone-unchecked-optional-access a bit.
+                auto &doctype_name = std::get<DoctypeToken>(current_token_).name;
+                assert(doctype_name.has_value());
+
                 if (util::is_upper_alpha(*c)) {
-                    std::get<DoctypeToken>(current_token_).name->append(1, util::lowercased(*c));
+                    doctype_name->append(1, util::lowercased(*c));
                     continue;
                 }
 
@@ -1636,13 +1638,12 @@ void Tokenizer::run() {
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).name += kReplacementCharacter;
+                        *doctype_name += kReplacementCharacter;
                         continue;
                     default:
-                        std::get<DoctypeToken>(current_token_).name->append(1, *c);
+                        doctype_name->append(1, *c);
                         continue;
                 }
-                // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
             // https://html.spec.whatwg.org/#after-doctype-name-state
@@ -1770,7 +1771,6 @@ void Tokenizer::run() {
             // Reachable via State::AfterDoctypePublicKeyword and
             // State::BeforeDoctypePublicIdentifier, both of which set
             // DoctypeToken::public_identifier to an empty string.
-            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             // https://html.spec.whatwg.org/#doctype-public-identifier-(double-quoted)-state
             case State::DoctypePublicIdentifierDoubleQuoted: {
                 auto c = consume_next_input_character();
@@ -1782,13 +1782,17 @@ void Tokenizer::run() {
                     return;
                 }
 
+                // Help bugprone-unchecked-optional-access a bit.
+                auto &doctype_public_identifier = std::get<DoctypeToken>(current_token_).public_identifier;
+                assert(doctype_public_identifier.has_value());
+
                 switch (*c) {
                     case '"':
                         state_ = State::AfterDoctypePublicIdentifier;
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).public_identifier += kReplacementCharacter;
+                        *doctype_public_identifier += kReplacementCharacter;
                         continue;
                     case '>':
                         emit(ParseError::AbruptDoctypePublicIdentifier);
@@ -1797,16 +1801,14 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        *std::get<DoctypeToken>(current_token_).public_identifier += *c;
+                        *doctype_public_identifier += *c;
                         continue;
                 }
             }
-            // NOLINTEND(bugprone-unchecked-optional-access)
 
             // Reachable via State::AfterDoctypePublicKeyword and
             // State::BeforeDoctypePublicIdentifier, both of which set
             // DoctypeToken::public_identifier to an empty string.
-            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             // https://html.spec.whatwg.org/#doctype-public-identifier-(single-quoted)-state
             case State::DoctypePublicIdentifierSingleQuoted: {
                 auto c = consume_next_input_character();
@@ -1818,13 +1820,17 @@ void Tokenizer::run() {
                     return;
                 }
 
+                // Help bugprone-unchecked-optional-access a bit.
+                auto &doctype_public_identifier = std::get<DoctypeToken>(current_token_).public_identifier;
+                assert(doctype_public_identifier);
+
                 switch (*c) {
                     case '\'':
                         state_ = State::AfterDoctypePublicIdentifier;
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).public_identifier += kReplacementCharacter;
+                        *doctype_public_identifier += kReplacementCharacter;
                         continue;
                     case '>':
                         emit(ParseError::AbruptDoctypePublicIdentifier);
@@ -1833,10 +1839,9 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        *std::get<DoctypeToken>(current_token_).public_identifier += *c;
+                        *doctype_public_identifier += *c;
                         continue;
                 }
-                // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
             // https://html.spec.whatwg.org/#after-doctype-public-identifier-state
@@ -2002,7 +2007,6 @@ void Tokenizer::run() {
             // State::AfterDoctypeSystemKeyword, and
             // State::BeforeDoctypeSystemIdentifier, all of which set
             // DoctypeToken::system_identifier to an empty string.
-            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             // https://html.spec.whatwg.org/#doctype-system-identifier-(double-quoted)-state
             case State::DoctypeSystemIdentifierDoubleQuoted: {
                 auto c = consume_next_input_character();
@@ -2014,13 +2018,17 @@ void Tokenizer::run() {
                     return;
                 }
 
+                // Help bugprone-unchecked-optional-access a bit.
+                auto &doctype_system_identifier = std::get<DoctypeToken>(current_token_).system_identifier;
+                assert(doctype_system_identifier);
+
                 switch (*c) {
                     case '"':
                         state_ = State::AfterDoctypeSystemIdentifier;
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).system_identifier += kReplacementCharacter;
+                        *doctype_system_identifier += kReplacementCharacter;
                         continue;
                     case '>':
                         emit(ParseError::AbruptDoctypeSystemIdentifier);
@@ -2029,18 +2037,16 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        *std::get<DoctypeToken>(current_token_).system_identifier += *c;
+                        *doctype_system_identifier += *c;
                         continue;
                 }
             }
-            // NOLINTEND(bugprone-unchecked-optional-access)
 
             // Reachable via State::AfterDoctypePublicIdentifier,
             // State::BetweenDoctypePublicAndSystemIdentifiers,
             // State::AfterDoctypeSystemKeyword, and
             // State::BeforeDoctypeSystemIdentifier, all of which set
             // DoctypeToken::system_identifier to an empty string.
-            // NOLINTBEGIN(bugprone-unchecked-optional-access)
             // https://html.spec.whatwg.org/#doctype-system-identifier-(single-quoted)-state
             case State::DoctypeSystemIdentifierSingleQuoted: {
                 auto c = consume_next_input_character();
@@ -2052,13 +2058,17 @@ void Tokenizer::run() {
                     return;
                 }
 
+                // Help bugprone-unchecked-optional-access a bit.
+                auto &doctype_system_identifier = std::get<DoctypeToken>(current_token_).system_identifier;
+                assert(doctype_system_identifier);
+
                 switch (*c) {
                     case '\'':
                         state_ = State::AfterDoctypeSystemIdentifier;
                         continue;
                     case '\0':
                         emit(ParseError::UnexpectedNullCharacter);
-                        *std::get<DoctypeToken>(current_token_).system_identifier += kReplacementCharacter;
+                        *doctype_system_identifier += kReplacementCharacter;
                         continue;
                     case '>':
                         emit(ParseError::AbruptDoctypeSystemIdentifier);
@@ -2067,10 +2077,9 @@ void Tokenizer::run() {
                         emit(std::move(current_token_));
                         continue;
                     default:
-                        *std::get<DoctypeToken>(current_token_).system_identifier += *c;
+                        *doctype_system_identifier += *c;
                         continue;
                 }
-                // NOLINTEND(bugprone-unchecked-optional-access)
             }
 
             // https://html.spec.whatwg.org/#after-doctype-system-identifier-state
