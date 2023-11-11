@@ -220,29 +220,14 @@ int App::run() {
                             if (!event.key.alt) {
                                 break;
                             }
-
-                            auto entry = browse_history_.previous();
-                            if (!entry) {
-                                break;
-                            }
-
-                            browse_history_.pop();
-                            url_buf_ = entry->uri;
-                            navigate();
+                            navigate_back();
                             break;
                         }
                         case sf::Keyboard::Key::Right: {
                             if (!event.key.alt) {
                                 break;
                             }
-
-                            auto entry = browse_history_.next();
-                            if (!entry) {
-                                break;
-                            }
-
-                            url_buf_ = entry->uri;
-                            navigate();
+                            navigate_forward();
                             break;
                         }
                         default:
@@ -345,6 +330,27 @@ void App::navigate() {
 
     // Make sure the displayed url is still correct if we followed any redirects.
     url_buf_ = engine_.uri().uri;
+}
+
+void App::navigate_back() {
+    auto entry = browse_history_.previous();
+    if (!entry) {
+        return;
+    }
+
+    browse_history_.pop();
+    url_buf_ = entry->uri;
+    navigate();
+}
+
+void App::navigate_forward() {
+    auto entry = browse_history_.next();
+    if (!entry) {
+        return;
+    }
+
+    url_buf_ = entry->uri;
+    navigate();
 }
 
 void App::on_navigation_failure(protocol::Error err) {
