@@ -15,6 +15,7 @@
 #include <fmt/format.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_stdlib.h>
 #include <spdlog/spdlog.h>
 
@@ -194,6 +195,13 @@ int App::run() {
                         }
                         case sf::Keyboard::Key::K: {
                             scroll(event.key.shift ? 20 : 5);
+                            break;
+                        }
+                        case sf::Keyboard::Key::L: {
+                            if (!event.key.control) {
+                                break;
+                            }
+                            focus_url_input();
                             break;
                         }
                         case sf::Keyboard::Key::F1: {
@@ -443,6 +451,11 @@ void App::update_status_line() {
 
 void App::run_overlay() {
     ImGui::SFML::Update(window_, clock_.restart());
+}
+
+void App::focus_url_input() {
+    auto *window = ImGui::FindWindowByName("Navigation");
+    ImGui::ActivateItemByID(window->GetID("Url"));
 }
 
 void App::run_nav_widget() {

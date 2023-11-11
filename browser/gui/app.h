@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -88,6 +88,7 @@ private:
     void update_status_line();
 
     void run_overlay();
+    void focus_url_input();
     void run_nav_widget();
     void run_http_response_widget() const;
     void run_dom_widget() const;
