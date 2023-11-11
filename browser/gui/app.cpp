@@ -230,6 +230,10 @@ int App::run() {
                             navigate_forward();
                             break;
                         }
+                        case sf::Keyboard::Key::Backspace: {
+                            navigate_back();
+                            break;
+                        }
                         default:
                             break;
                     }
