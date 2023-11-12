@@ -20,24 +20,9 @@ using namespace std::literals;
 namespace engine {
 
 protocol::Error Engine::navigate(uri::Uri uri) {
-    auto is_redirect = [](int status_code) {
-        return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
-    };
-
-    uri_ = std::move(uri);
-    response_ = protocol_handler_->handle(uri_);
-    while (response_.err == protocol::Error::Ok && is_redirect(response_.status_line.status_code)) {
-        auto location = response_.headers.get("Location");
-        if (!location) {
-            response_.err = protocol::Error::InvalidResponse;
-            on_navigation_failure_(protocol::Error::InvalidResponse);
-            return protocol::Error::InvalidResponse;
-        }
-
-        spdlog::info("Following {} redirect from {} to {}", response_.status_line.status_code, uri_.uri, *location);
-        uri_ = uri::Uri::parse(std::string(*location), uri_);
-        response_ = protocol_handler_->handle(uri_);
-    }
+    auto result = load(std::move(uri));
+    response_ = std::move(result.response);
+    uri_ = std::move(result.uri_after_redirects);
 
     switch (response_.err) {
         case protocol::Error::Ok:
@@ -142,6 +127,27 @@ void Engine::on_navigation_success() {
     styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
     layout_ = layout::create_layout(*styled_, layout_width_);
     on_page_loaded_();
+}
+
+Engine::LoadResult Engine::load(uri::Uri uri) {
+    auto is_redirect = [](int status_code) {
+        return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
+    };
+
+    protocol::Response response = protocol_handler_->handle(uri);
+    while (response.err == protocol::Error::Ok && is_redirect(response.status_line.status_code)) {
+        auto location = response.headers.get("Location");
+        if (!location) {
+            response.err = protocol::Error::InvalidResponse;
+            return {std::move(response), std::move(uri)};
+        }
+
+        spdlog::info("Following {} redirect from {} to {}", response.status_line.status_code, uri.uri, *location);
+        uri = uri::Uri::parse(std::string(*location), uri);
+        response = protocol_handler_->handle(uri);
+    }
+
+    return {std::move(response), std::move(uri)};
 }
 
 } // namespace engine

@@ -10,6 +10,7 @@
 #include "dom/dom.h"
 #include "layout/layout.h"
 #include "protocol/iprotocol_handler.h"
+#include "protocol/response.h"
 #include "style/styled_node.h"
 #include "uri/uri.h"
 
@@ -60,6 +61,12 @@ private:
     std::optional<layout::LayoutBox> layout_{};
 
     void on_navigation_success();
+
+    struct [[nodiscard]] LoadResult {
+        protocol::Response response;
+        uri::Uri uri_after_redirects;
+    };
+    LoadResult load(uri::Uri);
 };
 
 } // namespace engine
