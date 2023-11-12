@@ -78,7 +78,10 @@ void Engine::on_navigation_success() {
             auto stylesheet_url = uri::Uri::parse(href, uri_);
 
             spdlog::info("Downloading stylesheet from {}", stylesheet_url.uri);
-            auto style_data = protocol_handler_->handle(stylesheet_url);
+            auto res = load(stylesheet_url);
+            auto &style_data = res.response;
+            stylesheet_url = std::move(res.uri_after_redirects);
+
             if (style_data.err != protocol::Error::Ok) {
                 spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url.uri);
                 return {};

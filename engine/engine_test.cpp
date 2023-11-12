@@ -394,5 +394,29 @@ int main() {
         expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::InvalidResponse);
     });
 
+    etest::test("redirect, style", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><head>"
+                      "<link rel=stylesheet href=hello.css />"
+                      "</head></html>"},
+        };
+        responses["hax://example.com/hello.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 301},
+                .headers = {{"Location", "hax://example.com/redirected.css"}},
+        };
+        responses["hax://example.com/redirected.css"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"p { color: green; }"},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::Ok);
+        expect(contains(e.stylesheet().rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+    });
+
     return etest::run_all_tests();
 }
