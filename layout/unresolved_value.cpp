@@ -1,0 +1,14 @@
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
+#include "layout/unresolved_value.h"
+
+#include "layout/layout_box.h"
+
+namespace layout {
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+int UnresolvedValue::resolve(int font_size, int root_font_size) const {
+    return to_px(raw, font_size, root_font_size);
+}
+} // namespace layout
