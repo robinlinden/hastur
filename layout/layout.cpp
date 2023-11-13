@@ -175,8 +175,8 @@ void calculate_width_and_margin(
 
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
-    if (auto width = box.get_property<css::PropertyId::Width>()) {
-        box.dimensions.content.width = *width;
+    if (auto width = box.get_property<css::PropertyId::Width>(); !width.is_auto()) {
+        box.dimensions.content.width = width.resolve(font_size, root_font_size);
         calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
     } else {
         if (margin_left != "auto") {

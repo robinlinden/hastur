@@ -111,17 +111,6 @@ std::optional<int> LayoutBox::get_min_width_property() const {
     return to_px(raw, font_size, root_font_size);
 }
 
-std::optional<int> LayoutBox::get_width_property() const {
-    auto raw = node->get_raw_property(css::PropertyId::Width);
-    if (raw == "auto") {
-        return std::nullopt;
-    }
-
-    int font_size = node->get_property<css::PropertyId::FontSize>();
-    int root_font_size = get_root_font_size(*node);
-    return to_px(raw, font_size, root_font_size);
-}
-
 std::optional<int> LayoutBox::get_max_width_property() const {
     auto raw = node->get_raw_property(css::PropertyId::MaxWidth);
     if (raw == "none") {

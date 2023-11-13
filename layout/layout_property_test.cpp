@@ -64,8 +64,8 @@ int main() {
         expect_property_eq<MinWidth>("13px", 13);
         expect_property_eq<MinWidth>("auto", std::nullopt);
 
-        expect_property_eq<Width>("42px", 42);
-        expect_property_eq<Width>("auto", std::nullopt);
+        expect_property_eq<Width>("42px", layout::UnresolvedValue{"42px"});
+        expect_property_eq<Width>("auto", layout::UnresolvedValue{"auto"});
 
         expect_property_eq<MaxWidth>("420px", 420);
         expect_property_eq<MaxWidth>("none", std::nullopt);
