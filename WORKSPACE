@@ -32,8 +32,8 @@ http_archive(
 # https://github.com/uber/hermetic_cc_toolchain
 http_archive(
     name = "hermetic_cc_toolchain",
-    sha256 = "28fc71b9b3191c312ee83faa1dc65b38eb70c3a57740368f7e7c7a49bedf3106",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.1.2/hermetic_cc_toolchain-v2.1.2.tar.gz",
+    sha256 = "a5caccbf6d86d4f60afd45b541a05ca4cc3f5f523aec7d3f7711e584600fb075",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.1.3/hermetic_cc_toolchain-v2.1.3.tar.gz",
 )
 
 # Misc tools
@@ -227,13 +227,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.269"
+VULKAN_TAG = "1.3.270"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "1637f36a023bd148315f66efb7974861adf22cd1f6d690bdf00ee15ce91d5367",
+    sha256 = "908e4e3881df8003744279ebdb0acd195c35d3792b2855e5488871956f90a7ee",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -242,7 +242,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "79d24c48f82852bbf3121d82a5f701373e694bc05bde081d93259f9967053463",
+    sha256 = "6f45fe61239d03db419ecaf65709503a81b5b5a501c07b0b729f75b03831ca77",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -251,9 +251,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    sha256 = "c64489866d8678d183b465632e313f30a1fd1683a59cd6f89ef577b516e99a1c",
-    strip_prefix = "wpt-merge_pr_42831",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_42831.tar.gz",
+    sha256 = "2e7d1f7a15735c96e426bad5919183d903e350bd057a4acaf7062ea5b9f21990",
+    strip_prefix = "wpt-merge_pr_42906",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_42906.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
