@@ -33,5 +33,17 @@ int main() {
         a.expect_eq(uv.resolve(0, 0), 0);
     });
 
+    s.add_test("unit/%", [](etest::IActions &a) {
+        // Based on the third argument, whatever the spec wants the property
+        // this came from to be resolved against.
+        auto const uv = layout::UnresolvedValue{.raw = "50%"};
+        a.expect_eq(uv.resolve(100, 100, 100), 50);
+        a.expect_eq(uv.resolve(100, 100, 200), 100);
+        a.expect_eq(uv.resolve(0, 0, 1000), 500);
+
+        // If the third argument is not provided, you get nothing.
+        a.expect_eq(uv.resolve(123, 456), 0);
+    });
+
     return s.run();
 }

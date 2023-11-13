@@ -146,8 +146,11 @@ std::string to_string(LayoutBox const &box) {
     return std::move(ss).str();
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-int to_px(std::string_view property, int const font_size, int const root_font_size) {
+// NOLINTBEGIN(bugprone-easily-swappable-parameters)
+int to_px(std::string_view property,
+        int const font_size,
+        int const root_font_size,
+        std::optional<int> parent_property_value) {
     // Special case for 0 since it won't ever have a unit that needs to be handled.
     if (property == "0") {
         return 0;
@@ -162,6 +165,15 @@ int to_px(std::string_view property, int const font_size, int const root_font_si
 
     auto const parsed_length = std::distance(property.data(), parse_result.ptr);
     auto const unit = property.substr(parsed_length);
+
+    if (unit == "%") {
+        if (!parent_property_value.has_value()) {
+            spdlog::warn("Missing parent-value for property w/ '%' unit");
+            return 0;
+        }
+
+        return static_cast<int>(res / 100.f * (*parent_property_value));
+    }
 
     if (unit == "px") {
         return static_cast<int>(res);
@@ -180,5 +192,6 @@ int to_px(std::string_view property, int const font_size, int const root_font_si
     spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
     return static_cast<int>(res);
 }
+// NOLINTEND(bugprone-easily-swappable-parameters)
 
 } // namespace layout

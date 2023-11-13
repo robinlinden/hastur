@@ -102,7 +102,10 @@ inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
 
 // TODO(robinlinden): This should be internal.
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-int to_px(std::string_view property, int const font_size, int const root_font_size);
+int to_px(std::string_view property,
+        int const font_size,
+        int const root_font_size,
+        std::optional<int> parent_property_value = std::nullopt);
 
 } // namespace layout
 
