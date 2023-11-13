@@ -1485,6 +1485,29 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
     });
 
+    etest::test("% units", [] {
+        dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
+        auto const &div = std::get<dom::Element>(dom).children[0];
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Width, "500px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        style::StyledNode{
+                                .node{div},
+                                .properties{{css::PropertyId::Width, "50%"}, {css::PropertyId::Display, "block"}},
+                        },
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.children.at(0).dimensions.border_box().width, 250);
+
+        style.properties.at(0).second = "10%";
+        layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.children.at(0).dimensions.border_box().width, 50);
+    });
+
     whitespace_collapsing_tests();
 
     return etest::run_all_tests();
