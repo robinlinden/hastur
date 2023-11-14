@@ -31,9 +31,9 @@ public:
 
     void set_layout_width(int width);
 
-    void set_on_navigation_failure(auto cb) { on_navigation_failure_ = std::move(cb); }
-    void set_on_page_loaded(auto cb) { on_page_loaded_ = std::move(cb); }
-    void set_on_layout_updated(auto cb) { on_layout_update_ = std::move(cb); }
+    void set_on_navigation_failure(std::function<void(protocol::Error)> cb) { on_navigation_failure_ = std::move(cb); }
+    void set_on_page_loaded(std::function<void()> cb) { on_page_loaded_ = std::move(cb); }
+    void set_on_layout_updated(std::function<void()> cb) { on_layout_update_ = std::move(cb); }
 
     uri::Uri const &uri() const { return uri_; }
     protocol::Response const &response() const { return response_; }
