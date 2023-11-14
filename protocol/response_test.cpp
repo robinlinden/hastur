@@ -43,6 +43,7 @@ int main() {
         expect_eq(to_string(Error::Unresolved), "Unresolved"sv);
         expect_eq(to_string(Error::Unhandled), "Unhandled"sv);
         expect_eq(to_string(Error::InvalidResponse), "InvalidResponse"sv);
+        expect_eq(to_string(Error::RedirectLimit), "RedirectLimit"sv);
         expect_eq(to_string(static_cast<Error>(std::underlying_type_t<Error>{20})), "Unknown"sv);
     });
 

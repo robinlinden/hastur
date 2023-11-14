@@ -21,6 +21,7 @@ enum class Error {
     Unresolved,
     Unhandled,
     InvalidResponse,
+    RedirectLimit,
 };
 
 std::string_view to_string(Error);

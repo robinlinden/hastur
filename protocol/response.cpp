@@ -23,6 +23,8 @@ std::string_view to_string(Error e) {
             return "Unhandled";
         case Error::InvalidResponse:
             return "InvalidResponse";
+        case Error::RedirectLimit:
+            return "RedirectLimit";
     }
     return "Unknown";
 }

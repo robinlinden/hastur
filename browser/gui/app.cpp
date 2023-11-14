@@ -380,6 +380,11 @@ void App::on_navigation_failure(protocol::Error err) {
             spdlog::error(nav_widget_extra_info_);
             break;
         }
+        case protocol::Error::RedirectLimit: {
+            nav_widget_extra_info_ = fmt::format("Redirect limit hit while loading '{}'", url_buf_);
+            spdlog::error(nav_widget_extra_info_);
+            break;
+        }
         case protocol::Error::Ok:
         default:
             spdlog::error("This should never happen: {}", static_cast<int>(err));
