@@ -41,6 +41,12 @@ public:
     css::StyleSheet const &stylesheet() const { return stylesheet_; }
     layout::LayoutBox const *layout() const { return layout_.has_value() ? &*layout_ : nullptr; }
 
+    struct [[nodiscard]] LoadResult {
+        protocol::Response response;
+        uri::Uri uri_after_redirects;
+    };
+    LoadResult load(uri::Uri);
+
 private:
     std::function<void(protocol::Error)> on_navigation_failure_{[](protocol::Error) {
     }};
@@ -61,12 +67,6 @@ private:
     std::optional<layout::LayoutBox> layout_{};
 
     void on_navigation_success();
-
-    struct [[nodiscard]] LoadResult {
-        protocol::Response response;
-        uri::Uri uri_after_redirects;
-    };
-    LoadResult load(uri::Uri);
 };
 
 } // namespace engine

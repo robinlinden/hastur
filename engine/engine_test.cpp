@@ -429,5 +429,23 @@ int main() {
         expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::RedirectLimit);
     });
 
+    etest::test("load", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 301},
+                .headers = {{"Location", "hax://example.com/redirected"}},
+        };
+        responses["hax://example.com/redirected"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{"<html><body>hello!</body></html>"},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto res = e.load(uri::Uri::parse("hax://example.com"));
+        expect_eq(res.uri_after_redirects, uri::Uri::parse("hax://example.com/redirected"));
+        expect_eq(res.response, responses.at("hax://example.com/redirected"));
+    });
+
     return etest::run_all_tests();
 }
