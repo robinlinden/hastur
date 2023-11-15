@@ -418,5 +418,16 @@ int main() {
         expect(contains(e.stylesheet().rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
 
+    etest::test("redirect loop", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 301},
+                .headers = {{"Location", "hax://example.com"}},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        expect_eq(e.navigate(uri::Uri::parse("hax://example.com")), protocol::Error::RedirectLimit);
+    });
+
     return etest::run_all_tests();
 }

@@ -133,12 +133,16 @@ void Engine::on_navigation_success() {
 }
 
 Engine::LoadResult Engine::load(uri::Uri uri) {
+    static constexpr int kMaxRedirects = 10;
+
     auto is_redirect = [](int status_code) {
         return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
     };
 
+    int redirect_count = 0;
     protocol::Response response = protocol_handler_->handle(uri);
     while (response.err == protocol::Error::Ok && is_redirect(response.status_line.status_code)) {
+        ++redirect_count;
         auto location = response.headers.get("Location");
         if (!location) {
             response.err = protocol::Error::InvalidResponse;
@@ -148,6 +152,10 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         spdlog::info("Following {} redirect from {} to {}", response.status_line.status_code, uri.uri, *location);
         uri = uri::Uri::parse(std::string(*location), uri);
         response = protocol_handler_->handle(uri);
+        if (redirect_count > kMaxRedirects) {
+            response.err = protocol::Error::RedirectLimit;
+            return {std::move(response), std::move(uri)};
+        }
     }
 
     return {std::move(response), std::move(uri)};
