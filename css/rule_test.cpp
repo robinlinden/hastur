@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -54,6 +55,19 @@ int main() {
                 "  text-align: center\n"
                 "Media query:\n"
                 "  0 <= width <= 900\n";
+        expect_eq(css::to_string(rule), expected);
+    });
+
+    etest::test("rule to string, important declaration", [] {
+        css::Rule rule;
+        rule.selectors.emplace_back("div");
+        rule.important_declarations.emplace(css::PropertyId::BackgroundColor, "black");
+
+        auto const *expected =
+                "Selectors: div\n"
+                "Declarations:\n"
+                "Important declarations:\n"
+                "  background-color: black\n";
         expect_eq(css::to_string(rule), expected);
     });
 

@@ -19,6 +19,7 @@ namespace css {
 struct Rule {
     std::vector<std::string> selectors;
     std::map<PropertyId, std::string> declarations;
+    std::map<PropertyId, std::string> important_declarations;
     std::optional<MediaQuery> media_query;
     [[nodiscard]] bool operator==(Rule const &) const = default;
 };

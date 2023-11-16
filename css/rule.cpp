@@ -31,6 +31,12 @@ std::string to_string(Rule const &rule) {
     for (auto const &[property, value] : rule.declarations) {
         ss << "  " << to_string(property) << ": " << value << '\n';
     }
+    if (!rule.important_declarations.empty()) {
+        ss << "Important declarations:\n";
+        for (auto const &[property, value] : rule.important_declarations) {
+            ss << "  " << to_string(property) << ": " << value << '\n';
+        }
+    }
     if (rule.media_query.has_value()) {
         ss << "Media query:\n";
         ss << "  " << to_string(*rule.media_query) << '\n';
