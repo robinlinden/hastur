@@ -400,7 +400,7 @@ std::optional<css::Rule> Parser::parse_rule() {
         }
 
         auto [name, value] = *decl;
-        add_declaration(rule.declarations, name, value);
+        add_declaration(rule.declarations, name, util::trim(value));
         skip_whitespace_and_comments();
     }
 

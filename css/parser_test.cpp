@@ -129,6 +129,15 @@ int main() {
                 }});
     });
 
+    etest::test("property value with spaces", [] {
+        auto rules = css::parse("p { color:           green       ; }").rules;
+        expect_eq(rules,
+                std::vector<css::Rule>{{
+                        .selectors{{"p"}},
+                        .declarations{{css::PropertyId::Color, "green"}},
+                }});
+    });
+
     etest::test("parser: minified", [] {
         auto rules = css::parse("body{width:50px;font-family:inherit}head,p{display:none}"sv).rules;
         require(rules.size() == 2);
