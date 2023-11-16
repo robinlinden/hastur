@@ -156,6 +156,18 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         }
     }
 
+    // TODO(robinlinden): !important inline styles should override the ones from
+    // the style sheets.
+    for (auto const &rule : stylesheet.rules) {
+        if (rule.important_declarations.empty() || (rule.media_query.has_value() && !rule.media_query->evaluate(ctx))) {
+            continue;
+        }
+
+        if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(node, selector); })) {
+            std::ranges::copy(rule.important_declarations, std::back_inserter(matched_rules));
+        }
+    }
+
     return matched_rules;
 }
 

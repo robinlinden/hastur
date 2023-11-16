@@ -49,6 +49,25 @@ void inline_css_tests() {
                         std::pair{css::PropertyId::FontSize, "2000px"s}, std::pair{css::PropertyId::FontSize, "2px"s}});
     });
 }
+
+void important_declarations_tests() {
+    etest::test("!important: has higher priority", [] {
+        dom::Node dom = dom::Element{"div"};
+        css::StyleSheet css{.rules{{
+                .selectors = {"div"},
+                .declarations = {{css::PropertyId::FontSize, "2px"}},
+                .important_declarations = {{css::PropertyId::FontSize, "20px"}},
+        }}};
+        auto styled = style::style_tree(dom, css);
+
+        // The last property is the one that's applied.
+        expect_eq(styled->properties,
+                std::vector{
+                        std::pair{css::PropertyId::FontSize, "2px"s},
+                        std::pair{css::PropertyId::FontSize, "20px"s},
+                });
+    });
+}
 } // namespace
 
 int main() {
@@ -241,5 +260,6 @@ int main() {
     });
 
     inline_css_tests();
+    important_declarations_tests();
     return etest::run_all_tests();
 }
