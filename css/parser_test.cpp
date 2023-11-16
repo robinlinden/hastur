@@ -120,6 +120,17 @@ int main() {
         expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
     });
 
+    etest::test("parser: important rule", [] {
+        auto rules = css::parse("body { width: 50px !important; }"sv).rules;
+        require_eq(rules.size(), std::size_t{1});
+
+        auto body = rules[0];
+        expect_eq(body.selectors, std::vector{"body"s});
+        expect(body.declarations.empty());
+        expect_eq(body.important_declarations.size(), std::size_t{1});
+        expect_eq(body.important_declarations.at(css::PropertyId::Width), "50px"s);
+    });
+
     etest::test("selector with spaces", [] {
         auto rules = css::parse("p a { color: green; }").rules;
         expect_eq(rules,
