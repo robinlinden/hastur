@@ -100,6 +100,48 @@ std::string stylesheet_to_string(css::StyleSheet const &stylesheet) {
     return std::move(ss).str();
 }
 
+template<std::size_t WidthT, std::size_t HeightT>
+consteval auto as_pixel_data(std::string_view data) {
+    std::array<std::uint8_t, WidthT * HeightT * 4> pixels{};
+    std::size_t px_idx{};
+
+    constexpr auto kForegroundColor = gfx::Color{};
+    constexpr auto kBackgroundColor = gfx::Color{255, 255, 255};
+
+    for (char current : data) {
+        if (current == '\n') {
+            continue;
+        }
+
+        auto color = current == ' ' ? kBackgroundColor : kForegroundColor;
+        pixels[px_idx * 4 + 0] = color.r;
+        pixels[px_idx * 4 + 1] = color.g;
+        pixels[px_idx * 4 + 2] = color.b;
+        pixels[px_idx * 4 + 3] = color.a;
+        px_idx += 1;
+    }
+
+    return pixels;
+}
+
+constexpr auto kBrowserIcon = as_pixel_data<16, 16>(R"(
+XXXXXXXXXXXXXXXX
+X              X
+X  XX      XX  X
+X  XX      XX  X
+X  XX      XX  X
+X  XX      XX  X
+X  XX      XX  X
+X  XXXXXXXXXX  X
+X  XXXXXXXXXX  X
+X  XX      XX  X
+X  XX      XX  X
+X  XX      XX  X
+X  XX      XX  X
+X  XX      XX  X
+X              X
+XXXXXXXXXXXXXXXX)");
+
 namespace im {
 // TODO(robinlinden): Stronger types.
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
@@ -118,6 +160,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
                                                         browser_title_},
       url_buf_{std::move(start_page_hint)} {
     window_.setMouseCursor(cursor_);
+    window_.setIcon(16, 16, kBrowserIcon.data());
     if (!ImGui::SFML::Init(window_)) {
         spdlog::critical("imgui-sfml initialization failed");
         std::abort();
