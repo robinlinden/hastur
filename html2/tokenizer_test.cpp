@@ -1218,6 +1218,13 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("numeric character reference, control with replacement", [] {
+        auto tokens = run_tokenizer("&#x8A;");
+        expect_text(tokens, "\xc5\xa0"); // U+0160: LATIN CAPITAL LETTER S WITH CARON
+        expect_error(tokens, ParseError::ControlCharacterReference);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("numeric character reference, no digits", [] {
         auto tokens = run_tokenizer("&#b;");
         expect_text(tokens, "&#b;");
