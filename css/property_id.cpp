@@ -121,11 +121,11 @@ std::map<std::string_view, PropertyId> const known_properties{
 } // namespace
 
 PropertyId property_id_from_string(std::string_view id) {
-    if (!known_properties.contains(id)) {
-        return PropertyId::Unknown;
+    if (auto it = known_properties.find(id); it != end(known_properties)) {
+        return it->second;
     }
 
-    return known_properties.at(id);
+    return PropertyId::Unknown;
 }
 
 std::string_view to_string(PropertyId id) {

@@ -18,11 +18,12 @@ using namespace std::literals;
 namespace style {
 namespace {
 bool has_class(dom::Element const &element, std::string_view needle_class) {
-    if (!element.attributes.contains("class")) {
+    auto it = element.attributes.find("class");
+    if (it == element.attributes.end()) {
         return false;
     }
 
-    auto classes = util::split(element.attributes.at("class"), " ");
+    auto classes = util::split(it->second, " ");
     return std::ranges::any_of(classes, [&](auto const &c) { return c == needle_class; });
 }
 } // namespace
@@ -120,9 +121,10 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
         return has_class(element, selector_);
     }
 
-    if (selector_.starts_with('#') && element.attributes.contains("id")) {
+    if (selector_.starts_with('#')) {
+        auto it = element.attributes.find("id");
         selector_.remove_prefix(1);
-        return element.attributes.at("id") == selector_;
+        return it != element.attributes.end() && it->second == selector_;
     }
 
     return false;

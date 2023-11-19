@@ -2436,8 +2436,8 @@ void Tokenizer::run() {
                         {0x9E, 0x017E},
                         {0x9F, 0x0178}};
 
-                if (replacements.contains(character_reference_code_)) {
-                    character_reference_code_ = replacements.at(character_reference_code_);
+                if (auto it = replacements.find(character_reference_code_); it != replacements.end()) {
+                    character_reference_code_ = it->second;
                 }
 
                 temporary_buffer_ = util::unicode_to_utf8(character_reference_code_);

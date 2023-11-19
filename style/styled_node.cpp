@@ -446,8 +446,8 @@ int StyledNode::get_font_size_property() const {
     }
     auto raw_value = closest->first;
 
-    if (font_size_absolute_size_keywords.contains(raw_value)) {
-        return std::lround(font_size_absolute_size_keywords.at(raw_value) * kMediumFontSize);
+    if (auto it = font_size_absolute_size_keywords.find(raw_value); it != end(font_size_absolute_size_keywords)) {
+        return std::lround(it->second * kMediumFontSize);
     }
 
     auto parent_or_default_font_size = [&] {

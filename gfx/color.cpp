@@ -193,11 +193,11 @@ std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
 } // namespace
 
 std::optional<Color> Color::from_css_name(std::string_view name) {
-    if (!named_colors.contains(name)) {
-        return std::nullopt;
+    if (auto it = named_colors.find(name); it != end(named_colors)) {
+        return it->second;
     }
 
-    return named_colors.at(name);
+    return std::nullopt;
 }
 
 } // namespace gfx

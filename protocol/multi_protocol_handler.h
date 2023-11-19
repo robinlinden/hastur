@@ -19,11 +19,11 @@ public:
     }
 
     [[nodiscard]] Response handle(uri::Uri const &uri) override {
-        if (!handlers_.contains(uri.scheme)) {
-            return {Error::Unhandled};
+        if (auto it = handlers_.find(uri.scheme); it != handlers_.end()) {
+            return it->second->handle(uri);
         }
 
-        return handlers_[uri.scheme]->handle(uri);
+        return {Error::Unhandled};
     }
 
 private:

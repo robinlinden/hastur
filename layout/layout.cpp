@@ -254,8 +254,8 @@ std::map<std::string_view, int> const border_width_keywords{
 
 void calculate_border(LayoutBox &box, int const font_size, int const root_font_size) {
     auto as_px = [&](std::string_view border_width_property) {
-        if (border_width_keywords.contains(border_width_property)) {
-            return border_width_keywords.at(border_width_property);
+        if (auto it = border_width_keywords.find(border_width_property); it != border_width_keywords.end()) {
+            return it->second;
         }
 
         return to_px(border_width_property, font_size, root_font_size);
