@@ -5,7 +5,10 @@
 
 #include "layout/layout.h"
 
+#include "type/naive.h"
 #include "util/string.h"
+
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cassert>
@@ -282,11 +285,17 @@ void calculate_border(LayoutBox &box, int const font_size, int const root_font_s
     }
 }
 
-int text_width(std::string_view text, int const font_size) {
-    return static_cast<int>(text.size()) * font_size / 2;
+std::optional<std::shared_ptr<type::IFont const>> find_font(
+        type::IType const &type, std::span<std::string_view const> font_families, type::Px font_size) {
+    for (auto const &family : font_families) {
+        if (auto font = type.font(family, font_size)) {
+            return font;
+        }
+    }
+    return std::nullopt;
 }
 
-void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) {
+void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size, type::IType const &type) {
     switch (box.type) {
         case LayoutType::Inline: {
             assert(box.node);
@@ -294,9 +303,16 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             calculate_padding(box, font_size, root_font_size);
             calculate_border(box, font_size, root_font_size);
 
+            auto font_families = box.get_property<css::PropertyId::FontFamily>();
             if (auto text = box.text()) {
-                // TODO(robinlinden): Measure the text for real.
-                box.dimensions.content.width = text_width(*text, font_size);
+                auto font = find_font(type, font_families, type::Px{font_size});
+                if (font) {
+                    box.dimensions.content.width = (*font)->measure(*text).width;
+                } else {
+                    spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
+                    type::NaiveFont fallback{type::Px{font_size}};
+                    box.dimensions.content.width = fallback.measure(*text).width;
+                }
             }
 
             if (box.node->parent) {
@@ -307,7 +323,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
 
             int last_child_end{};
             for (auto &child : box.children) {
-                layout(child, box.dimensions.content.translated(last_child_end, 0), root_font_size);
+                layout(child, box.dimensions.content.translated(last_child_end, 0), root_font_size, type);
                 last_child_end += child.dimensions.margin_box().width;
                 box.dimensions.content.height =
                         std::max(box.dimensions.content.height, child.dimensions.margin_box().height);
@@ -324,7 +340,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             calculate_width_and_margin(box, bounds, font_size, root_font_size);
             calculate_position(box, bounds);
             for (auto &child : box.children) {
-                layout(child, box.dimensions.content, root_font_size);
+                layout(child, box.dimensions.content, root_font_size, type);
                 box.dimensions.content.height += child.dimensions.margin_box().height;
             }
             calculate_height(box, font_size, root_font_size);
@@ -335,11 +351,22 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
             int last_child_end{};
             int current_line{};
             auto font_size = !box.children.empty() ? box.children[0].get_property<css::PropertyId::FontSize>() : 0;
+            auto font_families = !box.children.empty() ? box.children[0].get_property<css::PropertyId::FontFamily>()
+                                                       : std::vector<std::string_view>{};
+
+            auto maybe_font = find_font(type, font_families, type::Px{font_size});
+            if (!maybe_font) {
+                spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
+                maybe_font = std::make_shared<type::NaiveFont>(type::Px{font_size});
+            }
+            auto font = *maybe_font;
+
             for (std::size_t i = 0; i < box.children.size(); ++i) {
                 auto *child = &box.children[i];
                 layout(*child,
                         box.dimensions.content.translated(last_child_end, current_line * font_size),
-                        root_font_size);
+                        root_font_size,
+                        type);
                 // TODO(robinlinden): Handle cases where the text isn't a direct child of the anonymous block.
                 if (last_child_end + child->dimensions.margin_box().width > bounds.width) {
                     auto text = child->text();
@@ -347,7 +374,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
                         std::size_t best_split_point = std::string_view::npos;
                         for (auto split_point = text->find(' '); split_point != std::string_view::npos;
                                 split_point = text->find(' ', split_point + 1)) {
-                            if (last_child_end + text_width(text->substr(0, split_point), font_size) > bounds.width) {
+                            if (last_child_end + font->measure(text->substr(0, split_point)).width > bounds.width) {
                                 break;
                             }
 
@@ -355,7 +382,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
                         }
 
                         if (best_split_point != std::string_view::npos) {
-                            child->dimensions.content.width = text_width(text->substr(0, best_split_point), font_size);
+                            child->dimensions.content.width = font->measure(text->substr(0, best_split_point)).width;
                             auto bonus_child = *child;
                             bonus_child.layout_text = std::string{text->substr(best_split_point + 1)};
                             box.children.insert(box.children.begin() + i + 1, std::move(bonus_child));
@@ -366,7 +393,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
                             child = &box.children[i];
                             child->layout_text = std::string{text->substr(0, best_split_point)};
                         } else {
-                            child->dimensions.content.width = text_width(*text, font_size);
+                            child->dimensions.content.width = font->measure(*text).width;
                             last_child_end += child->dimensions.margin_box().width;
                         }
                     }
@@ -385,7 +412,7 @@ void layout(LayoutBox &box, geom::Rect const &bounds, int const root_font_size) 
 
 } // namespace
 
-std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width) {
+std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width, type::IType const &type) {
     auto tree = create_tree(node);
     if (!tree) {
         return {};
@@ -393,7 +420,7 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width)
 
     collapse_whitespace(*tree);
 
-    layout(*tree, {0, 0, width, 0}, node.get_property<css::PropertyId::FontSize>());
+    layout(*tree, {0, 0, width, 0}, node.get_property<css::PropertyId::FontSize>(), type);
     return *tree;
 }
 

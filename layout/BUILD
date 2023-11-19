@@ -15,6 +15,8 @@ cc_library(
         "//dom",
         "//geom",
         "//style",
+        "//type",
+        "//type:naive",
         "//util:from_chars",
         "//util:string",
         "@spdlog",
@@ -29,5 +31,6 @@ cc_library(
         ":layout",
         "//dom",
         "//etest",
+        "//type",
     ],
 ) for src in glob(["*_test.cpp"])]

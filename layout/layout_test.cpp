@@ -6,7 +6,10 @@
 #include "layout/layout.h"
 
 #include "etest/etest.h"
+#include "type/type.h"
 
+#include <memory>
+#include <optional>
 #include <string_view>
 #include <utility>
 
@@ -18,6 +21,13 @@ using etest::require_eq;
 using layout::LayoutType;
 
 namespace {
+
+class NoType : public type::IType {
+public:
+    std::optional<std::shared_ptr<type::IFont const>> font(std::string_view, type::Px) const override {
+        return std::nullopt;
+    }
+};
 
 // Until we have a nicer tree-creation abstraction for the tests, this needs to
 // be called if a test relies on property inheritance.
@@ -1311,6 +1321,36 @@ int main() {
 
         auto layout = layout::create_layout(style, 0).value();
         expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
+    });
+
+    etest::test("text, no font available", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 30, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, 25, 10}},
+                        .children{layout::LayoutBox{
+                                .node = &style.children[0],
+                                .type = LayoutType::Inline,
+                                .dimensions{{0, 0, 25, 10}},
+                                .layout_text = "hello"sv,
+                        }},
+                }},
+        };
+
+        auto l = layout::create_layout(style, 30, NoType{}).value();
+        expect_eq(l, expected);
     });
 
     etest::test("text with newlines in", [] {

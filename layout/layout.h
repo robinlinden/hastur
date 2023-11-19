@@ -8,12 +8,14 @@
 #include "layout/layout_box.h"
 
 #include "style/styled_node.h"
+#include "type/naive.h"
+#include "type/type.h"
 
 #include <optional>
 
 namespace layout {
 
-std::optional<LayoutBox> create_layout(style::StyledNode const &, int width);
+std::optional<LayoutBox> create_layout(style::StyledNode const &, int width, type::IType const & = type::NaiveType{});
 
 } // namespace layout
 
