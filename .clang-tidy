@@ -76,7 +76,7 @@ Checks: >
 # clang-tidy-16.
 WarningsAsErrors: "*,-clang-diagnostic-builtin-macro-redefined"
 
-HeaderFilterRegex: "\\./(archive|azm|browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|idna|img|js|layout|net|os|protocol|render|style|tui|uri|url|util|wasm)/"
+HeaderFilterRegex: "\\./(archive|azm|browser|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|idna|img|js|layout|net|os|protocol|render|style|tui|type|uri|url|util|wasm)/"
 
 CheckOptions:
   # performance-move-const-arg
