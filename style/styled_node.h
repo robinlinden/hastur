@@ -90,7 +90,10 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::FontFamily) {
             auto raw_font_family = get_raw_property(T);
             auto families = util::split(raw_font_family, ",");
-            std::ranges::for_each(families, [](auto &family) { family = util::trim(family); });
+            static constexpr auto kShouldTrim = [](char c) {
+                return util::is_whitespace(c) || c == '\'' || c == '"';
+            };
+            std::ranges::for_each(families, [](auto &family) { family = util::trim(family, kShouldTrim); });
             return families;
         } else if constexpr (T == css::PropertyId::FontSize) {
             return get_font_size_property();

@@ -161,7 +161,12 @@ int main() {
     });
 
     etest::test("get_font_family_property", [] {
-        expect_property_eq<css::PropertyId::FontFamily>("abc, def", std::vector<std::string_view>{"abc", "def"});
+        using FontFamilies = std::vector<std::string_view>;
+        expect_property_eq<css::PropertyId::FontFamily>("abc, def", FontFamilies{"abc", "def"});
+        expect_property_eq<css::PropertyId::FontFamily>(R"('abc', "def")", FontFamilies{"abc", "def"});
+        expect_property_eq<css::PropertyId::FontFamily>("arial", FontFamilies{"arial"});
+        expect_property_eq<css::PropertyId::FontFamily>("'arial'", FontFamilies{"arial"});
+        expect_property_eq<css::PropertyId::FontFamily>(R"("arial")", FontFamilies{"arial"});
     });
 
     etest::test("get_font_size_property", [] {
