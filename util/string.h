@@ -113,24 +113,36 @@ constexpr bool is_whitespace(char ch) {
     return std::ranges::any_of(kWsChars, [ch](char ws_ch) { return ch == ws_ch; });
 }
 
-constexpr std::string_view trim_start(std::string_view s) {
+constexpr std::string_view trim_start(std::string_view s, std::predicate<char> auto should_trim) {
     // clang-tidy says this is pointer-ish, but msvc disagrees.
     // NOLINTNEXTLINE(readability-qualified-auto)
-    auto it = std::ranges::find_if(s, [](char ch) { return !is_whitespace(ch); });
+    auto it = std::ranges::find_if(s, [&](char ch) { return !should_trim(ch); });
     s.remove_prefix(std::distance(cbegin(s), it));
     return s;
 }
 
-constexpr std::string_view trim_end(std::string_view s) {
-    auto it = std::find_if(crbegin(s), crend(s), [](char ch) { return !is_whitespace(ch); });
+constexpr std::string_view trim_start(std::string_view s) {
+    return trim_start(s, is_whitespace);
+}
+
+constexpr std::string_view trim_end(std::string_view s, std::predicate<char> auto should_trim) {
+    auto it = std::find_if(crbegin(s), crend(s), [&](char ch) { return !should_trim(ch); });
     s.remove_suffix(std::distance(crbegin(s), it));
     return s;
 }
 
-constexpr std::string_view trim(std::string_view s) {
-    s = trim_start(s);
-    s = trim_end(s);
+constexpr std::string_view trim_end(std::string_view s) {
+    return trim_end(s, is_whitespace);
+}
+
+constexpr std::string_view trim(std::string_view s, std::predicate<char> auto should_trim) {
+    s = trim_start(s, should_trim);
+    s = trim_end(s, should_trim);
     return s;
+}
+
+constexpr std::string_view trim(std::string_view s) {
+    return trim(s, is_whitespace);
 }
 
 // https://url.spec.whatwg.org/#concept-ipv4-serializer

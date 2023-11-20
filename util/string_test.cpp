@@ -232,12 +232,27 @@ int main() {
         expect_eq(trim_start("\r\n"sv), ""sv);
     });
 
+    etest::test("trim start, should_trim", [] {
+        expect_eq(trim_start(" abc "sv, [](char c) { return c == ' '; }), "abc "sv);
+        expect_eq(trim_start(" abc "sv, [](char c) { return c <= 'a'; }), "bc "sv);
+        expect_eq(trim_start(" abc "sv, [](char c) { return c <= 'b'; }), "c "sv);
+        expect_eq(trim_start(" abc "sv, [](char c) { return c <= 'c'; }), ""sv);
+        expect_eq(trim_start(" abc "sv, [](char c) { return c == '\t'; }), " abc "sv);
+    });
+
     etest::test("trim end", [] {
         expect_eq(trim_end("abc "sv), "abc"sv);
         expect_eq(trim_end("53 \r\n"sv), "53"sv);
         expect_eq(trim_end("hello world!\t"sv), "hello world!"sv);
         expect_eq(trim_end(" word"sv), " word"sv);
         expect_eq(trim_end("\r\n"sv), ""sv);
+    });
+
+    etest::test("trim end, should_trim", [] {
+        expect_eq(trim_end(" abc "sv, [](char c) { return c == ' '; }), " abc"sv);
+        expect_eq(trim_end(" abc "sv, [](char c) { return c <= 'c'; }), ""sv);
+        expect_eq(trim_end(" abc "sv, [](char c) { return c == ' ' || c >= 'b'; }), " a"sv);
+        expect_eq(trim_end(" abc "sv, [](char c) { return c == '\t'; }), " abc "sv);
     });
 
     etest::test("trim", [] {
@@ -247,6 +262,13 @@ int main() {
         expect_eq(trim("\t\thello world\n"sv), "hello world"sv);
         expect_eq(trim(" a b c d "sv), "a b c d"sv);
         expect_eq(trim("\r\n"sv), ""sv);
+    });
+
+    etest::test("trim, should_trim", [] {
+        expect_eq(trim("abcba"sv, [](char c) { return c == ' '; }), "abcba"sv);
+        expect_eq(trim("abcba"sv, [](char c) { return c <= 'a'; }), "bcb"sv);
+        expect_eq(trim("abcba"sv, [](char c) { return c <= 'b'; }), "c"sv);
+        expect_eq(trim("abcba"sv, [](char c) { return c <= 'c'; }), ""sv);
     });
 
     etest::test("trim with non-ascii characters", [] {
