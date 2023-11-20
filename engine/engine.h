@@ -12,6 +12,8 @@
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
 #include "style/styled_node.h"
+#include "type/naive.h"
+#include "type/type.h"
 #include "uri/uri.h"
 
 #include <functional>
@@ -24,8 +26,9 @@ namespace engine {
 
 class Engine {
 public:
-    explicit Engine(std::unique_ptr<protocol::IProtocolHandler> protocol_handler)
-        : protocol_handler_{std::move(protocol_handler)} {}
+    explicit Engine(std::unique_ptr<protocol::IProtocolHandler> protocol_handler,
+            std::unique_ptr<type::IType const> type = std::make_unique<type::NaiveType>())
+        : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)} {}
 
     protocol::Error navigate(uri::Uri uri);
 
@@ -58,6 +61,7 @@ private:
     int layout_width_{};
 
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
+    std::unique_ptr<type::IType const> type_{};
 
     uri::Uri uri_{};
     protocol::Response response_{};

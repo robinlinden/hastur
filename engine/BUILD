@@ -15,6 +15,8 @@ cc_library(
         "//layout",
         "//protocol",
         "//style",
+        "//type",
+        "//type:naive",
         "//uri",
         "@spdlog",
     ],
