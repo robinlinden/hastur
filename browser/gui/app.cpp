@@ -250,6 +250,11 @@ int App::run() {
                         }
                         case sf::Keyboard::Key::F1: {
                             render_debug_ = !render_debug_;
+                            if (render_debug_) {
+                                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.25f);
+                            } else {
+                                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
+                            }
                             break;
                         }
                         case sf::Keyboard::Key::F2: {
