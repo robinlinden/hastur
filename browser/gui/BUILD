@@ -20,6 +20,7 @@ cc_binary(
         "//os:system_info",
         "//protocol",
         "//render",
+        "//type:sfml",
         "//uri",
         "//util:history",
         "@fmt",

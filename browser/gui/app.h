@@ -11,6 +11,7 @@
 #include "gfx/sfml_canvas.h"
 #include "layout/layout_box.h"
 #include "protocol/handler_factory.h"
+#include "type/sfml.h"
 #include "uri/uri.h"
 #include "util/history.h"
 
@@ -35,7 +36,8 @@ public:
 private:
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     engine::Engine engine_{protocol::HandlerFactory::create(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0")};
+                                   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"),
+            std::make_unique<type::SfmlType>()};
     bool page_loaded_{};
 
     std::string browser_title_{};
