@@ -26,3 +26,23 @@ cc_test(
         "//etest",
     ],
 )
+
+SFML_TYPE_COPTS = HASTUR_COPTS + select({
+    # SFML leaks this into our code.
+    "@platforms//os:linux": ["-Wno-implicit-fallthrough"],
+    "//conditions:default": [],
+})
+
+cc_library(
+    name = "sfml",
+    srcs = ["sfml.cpp"],
+    hdrs = ["sfml.h"],
+    copts = SFML_TYPE_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":type",
+        "//os:xdg",
+        "//util:string",
+        "@sfml//:graphics",
+    ],
+)
