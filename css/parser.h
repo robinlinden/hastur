@@ -46,38 +46,37 @@ private:
     constexpr void skip_whitespace();
 
     // CSS-specific parsing bits.
+    using Declarations = std::map<PropertyId, std::string>;
+
     void skip_whitespace_and_comments();
 
     std::optional<css::Rule> parse_rule();
     std::optional<std::pair<std::string_view, std::string_view>> parse_declaration();
 
-    void add_declaration(
-            std::map<PropertyId, std::string> &declarations, std::string_view name, std::string_view value) const;
+    void add_declaration(Declarations &, std::string_view name, std::string_view value) const;
 
     enum class BorderSide { Left, Right, Top, Bottom };
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/border
-    void expand_border(
-            std::string_view name, std::map<PropertyId, std::string> &declarations, std::string_view value) const;
+    void expand_border(std::string_view name, Declarations &, std::string_view value) const;
 
-    void expand_border_impl(BorderSide, std::map<PropertyId, std::string> &declarations, std::string_view value) const;
+    void expand_border_impl(BorderSide, Declarations &, std::string_view value) const;
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/background
     // TODO(robinlinden): This only handles a color being named, and assumes any single item listed is a color.
-    static void expand_background(std::map<PropertyId, std::string> &declarations, std::string_view value);
+    static void expand_background(Declarations &, std::string_view value);
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
-    static void expand_border_radius_values(std::map<PropertyId, std::string> &declarations, std::string_view value);
+    static void expand_border_radius_values(Declarations &, std::string_view value);
 
-    static void expand_text_decoration_values(std::map<PropertyId, std::string> &declarations, std::string_view value);
+    static void expand_text_decoration_values(Declarations &, std::string_view value);
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
-    static void expand_flex_flow(std::map<PropertyId, std::string> &, std::string_view);
+    static void expand_flex_flow(Declarations &, std::string_view);
 
-    void expand_edge_values(
-            std::map<PropertyId, std::string> &declarations, std::string property, std::string_view value) const;
+    void expand_edge_values(Declarations &, std::string property, std::string_view value) const;
 
-    void expand_font(std::map<PropertyId, std::string> &declarations, std::string_view value) const;
+    void expand_font(Declarations &, std::string_view value) const;
 };
 
 inline StyleSheet parse(std::string_view input) {
