@@ -53,14 +53,14 @@ private:
     std::optional<css::Rule> parse_rule();
     std::optional<std::pair<std::string_view, std::string_view>> parse_declaration();
 
-    void add_declaration(Declarations &, std::string_view name, std::string_view value) const;
+    static void add_declaration(Declarations &, std::string_view name, std::string_view value);
 
     enum class BorderSide { Left, Right, Top, Bottom };
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/border
-    void expand_border(std::string_view name, Declarations &, std::string_view value) const;
+    static void expand_border(std::string_view name, Declarations &, std::string_view value);
 
-    void expand_border_impl(BorderSide, Declarations &, std::string_view value) const;
+    static void expand_border_impl(BorderSide, Declarations &, std::string_view value);
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/background
     // TODO(robinlinden): This only handles a color being named, and assumes any single item listed is a color.
@@ -74,9 +74,9 @@ private:
     // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
     static void expand_flex_flow(Declarations &, std::string_view);
 
-    void expand_edge_values(Declarations &, std::string property, std::string_view value) const;
+    static void expand_edge_values(Declarations &, std::string property, std::string_view value);
 
-    void expand_font(Declarations &, std::string_view value) const;
+    static void expand_font(Declarations &, std::string_view value);
 };
 
 inline StyleSheet parse(std::string_view input) {

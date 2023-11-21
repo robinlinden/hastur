@@ -431,7 +431,7 @@ std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_decla
     return std::pair{*name, *value};
 }
 
-void Parser::add_declaration(Declarations &declarations, std::string_view name, std::string_view value) const {
+void Parser::add_declaration(Declarations &declarations, std::string_view name, std::string_view value) {
     if (is_shorthand_edge_property(name)) {
         expand_edge_values(declarations, std::string{name}, value);
     } else if (name == "background") {
@@ -454,7 +454,7 @@ void Parser::add_declaration(Declarations &declarations, std::string_view name, 
 enum class BorderSide { Left, Right, Top, Bottom };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border
-void Parser::expand_border(std::string_view name, Declarations &declarations, std::string_view value) const {
+void Parser::expand_border(std::string_view name, Declarations &declarations, std::string_view value) {
     if (name == "border") {
         expand_border_impl(BorderSide::Left, declarations, value);
         expand_border_impl(BorderSide::Right, declarations, value);
@@ -471,7 +471,7 @@ void Parser::expand_border(std::string_view name, Declarations &declarations, st
     }
 }
 
-void Parser::expand_border_impl(BorderSide side, Declarations &declarations, std::string_view value) const {
+void Parser::expand_border_impl(BorderSide side, Declarations &declarations, std::string_view value) {
     auto [color_id, style_id, width_id] = [&] {
         switch (side) {
             case BorderSide::Left:
@@ -701,7 +701,7 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
     declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
 }
 
-void Parser::expand_edge_values(Declarations &declarations, std::string property, std::string_view value) const {
+void Parser::expand_edge_values(Declarations &declarations, std::string property, std::string_view value) {
     std::string_view top, bottom, left, right;
     Tokenizer tokenizer(value, ' ');
     // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
@@ -744,7 +744,7 @@ void Parser::expand_edge_values(Declarations &declarations, std::string property
             property_id_from_string(fmt::format("{}-right{}", property, post_fix)), std::string{right});
 }
 
-void Parser::expand_font(Declarations &declarations, std::string_view value) const {
+void Parser::expand_font(Declarations &declarations, std::string_view value) {
     Tokenizer tokenizer(value, ' ');
     if (tokenizer.size() == 1) {
         // TODO(mkiael): Handle system properties correctly. Just forward it for now.
