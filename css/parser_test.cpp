@@ -105,10 +105,75 @@ void text_decoration_tests() {
     });
 }
 
+void outline_tests() {
+    etest::test("parser: outline shorthand, all values", [] {
+        auto rules = css::parse("p { outline: 5px black solid; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::OutlineColor, "black"s},
+                        {css::PropertyId::OutlineStyle, "solid"s},
+                        {css::PropertyId::OutlineWidth, "5px"s},
+                });
+    });
+
+    etest::test("parser: outline shorthand, color+style", [] {
+        auto rules = css::parse("p { outline: #123 dotted; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::OutlineColor, "#123"s},
+                        {css::PropertyId::OutlineStyle, "dotted"s},
+                        {css::PropertyId::OutlineWidth, "medium"s},
+                });
+    });
+
+    etest::test("parser: outline shorthand, width+style", [] {
+        auto rules = css::parse("p { outline: ridge 30em; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::OutlineColor, "currentcolor"s},
+                        {css::PropertyId::OutlineStyle, "ridge"s},
+                        {css::PropertyId::OutlineWidth, "30em"s},
+                });
+    });
+
+    etest::test("parser: outline shorthand, width", [] {
+        auto rules = css::parse("p { outline: thin; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::OutlineColor, "currentcolor"s},
+                        {css::PropertyId::OutlineStyle, "none"s},
+                        {css::PropertyId::OutlineWidth, "thin"s},
+                });
+    });
+
+    etest::test("parser: outline shorthand, width, first character a dot", [] {
+        auto rules = css::parse("p { outline: .3em; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::OutlineColor, "currentcolor"s},
+                        {css::PropertyId::OutlineStyle, "none"s},
+                        {css::PropertyId::OutlineWidth, ".3em"s},
+                });
+    });
+
+    etest::test("parser: outline shorthand, too many values", [] {
+        auto rules = css::parse("p { outline: outset #123 none solid; }").rules;
+        require(rules.size() == 1);
+        auto const &p = rules[0];
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+}
+
 } // namespace
 
 int main() {
     text_decoration_tests();
+    outline_tests();
 
     etest::test("parser: simple rule", [] {
         auto rules = css::parse("body { width: 50px; }"sv).rules;

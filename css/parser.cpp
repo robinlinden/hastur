@@ -446,6 +446,8 @@ void Parser::add_declaration(Declarations &declarations, std::string_view name, 
         expand_flex_flow(declarations, value);
     } else if (is_in_array<kBorderShorthandProperties>(name)) {
         expand_border(name, declarations, value);
+    } else if (name == "outline") {
+        expand_outline(declarations, value);
     } else {
         declarations.insert_or_assign(property_id_from_string(name), std::string{value});
     }
@@ -535,6 +537,13 @@ void Parser::expand_border_or_outline_impl(
     declarations.insert_or_assign(ids.color, color.value_or("currentcolor"));
     declarations.insert_or_assign(ids.style, style.value_or("none"));
     declarations.insert_or_assign(ids.width, width.value_or("medium"));
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/outline
+void Parser::expand_outline(Declarations &declarations, std::string_view outline) {
+    static constexpr BorderOrOutlinePropertyIds kIds{
+            PropertyId::OutlineColor, PropertyId::OutlineStyle, PropertyId::OutlineWidth};
+    expand_border_or_outline_impl(kIds, declarations, outline);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/background

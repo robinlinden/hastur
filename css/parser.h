@@ -65,6 +65,8 @@ private:
     };
     static void expand_border_or_outline_impl(BorderOrOutlinePropertyIds, Declarations &, std::string_view);
 
+    static void expand_outline(Declarations &, std::string_view);
+
     // https://developer.mozilla.org/en-US/docs/Web/CSS/background
     // TODO(robinlinden): This only handles a color being named, and assumes any single item listed is a color.
     static void expand_background(Declarations &, std::string_view value);
