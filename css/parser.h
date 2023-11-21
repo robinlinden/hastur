@@ -55,12 +55,15 @@ private:
 
     static void add_declaration(Declarations &, std::string_view name, std::string_view value);
 
-    enum class BorderSide { Left, Right, Top, Bottom };
-
     // https://developer.mozilla.org/en-US/docs/Web/CSS/border
     static void expand_border(std::string_view name, Declarations &, std::string_view value);
 
-    static void expand_border_impl(BorderSide, Declarations &, std::string_view value);
+    struct BorderOrOutlinePropertyIds {
+        PropertyId color{};
+        PropertyId style{};
+        PropertyId width{};
+    };
+    static void expand_border_or_outline_impl(BorderOrOutlinePropertyIds, Declarations &, std::string_view);
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/background
     // TODO(robinlinden): This only handles a color being named, and assumes any single item listed is a color.

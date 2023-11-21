@@ -451,44 +451,46 @@ void Parser::add_declaration(Declarations &declarations, std::string_view name, 
     }
 }
 
-enum class BorderSide { Left, Right, Top, Bottom };
-
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border
 void Parser::expand_border(std::string_view name, Declarations &declarations, std::string_view value) {
+    enum class BorderSide { Left, Right, Top, Bottom };
+
+    static constexpr auto kIdsFor = [](BorderSide side) -> BorderOrOutlinePropertyIds {
+        switch (side) {
+            case BorderSide::Left:
+                return BorderOrOutlinePropertyIds{
+                        PropertyId::BorderLeftColor, PropertyId::BorderLeftStyle, PropertyId::BorderLeftWidth};
+            case BorderSide::Right:
+                return BorderOrOutlinePropertyIds{
+                        PropertyId::BorderRightColor, PropertyId::BorderRightStyle, PropertyId::BorderRightWidth};
+            case BorderSide::Top:
+                return BorderOrOutlinePropertyIds{
+                        PropertyId::BorderTopColor, PropertyId::BorderTopStyle, PropertyId::BorderTopWidth};
+            case BorderSide::Bottom:
+            default:
+                return BorderOrOutlinePropertyIds{
+                        PropertyId::BorderBottomColor, PropertyId::BorderBottomStyle, PropertyId::BorderBottomWidth};
+        }
+    };
+
     if (name == "border") {
-        expand_border_impl(BorderSide::Left, declarations, value);
-        expand_border_impl(BorderSide::Right, declarations, value);
-        expand_border_impl(BorderSide::Top, declarations, value);
-        expand_border_impl(BorderSide::Bottom, declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Left), declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Right), declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Top), declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Bottom), declarations, value);
     } else if (name == "border-left") {
-        expand_border_impl(BorderSide::Left, declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Left), declarations, value);
     } else if (name == "border-right") {
-        expand_border_impl(BorderSide::Right, declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Right), declarations, value);
     } else if (name == "border-top") {
-        expand_border_impl(BorderSide::Top, declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Top), declarations, value);
     } else if (name == "border-bottom") {
-        expand_border_impl(BorderSide::Bottom, declarations, value);
+        expand_border_or_outline_impl(kIdsFor(BorderSide::Bottom), declarations, value);
     }
 }
 
-void Parser::expand_border_impl(BorderSide side, Declarations &declarations, std::string_view value) {
-    auto [color_id, style_id, width_id] = [&] {
-        switch (side) {
-            case BorderSide::Left:
-                return std::tuple{
-                        PropertyId::BorderLeftColor, PropertyId::BorderLeftStyle, PropertyId::BorderLeftWidth};
-            case BorderSide::Right:
-                return std::tuple{
-                        PropertyId::BorderRightColor, PropertyId::BorderRightStyle, PropertyId::BorderRightWidth};
-            case BorderSide::Top:
-                return std::tuple{PropertyId::BorderTopColor, PropertyId::BorderTopStyle, PropertyId::BorderTopWidth};
-            case BorderSide::Bottom:
-                return std::tuple{
-                        PropertyId::BorderBottomColor, PropertyId::BorderBottomStyle, PropertyId::BorderBottomWidth};
-        }
-        std::abort(); // Unreachable.
-    }();
-
+void Parser::expand_border_or_outline_impl(
+        BorderOrOutlinePropertyIds ids, Declarations &declarations, std::string_view value) {
     Tokenizer tokenizer(value, ' ');
     if (tokenizer.empty() || tokenizer.size() > 3) {
         // TODO(robinlinden): Propagate info about invalid properties.
@@ -530,9 +532,9 @@ void Parser::expand_border_impl(BorderSide side, Declarations &declarations, std
     }
     // NOLINTEND(bugprone-unchecked-optional-access)
 
-    declarations.insert_or_assign(color_id, color.value_or("currentcolor"));
-    declarations.insert_or_assign(style_id, style.value_or("none"));
-    declarations.insert_or_assign(width_id, width.value_or("medium"));
+    declarations.insert_or_assign(ids.color, color.value_or("currentcolor"));
+    declarations.insert_or_assign(ids.style, style.value_or("none"));
+    declarations.insert_or_assign(ids.width, width.value_or("medium"));
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/background
