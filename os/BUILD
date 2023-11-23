@@ -109,3 +109,15 @@ cc_test(
         "//etest",
     ],
 )
+
+cc_test(
+    name = "xdg_linux_test",
+    size = "small",
+    srcs = ["xdg_linux_test.cpp"],
+    copts = HASTUR_COPTS,
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = [
+        ":xdg",
+        "//etest",
+    ],
+)
