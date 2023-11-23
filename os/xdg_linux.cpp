@@ -15,14 +15,17 @@ namespace os {
 
 std::vector<std::string> font_paths() {
     std::vector<std::string> paths{};
+
+    char const *home = std::getenv("HOME");
     if (char const *xdg_data_home = std::getenv("XDG_DATA_HOME")) {
         paths.push_back(xdg_data_home + "/fonts"s);
+    } else if (home != nullptr) {
+        // $HOME/.local/share/ is the default XDG_DATA_HOME, so we only add this
+        // path if XDG_DATA_HOME is not set.
+        paths.push_back(home + "/.local/share/fonts"s);
     }
 
-    if (char const *home = std::getenv("HOME")) {
-        if (paths.empty()) {
-            paths.push_back(home + "/.local/share/fonts"s);
-        }
+    if (home != nullptr) {
         paths.push_back(home + "/.fonts"s);
     }
 
