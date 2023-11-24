@@ -289,6 +289,27 @@ int main() {
         expect_property_eq<css::PropertyId::BorderTopStyle>("ridge", style::BorderStyle::Ridge);
     });
 
+    etest::test("get_property, outline-style", [] {
+        expect_property_eq<css::PropertyId::OutlineStyle>("none", style::BorderStyle::None);
+        expect_property_eq<css::PropertyId::OutlineStyle>("hidden", style::BorderStyle::Hidden);
+        expect_property_eq<css::PropertyId::OutlineStyle>("dotted", style::BorderStyle::Dotted);
+        expect_property_eq<css::PropertyId::OutlineStyle>("dashed", style::BorderStyle::Dashed);
+        expect_property_eq<css::PropertyId::OutlineStyle>("solid", style::BorderStyle::Solid);
+        expect_property_eq<css::PropertyId::OutlineStyle>("double", style::BorderStyle::Double);
+        expect_property_eq<css::PropertyId::OutlineStyle>("groove", style::BorderStyle::Groove);
+        expect_property_eq<css::PropertyId::OutlineStyle>("ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::OutlineStyle>("inset", style::BorderStyle::Inset);
+        expect_property_eq<css::PropertyId::OutlineStyle>("outset", style::BorderStyle::Outset);
+        expect_property_eq<css::PropertyId::OutlineStyle>("???", style::BorderStyle::None);
+    });
+
+    etest::test("get_property, outline-color", [] {
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3)", gfx::Color{1, 2, 3});
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / -0.5)", gfx::Color{1, 2, 3, 0});
+        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / 1.5)", gfx::Color{1, 2, 3, 0xFF});
+    });
+
     etest::test("get_property, color", [] {
         expect_property_eq<css::PropertyId::Color>("rgba(1 2 3)", gfx::Color{1, 2, 3});
         expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});

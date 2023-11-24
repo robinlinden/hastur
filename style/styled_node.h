@@ -32,6 +32,8 @@ enum class BorderStyle {
     Outset,
 };
 
+using OutlineStyle = BorderStyle;
+
 enum class DisplayValue {
     None,
     Inline,
@@ -74,7 +76,7 @@ struct StyledNode {
         // Some of these branches have the same content, but we still want to
         // keep related properties grouped together and away from unrelated
         // ones, e.g. all border-<side>-color properties in the same branch.
-        // NOLINTNEXTLINE(bugprone-branch-clone)
+        // NOLINTBEGIN(bugprone-branch-clone)
         if constexpr (T == css::PropertyId::BackgroundColor) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::BorderBottomColor || T == css::PropertyId::BorderLeftColor
@@ -83,6 +85,10 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::BorderBottomStyle || T == css::PropertyId::BorderLeftStyle
                 || T == css::PropertyId::BorderRightStyle || T == css::PropertyId::BorderTopStyle) {
             return get_border_style_property(T);
+        } else if constexpr (T == css::PropertyId::OutlineStyle) {
+            return get_border_style_property(T);
+        } else if constexpr (T == css::PropertyId::OutlineColor) {
+            return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Color) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
@@ -106,6 +112,7 @@ struct StyledNode {
         } else {
             return get_raw_property(T);
         }
+        // NOLINTEND(bugprone-branch-clone)
     }
 
 private:
