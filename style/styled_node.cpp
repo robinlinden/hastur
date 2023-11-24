@@ -83,6 +83,11 @@ std::map<css::PropertyId, std::string_view> const initial_values{
         {css::PropertyId::BorderRightWidth, "medium"sv},
         {css::PropertyId::BorderTopWidth, "medium"sv},
 
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/outline
+        {css::PropertyId::OutlineColor, "currentcolor"},
+        {css::PropertyId::OutlineStyle, "none"},
+        {css::PropertyId::OutlineWidth, "medium"},
+
         // https://developer.mozilla.org/en-US/docs/Web/CSS/padding#formal_definition
         {css::PropertyId::PaddingBottom, "0"sv},
         {css::PropertyId::PaddingLeft, "0"sv},
