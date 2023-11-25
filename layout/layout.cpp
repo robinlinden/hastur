@@ -191,16 +191,18 @@ void calculate_width_and_margin(
         box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
     }
 
-    if (auto min = box.get_property<css::PropertyId::MinWidth>()) {
-        if (box.dimensions.content.width < *min) {
-            box.dimensions.content.width = *min;
+    if (auto min = box.get_property<css::PropertyId::MinWidth>(); !min.is_auto()) {
+        auto resolved = min.resolve(font_size, root_font_size, parent.width);
+        if (box.dimensions.content.width < resolved) {
+            box.dimensions.content.width = resolved;
             calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
         }
     }
 
-    if (auto max = box.get_property<css::PropertyId::MaxWidth>()) {
-        if (box.dimensions.content.width > *max) {
-            box.dimensions.content.width = *max;
+    if (auto max = box.get_property<css::PropertyId::MaxWidth>(); !max.is_none()) {
+        auto resolved = max.resolve(font_size, root_font_size, parent.width);
+        if (box.dimensions.content.width > resolved) {
+            box.dimensions.content.width = resolved;
             calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size, root_font_size);
         }
     }

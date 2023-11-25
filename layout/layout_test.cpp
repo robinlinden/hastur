@@ -552,7 +552,7 @@ int main() {
             .node = dom_root,
             .properties = {{css::PropertyId::MinWidth, "100px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{css::PropertyId::MinWidth, "50px"}, {css::PropertyId::Display, "block"}}, {
+                {children[0], {{css::PropertyId::MinWidth, "50%"}, {css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
@@ -582,9 +582,9 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{css::PropertyId::MaxWidth, "100px"}, {css::PropertyId::Display, "block"}},
+            .properties = {{css::PropertyId::MaxWidth, "200px"}, {css::PropertyId::Display, "block"}},
             .children = {
-                {children[0], {{css::PropertyId::MaxWidth, "50px"}, {css::PropertyId::Display, "block"}}, {
+                {children[0], {{css::PropertyId::MaxWidth, "50%"}, {css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
                 }},
             },
@@ -593,10 +593,10 @@ int main() {
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .type = LayoutType::Block,
-            .dimensions = {{0, 0, 100, 0}},
+            .dimensions = {{0, 0, 200, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 50, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 50, 0}}, {}},
+                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
                 }},
             }
         };

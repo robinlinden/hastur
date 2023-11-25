@@ -15,6 +15,7 @@ struct UnresolvedValue {
     [[nodiscard]] bool operator==(UnresolvedValue const &) const = default;
 
     constexpr bool is_auto() const { return raw == "auto"; }
+    constexpr bool is_none() const { return raw == "none"; }
     int resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
 };
 

@@ -48,12 +48,9 @@ struct LayoutBox {
         if constexpr (T == css::PropertyId::BorderBottomLeftRadius || T == css::PropertyId::BorderBottomRightRadius
                 || T == css::PropertyId::BorderTopLeftRadius || T == css::PropertyId::BorderTopRightRadius) {
             return get_border_radius_property(T);
-        } else if constexpr (T == css::PropertyId::MinWidth) {
-            return get_min_width_property();
-        } else if constexpr (T == css::PropertyId::Width) {
+        } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
+                || T == css::PropertyId::MaxWidth) {
             return UnresolvedValue{node->get_raw_property(T)};
-        } else if constexpr (T == css::PropertyId::MaxWidth) {
-            return get_max_width_property();
         } else {
             return node->get_property<T>();
         }

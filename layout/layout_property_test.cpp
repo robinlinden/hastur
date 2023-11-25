@@ -61,14 +61,14 @@ int main() {
     });
 
     etest::test("width", [] {
-        expect_property_eq<MinWidth>("13px", 13);
-        expect_property_eq<MinWidth>("auto", std::nullopt);
+        expect_property_eq<MinWidth>("13px", layout::UnresolvedValue{"13px"});
+        expect_property_eq<MinWidth>("auto", layout::UnresolvedValue{"auto"});
 
         expect_property_eq<Width>("42px", layout::UnresolvedValue{"42px"});
         expect_property_eq<Width>("auto", layout::UnresolvedValue{"auto"});
 
-        expect_property_eq<MaxWidth>("420px", 420);
-        expect_property_eq<MaxWidth>("none", std::nullopt);
+        expect_property_eq<MaxWidth>("420px", layout::UnresolvedValue{"420px"});
+        expect_property_eq<MaxWidth>("none", layout::UnresolvedValue{"none"});
     });
 
     return etest::run_all_tests();
