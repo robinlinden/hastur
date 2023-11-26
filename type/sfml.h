@@ -23,6 +23,8 @@ public:
 
     Size measure(std::string_view text, Px font_size) const override;
 
+    sf::Font const &sf_font() const { return font_; }
+
 private:
     sf::Font font_{};
 };
