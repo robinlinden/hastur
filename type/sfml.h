@@ -33,8 +33,12 @@ class SfmlType : public IType {
 public:
     std::optional<std::shared_ptr<IFont const>> font(std::string_view name) const override;
 
+    void set_font(std::string name, std::shared_ptr<SfmlFont const> font) {
+        font_cache_.insert_or_assign(std::move(name), std::move(font));
+    }
+
 private:
-    mutable std::map<std::string, std::shared_ptr<SfmlFont>, std::less<>> font_cache_;
+    mutable std::map<std::string, std::shared_ptr<SfmlFont const>, std::less<>> font_cache_;
 };
 
 } // namespace type
