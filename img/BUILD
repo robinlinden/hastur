@@ -76,6 +76,7 @@ cc_binary(
         ":qoi",
         "//gfx",
         "//gfx:sfml",
+        "//type:sfml",
         "@sfml//:graphics",
         "@sfml//:window",
     ],

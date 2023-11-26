@@ -7,11 +7,11 @@
 
 #include "gfx/icanvas.h"
 
+#include "type/sfml.h"
+
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
-#include <map>
-#include <memory>
 #include <vector>
 
 namespace sf {
@@ -23,7 +23,7 @@ namespace gfx {
 
 class SfmlCanvas : public ICanvas {
 public:
-    explicit SfmlCanvas(sf::RenderTarget &target);
+    explicit SfmlCanvas(sf::RenderTarget &target, type::SfmlType &);
 
     void set_viewport_size(int width, int height) override;
     constexpr void set_scale(int scale) override { scale_ = scale; }
@@ -42,8 +42,8 @@ public:
 
 private:
     sf::RenderTarget &target_;
+    type::SfmlType &type_;
     sf::Shader border_shader_{};
-    std::map<std::string, std::shared_ptr<sf::Font>, std::less<>> font_cache_;
     std::vector<sf::Texture> textures_;
 
     int scale_{1};

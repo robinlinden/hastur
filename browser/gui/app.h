@@ -58,7 +58,8 @@ private:
     };
 
     Canvas selected_canvas_{Canvas::Sfml};
-    std::unique_ptr<gfx::ICanvas> canvas_{std::make_unique<gfx::SfmlCanvas>(window_)};
+    std::unique_ptr<gfx::ICanvas> canvas_{
+            std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()))};
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".

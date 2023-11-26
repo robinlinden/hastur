@@ -8,6 +8,7 @@
 
 #include "gfx/color.h"
 #include "gfx/sfml_canvas.h"
+#include "type/sfml.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
@@ -112,7 +113,8 @@ int main(int argc, char **argv) {
     window.setVerticalSyncEnabled(true);
     window.setActive(true);
 
-    gfx::SfmlCanvas canvas{window};
+    type::SfmlType type;
+    gfx::SfmlCanvas canvas{window, type};
 
     bool running = true;
     while (running) {

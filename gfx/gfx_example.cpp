@@ -5,6 +5,7 @@
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
+#include "type/sfml.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
@@ -22,9 +23,11 @@ int main(int argc, char **argv) {
     window.setVerticalSyncEnabled(true);
     window.setActive(true);
 
+    type::SfmlType type;
+
     auto canvas = [&]() -> std::unique_ptr<gfx::ICanvas> {
         if (argc == 2 && argv[1] == "--sf"sv) {
-            return std::make_unique<gfx::SfmlCanvas>(window);
+            return std::make_unique<gfx::SfmlCanvas>(window, type);
         }
         return std::make_unique<gfx::OpenGLCanvas>();
     }();

@@ -6,7 +6,6 @@
 #include "gfx/sfml_canvas.h"
 
 #include "os/xdg.h"
-#include "util/string.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -15,8 +14,8 @@
 #include <SFML/Graphics/View.hpp>
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
 #include <cassert>
+#include <exception>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -40,13 +39,13 @@ std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesys
     return {};
 }
 
-std::optional<std::shared_ptr<sf::Font>> load_fallback_font() {
-    auto font = std::make_shared<sf::Font>();
+sf::Font load_fallback_font() {
+    sf::Font font;
     for (auto const &path : os::font_paths()) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
                 spdlog::info("Trying fallback {}", entry.path().string());
-                if (font->loadFromFile(entry.path().string())) {
+                if (font.loadFromFile(entry.path().string())) {
                     spdlog::info("Using fallback {}", entry.path().string());
                     return font;
                 }
@@ -54,25 +53,23 @@ std::optional<std::shared_ptr<sf::Font>> load_fallback_font() {
         }
     }
 
-    return std::nullopt;
+    spdlog::critical("Not a single usable font found");
+    std::terminate();
 }
 
-// TODO(robinlinden): We should be looking at font names rather than filenames.
-std::optional<std::string> find_path_to_font(std::string_view font_filename) {
-    for (auto const &path : os::font_paths()) {
-        for (auto const &entry : get_font_dir_iterator(path)) {
-            auto name = entry.path().filename().string();
-            // TODO(robinlinden): std::ranges once Clang supports it. Last tested w/ 15.
-            if (std::search(begin(name), end(name), begin(font_filename), end(font_filename), [](char a, char b) {
-                    return util::lowercased(a) == util::lowercased(b);
-                }) != end(name)) {
-                spdlog::info("Found font {} for {}", entry.path().string(), font_filename);
-                return std::make_optional(entry.path().string());
-            }
+std::shared_ptr<type::SfmlFont const> find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
+    for (auto const &family : font_families) {
+        if (auto font = type.font(family.font)) {
+            return std::static_pointer_cast<type::SfmlFont const>(*std::move(font));
         }
     }
 
-    return std::nullopt;
+    auto fallback = std::make_shared<type::SfmlFont>(load_fallback_font());
+    if (!font_families.empty()) {
+        type.set_font(std::string{font_families[0].font}, fallback);
+    }
+
+    return fallback;
 }
 
 sf::Glsl::Vec2 to_vec2(int x, int y) {
@@ -103,7 +100,7 @@ sf::Text::Style to_sfml(FontStyle style) {
 
 } // namespace
 
-SfmlCanvas::SfmlCanvas(sf::RenderTarget &target) : target_{target} {
+SfmlCanvas::SfmlCanvas(sf::RenderTarget &target, type::SfmlType &type) : target_{target}, type_{type} {
     border_shader_.loadFromMemory(
             std::string{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len},
             std::string{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len});
@@ -172,73 +169,23 @@ void SfmlCanvas::draw_text(geom::Position p,
         FontSize size,
         FontStyle style,
         Color color) {
-    // Try to find a cached font.
-    for (auto const &font : font_options) {
-        if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
-            draw_text(p, text, font, size, style, color);
-            return;
-        }
-    }
-
-    // Try to load one of the options provided.
-    for (auto const &font : font_options) {
-        auto font_path = find_path_to_font(font.font);
-        auto entry = std::make_shared<sf::Font>();
-        if (!font_path || !entry->loadFromFile(*font_path)) {
-            continue;
-        }
-
-        font_cache_[std::string{font.font}] = std::move(entry);
-        draw_text(p, text, font, size, style, color);
-        return;
-    }
-
-    // Let the normal draw_text deal with loading a fallback.
-    if (!font_options.empty()) {
-        draw_text(p, text, font_options.front(), size, style, color);
-    }
-}
-
-// TODO(robinlinden): Fonts are never evicted from the cache.
-void SfmlCanvas::draw_text(
-        geom::Position p, std::string_view text, Font font, FontSize size, FontStyle style, Color color) {
     p = p.translated(tx_, ty_).scaled(scale_);
-
-    auto const *sf_font = [&]() -> sf::Font const * {
-        if (auto it = font_cache_.find(font.font); it != font_cache_.end()) {
-            return &*it->second;
-        }
-
-        auto font_path = find_path_to_font(font.font);
-        auto entry = std::make_shared<sf::Font>();
-        if (!font_path || !entry->loadFromFile(*font_path)) {
-            spdlog::warn("Unable to load font {}, looking for literally any font", font.font);
-            if (auto fallback = load_fallback_font()) {
-                entry = *std::move(fallback);
-            }
-        }
-
-        if (!entry) {
-            return nullptr;
-        }
-
-        font_cache_[std::string{font.font}] = std::move(entry);
-        return &*font_cache_.find(font.font)->second;
-    }();
-
-    if (!sf_font) {
-        spdlog::error("Unable to find font, not drawing text");
-        return;
-    }
+    auto font = find_font(type_, font_options);
+    assert(font != nullptr);
 
     sf::Text drawable;
-    drawable.setFont(*sf_font);
+    drawable.setFont(font->sf_font());
     drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px * scale_);
     drawable.setStyle(to_sfml(style));
     drawable.setPosition(static_cast<float>(p.x), static_cast<float>(p.y));
     target_.draw(drawable);
+}
+
+void SfmlCanvas::draw_text(
+        geom::Position p, std::string_view text, Font font, FontSize size, FontStyle style, Color color) {
+    draw_text(p, text, std::span<gfx::Font const>{{font}}, size, style, color);
 }
 
 void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) {

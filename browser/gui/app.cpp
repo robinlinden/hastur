@@ -649,7 +649,7 @@ void App::switch_canvas() {
     reset_scroll();
     if (selected_canvas_ == Canvas::OpenGL) {
         selected_canvas_ = Canvas::Sfml;
-        canvas_ = std::make_unique<gfx::SfmlCanvas>(window_);
+        canvas_ = std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()));
     } else {
         selected_canvas_ = Canvas::OpenGL;
         canvas_ = std::make_unique<gfx::OpenGLCanvas>();

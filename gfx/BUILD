@@ -71,7 +71,7 @@ cc_library(
     deps = [
         ":gfx",
         "//os:xdg",
-        "//util:string",
+        "//type:sfml",
         "@sfml//:graphics",
         "@spdlog",
     ],
@@ -96,6 +96,7 @@ cc_binary(
         ":gfx",
         ":opengl",
         ":sfml",
+        "//type:sfml",
         "@sfml//:graphics",
         "@sfml//:window",
     ],
