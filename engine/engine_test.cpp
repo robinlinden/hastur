@@ -8,6 +8,8 @@
 #include "etest/etest.h"
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
+#include "type/naive.h"
+#include "type/type.h"
 #include "uri/uri.h"
 
 #include <map>
@@ -445,6 +447,13 @@ int main() {
         auto res = e.load(uri::Uri::parse("hax://example.com"));
         expect_eq(res.uri_after_redirects, uri::Uri::parse("hax://example.com/redirected"));
         expect_eq(res.response, responses.at("hax://example.com/redirected"));
+    });
+
+    etest::test("IType accessor, you get what you give", [] {
+        auto naive = std::make_unique<type::NaiveType>();
+        type::IType const *saved = naive.get();
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map<std::string, Response>{}), std::move(naive)};
+        expect_eq(&e.font_system(), saved);
     });
 
     return etest::run_all_tests();

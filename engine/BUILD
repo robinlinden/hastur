@@ -32,6 +32,8 @@ cc_test(
         "//dom",
         "//etest",
         "//protocol",
+        "//type",
+        "//type:naive",
         "//uri",
     ],
 )

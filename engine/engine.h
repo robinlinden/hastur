@@ -27,7 +27,7 @@ namespace engine {
 class Engine {
 public:
     explicit Engine(std::unique_ptr<protocol::IProtocolHandler> protocol_handler,
-            std::unique_ptr<type::IType const> type = std::make_unique<type::NaiveType>())
+            std::unique_ptr<type::IType> type = std::make_unique<type::NaiveType>())
         : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)} {}
 
     protocol::Error navigate(uri::Uri uri);
@@ -50,6 +50,8 @@ public:
     };
     LoadResult load(uri::Uri);
 
+    type::IType &font_system() { return *type_; }
+
 private:
     std::function<void(protocol::Error)> on_navigation_failure_{[](protocol::Error) {
     }};
@@ -61,7 +63,7 @@ private:
     int layout_width_{};
 
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
-    std::unique_ptr<type::IType const> type_{};
+    std::unique_ptr<type::IType> type_{};
 
     uri::Uri uri_{};
     protocol::Response response_{};
