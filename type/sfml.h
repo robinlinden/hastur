@@ -19,19 +19,17 @@ namespace type {
 
 class SfmlFont : public IFont {
 public:
-    SfmlFont(sf::Font const &font, Px font_size) : font_{font}, font_size_{font_size} {}
+    explicit SfmlFont(sf::Font const &font) : font_{font} {}
 
-    Size measure(std::string_view text) const override;
-    void set_font_size(Px size) { font_size_ = size; }
+    Size measure(std::string_view text, Px font_size) const override;
 
 private:
     sf::Font font_{};
-    Px font_size_{};
 };
 
 class SfmlType : public IType {
 public:
-    std::optional<std::shared_ptr<IFont const>> font(std::string_view name, Px size) const override;
+    std::optional<std::shared_ptr<IFont const>> font(std::string_view name) const override;
 
 private:
     mutable std::map<std::string, std::shared_ptr<SfmlFont>, std::less<>> font_cache_;

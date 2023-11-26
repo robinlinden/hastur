@@ -25,13 +25,13 @@ struct Px {
 class IFont {
 public:
     virtual ~IFont() = default;
-    [[nodiscard]] virtual Size measure(std::string_view) const = 0;
+    [[nodiscard]] virtual Size measure(std::string_view, Px font_size) const = 0;
 };
 
 class IType {
 public:
     virtual ~IType() = default;
-    [[nodiscard]] virtual std::optional<std::shared_ptr<IFont const>> font(std::string_view name, Px size) const = 0;
+    [[nodiscard]] virtual std::optional<std::shared_ptr<IFont const>> font(std::string_view name) const = 0;
 };
 
 } // namespace type

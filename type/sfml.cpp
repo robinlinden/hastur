@@ -48,16 +48,15 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
 
 } // namespace
 
-Size SfmlFont::measure(std::string_view text) const {
+Size SfmlFont::measure(std::string_view text, Px font_size) const {
     sf::Text sf_text{
-            sf::String::fromUtf8(text.data(), text.data() + text.size()), font_, static_cast<unsigned>(font_size_.v)};
+            sf::String::fromUtf8(text.data(), text.data() + text.size()), font_, static_cast<unsigned>(font_size.v)};
     auto bounds = sf_text.getLocalBounds();
     return Size{static_cast<int>(bounds.width), static_cast<int>(bounds.height)};
 }
 
-std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name, Px size) const {
+std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name) const {
     if (auto font = font_cache_.find(name); font != font_cache_.end()) {
-        font->second->set_font_size(size);
         return font->second;
     }
 
@@ -66,7 +65,7 @@ std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name
         return std::nullopt;
     }
 
-    return font_cache_.insert(std::pair{std::string{name}, std::make_shared<SfmlFont>(font, size)}).first->second;
+    return font_cache_.insert(std::pair{std::string{name}, std::make_shared<SfmlFont>(font)}).first->second;
 }
 
 } // namespace type

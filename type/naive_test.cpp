@@ -12,20 +12,20 @@ int main() {
     s.add_test("NaiveFont::measure", [](etest::IActions &a) {
         type::NaiveType type{};
 
-        auto font10px = type.font("a", type::Px{10}).value();
-        a.expect_eq(font10px->measure("a"), type::Size{5, 10});
-        a.expect_eq(font10px->measure("hello"), type::Size{25, 10});
+        auto font10px = type.font("a").value();
+        a.expect_eq(font10px->measure("a", type::Px{10}), type::Size{5, 10});
+        a.expect_eq(font10px->measure("hello", type::Px{10}), type::Size{25, 10});
 
-        auto font20px = type.font("a", type::Px{20}).value();
-        a.expect_eq(font20px->measure("a"), type::Size{10, 20});
-        a.expect_eq(font20px->measure("hello"), type::Size{50, 20});
+        auto font20px = type.font("a").value();
+        a.expect_eq(font20px->measure("a", type::Px{20}), type::Size{10, 20});
+        a.expect_eq(font20px->measure("hello", type::Px{20}), type::Size{50, 20});
     });
 
     s.add_test("NaiveType::font_cache", [](etest::IActions &a) {
         type::NaiveType type{};
 
-        auto font0 = type.font("a", type::Px{10}).value();
-        auto font1 = type.font("a", type::Px{10}).value();
+        auto font0 = type.font("a").value();
+        auto font1 = type.font("a").value();
         a.expect_eq(font0.get(), font1.get());
     });
 

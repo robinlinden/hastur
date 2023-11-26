@@ -24,9 +24,7 @@ namespace {
 
 class NoType : public type::IType {
 public:
-    std::optional<std::shared_ptr<type::IFont const>> font(std::string_view, type::Px) const override {
-        return std::nullopt;
-    }
+    std::optional<std::shared_ptr<type::IFont const>> font(std::string_view) const override { return std::nullopt; }
 };
 
 // Until we have a nicer tree-creation abstraction for the tests, this needs to
