@@ -11,19 +11,20 @@ http_archive(
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
+# v0.4.1 + fix for rules_python 0.27.0 compatibility.
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "f6f3f42c48576acd5653bf07637deee2ae4ebb77ccdb0dacc67c184508bedc8c",
-    strip_prefix = "rules_fuzzing-0.4.1",
-    url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.4.1.tar.gz",
+    sha256 = "484242608494d91e4c8e5efb2d748d3f0ec2c9346d31b107667afc5d81a0f8c2",
+    strip_prefix = "rules_fuzzing-67ba0264c46c173a75825f2ae0a0b4b9b17c5e59",
+    url = "https://github.com/bazelbuild/rules_fuzzing/archive/67ba0264c46c173a75825f2ae0a0b4b9b17c5e59.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    sha256 = "9d04041ac92a0985e344235f5d946f71ac543f1b1565f2cdbc9a2aaee8adf55b",
-    strip_prefix = "rules_python-0.26.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.26.0/rules_python-0.26.0.tar.gz",
+    sha256 = "9acc0944c94adb23fba1c9988b48768b1bacc6583b52a2586895c5b7491e2e31",
+    strip_prefix = "rules_python-0.27.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.27.0/rules_python-0.27.0.tar.gz",
 )
 
 # Third-party Bazel
@@ -74,9 +75,9 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
-    sha256 = "9db77d36cb2656808463ccf8f4c1c4a02b6a59c54fcde43d490d87be00b5b558",
-    strip_prefix = "boringssl-38314c88e85527ffc4ae0a7f642b6fd39777e0a9",
-    url = "https://github.com/google/boringssl/archive/38314c88e85527ffc4ae0a7f642b6fd39777e0a9.tar.gz",
+    sha256 = "6369980cd79b3847a17a8e078dce37688671911a6fadb1c84e27fb505d827511",
+    strip_prefix = "boringssl-22b3ea0c113b544e4334377541cabe8d8038d0c7",
+    url = "https://github.com/google/boringssl/archive/22b3ea0c113b544e4334377541cabe8d8038d0c7.tar.gz",
 )
 
 http_archive(
@@ -145,9 +146,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "1acc27a778b71d859878121a3f7b287cd81c29d720893d2b2bf74455bf9d52d6",
-    strip_prefix = "imgui-1.89.9",
-    url = "https://github.com/ocornut/imgui/archive/v1.89.9.tar.gz",
+    sha256 = "170986e6a4b83d165bfc1d33c2c5a5bc2d67e5b97176287485c51a2299249296",
+    strip_prefix = "imgui-1.90",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
