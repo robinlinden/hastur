@@ -27,7 +27,7 @@ cc_library(
             "-Wno-deprecated-declarations",
         ],
     }) + select({
-        "@bazel_tools//tools/cpp:clang-cl": [
+        "@rules_cc//cc/compiler:clang-cl": [
             "-Wno-microsoft-include",
         ],
         "//conditions:default": [],
