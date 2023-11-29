@@ -1,6 +1,9 @@
 # Bazel configuration
 # =========================================================
 
+# https://github.com/bazelbuild/bazel/issues/18958
+common --noenable_bzlmod
+
 build --enable_platform_specific_config
 build --test_env=HASTUR_ICU_DATA=external/icu-data/
 coverage --combined_report=lcov
