@@ -155,8 +155,27 @@ h6 {
   margin-bottom: 2.33em;
 }
 
+/* Flow content */
+/* https://html.spec.whatwg.org/multipage/rendering.html#flow-content-3 */
+
+listing,
+plaintext,
+pre,
+xmp {
+  font-family: monospace;
+  white-space: pre;
+}
+
 /* Phrasing content */
 /* https://html.spec.whatwg.org/multipage/rendering.html#phrasing-content-3 */
+
+code,
+kbd,
+samp,
+tt {
+  font-family: monospace;
+}
+
 :link {
   color: #0000ee;
 }
