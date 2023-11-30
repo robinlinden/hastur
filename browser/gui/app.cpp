@@ -8,7 +8,10 @@
 #include "dom/dom.h"
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
+#include "gfx/sfml_canvas.h"
+#include "protocol/handler_factory.h"
 #include "render/render.h"
+#include "type/sfml.h"
 #include "uri/uri.h"
 
 #include <SFML/Graphics/Image.hpp>
@@ -21,9 +24,11 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <sstream>
 #include <string_view>
@@ -154,12 +159,44 @@ void window(char const *title, ImVec2 const &position, ImVec2 const &size, auto 
     ImGui::End();
 }
 } // namespace im
+
+std::unique_ptr<type::IType> create_font_system() {
+    static constexpr auto kMonospaceFontFileNames = std::to_array<std::string_view>({
+#ifdef _WIN32
+            "consola.ttf",
+#else
+            "DejaVuSansMono.ttf",
+#endif
+    });
+
+    auto type = std::make_unique<type::SfmlType>();
+
+    for (auto const font_name : kMonospaceFontFileNames) {
+        if (auto font = type->font(font_name)) {
+            spdlog::info("Using '{}' as monospace font", font_name);
+            type->set_font("monospace", std::static_pointer_cast<type::SfmlFont const>(*std::move(font)));
+            break;
+        }
+    }
+
+    if (!type->font("monospace")) {
+        spdlog::warn("Unable to find a monospace font, looked for [{}], good luck",
+                fmt::join(kMonospaceFontFileNames, ", "));
+    }
+
+    return type;
+}
+
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
-    : browser_title_{std::move(browser_title)}, window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY),
+    : engine_{protocol::HandlerFactory::create(
+                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"),
+            create_font_system()},
+      browser_title_{std::move(browser_title)}, window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY),
                                                         browser_title_},
-      url_buf_{std::move(start_page_hint)} {
+      url_buf_{std::move(start_page_hint)}, canvas_{std::make_unique<gfx::SfmlCanvas>(
+                                                    window_, static_cast<type::SfmlType &>(engine_.font_system()))} {
     window_.setMouseCursor(cursor_);
     window_.setIcon(16, 16, kBrowserIcon.data());
     if (!ImGui::SFML::Init(window_)) {

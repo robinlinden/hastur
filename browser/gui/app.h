@@ -8,10 +8,7 @@
 #include "dom/dom.h"
 #include "engine/engine.h"
 #include "gfx/icanvas.h"
-#include "gfx/sfml_canvas.h"
 #include "layout/layout_box.h"
-#include "protocol/handler_factory.h"
-#include "type/sfml.h"
 #include "uri/uri.h"
 #include "util/history.h"
 
@@ -35,9 +32,7 @@ public:
 
 private:
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
-    engine::Engine engine_{protocol::HandlerFactory::create(
-                                   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"),
-            std::make_unique<type::SfmlType>()};
+    engine::Engine engine_;
     bool page_loaded_{};
 
     std::string browser_title_{};
@@ -58,8 +53,7 @@ private:
     };
 
     Canvas selected_canvas_{Canvas::Sfml};
-    std::unique_ptr<gfx::ICanvas> canvas_{
-            std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()))};
+    std::unique_ptr<gfx::ICanvas> canvas_;
 
     // The scroll offset is the opposite of the current translation of the web page.
     // When we scroll "down", the web page is translated "up".
