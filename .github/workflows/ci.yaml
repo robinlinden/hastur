@@ -115,7 +115,7 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
 
-  linux-gcc-12-coverage:
+  linux-gcc-13-coverage:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
@@ -125,17 +125,18 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/bazel
-          key: coverage-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: coverage-
+          key: coverage13-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
+          restore-keys: coverage13-
+      - run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
       - name: Install
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends libgl-dev lcov gcc-12 g++-12
+          sudo apt-get install --no-install-recommends libgl-dev lcov gcc-13 g++-13
       - name: Setup
         run: |
-          echo "CC=gcc-12" >> $GITHUB_ENV
-          echo "CXX=g++-12" >> $GITHUB_ENV
-          echo "GCOV=gcov-12" >> $GITHUB_ENV
+          echo "CC=gcc-13" >> $GITHUB_ENV
+          echo "CXX=g++-13" >> $GITHUB_ENV
+          echo "GCOV=gcov-13" >> $GITHUB_ENV
       - name: Coverage
         run: bazel coverage ...
       - name: Summary
