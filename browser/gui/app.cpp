@@ -244,164 +244,168 @@ void App::set_scale(unsigned scale) {
     engine_.set_layout_width(window_size.x / scale_);
 }
 
+void App::step() {
+    sf::Event event{};
+    while (window_.pollEvent(event)) {
+        // ImGui needs a few iterations to do what it wants to do. This was
+        // pretty much picked at random after I still occasionally got
+        // unexpected results when giving it 2 iterations.
+        process_iterations_ = 5;
+        ImGui::SFML::ProcessEvent(event);
+
+        switch (event.type) {
+            case sf::Event::Closed: {
+                window_.close();
+                break;
+            }
+            case sf::Event::Resized: {
+                canvas_->set_viewport_size(event.size.width, event.size.height);
+                engine_.set_layout_width(event.size.width / scale_);
+                break;
+            }
+            case sf::Event::KeyPressed: {
+                if (ImGui::GetIO().WantCaptureKeyboard) {
+                    break;
+                }
+
+                switch (event.key.code) {
+                    case sf::Keyboard::Key::J: {
+                        scroll(event.key.shift ? -20 : -5);
+                        break;
+                    }
+                    case sf::Keyboard::Key::K: {
+                        scroll(event.key.shift ? 20 : 5);
+                        break;
+                    }
+                    case sf::Keyboard::Key::L: {
+                        if (!event.key.control) {
+                            break;
+                        }
+                        focus_url_input();
+                        break;
+                    }
+                    case sf::Keyboard::Key::F1: {
+                        render_debug_ = !render_debug_;
+                        break;
+                    }
+                    case sf::Keyboard::Key::F2: {
+                        switch_canvas();
+                        break;
+                    }
+                    case sf::Keyboard::Key::F4: {
+                        display_debug_gui_ = !display_debug_gui_;
+                        break;
+                    }
+                    case sf::Keyboard::Key::Left: {
+                        if (!event.key.alt) {
+                            break;
+                        }
+                        navigate_back();
+                        break;
+                    }
+                    case sf::Keyboard::Key::Right: {
+                        if (!event.key.alt) {
+                            break;
+                        }
+                        navigate_forward();
+                        break;
+                    }
+                    case sf::Keyboard::Key::Backspace: {
+                        navigate_back();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            }
+            case sf::Event::MouseMoved: {
+                if (!page_loaded_) {
+                    break;
+                }
+
+                auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
+                auto document_position = to_document_position(std::move(window_position));
+                auto const *hovered = get_hovered_node(document_position);
+                nav_widget_extra_info_ =
+                        fmt::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
+
+                // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
+                if (ImGui::GetIO().WantCaptureMouse) {
+                    ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+                    break;
+                }
+
+                // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
+                // currently hovering over.
+                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+                if (try_get_uri(hovered).has_value()) {
+                    cursor_.loadFromSystem(sf::Cursor::Hand);
+                } else {
+                    cursor_.loadFromSystem(sf::Cursor::Arrow);
+                }
+                window_.setMouseCursor(cursor_);
+
+                break;
+            }
+            case sf::Event::MouseButtonReleased: {
+                if (ImGui::GetIO().WantCaptureMouse || event.mouseButton.button != sf::Mouse::Left) {
+                    break;
+                }
+
+                auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
+                auto document_position = to_document_position(std::move(window_position));
+                auto const *hovered = get_hovered_node(std::move(document_position));
+                if (auto uri = try_get_uri(hovered); uri.has_value()) {
+                    url_buf_ = std::string{*uri};
+                    navigate();
+                }
+
+                break;
+            }
+            case sf::Event::MouseWheelScrolled: {
+                if (ImGui::GetIO().WantCaptureMouse
+                        || event.mouseWheelScroll.wheel != sf::Mouse::Wheel::VerticalWheel) {
+                    break;
+                }
+
+                scroll(std::lround(event.mouseWheelScroll.delta) * kMouseWheelScrollFactor);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    if (process_iterations_ == 0) {
+        // The sleep duration was picked at random.
+        std::this_thread::sleep_for(std::chrono::milliseconds{5});
+        return;
+    }
+    process_iterations_ -= 1;
+
+    run_overlay();
+    run_nav_widget();
+    if (display_debug_gui_) {
+        run_http_response_widget();
+        run_dom_widget();
+        run_stylesheet_widget();
+        run_layout_widget();
+    }
+
+    clear_render_surface();
+
+    if (page_loaded_) {
+        render_layout();
+    }
+
+    render_overlay();
+    show_render_surface();
+}
+
 int App::run() {
     while (window_.isOpen()) {
-        sf::Event event{};
-        while (window_.pollEvent(event)) {
-            // ImGui needs a few iterations to do what it wants to do. This was
-            // pretty much picked at random after I still occasionally got
-            // unexpected results when giving it 2 iterations.
-            process_iterations_ = 5;
-            ImGui::SFML::ProcessEvent(event);
-
-            switch (event.type) {
-                case sf::Event::Closed: {
-                    window_.close();
-                    break;
-                }
-                case sf::Event::Resized: {
-                    canvas_->set_viewport_size(event.size.width, event.size.height);
-                    engine_.set_layout_width(event.size.width / scale_);
-                    break;
-                }
-                case sf::Event::KeyPressed: {
-                    if (ImGui::GetIO().WantCaptureKeyboard) {
-                        break;
-                    }
-
-                    switch (event.key.code) {
-                        case sf::Keyboard::Key::J: {
-                            scroll(event.key.shift ? -20 : -5);
-                            break;
-                        }
-                        case sf::Keyboard::Key::K: {
-                            scroll(event.key.shift ? 20 : 5);
-                            break;
-                        }
-                        case sf::Keyboard::Key::L: {
-                            if (!event.key.control) {
-                                break;
-                            }
-                            focus_url_input();
-                            break;
-                        }
-                        case sf::Keyboard::Key::F1: {
-                            render_debug_ = !render_debug_;
-                            break;
-                        }
-                        case sf::Keyboard::Key::F2: {
-                            switch_canvas();
-                            break;
-                        }
-                        case sf::Keyboard::Key::F4: {
-                            display_debug_gui_ = !display_debug_gui_;
-                            break;
-                        }
-                        case sf::Keyboard::Key::Left: {
-                            if (!event.key.alt) {
-                                break;
-                            }
-                            navigate_back();
-                            break;
-                        }
-                        case sf::Keyboard::Key::Right: {
-                            if (!event.key.alt) {
-                                break;
-                            }
-                            navigate_forward();
-                            break;
-                        }
-                        case sf::Keyboard::Key::Backspace: {
-                            navigate_back();
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                    break;
-                }
-                case sf::Event::MouseMoved: {
-                    if (!page_loaded_) {
-                        break;
-                    }
-
-                    auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
-                    auto document_position = to_document_position(std::move(window_position));
-                    auto const *hovered = get_hovered_node(document_position);
-                    nav_widget_extra_info_ =
-                            fmt::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
-
-                    // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
-                    if (ImGui::GetIO().WantCaptureMouse) {
-                        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
-                        break;
-                    }
-
-                    // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
-                    // currently hovering over.
-                    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-                    if (try_get_uri(hovered).has_value()) {
-                        cursor_.loadFromSystem(sf::Cursor::Hand);
-                    } else {
-                        cursor_.loadFromSystem(sf::Cursor::Arrow);
-                    }
-                    window_.setMouseCursor(cursor_);
-
-                    break;
-                }
-                case sf::Event::MouseButtonReleased: {
-                    if (ImGui::GetIO().WantCaptureMouse || event.mouseButton.button != sf::Mouse::Left) {
-                        break;
-                    }
-
-                    auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
-                    auto document_position = to_document_position(std::move(window_position));
-                    auto const *hovered = get_hovered_node(std::move(document_position));
-                    if (auto uri = try_get_uri(hovered); uri.has_value()) {
-                        url_buf_ = std::string{*uri};
-                        navigate();
-                    }
-
-                    break;
-                }
-                case sf::Event::MouseWheelScrolled: {
-                    if (ImGui::GetIO().WantCaptureMouse
-                            || event.mouseWheelScroll.wheel != sf::Mouse::Wheel::VerticalWheel) {
-                        break;
-                    }
-
-                    scroll(std::lround(event.mouseWheelScroll.delta) * kMouseWheelScrollFactor);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-
-        if (process_iterations_ == 0) {
-            // The sleep duration was picked at random.
-            std::this_thread::sleep_for(std::chrono::milliseconds{5});
-            continue;
-        }
-        process_iterations_ -= 1;
-
-        run_overlay();
-        run_nav_widget();
-        if (display_debug_gui_) {
-            run_http_response_widget();
-            run_dom_widget();
-            run_stylesheet_widget();
-            run_layout_widget();
-        }
-
-        clear_render_surface();
-
-        if (page_loaded_) {
-            render_layout();
-        }
-
-        render_overlay();
-        show_render_surface();
+        step();
     }
 
     return 0;

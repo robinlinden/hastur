@@ -28,6 +28,7 @@ public:
     ~App();
 
     void set_scale(unsigned scale);
+    void step();
     int run();
 
 private:
