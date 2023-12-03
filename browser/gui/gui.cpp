@@ -34,6 +34,8 @@ int main(int argc, char **argv) {
 
     std::optional<std::string> page_provided{std::nullopt};
     std::optional<unsigned> scale{std::nullopt};
+    bool exit_after_load{false};
+
     for (int i = 1; i < argc; ++i) {
         auto arg = std::string_view{argv[i]};
 
@@ -54,6 +56,11 @@ int main(int argc, char **argv) {
             continue;
         }
 
+        if (arg == "--exit-after-load"sv) {
+            exit_after_load = true;
+            continue;
+        }
+
         if (i == argc - 1) {
             page_provided = std::string{arg};
             break;
@@ -65,5 +72,12 @@ int main(int argc, char **argv) {
 
     browser::gui::App app{kBrowserTitle, page_provided.value_or(std::string{kStartpage}), page_provided.has_value()};
     app.set_scale(scale.value_or(os::active_window_scale_factor()));
-    return app.run();
+
+    if (!exit_after_load) {
+        return app.run();
+    }
+
+    app.step();
+    spdlog::info("Page loaded, exiting...");
+    return 0;
 }
