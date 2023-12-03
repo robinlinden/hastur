@@ -18,7 +18,7 @@
 #include <variant>
 
 int main() {
-    const url::Url base{"https",
+    url::Url const base{"https",
             "",
             "",
             url::Host{url::HostType::DnsDomain, "example.com"},

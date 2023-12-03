@@ -193,10 +193,10 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     : engine_{protocol::HandlerFactory::create(
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"),
             create_font_system()},
-      browser_title_{std::move(browser_title)}, window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY),
-                                                        browser_title_},
-      url_buf_{std::move(start_page_hint)}, canvas_{std::make_unique<gfx::SfmlCanvas>(
-                                                    window_, static_cast<type::SfmlType &>(engine_.font_system()))} {
+      browser_title_{std::move(browser_title)},
+      window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY), browser_title_},
+      url_buf_{std::move(start_page_hint)},
+      canvas_{std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()))} {
     window_.setMouseCursor(cursor_);
     window_.setIcon(16, 16, kBrowserIcon.data());
     if (!ImGui::SFML::Init(window_)) {
