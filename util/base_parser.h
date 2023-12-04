@@ -6,8 +6,6 @@
 #ifndef UTIL_BASE_PARSER_H_
 #define UTIL_BASE_PARSER_H_
 
-#include "util/string.h"
-
 #include <cstddef>
 #include <optional>
 #include <string_view>
