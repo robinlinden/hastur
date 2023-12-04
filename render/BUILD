@@ -11,8 +11,6 @@ cc_library(
         "//css",
         "//gfx",
         "//layout",
-        "//util:from_chars",
-        "//util:string",
         "@spdlog",
     ],
 )

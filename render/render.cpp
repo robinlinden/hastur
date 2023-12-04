@@ -7,20 +7,11 @@
 
 #include "css/property_id.h"
 #include "gfx/color.h"
-#include "util/from_chars.h"
-#include "util/string.h"
 
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
-#include <charconv>
-#include <cstdint>
-#include <cstring>
-#include <sstream>
 #include <string_view>
-#include <variant>
-
-using namespace std::literals;
 
 namespace render {
 namespace {

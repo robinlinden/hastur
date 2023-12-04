@@ -6,7 +6,7 @@
 #define RENDER_RENDER_H_
 
 #include "gfx/icanvas.h"
-#include "layout/layout.h"
+#include "layout/layout_box.h"
 
 namespace render {
 
