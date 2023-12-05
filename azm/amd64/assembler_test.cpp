@@ -41,6 +41,38 @@ int main() {
         a.expect_eq(unsupported_add_code, assembler.take_assembled());
     });
 
+    s.add_test("JMP, backwards", [](etest::IActions &a) {
+        Assembler assembler;
+
+        auto slot1 = assembler.label();
+        assembler.jmp(slot1);
+        assembler.ud2();
+        assembler.jmp(slot1);
+        auto slot2 = assembler.label();
+        assembler.jmp(slot2);
+
+        a.expect_eq(assembler.take_assembled(),
+                CodeVec{
+                        0xe9, // jmp rel32
+                        0xfb, // -5
+                        0xff,
+                        0xff,
+                        0xff,
+                        0x0f, // ud2
+                        0x0b,
+                        0xe9, // jmp rel32
+                        0xf4, // -12
+                        0xff,
+                        0xff,
+                        0xff,
+                        0xe9, // jmp rel32
+                        0xfb, // -5
+                        0xff,
+                        0xff,
+                        0xff,
+                });
+    });
+
     s.add_test("MOV r32, imm32", [](etest::IActions &a) {
         Assembler assembler;
 

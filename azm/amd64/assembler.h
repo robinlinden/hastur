@@ -38,11 +38,18 @@ constexpr std::optional<std::uint8_t> register_index(Reg32 reg) {
     return std::nullopt;
 }
 
+struct Label {
+    std::size_t offset{};
+};
+
 // https://www.felixcloutier.com/x86/
 class Assembler {
 public:
     [[nodiscard]] std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
 
+    Label label() const { return Label{assembled_.size()}; }
+
+    // Instructions
     void add(Reg32 dst, Imm32 imm32) {
         if (dst != Reg32::Eax) {
             std::cerr << "add: Unhandled dst " << static_cast<int>(dst) << '\n';
@@ -52,6 +59,13 @@ public:
 
         emit(0x05);
         emit(imm32);
+    }
+
+    void jmp(Label label) {
+        // JMP rel32
+        emit(0xe9);
+        static constexpr int kInstructionSize = 4;
+        emit(Imm32{static_cast<std::uint32_t>(label.offset - assembled_.size() - kInstructionSize)});
     }
 
     void mov(Reg32 dst, Imm32 imm32) {
