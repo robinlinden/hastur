@@ -80,8 +80,8 @@ int main() {
         assembler.jmp(slot1);
         assembler.ud2();
         assembler.jmp(slot1);
-        auto slot2 = assembler.link(slot1);
-        assembler.jmp(slot2);
+        assembler.link(slot1);
+        assembler.jmp(slot1);
 
         a.expect_eq(assembler.take_assembled(),
                 CodeVec{
