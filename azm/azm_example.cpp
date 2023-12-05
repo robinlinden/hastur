@@ -11,6 +11,8 @@
 int main() {
     using namespace azm::amd64;
     Assembler assembler;
+    auto forward = assembler.unlinked_label();
+    assembler.jmp(forward);
     assembler.mov(Reg32::Eax, Imm32{3});
     assembler.add(Reg32::Eax, Imm32{39});
     assembler.mov(Reg32::Ecx, Imm32{0x4321});
@@ -18,7 +20,7 @@ int main() {
     auto end = assembler.label();
     assembler.ret();
 
-    // TODO(robinlinden): jump here.
+    assembler.link(forward);
     assembler.mov(Reg32::Edx, Imm32{0x12345678});
     assembler.mov(Reg32::Ebx, Imm32{0x1234});
     assembler.jmp(end);

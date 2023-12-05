@@ -73,6 +73,38 @@ int main() {
                 });
     });
 
+    s.add_test("JMP, forwards", [](etest::IActions &a) {
+        Assembler assembler;
+
+        auto slot1 = assembler.unlinked_label();
+        assembler.jmp(slot1);
+        assembler.ud2();
+        assembler.jmp(slot1);
+        auto slot2 = assembler.link(slot1);
+        assembler.jmp(slot2);
+
+        a.expect_eq(assembler.take_assembled(),
+                CodeVec{
+                        0xe9, // jmp rel32
+                        0x07, // 7
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x0f, // ud2
+                        0x0b,
+                        0xe9, // jmp rel32
+                        0x00, // 0
+                        0x00,
+                        0x00,
+                        0x00,
+                        0xe9, // jmp rel32
+                        0xfb, // -5
+                        0xff,
+                        0xff,
+                        0xff,
+                });
+    });
+
     s.add_test("MOV r32, imm32", [](etest::IActions &a) {
         Assembler assembler;
 
