@@ -719,7 +719,7 @@ void UrlParser::state_authority() {
         buffer_.clear();
     } else if (is_eof() || c == '/' || c == '?' || c == '#' || (special_schemes.contains(url_.scheme) && c == '\\')) {
         if (at_sign_seen_ && buffer_.empty()) {
-            validation_error(ValidationError::InvalidCredentials);
+            validation_error(ValidationError::HostMissing);
 
             state_ = ParserState::Failure;
 

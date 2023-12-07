@@ -106,7 +106,7 @@ struct Url {
     bool operator==(Url const &b) const { return serialize() == b.serialize(); }
 };
 
-// This parser is current with the WHATWG URL specification as of 1 March 2023
+// This parser is current with the WHATWG URL specification as of 27 September 2023
 class UrlParser final : util::BaseParser {
 public:
     UrlParser() : BaseParser{""} {}
