@@ -11,6 +11,7 @@ cc_library(
     includes = ["."],
     local_defines = select({
         "@platforms//os:linux": ["Z_HAVE_UNISTD_H"],
+        "@platforms//os:macos": ["Z_HAVE_UNISTD_H"],
         "@platforms//os:windows": [],
     }),
     visibility = ["//visibility:public"],

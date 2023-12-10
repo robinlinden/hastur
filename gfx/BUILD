@@ -65,6 +65,10 @@ cc_library(
             # sfml leaks this into our code.
             "-Wno-implicit-fallthrough",
         ],
+        "@platforms//os:macos": [
+            # sfml leaks this into our code.
+            "-Wno-implicit-fallthrough",
+        ],
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
@@ -98,6 +102,8 @@ cc_binary(
         ":sfml",
         "//type:sfml",
         "@sfml//:graphics",
-        "@sfml//:window",
-    ],
+    ] + select({
+        "@platforms//os:macos": ["@sfml//:window_macos"],
+        "//conditions:default": ["@sfml//:window"],
+    }),
 )

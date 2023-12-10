@@ -29,6 +29,10 @@ build:linux --features=layering_check
 build:linux --cxxopt='-std=c++2b'
 build:linux --cxxopt='-fno-rtti'
 
+build:macos --features=layering_check
+build:macos --cxxopt='-std=c++2b'
+build:macos --cxxopt='-fno-rtti'
+
 # Force DWARF-4 format for debug symbols for compatibility with valgrind.
 # See: https://bugs.kde.org/show_bug.cgi?id=452758
 build:linux --copt='-gdwarf-4'

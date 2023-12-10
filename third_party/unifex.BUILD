@@ -5,13 +5,14 @@ genrule(
     name = "config_header",
     srcs = ["include/unifex/config.hpp.in"],
     outs = ["include/unifex/config.hpp"],
-    cmd = "cat $< | sed -r 's/^#cmakedefine01 (.*)/#define \\1 1/g' - | sed '/^#cmakedefine/d' | sed s/@libunifex_VERSION_MAJOR@/0/g | sed s/@libunifex_VERSION_MINOR@/1/g >$@",
+    cmd = "cat $< | sed -r 's/^#cmakedefine01 (.*)/#define \\1 1/g' | sed '/^#cmakedefine/d' | sed s/@libunifex_VERSION_MAJOR@/0/g | sed s/@libunifex_VERSION_MINOR@/1/g >$@",
 )
 
 cc_library(
     name = "unifex",
     srcs = glob(["source/*.cpp"]) + select({
         "@platforms//os:linux": glob(["source/linux/*"]),
+        "@platforms//os:macos": [],
         "@platforms//os:windows": glob([
             "include/unifex/win32/detail/*.hpp",
             "source/win32/*",
@@ -22,6 +23,7 @@ cc_library(
         "include/unifex/detail/*.hpp",
     ]) + [":config_header"] + select({
         "@platforms//os:linux": glob(["include/unifex/linux/*.hpp"]),
+        "@platforms//os:macos": [],
         "@platforms//os:windows": glob(["include/unifex/win32/*.hpp"]),
     }),
     includes = ["include/"],

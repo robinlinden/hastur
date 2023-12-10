@@ -15,6 +15,7 @@ cc_library(
     includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": ["-lpthread"],
+        "@platforms//os:macos": ["-lpthread"],
         "@platforms//os:windows": [],
     }),
     strip_include_prefix = "include",

@@ -4,6 +4,9 @@ IMGUI_SFML_COPTS = select({
     "@platforms//os:linux": [
         "-Wno-switch",
     ],
+    "@platforms//os:macos": [
+        "-Wno-switch",
+    ],
     "//conditions:default": [],
 })
 
@@ -16,6 +19,7 @@ cc_library(
     includes = ["."],
     linkopts = select({
         "@platforms//os:linux": ["-lGL"],
+        "@platforms//os:macos": ["-lGL"],
         "@platforms//os:windows": ["-DEFAULTLIB:opengl32"],
     }),
     visibility = ["//visibility:public"],
@@ -23,6 +27,8 @@ cc_library(
         "@imgui",
         "@sfml//:graphics",
         "@sfml//:system",
-        "@sfml//:window",
-    ],
+    ] + select({
+        "@platforms//os:macos": ["@sfml//:window_macos"],
+        "//conditions:default": ["@sfml//:window"],
+    }),
 )

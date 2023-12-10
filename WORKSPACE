@@ -60,7 +60,7 @@ http_archive(
 http_archive(
     name = "bazel_clang_tidy",
     # Hack to have every .h-header treated as C++.
-    patch_cmds = ["""sed -i '47i \\    args.add("-xc++")' clang_tidy/clang_tidy.bzl"""],
+    patch_cmds = ["""sed -i'' -e '47i\\\n    args.add("-xc++")' clang_tidy/clang_tidy.bzl"""],
     sha256 = "e2721c47f4215ac36ad1da55ebdb968a094125dbc397aa7733f067001600b2ee",
     strip_prefix = "bazel_clang_tidy-133d89a6069ce253a92d32a93fdb7db9ef100e9d",
     url = "https://github.com/erenon/bazel_clang_tidy/archive/133d89a6069ce253a92d32a93fdb7db9ef100e9d.tar.gz",
@@ -82,7 +82,7 @@ http_archive(
 # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    patch_cmds = ["""sed -i '33i package(features=["-layering_check"])' BUILD"""],
+    patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
     sha256 = "6369980cd79b3847a17a8e078dce37688671911a6fadb1c84e27fb505d827511",
     strip_prefix = "boringssl-22b3ea0c113b544e4334377541cabe8d8038d0c7",
     url = "https://github.com/google/boringssl/archive/22b3ea0c113b544e4334377541cabe8d8038d0c7.tar.gz",
@@ -187,7 +187,7 @@ http_archive(
     # in MSVC debug builds with "cannot seek string_view iterator after end".
     # See: https://github.com/SFML/SFML/issues/2113
     patch_cmds = [
-        "sed -i 's/if (begin + trailingBytes < end)/if (trailingBytes < std::distance(begin, end))/' include/SFML/System/Utf.inl",
+        "sed -i'' -e 's/if (begin + trailingBytes < end)/if (trailingBytes < std::distance(begin, end))/' include/SFML/System/Utf.inl",
     ],
     sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
     strip_prefix = "SFML-2.5.1",

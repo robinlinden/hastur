@@ -7,6 +7,10 @@ NET_COPTS = HASTUR_COPTS + select({
         "-Wno-shadow",
         "-Wno-unknown-pragmas",
     ],
+    "@platforms//os:macos": [
+        "-Wno-shadow",
+        "-Wno-unknown-pragmas",
+    ],
     "//conditions:default": [],
 })
 

@@ -28,7 +28,9 @@ cc_binary(
         "@imgui-sfml",
         "@sfml//:graphics",
         "@sfml//:system",
-        "@sfml//:window",
         "@spdlog",
-    ],
+    ] + select({
+        "@platforms//os:macos": ["@sfml//:window_macos"],
+        "//conditions:default": ["@sfml//:window"],
+    }),
 )

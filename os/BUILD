@@ -8,11 +8,13 @@ cc_library(
 
 OS_DEPS = select({
     "@platforms//os:linux": [],
+    "@platforms//os:macos": [],
     "@platforms//os:windows": [":windows_setup"],
 })
 
 OS_LOCAL_DEFINES = select({
     "@platforms//os:linux": [],
+    "@platforms//os:macos": [],
     "@platforms//os:windows": ["WIN32_LEAN_AND_MEAN"],
 })
 
@@ -20,12 +22,14 @@ cc_library(
     name = "memory",
     srcs = select({
         "@platforms//os:linux": ["memory_linux.cpp"],
+        "@platforms//os:macos": ["memory_linux.cpp"],
         "@platforms//os:windows": ["memory_windows.cpp"],
     }),
     hdrs = ["memory.h"],
     copts = HASTUR_COPTS,
     linkopts = select({
         "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:Kernel32",
         ],
@@ -50,12 +54,14 @@ cc_library(
     name = "system_info",
     srcs = select({
         "@platforms//os:linux": ["system_info_linux.cpp"],
+        "@platforms//os:macos": ["system_info_linux.cpp"],
         "@platforms//os:windows": ["system_info_windows.cpp"],
     }),
     hdrs = ["system_info.h"],
     copts = HASTUR_COPTS,
     linkopts = select({
         "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:Shcore",
             "-DEFAULTLIB:User32",
@@ -82,12 +88,14 @@ cc_library(
     name = "xdg",
     srcs = select({
         "@platforms//os:linux": ["xdg_linux.cpp"],
+        "@platforms//os:macos": ["xdg_linux.cpp"],
         "@platforms//os:windows": ["xdg_windows.cpp"],
     }),
     hdrs = ["xdg.h"],
     copts = HASTUR_COPTS,
     linkopts = select({
         "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:Shell32",
             "-DEFAULTLIB:Kernel32",

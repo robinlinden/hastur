@@ -15,6 +15,7 @@ cc_library(
     includes = ["include/"],
     local_defines = select({
         "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
         "@platforms//os:windows": [
             "_UNICODE",
             "UNICODE",

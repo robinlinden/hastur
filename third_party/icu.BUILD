@@ -65,10 +65,8 @@ cc_library(
     }),
     linkstatic = True,
     local_defines = ["U_TOOLUTIL_IMPLEMENTATION"] + select({
-        "@platforms//os:windows": [],
-        "//conditions:default": [
-            "U_ELF",
-        ],
+        "@platforms//os:linux": ["U_ELF"],
+        "//conditions:default": [],
     }),
     strip_include_prefix = "source/tools/toolutil",
     visibility = ["//visibility:private"],
