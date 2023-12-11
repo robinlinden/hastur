@@ -15,9 +15,9 @@ cc_library(
     copts = select({
         "@platforms//os:windows": [
             "/GR",
-            "-I source/common/",
-            "-I source/common/unicode/",
-            "-I source/stubdata/",
+            "-Isource/common/",
+            "-Isource/common/unicode/",
+            "-Isource/stubdata/",
         ],
         "//conditions:default": [
             "-frtti",
