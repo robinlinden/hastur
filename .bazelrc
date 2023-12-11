@@ -16,7 +16,6 @@ test --test_verbose_timeout_warnings
 
 build --incompatible_config_setting_private_default_visibility
 build --incompatible_disallow_empty_glob
-build --incompatible_enable_cc_toolchain_resolution
 build --incompatible_enforce_config_setting_visibility
 
 # Compiler configuration
