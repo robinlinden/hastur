@@ -181,7 +181,11 @@ genrule(
         "uts46.nrm",
     ] + SPREP_DATA_COMPILED,
     outs = ["libicudt73l.a"],
-    cmd = r"""srcs=($(SRCS)); export PATH=$$PATH:$(location icupkg); $(location pkgdata) --entrypoint icudt73 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt73l --mode static $${srcs[0]}""",
+    cmd = r"""
+        srcs=($(SRCS));
+        export PATH=$$PATH:$(location icupkg);
+        $(location pkgdata) --entrypoint icudt73 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt73l --mode static $${srcs[0]}
+    """,
     tools = [
         ":icupkg",
         ":pkgdata",
@@ -196,7 +200,11 @@ genrule(
         "uts46.nrm",
     ] + SPREP_DATA_COMPILED,
     outs = ["sicudt73l.lib"],
-    cmd = r"""srcs=($(SRCS)); export PATH=$$PATH:$(location icupkg):"/$$('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -prerelease -find '**\lib.exe' | grep x64 | grep -v llvm | head -n1 | awk -F '\' 'BEGIN{OFS=FS} {$$NF=""; print}' | tr -d ':' | tr '\134' '/')"; $(location pkgdata) --entrypoint icudt73 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt73l --mode static $${srcs[0]}""",
+    cmd = r"""
+        srcs=($(SRCS));
+        export PATH=$$PATH:$(location icupkg):"/$$('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -prerelease -find '**\lib.exe' | grep x64 | grep -v llvm | head -n1 | awk -F '\' 'BEGIN{OFS=FS} {$$NF=""; print}' | tr -d ':' | tr '\134' '/')";
+        $(location pkgdata) --entrypoint icudt73 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt73l --mode static $${srcs[0]}
+    """,
     tools = [
         ":icupkg",
         ":pkgdata",
