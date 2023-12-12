@@ -437,7 +437,7 @@ int StyledNode::get_font_size_property() const {
             auto it = std::ranges::find_if(rbegin(n->properties), rend(n->properties), [](auto const &v) {
                 return v.first == css::PropertyId::FontSize;
             });
-            if (it != rend(n->properties)) {
+            if (it != rend(n->properties) && it->second != "inherit" && it->second != "unset") {
                 return {{it->second, n}};
             }
         }

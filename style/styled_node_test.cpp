@@ -190,6 +190,12 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 10);
         expect_eq(root.get_property<css::PropertyId::FontSize>(), 50);
 
+        // inherit, unset
+        child.properties[0] = {css::PropertyId::FontSize, "unset"};
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
+        child.properties[0] = {css::PropertyId::FontSize, "inherit"};
+        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
+
         // %
         child.properties[0] = {css::PropertyId::FontSize, "100%"};
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
