@@ -104,6 +104,11 @@ build:linux-aarch64-musl --copt=-fPIC
 build:linux-aarch64-musl --dynamic_mode=off
 # TODO(robinlinden): asio assumes __GLIBC__ is defined.
 build:linux-aarch64-musl --copt=-Wno-error=undef
+# --incompatible_sandbox_hermetic_tmp (defaults to true in Bazel 7) leads to
+# incredibly long link times.
+# See: https://github.com/uber/hermetic_cc_toolchain/issues/134
+build:linux-aarch64-musl --noincompatible_sandbox_hermetic_tmp
+
 
 # Fuzzing options
 # =========================================================
