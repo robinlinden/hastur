@@ -3,6 +3,13 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Bazel
 # =========================================================
 
+# https://github.com/bazelbuild/apple_support
+http_archive(
+    name = "build_bazel_apple_support",
+    sha256 = "cf4d63f39c7ba9059f70e995bf5fe1019267d3f77379c2028561a5d7645ef67c",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.11.1/apple_support.1.11.1.tar.gz",
+)
+
 # https://github.com/bazelbuild/platforms
 http_archive(
     name = "platforms",  # Apache-2.0
@@ -307,6 +314,11 @@ http_archive(
 
 # This needs to go last so that we can override any dependencies these calls may
 # pull in.
+
+# build_bazel_apple_support
+load("@build_bazel_apple_support//lib:repositories.bzl", "apple_support_dependencies")
+
+apple_support_dependencies()
 
 # rules_python
 load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")

@@ -29,6 +29,9 @@ build:linux --features=layering_check
 build:linux --cxxopt='-std=c++2b'
 build:linux --cxxopt='-fno-rtti'
 
+build:macos --apple_crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --host_crosstool_top=@local_config_apple_cc//:toolchain
 build:macos --features=layering_check
 build:macos --cxxopt='-std=c++2b'
 build:macos --cxxopt='-fno-rtti'
