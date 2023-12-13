@@ -124,33 +124,28 @@ jobs:
           path: ~/.cache/bazel
           key: coverage-${{ matrix.compiler }}-${{ matrix.version }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
           restore-keys: coverage-${{ matrix.compiler }}-${{ matrix.version }}-
-      - run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        if: startsWith(matrix.compiler, 'gcc')
-      - name: Install
+      - name: Setup (gcc)
         if: startsWith(matrix.compiler, 'gcc')
         run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends libgl-dev lcov gcc-${{ matrix.version }} g++-${{ matrix.version }}
-      - name: Setup
-        if: startsWith(matrix.compiler, 'gcc')
-        run: |
           echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
           echo "GCOV=gcov-${{ matrix.version }}" >> $GITHUB_ENV
-      - name: Install
+      - name: Setup (clang)
         if: startsWith(matrix.compiler, 'clang')
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.version }} main"
           sudo apt-get update
           sudo apt-get install --no-install-recommends libgl-dev lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
+          echo "CC=clang-16" >> $GITHUB_ENV
+          echo "CXX=clang++-16" >> $GITHUB_ENV
           # See: https://github.com/actions/runner-images/issues/8659
           sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
           sudo apt-get update
           sudo apt-get install --allow-downgrades libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04
-      - name: Setup
-        if: startsWith(matrix.compiler, 'clang')
-        run: echo "CC=clang-16" >> $GITHUB_ENV && echo "CXX=clang++-16" >> $GITHUB_ENV
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
       - name: Summary
