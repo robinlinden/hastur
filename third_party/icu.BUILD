@@ -124,7 +124,7 @@ filegroup(
     name = "run_sprep_" + input.replace(".txt", "").rpartition("/")[2],
     srcs = [input],
     outs = [input.replace("txt", "spp").rpartition("/")[2]],
-    cmd = "./$(location gensprep) --destdir $(RULEDIR) --bundle-name " + input.replace(".txt", "").rpartition("/")[2] + " --norm-correction external/icu/source/data/unidata/ --unicode 15.0.0 $<",
+    cmd = "./$(location gensprep) --destdir $(RULEDIR) --bundle-name " + input.replace(".txt", "").rpartition("/")[2] + " --norm-correction external/icu/source/data/unidata/ --unicode 15.1.0 $<",
     tools = [
         ":gensprep",
         ":normalizations",
@@ -178,11 +178,11 @@ genrule(
         "pkgdata.lst",
         "uts46.nrm",
     ] + SPREP_DATA_COMPILED,
-    outs = ["libicudt73l.a"],
+    outs = ["libicudt74l.a"],
     cmd = r"""
         srcs=($(SRCS));
         export PATH=$$PATH:$(location icupkg);
-        $(location pkgdata) --entrypoint icudt73 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt73l --mode static $${srcs[0]}
+        $(location pkgdata) --entrypoint icudt74 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt74l --mode static $${srcs[0]}
     """,
     tools = [
         ":icupkg",
@@ -197,11 +197,11 @@ genrule(
         "pkgdata.lst",
         "uts46.nrm",
     ] + SPREP_DATA_COMPILED,
-    outs = ["sicudt73l.lib"],
+    outs = ["sicudt74l.lib"],
     cmd = r"""
         srcs=($(SRCS));
         export PATH=$$PATH:$(location icupkg):"/$$('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -prerelease -find 'VC\Tools\MSVC\*\bin\Hostx64\x64\lib.exe' | grep -v llvm | head -n1 | awk -F '\' 'BEGIN{OFS=FS} {$$NF=""; print}' | tr -d ':' | tr '\134' '/')";
-        $(location pkgdata) --entrypoint icudt73 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt73l --mode static $${srcs[0]}
+        $(location pkgdata) --entrypoint icudt74 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt74l --mode static $${srcs[0]}
     """,
     tools = [
         ":icupkg",
