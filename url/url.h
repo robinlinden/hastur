@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,10 +11,12 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 
 namespace url {
@@ -109,7 +112,7 @@ struct Url {
 // This parser is current with the WHATWG URL specification as of 27 September 2023
 class UrlParser final : util::BaseParser {
 public:
-    UrlParser() : BaseParser{""} {}
+    UrlParser();
 
     std::optional<Url> parse(std::string input, std::optional<Url> base = std::nullopt);
 
@@ -147,6 +150,8 @@ public:
         FileInvalidWindowsDriveLetter,
         FileInvalidWindowsDriveLetterHost
     };
+
+    void set_on_error(std::function<void(ValidationError)> on_error) { on_error_ = std::move(on_error); }
 
 private:
     enum class ParserState {
@@ -240,6 +245,8 @@ private:
     bool at_sign_seen_ = false;
     bool inside_brackets_ = false;
     bool password_token_seen_ = false;
+
+    std::function<void(ValidationError)> on_error_;
 };
 
 } // namespace url

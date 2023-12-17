@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -296,11 +297,17 @@ Origin Url::origin() const {
 }
 
 void UrlParser::validation_error(ValidationError err) const {
-    spdlog::warn("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
-            current_pos(),
-            std::to_underlying(state_),
-            std::to_underlying(err),
-            validation_error_str.at(err));
+    on_error_(err);
+}
+
+UrlParser::UrlParser() : util::BaseParser("") {
+    set_on_error([this](ValidationError e) {
+        spdlog::warn("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
+                current_pos(),
+                std::to_underlying(state_),
+                std::to_underlying(e),
+                validation_error_str.at(e));
+    });
 }
 
 // https://url.spec.whatwg.org/#concept-url-parser
