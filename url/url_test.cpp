@@ -23,13 +23,13 @@ namespace {
 
 struct ParseResult {
     std::optional<url::Url> url;
-    std::vector<url::UrlParser::ValidationError> errors;
+    std::vector<url::ValidationError> errors;
 };
 
 ParseResult parse_url(std::string input, std::optional<url::Url> base = std::nullopt) {
-    std::vector<url::UrlParser::ValidationError> errors;
+    std::vector<url::ValidationError> errors;
     url::UrlParser p;
-    p.set_on_error([&errors](url::UrlParser::ValidationError e) { errors.push_back(e); });
+    p.set_on_error([&errors](url::ValidationError e) { errors.push_back(e); });
     std::optional<url::Url> url = p.parse(std::move(input), std::move(base));
     return {std::move(url), std::move(errors)};
 }
@@ -693,7 +693,7 @@ int main() {
     etest::test("URL parsing: non-relative url w/o scheme", [] {
         auto [url, errors] = parse_url("//example.com");
         etest::expect_eq(url, std::nullopt);
-        etest::expect_eq(errors, std::vector{url::UrlParser::ValidationError::MissingSchemeNonRelativeUrl});
+        etest::expect_eq(errors, std::vector{url::ValidationError::MissingSchemeNonRelativeUrl});
     });
 
     etest::test("Web Platform Tests", [] {

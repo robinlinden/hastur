@@ -109,47 +109,47 @@ struct Url {
     bool operator==(Url const &b) const { return serialize() == b.serialize(); }
 };
 
+enum class ValidationError {
+    // IDNA
+    DomainToAscii,
+    DomainToUnicode,
+    // Host parsing
+    DomainInvalidCodePoint,
+    HostInvalidCodePoint,
+    IPv4EmptyPart,
+    IPv4TooManyParts,
+    IPv4NonNumericPart,
+    IPv4NonDecimalPart,
+    IPv4OutOfRangePart,
+    IPv6Unclosed,
+    IPv6InvalidCompression,
+    IPv6TooManyPieces,
+    IPv6MultipleCompression,
+    IPv6InvalidCodePoint,
+    IPv6TooFewPieces,
+    IPv4InIPv6TooManyPieces,
+    IPv4InIPv6InvalidCodePoint,
+    IPv4InIPv6OutOfRangePart,
+    IPv4InIPv6TooFewParts,
+    // URL parsing
+    InvalidUrlUnit,
+    SpecialSchemeMissingFollowingSolidus,
+    MissingSchemeNonRelativeUrl,
+    InvalidReverseSolidus,
+    InvalidCredentials,
+    HostMissing,
+    PortOutOfRange,
+    PortInvalid,
+    FileInvalidWindowsDriveLetter,
+    FileInvalidWindowsDriveLetterHost
+};
+
 // This parser is current with the WHATWG URL specification as of 27 September 2023
 class UrlParser final : util::BaseParser {
 public:
     UrlParser();
 
     std::optional<Url> parse(std::string input, std::optional<Url> base = std::nullopt);
-
-    enum class ValidationError {
-        // IDNA
-        DomainToAscii,
-        DomainToUnicode,
-        // Host parsing
-        DomainInvalidCodePoint,
-        HostInvalidCodePoint,
-        IPv4EmptyPart,
-        IPv4TooManyParts,
-        IPv4NonNumericPart,
-        IPv4NonDecimalPart,
-        IPv4OutOfRangePart,
-        IPv6Unclosed,
-        IPv6InvalidCompression,
-        IPv6TooManyPieces,
-        IPv6MultipleCompression,
-        IPv6InvalidCodePoint,
-        IPv6TooFewPieces,
-        IPv4InIPv6TooManyPieces,
-        IPv4InIPv6InvalidCodePoint,
-        IPv4InIPv6OutOfRangePart,
-        IPv4InIPv6TooFewParts,
-        // URL parsing
-        InvalidUrlUnit,
-        SpecialSchemeMissingFollowingSolidus,
-        MissingSchemeNonRelativeUrl,
-        InvalidReverseSolidus,
-        InvalidCredentials,
-        HostMissing,
-        PortOutOfRange,
-        PortInvalid,
-        FileInvalidWindowsDriveLetter,
-        FileInvalidWindowsDriveLetterHost
-    };
 
     void set_on_error(std::function<void(ValidationError)> on_error) { on_error_ = std::move(on_error); }
 
