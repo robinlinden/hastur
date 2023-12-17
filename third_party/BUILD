@@ -1,7 +1,10 @@
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
+# //third_party:requirements_test ocasionally times out on slower machines (like
+# when running on GH Actions), so let's give it a generous timeout.
 compile_pip_requirements(
     name = "requirements",
+    timeout = "moderate",
     requirements_in = "requirements.in",
     requirements_txt = "requirements.txt",
 )
