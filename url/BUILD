@@ -39,7 +39,6 @@ cc_library(
         "//util:unicode",
         "//util:uuid",
         "@icu//:common",
-        "@spdlog",
     ],
 )
 

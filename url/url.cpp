@@ -11,7 +11,6 @@
 #include "util/unicode.h"
 #include "util/uuid.h"
 
-#include <spdlog/spdlog.h>
 #include <unicode/bytestream.h>
 #include <unicode/idna.h>
 #include <unicode/putil.h>
@@ -25,6 +24,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -295,21 +295,13 @@ Origin Url::origin() const {
 }
 
 void UrlParser::validation_error(ValidationError err) const {
-    on_error_(err);
+    if (on_error_) {
+        on_error_(err);
+    }
 }
 
 std::string_view description(ValidationError e) {
     return validation_error_str.at(e);
-}
-
-UrlParser::UrlParser() : util::BaseParser("") {
-    set_on_error([this](ValidationError e) {
-        spdlog::warn("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
-                current_pos(),
-                std::to_underlying(state_),
-                std::to_underlying(e),
-                description(e));
-    });
 }
 
 // https://url.spec.whatwg.org/#concept-url-parser
@@ -843,8 +835,6 @@ void UrlParser::state_port() {
             auto res = std::from_chars(buffer_.data(), buffer_.data() + buffer_.size(), port);
 
             if (res.ec == std::errc::invalid_argument || res.ec == std::errc::result_out_of_range) {
-                spdlog::info("Invalid port given in URL");
-
                 state_ = ParserState::Failure;
 
                 return;
@@ -1180,9 +1170,7 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
     auto *uts = icu::IDNA::createUTS46Instance(opts, err);
 
     if (U_FAILURE(err)) {
-        spdlog::info("Failed to create UTS46 instance, error {}; idna data probably missing from icu",
-                static_cast<std::int64_t>(err));
-
+        std::cerr << "Failed to create UTS46 instance: " << u_errorName(err) << '\n' << std::flush;
         return std::nullopt;
     }
 
@@ -1444,15 +1432,11 @@ std::optional<std::tuple<std::uint64_t, bool>> UrlParser::parse_ipv4_number(std:
     auto res = std::from_chars(input.data(), input.data() + input.size(), out, r);
 
     if (res.ec == std::errc::invalid_argument) {
-        spdlog::info("Invalid IPv4 number");
-
         return std::nullopt;
     }
 
     // This deviation from the spec is necessary, because the spec assumes arbitrary precision
     if (res.ec == std::errc::result_out_of_range) {
-        spdlog::info("IPv4 number > 2^64");
-
         // The number returned here is an error value
         return {{-1, true}};
     }
@@ -1516,8 +1500,6 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
             auto res = std::from_chars(input.data() + pointer, input.data() + pointer + 1, out, 16);
 
             if (res.ec == std::errc::invalid_argument || res.ec == std::errc::result_out_of_range) {
-                spdlog::info("Invalid IPv6 input");
-
                 return std::nullopt;
             }
 
@@ -1566,8 +1548,6 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
                     auto res = std::from_chars(input.data() + pointer, input.data() + pointer + 1, number);
 
                     if (res.ec == std::errc::invalid_argument || res.ec == std::errc::result_out_of_range) {
-                        spdlog::info("Invalid IPv6 input 2");
-
                         return std::nullopt;
                     }
 

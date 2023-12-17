@@ -149,7 +149,7 @@ std::string_view description(ValidationError);
 // This parser is current with the WHATWG URL specification as of 27 September 2023
 class UrlParser final : util::BaseParser {
 public:
-    UrlParser();
+    UrlParser() : util::BaseParser("") {}
 
     std::optional<Url> parse(std::string input, std::optional<Url> base = std::nullopt);
 
