@@ -74,6 +74,10 @@ int main() {
                 blob, std::regex("blob:https://\\[2001:db8:85a3::8a2e:370:7334\\]:8080/" + regex_uuid)));
     });
 
+    etest::test("Validation error: description", [] {
+        etest::expect(!description(url::ValidationError::DomainInvalidCodePoint).empty()); //
+    });
+
     etest::test("URL parsing: port and path", [] {
         url::UrlParser p;
 

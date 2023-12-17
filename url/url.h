@@ -144,6 +144,8 @@ enum class ValidationError {
     FileInvalidWindowsDriveLetterHost
 };
 
+std::string_view description(ValidationError);
+
 // This parser is current with the WHATWG URL specification as of 27 September 2023
 class UrlParser final : util::BaseParser {
 public:

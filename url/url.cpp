@@ -298,13 +298,17 @@ void UrlParser::validation_error(ValidationError err) const {
     on_error_(err);
 }
 
+std::string_view description(ValidationError e) {
+    return validation_error_str.at(e);
+}
+
 UrlParser::UrlParser() : util::BaseParser("") {
     set_on_error([this](ValidationError e) {
         spdlog::warn("url: InputPos: {}, ParserState: {}, Validation Error: {} {}",
                 current_pos(),
                 std::to_underlying(state_),
                 std::to_underlying(e),
-                validation_error_str.at(e));
+                description(e));
     });
 }
 
