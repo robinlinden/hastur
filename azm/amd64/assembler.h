@@ -8,7 +8,6 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <optional>
 #include <utility>
 #include <variant>
@@ -82,13 +81,14 @@ public:
 
     // Instructions
     void add(Reg32 dst, Imm32 imm32) {
-        if (dst != Reg32::Eax) {
-            std::cerr << "add: Unhandled dst " << static_cast<int>(dst) << '\n';
-            ud2();
+        if (dst == Reg32::Eax) {
+            emit(0x05);
+            emit(imm32);
             return;
         }
 
-        emit(0x05);
+        emit(0x81);
+        mod_rm(0b11, 0, register_index(dst).value());
         emit(imm32);
     }
 
@@ -127,6 +127,13 @@ private:
             emit(imm32.v & 0xff);
             imm32.v >>= 8;
         }
+    }
+
+    void mod_rm(std::uint8_t mod, std::uint8_t reg, std::uint8_t rm) {
+        assert(mod < 4);
+        assert(reg < 8);
+        assert(rm < 8);
+        emit((mod << 6) | (reg << 3) | rm);
     }
 
     std::vector<std::uint8_t> assembled_;

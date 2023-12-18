@@ -24,21 +24,20 @@ int main() {
         a.expect_eq(register_index(static_cast<Reg32>(std::underlying_type_t<Reg32>{30})), std::nullopt);
     });
 
-    s.add_test("ADD EAX, imm32", [](etest::IActions &a) {
+    s.add_test("ADD reg32, imm32", [](etest::IActions &a) {
         Assembler assembler;
 
+        // ADD EAX,imm32 generates slightly shorter asm than ADD w/ other registers.
         assembler.add(Reg32::Eax, Imm32{0x42});
         a.expect_eq(assembler.take_assembled(), CodeVec{0x05, 0x42, 0, 0, 0});
-    });
 
-    s.add_test("ADD w/ unsupported dst is ud2", [](etest::IActions &a) {
-        Assembler assembler;
-
+        // More general mod_rm-encoding for these registers.
+        assembler.add(Reg32::Ecx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xc1, 0x42, 0, 0, 0});
         assembler.add(Reg32::Edx, Imm32{0x42});
-        auto unsupported_add_code = assembler.take_assembled();
-
-        assembler.ud2();
-        a.expect_eq(unsupported_add_code, assembler.take_assembled());
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xc2, 0x42, 0, 0, 0});
+        assembler.add(Reg32::Ebx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xc3, 0x42, 0, 0, 0});
     });
 
     s.add_test("JMP, backwards", [](etest::IActions &a) {

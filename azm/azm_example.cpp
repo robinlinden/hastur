@@ -23,6 +23,11 @@ int main() {
     assembler.link(forward);
     assembler.mov(Reg32::Edx, Imm32{0x12345678});
     assembler.mov(Reg32::Ebx, Imm32{0x1234});
+
+    assembler.add(Reg32::Ecx, Imm32{0x1234});
+    assembler.add(Reg32::Edx, Imm32{0x1234'5678});
+    assembler.add(Reg32::Ebx, Imm32{0x5678});
+
     assembler.jmp(end);
 
     assembler.ud2();
