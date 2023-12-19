@@ -154,7 +154,7 @@ jobs:
         run: |
           wget --no-verbose --output-document=codecov https://github.com/codecov/uploader/releases/download/v0.7.1/codecov-linux
           chmod +x codecov
-          ./codecov -Z -f bazel-out/_coverage/_coverage_report.dat
+          ./codecov --token ${{ secrets.CODECOV_TOKEN }} -Z -f bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
