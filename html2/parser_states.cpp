@@ -41,6 +41,7 @@ public:
     void store_original_insertion_mode(InsertionMode mode) override { wrapped_.store_original_insertion_mode(mode); }
     InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
     InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
+    void set_frameset_ok(bool ok) override { wrapped_.set_frameset_ok(ok); }
 
 private:
     IActions &wrapped_;
@@ -394,7 +395,13 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     return InHead{}.process(a, token).value_or(InHead{});
 }
 
-std::optional<InsertionMode> AfterHead::process(IActions &, html2::Token const &) {
+std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const &token) {
+    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start && start->tag_name == "body") {
+        a.insert_element_for(*start);
+        a.set_frameset_ok(false);
+        return InBody{};
+    }
+
     return {};
 }
 

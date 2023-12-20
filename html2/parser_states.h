@@ -43,8 +43,8 @@ using InsertionMode = std::variant<Initial,
         InHead,
         InHeadNoscript,
         AfterHead,
-        // InBody,
-        Text
+        InBody,
+        Text //
 #if 0
         InTable,
         InTableText,

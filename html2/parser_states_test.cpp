@@ -273,10 +273,9 @@ void in_head_noscript_tests() {
 }
 
 void after_head_tests() {
-    // TODO(robinlinden): This is where this parser ends for now. :(
     etest::test("AfterHead: body", [] {
         auto res = parse("<body>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 }
 

@@ -35,6 +35,7 @@ public:
     virtual void set_tokenizer_state(html2::State) = 0;
     virtual void store_original_insertion_mode(InsertionMode) = 0;
     virtual InsertionMode original_insertion_mode() = 0;
+    virtual void set_frameset_ok(bool) = 0;
 
     virtual InsertionMode current_insertion_mode() const = 0;
 };

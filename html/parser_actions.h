@@ -94,6 +94,10 @@ public:
 
     html2::InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
 
+    void set_frameset_ok(bool) override {
+        // TODO(robinlinden): Implement.
+    }
+
 private:
     void insert(dom::Element element) {
         if (element.name == "html") {
