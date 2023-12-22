@@ -514,6 +514,16 @@ int StyledNode::get_font_size_property() const {
         return static_cast<int>(value * kPtToPxRatio);
     }
 
+    // https://www.w3.org/TR/css3-values/#ex
+    // https://www.w3.org/TR/css3-values/#ch
+    if (unit == "ex" || unit == "ch") {
+        // Technically, these are the height of an 'x' or '0' glyph
+        // respectively, but we're allowed to approximate it as 50% of the em
+        // value.
+        static constexpr float kExToEmRatio = 0.5f;
+        return static_cast<int>(value * kExToEmRatio * parent_or_default_font_size());
+    }
+
     spdlog::warn("Unhandled unit '{}'", unit);
     return 0;
 }
