@@ -167,6 +167,16 @@ int to_px(std::string_view property,
         return static_cast<int>(res);
     }
 
+    // https://www.w3.org/TR/css3-values/#ex
+    // https://www.w3.org/TR/css3-values/#ch
+    if (unit == "ex" || unit == "ch") {
+        // Technically, these are the height of an 'x' or '0' glyph
+        // respectively, but we're allowed to approximate it as 50% of the em
+        // value.
+        static constexpr float kExToEmRatio = 0.5f;
+        return static_cast<int>(res * kExToEmRatio * font_size);
+    }
+
     spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
     return static_cast<int>(res);
 }
