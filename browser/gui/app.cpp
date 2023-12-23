@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <span>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -161,6 +162,20 @@ void window(char const *title, ImVec2 const &position, ImVec2 const &size, auto 
 } // namespace im
 
 std::unique_ptr<type::IType> create_font_system() {
+    auto type = std::make_unique<type::SfmlType>();
+    auto set_up_font = [&type](std::string name, std::span<std::string_view const> file_name_options) {
+        for (auto const &file_name : file_name_options) {
+            if (auto font = type->font(file_name)) {
+                spdlog::info("Using '{}' as '{}'", file_name, name);
+                type->set_font(name, std::static_pointer_cast<type::SfmlFont const>(*std::move(font)));
+                return;
+            }
+        }
+
+        spdlog::warn(
+                "Unable to find a font for '{}', looked for [{}], good luck", name, fmt::join(file_name_options, ", "));
+    };
+
     static constexpr auto kMonospaceFontFileNames = std::to_array<std::string_view>({
 #ifdef _WIN32
             "consola.ttf",
@@ -169,20 +184,9 @@ std::unique_ptr<type::IType> create_font_system() {
 #endif
     });
 
-    auto type = std::make_unique<type::SfmlType>();
 
-    for (auto const font_name : kMonospaceFontFileNames) {
-        if (auto font = type->font(font_name)) {
-            spdlog::info("Using '{}' as monospace font", font_name);
-            type->set_font("monospace", std::static_pointer_cast<type::SfmlFont const>(*std::move(font)));
-            break;
-        }
-    }
 
-    if (!type->font("monospace")) {
-        spdlog::warn("Unable to find a monospace font, looked for [{}], good luck",
-                fmt::join(kMonospaceFontFileNames, ", "));
-    }
+    set_up_font("monospace", kMonospaceFontFileNames);
 
     return type;
 }
