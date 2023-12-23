@@ -184,9 +184,25 @@ std::unique_ptr<type::IType> create_font_system() {
 #endif
     });
 
+    static constexpr auto kSansSerifFontFileNames = std::to_array<std::string_view>({
+#ifdef _WIN32
+            "arial.ttf",
+#else
+            "DejaVuSans.ttf",
+#endif
+    });
 
+    static constexpr auto kSerifFontFileNames = std::to_array<std::string_view>({
+#ifdef _WIN32
+            "times.ttf",
+#else
+            "DejaVuSerif.ttf",
+#endif
+    });
 
     set_up_font("monospace", kMonospaceFontFileNames);
+    set_up_font("sans-serif", kSansSerifFontFileNames);
+    set_up_font("serif", kSerifFontFileNames);
 
     return type;
 }
