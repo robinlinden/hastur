@@ -37,9 +37,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    sha256 = "9acc0944c94adb23fba1c9988b48768b1bacc6583b52a2586895c5b7491e2e31",
-    strip_prefix = "rules_python-0.27.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.27.0/rules_python-0.27.0.tar.gz",
+    integrity = "sha256-6FrjDeM2JaY+yn/ECpT+qEXmQYiOUvMra+6pHosbJ5M=",
+    strip_prefix = "rules_python-0.27.1",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.27.1/rules_python-0.27.1.tar.gz",
 )
 
 # Third-party Bazel
@@ -173,9 +173,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    sha256 = "9eab3197231382b8b99d14d8ca647d6ab6bea1b40008df086d25e6f687309bf6",
-    strip_prefix = "simdjson-3.6.0",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.6.0.tar.gz",
+    integrity = "sha256-r9ggHPsavpJ3N9h2RBux8hcwqe5geKG4xhdOZGOYH6M=",
+    strip_prefix = "simdjson-3.6.3",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.6.3.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -237,13 +237,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.270"
+VULKAN_TAG = "1.3.273"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    sha256 = "908e4e3881df8003744279ebdb0acd195c35d3792b2855e5488871956f90a7ee",
+    integrity = "sha256-tGx3JloLDyNaPfdVdCurJz/iCD3dUrITTo9MetMVSkM=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -252,7 +252,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    sha256 = "6f45fe61239d03db419ecaf65709503a81b5b5a501c07b0b729f75b03831ca77",
+    integrity = "sha256-dEeQHxqKqU/KtVgsFKXIT2YLqBJblcM8HYc29wgF880=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
