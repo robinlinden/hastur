@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("//bzl:defs.bzl", "var_providing_rule")
 
 cc_library(
     name = "common",
@@ -172,6 +173,69 @@ cc_binary(
     ],
 )
 
+PKGDATA_INC_MACOS = r"""
+GENCCODE_ASSEMBLY_TYPE=-a gcc-darwin
+SO=dylib
+SOBJ=dylib
+A=a
+LIBPREFIX=lib
+LIB_EXT_ORDER=.74.1.dylib
+COMPILE=clang -DU_ATTRIBUTE_DEPRECATED=   -DU_HAVE_STRTOD_L=1 -DU_HAVE_XLOCALE_H=1 -DU_HAVE_STRING_VIEW=1  -O2 -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings  -Qunused-arguments -Wno-parentheses-equality -fno-common -c
+LIBFLAGS=-dynamic
+GENLIB=clang -dynamiclib -dynamic -O2 -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings  -Qunused-arguments -Wno-parentheses-equality
+LDICUDTFLAGS=
+LD_SONAME=-Wl,-compatibility_version -Wl,74 -Wl,-current_version -Wl,74.1 -install_name
+RPATH_FLAGS=
+BIR_LDFLAGS=
+AR=ar
+ARFLAGS=r -c
+RANLIB=ranlib
+INSTALL_CMD=install -c
+"""
+
+PKGDATA_INC = r"""
+GENCCODE_ASSEMBLY_TYPE=-a gcc
+SO=so
+SOBJ=so
+A=a
+LIBPREFIX=lib
+LIB_EXT_ORDER=.74.1
+COMPILE=gcc -D_REENTRANT  -DU_HAVE_ELF_H=1 -DU_HAVE_STRTOD_L=1 -DU_HAVE_XLOCALE_H=0  -DU_DISABLE_RENAMING=1 -DU_ATTRIBUTE_DEPRECATED= -march=native -O2 -pipe -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings   -c
+LIBFLAGS=-DPIC -fPIC
+GENLIB=gcc -march=native -O2 -pipe -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings   -Wl,-O1 -Wl,--as-needed  -shared -Wl,-Bsymbolic
+LDICUDTFLAGS=
+LD_SONAME=-Wl,-soname -Wl,
+RPATH_FLAGS=
+BIR_LDFLAGS=-Wl,-Bsymbolic
+AR=ar
+ARFLAGS=r
+RANLIB=ranlib
+INSTALL_CMD=install -c
+"""
+
+var_providing_rule(
+    name = "pkgdata_inc_macos",
+    var_value = PKGDATA_INC_MACOS,
+)
+
+var_providing_rule(
+    name = "pkgdata_inc",
+    var_value = PKGDATA_INC,
+)
+
+# https://github.com/unicode-org/icu/blob/main/icu4c/source/tools/pkgdata/pkgdata.cpp#L2206
+# https://github.com/unicode-org/icu/blob/main/icu4c/source/tools/pkgdata/pkgdata.cpp#L179
+# For generating the data lib, ICU uses build options from a "pkgdata.inc" file generated and installed as part of the normal ICU build. We don't do a "normal" ICU build, so we have to provide our own.
+genrule(
+    name = "pkgdata_inc",
+    outs = ["pkgdata.inc"],
+    cmd = select({
+        "@platforms//os:macos": r"""echo "$(pkgdata_inc_macos)" > $(RULEDIR)/pkgdata.inc""",
+        "//conditions:default": r"""echo "$(pkgdata_inc)" > $(RULEDIR)/pkgdata.inc"""
+    }),
+    visibility = ["//visibility:private"],
+)
+
 genrule(
     name = "run_pkgdata",
     srcs = [
@@ -182,11 +246,12 @@ genrule(
     cmd = r"""
         srcs=($(SRCS));
         export PATH=$$PATH:$(location icupkg);
-        $(location pkgdata) --entrypoint icudt74 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt74l --mode static $${srcs[0]}
+        $(location pkgdata) --bldopt $(location pkgdata_inc) --entrypoint icudt74 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt74l --mode static $${srcs[0]}
     """,
     tools = [
         ":icupkg",
         ":pkgdata",
+        ":pkgdata_inc",
     ],
     visibility = ["//visibility:public"],
 )
