@@ -82,6 +82,14 @@ constexpr char lowercased(char c) {
     return c + ('a' - 'A');
 }
 
+constexpr char uppercased(char c) {
+    if (!is_lower_alpha(c)) {
+        return c;
+    }
+
+    return c - ('a' - 'A');
+}
+
 [[nodiscard]] constexpr std::string lowercased(std::string s) {
     std::ranges::for_each(s, [](char &c) { c = lowercased(c); });
     return s;
@@ -250,6 +258,56 @@ constexpr std::string percent_decode(std::string_view input) {
             [[maybe_unused]] auto res = std::from_chars(digits.data(), digits.data() + digits.size(), num, 16);
 
             assert(res.ec != std::errc::invalid_argument && res.ec != std::errc::result_out_of_range);
+
+            output += static_cast<char>(num);
+
+            i += 2;
+        }
+    }
+
+    return output;
+}
+
+// RFC3986 normalization; uppercase all percent-encoded triplets.
+constexpr std::string percent_encoded_triplets_to_upper(std::string_view input) {
+    std::string output;
+
+    for (std::size_t i = 0; i < input.size(); i++) {
+        if (input[i] == '%' && (input.size() > i + 2 && is_hex_digit(input[i + 1]) && is_hex_digit(input[i + 2]))) {
+            output += input[i];
+            output += uppercased(input[i + 1]);
+            output += uppercased(input[i + 2]);
+
+            i += 2;
+        } else {
+            output += input[i];
+        }
+    }
+
+    return output;
+}
+
+// RFC3986 normalization; decode percent-encoded triplets that encode unreserved characters
+constexpr std::string percent_decode_unreserved(std::string_view input) {
+    std::string output;
+
+    for (std::size_t i = 0; i < input.size(); i++) {
+        if (input[i] != '%' || (input.size() <= i + 2 || !is_hex_digit(input[i + 1]) || !is_hex_digit(input[i + 2]))) {
+            output += input[i];
+        } else {
+            std::string_view digits = input.substr(i + 1, 2);
+            std::uint8_t num;
+
+            [[maybe_unused]] auto res = std::from_chars(digits.data(), digits.data() + digits.size(), num, 16);
+
+            assert(res.ec != std::errc::invalid_argument && res.ec != std::errc::result_out_of_range);
+
+            if (num > 127
+                    || (!is_alpha(num) && !is_digit(num) && num != '-' && num != '.' && num != '_' && num != '~')) {
+                output += input[i];
+
+                continue;
+            }
 
             output += static_cast<char>(num);
 

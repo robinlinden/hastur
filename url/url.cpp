@@ -221,7 +221,7 @@ std::string Url::serialize_path() const {
 }
 
 // https://url.spec.whatwg.org/#concept-url-serializer
-std::string Url::serialize(bool exclude_fragment) const {
+std::string Url::serialize(bool exclude_fragment, bool rfc3986_norm) const {
     std::string output = scheme + ":";
 
     if (host.has_value()) {
@@ -257,6 +257,14 @@ std::string Url::serialize(bool exclude_fragment) const {
 
     if (!exclude_fragment && fragment.has_value()) {
         output += "#" + *fragment;
+    }
+
+    // Slight deviation from the spec; perform some optional normalization to
+    // help with things like caching, remembering visited links, etc
+    // https://en.wikipedia.org/wiki/URI_normalization#Normalizations_that_preserve_semantics
+    if (rfc3986_norm) {
+        output = util::percent_encoded_triplets_to_upper(output);
+        output = util::percent_decode_unreserved(output);
     }
 
     return output;

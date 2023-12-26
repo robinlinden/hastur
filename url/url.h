@@ -97,7 +97,7 @@ struct Url {
     std::optional<std::string> query;
     std::optional<std::string> fragment;
 
-    std::string serialize(bool exclude_fragment = false) const;
+    std::string serialize(bool exclude_fragment = false, bool rfc3986_norm = false) const;
     std::string serialize_path() const;
 
     Origin origin() const;

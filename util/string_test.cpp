@@ -303,5 +303,37 @@ int main() {
         expect(util::ipv6_serialize(global) == "2001:db8:85a3::8a2e:370:7334");
     });
 
+    etest::test("uppercase percent-encoded triplets", [] {
+        std::string foo{"https://example.com/%ff"};
+        std::string foo2{"%be%ee%ee%ff"};
+        std::string foo3;
+        std::string foo4{"%"};
+        std::string foo5{"%77"};
+        std::string foo6{"%EE"};
+
+        expect_eq(percent_encoded_triplets_to_upper(foo), "https://example.com/%FF");
+        expect_eq(percent_encoded_triplets_to_upper(foo2), "%BE%EE%EE%FF");
+        expect_eq(percent_encoded_triplets_to_upper(foo3), "");
+        expect_eq(percent_encoded_triplets_to_upper(foo4), "%");
+        expect_eq(percent_encoded_triplets_to_upper(foo5), "%77");
+        expect_eq(percent_encoded_triplets_to_upper(foo6), "%EE");
+    });
+
+    etest::test("percent-decode URL unreserved", [] {
+        std::string foo{"https://example.com/%7e"};
+        std::string foo2{"%7e%30%61%2D%2e%5F"};
+        std::string foo3;
+        std::string foo4{"%"};
+        std::string foo5{"%77"};
+        std::string foo6{"%7F"};
+
+        expect_eq(percent_decode_unreserved(foo), "https://example.com/~");
+        expect_eq(percent_decode_unreserved(foo2), "~0a-._");
+        expect_eq(percent_decode_unreserved(foo3), "");
+        expect_eq(percent_decode_unreserved(foo4), "%");
+        expect_eq(percent_decode_unreserved(foo5), "w");
+        expect_eq(percent_decode_unreserved(foo6), "%7F");
+    });
+
     return etest::run_all_tests();
 }

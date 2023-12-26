@@ -700,6 +700,66 @@ int main() {
         etest::expect_eq(errors, std::vector{url::ValidationError::MissingSchemeNonRelativeUrl});
     });
 
+    etest::test("URL normalization: uppercasing percent-encoded triplets", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("http://example.com/foo%2a");
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->serialize(false, true), "http://example.com/foo%2A");
+    });
+
+    etest::test("URL normalization: lowercasing scheme and host", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("HTTP://User@Example.COM/Foo");
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->serialize(), "http://User@example.com/Foo");
+    });
+
+    etest::test("URL normalization: decoding percent-encoded triplets of unreserved characters", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("http://example.com/%7Efoo");
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->serialize(false, true), "http://example.com/~foo");
+    });
+
+    etest::test("URL normalization: removing dot-segments", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("http://example.com/foo/./bar/baz/../qux");
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->serialize(), "http://example.com/foo/bar/qux");
+    });
+
+    etest::test("URL normalization: converting empty path to '/'", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("http://example.com");
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->serialize(), "http://example.com/");
+    });
+
+    etest::test("URL normalization: removing default port", [] {
+        url::UrlParser p;
+
+        std::optional<url::Url> url = p.parse("http://example.com:80/");
+
+        etest::require(url.has_value());
+
+        etest::expect_eq(url->serialize(), "http://example.com/");
+    });
+
     etest::test("Web Platform Tests", [] {
         url::UrlParser p;
 
