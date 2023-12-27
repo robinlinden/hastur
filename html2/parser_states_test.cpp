@@ -9,6 +9,8 @@
 #include "etest/etest.h"
 #include "html/parser_actions.h"
 
+#include <vector>
+
 using etest::expect_eq;
 
 using NodeVec = std::vector<dom::Node>;
@@ -30,7 +32,7 @@ ParseResult parse(std::string_view html, ParseOptions opts) {
 
     ParseResult res{};
     html2::InsertionMode mode{opts.initial_insertion_mode};
-    std::stack<dom::Element *> open_elements{};
+    std::vector<dom::Element *> open_elements{};
     html::Actions actions{res.document, tokenizer, opts.scripting, mode, open_elements};
 
     auto on_token = [&](html2::Tokenizer &, html2::Token const &token) {

@@ -141,15 +141,15 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
     // comment, except if the first thing inside the body element is a meta,
     // noscript, link, script, style, or template element.
     if (doc_.html().children.size() == 1 && start_tag.tag_name != "body") {
-        auto &body = open_elements_.top()->children.emplace_back(dom::Element{.name{"body"}});
-        open_elements_.push(&std::get<dom::Element>(body));
+        auto &body = open_elements_.back()->children.emplace_back(dom::Element{.name{"body"}});
+        open_elements_.push_back(&std::get<dom::Element>(body));
     }
 
     generate_text_node_if_needed();
 
     // https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
-    if (open_elements_.top()->name == "p" && is_in_array<kAllowsParagraphEndTagOmission>(start_tag.tag_name)) {
-        open_elements_.pop();
+    if (open_elements_.back()->name == "p" && is_in_array<kAllowsParagraphEndTagOmission>(start_tag.tag_name)) {
+        open_elements_.pop_back();
     }
 
     // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
@@ -157,7 +157,7 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         tokenizer_.set_state(html2::State::Rawtext);
     }
 
-    auto &new_element = open_elements_.top()->children.emplace_back(
+    auto &new_element = open_elements_.back()->children.emplace_back(
             dom::Element{start_tag.tag_name, into_dom_attributes(start_tag.attributes), {}});
 
     if (!start_tag.self_closing) {
@@ -165,13 +165,13 @@ void Parser::operator()(html2::StartTagToken const &start_tag) {
         // if they need it, but we only ever add new children to the
         // top-most element in the stack, so this pointer will be valid
         // until it's been popped from the stack and we add its siblings.
-        open_elements_.push(std::get_if<dom::Element>(&new_element));
+        open_elements_.push_back(std::get_if<dom::Element>(&new_element));
     }
 
     // Special cases from https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
     // Immediately popped off the stack of open elements special cases.
     if (!start_tag.self_closing && is_in_array<kImmediatelyPopped>(start_tag.tag_name)) {
-        open_elements_.pop();
+        open_elements_.pop_back();
     }
 }
 
@@ -182,9 +182,9 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
     }
 
     if (end_tag.tag_name == "html" && doc_.html().children.size() == 1) {
-        if (open_elements_.top()->name == "html") {
-            auto &body = open_elements_.top()->children.emplace_back(dom::Element{.name = "body"});
-            open_elements_.push(&std::get<dom::Element>(body));
+        if (open_elements_.back()->name == "html") {
+            auto &body = open_elements_.back()->children.emplace_back(dom::Element{.name = "body"});
+            open_elements_.push_back(&std::get<dom::Element>(body));
         }
     }
 
@@ -192,22 +192,22 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
 
     // https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
     // TODO(robinlinden): or if the parent element is an autonomous custom element.
-    if (open_elements_.top()->name == "p" && end_tag.tag_name != "p"
+    if (open_elements_.back()->name == "p" && end_tag.tag_name != "p"
             && !is_in_array<kDisallowsParagraphEndTagOmissionWhenClosed>(end_tag.tag_name)) {
-        open_elements_.pop();
+        open_elements_.pop_back();
     }
 
-    if (end_tag.tag_name == "html" && open_elements_.top()->name == "body") {
-        open_elements_.pop();
+    if (end_tag.tag_name == "html" && open_elements_.back()->name == "body") {
+        open_elements_.pop_back();
     }
 
-    auto const &expected_tag = open_elements_.top()->name;
+    auto const &expected_tag = open_elements_.back()->name;
     if (end_tag.tag_name != expected_tag) {
         spdlog::warn("Unexpected end_tag name, expected [{}] but got [{}]", expected_tag, end_tag.tag_name);
         return;
     }
 
-    open_elements_.pop();
+    open_elements_.pop_back();
 }
 
 void Parser::operator()(html2::CommentToken const &) {
@@ -219,22 +219,23 @@ void Parser::operator()(html2::CharacterToken const &character) {
 }
 
 void Parser::operator()(html2::EndOfFileToken const &) {
-    if (!open_elements_.empty() && open_elements_.top()->name == "html" && open_elements_.top()->children.size() == 1) {
+    if (!open_elements_.empty() && open_elements_.back()->name == "html"
+            && open_elements_.back()->children.size() == 1) {
         auto &body = doc_.html().children.emplace_back(dom::Element{.name = "body"});
-        open_elements_.push(&std::get<dom::Element>(body));
+        open_elements_.push_back(&std::get<dom::Element>(body));
     }
 
     if (!open_elements_.empty()) {
         generate_text_node_if_needed();
     }
 
-    if (!open_elements_.empty() && open_elements_.top()->name == "body") {
-        open_elements_.pop();
+    if (!open_elements_.empty() && open_elements_.back()->name == "body") {
+        open_elements_.pop_back();
     }
 
     // https://html.spec.whatwg.org/multipage/semantics.html#the-html-element
-    if (!open_elements_.empty() && open_elements_.top()->name == "html") {
-        open_elements_.pop();
+    if (!open_elements_.empty() && open_elements_.back()->name == "html") {
+        open_elements_.pop_back();
     }
 
     if (!open_elements_.empty()) {
@@ -250,7 +251,7 @@ void Parser::generate_text_node_if_needed() {
         return;
     }
 
-    open_elements_.top()->children.emplace_back(dom::Text{std::move(text)});
+    open_elements_.back()->children.emplace_back(dom::Text{std::move(text)});
 }
 
 } // namespace html

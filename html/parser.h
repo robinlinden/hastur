@@ -13,9 +13,9 @@
 
 #include <functional>
 #include <sstream>
-#include <stack>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace html {
 
@@ -53,7 +53,7 @@ private:
 
     html2::Tokenizer tokenizer_;
     dom::Document doc_{};
-    std::stack<dom::Element *> open_elements_{};
+    std::vector<dom::Element *> open_elements_{};
     std::stringstream current_text_{};
     bool scripting_{false};
     html2::InsertionMode insertion_mode_{};

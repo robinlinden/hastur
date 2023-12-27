@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <cassert>
 #include <span>
-#include <stack>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -26,7 +25,7 @@ public:
             html2::Tokenizer &tokenizer,
             bool scripting,
             html2::InsertionMode &current_insertion_mode,
-            std::stack<dom::Element *> &open_elements)
+            std::vector<dom::Element *> &open_elements)
         : document_{document}, tokenizer_{tokenizer}, scripting_{scripting},
           current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements} {}
 
@@ -61,8 +60,8 @@ public:
         insert({token.tag_name, into_dom_attributes(token.attributes)});
     }
 
-    void pop_current_node() override { open_elements_.pop(); }
-    std::string_view current_node_name() const override { return open_elements_.top()->name; }
+    void pop_current_node() override { open_elements_.pop_back(); }
+    std::string_view current_node_name() const override { return open_elements_.back()->name; }
 
     void merge_into_html_node(std::span<html2::Attribute const> attrs) override {
         auto &html = document_.html();
@@ -76,7 +75,7 @@ public:
     }
 
     void insert_character(html2::CharacterToken const &character) override {
-        auto &current_element = open_elements_.top();
+        auto &current_element = open_elements_.back();
         if (current_element->children.empty() || !std::holds_alternative<dom::Text>(current_element->children.back())) {
             current_element->children.emplace_back(dom::Text{});
         }
@@ -104,12 +103,12 @@ private:
             assert(open_elements_.empty());
             document_.html().name = std::move(element.name);
             document_.html().attributes = std::move(element.attributes);
-            open_elements_.push(&document_.html());
+            open_elements_.push_back(&document_.html());
             return;
         }
 
-        dom::Node &node = open_elements_.top()->children.emplace_back(std::move(element));
-        open_elements_.push(&std::get<dom::Element>(node));
+        dom::Node &node = open_elements_.back()->children.emplace_back(std::move(element));
+        open_elements_.push_back(&std::get<dom::Element>(node));
     }
 
     dom::Document &document_;
@@ -117,7 +116,7 @@ private:
     bool scripting_;
     html2::InsertionMode original_insertion_mode_;
     html2::InsertionMode &current_insertion_mode_;
-    std::stack<dom::Element *> &open_elements_;
+    std::vector<dom::Element *> &open_elements_;
 };
 
 } // namespace html
