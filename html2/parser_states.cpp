@@ -42,6 +42,10 @@ public:
     InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
     InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
     void set_frameset_ok(bool ok) override { wrapped_.set_frameset_ok(ok); }
+    void push_head_as_current_open_element() override { wrapped_.push_head_as_current_open_element(); }
+    void remove_from_open_elements(std::string_view element_name) override {
+        wrapped_.remove_from_open_elements(element_name);
+    }
 
 private:
     IActions &wrapped_;
@@ -405,6 +409,30 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
             a.insert_element_for(*start);
             a.set_frameset_ok(false);
             return InBody{};
+        }
+
+        // TODO(robinlinden): frameset
+
+        static constexpr auto kInHeadElements = std::to_array<std::string_view>({
+                "base"sv,
+                "basefont"sv,
+                "bgsound"sv,
+                "link"sv,
+                "meta"sv,
+                "noframes"sv,
+                "script"sv,
+                "style"sv,
+                "template"sv,
+                "title"sv,
+        });
+
+        if (std::ranges::find(kInHeadElements, start->tag_name) != std::ranges::end(kInHeadElements)) {
+            // Parse error.
+            a.push_head_as_current_open_element();
+            auto mode_override = current_insertion_mode_override(a, AfterHead{});
+            InHead{}.process(mode_override, token);
+            a.remove_from_open_elements("head");
+            return {};
         }
     }
 

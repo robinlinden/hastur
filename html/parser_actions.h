@@ -97,6 +97,26 @@ public:
         // TODO(robinlinden): Implement.
     }
 
+    void push_head_as_current_open_element() override {
+        auto head = std::ranges::find_if(document_.html().children, [](auto const &node) {
+            return std::holds_alternative<dom::Element>(node) && std::get<dom::Element>(node).name == "head";
+        });
+
+        assert(head != document_.html().children.end());
+        assert(std::ranges::find(open_elements_, &std::get<dom::Element>(*head)) == open_elements_.end());
+
+        open_elements_.push_back(&std::get<dom::Element>(*head));
+    }
+
+    void remove_from_open_elements(std::string_view element_name) override {
+        auto const it = std::ranges::find_if(open_elements_, [element_name](auto const &element) {
+            return element->name == element_name; //
+        });
+
+        assert(it != open_elements_.end());
+        open_elements_.erase(it);
+    }
+
 private:
     void insert(dom::Element element) {
         if (element.name == "html") {

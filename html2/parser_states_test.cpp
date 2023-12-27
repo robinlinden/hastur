@@ -286,6 +286,16 @@ void after_head_tests() {
         auto res = parse("<body>", {});
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
+
+    etest::test("AfterHead: base, basefont, bgsound, link", [] {
+        auto res = parse("<head></head><base> <basefont> <bgsound> <link>", {});
+
+        auto head_children =
+                NodeVec{dom::Element{"base"}, dom::Element{"basefont"}, dom::Element{"bgsound"}, dom::Element{"link"}};
+        auto head = dom::Element{"head", {}, std::move(head_children)};
+
+        expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head)}});
+    });
 }
 
 } // namespace
