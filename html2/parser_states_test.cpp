@@ -275,6 +275,13 @@ void in_head_noscript_tests() {
 }
 
 void after_head_tests() {
+    etest::test("AfterHead: html", [] {
+        auto res = parse("<html foo=bar><head></head><html foo=baz hello=world>", {});
+        auto const &head = std::get<dom::Element>(res.document.html().children.at(0));
+        expect_eq(res.document.html().attributes, dom::AttrMap{{"foo", "bar"}, {"hello", "world"}});
+        expect_eq(head, dom::Element{"head"});
+    });
+
     etest::test("AfterHead: body", [] {
         auto res = parse("<body>", {});
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});

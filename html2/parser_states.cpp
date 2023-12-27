@@ -396,10 +396,16 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
 }
 
 std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const &token) {
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start && start->tag_name == "body") {
-        a.insert_element_for(*start);
-        a.set_frameset_ok(false);
-        return InBody{};
+    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr) {
+        if (start->tag_name == "html") {
+            return InBody{}.process(a, token);
+        }
+
+        if (start->tag_name == "body") {
+            a.insert_element_for(*start);
+            a.set_frameset_ok(false);
+            return InBody{};
+        }
     }
 
     return {};
