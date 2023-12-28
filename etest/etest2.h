@@ -55,9 +55,14 @@ public:
             return;
         }
 
-        std::stringstream ss;
-        ss << a << " !=\n" << b;
-        expect(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
+        if consteval {
+            // Clang doesn't like std::stringstream in constexpr functions.
+            expect(false, std::move(log_message), loc);
+        } else {
+            std::stringstream ss;
+            ss << a << " !=\n" << b;
+            expect(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
+        }
     }
 
     template<typename T, typename U>
@@ -78,9 +83,14 @@ public:
             return;
         }
 
-        std::stringstream ss;
-        ss << a << " !=\n" << b;
-        require(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
+        if consteval {
+            // Clang doesn't like std::stringstream in constexpr functions.
+            require(false, std::move(log_message), loc);
+        } else {
+            std::stringstream ss;
+            ss << a << " !=\n" << b;
+            require(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
+        }
     }
 
     template<typename T, typename U>
@@ -105,6 +115,8 @@ public:
         tests_.push_back({std::move(name), std::move(test)});
     }
 
+    // clang-tidy doesn't understand that name is moved or something?
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     constexpr void constexpr_test(std::string name, auto test) {
         static_assert([test] {
             struct ConstexprActions : IActions {
