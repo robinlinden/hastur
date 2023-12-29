@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -85,6 +86,10 @@ int main() {
 
     s.add_test("i32_add", [](etest::IActions &a) {
         a.expect_eq(parse("\x6a\x0b"), InsnVec{I32Add{}}); //
+    });
+
+    s.add_test("i32_sub", [](etest::IActions &a) {
+        a.expect_eq(parse("\x6b\x0b"), InsnVec{I32Sub{}}); //
     });
 
     s.add_test("local_get", [](etest::IActions &a) {

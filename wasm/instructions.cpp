@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -130,6 +131,9 @@ std::optional<std::vector<Instruction>> parse(std::istream &is) {
                 break;
             case I32Add::kOpcode:
                 instructions.emplace_back(I32Add{});
+                break;
+            case I32Sub::kOpcode:
+                instructions.emplace_back(I32Sub{});
                 break;
             case LocalGet::kOpcode: {
                 auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
