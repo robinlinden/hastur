@@ -183,7 +183,7 @@ jobs:
       # Include all targets except for
       # * py_test targets: not fully statically linked
       # * targets that depend on sfml: it pulls in host dependencies.
-      - run: ./bazelisk test -- $(bazel query '... except (kind("py_test", ...) union rdeps(..., @sfml//:window) union rdeps(..., @icu//:common))')
+      - run: ./bazelisk test --skip_incompatible_explicit_targets -- $(bazel query '... except (kind("py_test", ...) union rdeps(..., @sfml//:window) union rdeps(..., @icu//:common))')
       - name: Run tui
         run: |
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html

@@ -4,6 +4,7 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 cc_library(
     name = "windows_setup",
     hdrs = ["windows_setup.h"],
+    target_compatible_with = ["@platforms//os:windows"],
 )
 
 OS_DEPS = select({
