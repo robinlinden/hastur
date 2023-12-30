@@ -66,8 +66,15 @@ http_archive(
 # HEAD as of 2023-07-16.
 http_archive(
     name = "bazel_clang_tidy",
-    # Hack to have every .h-header treated as C++.
-    patch_cmds = ["""sed -i'' -e '47i\\\n    args.add("-xc++")' clang_tidy/clang_tidy.bzl"""],
+    patch_cmds = [
+        # Hack to have every .h-header treated as C++.
+        """sed -i'' -e '47i\\\n    args.add("-xc++")' clang_tidy/clang_tidy.bzl""",
+        # bazel_clang_tidy doesn't seem to check headers unless we do this.
+        # Definitely needed for misc-include-cleaner.
+        """sed -i'' -e '95i\\\n    if hasattr(ctx.rule.attr, "hdrs"):' clang_tidy/clang_tidy.bzl""",
+        """sed -i'' -e '96i\\\n        for hdr in ctx.rule.attr.hdrs:' clang_tidy/clang_tidy.bzl""",
+        """sed -i'' -e '97i\\\n            srcs += [hdr for hdr in hdr.files.to_list() if hdr.is_source]' clang_tidy/clang_tidy.bzl""",
+    ],
     sha256 = "e2721c47f4215ac36ad1da55ebdb968a094125dbc397aa7733f067001600b2ee",
     strip_prefix = "bazel_clang_tidy-133d89a6069ce253a92d32a93fdb7db9ef100e9d",
     url = "https://github.com/erenon/bazel_clang_tidy/archive/133d89a6069ce253a92d32a93fdb7db9ef100e9d.tar.gz",
