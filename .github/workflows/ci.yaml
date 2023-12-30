@@ -277,14 +277,14 @@ jobs:
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-17
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-17 libc++abi-17-dev libc++-17-dev
       - run: echo "CC=clang-17" >>$GITHUB_ENV && echo "CXX=clang++-17" >>$GITHUB_ENV
       - run: |
           sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-17 100
           sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-17
           update-alternatives --query clang-tidy
           clang-tidy --version
-      - run: bazel build ... --config clang-tidy --keep_going
+      - run: bazel build ... --config libc++ --config clang-tidy --keep_going
 
   buildifier:
     runs-on: ubuntu-22.04
