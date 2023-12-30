@@ -7,7 +7,10 @@
 #include "etest/etest.h"
 
 #include <cstdint>
+#include <optional>
+#include <string>
 #include <string_view>
+#include <vector>
 
 using namespace std::literals;
 using namespace util;

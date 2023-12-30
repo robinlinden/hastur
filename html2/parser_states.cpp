@@ -5,6 +5,7 @@
 #include "html2/parser_states.h"
 
 #include "html2/iparser_actions.h"
+#include "html2/token.h"
 #include "html2/tokenizer.h"
 
 #include "util/string.h"
@@ -13,7 +14,11 @@
 #include <array>
 #include <cassert>
 #include <optional>
+#include <ranges>
+#include <span>
+#include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 #include <vector>
 

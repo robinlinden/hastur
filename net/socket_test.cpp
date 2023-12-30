@@ -6,12 +6,14 @@
 
 #include "etest/etest.h"
 
-#include <asio.hpp>
+#include <asio/buffer.hpp>
+#include <asio/io_context.hpp>
+#include <asio/ip/address_v4.hpp>
+#include <asio/ip/tcp.hpp>
+#include <asio/write.hpp>
 
 #include <cstdint>
-#include <cstdlib>
 #include <future>
-#include <iostream>
 #include <string>
 #include <thread>
 #include <utility>

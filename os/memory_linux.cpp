@@ -6,8 +6,11 @@
 
 #include <sys/mman.h>
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <optional>
+#include <span>
 
 namespace os {
 

@@ -8,8 +8,11 @@
 #include "js/ast.h"
 
 #include <cassert>
+#include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <map>
+#include <optional>
 #include <string>
 #include <utility>
 #include <variant>

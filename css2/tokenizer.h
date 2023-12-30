@@ -8,9 +8,10 @@
 
 #include "css2/token.h"
 
-#include <cstdint>
+#include <cstddef>
 #include <functional>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <variant>

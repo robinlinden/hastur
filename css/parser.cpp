@@ -8,10 +8,11 @@
 #include "css/media_query.h"
 #include "css/property_id.h"
 #include "css/rule.h"
+#include "css/style_sheet.h"
 
 #include "util/string.h"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -20,7 +21,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <optional>
+#include <string>
 #include <string_view>
+#include <system_error>
 #include <tuple>
 #include <utility>
 #include <vector>

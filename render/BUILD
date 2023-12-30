@@ -9,8 +9,10 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//css",
+        "//geom",
         "//gfx",
         "//layout",
+        "//style",
         "@spdlog",
     ],
 )
@@ -22,8 +24,10 @@ cc_test(
     copts = HASTUR_COPTS,
     deps = [
         ":render",
+        "//css",
         "//dom",
         "//etest",
+        "//geom",
         "//gfx",
         "//layout",
         "//style",

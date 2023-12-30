@@ -5,6 +5,7 @@
 #include "html2/character_reference.h"
 
 #include <array>
+#include <optional>
 #include <string_view>
 
 using namespace std::literals;

@@ -7,7 +7,15 @@
 
 #include "gfx/opengl_shader.h"
 
+#include "gfx/color.h"
+#include "gfx/font.h"
 #include "gfx/icanvas.h"
+
+#include "geom/geom.h"
+
+#include <cstdint>
+#include <span>
+#include <string_view>
 
 namespace gfx {
 

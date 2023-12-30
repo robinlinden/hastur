@@ -13,8 +13,8 @@
 
 #include "etest/etest2.h"
 
-// This is the header POSIX says we need to include.
-// NOLINTNEXTLINE(modernize-deprecated-headers)
+// This is the header POSIX says we need to include for setenv/unsetenv.
+// NOLINTNEXTLINE
 #include <stdlib.h>
 
 // NOLINTBEGIN(concurrency-mt-unsafe): No threads here.

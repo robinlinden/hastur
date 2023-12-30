@@ -6,6 +6,8 @@
 
 #include "layout/layout_box.h"
 
+#include <optional>
+
 namespace layout {
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 int UnresolvedValue::resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to) const {

@@ -12,12 +12,13 @@
 #include <array>
 #include <cstdint>
 #include <functional>
-#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace url {
 

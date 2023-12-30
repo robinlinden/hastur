@@ -5,6 +5,7 @@
 
 #include "css/rule.h"
 
+#include "css/media_query.h"
 #include "css/property_id.h"
 
 #include "etest/etest.h"

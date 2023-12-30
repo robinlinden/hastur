@@ -5,8 +5,13 @@
 
 #include "protocol/file_handler.h"
 
+#include "protocol/response.h"
+
+#include "uri/uri.h"
+
 #include <filesystem>
 #include <fstream>
+#include <ios>
 #include <string>
 #include <utility>
 

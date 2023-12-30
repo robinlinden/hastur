@@ -4,6 +4,8 @@
 
 #include "type/naive.h"
 
+#include "type/type.h"
+
 #include "etest/etest2.h"
 
 int main() {

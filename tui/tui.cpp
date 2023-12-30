@@ -4,13 +4,14 @@
 
 #include "tui/tui.h"
 
+#include "layout/layout_box.h"
+
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/dom/node.hpp>
 #include <ftxui/screen/screen.hpp>
-#include <ftxui/screen/string.hpp>
 
 #include <cstdlib>
 #include <string>
-#include <variant>
 
 namespace tui {
 namespace {

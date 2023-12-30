@@ -8,6 +8,9 @@
 #include "protocol/http_handler.h"
 #include "protocol/https_handler.h"
 
+#include <memory>
+#include <optional>
+#include <string>
 #include <utility>
 
 namespace protocol {

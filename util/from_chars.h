@@ -5,13 +5,12 @@
 #ifndef UTIL_FROM_CHARS_H_
 #define UTIL_FROM_CHARS_H_
 
-#include <version>
+#include <version> // IWYU pragma: keep
 
 // Workaround for libc++ not supporting std::from_chars for floating point numbers.
 // TODO(robinlinden): Nuke once libc++ supports std::from_chars w/ floats.
 #if defined(_LIBCPP_VERSION)
 
-#include <algorithm>
 #include <cerrno>
 #include <charconv>
 #include <cstdlib>

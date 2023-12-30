@@ -7,6 +7,7 @@
 #include "etest/etest2.h"
 
 #include <cstdint>
+#include <optional>
 #include <type_traits>
 #include <vector>
 

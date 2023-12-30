@@ -4,11 +4,16 @@
 
 #include "html2/parser_states.h"
 
+#include "dom/dom.h"
+#include "html2/token.h"
 #include "html2/tokenizer.h"
 
 #include "etest/etest.h"
 #include "html/parser_actions.h"
 
+#include <string_view>
+#include <utility>
+#include <variant>
 #include <vector>
 
 using etest::expect_eq;

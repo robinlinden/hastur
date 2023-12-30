@@ -4,7 +4,10 @@
 
 #include "style/styled_node.h"
 
+#include "css/property_id.h"
+#include "dom/dom.h"
 #include "gfx/color.h"
+#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -14,13 +17,15 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <iterator>
 #include <map>
 #include <optional>
 #include <sstream>
 #include <string_view>
+#include <system_error>
 #include <utility>
-
-#include "util/from_chars.h"
+#include <variant>
+#include <vector>
 
 using namespace std::literals;
 

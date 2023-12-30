@@ -64,7 +64,6 @@ Checks: >
   -clang-diagnostic-builtin-macro-redefined,
   -google-build-using-namespace,
   -misc-const-correctness,
-  -misc-include-cleaner,
   -misc-no-recursion,
   -modernize-make-unique,
   -modernize-use-emplace,

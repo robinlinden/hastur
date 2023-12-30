@@ -9,6 +9,7 @@
 #include "gfx/color.h"
 #include "gfx/font.h"
 
+#include <cstdint>
 #include <span>
 #include <string_view>
 

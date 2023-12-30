@@ -8,7 +8,9 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <limits>
+#include <optional>
+#include <span>
+#include <string_view>
 
 // NOLINTBEGIN(readability-make-member-function-const): The drawing code
 // shouldn't be thought of as const, even if it technically doesn't modify any

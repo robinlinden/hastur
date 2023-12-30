@@ -6,6 +6,8 @@
 
 #include "etest/etest.h"
 
+#include <optional>
+
 using etest::expect;
 using etest::expect_eq;
 

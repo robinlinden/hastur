@@ -4,8 +4,13 @@
 
 #include "layout/layout.h"
 
+#include "css/property_id.h"
+#include "dom/dom.h"
 #include "etest/cxx_compat.h"
 #include "etest/etest.h"
+#include "gfx/color.h"
+#include "layout/unresolved_value.h"
+#include "style/styled_node.h"
 
 #include <optional>
 #include <string>

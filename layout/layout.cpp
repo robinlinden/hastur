@@ -5,21 +5,34 @@
 
 #include "layout/layout.h"
 
+#include "layout/layout_box.h"
+
+#include "css/property_id.h"
+#include "dom/dom.h"
+#include "geom/geom.h"
+#include "style/styled_node.h"
 #include "type/naive.h"
+#include "type/type.h"
 #include "util/string.h"
 
+#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <iterator>
 #include <list>
 #include <map>
+#include <memory>
 #include <optional>
+#include <ranges>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <variant>
+#include <vector>
 
 using namespace std::literals;
 

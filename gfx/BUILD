@@ -48,6 +48,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
+        "//geom",
         "@glad",
     ],
 )
@@ -74,9 +75,11 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
+        "//geom",
         "//os:xdg",
         "//type:sfml",
         "@sfml//:graphics",
+        "@sfml//:system",
         "@spdlog",
     ],
 )

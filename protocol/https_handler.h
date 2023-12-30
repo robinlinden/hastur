@@ -6,6 +6,9 @@
 #define PROTOCOL_HTTPS_HANDLER_H_
 
 #include "protocol/iprotocol_handler.h"
+#include "protocol/response.h"
+
+#include "uri/uri.h"
 
 #include <optional>
 #include <string>

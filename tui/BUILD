@@ -21,6 +21,7 @@ cc_test(
     copts = HASTUR_COPTS,
     deps = [
         ":tui",
+        "//css",
         "//dom",
         "//etest",
         "//layout",

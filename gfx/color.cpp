@@ -9,6 +9,8 @@
 
 #include <algorithm>
 #include <map>
+#include <optional>
+#include <string_view>
 
 namespace gfx {
 namespace {

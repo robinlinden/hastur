@@ -7,6 +7,8 @@
 #include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <tl/expected.hpp>
+
 #include <cstdint>
 #include <limits>
 #include <optional>

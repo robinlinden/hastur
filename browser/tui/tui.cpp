@@ -6,9 +6,12 @@
 #include "dom/dom.h"
 #include "engine/engine.h"
 #include "protocol/handler_factory.h"
+#include "protocol/response.h"
+#include "uri/uri.h"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include <spdlog/cfg/env.h>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>

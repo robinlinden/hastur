@@ -4,6 +4,7 @@
 
 #include "css/style_sheet.h"
 
+#include "css/rule.h"
 #include "etest/etest2.h"
 
 #include <utility>

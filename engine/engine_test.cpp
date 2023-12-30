@@ -4,17 +4,25 @@
 
 #include "engine/engine.h"
 
+#include "css/property_id.h"
+#include "css/rule.h"
 #include "dom/dom.h"
 #include "etest/etest.h"
+#include "gfx/color.h"
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
+#include "style/styled_node.h"
 #include "type/naive.h"
 #include "type/type.h"
 #include "uri/uri.h"
 
+#include <algorithm>
 #include <map>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 using namespace std::literals;
 using etest::expect;

@@ -4,10 +4,12 @@
 
 #include "protocol/file_handler.h"
 
+#include "protocol/response.h"
+
 #include "etest/etest.h"
 #include "uri/uri.h"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <cerrno>
 #include <filesystem>

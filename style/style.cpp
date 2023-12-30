@@ -4,14 +4,24 @@
 
 #include "style/style.h"
 
+#include "style/styled_node.h"
+
 #include "css/media_query.h"
 #include "css/parser.h"
+#include "css/property_id.h"
+#include "css/style_sheet.h"
+#include "dom/dom.h"
 #include "util/string.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iterator>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
+#include <variant>
+#include <vector>
 
 using namespace std::literals;
 

@@ -4,6 +4,8 @@
 
 #include "tui/tui.h"
 
+#include "css/property_id.h"
+#include "css/rule.h"
 #include "dom/dom.h"
 #include "etest/etest2.h"
 #include "layout/layout.h"

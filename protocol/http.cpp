@@ -5,12 +5,17 @@
 
 #include "protocol/http.h"
 
+#include "protocol/response.h"
+
+#include "uri/uri.h"
 #include "util/string.h"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <charconv>
+#include <optional>
 #include <sstream>
+#include <string>
 #include <string_view>
 #include <utility>
 

@@ -7,11 +7,17 @@
 
 #include "gfx/icanvas.h"
 
+#include "geom/geom.h"
+#include "gfx/color.h"
+#include "gfx/font.h"
 #include "type/sfml.h"
 
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
+#include <cstdint>
+#include <span>
+#include <string_view>
 #include <vector>
 
 namespace sf {

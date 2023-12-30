@@ -8,7 +8,11 @@
 
 #include "etest/etest.h"
 
+#include <cstddef>
+#include <memory>
+#include <string>
 #include <tuple>
+#include <utility>
 
 using namespace js::ast;
 using etest::expect;

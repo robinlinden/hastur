@@ -4,12 +4,18 @@
 
 #include "etest/etest2.h"
 
+#include "etest/cxx_compat.h"
+
 #include <algorithm>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <optional>
 #include <sstream>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 #if defined(_MSC_VER)
 // MSVC doesn't seem to have a way of disabling exceptions.

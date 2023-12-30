@@ -3,14 +3,18 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "gfx/color.h"
+#include "gfx/font.h"
+#include "gfx/icanvas.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
 #include "type/sfml.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
 
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <string_view>
 

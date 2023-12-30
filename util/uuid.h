@@ -7,10 +7,12 @@
 #define UTIL_UUID_H_
 
 #include <array>
+#include <cstddef>
 #include <iomanip>
 #include <ios>
 #include <random>
 #include <sstream>
+#include <string>
 #include <utility>
 
 namespace util {
@@ -33,7 +35,7 @@ inline std::string new_uuid() {
     data[8] &= 0x3f;
     data[8] |= 0x80;
 
-    for (size_t i = 0; i < 16; i++) {
+    for (std::size_t i = 0; i < 16; i++) {
         if (i == 4 || i == 6 || i == 8 || i == 10) {
             uuid_string << '-';
         }

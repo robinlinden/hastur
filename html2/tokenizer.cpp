@@ -5,6 +5,8 @@
 #include "html2/tokenizer.h"
 
 #include "html2/character_reference.h"
+#include "html2/token.h"
+
 #include "util/string.h"
 #include "util/unicode.h"
 
@@ -13,6 +15,12 @@
 #include <cstdint>
 #include <cstring>
 #include <map>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
+#include <vector>
 
 using namespace std::literals;
 

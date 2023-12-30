@@ -4,9 +4,14 @@
 
 #include "protocol/multi_protocol_handler.h"
 
+#include "protocol/iprotocol_handler.h"
+#include "protocol/response.h"
+
 #include "etest/etest.h"
+#include "uri/uri.h"
 
 #include <memory>
+#include <utility>
 
 using etest::expect_eq;
 using protocol::MultiProtocolHandler;

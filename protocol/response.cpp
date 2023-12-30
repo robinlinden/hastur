@@ -8,7 +8,11 @@
 #include "util/string.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <optional>
 #include <sstream>
+#include <string>
+#include <string_view>
 #include <utility>
 
 namespace protocol {

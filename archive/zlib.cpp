@@ -4,8 +4,13 @@
 
 #include "archive/zlib.h"
 
+#include <tl/expected.hpp>
+#include <zconf.h>
 #include <zlib.h>
 
+#include <cstddef>
+#include <string>
+#include <string_view>
 #include <utility>
 
 namespace archive {

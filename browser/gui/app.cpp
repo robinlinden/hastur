@@ -4,18 +4,29 @@
 
 #include "browser/gui/app.h"
 
+#include "css/property_id.h"
 #include "css/rule.h"
+#include "css/style_sheet.h"
 #include "dom/dom.h"
+#include "geom/geom.h"
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
+#include "layout/layout_box.h"
 #include "protocol/handler_factory.h"
+#include "protocol/response.h"
 #include "render/render.h"
 #include "type/sfml.h"
+#include "type/type.h"
 #include "uri/uri.h"
 
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/Window/Cursor.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
@@ -25,14 +36,18 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <span>
 #include <sstream>
+#include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <variant>
 

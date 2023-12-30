@@ -7,6 +7,7 @@
 #include "etest/etest2.h"
 
 #include <cstdint>
+#include <optional>
 
 // __amd64 => GNU C, _M_AMD64 => MSVC.
 #if defined(__amd64) || defined(_M_AMD64)

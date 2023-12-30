@@ -6,7 +6,13 @@
 #include "protocol/http.h"
 
 #include "etest/etest.h"
+#include "protocol/response.h"
+#include "uri/uri.h"
 
+#include <cstddef>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <utility>
 
 using namespace std::string_view_literals;

@@ -5,6 +5,7 @@
 #include "css/default.h"
 
 #include "css/parser.h"
+#include "css/style_sheet.h"
 
 #include <string_view>
 

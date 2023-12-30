@@ -7,6 +7,10 @@
 
 #include "protocol/iprotocol_handler.h"
 
+#include "protocol/response.h"
+
+#include "uri/uri.h"
+
 namespace protocol {
 
 class FileHandler final : public IProtocolHandler {

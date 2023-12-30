@@ -6,8 +6,10 @@
 
 #include "etest/etest.h"
 
+#include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 using namespace std::literals;
 

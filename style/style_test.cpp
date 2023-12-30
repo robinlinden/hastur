@@ -5,14 +5,21 @@
 #include "style/style.h"
 #include "style/styled_node.h"
 
+#include "css/media_query.h"
+#include "css/property_id.h"
 #include "css/rule.h"
 #include "css/style_sheet.h"
+#include "dom/dom.h"
 #include "etest/etest.h"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <algorithm>
 #include <array>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 using namespace std::literals;
 using etest::expect;

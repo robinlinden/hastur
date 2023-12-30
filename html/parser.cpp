@@ -4,6 +4,10 @@
 
 #include "html/parser.h"
 
+#include "dom/dom.h"
+#include "html2/parser_states.h"
+#include "html2/token.h"
+#include "html2/tokenizer.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -13,7 +17,9 @@
 #include <cassert>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
+#include <vector>
 
 using namespace std::literals;
 

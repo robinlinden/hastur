@@ -5,16 +5,25 @@
 
 #include "layout/layout_box.h"
 
+#include "css/property_id.h"
+#include "dom/dom.h"
+#include "geom/geom.h"
+#include "style/styled_node.h"
 #include "util/from_chars.h"
+#include "util/string.h"
 
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstdlib>
+#include <iterator>
 #include <optional>
+#include <ostream>
 #include <sstream>
+#include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <variant>
 

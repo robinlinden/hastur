@@ -7,9 +7,13 @@
 
 #include "layout/layout.h"
 
+#include "css/property_id.h"
 #include "dom/dom.h"
 #include "etest/etest.h"
+#include "style/styled_node.h"
 
+#include <cstddef>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <vector>

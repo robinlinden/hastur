@@ -4,8 +4,11 @@
 
 #include "js/tokenizer.h"
 
+#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <optional>
+#include <string_view>
 #include <vector>
 
 using namespace js::parse;

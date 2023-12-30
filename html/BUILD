@@ -25,6 +25,7 @@ cc_library(
     copts = HASTUR_COPTS,
     deps = [
         ":html",
+        "//dom",
         "//etest",
         "//html2",
     ],

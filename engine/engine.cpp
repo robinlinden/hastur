@@ -7,13 +7,21 @@
 #include "archive/zlib.h"
 #include "css/default.h"
 #include "css/parser.h"
+#include "css/style_sheet.h"
+#include "dom/dom.h"
 #include "html/parser.h"
+#include "layout/layout.h"
+#include "protocol/response.h"
 #include "style/style.h"
+#include "uri/uri.h"
 
 #include <spdlog/spdlog.h>
 
 #include <future>
+#include <string>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 using namespace std::literals;
 

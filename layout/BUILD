@@ -19,6 +19,7 @@ cc_library(
         "//type:naive",
         "//util:from_chars",
         "//util:string",
+        "@fmt",
         "@spdlog",
     ],
 )
@@ -29,8 +30,13 @@ cc_library(
     srcs = [src],
     deps = [
         ":layout",
+        "//css",
         "//dom",
         "//etest",
+        "//geom",
+        "//gfx",
+        "//style",
         "//type",
+        "//util:string",
     ],
 ) for src in glob(["*_test.cpp"])]

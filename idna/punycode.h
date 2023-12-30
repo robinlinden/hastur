@@ -8,8 +8,6 @@
 #include "util/unicode.h"
 
 #include <algorithm>
-#include <cassert>
-#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>

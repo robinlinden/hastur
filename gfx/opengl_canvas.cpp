@@ -4,9 +4,16 @@
 
 #include "gfx/opengl_canvas.h"
 
+#include "gfx/color.h"
+#include "gfx/icanvas.h"
+#include "gfx/opengl_shader.h"
+
+#include "geom/geom.h"
+
 #include <glad/gl.h>
 
 #include <array>
+#include <string_view>
 
 namespace gfx {
 namespace {

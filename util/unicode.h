@@ -5,9 +5,11 @@
 #ifndef UTIL_UNICODE_H_
 #define UTIL_UNICODE_H_
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace util {

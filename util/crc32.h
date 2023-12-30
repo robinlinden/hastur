@@ -6,6 +6,7 @@
 #define UTIL_CRC32_H_
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <span>
 

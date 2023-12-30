@@ -5,9 +5,18 @@
 
 #include "css2/tokenizer.h"
 
+#include "css2/token.h"
+
 #include "util/string.h"
 
+#include <cassert>
+#include <charconv>
 #include <exception>
+#include <optional>
+#include <string>
+#include <system_error>
+#include <utility>
+#include <variant>
 
 namespace css2 {
 

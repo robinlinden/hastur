@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <ostream>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <variant>
 

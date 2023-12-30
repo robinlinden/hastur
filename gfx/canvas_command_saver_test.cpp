@@ -4,10 +4,15 @@
 
 #include "gfx/canvas_command_saver.h"
 
+#include "gfx/color.h"
+#include "gfx/font.h"
+#include "gfx/icanvas.h"
+
 #include "etest/etest.h"
 
 #include <string>
 #include <string_view>
+#include <vector>
 
 using namespace gfx;
 using namespace std::literals;

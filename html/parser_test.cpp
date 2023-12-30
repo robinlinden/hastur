@@ -4,9 +4,12 @@
 
 #include "html/parser.h"
 
+#include "dom/dom.h"
 #include "etest/etest.h"
 
 #include <cstddef>
+#include <string>
+#include <string_view>
 
 using namespace std::literals;
 using etest::expect;

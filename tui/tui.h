@@ -5,7 +5,7 @@
 #ifndef TUI_TUI_H_
 #define TUI_TUI_H_
 
-#include "layout/layout.h"
+#include "layout/layout_box.h"
 
 #include <string>
 

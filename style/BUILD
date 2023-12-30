@@ -31,6 +31,7 @@ cc_test(
     deps = [
         ":style",
         "//css",
+        "//dom",
         "//etest",
         "@fmt",
     ],
@@ -43,6 +44,9 @@ cc_test(
     copts = HASTUR_COPTS,
     deps = [
         ":style",
+        "//css",
+        "//dom",
         "//etest",
+        "//gfx",
     ],
 )

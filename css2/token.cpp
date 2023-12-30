@@ -5,7 +5,10 @@
 
 #include "css2/token.h"
 
+#include <ostream>
 #include <sstream>
+#include <string>
+#include <utility>
 #include <variant>
 
 namespace css2 {

@@ -7,6 +7,8 @@
 
 #include "net/socket.h"
 #include "protocol/http.h"
+#include "protocol/response.h"
+#include "uri/uri.h"
 
 namespace protocol {
 

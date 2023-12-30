@@ -5,8 +5,9 @@
 #ifndef HTML2_PARSER_STATES_H_
 #define HTML2_PARSER_STATES_H_
 
-#include "html2/tokenizer.h"
+#include "html2/token.h"
 
+#include <optional>
 #include <variant>
 
 namespace html2 {

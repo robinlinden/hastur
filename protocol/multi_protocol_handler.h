@@ -4,6 +4,10 @@
 
 #include "protocol/iprotocol_handler.h"
 
+#include "protocol/response.h"
+
+#include "uri/uri.h"
+
 #include <functional>
 #include <map>
 #include <memory>

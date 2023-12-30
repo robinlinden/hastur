@@ -6,6 +6,7 @@
 #define HTML2_IPARSER_ACTIONS_H_
 
 #include "html2/parser_states.h"
+#include "html2/token.h"
 #include "html2/tokenizer.h"
 
 #include <span>

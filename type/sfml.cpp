@@ -5,17 +5,23 @@
 
 #include "type/sfml.h"
 
+#include "type/type.h"
+
 #include "os/xdg.h"
 #include "util/string.h"
 
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/System/String.hpp>
 
 #include <algorithm>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <utility>
 
 namespace type {
 namespace {

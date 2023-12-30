@@ -5,22 +5,36 @@
 
 #include "gfx/sfml_canvas.h"
 
+#include "geom/geom.h"
+#include "gfx/color.h"
+#include "gfx/font.h"
+#include "gfx/icanvas.h"
 #include "os/xdg.h"
+#include "type/sfml.h"
 
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Glsl.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/View.hpp>
+#include <SFML/System/String.hpp>
 #include <spdlog/spdlog.h>
 
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <exception>
 #include <filesystem>
-#include <optional>
+#include <memory>
+#include <span>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <utility>
 
 using namespace std::literals;
 

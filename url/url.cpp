@@ -5,29 +5,34 @@
 
 #include "url/url.h"
 
-#include "url/rtti_hack.h"
+#include "url/rtti_hack.h" // IWYU pragma: keep
 
 #include "util/string.h"
 #include "util/unicode.h"
 #include "util/uuid.h"
 
+// unicode/uclean is for u_cleanup, but icu does a lot of macro magic renaming
+// symbols which confuses IWYU.
 #include <unicode/bytestream.h>
 #include <unicode/idna.h>
-#include <unicode/putil.h>
-#include <unicode/uclean.h>
+#include <unicode/uclean.h> // IWYU pragma: keep
+#include <unicode/uidna.h>
+#include <unicode/urename.h>
+#include <unicode/utypes.h>
 
+#include <algorithm>
 #include <array>
-#include <atomic>
 #include <cassert>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <tuple>
 #include <utility>
 #include <variant>

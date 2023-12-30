@@ -5,10 +5,11 @@
 #ifndef BROWSER_GUI_APP_H_
 #define BROWSER_GUI_APP_H_
 
-#include "dom/dom.h"
 #include "engine/engine.h"
+#include "geom/geom.h"
 #include "gfx/icanvas.h"
 #include "layout/layout_box.h"
+#include "protocol/response.h"
 #include "uri/uri.h"
 #include "util/history.h"
 
@@ -18,7 +19,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace browser::gui {
 

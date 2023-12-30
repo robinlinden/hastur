@@ -5,11 +5,18 @@
 #ifndef GFX_CANVAS_COMMAND_SAVER_H_
 #define GFX_CANVAS_COMMAND_SAVER_H_
 
+#include "gfx/color.h"
+#include "gfx/font.h"
 #include "gfx/icanvas.h"
 
+#include "geom/geom.h"
+
 #include <algorithm>
+#include <cstdint>
 #include <iterator>
+#include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>

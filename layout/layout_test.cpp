@@ -5,13 +5,23 @@
 
 #include "layout/layout.h"
 
-#include "etest/etest.h"
-#include "type/type.h"
+#include "layout/layout_box.h"
 
+#include "css/property_id.h"
+#include "dom/dom.h"
+#include "etest/etest.h"
+#include "geom/geom.h"
+#include "style/styled_node.h"
+#include "type/type.h"
+#include "util/string.h"
+
+#include <cstddef>
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 using namespace std::literals;
 using etest::expect;

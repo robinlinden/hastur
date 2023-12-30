@@ -9,8 +9,8 @@
 #include "css/property_id.h"
 
 #include <sstream>
+#include <string>
 #include <utility>
-#include <variant>
 
 namespace css {
 

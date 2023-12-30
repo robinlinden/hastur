@@ -4,7 +4,13 @@
 
 #include "etest/etest.h"
 
+#include "etest/cxx_compat.h"
+#include "etest/etest2.h"
+
 #include <functional>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <utility>
 
 namespace etest {

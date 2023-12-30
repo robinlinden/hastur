@@ -4,6 +4,8 @@
 
 #include "etest/etest2.h"
 
+#include <exception>
+
 int main() {
     auto s = etest::Suite{};
     s.add_test("uncaught exception", []([[maybe_unused]] auto &a) {

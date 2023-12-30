@@ -6,6 +6,7 @@
 #include "layout/box_model.h"
 
 #include "etest/etest.h"
+#include "geom/geom.h"
 
 using etest::expect;
 

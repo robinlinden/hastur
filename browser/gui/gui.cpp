@@ -7,6 +7,7 @@
 #include "os/system_info.h"
 
 #include <spdlog/cfg/env.h>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>

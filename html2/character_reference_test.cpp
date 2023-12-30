@@ -6,6 +6,8 @@
 
 #include "etest/etest.h"
 
+#include <string_view>
+
 using namespace std::literals;
 
 using etest::expect;

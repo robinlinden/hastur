@@ -6,6 +6,9 @@
 
 #include "etest/etest.h"
 
+#include <utility>
+#include <vector>
+
 using namespace js::ast;
 using etest::expect_eq;
 

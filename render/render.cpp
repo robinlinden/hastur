@@ -6,12 +6,20 @@
 #include "render/render.h"
 
 #include "css/property_id.h"
+#include "geom/geom.h"
 #include "gfx/color.h"
+#include "gfx/font.h"
+#include "gfx/icanvas.h"
+#include "layout/layout_box.h"
+#include "style/styled_node.h"
 
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <iterator>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 namespace render {
 namespace {

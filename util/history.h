@@ -5,6 +5,7 @@
 #ifndef UTIL_HISTORY_H_
 #define UTIL_HISTORY_H_
 
+#include <cstddef>
 #include <optional>
 #include <utility>
 #include <vector>

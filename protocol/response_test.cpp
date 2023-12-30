@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "protocol/http.h"
+#include "protocol/response.h"
 
 #include "etest/etest.h"
 

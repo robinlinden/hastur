@@ -4,17 +4,21 @@
 
 #include "html2/tokenizer.h"
 
+#include "html2/token.h"
+
+#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
 #include <array>
-#include <fstream>
 #include <iterator>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 using namespace std::literals;
 

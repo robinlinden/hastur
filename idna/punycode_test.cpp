@@ -7,6 +7,9 @@
 #include "etest/etest2.h"
 #include "util/unicode.h"
 
+#include <string>
+#include <vector>
+
 namespace {
 std::string unicode_as_utf8_string(std::vector<int> const &code_points) {
     std::string result{};

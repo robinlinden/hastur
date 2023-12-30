@@ -5,18 +5,25 @@
 
 #include "css/parser.h"
 
+#include "css/media_query.h"
 #include "css/property_id.h"
+#include "css/rule.h"
 
+#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <fmt/core.h>
+
 #include <algorithm>
-#include <iterator>
-#include <string>
-
-#include <fmt/format.h>
-
 #include <array>
+#include <cstddef>
+#include <iterator>
+#include <map>
+#include <ostream>
+#include <string>
+#include <string_view>
 #include <tuple>
+#include <vector>
 
 using namespace std::literals;
 using etest::expect;

@@ -7,7 +7,6 @@
 
 #include "etest/cxx_compat.h"
 
-#include <concepts>
 #include <functional>
 #include <iosfwd>
 #include <optional>

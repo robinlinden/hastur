@@ -7,10 +7,13 @@
 
 #include "util/string.h"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <exception>
+#include <functional>
+#include <optional>
 #include <regex>
+#include <string>
 #include <utility>
 
 namespace uri {

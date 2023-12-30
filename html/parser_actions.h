@@ -8,11 +8,14 @@
 #include "dom/dom.h"
 #include "html2/iparser_actions.h"
 #include "html2/parser_states.h"
+#include "html2/token.h"
 #include "html2/tokenizer.h"
 
 #include <algorithm>
 #include <cassert>
 #include <span>
+#include <string>
+#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>

@@ -5,11 +5,23 @@
 
 #include "net/socket.h"
 
-#include <asio.hpp>
-#include <asio/ssl.hpp>
+#include <asio/buffer.hpp>
+#include <asio/completion_condition.hpp>
+#include <asio/connect.hpp>
+#include <asio/error_code.hpp>
+#include <asio/io_context.hpp>
+#include <asio/ip/tcp.hpp>
+#include <asio/read.hpp>
+#include <asio/read_until.hpp>
+#include <asio/ssl/context.hpp>
+#include <asio/ssl/stream.hpp>
+#include <asio/ssl/stream_base.hpp>
 #include <openssl/ssl.h>
 
+#include <cstddef>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace net {

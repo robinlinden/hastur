@@ -23,6 +23,7 @@ cc_test(
     copts = HASTUR_COPTS,
     deps = [
         ":naive",
+        ":type",
         "//etest",
     ],
 )
@@ -45,5 +46,6 @@ cc_library(
         "//os:xdg",
         "//util:string",
         "@sfml//:graphics",
+        "@sfml//:system",
     ],
 )

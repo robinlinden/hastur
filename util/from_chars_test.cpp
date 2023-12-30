@@ -7,6 +7,7 @@
 #include "etest/etest.h"
 
 #include <string_view>
+#include <system_error>
 
 using namespace std::literals;
 using etest::expect_eq;

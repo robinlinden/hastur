@@ -4,11 +4,18 @@
 
 #include "style/styled_node.h"
 
+#include "css/property_id.h"
+#include "dom/dom.h"
+#include "etest/cxx_compat.h"
 #include "etest/etest.h"
+#include "gfx/color.h"
 
+#include <optional>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 using namespace std::literals;
 using etest::expect;

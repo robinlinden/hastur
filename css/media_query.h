@@ -9,10 +9,12 @@
 #include "util/string.h"
 
 #include <charconv>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <variant>
 
 namespace css {

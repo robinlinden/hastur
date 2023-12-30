@@ -5,8 +5,13 @@
 
 #include "css2/tokenizer.h"
 
+#include "css2/token.h"
+
+#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <string_view>
+#include <utility>
 #include <vector>
 
 using etest::expect;
