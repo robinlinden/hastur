@@ -6,7 +6,10 @@ cc_library(
         "*.c",
         "*.h",
     ]),
-    hdrs = ["zlib.h"],
+    hdrs = [
+        "zconf.h",
+        "zlib.h",
+    ],
     defines = ["ZLIB_CONST"],
     includes = ["."],
     local_defines = select({
