@@ -87,19 +87,19 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    sha256 = "5705a0e403017eba276625107160498518838064a6dd7fd8b00b2e30c0ffbdee",
-    strip_prefix = "asio-asio-1-28-2",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-28-2.tar.gz",
+    integrity = "sha256-RDBYWbTmZk27+FPB74ygJZ1pTwM3U64wn8slNMog9yE=",
+    strip_prefix = "asio-asio-1-29-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-29-0.tar.gz",
 )
 
 # https://github.com/google/boringssl
-# boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
+    integrity = "sha256-tfQKXmPxOqN8wsCU2woTfB0mfme/soi5t2IlLLvz5E4=",
+    # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
     patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
-    sha256 = "6369980cd79b3847a17a8e078dce37688671911a6fadb1c84e27fb505d827511",
-    strip_prefix = "boringssl-22b3ea0c113b544e4334377541cabe8d8038d0c7",
-    url = "https://github.com/google/boringssl/archive/22b3ea0c113b544e4334377541cabe8d8038d0c7.tar.gz",
+    strip_prefix = "boringssl-2cc231074e7437987f1b9621b5d1936ba4d092ae",
+    url = "https://github.com/google/boringssl/archive/2cc231074e7437987f1b9621b5d1936ba4d092ae.tar.gz",
 )
 
 http_archive(
@@ -114,9 +114,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    sha256 = "78b8c0a72b1c35e4443a7e308df52498252d1cefc2b08c9a97bc9ee6cfe61f8b",
-    strip_prefix = "fmt-10.1.1",
-    url = "https://github.com/fmtlib/fmt/archive/10.1.1.tar.gz",
+    integrity = "sha256-PKkXM6cxOorUHAiFkpQV+OwKKjHU3H4n6TMUEvTKJqw=",
+    strip_prefix = "fmt-10.2.0",
+    url = "https://github.com/fmtlib/fmt/archive/10.2.0.tar.gz",
 )
 
 # https://github.com/freetype/freetype
@@ -221,9 +221,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    sha256 = "2fb3c1bb1d796f159c08ae7bfc230f7b257fcacbd393fa67ad0f66f32070f741",
-    strip_prefix = "stb-beebb24b945efdea3b9bba23affb8eb3ba8982e7",
-    url = "https://github.com/nothings/stb/archive/beebb24b945efdea3b9bba23affb8eb3ba8982e7.tar.gz",
+    integrity = "sha256-qOUH+YfIEv6H8SLwq03DBJkF+HCEuoU3XvlySPx+YyY=",
+    strip_prefix = "stb-f4a71b13373436a2866c5d68f8f80ac6f0bc1ffe",
+    url = "https://github.com/nothings/stb/archive/f4a71b13373436a2866c5d68f8f80ac6f0bc1ffe.tar.gz",
 )
 
 # https://github.com/illiliti/libudev-zero
