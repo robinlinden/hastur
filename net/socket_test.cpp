@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "net/socket.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <asio/buffer.hpp>
 #include <asio/io_context.hpp>
@@ -17,8 +17,6 @@
 #include <string>
 #include <thread>
 #include <utility>
-
-using etest::expect_eq;
 
 namespace {
 
@@ -51,33 +49,35 @@ private:
 } // namespace
 
 int main() {
-    etest::test("Socket::read_all", [] {
+    etest::Suite s;
+
+    s.add_test("Socket::read_all", [](etest::IActions &a) {
         auto server = Server{"hello!"};
         net::Socket sock;
         sock.connect("localhost", std::to_string(server.port()));
 
-        expect_eq(sock.read_all(), "hello!");
+        a.expect_eq(sock.read_all(), "hello!");
     });
 
-    etest::test("Socket::read_until", [] {
+    s.add_test("Socket::read_until", [](etest::IActions &a) {
         auto server = Server{"beep\r\nbeep\r\nboop\r\n"};
         net::Socket sock;
         sock.connect("localhost", std::to_string(server.port()));
 
-        expect_eq(sock.read_until("\r\n"), "beep\r\n");
-        expect_eq(sock.read_until("\r\n"), "beep\r\n");
-        expect_eq(sock.read_until("\r\n"), "boop\r\n");
+        a.expect_eq(sock.read_until("\r\n"), "beep\r\n");
+        a.expect_eq(sock.read_until("\r\n"), "beep\r\n");
+        a.expect_eq(sock.read_until("\r\n"), "boop\r\n");
     });
 
-    etest::test("Socket::read_bytes", [] {
+    s.add_test("Socket::read_bytes", [](etest::IActions &a) {
         auto server = Server{"123456789"};
         net::Socket sock;
         sock.connect("localhost", std::to_string(server.port()));
 
-        expect_eq(sock.read_bytes(3), "123");
-        expect_eq(sock.read_bytes(2), "45");
-        expect_eq(sock.read_bytes(4), "6789");
+        a.expect_eq(sock.read_bytes(3), "123");
+        a.expect_eq(sock.read_bytes(2), "45");
+        a.expect_eq(sock.read_bytes(4), "6789");
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
