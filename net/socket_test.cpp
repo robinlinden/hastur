@@ -54,7 +54,7 @@ int main() {
     s.add_test("Socket::read_all", [](etest::IActions &a) {
         auto server = Server{"hello!"};
         net::Socket sock;
-        sock.connect("localhost", std::to_string(server.port()));
+        a.require(sock.connect("localhost", std::to_string(server.port())));
 
         a.expect_eq(sock.read_all(), "hello!");
     });
@@ -62,7 +62,7 @@ int main() {
     s.add_test("Socket::read_until", [](etest::IActions &a) {
         auto server = Server{"beep\r\nbeep\r\nboop\r\n"};
         net::Socket sock;
-        sock.connect("localhost", std::to_string(server.port()));
+        a.require(sock.connect("localhost", std::to_string(server.port())));
 
         a.expect_eq(sock.read_until("\r\n"), "beep\r\n");
         a.expect_eq(sock.read_until("\r\n"), "beep\r\n");
@@ -72,7 +72,7 @@ int main() {
     s.add_test("Socket::read_bytes", [](etest::IActions &a) {
         auto server = Server{"123456789"};
         net::Socket sock;
-        sock.connect("localhost", std::to_string(server.port()));
+        a.require(sock.connect("localhost", std::to_string(server.port())));
 
         a.expect_eq(sock.read_bytes(3), "123");
         a.expect_eq(sock.read_bytes(2), "45");

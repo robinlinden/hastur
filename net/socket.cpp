@@ -28,7 +28,7 @@ namespace net {
 namespace {
 
 struct BaseSocketImpl {
-    bool connect(asio::ip::tcp::resolver &resolver,
+    [[nodiscard]] bool connect(asio::ip::tcp::resolver &resolver,
             asio::ip::tcp::socket &socket,
             std::string_view host,
             std::string_view service) {

@@ -20,7 +20,7 @@ public:
     Socket(Socket &&) noexcept;
     Socket &operator=(Socket &&) noexcept;
 
-    bool connect(std::string_view host, std::string_view service);
+    [[nodiscard]] bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
     std::string read_all();
     std::string read_until(std::string_view delimiter);
@@ -39,7 +39,7 @@ public:
     SecureSocket(SecureSocket &&) noexcept;
     SecureSocket &operator=(SecureSocket &&) noexcept;
 
-    bool connect(std::string_view host, std::string_view service);
+    [[nodiscard]] bool connect(std::string_view host, std::string_view service);
     std::size_t write(std::string_view data);
     std::string read_all();
     std::string read_until(std::string_view delimiter);
