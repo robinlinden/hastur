@@ -333,6 +333,71 @@ void whitespace_collapsing_tests() {
     });
 }
 
+void img_tests() {
+    etest::test("img, no alt or src", [] {
+        dom::Node dom = dom::Element{"body", {}, {dom::Element{"img"}}};
+        auto const &body = std::get<dom::Element>(dom);
+        auto style = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        {body.children.at(0), {{css::PropertyId::Display, "block"}}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 100, 0}},
+                .children{{
+                        &style.children[0],
+                        LayoutType::Block,
+                        {{0, 0, 100, 0}},
+                }},
+        };
+
+        auto layout_root = layout::create_layout(style, 100);
+        expect_eq(expected_layout, layout_root);
+    });
+
+    etest::test("img, alt, no src", [] {
+        dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"alt", "hello"}}}}};
+        auto const &body = std::get<dom::Element>(dom);
+        auto style = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        {body.children.at(0), {{css::PropertyId::Display, "block"}}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 100, 10}},
+                .children{{
+                        &style.children[0],
+                        LayoutType::Block,
+                        {{0, 0, 100, 10}},
+                        {},
+                        "hello"sv,
+                }},
+        };
+
+        auto layout_root = layout::create_layout(style, 100);
+        expect_eq(expected_layout, layout_root);
+        expect_eq(expected_layout.children.at(0).text(), "hello");
+    });
+}
+
 } // namespace
 
 // TODO(robinlinden): clang-format doesn't get along well with how I structured
@@ -1557,6 +1622,7 @@ int main() {
     });
 
     whitespace_collapsing_tests();
+    img_tests();
 
     return etest::run_all_tests();
 }

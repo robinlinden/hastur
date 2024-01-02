@@ -55,7 +55,15 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
         return std::nullopt;
     }
 
-    LayoutBox box{&node, display == style::DisplayValue::Inline ? LayoutType::Inline : LayoutType::Block};
+    auto type = display == style::DisplayValue::Inline ? LayoutType::Inline : LayoutType::Block;
+
+    if (auto const &element = std::get<dom::Element>(node.node); element.name == "img"sv) {
+        if (auto alt = element.attributes.find("alt"sv); alt != element.attributes.end()) {
+            return LayoutBox{.node = &node, .type = type, .layout_text = std::string_view{alt->second}};
+        }
+    }
+
+    LayoutBox box{&node, type};
 
     for (auto const &child : node.children) {
         auto child_box = create_tree(child);
