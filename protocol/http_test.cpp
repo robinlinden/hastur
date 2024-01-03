@@ -277,7 +277,7 @@ int main() {
     etest::test("empty response", [] {
         FakeSocket socket{};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::Error::Unresolved});
+        expect_eq(response, protocol::Response{.err = protocol::Error::InvalidResponse});
     });
 
     etest::test("empty status line", [] {

@@ -33,7 +33,7 @@ public:
         socket.write(Http::create_get_request(uri, std::move(user_agent)));
         auto data = socket.read_until("\r\n"sv);
         if (data.empty()) {
-            return {Error::Unresolved};
+            return {Error::InvalidResponse};
         }
 
         auto status_line = Http::parse_status_line(data.substr(0, data.size() - 2));
