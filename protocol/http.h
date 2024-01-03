@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -26,38 +26,44 @@ public:
     static Response get(auto &&socket, uri::Uri const &uri, std::optional<std::string_view> user_agent) {
         using namespace std::string_view_literals;
 
-        if (socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
-            socket.write(Http::create_get_request(uri, std::move(user_agent)));
-            auto data = socket.read_until("\r\n"sv);
-            if (data.empty()) {
-                return {Error::Unresolved};
-            }
-            auto status_line = Http::parse_status_line(data.substr(0, data.size() - 2));
-            if (!status_line) {
-                return {Error::InvalidResponse};
-            }
-            data = socket.read_until("\r\n\r\n"sv);
-            if (data.empty()) {
-                return {Error::InvalidResponse, std::move(*status_line)};
-            }
-            auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
-            if (headers.size() == 0) {
-                return {Error::InvalidResponse, std::move(*status_line)};
-            }
-            auto encoding = headers.get("transfer-encoding"sv);
-            if (encoding == "chunked"sv) {
-                if (auto body = Http::get_chunked_body(socket)) {
-                    data = *body;
-                } else {
-                    return {Error::InvalidResponse, std::move(*status_line)};
-                }
-            } else {
-                data = socket.read_all();
-            }
-            return {Error::Ok, std::move(*status_line), std::move(headers), std::move(data)};
+        if (!socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
+            return {Error::Unresolved};
         }
 
-        return {Error::Unresolved};
+        socket.write(Http::create_get_request(uri, std::move(user_agent)));
+        auto data = socket.read_until("\r\n"sv);
+        if (data.empty()) {
+            return {Error::Unresolved};
+        }
+
+        auto status_line = Http::parse_status_line(data.substr(0, data.size() - 2));
+        if (!status_line) {
+            return {Error::InvalidResponse};
+        }
+
+        data = socket.read_until("\r\n\r\n"sv);
+        if (data.empty()) {
+            return {Error::InvalidResponse, std::move(*status_line)};
+        }
+
+        auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
+        if (headers.size() == 0) {
+            return {Error::InvalidResponse, std::move(*status_line)};
+        }
+
+        auto encoding = headers.get("transfer-encoding"sv);
+        if (encoding == "chunked"sv) {
+            auto body = Http::get_chunked_body(socket);
+            if (!body) {
+                return {Error::InvalidResponse, std::move(*status_line)};
+            }
+
+            data = *body;
+        } else {
+            data = socket.read_all();
+        }
+
+        return {Error::Ok, std::move(*status_line), std::move(headers), std::move(data)};
     }
 
 private:
