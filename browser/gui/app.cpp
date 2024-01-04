@@ -447,6 +447,7 @@ int App::run() {
 }
 
 void App::navigate() {
+    spdlog::info("Navigating to '{}'", url_buf_);
     window_.setIcon(16, 16, kBrowserIcon.data());
     page_loaded_ = false;
     auto uri = uri::Uri::parse(url_buf_, engine_.uri());
