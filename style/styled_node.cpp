@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -533,6 +533,80 @@ int StyledNode::get_font_size_property() const {
 
     spdlog::warn("Unhandled unit '{}'", unit);
     return 0;
+}
+
+// https://drafts.csswg.org/css-fonts-4/#font-weight-prop
+std::optional<FontWeight> StyledNode::get_font_weight_property() const {
+    auto raw = get_raw_property(css::PropertyId::FontWeight);
+    if (raw == "normal") {
+        return FontWeight::normal();
+    }
+
+    if (raw == "bold") {
+        return FontWeight::bold();
+    }
+
+    if (raw == "bolder") {
+        auto parent_weight = [&] {
+            if (parent == nullptr) {
+                return FontWeight::normal();
+            }
+
+            return parent->get_font_weight_property().value_or(FontWeight::normal());
+        }();
+
+        // https://drafts.csswg.org/css-fonts-4/#relative-weights
+        if (parent_weight.value < 350) {
+            return FontWeight::normal();
+        }
+
+        if (parent_weight.value < 550) {
+            return FontWeight::bold();
+        }
+
+        if (parent_weight.value < 900) {
+            return FontWeight{900};
+        }
+
+        return parent_weight;
+    }
+
+    if (raw == "lighter") {
+        auto parent_weight = [&] {
+            if (parent == nullptr) {
+                return FontWeight::normal();
+            }
+
+            return parent->get_font_weight_property().value_or(FontWeight::normal());
+        }();
+
+        // https://drafts.csswg.org/css-fonts-4/#relative-weights
+        if (parent_weight.value < 100) {
+            return parent_weight;
+        }
+
+        if (parent_weight.value < 550) {
+            return FontWeight{100};
+        }
+
+        if (parent_weight.value < 750) {
+            return FontWeight::normal();
+        }
+
+        return FontWeight::bold();
+    }
+
+    int weight{-1};
+    if (auto res = std::from_chars(raw.data(), raw.data() + raw.size(), weight);
+            res.ec != std::errc{} || res.ptr != raw.data() + raw.size()) {
+        return std::nullopt;
+    }
+
+    if (weight < 1 || weight > 1000) {
+        return std::nullopt;
+    }
+
+    return FontWeight{weight};
 }
 
 std::optional<WhiteSpace> StyledNode::get_white_space_property() const {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -45,6 +45,15 @@ enum class FontStyle {
     Normal,
     Italic,
     Oblique,
+};
+
+struct FontWeight {
+    int value{};
+    [[nodiscard]] constexpr bool operator==(FontWeight const &) const = default;
+    static constexpr int kNormal = 400;
+    static constexpr int kBold = 700;
+    static constexpr FontWeight normal() { return {kNormal}; }
+    static constexpr FontWeight bold() { return {kBold}; }
 };
 
 enum class TextDecorationLine {
@@ -106,6 +115,8 @@ struct StyledNode {
             return get_font_size_property();
         } else if constexpr (T == css::PropertyId::FontStyle) {
             return get_font_style_property();
+        } else if constexpr (T == css::PropertyId::FontWeight) {
+            return get_font_weight_property();
         } else if constexpr (T == css::PropertyId::TextDecorationLine) {
             return get_text_decoration_line_property();
         } else if constexpr (T == css::PropertyId::WhiteSpace) {
@@ -122,6 +133,7 @@ private:
     DisplayValue get_display_property() const;
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;
+    std::optional<FontWeight> get_font_weight_property() const;
     std::vector<TextDecorationLine> get_text_decoration_line_property() const;
     std::optional<WhiteSpace> get_white_space_property() const;
 };

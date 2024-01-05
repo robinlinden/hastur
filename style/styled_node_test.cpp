@@ -392,5 +392,35 @@ int main() {
                 std::vector{style::TextDecorationLine::Blink});
     });
 
+    etest::test("get_property, font-weight", [] {
+        expect_property_eq<css::PropertyId::FontWeight>("normal", style::FontWeight::normal());
+        expect_property_eq<css::PropertyId::FontWeight>("bold", style::FontWeight::bold());
+
+        expect_property_eq<css::PropertyId::FontWeight>("123", style::FontWeight{123});
+
+        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "50", style::FontWeight::normal());
+        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "normal", style::FontWeight::bold());
+        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "bold", style::FontWeight{900});
+        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "999", style::FontWeight{999});
+
+        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "50", style::FontWeight{50});
+        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "normal", style::FontWeight{100});
+        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "bold", style::FontWeight::normal());
+        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "999", style::FontWeight::bold());
+
+        // Invalid values.
+        expect_property_eq<css::PropertyId::FontWeight>("???", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>("0", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>("1001", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>("500px", std::nullopt);
+
+        // Relative, no parent
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{.node = dom, .properties = {{css::PropertyId::FontWeight, "bolder"s}}};
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight::bold());
+        styled_node.properties[0] = {css::PropertyId::FontWeight, "lighter"s};
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight{100});
+    });
+
     return etest::run_all_tests();
 }
