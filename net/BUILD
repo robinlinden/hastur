@@ -4,10 +4,12 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 NET_COPTS = HASTUR_COPTS + select({
     "@platforms//os:linux": [
         # asio leaks this into our code.
+        "-Wno-null-dereference",
         "-Wno-shadow",
         "-Wno-unknown-pragmas",
     ],
     "@platforms//os:macos": [
+        "-Wno-null-dereference",
         "-Wno-shadow",
         "-Wno-unknown-pragmas",
     ],
