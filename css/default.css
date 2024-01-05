@@ -83,8 +83,6 @@ wbr {
 }
 
 address,
-article,
-aside,
 blockquote,
 details,
 dialog,
@@ -95,13 +93,10 @@ figure,
 footer,
 form,
 header,
-hgroup,
 hr,
 li,
 main,
-nav,
 pre,
-section,
 table {
   display: block;
 }
@@ -113,47 +108,67 @@ p {
   margin-bottom: 1em;
 }
 
-h1 {
+/* Sections and headings */
+/* https://html.spec.whatwg.org/multipage/rendering.html#sections-and-headings */
+/* TODO(robinlinden): margin-top/bottom -> margin-block-start/end once handled. */
+
+article,
+aside,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hgroup,
+nav,
+section {
   display: block;
-  font-size: 2em;
+}
+
+h1 {
   margin-top: 0.67em;
   margin-bottom: 0.67em;
+  font-size: 2em;
+  font-weight: bold;
 }
 
 h2 {
-  display: block;
-  font-size: 1.5em;
   margin-top: 0.83em;
   margin-bottom: 0.83em;
+  font-size: 1.5em;
+  font-weight: bold;
 }
 
 h3 {
-  display: block;
-  font-size: 1.17em;
   margin-top: 1em;
   margin-bottom: 1em;
+  font-size: 1.17em;
+  font-weight: bold;
 }
 
 h4 {
-  display: block;
-  font-size: 1em;
   margin-top: 1.33em;
   margin-bottom: 1.33em;
+  font-size: 1em;
+  font-weight: bold;
 }
 
 h5 {
-  display: block;
-  font-size: 0.83em;
   margin-top: 1.67em;
   margin-bottom: 1.67em;
+  font-size: 0.83em;
+  font-weight: bold;
 }
 
 h6 {
-  display: block;
-  font-size: 0.67em;
   margin-top: 2.33em;
   margin-bottom: 2.33em;
+  font-size: 0.67em;
+  font-weight: bold;
 }
+
+/* TODO(robinlinden): `:is(article, aside, nav, section) h1` rules. */
 
 /* Flow content */
 /* https://html.spec.whatwg.org/multipage/rendering.html#flow-content-3 */
