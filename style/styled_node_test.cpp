@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -33,6 +33,22 @@ void expect_property_eq(
     };
 
     etest::expect_eq(styled_node.get_property<IdT>(), expected, std::nullopt, loc);
+};
+
+template<css::PropertyId IdT>
+void expect_relative_property_eq(std::string value,
+        std::string parent_value,
+        auto expected,
+        etest::source_location const &loc = etest::source_location::current()) {
+    dom::Node dom_node = dom::Element{"dummy"s};
+    style::StyledNode styled_node{
+            .node = dom_node,
+            .properties = {{IdT, std::move(parent_value)}},
+            .children = {{dom_node, {{IdT, std::move(value)}}, {}}},
+    };
+    styled_node.children.at(0).parent = &styled_node;
+
+    etest::expect_eq(styled_node.children.at(0).get_property<IdT>(), expected, std::nullopt, loc);
 };
 } // namespace
 
