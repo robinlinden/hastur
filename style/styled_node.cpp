@@ -58,6 +58,8 @@ std::map<css::PropertyId, std::string_view> const initial_values{
         {css::PropertyId::FontFamily, "arial"sv}, // TODO(robinlinden): Better default.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-style#formal_definition
         {css::PropertyId::FontStyle, "normal"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#formal_definition
+        {css::PropertyId::FontWeight, "normal"sv},
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
         {css::PropertyId::TextDecorationColor, "currentcolor"sv},
