@@ -381,6 +381,19 @@ int main() {
                         gfx::FontStyle::Italic,
                         gfx::Color::from_css_name("canvastext").value(),
                 }});
+
+        styled.properties.push_back({css::PropertyId::FontWeight, "bold"});
+
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
+                        {0, 0},
+                        "hello",
+                        {"arial"},
+                        16,
+                        gfx::FontStyle::Bold | gfx::FontStyle::Italic,
+                        gfx::Color::from_css_name("canvastext").value(),
+                }});
     });
 
     etest::test("culling", [] {

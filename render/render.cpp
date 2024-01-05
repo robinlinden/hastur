@@ -44,6 +44,14 @@ gfx::FontStyle to_gfx(style::FontStyle style) {
     }
 }
 
+gfx::FontStyle to_gfx(std::optional<style::FontWeight> style) {
+    if (!style || style->value < style::FontWeight::kBold) {
+        return gfx::FontStyle::Normal;
+    }
+
+    return gfx::FontStyle::Bold;
+}
+
 gfx::FontStyle to_gfx(std::vector<style::TextDecorationLine> const &decorations) {
     gfx::FontStyle style{};
     for (auto const &decoration : decorations) {
@@ -73,6 +81,8 @@ void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::st
     }();
     auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>()};
     auto style = to_gfx(layout.get_property<css::PropertyId::FontStyle>());
+    auto weight = to_gfx(layout.get_property<css::PropertyId::FontWeight>());
+    style |= weight;
     auto color = layout.get_property<css::PropertyId::Color>();
     auto text_decoration_line = to_gfx(layout.get_property<css::PropertyId::TextDecorationLine>());
     style |= text_decoration_line;
