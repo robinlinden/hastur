@@ -55,7 +55,7 @@ std::map<css::PropertyId, std::string_view> const initial_values{
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-size#formal_definition
         {css::PropertyId::FontSize, "medium"sv},
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#formal_definition
-        {css::PropertyId::FontFamily, "arial"sv}, // TODO(robinlinden): Better default.
+        {css::PropertyId::FontFamily, "sans-serif"sv},
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-style#formal_definition
         {css::PropertyId::FontStyle, "normal"sv},
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#formal_definition
