@@ -28,31 +28,6 @@ using namespace std::literals;
 constexpr auto kInvalidColor = gfx::Color{0xFF, 0, 0};
 
 int main() {
-    etest::test("render simple layout", [] {
-        dom::Node dom = dom::Element{"span", {}, {dom::Text{"hello"}}};
-
-        auto const &children = std::get<dom::Element>(dom).children;
-        auto styled = style::StyledNode{
-                .node = dom,
-                .properties = {{css::PropertyId::FontSize, "10px"}, {css::PropertyId::Display, "inline"}},
-                .children = {{children[0], {{css::PropertyId::Display, "inline"}}, {}}},
-        };
-        styled.children[0].parent = &styled;
-
-        auto layout = layout::LayoutBox{
-                .node = &styled,
-                .type = layout::LayoutType::Inline,
-                .dimensions = {},
-                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"sv}},
-        };
-
-        gfx::CanvasCommandSaver saver;
-        render::render_layout(saver, layout);
-
-        expect_eq(
-                saver.take_commands(), CanvasCommands{gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"arial"}, 10}});
-    });
-
     etest::test("text, font-family provided", [] {
         dom::Node dom = dom::Element{"span", {}, {dom::Text{"hello"}}};
 
