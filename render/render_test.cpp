@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -381,6 +381,54 @@ int main() {
                         gfx::FontStyle::Italic,
                         gfx::Color::from_css_name("canvastext").value(),
                 }});
+    });
+
+    etest::test("culling", [] {
+        dom::Node dom = dom::Element{"dummy"};
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::BackgroundColor, "#010203"}},
+        };
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {{0, 0, 20, 40}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+
+        gfx::Color color{1, 2, 3};
+        CanvasCommands expected{gfx::DrawRectCmd{{0, 0, 20, 40}, color}};
+        // No cull rect.
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(), expected);
+
+        // Intersecting cull rects.
+        render::render_layout(saver, layout, geom::Rect{0, 0, 20, 40});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{10, 10, 5, 5});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{-1, -1, 100, 100});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{0, 0, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{19, 39, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{19, 0, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{0, 39, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+
+        // Non-intersecting cull rects.
+        render::render_layout(saver, layout, geom::Rect{0, 40, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{});
+        render::render_layout(saver, layout, geom::Rect{20, 40, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{});
+        render::render_layout(saver, layout, geom::Rect{20, 0, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{});
+        render::render_layout(saver, layout, geom::Rect{-1, 0, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{});
     });
 
     return etest::run_all_tests();

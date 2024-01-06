@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <optional>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -123,13 +124,17 @@ bool should_render(layout::LayoutBox const &layout) {
 
 } // namespace
 
-void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
+void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
+    if (clip && clip->intersected(layout.dimensions.padding_box()).empty()) {
+        return;
+    }
+
     if (should_render(layout)) {
         do_render(painter, layout);
     }
 
     for (auto const &child : layout.children) {
-        render_layout(painter, child);
+        render_layout(painter, child, clip);
     }
 }
 
