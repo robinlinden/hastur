@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -325,6 +325,10 @@ void App::step() {
                     }
                     case sf::Keyboard::Key::F2: {
                         switch_canvas();
+                        break;
+                    }
+                    case sf::Keyboard::Key::F3: {
+                        culling_enabled_ = !culling_enabled_;
                         break;
                     }
                     case sf::Keyboard::Key::F4: {
@@ -710,7 +714,13 @@ void App::render_layout() {
     if (render_debug_) {
         render::debug::render_layout_depth(*canvas_, *layout);
     } else {
-        render::render_layout(*canvas_, *layout);
+        render::render_layout(*canvas_,
+                *layout,
+                culling_enabled_ ? std::optional{geom::Rect{0,
+                        -scroll_offset_y_,
+                        static_cast<int>(window_.getSize().x),
+                        static_cast<int>(window_.getSize().y)}}
+                                 : std::nullopt);
     }
 }
 
