@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -124,6 +124,13 @@ int main() {
         expect(!r.contains({-1, 10}));
         expect(!r.contains({10, 11}));
         expect(!r.contains({11, 10}));
+    });
+
+    etest::test("Rect::empty", [] {
+        expect(Rect{0, 0, 0, 0}.empty());
+        expect(Rect{0, 0, 1, 0}.empty());
+        expect(Rect{0, 0, 0, 1}.empty());
+        expect(!Rect{0, 0, 1, 1}.empty());
     });
 
     return etest::run_all_tests();

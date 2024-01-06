@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -81,6 +81,8 @@ struct Rect {
         bool inside_vertically = p.y >= top() && p.y <= bottom();
         return inside_vertically && inside_horizontally;
     }
+
+    [[nodiscard]] constexpr bool empty() const { return width <= 0 || height <= 0; }
 };
 
 } // namespace geom
