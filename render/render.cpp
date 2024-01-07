@@ -149,12 +149,20 @@ void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::
 }
 
 namespace debug {
+namespace {
 
-void render_layout_depth(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
+void render_layout_depth_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     painter.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
     for (auto const &child : layout.children) {
-        render_layout_depth(painter, child);
+        render_layout_depth_impl(painter, child);
     }
+}
+
+} // namespace
+
+void render_layout_depth(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
+    painter.clear(gfx::Color{});
+    render_layout_depth_impl(painter, layout);
 }
 
 } // namespace debug

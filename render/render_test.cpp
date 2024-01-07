@@ -97,7 +97,8 @@ int main() {
         geom::Rect expected_rect{10, 20, 100, 100};
         gfx::Color expected_color{0xFF, 0xFF, 0xFF, 0x30};
 
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::FillRectCmd{expected_rect, expected_color}});
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::ClearCmd{}, gfx::FillRectCmd{expected_rect, expected_color}});
     });
 
     etest::test("render block with transparent background-color", [] {
