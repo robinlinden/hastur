@@ -97,7 +97,6 @@ private:
     void run_stylesheet_widget() const;
     void run_layout_widget() const;
 
-    void clear_render_surface();
     void render_layout();
     void render_overlay();
     void show_render_surface();

@@ -4,7 +4,6 @@
 
 #include "browser/gui/app.h"
 
-#include "css/property_id.h"
 #include "css/rule.h"
 #include "css/style_sheet.h"
 #include "dom/dom.h"
@@ -432,11 +431,9 @@ void App::step() {
         run_layout_widget();
     }
 
-    if (!render_debug_) {
-        clear_render_surface();
-    }
-
-    if (page_loaded_) {
+    if (!page_loaded_ || engine_.layout() == nullptr) {
+        canvas_->clear(gfx::Color{255, 255, 255});
+    } else {
         render_layout();
     }
 
@@ -668,38 +665,6 @@ void App::run_layout_widget() const {
     im::window("Layout", {size.x / 2.f, size.y / 2.f}, {size.x / 2.f, size.y / 2.f}, [this] {
         ImGui::TextUnformatted(layout_str_.c_str());
     });
-}
-
-void App::clear_render_surface() {
-    auto const *layout = engine_.layout();
-    if (!page_loaded_ || layout == nullptr) {
-        canvas_->clear(gfx::Color{255, 255, 255});
-        return;
-    }
-
-    // https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
-    // If html or body has a background set, use that as the canvas background.
-    // TODO(robinlinden): This should be done in //render, but requires new
-    //                    //gfx APIs that I want to think a bit about.
-    if (auto html_bg = layout->get_property<css::PropertyId::BackgroundColor>();
-            html_bg != gfx::Color::from_css_name("transparent")) {
-        canvas_->clear(html_bg);
-        return;
-    }
-
-    auto body = dom::nodes_by_xpath(*layout, "/html/body");
-    if (body.empty()) {
-        canvas_->clear(gfx::Color{255, 255, 255});
-        return;
-    }
-
-    if (auto body_bg = body[0]->get_property<css::PropertyId::BackgroundColor>();
-            body_bg != gfx::Color::from_css_name("transparent")) {
-        canvas_->clear(body_bg);
-        return;
-    }
-
-    canvas_->clear(gfx::Color{255, 255, 255});
 }
 
 void App::render_layout() {
