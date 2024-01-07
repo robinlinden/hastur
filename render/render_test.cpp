@@ -52,7 +52,7 @@ int main() {
         render::render_layout(saver, layout);
 
         expect_eq(saver.take_commands(),
-                CanvasCommands{
+                CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"comic sans"}, 10, gfx::FontStyle::Italic}});
     });
 
@@ -75,7 +75,8 @@ int main() {
         geom::Rect expected_rect{10, 20, 100, 100};
         gfx::Color expected_color{0xA, 0xB, 0xC};
 
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::DrawRectCmd{expected_rect, expected_color, {}}});
+        expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, gfx::DrawRectCmd{expected_rect, expected_color, {}}});
     });
 
     etest::test("debug-render block", [] {
@@ -117,7 +118,7 @@ int main() {
         gfx::CanvasCommandSaver saver;
         render::render_layout(saver, layout);
 
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
     });
 
     etest::test("render block with borders, default color", [] {
@@ -141,7 +142,8 @@ int main() {
         gfx::Borders expected_borders{{{}, 10}, {{}, 10}, {{}, 10}, {{}, 10}};
 
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
+                CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
     });
 
     etest::test("render block with borders, custom color", [] {
@@ -169,7 +171,8 @@ int main() {
         gfx::Borders expected_borders{{{1, 1, 1}, 2}, {{2, 2, 2}, 4}, {{3, 3, 3}, 6}, {{4, 4, 4}, 8}};
 
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
+                CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
     });
 
     etest::test("currentcolor", [] {
@@ -197,7 +200,7 @@ int main() {
                 .rect{0, 0, 20, 20},
                 .color{gfx::Color{0xaa, 0xbb, 0xcc}},
         };
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
     });
 
     etest::test("hex colors", [] {
@@ -215,25 +218,25 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "#abcd"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc, 0xdd}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // #rrggbbaa
         styled.properties = {{css::PropertyId::BackgroundColor, "#12345678"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56, 0x78}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // #rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "#abc"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // #rrggbb
         styled.properties = {{css::PropertyId::BackgroundColor, "#123456"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
     });
 
     etest::test("rgba colors", [] {
@@ -251,61 +254,61 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3)"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, rgba should be an alias of rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "rgba(100, 200, 255)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{100, 200, 255}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.5)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 127}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 51}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, alpha out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 0xFF}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, garbage values in alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, blergh)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, missing closing paren
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, value out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(-1, 2, 3)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, wrong number of arguments
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, garbage value
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(a, 2, 3)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
     });
 
     etest::test("text style", [] {
@@ -322,54 +325,66 @@ int main() {
         render::render_layout(saver, layout);
 
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
-                        {0, 0},
-                        "hello",
-                        {"arial"},
-                        16,
-                        gfx::FontStyle::Strikethrough,
-                        gfx::Color::from_css_name("canvastext").value(),
-                }});
+                CanvasCommands{
+                        gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawTextWithFontOptionsCmd{
+                                {0, 0},
+                                "hello",
+                                {"arial"},
+                                16,
+                                gfx::FontStyle::Strikethrough,
+                                gfx::Color::from_css_name("canvastext").value(),
+                        },
+                });
 
         styled.properties[0].second = "underline";
         styled.properties.push_back({css::PropertyId::FontStyle, "italic"});
 
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
-                        {0, 0},
-                        "hello",
-                        {"arial"},
-                        16,
-                        gfx::FontStyle::Underlined | gfx::FontStyle::Italic,
-                        gfx::Color::from_css_name("canvastext").value(),
-                }});
+                CanvasCommands{
+                        gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawTextWithFontOptionsCmd{
+                                {0, 0},
+                                "hello",
+                                {"arial"},
+                                16,
+                                gfx::FontStyle::Underlined | gfx::FontStyle::Italic,
+                                gfx::Color::from_css_name("canvastext").value(),
+                        },
+                });
 
         styled.properties[0].second = "blink";
 
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
-                        {0, 0},
-                        "hello",
-                        {"arial"},
-                        16,
-                        gfx::FontStyle::Italic,
-                        gfx::Color::from_css_name("canvastext").value(),
-                }});
+                CanvasCommands{
+                        gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawTextWithFontOptionsCmd{
+                                {0, 0},
+                                "hello",
+                                {"arial"},
+                                16,
+                                gfx::FontStyle::Italic,
+                                gfx::Color::from_css_name("canvastext").value(),
+                        },
+                });
 
         styled.properties.push_back({css::PropertyId::FontWeight, "bold"});
 
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::DrawTextWithFontOptionsCmd{
-                        {0, 0},
-                        "hello",
-                        {"arial"},
-                        16,
-                        gfx::FontStyle::Bold | gfx::FontStyle::Italic,
-                        gfx::Color::from_css_name("canvastext").value(),
-                }});
+                CanvasCommands{
+                        gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawTextWithFontOptionsCmd{
+                                {0, 0},
+                                "hello",
+                                {"arial"},
+                                16,
+                                gfx::FontStyle::Bold | gfx::FontStyle::Italic,
+                                gfx::Color::from_css_name("canvastext").value(),
+                        },
+                });
     });
 
     etest::test("culling", [] {
@@ -388,7 +403,7 @@ int main() {
         gfx::CanvasCommandSaver saver;
 
         gfx::Color color{1, 2, 3};
-        CanvasCommands expected{gfx::DrawRectCmd{{0, 0, 20, 40}, color}};
+        CanvasCommands expected{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, gfx::DrawRectCmd{{0, 0, 20, 40}, color}};
         // No cull rect.
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(), expected);
@@ -411,13 +426,57 @@ int main() {
 
         // Non-intersecting cull rects.
         render::render_layout(saver, layout, geom::Rect{0, 40, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{20, 40, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{20, 0, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{-1, 0, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+    });
+
+    etest::test("special backgrounds", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Element{"body"}}};
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{style::StyledNode{
+                        .node = std::get<dom::Element>(dom).children[0],
+                        .properties = {{css::PropertyId::Display, "block"}},
+                }},
+        };
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {{0, 0, 20, 40}},
+                .children = {{&styled.children[0], layout::LayoutType::Block, {{0, 0, 10, 10}}}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+
+        // No special backgrounds.
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+
+        // Body background.
+        styled.children[0].properties.push_back({css::PropertyId::BackgroundColor, "#abc"});
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(),
+                CanvasCommands{
+                        gfx::ClearCmd{{0xAA, 0xBB, 0xCC}},
+                        gfx::DrawRectCmd{{0, 0, 10, 10}, {0xAA, 0xBB, 0xCC}},
+                });
+
+        // Html background.
+        styled.properties.push_back({css::PropertyId::BackgroundColor, "#123"});
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(),
+                CanvasCommands{
+                        gfx::ClearCmd{{0x11, 0x22, 0x33}},
+                        gfx::DrawRectCmd{{0, 0, 20, 40}, {0x11, 0x22, 0x33}},
+                        gfx::DrawRectCmd{{0, 0, 10, 10}, {0xAA, 0xBB, 0xCC}},
+                });
     });
 
     return etest::run_all_tests();

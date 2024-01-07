@@ -6,6 +6,7 @@
 #include "render/render.h"
 
 #include "css/property_id.h"
+#include "dom/dom.h"
 #include "geom/geom.h"
 #include "gfx/color.h"
 #include "gfx/font.h"
@@ -132,9 +133,7 @@ bool should_render(layout::LayoutBox const &layout) {
     return layout.type == layout::LayoutType::Block || layout.type == layout::LayoutType::Inline;
 }
 
-} // namespace
-
-void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
+void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
     if (clip && clip->intersected(layout.dimensions.padding_box()).empty()) {
         return;
     }
@@ -144,8 +143,34 @@ void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::
     }
 
     for (auto const &child : layout.children) {
-        render_layout(painter, child, clip);
+        render_layout_impl(painter, child, clip);
     }
+}
+
+} // namespace
+
+void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
+    static constexpr auto kGetBg = [](std::string_view xpath, layout::LayoutBox const &l) -> std::optional<gfx::Color> {
+        auto d = dom::nodes_by_xpath(l, xpath);
+        if (d.empty()) {
+            return std::nullopt;
+        }
+
+        return d[0]->get_property<css::PropertyId::BackgroundColor>();
+    };
+
+    // https://www.w3.org/TR/css-backgrounds-3/#special-backgrounds
+    // If html or body has a background set, use that as the canvas background.
+    if (auto html_bg = kGetBg("/html", layout); html_bg && html_bg != gfx::Color::from_css_name("transparent")) {
+        painter.clear(*html_bg);
+    } else if (auto body_bg = kGetBg("/html/body", layout);
+               body_bg && body_bg != gfx::Color::from_css_name("transparent")) {
+        painter.clear(*body_bg);
+    } else {
+        painter.clear(gfx::Color{255, 255, 255});
+    }
+
+    render_layout_impl(painter, layout, clip);
 }
 
 namespace debug {

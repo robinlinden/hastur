@@ -9,6 +9,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//css",
+        "//dom",
         "//geom",
         "//gfx",
         "//layout",
