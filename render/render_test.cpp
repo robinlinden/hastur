@@ -308,8 +308,8 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{std::move(cmd)});
     });
 
-    etest::test("render block with borders, custom color", [] {
-        dom::Node dom = dom::Text{"hello"};
+    etest::test("text style", [] {
+        dom::Node dom = dom::Element{"dummy"};
         auto styled = style::StyledNode{.node = dom,
                 .properties = {
                         {css::PropertyId::TextDecorationLine, "line-through"},
