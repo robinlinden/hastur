@@ -432,7 +432,9 @@ void App::step() {
         run_layout_widget();
     }
 
-    clear_render_surface();
+    if (!render_debug_) {
+        clear_render_surface();
+    }
 
     if (page_loaded_) {
         render_layout();
@@ -669,11 +671,6 @@ void App::run_layout_widget() const {
 }
 
 void App::clear_render_surface() {
-    if (render_debug_) {
-        canvas_->clear(gfx::Color{});
-        return;
-    }
-
     auto const *layout = engine_.layout();
     if (!page_loaded_ || layout == nullptr) {
         canvas_->clear(gfx::Color{255, 255, 255});
