@@ -90,16 +90,21 @@ int main() {
                 .node = &styled,
                 .type = layout::LayoutType::Block,
                 .dimensions = {{10, 20, 100, 100}, {}, {}, {}},
+                .children{
+                        {nullptr, layout::LayoutType::Block, {{10, 20, 10, 10}}, {}, "hello"sv},
+                        {nullptr, layout::LayoutType::Block, {{10, 30, 10, 10}}, {}, "world"sv},
+                },
         };
 
         gfx::CanvasCommandSaver saver;
         render::debug::render_layout_depth(saver, layout);
 
-        geom::Rect expected_rect{10, 20, 100, 100};
-        gfx::Color expected_color{0xFF, 0xFF, 0xFF, 0x30};
-
+        gfx::Color c{0xFF, 0xFF, 0xFF, 0x30};
         expect_eq(saver.take_commands(),
-                CanvasCommands{gfx::ClearCmd{}, gfx::FillRectCmd{expected_rect, expected_color}});
+                CanvasCommands{gfx::ClearCmd{},
+                        gfx::FillRectCmd{{10, 20, 100, 100}, c},
+                        gfx::FillRectCmd{{10, 20, 10, 10}, c},
+                        gfx::FillRectCmd{{10, 30, 10, 10}, c}});
     });
 
     etest::test("render block with transparent background-color", [] {
