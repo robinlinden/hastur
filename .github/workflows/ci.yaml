@@ -92,8 +92,6 @@ jobs:
           path: ~/.cache/bazel
           key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
           restore-keys: ${{ matrix.name }}-
-      - name: Build
-        run: bazel build //... ${{ matrix.bazel }}
       - name: Test
         run: bazel test //... ${{ matrix.bazel }}
       - name: Run
@@ -194,7 +192,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: bazelisk build //...
       - run: bazelisk test //...
 
   windows-msvc:
@@ -210,8 +207,6 @@ jobs:
           path: ~/.cache/bazel
           key: windows_msvc-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
-      - name: Build
-        run: bazel build ... -c dbg
       - name: Test
         run: bazel test ... -c dbg
       # TODO(robinlinden): This no longer runs in CI due to http://example.com
