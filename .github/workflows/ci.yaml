@@ -193,6 +193,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bazelisk test //...
+      - name: Run tui
+        run: |
+          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+          bazelisk run browser:tui file://$(pwd)/example.html
 
   windows-msvc:
     runs-on: windows-2022
