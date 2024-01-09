@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -96,9 +96,17 @@ public:
         // JMP rel32
         if (std::holds_alternative<Label::Linked>(label.v)) {
             auto const &linked = std::get<Label::Linked>(label.v);
-            static constexpr int kInstructionSize = 4;
+            auto const jmp_dst = static_cast<std::ptrdiff_t>(linked.offset - assembled_.size());
+            static constexpr int kShortInstructionSize = 2;
+            if (jmp_dst >= (-128 + kShortInstructionSize) && jmp_dst <= 0) {
+                emit(0xeb);
+                emit(static_cast<std::uint8_t>(jmp_dst) - kShortInstructionSize);
+                return;
+            }
+
+            static constexpr int kNearInstructionSize = 5;
             emit(0xe9);
-            emit(Imm32{static_cast<std::uint32_t>(linked.offset - assembled_.size() - kInstructionSize)});
+            emit(Imm32{static_cast<std::uint32_t>(jmp_dst - kNearInstructionSize)});
             return;
         }
 

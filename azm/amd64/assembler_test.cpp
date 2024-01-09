@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,7 @@
 #include "etest/etest2.h"
 
 #include <cstdint>
+#include <iterator>
 #include <optional>
 #include <type_traits>
 #include <vector>
@@ -53,23 +54,14 @@ int main() {
 
         a.expect_eq(assembler.take_assembled(),
                 CodeVec{
-                        0xe9, // jmp rel32
-                        0xfb, // -5
-                        0xff,
-                        0xff,
-                        0xff,
+                        0xeb, // jmp rel32
+                        0xfe, // -2
                         0x0f, // ud2
                         0x0b,
-                        0xe9, // jmp rel32
-                        0xf4, // -12
-                        0xff,
-                        0xff,
-                        0xff,
-                        0xe9, // jmp rel32
-                        0xfb, // -5
-                        0xff,
-                        0xff,
-                        0xff,
+                        0xeb, // jmp rel32
+                        0xfa, // -6
+                        0xeb, // jmp rel32
+                        0xfe, // -2
                 });
     });
 
@@ -97,12 +89,26 @@ int main() {
                         0x00,
                         0x00,
                         0x00,
-                        0xe9, // jmp rel32
-                        0xfb, // -5
-                        0xff,
-                        0xff,
-                        0xff,
+                        0xeb, // jmp rel32
+                        0xfe, // -2
                 });
+    });
+
+    s.add_test("JMP, short backwards", [](etest::IActions &a) {
+        Assembler assembler;
+
+        auto slot1 = assembler.label();
+        // Pad w/ a 1-byte instruction to force the maximum-length short backwards jmp.
+        for (std::uint8_t i = 0; i < 0x7e; ++i) {
+            assembler.ret();
+        }
+
+        assembler.jmp(slot1);
+        assembler.jmp(slot1);
+        // Remove the padding we don't care about.
+        auto assembled = assembler.take_assembled();
+        assembled.erase(assembled.begin(), std::next(assembled.begin(), 0x7e));
+        a.expect_eq(assembled, CodeVec{0xeb, 0x80, 0xe9, 0x7b, 0xff, 0xff, 0xff});
     });
 
     s.add_test("MOV r32, imm32", [](etest::IActions &a) {
