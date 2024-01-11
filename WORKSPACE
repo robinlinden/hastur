@@ -325,13 +325,13 @@ load("@rules_python//python:repositories.bzl", "py_repositories", "python_regist
 py_repositories()
 
 python_register_toolchains(
-    name = "python_3_11",
+    name = "python_3_12",
     # Running the build as root works, but leads to cache-misses for .pyc files.
     ignore_root_user_error = True,
-    python_version = "3.11.6",
+    python_version = "3.12.0",
 )
 
-load("@python_3_11//:defs.bzl", "interpreter")
+load("@python_3_12//:defs.bzl", "interpreter")
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 pip_parse(
