@@ -37,9 +37,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-6FrjDeM2JaY+yn/ECpT+qEXmQYiOUvMra+6pHosbJ5M=",
-    strip_prefix = "rules_python-0.27.1",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.27.1/rules_python-0.27.1.tar.gz",
+    integrity = "sha256-1wzXKnpIgPAACmNGJTQUglwZzdQKKCib32e45kgO3/g=",
+    strip_prefix = "rules_python-0.28.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.28.0/rules_python-0.28.0.tar.gz",
 )
 
 # Third-party Bazel
@@ -48,8 +48,8 @@ http_archive(
 # https://github.com/uber/hermetic_cc_toolchain
 http_archive(
     name = "hermetic_cc_toolchain",
-    sha256 = "a5caccbf6d86d4f60afd45b541a05ca4cc3f5f523aec7d3f7711e584600fb075",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.1.3/hermetic_cc_toolchain-v2.1.3.tar.gz",
+    integrity = "sha256-O4EH3g0Bf+MuZDQIapVo+XxgoRG0ncNPxwAeE5ww/eo=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.2.1/hermetic_cc_toolchain-v2.2.1.tar.gz",
 )
 
 # Misc tools
@@ -106,9 +106,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-PKkXM6cxOorUHAiFkpQV+OwKKjHU3H4n6TMUEvTKJqw=",
-    strip_prefix = "fmt-10.2.0",
-    url = "https://github.com/fmtlib/fmt/archive/10.2.0.tar.gz",
+    integrity = "sha256-ElDkzFi/Bu5jFWdSP0iEjcRZYTPhY/AmFcl/eLq2yBE=",
+    strip_prefix = "fmt-10.2.1",
+    url = "https://github.com/fmtlib/fmt/archive/10.2.1.tar.gz",
 )
 
 # https://github.com/freetype/freetype
@@ -154,9 +154,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    sha256 = "170986e6a4b83d165bfc1d33c2c5a5bc2d67e5b97176287485c51a2299249296",
-    strip_prefix = "imgui-1.90",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.tar.gz",
+    integrity = "sha256-IdzJhbsq6P5IBHyGE128Q41pgKjy4IurvaW+ggWS8oI=",
+    strip_prefix = "imgui-1.90.1",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.1.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -236,13 +236,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.273"
+VULKAN_TAG = "1.3.275"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-tGx3JloLDyNaPfdVdCurJz/iCD3dUrITTo9MetMVSkM=",
+    integrity = "sha256-cWHaZF29M/1Oph7sCODXc4mmQAEKy/SvwAI0+E35sxQ=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -251,7 +251,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-dEeQHxqKqU/KtVgsFKXIT2YLqBJblcM8HYc29wgF880=",
+    integrity = "sha256-9eZ9kJeSlmZKcz4U797a4hmNwR+Ij3VpuEv3F3XXmQk=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
