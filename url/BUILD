@@ -8,6 +8,7 @@ cc_import(
         "@platforms//os:windows": "@icu//:sicudt74l.lib",
         "//conditions:default": "@icu//:libicudt74l.a",
     }),
+    tags = ["no-cross"],
     visibility = ["//visibility:private"],
     alwayslink = True,
 )
@@ -30,6 +31,7 @@ cc_library(
     ],
     hdrs = ["url.h"],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
         ":icudata",
@@ -54,6 +56,7 @@ cc_test(
         "//conditions:default": [],
     }),
     data = ["@wpt//:url/resources/urltestdata.json"],
+    tags = ["no-cross"],
     deps = [
         ":url",
         "//etest",
@@ -68,6 +71,7 @@ cc_fuzz_test(
     srcs = ["url_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
     corpus = glob(["url_fuzz_test_corpus/**"]),
+    tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":url"],
 )

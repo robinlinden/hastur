@@ -72,6 +72,7 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
+    tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
@@ -99,6 +100,7 @@ cc_binary(
     name = "gfx_example",
     srcs = ["gfx_example.cpp"],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     deps = [
         ":gfx",
         ":opengl",

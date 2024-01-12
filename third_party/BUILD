@@ -7,6 +7,7 @@ compile_pip_requirements(
     timeout = "moderate",
     requirements_in = "requirements.in",
     requirements_txt = "requirements.txt",
+    tags = ["no-cross"],
 )
 
 test_suite(

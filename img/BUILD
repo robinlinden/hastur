@@ -70,6 +70,7 @@ cc_binary(
     name = "img_example",
     srcs = ["img_example.cpp"],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     deps = [
         ":gif",
         ":png",

@@ -8,6 +8,7 @@ cc_binary(
         "*.h",
     ]),
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
         "//css",

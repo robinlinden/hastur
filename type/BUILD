@@ -40,6 +40,7 @@ cc_library(
     srcs = ["sfml.cpp"],
     hdrs = ["sfml.h"],
     copts = SFML_TYPE_COPTS,
+    tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
         ":type",

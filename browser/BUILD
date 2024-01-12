@@ -1,6 +1,7 @@
 alias(
     name = "browser",
     actual = "//browser/gui",
+    tags = ["no-cross"],
     visibility = ["//visibility:public"],
 )
 
