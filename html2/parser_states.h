@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -88,7 +88,6 @@ struct Initial {
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
-// Incomplete.
 struct BeforeHtml {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -117,6 +117,11 @@ void initial_tests() {
 }
 
 void before_html_tests() {
+    etest::test("BeforeHtml: doctype", [] {
+        auto res = parse("<!DOCTYPE html>", {.initial_insertion_mode = html2::BeforeHtml{}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
     etest::test("BeforeHtml: comment", [] {
         auto res = parse("<!DOCTYPE html><!-- hello --><html foo='bar'>", {});
         expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
@@ -130,6 +135,16 @@ void before_html_tests() {
     etest::test("BeforeHtml: boring whitespace before html is dropped", [] {
         auto res = parse("<!DOCTYPE asdf>\t\n\f\r <html foo='bar'>", {});
         expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
+    });
+
+    etest::test("BeforeHtml: head end-tag", [] {
+        auto res = parse("</head>", {.initial_insertion_mode = html2::BeforeHtml{}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("BeforeHtml: dropped end-tag", [] {
+        auto res = parse("</img>", {.initial_insertion_mode = html2::BeforeHtml{}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
     });
 }
 

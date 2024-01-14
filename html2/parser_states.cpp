@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -223,6 +223,11 @@ std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &t
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
 std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const &token) {
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
     if (std::holds_alternative<html2::CommentToken>(token)) {
         // TODO(robinlinden): Insert as last child.
         return {};
@@ -235,6 +240,15 @@ std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
         a.insert_element_for(*start);
         return BeforeHead{};
+    }
+
+    static constexpr auto kAcceptableEndTags = std::to_array<std::string_view>({"head", "body", "html", "br"});
+    if (auto const *end = std::get_if<html2::EndTagToken>(&token);
+            end != nullptr && (is_in_array<kAcceptableEndTags>(end->tag_name))) {
+        // Fall through to "anything else."
+    } else if (end != nullptr) {
+        // Parse error.
+        return {};
     }
 
     a.insert_element_for(html2::StartTagToken{.tag_name = "html"});
