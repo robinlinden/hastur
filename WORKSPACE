@@ -191,18 +191,24 @@ http_archive(
     url = "https://github.com/glennrp/libpng/archive/v1.6.40.tar.gz",
 )
 
+# https://github.com/SFML/SFML
 http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
-    # Work around SFML check for enough bytes for a given UTF-8 character crashing
-    # in MSVC debug builds with "cannot seek string_view iterator after end".
-    # See: https://github.com/SFML/SFML/issues/2113
     patch_cmds = [
+        # Work around SFML check for enough bytes for a given UTF-8 character
+        # crashing in MSVC debug builds with "cannot seek string_view iterator
+        # after end".
+        # See: https://github.com/SFML/SFML/issues/2113
         "sed -i'' -e 's/if (begin + trailingBytes < end)/if (trailingBytes < std::distance(begin, end))/' include/SFML/System/Utf.inl",
+        # SFML uses a non-standard include path to vulkan.h
+        # libvulkan-dev: /usr/include/vulkan/vulkan.h
+        "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
+        "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Unix/VulkanImplX11.cpp",
     ],
-    sha256 = "6124b5fe3d96e7f681f587e2d5b456cd0ec460393dfe46691f1933d6bde0640b",
-    strip_prefix = "SFML-2.5.1",
-    url = "https://github.com/SFML/SFML/archive/2.5.1.zip",
+    sha256 = "cf9535356ab37067e871270fbc5ae19e4102b658d6ea96993e6c9452ddbf99b3",
+    strip_prefix = "SFML-2.6.0",
+    url = "https://github.com/SFML/SFML/archive/2.6.0.zip",
 )
 
 # https://github.com/gabime/spdlog

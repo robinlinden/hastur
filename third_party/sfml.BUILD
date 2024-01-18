@@ -1,5 +1,19 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
 
+# SFML has copied the generated files into their source tree and patched them.
+# The files are generated w/ very different options from us, so we can't just
+# force them to use our glad even if we patch their files to look for standard
+# glad types.
+# See: external/sfml/extlibs/headers/glad/include/glad/gl.h,
+#      external/sfml/extlibs/headers/glad/include/glad/wgl.h
+#
+# TODO(robinlinden): Spend more time on making SFML use our glad.
+cc_library(
+    name = "sf_glad",
+    hdrs = glob(["extlibs/headers/glad/include/glad/**/*.h"]),
+    strip_include_prefix = "extlibs/headers/glad/include/",
+)
+
 SFML_DEFINES = [
     "SFML_STATIC",
     "UNICODE",
@@ -70,10 +84,7 @@ cc_library(
     copts = ["-Iexternal/sfml/src/"],
     defines = SFML_DEFINES,
     linkopts = select({
-        "@platforms//os:linux": [
-            "-lGL",
-            "-lX11",
-        ],
+        "@platforms//os:linux": ["-lX11"],
         "@platforms//os:windows": [
             "-DEFAULTLIB:advapi32",
             "-DEFAULTLIB:gdi32",
@@ -88,9 +99,14 @@ cc_library(
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
-    deps = [":system"] + select({
+    deps = [
+        ":sf_glad",
+        ":system",
+        "@vulkan",
+    ] + select({
         "@platforms//os:linux": [
             "@udev-zero",
+            "@xcursor",
             "@xrandr",
         ],
         "@platforms//os:windows": [],
@@ -139,16 +155,14 @@ cc_library(
     defines = SFML_DEFINES,
     includes = ["include/"],
     linkopts = select({
-        "@platforms//os:linux": [
-            "-lGL",
-            "-lX11",
-        ],
+        "@platforms//os:linux": ["-lX11"],
         "@platforms//os:macos": [],
         "@platforms//os:windows": [],
     }),
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
     deps = [
+        ":sf_glad",
         ":system",
         ":window",
         "@freetype2",
