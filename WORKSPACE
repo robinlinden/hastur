@@ -271,6 +271,19 @@ http_archive(
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
+# https://gitlab.freedesktop.org/xorg/lib/libxcursor
+http_archive(
+    name = "xcursor",  # MIT
+    build_file = "//third_party:xcursor.BUILD",
+    integrity = "sha256-iRTpjSBuz2Z+o4vWguqUQSWKLFOGZhCfWvTa3WGq630=",
+    patch_cmds = ["sed -i'' -e /config.h/d src/xcursorint.h"],
+    strip_prefix = "libxcursor-libXcursor-1.2.1",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.1/libxcursor-libXcursor-1.2.1.tar.gz",
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
 http_archive(
     name = "xext",  # MIT
     build_file = "//third_party:xext.BUILD",
