@@ -163,6 +163,11 @@ http_archive(
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
+    patch_cmds = [
+        # Use glad for OpenGL instead of the system OpenGL headers.
+        "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
+        "sed -i'' -e '4i\\\n#include <glad/gl.h>' imgui-SFML.cpp",
+    ],
     sha256 = "b1195ca1210dd46c8049cfc8cae7f31cd34f1591da7de1c56297b277ac9c5cc0",
     strip_prefix = "imgui-sfml-2.6",
     url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.6.tar.gz",
