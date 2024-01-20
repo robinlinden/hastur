@@ -170,7 +170,7 @@ http_archive(
     ],
     sha256 = "b1195ca1210dd46c8049cfc8cae7f31cd34f1591da7de1c56297b277ac9c5cc0",
     strip_prefix = "imgui-sfml-2.6",
-    url = "https://github.com/eliasdaler/imgui-sfml/archive/v2.6.tar.gz",
+    url = "https://github.com/SFML/imgui-sfml/archive/v2.6.tar.gz",
 )
 
 # https://github.com/simdjson/simdjson
