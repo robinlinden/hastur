@@ -414,7 +414,7 @@ int main() {
             auto rules = css::parse(fmt::format("p {{ {}: {}; }}"sv, property, value)).rules;
             require(rules.size() == 1);
 
-            if (property == "border-style") {
+            if (property == "border-style" || property == "border-color" || property == "border-width") {
                 property = "border";
             }
 
@@ -439,6 +439,12 @@ int main() {
         std::string border_style{"dashed"};
         etest::test("parser: shorthand border-style, one value",
                 box_shorthand_one_value("border-style", border_style, "-style"));
+
+        etest::test(
+                "parser: shorthand border-color, one value", box_shorthand_one_value("border-color", "red", "-color"));
+
+        etest::test(
+                "parser: shorthand border-width, one value", box_shorthand_one_value("border-width", "10px", "-width"));
     }
 
     auto box_shorthand_two_values = [](std::string property,
@@ -519,7 +525,7 @@ int main() {
                                  .rules;
             require(rules.size() == 1);
 
-            if (property == "border-style") {
+            if (property == "border-style" || property == "border-color" || property == "border-width") {
                 property = "border";
             }
 
@@ -544,6 +550,12 @@ int main() {
         auto border_styles = std::array{"groove"s, "dashed"s, "solid"s, "dotted"s};
         etest::test("parser: shorthand border-style, four values",
                 box_shorthand_four_values("border-style", border_styles, "-style"));
+
+        etest::test("parser: shorthand border-color, four values",
+                box_shorthand_four_values("border-color", std::array{"red"s, "green"s, "blue"s, "cyan"s}, "-color"));
+
+        etest::test("parser: shorthand border-width, four values",
+                box_shorthand_four_values("border-width", size_values, "-width"));
     }
 
     auto box_shorthand_overridden = [](std::string property,

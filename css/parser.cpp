@@ -40,7 +40,13 @@ constexpr std::array kBorderStyleKeywords{
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border-width
 constexpr std::array kBorderWidthKeywords{"thin", "medium", "thick"};
 
-constexpr auto kShorthandEdgeProperties = std::array{"padding", "margin", "border-style"};
+constexpr auto kShorthandEdgeProperties = std::array{
+        "padding",
+        "margin",
+        "border-color",
+        "border-style",
+        "border-width",
+};
 
 constexpr auto kAbsoluteSizeKeywords =
         std::array{"xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large", "xxx-large"};
@@ -744,11 +750,18 @@ void Parser::expand_edge_values(Declarations &declarations, std::string_view pro
     }
     // NOLINTEND(bugprone-unchecked-optional-access)
     std::string_view post_fix;
+    // The border properties aren't as simple as the padding or margin ones.
     if (property == "border-style") {
-        // border-style is a bit special as we want border-top-style instead of border-style-top-style.
         property = "border";
         post_fix = "-style";
+    } else if (property == "border-width") {
+        property = "border";
+        post_fix = "-width";
+    } else if (property == "border-color") {
+        property = "border";
+        post_fix = "-color";
     }
+
     declarations.insert_or_assign(
             property_id_from_string(fmt::format("{}-top{}", property, post_fix)), std::string{top});
     declarations.insert_or_assign(
