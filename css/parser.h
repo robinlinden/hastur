@@ -80,7 +80,7 @@ private:
     // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
     static void expand_flex_flow(Declarations &, std::string_view);
 
-    static void expand_edge_values(Declarations &, std::string property, std::string_view value);
+    static void expand_edge_values(Declarations &, std::string_view property, std::string_view value);
 
     static void expand_font(Declarations &, std::string_view value);
 };

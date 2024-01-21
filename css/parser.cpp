@@ -436,7 +436,7 @@ std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_decla
 
 void Parser::add_declaration(Declarations &declarations, std::string_view name, std::string_view value) {
     if (is_shorthand_edge_property(name)) {
-        expand_edge_values(declarations, std::string{name}, value);
+        expand_edge_values(declarations, name, value);
     } else if (name == "background") {
         expand_background(declarations, value);
     } else if (name == "font") {
@@ -715,7 +715,8 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
     declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
 }
 
-void Parser::expand_edge_values(Declarations &declarations, std::string property, std::string_view value) {
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void Parser::expand_edge_values(Declarations &declarations, std::string_view property, std::string_view value) {
     std::string_view top, bottom, left, right;
     Tokenizer tokenizer(value, ' ');
     // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
@@ -742,7 +743,7 @@ void Parser::expand_edge_values(Declarations &declarations, std::string property
             break;
     }
     // NOLINTEND(bugprone-unchecked-optional-access)
-    std::string post_fix;
+    std::string_view post_fix;
     if (property == "border-style") {
         // border-style is a bit special as we want border-top-style instead of border-style-top-style.
         property = "border";
