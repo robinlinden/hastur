@@ -1,4 +1,7 @@
 ---
+# -bugprone-easily-swappable-parameters: Noisy, and there are other checks that
+# catch things like suspicious call arguments.
+#
 # -bugprone-exception-escape: We don't use exceptions and will be building with
 # -fno-exceptions soon.
 #
@@ -57,6 +60,7 @@ Checks: >
   readability-static-definition-in-anonymous-namespace,
   readability-string-compare,
   readability-use-anyofallof,
+  -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,

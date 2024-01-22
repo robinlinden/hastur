@@ -721,7 +721,6 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
     declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void Parser::expand_edge_values(Declarations &declarations, std::string_view property, std::string_view value) {
     std::string_view top, bottom, left, right;
     Tokenizer tokenizer(value, ' ');

@@ -39,7 +39,6 @@ private:
     std::uint_least32_t column_{};
     char const *file_name_{};
 
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     constexpr source_location(std::uint_least32_t line, std::uint_least32_t column, char const *file_name) noexcept
         : line_{line}, column_(column), file_name_{file_name} {}
 };

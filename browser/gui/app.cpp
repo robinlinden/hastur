@@ -164,8 +164,6 @@ X              X
 XXXXXXXXXXXXXXXX)");
 
 namespace im {
-// TODO(robinlinden): Stronger types.
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void window(char const *title, ImVec2 const &position, ImVec2 const &size, auto content) {
     ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);

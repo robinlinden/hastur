@@ -29,9 +29,7 @@ struct Color {
         return color;
     }
 
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     static Color from_hsl(float hue, float saturation, float light) { return from_hsla(hue, saturation, light, 1.f); }
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     static Color from_hsla(float hue, float saturation, float light, float alpha) {
         // https://www.w3.org/TR/css-color-3/#hsl-color
         hue = std::fmod(hue, 360.f);

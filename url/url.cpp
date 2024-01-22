@@ -333,10 +333,8 @@ std::optional<Url> UrlParser::parse(std::string input, std::optional<Url> base) 
 }
 
 // https://url.spec.whatwg.org/#concept-basic-url-parser
-std::optional<Url> UrlParser::parse_basic(std::string input,
-        std::optional<Url> base, // NOLINT(bugprone-easily-swappable-parameters)
-        std::optional<Url> url, // NOLINT(bugprone-easily-swappable-parameters)
-        std::optional<ParserState> state_override) {
+std::optional<Url> UrlParser::parse_basic(
+        std::string input, std::optional<Url> base, std::optional<Url> url, std::optional<ParserState> state_override) {
     base_ = std::move(base);
     state_override_ = state_override;
 

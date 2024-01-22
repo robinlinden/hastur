@@ -133,7 +133,6 @@ std::string to_string(LayoutBox const &box) {
     return std::move(ss).str();
 }
 
-// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 int to_px(std::string_view property,
         int const font_size,
         int const root_font_size,
@@ -189,6 +188,5 @@ int to_px(std::string_view property,
     spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
     return static_cast<int>(res);
 }
-// NOLINTEND(bugprone-easily-swappable-parameters)
 
 } // namespace layout
