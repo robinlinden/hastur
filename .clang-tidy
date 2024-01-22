@@ -28,10 +28,6 @@
 # -modernize-use-nodiscard: Very noisy, and probably more meaningful if we only
 # add it where it matters.
 #
-# -misc-include-cleaner: Has issues with things like operator""s where it wants
-# to include stdlib-internals. Should be enabled when it gets along better with
-# our supported stdlibs. Last tested with libstdc++12.
-#
 # -modernize-use-trailing-return-type: Stylistic change, and something we
 # haven't been doing so far.
 Checks: >
