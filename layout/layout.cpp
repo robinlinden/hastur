@@ -43,7 +43,12 @@ class Layouter {
 public:
     Layouter(int root_font_size, type::IType const &type) : root_font_size_{root_font_size}, type_{type} {}
 
+    void layout(LayoutBox &, geom::Rect const &bounds) const;
+
 private:
+    int root_font_size_;
+    type::IType const &type_;
+
     void calculate_left_and_right_margin(LayoutBox &,
             geom::Rect const &parent,
             std::string_view margin_left,
@@ -54,13 +59,6 @@ private:
     void calculate_padding(LayoutBox &, int font_size) const;
     void calculate_border(LayoutBox &, int font_size) const;
     std::optional<std::shared_ptr<type::IFont const>> find_font(std::span<std::string_view const> font_families) const;
-
-public:
-    void layout(LayoutBox &, geom::Rect const &bounds) const;
-
-private:
-    int root_font_size_;
-    type::IType const &type_;
 };
 
 bool last_node_was_anonymous(LayoutBox const &box) {
@@ -190,154 +188,11 @@ void collapse_whitespace(LayoutBox &box) {
     }
 }
 
-void Layouter::calculate_left_and_right_margin(LayoutBox &box,
-        geom::Rect const &parent,
-        std::string_view margin_left,
-        std::string_view margin_right,
-        int const font_size) const {
-    if (margin_left == "auto" && margin_right == "auto") {
-        int margin_px = (parent.width - box.dimensions.border_box().width) / 2;
-        box.dimensions.margin.left = box.dimensions.margin.right = margin_px;
-    } else if (margin_left == "auto" && margin_right != "auto") {
-        box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size_);
-        box.dimensions.margin.left = parent.width - box.dimensions.margin_box().width;
-    } else if (margin_left != "auto" && margin_right == "auto") {
-        box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size_);
-        box.dimensions.margin.right = parent.width - box.dimensions.margin_box().width;
-    } else {
-        // TODO(mkiael): Compute margin depending on direction property
-    }
-}
-
-// https://www.w3.org/TR/CSS2/visudet.html#blockwidth
-void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) const {
-    assert(box.node != nullptr);
-
-    auto margin_top = box.get_property<css::PropertyId::MarginTop>();
-    box.dimensions.margin.top = to_px(margin_top, font_size, root_font_size_);
-
-    auto margin_bottom = box.get_property<css::PropertyId::MarginBottom>();
-    box.dimensions.margin.bottom = to_px(margin_bottom, font_size, root_font_size_);
-
-    auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
-    auto margin_right = box.get_property<css::PropertyId::MarginRight>();
-    if (auto width = box.get_property<css::PropertyId::Width>(); !width.is_auto()) {
-        box.dimensions.content.width = width.resolve(font_size, root_font_size_, parent.width);
-        calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
-    } else {
-        if (margin_left != "auto") {
-            box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size_);
-        }
-        if (margin_right != "auto") {
-            box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size_);
-        }
-        box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
-    }
-
-    if (auto min = box.get_property<css::PropertyId::MinWidth>(); !min.is_auto()) {
-        auto resolved = min.resolve(font_size, root_font_size_, parent.width);
-        if (box.dimensions.content.width < resolved) {
-            box.dimensions.content.width = resolved;
-            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
-        }
-    }
-
-    if (auto max = box.get_property<css::PropertyId::MaxWidth>(); !max.is_none()) {
-        auto resolved = max.resolve(font_size, root_font_size_, parent.width);
-        if (box.dimensions.content.width > resolved) {
-            box.dimensions.content.width = resolved;
-            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
-        }
-    }
-}
-
 void calculate_position(LayoutBox &box, geom::Rect const &parent) {
     auto const &d = box.dimensions;
     box.dimensions.content.x = parent.x + d.padding.left + d.border.left + d.margin.left;
     // Position below previous content in parent.
     box.dimensions.content.y = parent.y + parent.height + d.border.top + d.padding.top + d.margin.top;
-}
-
-void Layouter::calculate_height(LayoutBox &box, int const font_size) const {
-    assert(box.node != nullptr);
-    if (auto text = box.text()) {
-        int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
-        box.dimensions.content.height = lines * font_size;
-    }
-
-    if (auto height = box.get_property<css::PropertyId::Height>(); height != "auto") {
-        box.dimensions.content.height = to_px(height, font_size, root_font_size_);
-    }
-
-    if (auto min = box.get_property<css::PropertyId::MinHeight>(); min != "auto") {
-        box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(min, font_size, root_font_size_));
-    }
-
-    if (auto max = box.get_property<css::PropertyId::MaxHeight>(); max != "none") {
-        box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(max, font_size, root_font_size_));
-    }
-}
-
-void Layouter::calculate_padding(LayoutBox &box, int const font_size) const {
-    auto padding_left = box.get_property<css::PropertyId::PaddingLeft>();
-    box.dimensions.padding.left = to_px(padding_left, font_size, root_font_size_);
-
-    auto padding_right = box.get_property<css::PropertyId::PaddingRight>();
-    box.dimensions.padding.right = to_px(padding_right, font_size, root_font_size_);
-
-    auto padding_top = box.get_property<css::PropertyId::PaddingTop>();
-    box.dimensions.padding.top = to_px(padding_top, font_size, root_font_size_);
-
-    auto padding_bottom = box.get_property<css::PropertyId::PaddingBottom>();
-    box.dimensions.padding.bottom = to_px(padding_bottom, font_size, root_font_size_);
-}
-
-// https://drafts.csswg.org/css-backgrounds/#the-border-width
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, int> const border_width_keywords{
-        {"thin", 3},
-        {"medium", 5},
-        {"thick", 7},
-};
-
-void Layouter::calculate_border(LayoutBox &box, int const font_size) const {
-    auto as_px = [&](std::string_view border_width_property) {
-        if (auto it = border_width_keywords.find(border_width_property); it != border_width_keywords.end()) {
-            return it->second;
-        }
-
-        return to_px(border_width_property, font_size, root_font_size_);
-    };
-
-    if (box.get_property<css::PropertyId::BorderLeftStyle>() != style::BorderStyle::None) {
-        auto border_width = box.get_property<css::PropertyId::BorderLeftWidth>();
-        box.dimensions.border.left = as_px(border_width);
-    }
-
-    if (box.get_property<css::PropertyId::BorderRightStyle>() != style::BorderStyle::None) {
-        auto border_width = box.get_property<css::PropertyId::BorderRightWidth>();
-        box.dimensions.border.right = as_px(border_width);
-    }
-
-    if (box.get_property<css::PropertyId::BorderTopStyle>() != style::BorderStyle::None) {
-        auto border_width = box.get_property<css::PropertyId::BorderTopWidth>();
-        box.dimensions.border.top = as_px(border_width);
-    }
-
-    if (box.get_property<css::PropertyId::BorderBottomStyle>() != style::BorderStyle::None) {
-        auto border_width = box.get_property<css::PropertyId::BorderBottomWidth>();
-        box.dimensions.border.bottom = as_px(border_width);
-    }
-}
-
-std::optional<std::shared_ptr<type::IFont const>> Layouter::find_font(
-        std::span<std::string_view const> font_families) const {
-    for (auto const &family : font_families) {
-        if (auto font = type_.font(family)) {
-            return font;
-        }
-    }
-    return std::nullopt;
 }
 
 void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
@@ -452,6 +307,149 @@ void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
             return;
         }
     }
+}
+
+void Layouter::calculate_left_and_right_margin(LayoutBox &box,
+        geom::Rect const &parent,
+        std::string_view margin_left,
+        std::string_view margin_right,
+        int const font_size) const {
+    if (margin_left == "auto" && margin_right == "auto") {
+        int margin_px = (parent.width - box.dimensions.border_box().width) / 2;
+        box.dimensions.margin.left = box.dimensions.margin.right = margin_px;
+    } else if (margin_left == "auto" && margin_right != "auto") {
+        box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size_);
+        box.dimensions.margin.left = parent.width - box.dimensions.margin_box().width;
+    } else if (margin_left != "auto" && margin_right == "auto") {
+        box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size_);
+        box.dimensions.margin.right = parent.width - box.dimensions.margin_box().width;
+    } else {
+        // TODO(mkiael): Compute margin depending on direction property
+    }
+}
+
+// https://www.w3.org/TR/CSS2/visudet.html#blockwidth
+void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) const {
+    assert(box.node != nullptr);
+
+    auto margin_top = box.get_property<css::PropertyId::MarginTop>();
+    box.dimensions.margin.top = to_px(margin_top, font_size, root_font_size_);
+
+    auto margin_bottom = box.get_property<css::PropertyId::MarginBottom>();
+    box.dimensions.margin.bottom = to_px(margin_bottom, font_size, root_font_size_);
+
+    auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
+    auto margin_right = box.get_property<css::PropertyId::MarginRight>();
+    if (auto width = box.get_property<css::PropertyId::Width>(); !width.is_auto()) {
+        box.dimensions.content.width = width.resolve(font_size, root_font_size_, parent.width);
+        calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+    } else {
+        if (margin_left != "auto") {
+            box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size_);
+        }
+        if (margin_right != "auto") {
+            box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size_);
+        }
+        box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
+    }
+
+    if (auto min = box.get_property<css::PropertyId::MinWidth>(); !min.is_auto()) {
+        auto resolved = min.resolve(font_size, root_font_size_, parent.width);
+        if (box.dimensions.content.width < resolved) {
+            box.dimensions.content.width = resolved;
+            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+        }
+    }
+
+    if (auto max = box.get_property<css::PropertyId::MaxWidth>(); !max.is_none()) {
+        auto resolved = max.resolve(font_size, root_font_size_, parent.width);
+        if (box.dimensions.content.width > resolved) {
+            box.dimensions.content.width = resolved;
+            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+        }
+    }
+}
+
+void Layouter::calculate_height(LayoutBox &box, int const font_size) const {
+    assert(box.node != nullptr);
+    if (auto text = box.text()) {
+        int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
+        box.dimensions.content.height = lines * font_size;
+    }
+
+    if (auto height = box.get_property<css::PropertyId::Height>(); height != "auto") {
+        box.dimensions.content.height = to_px(height, font_size, root_font_size_);
+    }
+
+    if (auto min = box.get_property<css::PropertyId::MinHeight>(); min != "auto") {
+        box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(min, font_size, root_font_size_));
+    }
+
+    if (auto max = box.get_property<css::PropertyId::MaxHeight>(); max != "none") {
+        box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(max, font_size, root_font_size_));
+    }
+}
+
+void Layouter::calculate_padding(LayoutBox &box, int const font_size) const {
+    auto padding_left = box.get_property<css::PropertyId::PaddingLeft>();
+    box.dimensions.padding.left = to_px(padding_left, font_size, root_font_size_);
+
+    auto padding_right = box.get_property<css::PropertyId::PaddingRight>();
+    box.dimensions.padding.right = to_px(padding_right, font_size, root_font_size_);
+
+    auto padding_top = box.get_property<css::PropertyId::PaddingTop>();
+    box.dimensions.padding.top = to_px(padding_top, font_size, root_font_size_);
+
+    auto padding_bottom = box.get_property<css::PropertyId::PaddingBottom>();
+    box.dimensions.padding.bottom = to_px(padding_bottom, font_size, root_font_size_);
+}
+
+// https://drafts.csswg.org/css-backgrounds/#the-border-width
+// NOLINTNEXTLINE(cert-err58-cpp)
+std::map<std::string_view, int> const border_width_keywords{
+        {"thin", 3},
+        {"medium", 5},
+        {"thick", 7},
+};
+
+void Layouter::calculate_border(LayoutBox &box, int const font_size) const {
+    auto as_px = [&](std::string_view border_width_property) {
+        if (auto it = border_width_keywords.find(border_width_property); it != border_width_keywords.end()) {
+            return it->second;
+        }
+
+        return to_px(border_width_property, font_size, root_font_size_);
+    };
+
+    if (box.get_property<css::PropertyId::BorderLeftStyle>() != style::BorderStyle::None) {
+        auto border_width = box.get_property<css::PropertyId::BorderLeftWidth>();
+        box.dimensions.border.left = as_px(border_width);
+    }
+
+    if (box.get_property<css::PropertyId::BorderRightStyle>() != style::BorderStyle::None) {
+        auto border_width = box.get_property<css::PropertyId::BorderRightWidth>();
+        box.dimensions.border.right = as_px(border_width);
+    }
+
+    if (box.get_property<css::PropertyId::BorderTopStyle>() != style::BorderStyle::None) {
+        auto border_width = box.get_property<css::PropertyId::BorderTopWidth>();
+        box.dimensions.border.top = as_px(border_width);
+    }
+
+    if (box.get_property<css::PropertyId::BorderBottomStyle>() != style::BorderStyle::None) {
+        auto border_width = box.get_property<css::PropertyId::BorderBottomWidth>();
+        box.dimensions.border.bottom = as_px(border_width);
+    }
+}
+
+std::optional<std::shared_ptr<type::IFont const>> Layouter::find_font(
+        std::span<std::string_view const> font_families) const {
+    for (auto const &family : font_families) {
+        if (auto font = type_.font(family)) {
+            return font;
+        }
+    }
+    return std::nullopt;
 }
 
 } // namespace
