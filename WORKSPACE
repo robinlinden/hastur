@@ -37,9 +37,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-1wzXKnpIgPAACmNGJTQUglwZzdQKKCib32e45kgO3/g=",
-    strip_prefix = "rules_python-0.28.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.28.0/rules_python-0.28.0.tar.gz",
+    integrity = "sha256-1x0sZ+C86YbhxadzG0aTImhnxFv+C3xeAGciilNvxYA=",
+    strip_prefix = "rules_python-0.29.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.29.0/rules_python-0.29.0.tar.gz",
 )
 
 # Third-party Bazel
@@ -87,11 +87,11 @@ http_archive(
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-tfQKXmPxOqN8wsCU2woTfB0mfme/soi5t2IlLLvz5E4=",
+    integrity = "sha256-QOPUIHn4Uw3dvDyrZ4PHq4eKrvrApb8Z+/GtZtlxGoI=",
     # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
     patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
-    strip_prefix = "boringssl-2cc231074e7437987f1b9621b5d1936ba4d092ae",
-    url = "https://github.com/google/boringssl/archive/2cc231074e7437987f1b9621b5d1936ba4d092ae.tar.gz",
+    strip_prefix = "boringssl-d8ec22218f6d76db8558abdfacfabe5fa1673e93",
+    url = "https://github.com/google/boringssl/archive/d8ec22218f6d76db8558abdfacfabe5fa1673e93.tar.gz",
 )
 
 http_archive(
@@ -215,9 +215,9 @@ http_archive(
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    sha256 = "4dccf2d10f410c1e2feaff89966bfc49a1abb29ef6f08246335b110e001e09a9",
-    strip_prefix = "spdlog-1.12.0",
-    url = "https://github.com/gabime/spdlog/archive/v1.12.0.tar.gz",
+    integrity = "sha256-U08u4aTcvrIiSYVu37K+dqHPT3CKILCsLtCQ7iTP28k=",
+    strip_prefix = "spdlog-1.13.0",
+    url = "https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz",
 )
 
 # https://github.com/nothings/stb
@@ -271,9 +271,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    sha256 = "2e7d1f7a15735c96e426bad5919183d903e350bd057a4acaf7062ea5b9f21990",
-    strip_prefix = "wpt-merge_pr_42906",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_42906.tar.gz",
+    integrity = "sha256-b2IE5eJIgNyHJDLARziPBwrRXM44G8SA+udQVE4tTJ4=",
+    strip_prefix = "wpt-merge_pr_44163",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_44163.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
@@ -324,12 +324,13 @@ http_archive(
     ],
 )
 
+# https://github.com/madler/zlib
 http_archive(
     name = "zlib",  # Zlib
     build_file = "//third_party:zlib.BUILD",
-    sha256 = "b5b06d60ce49c8ba700e0ba517fa07de80b5d4628a037f4be8ad16955be7a7c0",
-    strip_prefix = "zlib-1.3",
-    url = "https://github.com/madler/zlib/archive/v1.3.tar.gz",
+    integrity = "sha256-F+iIY/NgBnKrSRgvIXKBtvxNPHYr3jYZNeQ2qVIU0Fw=",
+    strip_prefix = "zlib-1.3.1",
+    url = "https://github.com/madler/zlib/archive/v1.3.1.tar.gz",
 )
 
 # Third-party setup
