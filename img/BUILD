@@ -79,8 +79,6 @@ cc_binary(
         "//gfx:sfml",
         "//type:sfml",
         "@sfml//:graphics",
-    ] + select({
-        "@platforms//os:macos": ["@sfml//:window_macos"],
-        "//conditions:default": ["@sfml//:window"],
-    }),
+        "@sfml//:window",
+    ],
 )

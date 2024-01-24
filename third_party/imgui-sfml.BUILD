@@ -19,8 +19,6 @@ cc_library(
         "@imgui",
         "@sfml//:graphics",
         "@sfml//:system",
-    ] + select({
-        "@platforms//os:macos": ["@sfml//:window_macos"],
-        "//conditions:default": ["@sfml//:window"],
-    }),
+        "@sfml//:window",
+    ],
 )

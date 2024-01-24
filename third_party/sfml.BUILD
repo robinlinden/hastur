@@ -57,8 +57,18 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
+alias(
     name = "window",
+    actual = select({
+        "@platforms//os:linux": ":window_cc",
+        "@platforms//os:macos": ":window_objc",
+        "@platforms//os:windows": ":window_cc",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "window_cc",
     srcs = glob(
         include = [
             "src/SFML/Window/*.cpp",
@@ -98,7 +108,6 @@ cc_library(
         "@platforms//os:macos": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
-    visibility = ["//visibility:public"],
     deps = [
         ":sf_glad",
         ":system",
@@ -114,7 +123,7 @@ cc_library(
 )
 
 objc_library(
-    name = "window_macos",
+    name = "window_objc",
     srcs = glob(
         include = [
             "src/SFML/Window/*.cpp",
@@ -151,7 +160,6 @@ objc_library(
         "@platforms//os:macos": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    visibility = ["//visibility:public"],
     deps = [
         ":sf_glad",
         ":system",
