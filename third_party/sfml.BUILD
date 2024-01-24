@@ -120,9 +120,8 @@ objc_library(
             "src/SFML/Window/*.cpp",
             "src/SFML/Window/*.hpp",
             "src/SFML/Window/OSX/*.cpp",
+            "src/SFML/Window/OSX/*.h",
             "src/SFML/Window/OSX/*.hpp",
-            "src/SFML/Window/OSX/*.m",
-            "src/SFML/Window/OSX/*.mm",
         ],
         exclude = [
             "src/SFML/Window/EGLCheck.cpp",
@@ -132,14 +131,31 @@ objc_library(
         ],
     ),
     hdrs = glob(["include/SFML/Window/*"]),
-    copts = ["-Iexternal/sfml/src/"],
+    copts = [
+        "-Iexternal/sfml/src/",
+        "-frtti",
+    ],
     defines = SFML_DEFINES,
+    includes = ["include/"],
+    non_arc_srcs = glob([
+        "src/SFML/Window/OSX/*.m",
+        "src/SFML/Window/OSX/*.mm",
+    ]),
+    sdk_frameworks = [
+        "AppKit",
+        "Carbon",
+        "Foundation",
+        "IOKit",
+    ],
     target_compatible_with = select({
         "@platforms//os:macos": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     visibility = ["//visibility:public"],
-    deps = [":system"],
+    deps = [
+        ":sf_glad",
+        ":system",
+    ],
 )
 
 cc_library(
