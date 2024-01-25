@@ -1,12 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-# TODO(robinlinden): False positive layering check error. Related to glad being
-# a local_repository? See: bazel-out/k8-fastbuild/bin/external/glad/glad.cppmap
-#
-# external/imgui-sfml/imgui-SFML.cpp:4:10: error: module imgui-sfml//:imgui-sfml
-# does not depend on a module exporting 'glad/gl.h'
-package(features = ["-layering_check"])
-
 cc_library(
     name = "imgui-sfml",
     srcs = ["imgui-SFML.cpp"],

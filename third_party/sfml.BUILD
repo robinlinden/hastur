@@ -93,6 +93,7 @@ cc_library(
     hdrs = glob(["include/SFML/Window/*"]),
     copts = ["-Iexternal/sfml/src/"],
     defines = SFML_DEFINES,
+    implementation_deps = [":sf_glad"],
     linkopts = select({
         "@platforms//os:linux": ["-lX11"],
         "@platforms//os:windows": [
@@ -109,7 +110,6 @@ cc_library(
         "//conditions:default": [],
     }),
     deps = [
-        ":sf_glad",
         ":system",
         "@vulkan",
     ] + select({
@@ -145,6 +145,7 @@ objc_library(
         "-frtti",
     ],
     defines = SFML_DEFINES,
+    implementation_deps = [":sf_glad"],
     includes = ["include/"],
     non_arc_srcs = glob([
         "src/SFML/Window/OSX/*.m",
@@ -161,7 +162,6 @@ objc_library(
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     deps = [
-        ":sf_glad",
         ":system",
     ],
 )
@@ -177,6 +177,7 @@ cc_library(
     hdrs = glob(["include/SFML/Graphics/*"]),
     copts = ["-Iexternal/sfml/src/"],
     defines = SFML_DEFINES,
+    implementation_deps = [":sf_glad"],
     includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": ["-lX11"],
@@ -186,7 +187,6 @@ cc_library(
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
     deps = [
-        ":sf_glad",
         ":system",
         ":window",
         "@freetype2",
