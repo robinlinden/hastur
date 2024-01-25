@@ -147,6 +147,7 @@ objc_library(
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
     includes = ["include/"],
+    linkopts = ["-ObjC"],
     non_arc_srcs = glob([
         "src/SFML/Window/OSX/*.m",
         "src/SFML/Window/OSX/*.mm",
