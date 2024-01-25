@@ -167,6 +167,7 @@ http_archive(
         # Use glad for OpenGL instead of the system OpenGL headers.
         "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
         "sed -i'' -e '4i\\\n#include <glad/gl.h>' imgui-SFML.cpp",
+        "sed -i'' -e '277i\\\n\\\tif (gladLoaderLoadGL() == 0) return false;' imgui-SFML.cpp",
     ],
     sha256 = "b1195ca1210dd46c8049cfc8cae7f31cd34f1591da7de1c56297b277ac9c5cc0",
     strip_prefix = "imgui-sfml-2.6",
