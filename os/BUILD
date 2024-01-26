@@ -89,7 +89,7 @@ cc_library(
     name = "xdg",
     srcs = select({
         "@platforms//os:linux": ["xdg_linux.cpp"],
-        "@platforms//os:macos": ["xdg_linux.cpp"],
+        "@platforms//os:macos": ["xdg_macos.cpp"],
         "@platforms//os:windows": ["xdg_windows.cpp"],
     }),
     hdrs = ["xdg.h"],
