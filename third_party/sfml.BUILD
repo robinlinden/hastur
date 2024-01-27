@@ -106,10 +106,7 @@ cc_library(
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
     linkopts = select({
-        "@platforms//os:linux": [
-            "-lX11",
-            "-lXi",
-        ],
+        "@platforms//os:linux": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:advapi32",
             "-DEFAULTLIB:gdi32",
@@ -130,6 +127,7 @@ cc_library(
     ] + select({
         "@platforms//os:linux": [
             "@udev-zero",
+            "@x11",
             "@xcursor",
             "@xrandr",
         ],
@@ -197,11 +195,6 @@ cc_library(
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
     includes = ["include/"],
-    linkopts = select({
-        "@platforms//os:linux": ["-lX11"],
-        "@platforms//os:macos": [],
-        "@platforms//os:windows": [],
-    }),
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
     deps = [
@@ -211,5 +204,9 @@ cc_library(
         "@freetype2",
         "@stb//:image",
         "@stb//:image_write",
-    ],
+    ] + select({
+        "@platforms//os:linux": ["@x11"],
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [],
+    }),
 )
