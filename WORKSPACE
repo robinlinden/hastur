@@ -277,6 +277,18 @@ http_archive(
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
+# https://gitlab.freedesktop.org/xorg/lib/libx11
+http_archive(
+    name = "x11",  # X11
+    build_file = "//third_party:x11.BUILD",
+    integrity = "sha256-7RrvT88k3+tAQYCHRJI2yYmQqEQuoD5Lty3AEUsZDjE=",
+    strip_prefix = "libx11-libX11-1.8.7",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libx11/-/archive/libX11-1.8.7/libx11-libX11-1.8.7.tar.gz",
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
 # https://gitlab.freedesktop.org/xorg/lib/libxcursor
 http_archive(
     name = "xcursor",  # MIT
@@ -290,6 +302,42 @@ http_archive(
     ],
 )
 
+# https://gitlab.freedesktop.org/xorg/lib/libxau
+http_archive(
+    name = "xau",  # X11
+    build_file = "//third_party:xau.BUILD",
+    integrity = "sha256-R/SV862lnAl9Gw8ofcNMY1uNXgQBRvi2brqiNWb4zUQ=",
+    strip_prefix = "libxau-libXau-1.0.11",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxau/-/archive/libXau-1.0.11/libxau-libXau-1.0.11.tar.gz",
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
+# https://gitlab.freedesktop.org/xorg/lib/libxcb
+http_archive(
+    name = "xcb",  # X11
+    build_file = "//third_party:xcb.BUILD",
+    integrity = "sha256-4sXPzUz0DmtCBTP9SRDvd35YbIS6FuSTF2o7t27qpCY=",
+    strip_prefix = "libxcb-libxcb-1.16",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxcb/-/archive/libxcb-1.16/libxcb-libxcb-1.16.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/libxcb/archive/libxcb-1.16.tar.gz",
+    ],
+)
+
+# https://gitlab.freedesktop.org/xorg/proto/xcbproto
+http_archive(
+    name = "xcbproto",  # X11
+    build_file = "//third_party:xcbproto.BUILD",
+    integrity = "sha256-Dojkpo4oUhyrBWYMFMMgrjLqeqZLxJjCVVf3Jsz9o4g=",
+    strip_prefix = "xcbproto-xcb-proto-1.16.0",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/xcb-proto-1.16.0/xcbproto-xcb-proto-1.16.0.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/xcbproto/archive/xcb-proto-1.16.0.tar.gz",
+    ],
+)
+
 http_archive(
     name = "xext",  # MIT
     build_file = "//third_party:xext.BUILD",
@@ -298,6 +346,18 @@ http_archive(
     urls = [
         "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.5/libxext-libXext-1.3.5.tar.gz",
         "https://github.com/gitlab-freedesktop-mirrors/libxext/archive/refs/tags/libXext-1.3.5.tar.gz",
+    ],
+)
+
+# https://gitlab.freedesktop.org/xorg/proto/xorgproto
+http_archive(
+    name = "xproto",  # MIT
+    build_file = "//third_party:xproto.BUILD",
+    integrity = "sha256-HiCXHNdngGcqBjVCkGJHbwNNaUMWAccsPl2y64to+OU=",
+    strip_prefix = "xorgproto-xorgproto-2023.2",
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/archive/xorgproto-2023.2/xorgproto-xorgproto-2023.2.tar.gz",
+        # TODO(robinlinden): Mirror.
     ],
 )
 

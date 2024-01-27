@@ -7,7 +7,7 @@ cc_library(
         "src/*.h",
     ]),
     hdrs = glob(["include/X11/extensions/*.h"]),
-    linkopts = ["-lX11"],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
+    deps = ["@x11"],
 )
