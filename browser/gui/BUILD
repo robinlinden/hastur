@@ -8,6 +8,7 @@ cc_binary(
         "*.h",
     ]),
     copts = HASTUR_COPTS,
+    linkopts = ["-rdynamic"],
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
