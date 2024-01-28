@@ -386,27 +386,27 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     }
 
     auto const *start = std::get_if<html2::StartTagToken>(&token);
-    if (start && start->tag_name == "html") {
+    if (start != nullptr && start->tag_name == "html") {
         return InBody{}.process(a, token);
     }
 
     auto const *end = std::get_if<html2::EndTagToken>(&token);
-    if (end && end->tag_name == "noscript") {
+    if (end != nullptr && end->tag_name == "noscript") {
         assert(a.current_node_name() == "noscript");
         a.pop_current_node();
         return InHead{};
     }
 
     static constexpr std::array kInHeadElements{"basefont"sv, "bgsound"sv, "link"sv, "meta"sv, "noframes"sv, "style"sv};
-    if ((start && is_in_array<kInHeadElements>(start->tag_name)) || std::holds_alternative<html2::CommentToken>(token)
-            || is_boring_whitespace(token)) {
+    if ((start != nullptr && is_in_array<kInHeadElements>(start->tag_name))
+            || std::holds_alternative<html2::CommentToken>(token) || is_boring_whitespace(token)) {
         return InHead{}.process(a, token);
     }
 
     static constexpr std::array kIgnoredStartTags{"head"sv, "noscript"sv};
-    if (end && end->tag_name == "br") {
+    if (end != nullptr && end->tag_name == "br") {
         // Let the anything-else case handle this.
-    } else if (start && is_in_array<kIgnoredStartTags>(start->tag_name)) {
+    } else if (start != nullptr && is_in_array<kIgnoredStartTags>(start->tag_name)) {
         // Parse error, ignore the token.
         return {};
     }
@@ -460,7 +460,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start && start->tag_name == "html") {
+    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
         // Parse error.
         // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
 

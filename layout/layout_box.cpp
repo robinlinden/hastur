@@ -83,7 +83,7 @@ void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
 
 int get_root_font_size(style::StyledNode const &node) {
     auto const *n = &node;
-    while (n->parent) {
+    while (n->parent != nullptr) {
         n = n->parent;
     }
     return n->get_property<css::PropertyId::FontSize>();

@@ -47,7 +47,7 @@ std::ostream &operator<<(std::ostream &os, wasm::ValueType type) {
 
 int main(int argc, char **argv) {
     if (argc != 2) {
-        std::cerr << "Usage: " << (argv[0] ? argv[0] : "<bin>") << ' ' << "<wasm_file>\n";
+        std::cerr << "Usage: " << (argv[0] != nullptr ? argv[0] : "<bin>") << ' ' << "<wasm_file>\n";
         return 1;
     }
 

@@ -22,6 +22,8 @@
 // NOLINTBEGIN(concurrency-mt-unsafe): No threads here.
 
 int main() {
+    static constexpr int kOnlyIfUnset = 0;
+
     // Ensure that the system's environment doesn't affect the test result.
     unsetenv("HOME");
     unsetenv("XDG_DATA_HOME");
@@ -32,7 +34,7 @@ int main() {
 
     s.add_test("HOME", [&](etest::IActions &a) {
         static constexpr auto kHome = "/home";
-        setenv("HOME", kHome, false);
+        setenv("HOME", kHome, kOnlyIfUnset);
 
         a.expect(std::ranges::find_if(font_paths_without_env_vars, [](auto const &path) {
             return path.contains(kHome);
@@ -46,7 +48,7 @@ int main() {
 
     s.add_test("XDG_DATA_HOME", [&](etest::IActions &a) {
         static constexpr auto kXdgDataHome = "/xdg_data_home";
-        setenv("XDG_DATA_HOME", kXdgDataHome, false);
+        setenv("XDG_DATA_HOME", kXdgDataHome, kOnlyIfUnset);
 
         a.expect(std::ranges::find_if(font_paths_without_env_vars, [](auto const &path) {
             return path.contains(kXdgDataHome);

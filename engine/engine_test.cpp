@@ -143,7 +143,7 @@ int main() {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
         // Our default CSS gives <html> the property display: block.
-        require(e.layout());
+        require(e.layout() != nullptr);
         expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
 
         responses = std::map<std::string, Response>{{
@@ -160,7 +160,7 @@ int main() {
 
         // The CSS declared in the page should have a higher priority and give
         // <html> the property display: inline.
-        require(e.layout());
+        require(e.layout() != nullptr);
         expect_eq(e.layout()->get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
     });
 
@@ -181,7 +181,7 @@ int main() {
         }};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         e.navigate(uri::Uri::parse("hax://example.com"));
-        require(e.layout());
+        require(e.layout() != nullptr);
         auto const *a = dom::nodes_by_xpath(*e.layout(), "//a"sv).at(0);
         expect_eq(a->get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("red"));
         auto const *p = dom::nodes_by_xpath(*e.layout(), "//p"sv).at(0);

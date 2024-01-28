@@ -47,7 +47,7 @@ struct PixelDataGetter {
 
 int main(int argc, char **argv) {
     if (argc != 2 && argc != 3) {
-        std::cerr << "Usage: " << (argv[0] ? argv[0] : "<bin>") << " [--metadata] <image_file>\n";
+        std::cerr << "Usage: " << (argv[0] != nullptr ? argv[0] : "<bin>") << " [--metadata] <image_file>\n";
         return 1;
     }
 

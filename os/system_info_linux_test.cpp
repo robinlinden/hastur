@@ -29,19 +29,21 @@ int main() {
     unsetenv("ELM_SCALE");
 
     s.add_test("active_window_scale_factor", [](etest::IActions &a) {
+        static constexpr int kOnlyIfUnset = 0;
+
         // We default to 1 when no GUI toolkit has an opinion.
         a.expect_eq(os::active_window_scale_factor(), 1u);
 
-        setenv("ELM_SCALE", "2", false);
+        setenv("ELM_SCALE", "2", kOnlyIfUnset);
         a.expect_eq(os::active_window_scale_factor(), 2u);
 
-        setenv("GDK_SCALE", "5", false);
+        setenv("GDK_SCALE", "5", kOnlyIfUnset);
         a.expect_eq(os::active_window_scale_factor(), 5u);
 
-        setenv("QT_SCALE_FACTOR", "10", false);
+        setenv("QT_SCALE_FACTOR", "10", kOnlyIfUnset);
         a.expect_eq(os::active_window_scale_factor(), 10u);
 
-        setenv("HST_SCALE", "50", false);
+        setenv("HST_SCALE", "50", kOnlyIfUnset);
         a.expect_eq(os::active_window_scale_factor(), 50u);
     });
 

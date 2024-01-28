@@ -88,7 +88,7 @@ std::optional<std::string_view> try_get_uri(layout::LayoutBox const *from) {
 
     for (auto const *node = from->node; node != nullptr; node = node->parent) {
         auto const *element = std::get_if<dom::Element>(&node->node);
-        if (element && element->name == "a"sv && element->attributes.contains("href")) {
+        if ((element != nullptr) && element->name == "a"sv && element->attributes.contains("href")) {
             return element->attributes.at("href");
         }
     }
@@ -238,7 +238,7 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
 
     // This is okay as long as we don't call e.g. setenv(), unsetenv(), or putenv().
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
-    if (std::getenv("HST_DISABLE_DISK_IO")) {
+    if (std::getenv("HST_DISABLE_DISK_IO") != nullptr) {
         // TODO(robinlinden): Support for things like HST_DISABLE_DISK_IO=0 to
         // re-enable IO.
         ImGui::GetIO().IniFilename = nullptr;

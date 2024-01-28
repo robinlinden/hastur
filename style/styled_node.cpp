@@ -552,12 +552,12 @@ int StyledNode::get_font_size_property() const {
     if (unit == "rem") {
         auto const *root = [&] {
             auto const *n = closest->second;
-            while (n->parent) {
+            while (n->parent != nullptr) {
                 n = n->parent;
             }
             return n;
         }();
-        auto root_font_size = root && root != this ? root->get_font_size_property() : kDefaultFontSize;
+        auto root_font_size = (root != nullptr) && root != this ? root->get_font_size_property() : kDefaultFontSize;
         return static_cast<int>(value * root_font_size);
     }
 

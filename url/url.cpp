@@ -804,8 +804,7 @@ void UrlParser::state_host() {
             return;
         }
 
-        if (state_override_.has_value() && buffer_.empty()
-                && (url_.includes_credentials() || url_.port.has_value())) {
+        if (state_override_.has_value() && buffer_.empty() && (url_.includes_credentials() || url_.port.has_value())) {
             state_ = ParserState::Terminate;
 
             return;
@@ -1188,7 +1187,7 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
 
     auto *uts = icu::IDNA::createUTS46Instance(opts, err);
 
-    if (U_FAILURE(err)) {
+    if (U_FAILURE(err) != 0) {
         std::cerr << "Failed to create UTS46 instance: " << u_errorName(err) << '\n' << std::flush;
         return std::nullopt;
     }
@@ -1213,7 +1212,7 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
     }
 
     // If domain or any label is empty, proc_err should contain UIDNA_ERROR_EMPTY_LABEL
-    if (U_FAILURE(err) || proc_err != 0 || ascii_domain.empty()) {
+    if ((U_FAILURE(err) != 0) || proc_err != 0 || ascii_domain.empty()) {
         validation_error(ValidationError::DomainToAscii);
 
         return std::nullopt;

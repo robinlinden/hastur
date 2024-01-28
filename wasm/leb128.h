@@ -52,7 +52,7 @@ struct Leb128<T> {
             }
 
             result |= static_cast<T>(byte & 0b0111'1111) << shift;
-            if (!(byte & 0b1000'0000)) {
+            if ((byte & 0b1000'0000) == 0) {
                 return result;
             }
 
@@ -94,16 +94,16 @@ struct Leb128<T> {
 
             result |= static_cast<T>(byte & kNonContinuationBits) << shift;
             shift += 7;
-            if (!(byte & kContinuationBit)) {
+            if ((byte & kContinuationBit) == 0) {
                 break;
             }
         }
 
-        if (byte & kContinuationBit) {
+        if ((byte & kContinuationBit) != 0) {
             return tl::unexpected{Leb128ParseError::Invalid};
         }
 
-        if ((shift < sizeof(T) * 8) && (byte & kSignBit)) {
+        if ((shift < sizeof(T) * 8) && ((byte & kSignBit) != 0)) {
             result |= ~T{0} << shift;
         }
 

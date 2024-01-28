@@ -67,9 +67,9 @@ struct ScreenDescriptor {
             return std::nullopt;
         }
 
-        screen.global_color_table = packed_fields & 0b1000'0000;
+        screen.global_color_table = (packed_fields & 0b1000'0000) != 0;
         screen.color_resolution = (packed_fields & 0b0111'0000) >> 4;
-        screen.sort = packed_fields & 0b0000'1000;
+        screen.sort = (packed_fields & 0b0000'1000) != 0;
         screen.size_of_global_color_table = packed_fields & 0b0000'0111;
 
         if (!is.read(reinterpret_cast<char *>(&screen.background_color_index), sizeof(screen.background_color_index))) {

@@ -230,7 +230,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
         }
     }
 
-    if (box.node->parent) {
+    if (box.node->parent != nullptr) {
         auto const &d = box.dimensions;
         box.dimensions.content.x = bounds.x + d.padding.left + d.border.left + d.margin.left;
         box.dimensions.content.y = bounds.y + d.border.top + d.padding.top + d.margin.top;
