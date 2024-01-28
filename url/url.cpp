@@ -203,7 +203,9 @@ std::string blob_url_create(Origin const &origin) {
 std::string Host::serialize() const {
     if (type == HostType::Ip4Addr) {
         return util::ipv4_serialize(std::get<std::uint32_t>(data));
-    } else if (type == HostType::Ip6Addr) {
+    }
+
+    if (type == HostType::Ip6Addr) {
         return "[" + util::ipv6_serialize(std::get<2>(data)) + "]";
     }
 
@@ -294,17 +296,17 @@ Origin Url::origin() const {
 
         return path_url->origin();
     }
+
     // Return a tuple origin
-    else if (scheme == "ftp" || scheme == "http" || scheme == "https" || scheme == "ws" || scheme == "wss") {
+    if (scheme == "ftp" || scheme == "http" || scheme == "https" || scheme == "ws" || scheme == "wss") {
         // These schemes all require a host in a valid URL
         assert(host.has_value());
 
         return Origin{scheme, *host, port, std::nullopt};
     }
+
     // Return a new opaque origin
-    else {
-        return Origin{"", Host{}, std::nullopt, std::nullopt, true};
-    }
+    return Origin{"", Host{}, std::nullopt, std::nullopt, true};
 }
 
 void UrlParser::validation_error(ValidationError err) const {
@@ -562,13 +564,17 @@ void UrlParser::state_scheme() {
 
 // https://url.spec.whatwg.org/#no-scheme-state
 void UrlParser::state_no_scheme() {
-    if (auto c = peek(); !base_.has_value() || (base_->has_opaque_path() && c != '#')) {
+    auto c = peek();
+
+    if (!base_.has_value() || (base_->has_opaque_path() && c != '#')) {
         validation_error(ValidationError::MissingSchemeNonRelativeUrl);
 
         state_ = ParserState::Failure;
 
         return;
-    } else if (base_->has_opaque_path() && c == '#') {
+    }
+
+    if (base_->has_opaque_path() && c == '#') {
         url_.scheme = base_->scheme;
         url_.path = base_->path;
         url_.query = base_->query;
@@ -796,7 +802,9 @@ void UrlParser::state_host() {
             state_ = ParserState::Failure;
 
             return;
-        } else if (state_override_.has_value() && buffer_.empty()
+        }
+
+        if (state_override_.has_value() && buffer_.empty()
                 && (url_.includes_credentials() || url_.port.has_value())) {
             state_ = ParserState::Terminate;
 
@@ -1597,7 +1605,9 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
             }
 
             break;
-        } else if (pointer < input.size() && input[pointer] == ':') {
+        }
+
+        if (pointer < input.size() && input[pointer] == ':') {
             pointer++;
 
             if (pointer >= input.size()) {

@@ -199,7 +199,9 @@ inline std::string ipv6_serialize(std::span<std::uint16_t const, 8> addr) {
     for (std::size_t i = 0; i < 8; i++) {
         if (ignore0 && addr[i] == 0) {
             continue;
-        } else if (ignore0) {
+        }
+
+        if (ignore0) {
             ignore0 = false;
         }
 

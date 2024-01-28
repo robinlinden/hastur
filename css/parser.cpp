@@ -125,17 +125,17 @@ public:
     std::optional<std::string_view> get() const {
         if (empty()) {
             return std::nullopt;
-        } else {
-            return *token_iter_;
         }
+
+        return *token_iter_;
     }
 
     std::optional<std::string_view> peek() const {
         if (empty() || ((token_iter_ + 1) == cend(tokens_))) {
             return std::nullopt;
-        } else {
-            return *(token_iter_ + 1);
         }
+
+        return *(token_iter_ + 1);
     }
 
     Tokenizer &next() {
@@ -161,7 +161,9 @@ std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_
             std::string_view font_size = str.substr(0, loc);
             std::string_view line_height = str.substr(loc + 1);
             return std::pair(std::move(font_size), std::move(line_height));
-        } else if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
+        }
+
+        if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
             return std::pair(std::move(str), std::nullopt);
         }
     }
@@ -187,7 +189,9 @@ std::optional<std::string> try_parse_font_style(Tokenizer &tokenizer) {
         if (maybe_font_style->starts_with("italic")) {
             font_style = *maybe_font_style;
             return font_style;
-        } else if (maybe_font_style->starts_with("oblique")) {
+        }
+
+        if (maybe_font_style->starts_with("oblique")) {
             font_style = *maybe_font_style;
             if (auto maybe_angle = tokenizer.peek()) {
                 if (maybe_angle->contains("deg")) {
@@ -206,7 +210,9 @@ std::optional<std::string_view> try_parse_font_weight(Tokenizer &tokenizer) {
     if (auto maybe_font_weight = tokenizer.get()) {
         if (is_weight(*maybe_font_weight)) {
             return *maybe_font_weight;
-        } else if (auto maybe_int = to_int(*maybe_font_weight)) {
+        }
+
+        if (auto maybe_int = to_int(*maybe_font_weight)) {
             if (*maybe_int >= 1 && *maybe_int <= 1000) {
                 return *maybe_font_weight;
             }
@@ -804,7 +810,9 @@ void Parser::expand_font(Declarations &declarations, std::string_view value) {
             }
             // Lets break here since font size and family should be last
             break;
-        } else if (auto maybe_font_style = try_parse_font_style(tokenizer)) {
+        }
+
+        if (auto maybe_font_style = try_parse_font_style(tokenizer)) {
             font_style = *maybe_font_style;
         } else if (auto maybe_font_weight = try_parse_font_weight(tokenizer)) {
             font_weight = *maybe_font_weight;

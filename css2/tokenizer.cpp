@@ -223,7 +223,9 @@ void Tokenizer::run() {
                 if (is_ident_code_point(*c)) {
                     temporary_buffer_ += *c;
                     continue;
-                } else if (*c == '\\') {
+                }
+
+                if (*c == '\\') {
                     // TODO(mkiael): Handle escaped code point
                     std::terminate();
                 }
@@ -243,7 +245,9 @@ void Tokenizer::run() {
                 if (is_ident_code_point(*c)) {
                     temporary_buffer_ += *c;
                     continue;
-                } else if (*c == '\\') {
+                }
+
+                if (*c == '\\') {
                     // TODO(mkiael): Handle escaped code point
                     std::terminate();
                 }

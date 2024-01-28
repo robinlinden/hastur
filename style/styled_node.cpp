@@ -138,16 +138,22 @@ std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     if (hex_chars.length() == 6) {
         std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
         return gfx::Color::from_rgb(hex);
-    } else if (hex_chars.length() == 3) {
+    }
+
+    if (hex_chars.length() == 3) {
         std::ostringstream ss;
         ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2];
         auto expanded = std::move(ss).str();
         std::from_chars(expanded.data(), expanded.data() + expanded.size(), hex, /*base*/ 16);
         return gfx::Color::from_rgb(hex);
-    } else if (hex_chars.length() == 8) {
+    }
+
+    if (hex_chars.length() == 8) {
         std::from_chars(hex_chars.data(), hex_chars.data() + hex_chars.size(), hex, /*base*/ 16);
         return gfx::Color::from_rgba(hex);
-    } else if (hex_chars.length() == 4) {
+    }
+
+    if (hex_chars.length() == 4) {
         std::ostringstream ss;
         ss << hex_chars[0] << hex_chars[0] << hex_chars[1] << hex_chars[1] << hex_chars[2] << hex_chars[2]
            << hex_chars[3] << hex_chars[3];
@@ -299,13 +305,19 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
         }
 
         return initial_values.at(property);
-    } else if (it->second == "initial") {
+    }
+
+    if (it->second == "initial") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/initial
         return initial_values.at(property);
-    } else if (it->second == "inherit") {
+    }
+
+    if (it->second == "inherit") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/inherit
         return get_parent_raw_property(*this, property);
-    } else if (it->second == "currentcolor") {
+    }
+
+    if (it->second == "currentcolor") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
         // If the "color" property has the value "currentcolor", treat it as "inherit".
         if (it->first == css::PropertyId::Color) {
@@ -327,23 +339,41 @@ BorderStyle StyledNode::get_border_style_property(css::PropertyId property) cons
 
     if (raw == "none") {
         return BorderStyle::None;
-    } else if (raw == "hidden") {
+    }
+
+    if (raw == "hidden") {
         return BorderStyle::Hidden;
-    } else if (raw == "dotted") {
+    }
+
+    if (raw == "dotted") {
         return BorderStyle::Dotted;
-    } else if (raw == "dashed") {
+    }
+
+    if (raw == "dashed") {
         return BorderStyle::Dashed;
-    } else if (raw == "solid") {
+    }
+
+    if (raw == "solid") {
         return BorderStyle::Solid;
-    } else if (raw == "double") {
+    }
+
+    if (raw == "double") {
         return BorderStyle::Double;
-    } else if (raw == "groove") {
+    }
+
+    if (raw == "groove") {
         return BorderStyle::Groove;
-    } else if (raw == "ridge") {
+    }
+
+    if (raw == "ridge") {
         return BorderStyle::Ridge;
-    } else if (raw == "inset") {
+    }
+
+    if (raw == "inset") {
         return BorderStyle::Inset;
-    } else if (raw == "outset") {
+    }
+
+    if (raw == "outset") {
         return BorderStyle::Outset;
     }
 
@@ -366,9 +396,13 @@ DisplayValue StyledNode::get_display_property() const {
     auto raw = get_raw_property(css::PropertyId::Display);
     if (raw == "none") {
         return DisplayValue::None;
-    } else if (raw == "inline") {
+    }
+
+    if (raw == "inline") {
         return DisplayValue::Inline;
-    } else if (raw == "block") {
+    }
+
+    if (raw == "block") {
         return DisplayValue::Block;
     }
 
@@ -380,9 +414,13 @@ FontStyle StyledNode::get_font_style_property() const {
     auto raw = get_raw_property(css::PropertyId::FontStyle);
     if (raw == "normal") {
         return FontStyle::Normal;
-    } else if (raw == "italic") {
+    }
+
+    if (raw == "italic") {
         return FontStyle::Italic;
-    } else if (raw == "oblique") {
+    }
+
+    if (raw == "oblique") {
         return FontStyle::Oblique;
     }
 
@@ -394,13 +432,21 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
     auto into = [](std::string_view v) -> std::optional<TextDecorationLine> {
         if (v == "none") {
             return TextDecorationLine::None;
-        } else if (v == "underline") {
+        }
+
+        if (v == "underline") {
             return TextDecorationLine::Underline;
-        } else if (v == "overline") {
+        }
+
+        if (v == "overline") {
             return TextDecorationLine::Overline;
-        } else if (v == "line-through") {
+        }
+
+        if (v == "line-through") {
             return TextDecorationLine::LineThrough;
-        } else if (v == "blink") {
+        }
+
+        if (v == "blink") {
             return TextDecorationLine::Blink;
         }
 
