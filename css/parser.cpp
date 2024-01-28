@@ -108,7 +108,8 @@ std::optional<int> to_int(std::string_view str) {
 class Tokenizer {
 public:
     Tokenizer(std::string_view str, char delimiter) {
-        std::size_t pos = 0, loc = 0;
+        std::size_t pos = 0;
+        std::size_t loc = 0;
         while ((loc = str.find(delimiter, pos)) != std::string_view::npos) {
             if (auto substr = str.substr(pos, loc - pos); !substr.empty()) {
                 tokens_.push_back(substr);
@@ -576,7 +577,10 @@ void Parser::expand_background(Declarations &declarations, std::string_view valu
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
 void Parser::expand_border_radius_values(Declarations &declarations, std::string_view value) {
-    std::string top_left, top_right, bottom_right, bottom_left;
+    std::string top_left;
+    std::string top_right;
+    std::string bottom_right;
+    std::string bottom_left;
     auto [horizontal, vertical] = util::split_once(value, "/");
     Tokenizer tokenizer(horizontal, ' ');
     // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
@@ -722,7 +726,10 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
 }
 
 void Parser::expand_edge_values(Declarations &declarations, std::string_view property, std::string_view value) {
-    std::string_view top, bottom, left, right;
+    std::string_view top;
+    std::string bottom;
+    std::string left;
+    std::string right;
     Tokenizer tokenizer(value, ' ');
     // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     switch (tokenizer.size()) {
