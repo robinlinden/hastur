@@ -178,24 +178,25 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-r9ggHPsavpJ3N9h2RBux8hcwqe5geKG4xhdOZGOYH6M=",
-    strip_prefix = "simdjson-3.6.3",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.6.3.tar.gz",
+    integrity = "sha256-fpPVCUpHGAo9RRyyYboprGbz9s63wqCISVXporsG2Bg=",
+    strip_prefix = "simdjson-3.6.4",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.6.4.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
 http_archive(
     name = "libpng",  # Libpng
     build_file = "//third_party:libpng.BUILD",
-    sha256 = "62d25af25e636454b005c93cae51ddcd5383c40fa14aa3dae8f6576feb5692c2",
-    strip_prefix = "libpng-1.6.40",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.40.tar.gz",
+    integrity = "sha256-/oneKS4iOCmFnSGZDZxNa34w4pWiaPalOgImEaqYvWc=",
+    strip_prefix = "libpng-1.6.42",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.42.tar.gz",
 )
 
 # https://github.com/SFML/SFML
 http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
+    integrity = "sha256-glNdueVxBdTzqK7avROGMd767cWTyrWJySS316Ef+50=",
     patch_cmds = [
         # Work around SFML check for enough bytes for a given UTF-8 character
         # crashing in MSVC debug builds with "cannot seek string_view iterator
@@ -207,9 +208,8 @@ http_archive(
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Unix/VulkanImplX11.cpp",
     ],
-    sha256 = "cf9535356ab37067e871270fbc5ae19e4102b658d6ea96993e6c9452ddbf99b3",
-    strip_prefix = "SFML-2.6.0",
-    url = "https://github.com/SFML/SFML/archive/2.6.0.zip",
+    strip_prefix = "SFML-2.6.1",
+    url = "https://github.com/SFML/SFML/archive/2.6.1.tar.gz",
 )
 
 # https://github.com/gabime/spdlog
