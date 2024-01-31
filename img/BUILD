@@ -11,6 +11,14 @@ cc_library(
 )
 
 cc_library(
+    name = "jpeg",
+    srcs = ["jpeg.cpp"],
+    hdrs = ["jpeg.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "png",
     srcs = ["png.cpp"],
     hdrs = ["png.h"],
