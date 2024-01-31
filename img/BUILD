@@ -81,6 +81,7 @@ cc_binary(
     tags = ["no-cross"],
     deps = [
         ":gif",
+        ":jpeg",
         ":png",
         ":qoi",
         "//gfx",

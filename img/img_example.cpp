@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "img/gif.h"
+#include "img/jpeg.h"
 #include "img/png.h"
 #include "img/qoi.h"
 
@@ -29,7 +30,7 @@
 using namespace std::literals;
 
 namespace {
-using Image = std::variant<img::Gif, img::Png, img::Qoi>;
+using Image = std::variant<img::Gif, img::Jpeg, img::Png, img::Qoi>;
 
 struct PixelDataGetter {
     template<typename T>
@@ -76,6 +77,13 @@ int main(int argc, char **argv) {
 
         if (auto qoi = img::Qoi::from(fs)) {
             return *qoi;
+        }
+
+        fs.clear();
+        fs.seekg(0);
+
+        if (auto jpeg = img::Jpeg::thumbnail_from(fs)) {
+            return *jpeg;
         }
 
         return std::nullopt;
