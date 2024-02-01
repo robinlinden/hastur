@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -8,13 +8,15 @@
 #include "css2/token.h"
 
 #include "util/string.h"
+#include "util/unicode.h"
 
 #include <cassert>
 #include <charconv>
-#include <exception>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <system_error>
+#include <tuple>
 #include <utility>
 #include <variant>
 
@@ -226,8 +228,8 @@ void Tokenizer::run() {
                 }
 
                 if (*c == '\\') {
-                    // TODO(mkiael): Handle escaped code point
-                    std::terminate();
+                    temporary_buffer_ += consume_an_escaped_code_point();
+                    continue;
                 }
 
                 emit(AtKeywordToken{temporary_buffer_});
@@ -248,8 +250,8 @@ void Tokenizer::run() {
                 }
 
                 if (*c == '\\') {
-                    // TODO(mkiael): Handle escaped code point
-                    std::terminate();
+                    temporary_buffer_ += consume_an_escaped_code_point();
+                    continue;
                 }
 
                 // TODO(mkiael): Handle url and function token
@@ -275,8 +277,8 @@ void Tokenizer::run() {
 
                 switch (*c) {
                     case '\\':
-                        // TODO(mkiael): Handle escaped code point
-                        std::terminate();
+                        std::get<StringToken>(current_token_).data += consume_an_escaped_code_point();
+                        continue;
                     case '\n':
                         emit(ParseError::NewlineInString);
                         emit(BadStringToken{});
@@ -387,6 +389,47 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
     assert(fc_res.ec == std::errc{});
 
     return {result, type};
+}
+
+// https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point
+std::string Tokenizer::consume_an_escaped_code_point() {
+    static constexpr std::uint32_t kReplacementCharacter = 0xFFFD;
+    auto c = consume_next_input_character();
+    if (!c) {
+        emit(ParseError::EofInEscapeSequence);
+        return util::unicode_to_utf8(kReplacementCharacter);
+    }
+
+    if (util::is_hex_digit(*c)) {
+        std::string hex{*c};
+        for (int i = 0; i < 5; ++i) {
+            auto next_input = peek_input(0);
+            if (!next_input || !util::is_hex_digit(*next_input)) {
+                break;
+            }
+
+            hex += *next_input;
+            std::ignore = consume_next_input_character();
+        }
+
+        if (auto next_input = peek_input(0); next_input && util::is_whitespace(*next_input)) {
+            std::ignore = consume_next_input_character();
+        }
+
+        std::uint32_t code_point;
+        [[maybe_unused]] auto res = std::from_chars(hex.data(), hex.data() + hex.size(), code_point, 16);
+        assert(res.ec == std::errc{} && res.ptr == hex.data() + hex.size());
+
+        // https://www.w3.org/TR/css-syntax-3/#maximum-allowed-code-point
+        static constexpr std::uint32_t kMaximumAllowedCodePoint = 0x10FFFF;
+        if (code_point == 0 || code_point > kMaximumAllowedCodePoint || util::is_unicode_surrogate(code_point)) {
+            code_point = kReplacementCharacter;
+        }
+
+        return util::unicode_to_utf8(code_point);
+    }
+
+    return std::string{*c};
 }
 
 } // namespace css2

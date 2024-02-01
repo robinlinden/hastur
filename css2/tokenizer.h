@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -33,6 +33,7 @@ enum class State {
 
 enum class ParseError {
     EofInComment,
+    EofInEscapeSequence,
     EofInString,
     NewlineInString,
 };
@@ -66,6 +67,7 @@ private:
     void reconsume_in(State);
 
     std::pair<std::variant<int, double>, NumericType> consume_number(char first_byte);
+    std::string consume_an_escaped_code_point();
 };
 
 } // namespace css2

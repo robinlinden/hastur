@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -10,6 +10,7 @@
 #include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -19,8 +20,11 @@ using etest::expect_eq;
 using etest::require;
 
 using namespace css2;
+using namespace std::literals;
 
 namespace {
+
+constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 
 class TokenizerOutput {
 public:
@@ -169,6 +173,11 @@ int main() {
         expect_token(output, WhitespaceToken{});
     });
 
+    etest::test("single quoted string with escaped code point", [] {
+        auto output = run_tokenizer("'foo\\40'");
+        expect_token(output, StringToken{"foo@"});
+    });
+
     etest::test("ident token", [] {
         auto output = run_tokenizer("foo");
 
@@ -199,6 +208,48 @@ int main() {
         expect_token(output, IdentToken{"_foo-bar"});
     });
 
+    etest::test("ident token with escaped code point", [] {
+        auto output = run_tokenizer("foo\\40");
+        expect_token(output, IdentToken{"foo@"});
+    });
+
+    etest::test("ident token with escaped code point, eof", [] {
+        auto output = run_tokenizer("foo\\");
+        expect_token(output, IdentToken{"foo"s + kReplacementCharacter});
+        expect_error(output, ParseError::EofInEscapeSequence);
+    });
+
+    etest::test("ident token with escaped code point, non-hex after", [] {
+        auto output = run_tokenizer("foo\\40Z");
+        expect_token(output, IdentToken{"foo@Z"});
+    });
+
+    etest::test("ident token with escaped code point, whitespace after", [] {
+        auto output = run_tokenizer("foo\\40 ");
+        expect_token(output, IdentToken{"foo@"});
+    });
+
+    etest::test("ident token with escaped code point, max characters in escape", [] {
+        auto output = run_tokenizer("foo\\10fffff");
+        // \u{10ffff} would've been nicer, but it's not yet supported by the compilers we support.
+        expect_token(output, IdentToken{"foo\U0010FFFFf"});
+    });
+
+    etest::test("ident token with escaped code point, outside the unicode range", [] {
+        auto output = run_tokenizer("foo\\110000");
+        expect_token(output, IdentToken{"foo"s + kReplacementCharacter});
+    });
+
+    etest::test("ident token with escaped code point, surrogate", [] {
+        auto output = run_tokenizer("foo\\d800");
+        expect_token(output, IdentToken{"foo"s + kReplacementCharacter});
+    });
+
+    etest::test("ident token with escaped code point, null", [] {
+        auto output = run_tokenizer("foo\\0");
+        expect_token(output, IdentToken{"foo"s + kReplacementCharacter});
+    });
+
     etest::test("whitespace after ident", [] {
         auto output = run_tokenizer("abc  ");
 
@@ -210,6 +261,11 @@ int main() {
         auto output = run_tokenizer("@foo");
 
         expect_token(output, AtKeywordToken{"foo"});
+    });
+
+    etest::test("at keyword token with escaped code point", [] {
+        auto output = run_tokenizer("@foo\\23");
+        expect_token(output, AtKeywordToken{"foo#"});
     });
 
     etest::test("at keyword token with digit", [] {
