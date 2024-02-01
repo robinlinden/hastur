@@ -11,7 +11,7 @@
 # https://github.com/llvm/llvm-project/issues/59492
 #
 # -cert-dcl21-cpp: Deprecated, will be removed in clang-tidy 19.
-# https://clang.llvm.org/extra/clang-tidy/checks/cert/dcl21-cpp.html
+# https://releases.llvm.org/17.0.1/tools/clang/tools/extra/docs/clang-tidy/checks/cert/dcl21-cpp.html
 #
 # -clang-diagnostic-builtin-macro-redefined: Bazel redefines a lot of builtin
 # macros to set up a reproducible build.
