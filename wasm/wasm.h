@@ -144,10 +144,19 @@ struct Module {
 
     std::vector<Section> sections{};
 
+    // TODO(robinlinden): custom_sections
     std::optional<TypeSection> type_section() const;
+    // TODO(robinlinden): import_section
     std::optional<FunctionSection> function_section() const;
+    // TODO(robinlinden): table_section
+    // TODO(robinlinden): memory_section
+    // TODO(robinlinden): global_section
     std::optional<ExportSection> export_section() const;
+    // TODO(robinlinden): start_section
+    // TODO(robinlinden): element_section
     std::optional<CodeSection> code_section() const;
+    // TODO(robinlinden): data_section
+    // TODO(robinlinden): data_count_section
 
     [[nodiscard]] bool operator==(Module const &) const = default;
 };
