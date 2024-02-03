@@ -91,6 +91,33 @@ struct FunctionSection {
     [[nodiscard]] bool operator==(FunctionSection const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/types.html#limits
+struct Limits {
+    static std::optional<Limits> parse(std::istream &);
+
+    std::uint32_t min{};
+    std::optional<std::uint32_t> max{};
+
+    [[nodiscard]] bool operator==(Limits const &) const = default;
+};
+
+// https://webassembly.github.io/spec/core/binary/types.html#table-types
+struct TableType {
+    static std::optional<TableType> parse(std::istream &);
+
+    ValueType element_type{};
+    Limits limits{};
+
+    [[nodiscard]] bool operator==(TableType const &) const = default;
+};
+
+// https://webassembly.github.io/spec/core/binary/modules.html#table-section
+struct TableSection {
+    std::vector<TableType> tables{};
+
+    [[nodiscard]] bool operator==(TableSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-export
 struct Export {
     enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
@@ -148,7 +175,7 @@ struct Module {
     std::optional<TypeSection> type_section() const;
     // TODO(robinlinden): import_section
     std::optional<FunctionSection> function_section() const;
-    // TODO(robinlinden): table_section
+    std::optional<TableSection> table_section() const;
     // TODO(robinlinden): memory_section
     // TODO(robinlinden): global_section
     std::optional<ExportSection> export_section() const;

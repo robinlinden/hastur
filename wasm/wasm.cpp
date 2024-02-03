@@ -70,6 +70,11 @@ std::optional<FunctionType> parse(std::istream &is) {
     };
 }
 
+template<>
+std::optional<TableType> parse(std::istream &is) {
+    return TableType::parse(is);
+}
+
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-exportsec
 template<>
 std::optional<Export> parse(std::istream &is) {
@@ -295,6 +300,58 @@ std::optional<FunctionSection> Module::function_section() const {
 
     if (auto maybe_type_indices = parse_vector<TypeIdx>(std::stringstream{*std::move(content)})) {
         return FunctionSection{.type_indices = *std::move(maybe_type_indices)};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<Limits> Limits::parse(std::istream &is) {
+    std::uint8_t has_max{};
+    if (!is.read(reinterpret_cast<char *>(&has_max), sizeof(has_max)) || has_max > 1) {
+        return std::nullopt;
+    }
+
+    auto min = Leb128<std::uint32_t>::decode_from(is);
+    if (!min) {
+        return std::nullopt;
+    }
+
+    if (has_max == 0) {
+        return Limits{.min = *min};
+    }
+
+    auto max = Leb128<std::uint32_t>::decode_from(is);
+    if (!max) {
+        return std::nullopt;
+    }
+
+    return Limits{.min = *min, .max = *max};
+}
+
+std::optional<TableType> TableType::parse(std::istream &is) {
+    auto element_type = ValueType::parse(is);
+    if (!element_type
+            || (element_type->kind != ValueType::Kind::FunctionReference
+                    && element_type->kind != ValueType::Kind::ExternReference)) {
+        return std::nullopt;
+    }
+
+    auto limits = Limits::parse(is);
+    if (!limits) {
+        return std::nullopt;
+    }
+
+    return TableType{.element_type = *element_type, .limits = *limits};
+}
+
+std::optional<TableSection> Module::table_section() const {
+    auto content = get_section_data(sections, SectionId::Table);
+    if (!content) {
+        return std::nullopt;
+    }
+
+    if (auto maybe_tables = parse_vector<TableType>(std::stringstream{*std::move(content)})) {
+        return TableSection{*std::move(maybe_tables)};
     }
 
     return std::nullopt;

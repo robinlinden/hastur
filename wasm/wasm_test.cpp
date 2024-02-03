@@ -144,6 +144,109 @@ void function_section_tests() {
     });
 }
 
+void table_section_tests() {
+    etest::test("table section, non-existent", [] {
+        auto module = wasm::Module{};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, missing data", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, empty", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{0},
+        }}};
+        expect_eq(module.table_section(), wasm::TableSection{});
+    });
+
+    etest::test("table section, no element type", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, invalid element type", [] {
+        constexpr std::uint8_t kInt32Type = 0x7f;
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kInt32Type},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    static constexpr std::uint8_t kFuncRefType = 0x70;
+    static constexpr std::uint8_t kExtRefType = 0x6f;
+
+    etest::test("table section, missing limits", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kFuncRefType},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, invalid has_max in limits", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kFuncRefType, 4},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, missing min in limits", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kFuncRefType, 0},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, only min", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kFuncRefType, 0, 42},
+        }}};
+        expect_eq(module.table_section(),
+                wasm::TableSection{.tables{
+                        wasm::TableType{
+                                wasm::ValueType{wasm::ValueType::FunctionReference},
+                                wasm::Limits{.min = 42},
+                        },
+                }});
+    });
+
+    etest::test("table section, missing max in limits", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kExtRefType, 1, 42},
+        }}};
+        expect_eq(module.table_section(), std::nullopt);
+    });
+
+    etest::test("table section, min and max", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Table,
+                .content{1, kExtRefType, 1, 42, 42},
+        }}};
+        expect_eq(module.table_section(),
+                wasm::TableSection{.tables{
+                        wasm::TableType{
+                                wasm::ValueType{wasm::ValueType::ExternReference},
+                                wasm::Limits{.min = 42, .max = 42},
+                        },
+                }});
+    });
+}
+
 void type_section_tests() {
     etest::test("type section, non-existent", [] {
         auto module = wasm::Module{};
@@ -448,6 +551,7 @@ int main() {
 
     type_section_tests();
     function_section_tests();
+    table_section_tests();
     export_section_tests();
     code_section_tests();
 
