@@ -295,6 +295,21 @@ void in_head_noscript_tests() {
 }
 
 void after_head_tests() {
+    etest::test("AfterHead: boring whitespace", [] {
+        auto res = parse("<head></head> ", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Text{" "}}});
+    });
+
+    etest::test("AfterHead: comment", [] {
+        auto res = parse("<head></head><!-- comment -->", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: doctype", [] {
+        auto res = parse("<head></head><!doctype html>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
     etest::test("AfterHead: html", [] {
         auto res = parse("<html foo=bar><head></head><html foo=baz hello=world>", {});
         auto const &head = std::get<dom::Element>(res.document.html().children.at(0));
@@ -308,13 +323,48 @@ void after_head_tests() {
     });
 
     etest::test("AfterHead: base, basefont, bgsound, link", [] {
-        auto res = parse("<head></head><base> <basefont> <bgsound> <link>", {});
+        auto res = parse("<head></head><base><basefont><bgsound><link>", {});
 
         auto head_children =
                 NodeVec{dom::Element{"base"}, dom::Element{"basefont"}, dom::Element{"bgsound"}, dom::Element{"link"}};
         auto head = dom::Element{"head", {}, std::move(head_children)};
 
         expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head)}});
+    });
+
+    etest::test("AfterHead: head", [] {
+        auto res = parse("<head></head><head>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: </template>", [] {
+        auto res = parse("<head></head></template>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: </body>", [] {
+        auto res = parse("<head></head></body>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: </html>", [] {
+        auto res = parse("<head></head></html>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: </br>", [] {
+        auto res = parse("<head></head></br>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: </error>", [] {
+        auto res = parse("<head></head></error>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+    });
+
+    etest::test("AfterHead: <frameset>", [] {
+        auto res = parse("<head></head><frameset>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"frameset"}}});
     });
 }
 

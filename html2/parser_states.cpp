@@ -419,6 +419,21 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
 }
 
 std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const &token) {
+    if (is_boring_whitespace(token)) {
+        a.insert_character(std::get<html2::CharacterToken>(token));
+        return {};
+    }
+
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert.
+        return {};
+    }
+
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr) {
         if (start->tag_name == "html") {
             return InBody{}.process(a, token);
@@ -430,7 +445,11 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
             return InBody{};
         }
 
-        // TODO(robinlinden): frameset
+        if (start->tag_name == "frameset") {
+            a.insert_element_for(*start);
+            // TODO(robinlinden): Switch to InFrameset.
+            return {};
+        }
 
         static constexpr auto kInHeadElements = std::to_array<std::string_view>({
                 "base"sv,
@@ -453,8 +472,30 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
             a.remove_from_open_elements("head");
             return {};
         }
+
+        if (start->tag_name == "head") {
+            // Parse error.
+            return {};
+        }
     }
 
+    if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr) {
+        if (end->tag_name == "template") {
+            // TODO(robinlinden): Process using InHead's rules once implemented.
+            return {};
+        }
+
+        if (end->tag_name == "body" || end->tag_name == "html" || end->tag_name == "br") {
+            // Treat as "anything else."
+        } else {
+            // Parse error.
+            return {};
+        }
+    }
+
+    // TODO(robinlinden): Insert an HTML element for "body", switch to InBody,
+    // reprocess current token.  We can't really do this before we're ready to
+    // drop the old html parser's element handling.
     return {};
 }
 

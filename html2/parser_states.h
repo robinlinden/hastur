@@ -109,7 +109,6 @@ struct InHeadNoscript {
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
-// Incomplete.
 struct AfterHead {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
