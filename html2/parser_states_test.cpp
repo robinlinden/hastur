@@ -368,6 +368,103 @@ void after_head_tests() {
     });
 }
 
+void in_frameset_tests() {
+    etest::test("InFrameset: boring whitespace", [] {
+        auto res = parse("<head></head><frameset> ", {});
+        dom::Element expected{
+                "html",
+                {},
+                {
+                        dom::Element{"head"},
+                        dom::Element{"frameset", {}, {dom::Text{" "}}},
+                },
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: comment", [] {
+        auto res = parse("<head></head><frameset><!-- comment -->", {});
+        dom::Element expected{
+                "html",
+                {},
+                {dom::Element{"head"}, dom::Element{"frameset"}},
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: doctype", [] {
+        auto res = parse("<head></head><frameset><!doctype html>", {});
+        dom::Element expected{
+                "html",
+                {},
+                {dom::Element{"head"}, dom::Element{"frameset"}},
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: <html>", [] {
+        auto res = parse("<head></head><frameset><html foo=bar>", {});
+        dom::Element expected{
+                "html",
+                {{"foo", "bar"}},
+                {dom::Element{"head"}, dom::Element{"frameset"}},
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: <frameset>", [] {
+        auto res = parse("<head></head><frameset><frameset>", {});
+        dom::Element expected{
+                "html",
+                {},
+                {
+                        dom::Element{"head"},
+                        dom::Element{"frameset", {}, {dom::Element{"frameset"}}},
+                },
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: <frame>", [] {
+        auto res = parse("<head></head><frameset><frame>", {});
+        dom::Element expected{
+                "html",
+                {},
+                {
+                        dom::Element{"head"},
+                        dom::Element{"frameset", {}, {dom::Element{"frame"}}},
+                },
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: <noframes>", [] {
+        auto res = parse("<head></head><frameset><noframes>", {});
+        dom::Element expected{
+                "html",
+                {},
+                {
+                        dom::Element{"head"},
+                        dom::Element{"frameset", {}, {dom::Element{"noframes"}}},
+                },
+        };
+        expect_eq(res.document.html(), expected);
+    });
+
+    etest::test("InFrameset: </frameset>", [] {
+        auto res = parse("<head></head><frameset></frameset>", {});
+        dom::Element expected{
+                "html",
+                {},
+                {
+                        dom::Element{"head"},
+                        dom::Element{"frameset"},
+                },
+        };
+        expect_eq(res.document.html(), expected);
+    });
+}
+
 } // namespace
 
 int main() {
@@ -377,5 +474,6 @@ int main() {
     in_head_tests();
     in_head_noscript_tests();
     after_head_tests();
+    in_frameset_tests();
     return etest::run_all_tests();
 }

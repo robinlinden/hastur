@@ -45,7 +45,7 @@ using InsertionMode = std::variant<Initial,
         InHeadNoscript,
         AfterHead,
         InBody,
-        Text //
+        Text,
 #if 0
         InTable,
         InTableText,
@@ -58,8 +58,10 @@ using InsertionMode = std::variant<Initial,
         InSelectInTable,
         InTemplate,
         AfterBody,
+#endif
         InFrameset,
-        AfterFrameset,
+        AfterFrameset
+#if 0
         AfterAfterBody,
         AfterAfterFrameset
 #endif
@@ -76,8 +78,6 @@ struct InSelect {};
 struct InSelectInTable {};
 struct InTemplate {};
 struct AfterBody {};
-struct InFrameset {};
-struct AfterFrameset {};
 struct AfterAfterBody {};
 struct AfterAfterFrameset {};
 
@@ -122,6 +122,17 @@ struct InBody {
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
 // Incomplete.
 struct Text {
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+};
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
+struct InFrameset {
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+};
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterframeset
+// Incomplete.
+struct AfterFrameset {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 

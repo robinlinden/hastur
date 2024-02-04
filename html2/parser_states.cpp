@@ -447,8 +447,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 
         if (start->tag_name == "frameset") {
             a.insert_element_for(*start);
-            // TODO(robinlinden): Switch to InFrameset.
-            return {};
+            return InFrameset{};
         }
 
         static constexpr auto kInHeadElements = std::to_array<std::string_view>({
@@ -525,6 +524,69 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
         return a.original_insertion_mode();
     }
 
+    return {};
+}
+
+std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const &token) {
+    if (is_boring_whitespace(token)) {
+        a.insert_character(std::get<html2::CharacterToken>(token));
+        return {};
+    }
+
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert.
+        return {};
+    }
+
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
+    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr) {
+        if (start->tag_name == "html") {
+            return InBody{}.process(a, token);
+        }
+
+        if (start->tag_name == "frameset") {
+            a.insert_element_for(*start);
+            return {};
+        }
+
+        if (start->tag_name == "frame") {
+            a.insert_element_for(*start);
+            a.pop_current_node();
+            // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+            return {};
+        }
+
+        if (start->tag_name == "noframes") {
+            auto mode_override = current_insertion_mode_override(a, InFrameset{});
+            return InHead{}.process(mode_override, token);
+        }
+    }
+
+    if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr && end->tag_name == "frameset") {
+        // TODO(robinlinden): Fragment-parsing.
+        a.pop_current_node();
+        if (a.current_node_name() != "frameset") {
+            return AfterFrameset{};
+        }
+    }
+
+    if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+        if (a.current_node_name() != "html") {
+            // Parse error.
+        }
+
+        return {};
+    }
+
+    // Parse error.
+    return {};
+}
+
+std::optional<InsertionMode> AfterFrameset::process(IActions &, html2::Token const &) {
     return {};
 }
 
