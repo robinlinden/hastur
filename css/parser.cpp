@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <charconv>
 #include <cstdlib>
 #include <cstring>
@@ -573,8 +574,9 @@ void Parser::expand_background(Declarations &declarations, std::string_view valu
 
     Tokenizer tokenizer{value, ' '};
     if (tokenizer.size() == 1) {
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
-        declarations[PropertyId::BackgroundColor] = tokenizer.get().value();
+        auto bg_color = tokenizer.get();
+        assert(bg_color.has_value());
+        declarations[PropertyId::BackgroundColor] = *bg_color;
     }
 }
 
@@ -586,25 +588,31 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
     std::string bottom_left;
     auto [horizontal, vertical] = util::split_once(value, "/");
     Tokenizer tokenizer(horizontal, ' ');
-    // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
+
+    auto unchecked_get = [](Tokenizer &t) -> std::string_view {
+        auto v = t.get();
+        assert(v.has_value());
+        return *v;
+    };
+
     switch (tokenizer.size()) {
         case 1:
-            top_left = top_right = bottom_right = bottom_left = tokenizer.get().value();
+            top_left = top_right = bottom_right = bottom_left = unchecked_get(tokenizer);
             break;
         case 2:
-            top_left = bottom_right = tokenizer.get().value();
-            top_right = bottom_left = tokenizer.next().get().value();
+            top_left = bottom_right = unchecked_get(tokenizer);
+            top_right = bottom_left = unchecked_get(tokenizer.next());
             break;
         case 3:
-            top_left = tokenizer.get().value();
-            top_right = bottom_left = tokenizer.next().get().value();
-            bottom_right = tokenizer.next().get().value();
+            top_left = unchecked_get(tokenizer);
+            top_right = bottom_left = unchecked_get(tokenizer.next());
+            bottom_right = unchecked_get(tokenizer.next());
             break;
         case 4:
-            top_left = tokenizer.get().value();
-            top_right = tokenizer.next().get().value();
-            bottom_right = tokenizer.next().get().value();
-            bottom_left = tokenizer.next().get().value();
+            top_left = unchecked_get(tokenizer);
+            top_right = unchecked_get(tokenizer.next());
+            bottom_right = unchecked_get(tokenizer.next());
+            bottom_left = unchecked_get(tokenizer.next());
             break;
         default:
             break;
@@ -614,7 +622,7 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
         tokenizer = Tokenizer{vertical, ' '};
         switch (tokenizer.size()) {
             case 1: {
-                auto v_radius{tokenizer.get().value()};
+                auto v_radius{unchecked_get(tokenizer)};
                 top_left += fmt::format(" / {}", v_radius);
                 top_right += fmt::format(" / {}", v_radius);
                 bottom_right += fmt::format(" / {}", v_radius);
@@ -622,34 +630,33 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
                 break;
             }
             case 2: {
-                auto v1_radius{tokenizer.get().value()};
+                auto v1_radius{unchecked_get(tokenizer)};
                 top_left += fmt::format(" / {}", v1_radius);
                 bottom_right += fmt::format(" / {}", v1_radius);
-                auto v2_radius{tokenizer.next().get().value()};
+                auto v2_radius{unchecked_get(tokenizer.next())};
                 top_right += fmt::format(" / {}", v2_radius);
                 bottom_left += fmt::format(" / {}", v2_radius);
                 break;
             }
             case 3: {
-                top_left += fmt::format(" / {}", tokenizer.get().value());
-                auto v_radius = tokenizer.next().get().value();
+                top_left += fmt::format(" / {}", unchecked_get(tokenizer));
+                auto v_radius = unchecked_get(tokenizer.next());
                 top_right += fmt::format(" / {}", v_radius);
                 bottom_left += fmt::format(" / {}", v_radius);
-                bottom_right += fmt::format(" / {}", tokenizer.next().get().value());
+                bottom_right += fmt::format(" / {}", unchecked_get(tokenizer.next()));
                 break;
             }
             case 4: {
-                top_left += fmt::format(" / {}", tokenizer.get().value());
-                top_right += fmt::format(" / {}", tokenizer.next().get().value());
-                bottom_right += fmt::format(" / {}", tokenizer.next().get().value());
-                bottom_left += fmt::format(" / {}", tokenizer.next().get().value());
+                top_left += fmt::format(" / {}", unchecked_get(tokenizer));
+                top_right += fmt::format(" / {}", unchecked_get(tokenizer.next()));
+                bottom_right += fmt::format(" / {}", unchecked_get(tokenizer.next()));
+                bottom_left += fmt::format(" / {}", unchecked_get(tokenizer.next()));
                 break;
             }
             default:
                 break;
         }
     }
-    // NOLINTEND(bugprone-unchecked-optional-access)
 
     declarations.insert_or_assign(PropertyId::BorderTopLeftRadius, top_left);
     declarations.insert_or_assign(PropertyId::BorderTopRightRadius, top_right);
@@ -666,9 +673,11 @@ void Parser::expand_text_decoration_values(Declarations &declarations, std::stri
         return;
     }
 
+    auto text_decoration = tokenizer.get();
+    assert(text_decoration.has_value());
+
     declarations.insert_or_assign(PropertyId::TextDecorationColor, "currentcolor");
-    // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
-    declarations.insert_or_assign(PropertyId::TextDecorationLine, tokenizer.get().value());
+    declarations.insert_or_assign(PropertyId::TextDecorationLine, *text_decoration);
     declarations.insert_or_assign(PropertyId::TextDecorationStyle, "solid");
 }
 
@@ -734,30 +743,46 @@ void Parser::expand_edge_values(Declarations &declarations, std::string_view pro
     std::string left;
     std::string right;
     Tokenizer tokenizer(value, ' ');
-    // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     switch (tokenizer.size()) {
-        case 1:
-            top = bottom = left = right = tokenizer.get().value();
+        case 1: {
+            auto all = tokenizer.get();
+            assert(all.has_value());
+            top = bottom = left = right = *all;
             break;
-        case 2:
-            top = bottom = tokenizer.get().value();
-            left = right = tokenizer.next().get().value();
+        }
+        case 2: {
+            auto vertical = tokenizer.get();
+            auto horizontal = tokenizer.next().get();
+            assert(vertical.has_value() && horizontal.has_value());
+            top = bottom = *vertical;
+            left = right = *horizontal;
             break;
-        case 3:
-            top = tokenizer.get().value();
-            left = right = tokenizer.next().get().value();
-            bottom = tokenizer.next().get().value();
+        }
+        case 3: {
+            auto top_edge = tokenizer.get();
+            auto horizontal = tokenizer.next().get();
+            auto bottom_edge = tokenizer.next().get();
+            assert(top_edge.has_value() && horizontal.has_value() && bottom_edge.has_value());
+            top = *top_edge;
+            left = right = *horizontal;
+            bottom = *bottom_edge;
             break;
-        case 4:
-            top = tokenizer.get().value();
-            right = tokenizer.next().get().value();
-            bottom = tokenizer.next().get().value();
-            left = tokenizer.next().get().value();
+        }
+        case 4: {
+            auto top_edge = tokenizer.get();
+            auto right_edge = tokenizer.next().get();
+            auto bottom_edge = tokenizer.next().get();
+            auto left_edge = tokenizer.next().get();
+            assert(top_edge.has_value() && right_edge.has_value() && bottom_edge.has_value() && left_edge.has_value());
+            top = *top_edge;
+            right = *right_edge;
+            bottom = *bottom_edge;
+            left = *left_edge;
             break;
+        }
         default:
             break;
     }
-    // NOLINTEND(bugprone-unchecked-optional-access)
     std::string_view post_fix;
     // The border properties aren't as simple as the padding or margin ones.
     if (property == "border-style") {
@@ -785,8 +810,9 @@ void Parser::expand_font(Declarations &declarations, std::string_view value) {
     Tokenizer tokenizer(value, ' ');
     if (tokenizer.size() == 1) {
         // TODO(mkiael): Handle system properties correctly. Just forward it for now.
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
-        declarations.insert_or_assign(PropertyId::FontFamily, std::string{tokenizer.get().value()});
+        auto system_property = tokenizer.get();
+        assert(system_property.has_value());
+        declarations.insert_or_assign(PropertyId::FontFamily, std::string{*system_property});
         return;
     }
 
