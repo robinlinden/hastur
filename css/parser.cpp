@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -176,7 +176,6 @@ std::optional<std::string> try_parse_font_family(Tokenizer &tokenizer) {
         if (!font_family.empty()) {
             font_family += ' ';
         }
-        // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
         font_family += *str;
         tokenizer.next();
     }
@@ -534,7 +533,6 @@ void Parser::expand_border_or_outline_impl(
 
     // TODO(robinlinden): Duplicate color/style/width shouldn't be
     // tolerated, but we have no way of propagating that info right now.
-    // NOLINTBEGIN(bugprone-unchecked-optional-access): False positives.
     for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
         switch (guess_type(*v)) {
             case BorderPropertyType::Color:
@@ -548,7 +546,6 @@ void Parser::expand_border_or_outline_impl(
                 break;
         }
     }
-    // NOLINTEND(bugprone-unchecked-optional-access)
 
     declarations.insert_or_assign(ids.color, color.value_or("currentcolor"));
     declarations.insert_or_assign(ids.style, style.value_or("none"));
