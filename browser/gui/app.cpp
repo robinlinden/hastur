@@ -192,6 +192,7 @@ std::unique_ptr<type::IType> create_font_system() {
 #ifdef _WIN32
             "consola.ttf",
 #else
+            "LiberationMono-Regular.ttf",
             "DejaVuSansMono.ttf",
 #endif
     });
@@ -200,6 +201,7 @@ std::unique_ptr<type::IType> create_font_system() {
 #ifdef _WIN32
             "arial.ttf",
 #else
+            "LiberationSans-Regular.ttf",
             "DejaVuSans.ttf",
 #endif
     });
@@ -208,6 +210,7 @@ std::unique_ptr<type::IType> create_font_system() {
 #ifdef _WIN32
             "times.ttf",
 #else
+            "LiberationSerif-Regular.ttf",
             "DejaVuSerif.ttf",
 #endif
     });
