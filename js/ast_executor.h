@@ -116,7 +116,6 @@ public:
         for (auto const &statement : v.body) {
             execute(statement);
             if (returning) {
-                // NOLINTNEXTLINE(bugprone-unchecked-optional-access): False positive.
                 return *std::exchange(returning, std::nullopt);
             }
         }
