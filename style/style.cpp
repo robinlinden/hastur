@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -95,16 +95,25 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
     }
 
     if (!psuedo_class.empty()) {
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/:any-link
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/:link
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/:visited
-        // Ignoring :visited for now as we treat all links as unvisited.
         if (psuedo_class == "link" || psuedo_class == "any-link") {
+            // https://developer.mozilla.org/en-US/docs/Web/CSS/:any-link
+            // https://developer.mozilla.org/en-US/docs/Web/CSS/:link
+            // https://developer.mozilla.org/en-US/docs/Web/CSS/:visited
+            // Ignoring :visited for now as we treat all links as unvisited.
             if (!element.attributes.contains("href")) {
                 return false;
             }
 
             if (element.name != "a" && element.name != "area") {
+                return false;
+            }
+
+            if (selector_.empty()) {
+                return true;
+            }
+        } else if (psuedo_class == "root") {
+            // https://developer.mozilla.org/en-US/docs/Web/CSS/:root
+            if (node.parent != nullptr) {
                 return false;
             }
 

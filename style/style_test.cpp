@@ -136,6 +136,15 @@ int main() {
         });
     }
 
+    etest::test("is_match: :root", [] {
+        dom::Element dom = dom::Element{"html", {}, {dom::Element{"body"}}};
+        style::StyledNode node{dom, {}, {style::StyledNode{dom.children[0]}}};
+        node.children[0].parent = &node;
+
+        expect(style::is_match(node, ":root"));
+        expect(!style::is_match(node.children[0], ":root"));
+    });
+
     etest::test("is_match: child", [] {
         dom::Element dom = dom::Element{"div", {{"class", "logo"}}, {dom::Element{"span"}}};
         style::StyledNode node{dom, {}, {style::StyledNode{dom.children[0]}}};
