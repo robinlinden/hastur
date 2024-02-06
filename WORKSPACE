@@ -87,11 +87,11 @@ http_archive(
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-QOPUIHn4Uw3dvDyrZ4PHq4eKrvrApb8Z+/GtZtlxGoI=",
+    integrity = "sha256-whrHNW+IUYmVm3+LPfX8xl5UCYv64yM5b7tGcgXGQDA=",
     # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
     patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
-    strip_prefix = "boringssl-d8ec22218f6d76db8558abdfacfabe5fa1673e93",
-    url = "https://github.com/google/boringssl/archive/d8ec22218f6d76db8558abdfacfabe5fa1673e93.tar.gz",
+    strip_prefix = "boringssl-311e6f6d8e77da1f64c3256b30bd1992a555ce6c",
+    url = "https://github.com/google/boringssl/archive/311e6f6d8e77da1f64c3256b30bd1992a555ce6c.tar.gz",
 )
 
 http_archive(
@@ -248,13 +248,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.275"
+VULKAN_TAG = "1.3.277"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-cWHaZF29M/1Oph7sCODXc4mmQAEKy/SvwAI0+E35sxQ=",
+    integrity = "sha256-M+DAAPHpqAGeS4YQbWK2QTMxShP+9xI5DB8FY/SSBhQ=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -263,7 +263,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-9eZ9kJeSlmZKcz4U797a4hmNwR+Ij3VpuEv3F3XXmQk=",
+    integrity = "sha256-pLlr+7FuIJM4xmgGfAmeueIiJmRhYr9N+sPRMHquUkk=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
