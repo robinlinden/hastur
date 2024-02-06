@@ -63,13 +63,13 @@ http_archive(
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/c6cd079bef5836293ca18e55aac6ef05134c3a9d.tar.gz",
 )
 
-# HEAD as of 2024-01-11.
+# HEAD as of 2024-02-07.
 # https://github.com/erenon/bazel_clang_tidy
 http_archive(
     name = "bazel_clang_tidy",
-    integrity = "sha256-CWFhUEXpdtbJi1PLDfe8hZOQiKyv6QV2Xi9wnKMVDyM=",
-    strip_prefix = "bazel_clang_tidy-f43f9d61c201b314c62a3ebcf2d4a37f1a3b06f7",
-    url = "https://github.com/erenon/bazel_clang_tidy/archive/f43f9d61c201b314c62a3ebcf2d4a37f1a3b06f7.tar.gz",
+    integrity = "sha256-4+IyNvq1UkNPyFNcHTWjAJEi0Nl6CGJQcrdF1JzOe0Y=",
+    strip_prefix = "bazel_clang_tidy-43bef6852a433f3b2a6b001daecc8bc91d791b92",
+    url = "https://github.com/erenon/bazel_clang_tidy/archive/43bef6852a433f3b2a6b001daecc8bc91d791b92.tar.gz",
 )
 
 # Third-party
