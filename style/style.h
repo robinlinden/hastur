@@ -24,15 +24,6 @@ bool is_match(StyledNode const &, std::string_view selector);
 std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         StyledNode const &, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &);
 
-inline bool is_match(dom::Element const &e, std::string_view selector) {
-    return is_match(StyledNode{e}, selector);
-}
-
-inline std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
-        dom::Element const &element, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &context = {}) {
-    return matching_rules(StyledNode{element}, stylesheet, context);
-}
-
 std::unique_ptr<StyledNode> style_tree(
         dom::Node const &root, css::StyleSheet const &stylesheet, css::MediaQuery::Context const & = {});
 

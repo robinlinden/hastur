@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -27,6 +27,15 @@ using etest::expect_eq;
 using etest::require;
 
 namespace {
+bool is_match(dom::Element const &e, std::string_view selector) {
+    return is_match(style::StyledNode{e}, selector);
+}
+
+std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
+        dom::Element const &element, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &context = {}) {
+    return matching_rules(style::StyledNode{element}, stylesheet, context);
+}
+
 bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {
     if (!std::ranges::equal(a.children, b.children, &check_parents)) {
         return false;
@@ -79,51 +88,51 @@ void important_declarations_tests() {
 
 int main() {
     etest::test("is_match: universal selector", [] {
-        expect(style::is_match(dom::Element{"div"}, "*"sv));
-        expect(style::is_match(dom::Element{"span"}, "*"sv));
+        expect(is_match(dom::Element{"div"}, "*"sv));
+        expect(is_match(dom::Element{"span"}, "*"sv));
     });
 
     etest::test("is_match: simple names", [] {
-        expect(style::is_match(dom::Element{"div"}, "div"sv));
-        expect(!style::is_match(dom::Element{"div"}, "span"sv));
+        expect(is_match(dom::Element{"div"}, "div"sv));
+        expect(!is_match(dom::Element{"div"}, "span"sv));
     });
 
     etest::test("is_match: class", [] {
-        expect(!style::is_match(dom::Element{"div"}, ".myclass"sv));
-        expect(!style::is_match(dom::Element{"div", {{"id", "myclass"}}}, ".myclass"sv));
-        expect(style::is_match(dom::Element{"div", {{"class", "myclass"}}}, ".myclass"sv));
-        expect(style::is_match(dom::Element{"div", {{"class", "first second"}}}, ".first"sv));
-        expect(style::is_match(dom::Element{"div", {{"class", "first second"}}}, ".second"sv));
+        expect(!is_match(dom::Element{"div"}, ".myclass"sv));
+        expect(!is_match(dom::Element{"div", {{"id", "myclass"}}}, ".myclass"sv));
+        expect(is_match(dom::Element{"div", {{"class", "myclass"}}}, ".myclass"sv));
+        expect(is_match(dom::Element{"div", {{"class", "first second"}}}, ".first"sv));
+        expect(is_match(dom::Element{"div", {{"class", "first second"}}}, ".second"sv));
     });
 
     etest::test("is_match: id", [] {
-        expect(!style::is_match(dom::Element{"div"}, "#myid"sv));
-        expect(style::is_match(dom::Element{"div", {{"class", "myid"}}}, ".myid"sv));
-        expect(!style::is_match(dom::Element{"div", {{"id", "myid"}}}, ".myid"sv));
+        expect(!is_match(dom::Element{"div"}, "#myid"sv));
+        expect(is_match(dom::Element{"div", {{"class", "myid"}}}, ".myid"sv));
+        expect(!is_match(dom::Element{"div", {{"id", "myid"}}}, ".myid"sv));
     });
 
     etest::test("is_match: psuedo-class, unhandled", [] {
-        expect(!style::is_match(dom::Element{"div"}, ":hi"sv));
-        expect(!style::is_match(dom::Element{"div"}, "div:hi"sv));
+        expect(!is_match(dom::Element{"div"}, ":hi"sv));
+        expect(!is_match(dom::Element{"div"}, "div:hi"sv));
     });
 
     // These are 100% identical right now as we treat all links as unvisited links.
     for (auto const *pc : std::array{"link", "any-link"}) {
         etest::test(fmt::format("is_match: psuedo-class, {}", pc), [pc] {
-            expect(style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format(":{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}}}, fmt::format(":{}", pc)));
 
-            expect(style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("a:{}", pc)));
-            expect(style::is_match(dom::Element{"area", {{"href", ""}}}, fmt::format("area:{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("a:{}", pc)));
+            expect(is_match(dom::Element{"area", {{"href", ""}}}, fmt::format("area:{}", pc)));
 
-            expect(style::is_match(dom::Element{"a", {{"href", ""}, {"class", "hi"}}}, fmt::format(".hi:{}", pc)));
-            expect(style::is_match(dom::Element{"a", {{"href", ""}, {"id", "hi"}}}, fmt::format("#hi:{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}, {"class", "hi"}}}, fmt::format(".hi:{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}, {"id", "hi"}}}, fmt::format("#hi:{}", pc)));
 
-            expect(!style::is_match(dom::Element{"b"}, fmt::format(":{}", pc)));
-            expect(!style::is_match(dom::Element{"a"}, fmt::format("a:{}", pc)));
-            expect(!style::is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("b:{}", pc)));
-            expect(!style::is_match(dom::Element{"b", {{"href", ""}}}, fmt::format("b:{}", pc)));
-            expect(!style::is_match(dom::Element{"a", {{"href", ""}, {"class", "hi2"}}}, fmt::format(".hi:{}", pc)));
-            expect(!style::is_match(dom::Element{"a", {{"href", ""}, {"id", "hi2"}}}, fmt::format("#hi:{}", pc)));
+            expect(!is_match(dom::Element{"b"}, fmt::format(":{}", pc)));
+            expect(!is_match(dom::Element{"a"}, fmt::format("a:{}", pc)));
+            expect(!is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("b:{}", pc)));
+            expect(!is_match(dom::Element{"b", {{"href", ""}}}, fmt::format("b:{}", pc)));
+            expect(!is_match(dom::Element{"a", {{"href", ""}, {"class", "hi2"}}}, fmt::format(".hi:{}", pc)));
+            expect(!is_match(dom::Element{"a", {{"href", ""}, {"id", "hi2"}}}, fmt::format("#hi:{}", pc)));
         });
     }
 
@@ -167,21 +176,21 @@ int main() {
 
     etest::test("matching_rules: simple names", [] {
         css::StyleSheet stylesheet;
-        expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
+        expect(matching_rules(dom::Element{"div"}, stylesheet).empty());
 
         stylesheet.rules.push_back(
                 css::Rule{.selectors = {"span", "p"}, .declarations = {{css::PropertyId::Width, "80px"}}});
 
-        expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
+        expect(matching_rules(dom::Element{"div"}, stylesheet).empty());
 
         {
-            auto span_rules = style::matching_rules(dom::Element{"span"}, stylesheet);
+            auto span_rules = matching_rules(dom::Element{"span"}, stylesheet);
             require(span_rules.size() == 1);
             expect(span_rules[0] == std::pair{css::PropertyId::Width, "80px"s});
         }
 
         {
-            auto p_rules = style::matching_rules(dom::Element{"p"}, stylesheet);
+            auto p_rules = matching_rules(dom::Element{"p"}, stylesheet);
             require(p_rules.size() == 1);
             expect(p_rules[0] == std::pair{css::PropertyId::Width, "80px"s});
         }
@@ -189,23 +198,23 @@ int main() {
         stylesheet.rules.push_back(
                 css::Rule{.selectors = {"span", "hr"}, .declarations = {{css::PropertyId::Height, "auto"}}});
 
-        expect(style::matching_rules(dom::Element{"div"}, stylesheet).empty());
+        expect(matching_rules(dom::Element{"div"}, stylesheet).empty());
 
         {
-            auto span_rules = style::matching_rules(dom::Element{"span"}, stylesheet);
+            auto span_rules = matching_rules(dom::Element{"span"}, stylesheet);
             require(span_rules.size() == 2);
             expect(span_rules[0] == std::pair{css::PropertyId::Width, "80px"s});
             expect(span_rules[1] == std::pair{css::PropertyId::Height, "auto"s});
         }
 
         {
-            auto p_rules = style::matching_rules(dom::Element{"p"}, stylesheet);
+            auto p_rules = matching_rules(dom::Element{"p"}, stylesheet);
             require(p_rules.size() == 1);
             expect(p_rules[0] == std::pair{css::PropertyId::Width, "80px"s});
         }
 
         {
-            auto hr_rules = style::matching_rules(dom::Element{"hr"}, stylesheet);
+            auto hr_rules = matching_rules(dom::Element{"hr"}, stylesheet);
             require(hr_rules.size() == 1);
             expect(hr_rules[0] == std::pair{css::PropertyId::Height, "auto"s});
         }
@@ -216,13 +225,13 @@ int main() {
                 css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "red"}}},
         }};
 
-        expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet),
-                std::vector{std::pair{css::PropertyId::Color, "red"s}});
+        expect_eq(
+                matching_rules(dom::Element{"p"}, stylesheet), std::vector{std::pair{css::PropertyId::Color, "red"s}});
 
         stylesheet.rules[0].media_query = css::MediaQuery::parse("(min-width: 700px)");
-        expect(style::matching_rules(dom::Element{"p"}, stylesheet).empty());
+        expect(matching_rules(dom::Element{"p"}, stylesheet).empty());
 
-        expect_eq(style::matching_rules(dom::Element{"p"}, stylesheet, {.window_width = 700}),
+        expect_eq(matching_rules(dom::Element{"p"}, stylesheet, {.window_width = 700}),
                 std::vector{std::pair{css::PropertyId::Color, "red"s}});
     });
 
