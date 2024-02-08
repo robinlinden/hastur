@@ -321,18 +321,22 @@ void App::step() {
                     }
                     case sf::Keyboard::Key::F1: {
                         render_debug_ = !render_debug_;
+                        spdlog::info("Render debug: {}", render_debug_);
                         break;
                     }
                     case sf::Keyboard::Key::F2: {
                         switch_canvas();
+                        spdlog::info("Switched canvas to {}", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML");
                         break;
                     }
                     case sf::Keyboard::Key::F3: {
                         culling_enabled_ = !culling_enabled_;
+                        spdlog::info("Culling enabled: {}", culling_enabled_);
                         break;
                     }
                     case sf::Keyboard::Key::F4: {
                         display_debug_gui_ = !display_debug_gui_;
+                        spdlog::info("Display debug gui: {}", display_debug_gui_);
                         break;
                     }
                     case sf::Keyboard::Key::Left: {
