@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -34,6 +34,10 @@ std::optional<std::vector<T>> parse_vector(std::istream &&);
 
 template<typename T>
 std::optional<T> parse(std::istream &) = delete;
+template<typename T>
+std::optional<T> parse(std::istream &&is) {
+    return parse<T>(is);
+}
 
 template<>
 std::optional<std::uint32_t> parse(std::istream &is) {
@@ -365,6 +369,19 @@ std::optional<ExportSection> Module::export_section() const {
 
     if (auto maybe_exports = parse_vector<Export>(std::stringstream{*std::move(content)})) {
         return ExportSection{.exports = std::move(maybe_exports).value()};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<StartSection> Module::start_section() const {
+    auto content = get_section_data(sections, SectionId::Start);
+    if (!content) {
+        return std::nullopt;
+    }
+
+    if (auto maybe_start = parse<FuncIdx>(std::stringstream(std::move(*content)))) {
+        return StartSection{.start = *maybe_start};
     }
 
     return std::nullopt;

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -102,6 +102,31 @@ void export_section_tests() {
     etest::test("export section, missing index", [] {
         auto module = wasm::Module{.sections{wasm::Section{.id = wasm::SectionId::Export, .content{1, 1, 'a', 1}}}};
         expect_eq(module.export_section(), std::nullopt);
+    });
+}
+
+void start_section_tests() {
+    etest::test("start section, non-existent", [] {
+        auto module = wasm::Module{};
+        expect_eq(module.start_section(), std::nullopt);
+    });
+
+    etest::test("start section, missing start", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Start,
+                .content{},
+        }}};
+
+        expect_eq(module.start_section(), std::nullopt);
+    });
+
+    etest::test("start section, excellent", [] {
+        auto module = wasm::Module{.sections{wasm::Section{
+                .id = wasm::SectionId::Start,
+                .content{42},
+        }}};
+
+        expect_eq(module.start_section(), wasm::StartSection{.start = 42});
     });
 }
 
@@ -553,6 +578,7 @@ int main() {
     function_section_tests();
     table_section_tests();
     export_section_tests();
+    start_section_tests();
     code_section_tests();
 
     return etest::run_all_tests();

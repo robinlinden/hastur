@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -17,6 +17,7 @@ namespace wasm {
 
 // https://webassembly.github.io/spec/core/binary/modules.html#indices
 using TypeIdx = std::uint32_t;
+using FuncIdx = std::uint32_t;
 
 // https://webassembly.github.io/spec/core/binary/modules.html#sections
 enum class SectionId {
@@ -136,6 +137,12 @@ struct ExportSection {
     [[nodiscard]] bool operator==(ExportSection const &) const = default;
 };
 
+struct StartSection {
+    FuncIdx start{};
+
+    [[nodiscard]] bool operator==(StartSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-codesec
 struct CodeEntry {
     struct Local {
@@ -179,7 +186,7 @@ struct Module {
     // TODO(robinlinden): memory_section
     // TODO(robinlinden): global_section
     std::optional<ExportSection> export_section() const;
-    // TODO(robinlinden): start_section
+    std::optional<StartSection> start_section() const;
     // TODO(robinlinden): element_section
     std::optional<CodeSection> code_section() const;
     // TODO(robinlinden): data_section
