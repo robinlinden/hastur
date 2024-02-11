@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -1182,6 +1182,11 @@ int main() {
     etest::test("parser: flex-flow shorthand, too many values :(", [] {
         expect_eq(css::parse("p { flex-flow: column wrap nowrap; }").rules.at(0).declarations,
                 std::map<css::PropertyId, std::string>{});
+    });
+
+    etest::test("parser: custom property", [] {
+        expect_eq(css::parse("p { --var: value; }").rules.at(0), //
+                css::Rule{.selectors = {{"p"}}, .custom_properties = {{"--var", "value"}}});
     });
 
     return etest::run_all_tests();

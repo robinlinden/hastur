@@ -416,7 +416,9 @@ std::optional<css::Rule> Parser::parse_rule() {
         }
 
         auto [name, value] = *decl;
-        if (value.ends_with("!important")) {
+        if (name.starts_with("--")) {
+            rule.custom_properties.insert_or_assign(std::string{name}, std::string{value});
+        } else if (value.ends_with("!important")) {
             value.remove_suffix(std::strlen("!important"));
             add_declaration(rule.important_declarations, name, util::trim(value));
         } else {
