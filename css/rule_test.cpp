@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -69,6 +69,19 @@ int main() {
                 "Declarations:\n"
                 "Important declarations:\n"
                 "  background-color: black\n";
+        expect_eq(css::to_string(rule), expected);
+    });
+
+    etest::test("rule to string, custom property", [] {
+        css::Rule rule;
+        rule.selectors.emplace_back("div");
+        rule.custom_properties.emplace("--ping", "pong");
+
+        auto const *expected =
+                "Selectors: div\n"
+                "Declarations:\n"
+                "Custom properties:\n"
+                "  --ping: pong\n";
         expect_eq(css::to_string(rule), expected);
     });
 

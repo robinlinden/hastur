@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -37,6 +37,14 @@ std::string to_string(Rule const &rule) {
             ss << "  " << to_string(property) << ": " << value << '\n';
         }
     }
+
+    if (!rule.custom_properties.empty()) {
+        ss << "Custom properties:\n";
+        for (auto const &[property, value] : rule.custom_properties) {
+            ss << "  " << property << ": " << value << '\n';
+        }
+    }
+
     if (rule.media_query.has_value()) {
         ss << "Media query:\n";
         ss << "  " << to_string(*rule.media_query) << '\n';
