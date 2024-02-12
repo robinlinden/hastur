@@ -422,5 +422,72 @@ int main() {
         expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight{100});
     });
 
+    etest::test("var", [] {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Color, "var(--color)"s},
+                        {css::PropertyId::FontWeight, "var(--weight)"s},
+                },
+                .custom_properties = {{"--color", "#abc"s}},
+        };
+
+        expect_eq(styled_node.get_property<css::PropertyId::Color>(), //
+                gfx::Color{0xaa, 0xbb, 0xcc});
+
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+                std::nullopt);
+
+        styled_node.custom_properties = {{"--weight", "bold"}};
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+                style::FontWeight::bold());
+    });
+
+    etest::test("var(var)", [] {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{{css::PropertyId::FontWeight, "var(--a)"}},
+                .custom_properties{
+                        {"--a", "var(--b)"},
+                        {"--b", "bold"},
+                },
+        };
+
+        // TODO(robinlinden)
+#if 0
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+                style::FontWeight::bold());
+#endif
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+                std::nullopt);
+    });
+
+    etest::test("var, inherited custom property", [] {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .children{
+                        style::StyledNode{
+                                .node{dom},
+                                .properties{{css::PropertyId::FontWeight, "var(--a)"}},
+                        },
+                },
+                .custom_properties{{"--a", "bold"}},
+        };
+
+        auto &child = styled_node.children[0];
+        child.parent = &styled_node;
+
+        // TODO(robinlinden)
+#if 0
+        expect_eq(child.get_property<css::PropertyId::FontWeight>(), //
+                style::FontWeight::bold());
+#endif
+        expect_eq(child.get_property<css::PropertyId::FontWeight>(), //
+                std::nullopt);
+    });
+
     return etest::run_all_tests();
 }
