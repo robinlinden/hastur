@@ -19,7 +19,6 @@
 #include <cstddef>
 #include <iterator>
 #include <map>
-#include <ostream>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -32,11 +31,6 @@ using etest::require;
 using etest::require_eq;
 
 namespace {
-
-[[maybe_unused]] std::ostream &operator<<(std::ostream &os, std::vector<std::string> const &vec) {
-    std::ranges::copy(vec, std::ostream_iterator<std::string const &>(os, " "));
-    return os;
-}
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 auto const initial_background_values =
