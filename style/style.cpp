@@ -149,7 +149,7 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
     return false;
 }
 
-std::vector<std::pair<css::PropertyId, std::string>> matching_properties(
+MatchingProperties matching_properties(
         style::StyledNode const &node, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
     std::vector<std::pair<css::PropertyId, std::string>> matched_properties;
 
@@ -189,7 +189,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_properties(
         }
     }
 
-    return matched_properties;
+    return {std::move(matched_properties)};
 }
 
 namespace {
@@ -211,7 +211,7 @@ void style_tree_impl(StyledNode &current,
         style_tree_impl(child_node, child, stylesheet, ctx);
     }
 
-    current.properties = matching_properties(current, stylesheet, ctx);
+    current.properties = matching_properties(current, stylesheet, ctx).normal;
 }
 } // namespace
 

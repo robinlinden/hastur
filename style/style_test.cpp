@@ -33,7 +33,7 @@ bool is_match(dom::Element const &e, std::string_view selector) {
 
 std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         dom::Element const &element, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &context = {}) {
-    return matching_properties(style::StyledNode{element}, stylesheet, context);
+    return matching_properties(style::StyledNode{element}, stylesheet, context).normal;
 }
 
 bool check_parents(style::StyledNode const &a, style::StyledNode const &b) {

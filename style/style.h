@@ -21,8 +21,11 @@ namespace style {
 
 bool is_match(StyledNode const &, std::string_view selector);
 
-std::vector<std::pair<css::PropertyId, std::string>> matching_properties(
-        StyledNode const &, css::StyleSheet const &, css::MediaQuery::Context const &);
+struct MatchingProperties {
+    std::vector<std::pair<css::PropertyId, std::string>> normal;
+};
+
+MatchingProperties matching_properties(StyledNode const &, css::StyleSheet const &, css::MediaQuery::Context const &);
 
 std::unique_ptr<StyledNode> style_tree(
         dom::Node const &root, css::StyleSheet const &, css::MediaQuery::Context const & = {});
