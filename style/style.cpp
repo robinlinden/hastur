@@ -152,6 +152,7 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
 MatchingProperties matching_properties(
         style::StyledNode const &node, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
     std::vector<std::pair<css::PropertyId, std::string>> matched_properties;
+    std::vector<std::pair<std::string, std::string>> matched_custom_properties;
 
     for (auto const &rule : stylesheet.rules) {
         if (rule.media_query.has_value() && !rule.media_query->evaluate(ctx)) {
@@ -160,6 +161,7 @@ MatchingProperties matching_properties(
 
         if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(node, selector); })) {
             std::ranges::copy(rule.declarations, std::back_inserter(matched_properties));
+            std::ranges::copy(rule.custom_properties, std::back_inserter(matched_custom_properties));
         }
     }
 
@@ -189,7 +191,7 @@ MatchingProperties matching_properties(
         }
     }
 
-    return {std::move(matched_properties)};
+    return {std::move(matched_properties), std::move(matched_custom_properties)};
 }
 
 namespace {

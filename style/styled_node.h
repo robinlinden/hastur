@@ -78,6 +78,7 @@ struct StyledNode {
     std::vector<std::pair<css::PropertyId, std::string>> properties;
     std::vector<StyledNode> children;
     StyledNode const *parent{nullptr};
+    std::vector<std::pair<std::string, std::string>> custom_properties;
 
     std::string_view get_raw_property(css::PropertyId) const;
 

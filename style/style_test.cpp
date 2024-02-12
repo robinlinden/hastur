@@ -284,6 +284,25 @@ int main() {
         expect(check_parents(*style::style_tree(root, stylesheet), expected));
     });
 
+    etest::test("matching rules: custom properties", [] {
+        css::StyleSheet stylesheet{{
+                css::Rule{.selectors{"p"}, .custom_properties{{"--hello", "very yes"}}},
+                css::Rule{.selectors{"a"}, .custom_properties{{"--goodbye", "very no"}}},
+        }};
+
+        auto res = style::matching_properties({.node = dom::Element{"p"}}, stylesheet, {});
+        expect_eq(res.custom, std::vector{std::pair{"--hello"s, "very yes"s}});
+        expect(res.normal.empty());
+
+        res = style::matching_properties({.node = dom::Element{"a"}}, stylesheet, {});
+        expect_eq(res.custom, std::vector{std::pair{"--goodbye"s, "very no"s}});
+        expect(res.normal.empty());
+
+        res = style::matching_properties({.node = dom::Element{"div"}}, stylesheet, {});
+        expect(res.custom.empty());
+        expect(res.normal.empty());
+    });
+
     inline_css_tests();
     important_declarations_tests();
     return etest::run_all_tests();

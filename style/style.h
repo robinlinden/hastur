@@ -23,6 +23,7 @@ bool is_match(StyledNode const &, std::string_view selector);
 
 struct MatchingProperties {
     std::vector<std::pair<css::PropertyId, std::string>> normal;
+    std::vector<std::pair<std::string, std::string>> custom;
 };
 
 MatchingProperties matching_properties(StyledNode const &, css::StyleSheet const &, css::MediaQuery::Context const &);
