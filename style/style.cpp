@@ -149,9 +149,9 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
     return false;
 }
 
-std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
+std::vector<std::pair<css::PropertyId, std::string>> matching_properties(
         style::StyledNode const &node, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
-    std::vector<std::pair<css::PropertyId, std::string>> matched_rules;
+    std::vector<std::pair<css::PropertyId, std::string>> matched_properties;
 
     for (auto const &rule : stylesheet.rules) {
         if (rule.media_query.has_value() && !rule.media_query->evaluate(ctx)) {
@@ -159,7 +159,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         }
 
         if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(node, selector); })) {
-            std::ranges::copy(rule.declarations, std::back_inserter(matched_rules));
+            std::ranges::copy(rule.declarations, std::back_inserter(matched_properties));
         }
     }
 
@@ -172,7 +172,7 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
             // The above should always parse to 1 rule when using the old parser.
             assert(element_style.size() == 1);
             if (element_style.size() == 1) {
-                std::ranges::copy(element_style[0].declarations, std::back_inserter(matched_rules));
+                std::ranges::copy(element_style[0].declarations, std::back_inserter(matched_properties));
             }
         }
     }
@@ -185,11 +185,11 @@ std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
         }
 
         if (std::ranges::any_of(rule.selectors, [&](auto const &selector) { return is_match(node, selector); })) {
-            std::ranges::copy(rule.important_declarations, std::back_inserter(matched_rules));
+            std::ranges::copy(rule.important_declarations, std::back_inserter(matched_properties));
         }
     }
 
-    return matched_rules;
+    return matched_properties;
 }
 
 namespace {
@@ -211,7 +211,7 @@ void style_tree_impl(StyledNode &current,
         style_tree_impl(child_node, child, stylesheet, ctx);
     }
 
-    current.properties = matching_rules(current, stylesheet, ctx);
+    current.properties = matching_properties(current, stylesheet, ctx);
 }
 } // namespace
 

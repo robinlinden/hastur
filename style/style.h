@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,11 +21,11 @@ namespace style {
 
 bool is_match(StyledNode const &, std::string_view selector);
 
-std::vector<std::pair<css::PropertyId, std::string>> matching_rules(
-        StyledNode const &, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &);
+std::vector<std::pair<css::PropertyId, std::string>> matching_properties(
+        StyledNode const &, css::StyleSheet const &, css::MediaQuery::Context const &);
 
 std::unique_ptr<StyledNode> style_tree(
-        dom::Node const &root, css::StyleSheet const &stylesheet, css::MediaQuery::Context const & = {});
+        dom::Node const &root, css::StyleSheet const &, css::MediaQuery::Context const & = {});
 
 } // namespace style
 
