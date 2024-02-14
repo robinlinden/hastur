@@ -766,7 +766,7 @@ int main() {
 
         simdjson::ondemand::parser parser;
 
-        auto json = simdjson::padded_string::load("external/wpt/url/resources/urltestdata.json");
+        auto json = simdjson::padded_string::load("../wpt/url/resources/urltestdata.json");
 
         simdjson::ondemand::document doc = parser.iterate(json);
 

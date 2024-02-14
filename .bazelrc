@@ -14,6 +14,8 @@ test --test_verbose_timeout_warnings
 # =========================================================
 # See: https://docs.bazel.build/versions/main/backward-compatibility.html
 
+# https://github.com/bazelbuild/bazel/issues/12821
+common --nolegacy_external_runfiles
 build --incompatible_config_setting_private_default_visibility
 build --incompatible_disallow_empty_glob
 build --incompatible_enforce_config_setting_visibility
