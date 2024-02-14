@@ -215,6 +215,7 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           python3 -m http.server --bind localhost 12345 &
           bazel run browser:tui -c dbg http://localhost:12345/example.html
+      - run: bazel run browser -c dbg -- --exit-after-load http://localhost:12345/example.html
 
   windows-clang-cl:
     runs-on: windows-2022
@@ -236,6 +237,7 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           python3 -m http.server --bind localhost 12345 &
           bazel run browser:tui http://localhost:12345/example.html
+      - run: bazel run browser -- --exit-after-load http://localhost:12345/example.html
 
   pre-commit:
     runs-on: ubuntu-22.04
