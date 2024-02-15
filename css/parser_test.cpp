@@ -87,7 +87,7 @@ ValueT get_and_erase(
 }
 
 void text_decoration_tests() {
-    etest::test("parser: text-decoration, 1 value", [] {
+    etest::test("parser: text-decoration, line", [] {
         auto rules = css::parse("p { text-decoration: underline; }").rules;
         auto const &p = rules.at(0);
         expect_eq(p.declarations,
@@ -98,9 +98,46 @@ void text_decoration_tests() {
                 });
     });
 
-    // This will fail once we support CSS Level 3 text-decorations.
-    etest::test("parser: text-decoration, 2 values", [] {
+    etest::test("parser: text-decoration, line & style", [] {
         auto rules = css::parse("p { text-decoration: underline dotted; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextDecorationColor, "currentcolor"},
+                        {css::PropertyId::TextDecorationLine, "underline"},
+                        {css::PropertyId::TextDecorationStyle, "dotted"},
+                });
+    });
+
+    etest::test("parser: text-decoration, duplicate line", [] {
+        auto rules = css::parse("p { text-decoration: underline overline; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+
+    etest::test("parser: text-decoration, duplicate style", [] {
+        auto rules = css::parse("p { text-decoration: dotted dotted; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+
+    // This will fail once we support text-decoration-thickness.
+    etest::test("parser: text-decoration, line & thickness", [] {
+        auto rules = css::parse("p { text-decoration: underline 3px; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+
+    // This will fail once we support text-decoration-color.
+    etest::test("parser: text-decoration, line & color", [] {
+        auto rules = css::parse("p { text-decoration: overline blue; }").rules;
+        auto const &p = rules.at(0);
+        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+    });
+
+    // This will fail once we support global values.
+    etest::test("parser: text-decoration, global value", [] {
+        auto rules = css::parse("p { text-decoration: inherit; }").rules;
         auto const &p = rules.at(0);
         expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
     });

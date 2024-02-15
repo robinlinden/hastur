@@ -669,18 +669,28 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
 // https://drafts.csswg.org/css-text-decor/#text-decoration-property
 void Parser::expand_text_decoration_values(Declarations &declarations, std::string_view value) {
     Tokenizer tokenizer{value, ' '};
-    // TODO(robinlinden): CSS level 3 text-decorations.
-    if (tokenizer.size() != 1) {
-        spdlog::warn("Unsupported text-decoration value: '{}'", value);
-        return;
+    // TODO(robinlinden): global values, text-decoration-color, text-decoration-thickness.
+
+    static constexpr std::array kTextDecorationLineKeywords{"none", "underline", "overline", "line-through", "blink"};
+    static constexpr std::array kTextDecorationStyleKeywords{"solid", "double", "dotted", "dashed", "wavy"};
+
+    std::optional<std::string_view> line;
+    std::optional<std::string_view> style;
+
+    for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
+        if (is_in_array<kTextDecorationLineKeywords>(*v) && !line.has_value()) {
+            line = *v;
+        } else if (is_in_array<kTextDecorationStyleKeywords>(*v) && !style.has_value()) {
+            style = *v;
+        } else {
+            spdlog::warn("Unsupported text-decoration value: '{}'", value);
+            return;
+        }
     }
 
-    auto text_decoration = tokenizer.get();
-    assert(text_decoration.has_value());
-
     declarations.insert_or_assign(PropertyId::TextDecorationColor, "currentcolor");
-    declarations.insert_or_assign(PropertyId::TextDecorationLine, *text_decoration);
-    declarations.insert_or_assign(PropertyId::TextDecorationStyle, "solid");
+    declarations.insert_or_assign(PropertyId::TextDecorationLine, line.value_or("none"));
+    declarations.insert_or_assign(PropertyId::TextDecorationStyle, style.value_or("solid"));
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
