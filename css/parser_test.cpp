@@ -135,11 +135,15 @@ void text_decoration_tests() {
         expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
     });
 
-    // This will fail once we support global values.
     etest::test("parser: text-decoration, global value", [] {
         auto rules = css::parse("p { text-decoration: inherit; }").rules;
         auto const &p = rules.at(0);
-        expect_eq(p.declarations, std::map<css::PropertyId, std::string>{});
+        expect_eq(p.declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextDecorationColor, "inherit"},
+                        {css::PropertyId::TextDecorationLine, "inherit"},
+                        {css::PropertyId::TextDecorationStyle, "inherit"},
+                });
     });
 }
 

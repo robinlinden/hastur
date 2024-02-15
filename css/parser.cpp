@@ -67,6 +67,8 @@ constexpr auto kStretchKeywords = std::array{"ultra-condensed",
 
 constexpr std::string_view kDotAndDigits = ".0123456789";
 
+constexpr std::array kGlobalValues{"inherit", "initial", "revert", "revert-layer", "unset"};
+
 template<auto const &array>
 constexpr bool is_in_array(std::string_view str) {
     return std::ranges::find(array, str) != std::cend(array);
@@ -667,9 +669,15 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
 }
 
 // https://drafts.csswg.org/css-text-decor/#text-decoration-property
+// https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
 void Parser::expand_text_decoration_values(Declarations &declarations, std::string_view value) {
-    Tokenizer tokenizer{value, ' '};
-    // TODO(robinlinden): global values, text-decoration-color, text-decoration-thickness.
+    // TODO(robinlinden): text-decoration-color, text-decoration-thickness.
+    if (is_in_array<kGlobalValues>(value)) {
+        declarations.insert_or_assign(PropertyId::TextDecorationColor, value);
+        declarations.insert_or_assign(PropertyId::TextDecorationLine, value);
+        declarations.insert_or_assign(PropertyId::TextDecorationStyle, value);
+        return;
+    }
 
     static constexpr std::array kTextDecorationLineKeywords{"none", "underline", "overline", "line-through", "blink"};
     static constexpr std::array kTextDecorationStyleKeywords{"solid", "double", "dotted", "dashed", "wavy"};
@@ -677,6 +685,7 @@ void Parser::expand_text_decoration_values(Declarations &declarations, std::stri
     std::optional<std::string_view> line;
     std::optional<std::string_view> style;
 
+    Tokenizer tokenizer{value, ' '};
     for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
         if (is_in_array<kTextDecorationLineKeywords>(*v) && !line.has_value()) {
             line = *v;
@@ -695,8 +704,6 @@ void Parser::expand_text_decoration_values(Declarations &declarations, std::stri
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
 void Parser::expand_flex_flow(Declarations &declarations, std::string_view value) {
-    static constexpr std::array kGlobalValues{"inherit", "initial", "revert", "revert-layer", "unset"};
-
     auto is_wrap = [](std::string_view str) {
         return str == "wrap" || str == "nowrap" || str == "wrap-reverse";
     };
