@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -38,13 +38,15 @@
 #include <variant>
 #include <vector>
 
+using namespace std::literals;
+
 namespace url {
 // NOLINTBEGIN(misc-redundant-expression)
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
 
 namespace {
 // NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string, std::uint16_t> const special_schemes = {{"ftp", std::uint16_t{21}},
+std::map<std::string_view, std::uint16_t> const special_schemes = {{"ftp", std::uint16_t{21}},
         {"file", std::uint16_t{0}},
         {"http", std::uint16_t{80}},
         {"https", std::uint16_t{443}},
@@ -52,7 +54,7 @@ std::map<std::string, std::uint16_t> const special_schemes = {{"ftp", std::uint1
         {"wss", std::uint16_t{443}}};
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-std::map<ValidationError, std::string> const validation_error_str = {
+std::map<ValidationError, std::string_view> const validation_error_str = {
         {ValidationError::DomainToAscii, "Unicode ToASCII records an error or returns the empty string"},
         {ValidationError::DomainToUnicode, "Unicode ToUnicode records an error"},
         {ValidationError::DomainInvalidCodePoint, "The input's host contains a forbidden domain code point"},
@@ -1297,10 +1299,10 @@ std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_not_sp
         return std::nullopt;
     }
 
-    std::string forbidden = "\t\n\r #/:<>?@[\\]^|";
+    static constexpr auto kForbidden = "\t\n\r #/:<>?@[\\]^|"sv;
 
     for (std::size_t i = 0; i < ascii_domain->size(); i++) {
-        if (forbidden.find_first_of(ascii_domain.value()[i]) != std::string::npos || ascii_domain.value()[i] <= 0x1f
+        if (kForbidden.find_first_of(ascii_domain.value()[i]) != std::string::npos || ascii_domain.value()[i] <= 0x1f
                 || ascii_domain.value()[i] == '%' || ascii_domain.value()[i] == 0x7f) {
             validation_error(ValidationError::DomainInvalidCodePoint);
 
@@ -1646,10 +1648,10 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
 
 // https://url.spec.whatwg.org/#concept-opaque-host-parser
 std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) const {
-    std::string forbidden = "\t\n\r #/:<>?@[\\]^|";
+    static constexpr auto kForbidden = "\t\n\r #/:<>?@[\\]^|\0"sv;
 
     for (char i : input) {
-        if (forbidden.find_first_of(i) != std::string_view::npos || i == '\0') {
+        if (kForbidden.find_first_of(i) != std::string_view::npos) {
             validation_error(ValidationError::HostInvalidCodePoint);
 
             return std::nullopt;
