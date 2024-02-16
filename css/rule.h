@@ -9,6 +9,7 @@
 #include "css/media_query.h"
 #include "css/property_id.h"
 
+#include <functional>
 #include <map>
 #include <optional>
 #include <string>
@@ -20,7 +21,7 @@ struct Rule {
     std::vector<std::string> selectors;
     std::map<PropertyId, std::string> declarations;
     std::map<PropertyId, std::string> important_declarations;
-    std::map<std::string, std::string> custom_properties;
+    std::map<std::string, std::string, std::less<>> custom_properties;
     std::optional<MediaQuery> media_query;
     [[nodiscard]] bool operator==(Rule const &) const = default;
 };

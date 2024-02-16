@@ -419,7 +419,7 @@ std::optional<css::Rule> Parser::parse_rule() {
 
         auto [name, value] = *decl;
         if (name.starts_with("--")) {
-            rule.custom_properties.insert_or_assign(std::string{name}, std::string{value});
+            rule.custom_properties.insert_or_assign(std::string{name}, value);
         } else if (value.ends_with("!important")) {
             value.remove_suffix(std::strlen("!important"));
             add_declaration(rule.important_declarations, name, util::trim(value));
@@ -711,8 +711,8 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
         return str == "row" || str == "row-reverse" || str == "column" || str == "column-reverse";
     };
 
-    std::string direction{"row"};
-    std::string wrap{"nowrap"};
+    std::string_view direction{"row"};
+    std::string_view wrap{"nowrap"};
 
     Tokenizer tokenizer{value, ' '};
     if (tokenizer.size() != 1 && tokenizer.size() != 2) {
@@ -725,8 +725,8 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
     // Global values are only allowed if there's a single value.
     if (first && !second && is_in_array<kGlobalValues>(*first)) {
         wrap = direction = *first;
-        declarations.insert_or_assign(PropertyId::FlexDirection, std::move(direction));
-        declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
+        declarations.insert_or_assign(PropertyId::FlexDirection, direction);
+        declarations.insert_or_assign(PropertyId::FlexWrap, wrap);
         return;
     }
 
@@ -752,15 +752,15 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
         }
     }
 
-    declarations.insert_or_assign(PropertyId::FlexDirection, std::move(direction));
-    declarations.insert_or_assign(PropertyId::FlexWrap, std::move(wrap));
+    declarations.insert_or_assign(PropertyId::FlexDirection, direction);
+    declarations.insert_or_assign(PropertyId::FlexWrap, wrap);
 }
 
 void Parser::expand_edge_values(Declarations &declarations, std::string_view property, std::string_view value) {
     std::string_view top;
-    std::string bottom;
-    std::string left;
-    std::string right;
+    std::string_view bottom;
+    std::string_view left;
+    std::string_view right;
     Tokenizer tokenizer(value, ' ');
     switch (tokenizer.size()) {
         case 1: {
@@ -815,14 +815,10 @@ void Parser::expand_edge_values(Declarations &declarations, std::string_view pro
         post_fix = "-color";
     }
 
-    declarations.insert_or_assign(
-            property_id_from_string(fmt::format("{}-top{}", property, post_fix)), std::string{top});
-    declarations.insert_or_assign(
-            property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)), std::string{bottom});
-    declarations.insert_or_assign(
-            property_id_from_string(fmt::format("{}-left{}", property, post_fix)), std::string{left});
-    declarations.insert_or_assign(
-            property_id_from_string(fmt::format("{}-right{}", property, post_fix)), std::string{right});
+    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-top{}", property, post_fix)), top);
+    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)), bottom);
+    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-left{}", property, post_fix)), left);
+    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-right{}", property, post_fix)), right);
 }
 
 void Parser::expand_font(Declarations &declarations, std::string_view value) {
@@ -831,7 +827,7 @@ void Parser::expand_font(Declarations &declarations, std::string_view value) {
         // TODO(mkiael): Handle system properties correctly. Just forward it for now.
         auto system_property = tokenizer.get();
         assert(system_property.has_value());
-        declarations.insert_or_assign(PropertyId::FontFamily, std::string{*system_property});
+        declarations.insert_or_assign(PropertyId::FontFamily, *system_property);
         return;
     }
 
@@ -867,11 +863,11 @@ void Parser::expand_font(Declarations &declarations, std::string_view value) {
     }
 
     declarations.insert_or_assign(PropertyId::FontStyle, font_style);
-    declarations.insert_or_assign(PropertyId::FontVariant, std::string{font_variant});
-    declarations.insert_or_assign(PropertyId::FontWeight, std::string{font_weight});
-    declarations.insert_or_assign(PropertyId::FontStretch, std::string{font_stretch});
-    declarations.insert_or_assign(PropertyId::FontSize, std::string{font_size});
-    declarations.insert_or_assign(PropertyId::LineHeight, std::string{line_height});
+    declarations.insert_or_assign(PropertyId::FontVariant, font_variant);
+    declarations.insert_or_assign(PropertyId::FontWeight, font_weight);
+    declarations.insert_or_assign(PropertyId::FontStretch, font_stretch);
+    declarations.insert_or_assign(PropertyId::FontSize, font_size);
+    declarations.insert_or_assign(PropertyId::LineHeight, line_height);
     declarations.insert_or_assign(PropertyId::FontFamily, font_family);
 
     // Reset all values that can't be specified in shorthand
