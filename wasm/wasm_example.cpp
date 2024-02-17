@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -12,6 +12,7 @@
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 namespace wasm {
 std::ostream &operator<<(std::ostream &, wasm::ValueType);
@@ -59,7 +60,8 @@ int main(int argc, char **argv) {
 
     auto module = wasm::Module::parse_from(fs);
     if (!module) {
-        std::cerr << "Unable to parse " << argv[1] << " as a wasm module\n";
+        std::cerr << "Unable to parse " << argv[1] << " as a wasm module: "
+                  << static_cast<std::underlying_type_t<wasm::ModuleParseError>>(module.error()) << '\n';
         return 1;
     }
 
