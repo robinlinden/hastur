@@ -19,30 +19,6 @@ namespace wasm {
 using TypeIdx = std::uint32_t;
 using FuncIdx = std::uint32_t;
 
-// https://webassembly.github.io/spec/core/binary/modules.html#sections
-enum class SectionId {
-    Custom = 0,
-    Type = 1,
-    Import = 2,
-    Function = 3,
-    Table = 4,
-    Memory = 5,
-    Global = 6,
-    Export = 7,
-    Start = 8,
-    Element = 9,
-    Code = 10,
-    Data = 11,
-    DataCount = 12,
-};
-
-struct Section {
-    SectionId id{};
-    std::vector<std::uint8_t> content{};
-
-    [[nodiscard]] bool operator==(Section const &) const = default;
-};
-
 // https://webassembly.github.io/spec/core/syntax/types.html
 struct ValueType {
     enum Kind : std::uint8_t {
@@ -169,6 +145,13 @@ enum class ModuleParseError {
     UnsupportedVersion,
     InvalidSectionId,
     InvalidSize,
+    InvalidTypeSection,
+    InvalidFunctionSection,
+    InvalidTableSection,
+    InvalidExportSection,
+    InvalidStartSection,
+    InvalidCodeSection,
+    UnhandledSection,
 };
 
 // https://webassembly.github.io/spec/core/syntax/modules.html
@@ -176,19 +159,17 @@ struct Module {
     static tl::expected<Module, ModuleParseError> parse_from(std::istream &&is) { return parse_from(is); }
     static tl::expected<Module, ModuleParseError> parse_from(std::istream &);
 
-    std::vector<Section> sections{};
-
     // TODO(robinlinden): custom_sections
-    std::optional<TypeSection> type_section() const;
+    std::optional<TypeSection> type_section{};
     // TODO(robinlinden): import_section
-    std::optional<FunctionSection> function_section() const;
-    std::optional<TableSection> table_section() const;
+    std::optional<FunctionSection> function_section{};
+    std::optional<TableSection> table_section{};
     // TODO(robinlinden): memory_section
     // TODO(robinlinden): global_section
-    std::optional<ExportSection> export_section() const;
-    std::optional<StartSection> start_section() const;
+    std::optional<ExportSection> export_section{};
+    std::optional<StartSection> start_section{};
     // TODO(robinlinden): element_section
-    std::optional<CodeSection> code_section() const;
+    std::optional<CodeSection> code_section{};
     // TODO(robinlinden): data_section
     // TODO(robinlinden): data_count_section
 

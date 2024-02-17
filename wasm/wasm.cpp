@@ -13,7 +13,6 @@
 #include <cstdint>
 #include <istream>
 #include <optional>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -192,13 +191,52 @@ std::optional<std::vector<T>> parse_vector(std::istream &&is) {
     return parse_vector<T>(is);
 }
 
-std::optional<std::string> get_section_data(std::vector<Section> const &sections, SectionId id) {
-    auto section = std::ranges::find_if(sections, [&](auto const &s) { return s.id == id; });
-    if (section == end(sections)) {
-        return std::nullopt;
+std::optional<TypeSection> parse_type_section(std::istream &is) {
+    if (auto maybe_types = parse_vector<FunctionType>(is)) {
+        return TypeSection{.types = *std::move(maybe_types)};
     }
 
-    return std::string{reinterpret_cast<char const *>(section->content.data()), section->content.size()};
+    return std::nullopt;
+}
+
+std::optional<FunctionSection> parse_function_section(std::istream &is) {
+    if (auto maybe_type_indices = parse_vector<TypeIdx>(is)) {
+        return FunctionSection{.type_indices = *std::move(maybe_type_indices)};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<TableSection> parse_table_section(std::istream &is) {
+    if (auto maybe_tables = parse_vector<TableType>(is)) {
+        return TableSection{*std::move(maybe_tables)};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<ExportSection> parse_export_section(std::istream &is) {
+    if (auto maybe_exports = parse_vector<Export>(is)) {
+        return ExportSection{.exports = std::move(maybe_exports).value()};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<StartSection> parse_start_section(std::istream &is) {
+    if (auto maybe_start = parse<FuncIdx>(is)) {
+        return StartSection{.start = *maybe_start};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<CodeSection> parse_code_section(std::istream &is) {
+    if (auto code_entries = parse_vector<CodeEntry>(is)) {
+        return CodeSection{.entries = *std::move(code_entries)};
+    }
+
+    return std::nullopt;
 }
 
 } // namespace
@@ -228,85 +266,6 @@ std::optional<ValueType> ValueType::parse(std::istream &is) {
         default:
             return std::nullopt;
     }
-}
-
-tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
-    std::string buf;
-
-    // https://webassembly.github.io/spec/core/binary/modules.html#binary-magic
-    buf.resize(kMagicSize);
-    is.read(buf.data(), buf.size());
-    if (!is || buf != "\0asm"sv) {
-        return tl::unexpected{ModuleParseError::InvalidMagic};
-    }
-
-    // https://webassembly.github.io/spec/core/binary/modules.html#binary-version
-    buf.resize(kVersionSize);
-    is.read(buf.data(), buf.size());
-    if (!is || buf != "\1\0\0\0"sv) {
-        return tl::unexpected{ModuleParseError::UnsupportedVersion};
-    }
-
-    Module module;
-
-    // https://webassembly.github.io/spec/core/binary/modules.html#sections
-    while (true) {
-        std::uint8_t id{};
-        is.read(reinterpret_cast<char *>(&id), sizeof(id));
-        if (!is) {
-            // We've read 0 or more complete modules, so we're done.
-            break;
-        }
-
-        if (id < static_cast<int>(SectionId::Custom) || id > static_cast<int>(SectionId::DataCount)) {
-            return tl::unexpected{ModuleParseError::InvalidSectionId};
-        }
-
-        auto size = Leb128<std::uint32_t>::decode_from(is);
-        if (!size) {
-            if (size.error() == Leb128ParseError::UnexpectedEof) {
-                return tl::unexpected{ModuleParseError::UnexpectedEof};
-            }
-            return tl::unexpected{ModuleParseError::InvalidSize};
-        }
-
-        std::vector<std::uint8_t> content;
-        content.resize(*size);
-        is.read(reinterpret_cast<char *>(content.data()), *size);
-        if (!is) {
-            return tl::unexpected{ModuleParseError::UnexpectedEof};
-        }
-
-        module.sections.push_back(Section{static_cast<SectionId>(id), std::move(content)});
-    }
-
-    return module;
-}
-
-std::optional<TypeSection> Module::type_section() const {
-    auto content = get_section_data(sections, SectionId::Type);
-    if (!content) {
-        return std::nullopt;
-    }
-
-    if (auto maybe_types = parse_vector<FunctionType>(std::stringstream{*std::move(content)})) {
-        return TypeSection{.types = *std::move(maybe_types)};
-    }
-
-    return std::nullopt;
-}
-
-std::optional<FunctionSection> Module::function_section() const {
-    auto content = get_section_data(sections, SectionId::Function);
-    if (!content) {
-        return std::nullopt;
-    }
-
-    if (auto maybe_type_indices = parse_vector<TypeIdx>(std::stringstream{*std::move(content)})) {
-        return FunctionSection{.type_indices = *std::move(maybe_type_indices)};
-    }
-
-    return std::nullopt;
 }
 
 std::optional<Limits> Limits::parse(std::istream &is) {
@@ -348,56 +307,110 @@ std::optional<TableType> TableType::parse(std::istream &is) {
     return TableType{.element_type = *element_type, .limits = *limits};
 }
 
-std::optional<TableSection> Module::table_section() const {
-    auto content = get_section_data(sections, SectionId::Table);
-    if (!content) {
-        return std::nullopt;
+tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
+    // https://webassembly.github.io/spec/core/binary/modules.html#sections
+    enum class SectionId {
+        Custom = 0,
+        Type = 1,
+        Import = 2,
+        Function = 3,
+        Table = 4,
+        Memory = 5,
+        Global = 6,
+        Export = 7,
+        Start = 8,
+        Element = 9,
+        Code = 10,
+        Data = 11,
+        DataCount = 12,
+    };
+
+    std::string buf;
+
+    // https://webassembly.github.io/spec/core/binary/modules.html#binary-magic
+    buf.resize(kMagicSize);
+    is.read(buf.data(), buf.size());
+    if (!is || buf != "\0asm"sv) {
+        return tl::unexpected{ModuleParseError::InvalidMagic};
     }
 
-    if (auto maybe_tables = parse_vector<TableType>(std::stringstream{*std::move(content)})) {
-        return TableSection{*std::move(maybe_tables)};
+    // https://webassembly.github.io/spec/core/binary/modules.html#binary-version
+    buf.resize(kVersionSize);
+    is.read(buf.data(), buf.size());
+    if (!is || buf != "\1\0\0\0"sv) {
+        return tl::unexpected{ModuleParseError::UnsupportedVersion};
     }
 
-    return std::nullopt;
-}
+    Module module;
 
-std::optional<ExportSection> Module::export_section() const {
-    auto content = get_section_data(sections, SectionId::Export);
-    if (!content) {
-        return std::nullopt;
+    // https://webassembly.github.io/spec/core/binary/modules.html#sections
+    while (true) {
+        std::uint8_t id_byte{};
+        is.read(reinterpret_cast<char *>(&id_byte), sizeof(id_byte));
+        if (!is) {
+            // We've read 0 or more complete modules, so we're done.
+            break;
+        }
+
+        if (id_byte < static_cast<int>(SectionId::Custom) || id_byte > static_cast<int>(SectionId::DataCount)) {
+            return tl::unexpected{ModuleParseError::InvalidSectionId};
+        }
+
+        auto size = Leb128<std::uint32_t>::decode_from(is);
+        if (!size) {
+            if (size.error() == Leb128ParseError::UnexpectedEof) {
+                return tl::unexpected{ModuleParseError::UnexpectedEof};
+            }
+            return tl::unexpected{ModuleParseError::InvalidSize};
+        }
+
+        auto id = static_cast<SectionId>(id_byte);
+        switch (id) {
+            case SectionId::Type:
+                module.type_section = parse_type_section(is);
+                if (!module.type_section) {
+                    return tl::unexpected{ModuleParseError::InvalidTypeSection};
+                }
+                break;
+            case SectionId::Function:
+                module.function_section = parse_function_section(is);
+                if (!module.function_section) {
+                    return tl::unexpected{ModuleParseError::InvalidFunctionSection};
+                }
+                break;
+            case SectionId::Table:
+                module.table_section = parse_table_section(is);
+                if (!module.table_section) {
+                    return tl::unexpected{ModuleParseError::InvalidTableSection};
+                }
+                break;
+            case SectionId::Export:
+                module.export_section = parse_export_section(is);
+                if (!module.export_section) {
+                    return tl::unexpected{ModuleParseError::InvalidExportSection};
+                }
+                break;
+            case SectionId::Start:
+                module.start_section = parse_start_section(is);
+                if (!module.start_section) {
+                    return tl::unexpected{ModuleParseError::InvalidStartSection};
+                }
+                break;
+            case SectionId::Code:
+                module.code_section = parse_code_section(is);
+                if (!module.code_section) {
+                    return tl::unexpected{ModuleParseError::InvalidCodeSection};
+                }
+                break;
+            default:
+                // Uncomment if you want to skip past unhandled sections for e.g. debugging.
+                // is.seekg(*size, std::ios::cur);
+                // break;
+                return tl::unexpected{ModuleParseError::UnhandledSection};
+        }
     }
 
-    if (auto maybe_exports = parse_vector<Export>(std::stringstream{*std::move(content)})) {
-        return ExportSection{.exports = std::move(maybe_exports).value()};
-    }
-
-    return std::nullopt;
-}
-
-std::optional<StartSection> Module::start_section() const {
-    auto content = get_section_data(sections, SectionId::Start);
-    if (!content) {
-        return std::nullopt;
-    }
-
-    if (auto maybe_start = parse<FuncIdx>(std::stringstream(std::move(*content)))) {
-        return StartSection{.start = *maybe_start};
-    }
-
-    return std::nullopt;
-}
-
-std::optional<CodeSection> Module::code_section() const {
-    auto content = get_section_data(sections, SectionId::Code);
-    if (!content) {
-        return std::nullopt;
-    }
-
-    if (auto code_entries = parse_vector<CodeEntry>(std::stringstream{*std::move(content)})) {
-        return CodeSection{.entries = *std::move(code_entries)};
-    }
-
-    return std::nullopt;
+    return module;
 }
 
 } // namespace wasm

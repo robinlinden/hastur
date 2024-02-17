@@ -65,17 +65,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (module->sections.empty()) {
-        std::cout << "No sections in module\n";
-        return 0;
-    }
-
-    std::cout << "# Sections\n";
-    for (auto const &section : module->sections) {
-        std::cout << static_cast<int>(section.id) << ": " << section.content.size() << '\n';
-    }
-
-    if (auto const &type_section = module->type_section()) {
+    if (auto const &type_section = module->type_section) {
         std::cout << "\n# Types\n";
         // Prints a list of wasm::ValueType separated by commas.
         // https://en.cppreference.com/w/cpp/experimental/ostream_joiner soon, I hope.
@@ -95,21 +85,21 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (auto const &function_section = module->function_section()) {
+    if (auto const &function_section = module->function_section) {
         std::cout << "\n# Function idx -> type idx\n";
         for (std::size_t i = 0; i < function_section->type_indices.size(); ++i) {
             std::cout << i << " -> " << function_section->type_indices[i] << '\n';
         }
     }
 
-    if (auto const &export_section = module->export_section()) {
+    if (auto const &export_section = module->export_section) {
         std::cout << "\n# Exports\n";
         for (auto const &e : export_section->exports) {
             std::cout << e.name << ": " << static_cast<int>(e.type) << ':' << e.index << '\n';
         }
     }
 
-    if (auto const &s = module->code_section()) {
+    if (auto const &s = module->code_section) {
         std::cout << "\n# Code\n";
         for (auto const &e : s->entries) {
             std::cout << e.code.size() << "B code, " << e.locals.size() << " locals";
