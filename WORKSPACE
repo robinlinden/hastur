@@ -139,15 +139,15 @@ local_repository(
 http_archive(
     name = "icu",  # Unicode-DFS-2016
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-ykZL+nO8AOvbhQVGUU0B86mDFZ/aD3aC/2v0095WhEw=",
+    integrity = "sha256-J7hlCpTfb5Rcs7aGvjvjIMKjLt8+zimBZyv5i7O6qeE=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
         "rm source/tools/toolutil/BUILD.bazel",
         "rm source/i18n/BUILD.bazel",
     ],
-    strip_prefix = "icu-release-74-1/icu4c",
-    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-74-1.tar.gz",
+    strip_prefix = "icu-release-74-2/icu4c",
+    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-74-2.tar.gz",
 )
 
 # https://github.com/ocornut/imgui
