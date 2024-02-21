@@ -103,6 +103,8 @@ build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
 
 # See: https://github.com/uber/hermetic_cc_toolchain/issues/134
 build:zig-cross --sandbox_add_mount_pair=/tmp
+# build:zig-cross --sandbox_add_mount_pair=/var/tmp  # macOS
+# build:zig-cross --sandbox_add_mount_pair=C:\Temp  # Windows
 build:zig-cross --dynamic_mode=off
 # TODO(robinlinden): Make this transitive so we can tag the no-cross targets
 #                    instead of everything depending on no-cross targets.

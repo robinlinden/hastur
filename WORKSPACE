@@ -6,8 +6,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # https://github.com/bazelbuild/apple_support
 http_archive(
     name = "build_bazel_apple_support",
-    sha256 = "cf4d63f39c7ba9059f70e995bf5fe1019267d3f77379c2028561a5d7645ef67c",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/1.11.1/apple_support.1.11.1.tar.gz",
+    integrity = "sha256-HEAx5ytFagSNgXf1mlWBgIwHWF+p4lXG9f77h1KvfkA=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.13.0/apple_support.1.13.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/platforms
@@ -37,9 +37,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-1x0sZ+C86YbhxadzG0aTImhnxFv+C3xeAGciilNvxYA=",
-    strip_prefix = "rules_python-0.29.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.29.0/rules_python-0.29.0.tar.gz",
+    integrity = "sha256-xovcT77CXeW1STuIGc/Id8TqKZwNyxXCRMWgAgjN4xE=",
+    strip_prefix = "rules_python-0.31.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.31.0/rules_python-0.31.0.tar.gz",
 )
 
 # Third-party Bazel
@@ -48,8 +48,8 @@ http_archive(
 # https://github.com/uber/hermetic_cc_toolchain
 http_archive(
     name = "hermetic_cc_toolchain",
-    integrity = "sha256-O4EH3g0Bf+MuZDQIapVo+XxgoRG0ncNPxwAeE5ww/eo=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.2.1/hermetic_cc_toolchain-v2.2.1.tar.gz",
+    integrity = "sha256-/gC9Em5XpMP+xO+mIL8HTj0fH71wt1ETylagENenDZM=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.0.0/hermetic_cc_toolchain-v3.0.0.tar.gz",
 )
 
 # Misc tools
@@ -154,9 +154,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-IdzJhbsq6P5IBHyGE128Q41pgKjy4IurvaW+ggWS8oI=",
-    strip_prefix = "imgui-1.90.1",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.1.tar.gz",
+    integrity = "sha256-QLMC0BCSyTkzc7Ny/gfqM6xp6UkYk+urO/lSssH1/SM=",
+    strip_prefix = "imgui-1.90.3",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.3.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -248,13 +248,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.277"
+VULKAN_TAG = "1.3.278"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-M+DAAPHpqAGeS4YQbWK2QTMxShP+9xI5DB8FY/SSBhQ=",
+    integrity = "sha256-WQzQUGvnWZctDHFFUMSbuQocycnlM3oQckvKbN/Vbb4=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -263,7 +263,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-pLlr+7FuIJM4xmgGfAmeueIiJmRhYr9N+sPRMHquUkk=",
+    integrity = "sha256-KOn9u3hiwjbVBT7R8tZ3tmVRpH427ZvAtk8NLWA0F48=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -354,7 +354,7 @@ python_register_toolchains(
     name = "python_3_12",
     # Running the build as root works, but leads to cache-misses for .pyc files.
     ignore_root_user_error = True,
-    python_version = "3.12.0",
+    python_version = "3.12.1",
 )
 
 load("@python_3_12//:defs.bzl", "interpreter")
