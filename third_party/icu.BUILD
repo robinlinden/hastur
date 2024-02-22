@@ -90,6 +90,11 @@ cc_library(
         "//conditions:default": [
             "-frtti",
         ],
+    }) + select({
+        "@rules_cc//cc/compiler:clang-cl": [
+            "-Wno-microsoft-include",
+        ],
+        "//conditions:default": [],
     }),
     linkstatic = True,
     local_defines = [
