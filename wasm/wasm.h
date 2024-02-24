@@ -95,6 +95,16 @@ struct TableSection {
     [[nodiscard]] bool operator==(TableSection const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/types.html#memory-types
+using MemType = Limits;
+
+// https://webassembly.github.io/spec/core/binary/modules.html#memory-section
+struct MemorySection {
+    std::vector<MemType> memories{};
+
+    [[nodiscard]] bool operator==(MemorySection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-export
 struct Export {
     enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
@@ -148,6 +158,7 @@ enum class ModuleParseError {
     InvalidTypeSection,
     InvalidFunctionSection,
     InvalidTableSection,
+    InvalidMemorySection,
     InvalidExportSection,
     InvalidStartSection,
     InvalidCodeSection,
@@ -164,7 +175,7 @@ struct Module {
     // TODO(robinlinden): import_section
     std::optional<FunctionSection> function_section{};
     std::optional<TableSection> table_section{};
-    // TODO(robinlinden): memory_section
+    std::optional<MemorySection> memory_section{};
     // TODO(robinlinden): global_section
     std::optional<ExportSection> export_section{};
     std::optional<StartSection> start_section{};

@@ -218,6 +218,63 @@ void table_section_tests() {
     });
 }
 
+void memory_section_tests() {
+    etest::test("memory section, missing data", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+    });
+
+    etest::test("memory section, empty", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {0})).value();
+        expect_eq(module.memory_section, wasm::MemorySection{});
+    });
+
+    etest::test("memory section, missing limits", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {1}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+    });
+
+    etest::test("memory section, invalid has_max in limits", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {1, 4}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+    });
+
+    etest::test("memory section, missing min in limits", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {1, 0}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+    });
+
+    etest::test("memory section, only min", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {1, 0, 42})).value();
+        expect_eq(module.memory_section,
+                wasm::MemorySection{.memories{
+                        wasm::MemType{.min = 42},
+                }});
+    });
+
+    etest::test("memory section, missing max in limits", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {1, 1, 42}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+    });
+
+    etest::test("memory section, min and max", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {1, 1, 42, 42})).value();
+        expect_eq(module.memory_section,
+                wasm::MemorySection{.memories{
+                        wasm::Limits{.min = 42, .max = 42},
+                }});
+    });
+
+    etest::test("memory section, two memories", [] {
+        auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Memory, {2, 1, 4, 51, 1, 19, 84})).value();
+        expect_eq(module.memory_section,
+                wasm::MemorySection{.memories{
+                        wasm::Limits{.min = 4, .max = 51},
+                        wasm::Limits{.min = 19, .max = 84},
+                }});
+    });
+}
+
 void type_section_tests() {
     etest::test("type section, missing type data", [] {
         auto module = wasm::Module::parse_from(make_module_bytes(SectionId::Type, {}));
@@ -412,6 +469,7 @@ int main() {
     type_section_tests();
     function_section_tests();
     table_section_tests();
+    memory_section_tests();
     export_section_tests();
     start_section_tests();
     code_section_tests();

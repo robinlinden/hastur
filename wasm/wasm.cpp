@@ -50,6 +50,11 @@ std::optional<ValueType> parse(std::istream &is) {
     return ValueType::parse(is);
 }
 
+template<>
+std::optional<Limits> parse(std::istream &is) {
+    return Limits::parse(is);
+}
+
 // https://webassembly.github.io/spec/core/binary/types.html#function-types
 template<>
 std::optional<FunctionType> parse(std::istream &is) {
@@ -211,6 +216,14 @@ std::optional<FunctionSection> parse_function_section(std::istream &is) {
 std::optional<TableSection> parse_table_section(std::istream &is) {
     if (auto maybe_tables = parse_vector<TableType>(is)) {
         return TableSection{*std::move(maybe_tables)};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<MemorySection> parse_memory_section(std::istream &is) {
+    if (auto maybe_memories = parse_vector<MemType>(is)) {
+        return MemorySection{*std::move(maybe_memories)};
     }
 
     return std::nullopt;
@@ -383,6 +396,12 @@ tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
                 module.table_section = parse_table_section(is);
                 if (!module.table_section) {
                     return tl::unexpected{ModuleParseError::InvalidTableSection};
+                }
+                break;
+            case SectionId::Memory:
+                module.memory_section = parse_memory_section(is);
+                if (!module.memory_section) {
+                    return tl::unexpected{ModuleParseError::InvalidMemorySection};
                 }
                 break;
             case SectionId::Export:
