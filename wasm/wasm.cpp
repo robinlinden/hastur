@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <iostream>
 #include <istream>
 #include <optional>
 #include <string>
@@ -403,6 +404,7 @@ tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
                 }
                 break;
             default:
+                std::cerr << "Unhandled section: " << static_cast<int>(id) << '\n';
                 // Uncomment if you want to skip past unhandled sections for e.g. debugging.
                 // is.seekg(*size, std::ios::cur);
                 // break;
