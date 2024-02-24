@@ -6,12 +6,9 @@
 #define WASM_WASM_H_
 
 #include <cstdint>
-#include <iosfwd>
 #include <optional>
 #include <string>
 #include <vector>
-
-#include <tl/expected.hpp>
 
 namespace wasm {
 
@@ -35,8 +32,6 @@ struct ValueType {
         FunctionReference,
         ExternReference,
     };
-
-    static std::optional<ValueType> parse(std::istream &);
 
     Kind kind{};
 
@@ -70,8 +65,6 @@ struct FunctionSection {
 
 // https://webassembly.github.io/spec/core/binary/types.html#limits
 struct Limits {
-    static std::optional<Limits> parse(std::istream &);
-
     std::uint32_t min{};
     std::optional<std::uint32_t> max{};
 
@@ -80,8 +73,6 @@ struct Limits {
 
 // https://webassembly.github.io/spec/core/binary/types.html#table-types
 struct TableType {
-    static std::optional<TableType> parse(std::istream &);
-
     ValueType element_type{};
     Limits limits{};
 
@@ -149,27 +140,8 @@ struct CodeSection {
     [[nodiscard]] bool operator==(CodeSection const &) const = default;
 };
 
-enum class ModuleParseError {
-    UnexpectedEof,
-    InvalidMagic,
-    UnsupportedVersion,
-    InvalidSectionId,
-    InvalidSize,
-    InvalidTypeSection,
-    InvalidFunctionSection,
-    InvalidTableSection,
-    InvalidMemorySection,
-    InvalidExportSection,
-    InvalidStartSection,
-    InvalidCodeSection,
-    UnhandledSection,
-};
-
 // https://webassembly.github.io/spec/core/syntax/modules.html
 struct Module {
-    static tl::expected<Module, ModuleParseError> parse_from(std::istream &&is) { return parse_from(is); }
-    static tl::expected<Module, ModuleParseError> parse_from(std::istream &);
-
     // TODO(robinlinden): custom_sections
     std::optional<TypeSection> type_section{};
     // TODO(robinlinden): import_section

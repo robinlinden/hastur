@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "wasm/instructions.h"
 
+#include "wasm/byte_code_parser.h"
 #include "wasm/leb128.h"
-#include "wasm/wasm.h"
 
 #include <cstdint>
 #include <iomanip>
@@ -44,7 +44,7 @@ std::optional<BlockType> BlockType::parse(std::istream &is) {
     }
 
     std::stringstream ss{std::string{static_cast<char>(type)}};
-    auto value_type = ValueType::parse(ss);
+    auto value_type = ByteCodeParser::parse_value_type(ss);
     if (value_type) {
         return BlockType{{*std::move(value_type)}};
     }

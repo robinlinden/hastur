@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "wasm/byte_code_parser.h"
 #include "wasm/instructions.h"
 #include "wasm/wasm.h"
 
@@ -58,7 +59,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    auto module = wasm::Module::parse_from(fs);
+    auto module = wasm::ByteCodeParser::parse_module(fs);
     if (!module) {
         std::cerr << "Unable to parse " << argv[1] << " as a wasm module: "
                   << static_cast<std::underlying_type_t<wasm::ModuleParseError>>(module.error()) << '\n';

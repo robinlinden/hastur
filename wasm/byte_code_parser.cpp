@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "wasm/wasm.h"
+#include "wasm/byte_code_parser.h"
 
 #include "wasm/leb128.h"
+#include "wasm/wasm.h"
 
 #include <tl/expected.hpp>
 
@@ -45,14 +46,56 @@ std::optional<std::uint32_t> parse(std::istream &is) {
     return v ? std::optional{*v} : std::nullopt;
 }
 
+// https://webassembly.github.io/spec/core/binary/types.html
 template<>
 std::optional<ValueType> parse(std::istream &is) {
-    return ValueType::parse(is);
+    std::uint8_t byte{};
+    if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
+        return std::nullopt;
+    }
+
+    switch (byte) {
+        case 0x7f:
+            return ValueType{ValueType::Kind::Int32};
+        case 0x7e:
+            return ValueType{ValueType::Kind::Int64};
+        case 0x7d:
+            return ValueType{ValueType::Kind::Float32};
+        case 0x7c:
+            return ValueType{ValueType::Kind::Float64};
+        case 0x7b:
+            return ValueType{ValueType::Kind::Vector128};
+        case 0x70:
+            return ValueType{ValueType::Kind::FunctionReference};
+        case 0x6f:
+            return ValueType{ValueType::Kind::ExternReference};
+        default:
+            return std::nullopt;
+    }
 }
 
 template<>
 std::optional<Limits> parse(std::istream &is) {
-    return Limits::parse(is);
+    std::uint8_t has_max{};
+    if (!is.read(reinterpret_cast<char *>(&has_max), sizeof(has_max)) || has_max > 1) {
+        return std::nullopt;
+    }
+
+    auto min = Leb128<std::uint32_t>::decode_from(is);
+    if (!min) {
+        return std::nullopt;
+    }
+
+    if (has_max == 0) {
+        return Limits{.min = *min};
+    }
+
+    auto max = Leb128<std::uint32_t>::decode_from(is);
+    if (!max) {
+        return std::nullopt;
+    }
+
+    return Limits{.min = *min, .max = *max};
 }
 
 // https://webassembly.github.io/spec/core/binary/types.html#function-types
@@ -81,7 +124,19 @@ std::optional<FunctionType> parse(std::istream &is) {
 
 template<>
 std::optional<TableType> parse(std::istream &is) {
-    return TableType::parse(is);
+    auto element_type = parse<ValueType>(is);
+    if (!element_type
+            || (element_type->kind != ValueType::Kind::FunctionReference
+                    && element_type->kind != ValueType::Kind::ExternReference)) {
+        return std::nullopt;
+    }
+
+    auto limits = parse<Limits>(is);
+    if (!limits) {
+        return std::nullopt;
+    }
+
+    return TableType{.element_type = *element_type, .limits = *limits};
 }
 
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-exportsec
@@ -129,7 +184,7 @@ std::optional<CodeEntry::Local> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    auto type = ValueType::parse(is);
+    auto type = parse<ValueType>(is);
     if (!type) {
         return std::nullopt;
     }
@@ -255,73 +310,7 @@ std::optional<CodeSection> parse_code_section(std::istream &is) {
 
 } // namespace
 
-// https://webassembly.github.io/spec/core/binary/types.html
-std::optional<ValueType> ValueType::parse(std::istream &is) {
-    std::uint8_t byte{};
-    if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
-        return std::nullopt;
-    }
-
-    switch (byte) {
-        case 0x7f:
-            return ValueType{Kind::Int32};
-        case 0x7e:
-            return ValueType{Kind::Int64};
-        case 0x7d:
-            return ValueType{Kind::Float32};
-        case 0x7c:
-            return ValueType{Kind::Float64};
-        case 0x7b:
-            return ValueType{Kind::Vector128};
-        case 0x70:
-            return ValueType{Kind::FunctionReference};
-        case 0x6f:
-            return ValueType{Kind::ExternReference};
-        default:
-            return std::nullopt;
-    }
-}
-
-std::optional<Limits> Limits::parse(std::istream &is) {
-    std::uint8_t has_max{};
-    if (!is.read(reinterpret_cast<char *>(&has_max), sizeof(has_max)) || has_max > 1) {
-        return std::nullopt;
-    }
-
-    auto min = Leb128<std::uint32_t>::decode_from(is);
-    if (!min) {
-        return std::nullopt;
-    }
-
-    if (has_max == 0) {
-        return Limits{.min = *min};
-    }
-
-    auto max = Leb128<std::uint32_t>::decode_from(is);
-    if (!max) {
-        return std::nullopt;
-    }
-
-    return Limits{.min = *min, .max = *max};
-}
-
-std::optional<TableType> TableType::parse(std::istream &is) {
-    auto element_type = ValueType::parse(is);
-    if (!element_type
-            || (element_type->kind != ValueType::Kind::FunctionReference
-                    && element_type->kind != ValueType::Kind::ExternReference)) {
-        return std::nullopt;
-    }
-
-    auto limits = Limits::parse(is);
-    if (!limits) {
-        return std::nullopt;
-    }
-
-    return TableType{.element_type = *element_type, .limits = *limits};
-}
-
-tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
+tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream &is) {
     // https://webassembly.github.io/spec/core/binary/modules.html#sections
     enum class SectionId {
         Custom = 0,
@@ -432,6 +421,10 @@ tl::expected<Module, ModuleParseError> Module::parse_from(std::istream &is) {
     }
 
     return module;
+}
+
+std::optional<ValueType> ByteCodeParser::parse_value_type(std::istream &is) {
+    return parse<ValueType>(is);
 }
 
 } // namespace wasm
