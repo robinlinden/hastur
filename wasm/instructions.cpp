@@ -126,14 +126,116 @@ std::optional<std::vector<Instruction>> parse(std::istream &is) {
                 instructions.emplace_back(I32Const{*value});
                 break;
             }
+            case I32EqualZero::kOpcode:
+                instructions.emplace_back(I32EqualZero{});
+                break;
+            case I32Equal::kOpcode:
+                instructions.emplace_back(I32Equal{});
+                break;
+            case I32NotEqual::kOpcode:
+                instructions.emplace_back(I32NotEqual{});
+                break;
             case I32LessThanSigned::kOpcode:
                 instructions.emplace_back(I32LessThanSigned{});
+                break;
+            case I32LessThanUnsigned::kOpcode:
+                instructions.emplace_back(I32LessThanUnsigned{});
+                break;
+            case I32GreaterThanSigned::kOpcode:
+                instructions.emplace_back(I32GreaterThanSigned{});
+                break;
+            case I32GreaterThanUnsigned::kOpcode:
+                instructions.emplace_back(I32GreaterThanUnsigned{});
+                break;
+            case I32LessThanEqualSigned::kOpcode:
+                instructions.emplace_back(I32LessThanEqualSigned{});
+                break;
+            case I32LessThanEqualUnsigned::kOpcode:
+                instructions.emplace_back(I32LessThanEqualUnsigned{});
+                break;
+            case I32GreaterThanEqualSigned::kOpcode:
+                instructions.emplace_back(I32GreaterThanEqualSigned{});
+                break;
+            case I32GreaterThanEqualUnsigned::kOpcode:
+                instructions.emplace_back(I32GreaterThanEqualUnsigned{});
+                break;
+            case I32CountLeadingZeros::kOpcode:
+                instructions.emplace_back(I32CountLeadingZeros{});
+                break;
+            case I32CountTrailingZeros::kOpcode:
+                instructions.emplace_back(I32CountTrailingZeros{});
+                break;
+            case I32PopulationCount::kOpcode:
+                instructions.emplace_back(I32PopulationCount{});
                 break;
             case I32Add::kOpcode:
                 instructions.emplace_back(I32Add{});
                 break;
-            case I32Sub::kOpcode:
-                instructions.emplace_back(I32Sub{});
+            case I32Subtract::kOpcode:
+                instructions.emplace_back(I32Subtract{});
+                break;
+            case I32Multiply::kOpcode:
+                instructions.emplace_back(I32Multiply{});
+                break;
+            case I32DivideSigned::kOpcode:
+                instructions.emplace_back(I32DivideSigned{});
+                break;
+            case I32DivideUnsigned::kOpcode:
+                instructions.emplace_back(I32DivideUnsigned{});
+                break;
+            case I32RemainderSigned::kOpcode:
+                instructions.emplace_back(I32RemainderSigned{});
+                break;
+            case I32RemainderUnsigned::kOpcode:
+                instructions.emplace_back(I32RemainderUnsigned{});
+                break;
+            case I32And::kOpcode:
+                instructions.emplace_back(I32And{});
+                break;
+            case I32Or::kOpcode:
+                instructions.emplace_back(I32Or{});
+                break;
+            case I32ExclusiveOr::kOpcode:
+                instructions.emplace_back(I32ExclusiveOr{});
+                break;
+            case I32ShiftLeft::kOpcode:
+                instructions.emplace_back(I32ShiftLeft{});
+                break;
+            case I32ShiftRightSigned::kOpcode:
+                instructions.emplace_back(I32ShiftRightSigned{});
+                break;
+            case I32ShiftRightUnsigned::kOpcode:
+                instructions.emplace_back(I32ShiftRightUnsigned{});
+                break;
+            case I32RotateLeft::kOpcode:
+                instructions.emplace_back(I32RotateLeft{});
+                break;
+            case I32RotateRight::kOpcode:
+                instructions.emplace_back(I32RotateRight{});
+                break;
+            case I32WrapI64::kOpcode:
+                instructions.emplace_back(I32WrapI64{});
+                break;
+            case I32TruncateF32Signed::kOpcode:
+                instructions.emplace_back(I32TruncateF32Signed{});
+                break;
+            case I32TruncateF32Unsigned::kOpcode:
+                instructions.emplace_back(I32TruncateF32Unsigned{});
+                break;
+            case I32TruncateF64Signed::kOpcode:
+                instructions.emplace_back(I32TruncateF64Signed{});
+                break;
+            case I32TruncateF64Unsigned::kOpcode:
+                instructions.emplace_back(I32TruncateF64Unsigned{});
+                break;
+            case I32ReinterpretF32::kOpcode:
+                instructions.emplace_back(I32ReinterpretF32{});
+                break;
+            case I32Extend8Signed::kOpcode:
+                instructions.emplace_back(I32Extend8Signed{});
+                break;
+            case I32Extend16Signed::kOpcode:
+                instructions.emplace_back(I32Extend16Signed{});
                 break;
             case LocalGet::kOpcode: {
                 auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
