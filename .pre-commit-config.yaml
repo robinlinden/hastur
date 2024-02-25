@@ -2,6 +2,7 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
+      - id: check-vcs-permalinks
       - id: trailing-whitespace
       - id: end-of-file-fixer
         exclude: fuzz_test_corpus
