@@ -4,6 +4,7 @@
 
 #include "wasm/byte_code_parser.h"
 
+#include "wasm/instructions.h"
 #include "wasm/leb128.h"
 #include "wasm/types.h"
 #include "wasm/wasm.h"
@@ -11,7 +12,6 @@
 #include <tl/expected.hpp>
 
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 #include <iostream>
 #include <istream>
@@ -204,24 +204,18 @@ std::optional<CodeEntry> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    auto cursor_before_locals = is.tellg();
-
     auto locals = parse_vector<CodeEntry::Local>(is);
     if (!locals) {
         return std::nullopt;
     }
 
-    auto bytes_consumed_by_locals = is.tellg() - cursor_before_locals;
-    assert(bytes_consumed_by_locals >= 0);
-
-    std::vector<std::uint8_t> code;
-    code.resize(*size - bytes_consumed_by_locals);
-    if (!is.read(reinterpret_cast<char *>(code.data()), code.size())) {
+    auto instructions = instructions::parse(is);
+    if (!instructions) {
         return std::nullopt;
     }
 
     return CodeEntry{
-            .code = std::move(code),
+            .code = *std::move(instructions),
             .locals = *std::move(locals),
     };
 }

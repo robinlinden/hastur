@@ -5,6 +5,7 @@
 #ifndef WASM_WASM_H_
 #define WASM_WASM_H_
 
+#include "wasm/instructions.h"
 #include "wasm/types.h"
 
 #include <cstdint>
@@ -75,7 +76,7 @@ struct CodeEntry {
         [[nodiscard]] bool operator==(Local const &) const = default;
     };
 
-    std::vector<std::uint8_t> code{};
+    std::vector<instructions::Instruction> code{};
     std::vector<Local> locals{};
 
     [[nodiscard]] bool operator==(CodeEntry const &) const = default;

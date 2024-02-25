@@ -4,6 +4,7 @@
 
 #include "wasm/byte_code_parser.h"
 
+#include "wasm/instructions.h"
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
@@ -399,12 +400,13 @@ void code_section_tests() {
     });
 
     etest::test("code section, one entry", [] {
-        auto module =
-                ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1, 6, 1, 1, 0x7f, 4, 4, 4})).value();
+        auto module = ByteCodeParser::parse_module(
+                make_module_bytes(SectionId::Code, {1, 6, 1, 1, 0x7f, 0x41, 0b11, 0x69, 0x0b}))
+                              .value();
 
         wasm::CodeSection expected{.entries{
                 wasm::CodeEntry{
-                        .code{4, 4, 4},
+                        .code{wasm::instructions::I32Const{0b11}, wasm::instructions::I32PopulationCount{}},
                         .locals{{1, wasm::ValueType{wasm::ValueType::Int32}}},
                 },
         }};
@@ -413,21 +415,26 @@ void code_section_tests() {
 
     etest::test("code section, two entries", [] {
         auto module = ByteCodeParser::parse_module(
-                make_module_bytes(SectionId::Code, {2, 6, 1, 1, 0x7f, 4, 4, 4, 9, 2, 5, 0x7e, 6, 0x7d, 7, 8, 9, 10}))
+                make_module_bytes(SectionId::Code, {2, 6, 1, 1, 0x7f, 0x41, 42, 0x0b, 9, 2, 5, 0x7e, 6, 0x7d, 0x0b}))
                               .value();
 
         wasm::CodeSection expected{.entries{
                 wasm::CodeEntry{
-                        .code{4, 4, 4},
+                        .code{wasm::instructions::I32Const{42}},
                         .locals{{1, wasm::ValueType{wasm::ValueType::Int32}}},
                 },
                 wasm::CodeEntry{
-                        .code{7, 8, 9, 10},
+                        .code{},
                         .locals{{5, wasm::ValueType{wasm::ValueType::Int64}},
                                 {6, wasm::ValueType{wasm::ValueType::Float32}}},
                 },
         }};
         expect_eq(module.code_section, expected);
+    });
+
+    etest::test("code section, unhandled opcode", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1, 6, 1, 1, 0x7f, 0xff, 0x0b}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 }
 
