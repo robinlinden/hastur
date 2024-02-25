@@ -217,8 +217,8 @@ RANLIB=ranlib
 INSTALL_CMD=install -c" > $(RULEDIR)/pkgdata.inc
 """
 
-# https://github.com/unicode-org/icu/blob/main/icu4c/source/tools/pkgdata/pkgdata.cpp#L2206
-# https://github.com/unicode-org/icu/blob/main/icu4c/source/tools/pkgdata/pkgdata.cpp#L179
+# https://github.com/unicode-org/icu/blob/fd5d6c97b1d0cff4a07db3c7e7ab04b20099e124/icu4c/source/tools/pkgdata/pkgdata.cpp#L2204
+# https://github.com/unicode-org/icu/blob/fd5d6c97b1d0cff4a07db3c7e7ab04b20099e124/icu4c/source/tools/pkgdata/pkgdata.cpp#L177
 # For generating the data lib, ICU uses build options from a "pkgdata.inc" file generated and installed as part of the normal ICU build. We don't do a "normal" ICU build, so we have to provide our own.
 genrule(
     name = "pkgdata_inc",
