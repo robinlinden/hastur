@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "wasm/byte_code_parser.h"
-#include "wasm/instructions.h"
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
@@ -12,8 +11,6 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <sstream>
-#include <string>
 #include <type_traits>
 
 namespace wasm {
@@ -104,19 +101,11 @@ int main(int argc, char **argv) {
     if (auto const &s = module->code_section) {
         std::cout << "\n# Code\n";
         for (auto const &e : s->entries) {
-            std::cout << e.code.size() << "B code, " << e.locals.size() << " locals";
+            std::cout << e.code.size() << " instruction(s), " << e.locals.size() << " locals";
             for (auto const &local : e.locals) {
                 std::cout << " (" << local.type << ": " << local.count << ')';
             }
             std::cout << '\n';
-
-            std::stringstream ss{std::string{reinterpret_cast<char const *>(e.code.data()), e.code.size()}};
-            auto instructions = wasm::instructions::parse(ss);
-            if (!instructions) {
-                std::cout << "Unable to parse instructions!\n";
-            } else {
-                std::cout << "Entry has " << instructions->size() << " instruction\n";
-            }
         }
     }
 }
