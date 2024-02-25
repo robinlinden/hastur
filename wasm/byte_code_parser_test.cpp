@@ -4,6 +4,7 @@
 
 #include "wasm/byte_code_parser.h"
 
+#include "wasm/types.h"
 #include "wasm/wasm.h"
 
 #include "etest/etest.h"

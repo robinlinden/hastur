@@ -5,49 +5,14 @@
 #ifndef WASM_WASM_H_
 #define WASM_WASM_H_
 
+#include "wasm/types.h"
+
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace wasm {
-
-// https://webassembly.github.io/spec/core/binary/modules.html#indices
-using TypeIdx = std::uint32_t;
-using FuncIdx = std::uint32_t;
-
-// https://webassembly.github.io/spec/core/syntax/types.html
-struct ValueType {
-    enum Kind : std::uint8_t {
-        // Number types.
-        Int32,
-        Int64,
-        Float32,
-        Float64,
-
-        // Vector types.
-        Vector128,
-
-        // Reference types.
-        FunctionReference,
-        ExternReference,
-    };
-
-    Kind kind{};
-
-    [[nodiscard]] bool operator==(ValueType const &) const = default;
-};
-
-// https://webassembly.github.io/spec/core/binary/types.html#result-types
-using ResultType = std::vector<ValueType>;
-
-// https://webassembly.github.io/spec/core/binary/types.html#function-types
-struct FunctionType {
-    ResultType parameters;
-    ResultType results;
-
-    [[nodiscard]] bool operator==(FunctionType const &) const = default;
-};
 
 // https://webassembly.github.io/spec/core/binary/modules.html#type-section
 struct TypeSection {
@@ -63,31 +28,12 @@ struct FunctionSection {
     [[nodiscard]] bool operator==(FunctionSection const &) const = default;
 };
 
-// https://webassembly.github.io/spec/core/binary/types.html#limits
-struct Limits {
-    std::uint32_t min{};
-    std::optional<std::uint32_t> max{};
-
-    [[nodiscard]] bool operator==(Limits const &) const = default;
-};
-
-// https://webassembly.github.io/spec/core/binary/types.html#table-types
-struct TableType {
-    ValueType element_type{};
-    Limits limits{};
-
-    [[nodiscard]] bool operator==(TableType const &) const = default;
-};
-
 // https://webassembly.github.io/spec/core/binary/modules.html#table-section
 struct TableSection {
     std::vector<TableType> tables{};
 
     [[nodiscard]] bool operator==(TableSection const &) const = default;
 };
-
-// https://webassembly.github.io/spec/core/binary/types.html#memory-types
-using MemType = Limits;
 
 // https://webassembly.github.io/spec/core/binary/modules.html#memory-section
 struct MemorySection {

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "wasm/types.h"
 #include "wasm/wasm.h"
 
 #include <tl/expected.hpp>

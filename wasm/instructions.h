@@ -6,7 +6,7 @@
 #ifndef WASM_INSTRUCTIONS_H_
 #define WASM_INSTRUCTIONS_H_
 
-#include "wasm/wasm.h"
+#include "wasm/types.h"
 
 #include <cstdint>
 #include <iosfwd>

@@ -5,6 +5,7 @@
 #include "wasm/byte_code_parser.h"
 
 #include "wasm/leb128.h"
+#include "wasm/types.h"
 #include "wasm/wasm.h"
 
 #include <tl/expected.hpp>

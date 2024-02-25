@@ -5,7 +5,7 @@
 
 #include "wasm/instructions.h"
 
-#include "wasm/wasm.h"
+#include "wasm/types.h"
 
 #include "etest/etest2.h"
 
