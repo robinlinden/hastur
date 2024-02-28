@@ -6,8 +6,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # https://github.com/bazelbuild/apple_support
 http_archive(
     name = "build_bazel_apple_support",
-    integrity = "sha256-HEAx5ytFagSNgXf1mlWBgIwHWF+p4lXG9f77h1KvfkA=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/1.13.0/apple_support.1.13.0.tar.gz",
+    integrity = "sha256-qLpv0J0P/rqbXzmPOkYmJHD+Ct3dtO9a+n6rGNABp7A=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.14.0/apple_support.1.14.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/platforms
@@ -48,8 +48,8 @@ http_archive(
 # https://github.com/uber/hermetic_cc_toolchain
 http_archive(
     name = "hermetic_cc_toolchain",
-    integrity = "sha256-/gC9Em5XpMP+xO+mIL8HTj0fH71wt1ETylagENenDZM=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.0.0/hermetic_cc_toolchain-v3.0.0.tar.gz",
+    integrity = "sha256-O8bsEnYi/c60Epywa296sJjE1TkSTd6WpjGOfDKlP3o=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.0.1/hermetic_cc_toolchain-v3.0.1.tar.gz",
 )
 
 # Misc tools
@@ -87,11 +87,11 @@ http_archive(
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-whrHNW+IUYmVm3+LPfX8xl5UCYv64yM5b7tGcgXGQDA=",
+    integrity = "sha256-t8Os52x/E94zUGaaznu2NO2i+8cqWUCbag8lspu23I0=",
     # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
     patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
-    strip_prefix = "boringssl-311e6f6d8e77da1f64c3256b30bd1992a555ce6c",
-    url = "https://github.com/google/boringssl/archive/311e6f6d8e77da1f64c3256b30bd1992a555ce6c.tar.gz",
+    strip_prefix = "boringssl-40d27299da0f239cd3af8b4e4c3749f8ce970677",
+    url = "https://github.com/google/boringssl/archive/40d27299da0f239cd3af8b4e4c3749f8ce970677.tar.gz",
 )
 
 http_archive(
@@ -154,9 +154,9 @@ http_archive(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-QLMC0BCSyTkzc7Ny/gfqM6xp6UkYk+urO/lSssH1/SM=",
-    strip_prefix = "imgui-1.90.3",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.3.tar.gz",
+    integrity = "sha256-XZ3HOK9076NX8qn8Of5KKNKe8d/HJd0pd8zz8xlOmW4=",
+    strip_prefix = "imgui-1.90.4",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.4.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -178,18 +178,18 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-fpPVCUpHGAo9RRyyYboprGbz9s63wqCISVXporsG2Bg=",
-    strip_prefix = "simdjson-3.6.4",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.6.4.tar.gz",
+    integrity = "sha256-JzFcSGGJOz4DbB9nKxwjjuhr5u24TAgk0e0g3qWZl3c=",
+    strip_prefix = "simdjson-3.7.0",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.7.0.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
 http_archive(
     name = "libpng",  # Libpng
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-/oneKS4iOCmFnSGZDZxNa34w4pWiaPalOgImEaqYvWc=",
-    strip_prefix = "libpng-1.6.42",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.42.tar.gz",
+    integrity = "sha256-/syVtGzwXo4/yKQUdQ4LparQDYnp/fF16U/wQcrxoDo=",
+    strip_prefix = "libpng-1.6.43",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.43.tar.gz",
 )
 
 # https://github.com/SFML/SFML
@@ -225,9 +225,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-qOUH+YfIEv6H8SLwq03DBJkF+HCEuoU3XvlySPx+YyY=",
-    strip_prefix = "stb-f4a71b13373436a2866c5d68f8f80ac6f0bc1ffe",
-    url = "https://github.com/nothings/stb/archive/f4a71b13373436a2866c5d68f8f80ac6f0bc1ffe.tar.gz",
+    integrity = "sha256-zYK+PdxBRu9zj4CnlKg/LtRfqrHFsjJ4EheI73tZjok=",
+    strip_prefix = "stb-ae721c50eaf761660b4f90cc590453cdb0c2acd0",
+    url = "https://github.com/nothings/stb/archive/ae721c50eaf761660b4f90cc590453cdb0c2acd0.tar.gz",
 )
 
 # https://github.com/illiliti/libudev-zero
@@ -291,14 +291,15 @@ http_archive(
     ],
 )
 
+# https://gitlab.freedesktop.org/xorg/lib/libxext
 http_archive(
     name = "xext",  # MIT
     build_file = "//third_party:xext.BUILD",
-    sha256 = "dcf5fd6defbe474912fb6c617f8b926e53f828698c8491a8abab955ab071fc3f",
-    strip_prefix = "libxext-libXext-1.3.5",
+    integrity = "sha256-TkjqJxtfU8M4YBim4CY0VP5YKkE/zgJzreYB+/6eDHI=",
+    strip_prefix = "libxext-libXext-1.3.6",
     urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.5/libxext-libXext-1.3.5.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxext/archive/refs/tags/libXext-1.3.5.tar.gz",
+        "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.6/libxext-libXext-1.3.6.tar.gz",
+        "https://github.com/gitlab-freedesktop-mirrors/libxext/archive/refs/tags/libXext-1.3.6.tar.gz",
     ],
 )
 
