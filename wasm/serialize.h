@@ -34,6 +34,8 @@ constexpr std::string_view to_string(ValueType vt) {
             return "funcref";
         case ValueType::ExternReference:
             return "externref";
+        case ValueType::Unknown:
+            return "unknown";
     }
 
     return "UNHANDLED_VALUE_TYPE";
