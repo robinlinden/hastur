@@ -39,8 +39,10 @@ struct MemArg {
 // Control instructions
 struct Block;
 struct Loop;
-struct BreakIf;
+struct Branch;
+struct BranchIf;
 struct Return;
+struct End;
 
 // Numeric instructions
 struct I32Const;
@@ -92,8 +94,10 @@ struct I32Load;
 
 using Instruction = std::variant<Block,
         Loop,
-        BreakIf,
+        Branch,
+        BranchIf,
         Return,
+        End,
         I32Const,
         I32EqualZero,
         I32Equal,
@@ -154,11 +158,18 @@ struct Loop {
     [[nodiscard]] bool operator==(Loop const &) const;
 };
 
-struct BreakIf {
+struct Branch {
+    static constexpr std::uint8_t kOpcode = 0x0c;
+    static constexpr std::string_view kMnemonic = "br";
+    std::uint32_t label_idx{};
+    [[nodiscard]] bool operator==(Branch const &) const = default;
+};
+
+struct BranchIf {
     static constexpr std::uint8_t kOpcode = 0x0d;
     static constexpr std::string_view kMnemonic = "br_if";
     std::uint32_t label_idx{};
-    [[nodiscard]] bool operator==(BreakIf const &) const = default;
+    [[nodiscard]] bool operator==(BranchIf const &) const = default;
 };
 
 struct Return {

@@ -41,7 +41,9 @@ int main() {
                 "2\n\ti32.add\nend");
     });
 
-    s.add_test("break_if", [](etest::IActions &a) { a.expect_eq(to_string(BreakIf{}), "br_if 0"); });
+    s.add_test("branch", [](etest::IActions &a) { a.expect_eq(to_string(Branch{}), "br 0"); });
+
+    s.add_test("branch_if", [](etest::IActions &a) { a.expect_eq(to_string(BranchIf{}), "br_if 0"); });
 
     s.add_test("i32_const", [](etest::IActions &a) { a.expect_eq(to_string(I32Const{}), "i32.const 0"); });
 

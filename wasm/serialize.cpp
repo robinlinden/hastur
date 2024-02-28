@@ -26,7 +26,8 @@ struct InstructionStringifyVisitor {
 
     void operator()(Block const &t);
     void operator()(Loop const &t);
-    void operator()(BreakIf const &t);
+    void operator()(Branch const &t);
+    void operator()(BranchIf const &t);
     void operator()(Return const &);
     void operator()(I32Const const &t);
     void operator()(LocalGet const &t);
@@ -81,8 +82,12 @@ void InstructionStringifyVisitor::operator()(Loop const &t) {
     out << "end";
 }
 
-void InstructionStringifyVisitor::operator()(BreakIf const &t) {
-    out << BreakIf::kMnemonic << " " << std::to_string(t.label_idx);
+void InstructionStringifyVisitor::operator()(Branch const &t) {
+    out << Branch::kMnemonic << " " << std::to_string(t.label_idx);
+}
+
+void InstructionStringifyVisitor::operator()(BranchIf const &t) {
+    out << BranchIf::kMnemonic << " " << std::to_string(t.label_idx);
 }
 
 void InstructionStringifyVisitor::operator()(Return const &) {

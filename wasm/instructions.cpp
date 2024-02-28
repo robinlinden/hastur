@@ -105,12 +105,20 @@ std::optional<std::vector<Instruction>> parse(std::istream &is) {
                 instructions.emplace_back(Loop{*std::move(type), *std::move(block_instructions)});
                 break;
             }
-            case BreakIf::kOpcode: {
+            case Branch::kOpcode: {
                 auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
                 if (!value) {
                     return std::nullopt;
                 }
-                instructions.emplace_back(BreakIf{*value});
+                instructions.emplace_back(Branch{*value});
+                break;
+            }
+            case BranchIf::kOpcode: {
+                auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
+                if (!value) {
+                    return std::nullopt;
+                }
+                instructions.emplace_back(BranchIf{*value});
                 break;
             }
             case Return::kOpcode:

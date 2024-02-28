@@ -11,6 +11,11 @@
 
 namespace util {
 
+template<typename... T, typename... Ts>
+constexpr bool holds_any_of(std::variant<Ts...> const &v) noexcept {
+    return (std::holds_alternative<T>(v) || ...);
+}
+
 template<typename T, typename... Ts>
 struct Sequence {
     template<typename... VariantTypesT, std::size_t SpanSizeT>

@@ -63,5 +63,16 @@ int main() {
         expect(!matches<LParen, LParen>(std::to_array<Token>({LParen{}, RParen{}})));
     });
 
+    etest::test("holds_any_of", [] {
+        struct Foo {};
+        struct Bar {};
+        struct Baz {};
+
+        std::variant<Foo, Bar, Baz> var = Foo{};
+
+        expect(util::holds_any_of<Foo, Bar, Baz>(var));
+        expect(!util::holds_any_of<Bar, Baz>(var));
+    });
+
     return etest::run_all_tests();
 }

@@ -60,9 +60,19 @@ int main() {
         a.expect_eq(parse("\x03\x0a\x0b\x0b"), std::nullopt);
     });
 
-    s.add_test("break_if", [](etest::IActions &a) {
+    s.add_test("branch", [](etest::IActions &a) {
         // Valid label index.
-        a.expect_eq(parse("\x0d\x09\x0b"), InsnVec{BreakIf{.label_idx = 0x09}});
+        a.expect_eq(parse("\x0c\x09\x0b"), InsnVec{Branch{.label_idx = 0x09}});
+
+        // Unexpected eof.
+        a.expect_eq(parse("\x0c"), std::nullopt);
+        // Invalid label index.
+        a.expect_eq(parse("\x0c\x80\x0b"), std::nullopt);
+    });
+
+    s.add_test("branch_if", [](etest::IActions &a) {
+        // Valid label index.
+        a.expect_eq(parse("\x0d\x09\x0b"), InsnVec{BranchIf{.label_idx = 0x09}});
 
         // Unexpected eof.
         a.expect_eq(parse("\x0d"), std::nullopt);
