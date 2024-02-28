@@ -133,6 +133,13 @@ build:windows-amd64 --config=zig-cross
 build:windows-amd64 --platforms=@zig_sdk//platform:windows_amd64
 build:windows-amd64 --extra_toolchains=@zig_sdk//toolchain:windows_amd64
 
+build:wasi-wasm --config=zig-cross
+build:wasi-wasm --platforms=@zig_sdk//platform:wasip1_wasm
+build:wasi-wasm --extra_toolchains=@zig_sdk//toolchain:wasip1_wasm
+# wasi doesn't support exceptions yet:
+# https://github.com/WebAssembly/wasi-sdk/tree/f1ebc52a74394cdf885d03bfde13899b3d5c6d2d?tab=readme-ov-file#notable-limitations
+build:wasi-wasm --copt=-fno-exceptions
+
 # Fuzzing options
 # =========================================================
 
