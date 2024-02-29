@@ -57,19 +57,19 @@ std::optional<ValueType> parse(std::istream &is) {
 
     switch (byte) {
         case 0x7f:
-            return ValueType{ValueType::Kind::Int32};
+            return ValueType::Int32;
         case 0x7e:
-            return ValueType{ValueType::Kind::Int64};
+            return ValueType::Int64;
         case 0x7d:
-            return ValueType{ValueType::Kind::Float32};
+            return ValueType::Float32;
         case 0x7c:
-            return ValueType{ValueType::Kind::Float64};
+            return ValueType::Float64;
         case 0x7b:
-            return ValueType{ValueType::Kind::Vector128};
+            return ValueType::Vector128;
         case 0x70:
-            return ValueType{ValueType::Kind::FunctionReference};
+            return ValueType::FunctionReference;
         case 0x6f:
-            return ValueType{ValueType::Kind::ExternReference};
+            return ValueType::ExternReference;
         default:
             return std::nullopt;
     }
@@ -162,9 +162,7 @@ std::optional<FunctionType> parse(std::istream &is) {
 template<>
 std::optional<TableType> parse(std::istream &is) {
     auto element_type = parse<ValueType>(is);
-    if (!element_type
-            || (element_type->kind != ValueType::Kind::FunctionReference
-                    && element_type->kind != ValueType::Kind::ExternReference)) {
+    if (!element_type || (element_type != ValueType::FunctionReference && element_type != ValueType::ExternReference)) {
         return std::nullopt;
     }
 

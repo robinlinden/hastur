@@ -34,7 +34,7 @@ int main() {
         // No instructions, empty function prototype.
         a.expect_eq(parse("\x02\x40\x0b\x0b"), InsnVec{Block{.type{BlockType::Empty{}}}});
         // No instructions, function returning an f32.
-        a.expect_eq(parse("\x02\x7d\x0b\x0b"), InsnVec{Block{.type{wasm::ValueType{wasm::ValueType::Kind::Float32}}}});
+        a.expect_eq(parse("\x02\x7d\x0b\x0b"), InsnVec{Block{.type{wasm::ValueType::Float32}}});
         // Return, empty function prototype.
         a.expect_eq(parse("\x02\x40\x0f\x0b\x0b"), InsnVec{Block{.type{BlockType::Empty{}}, .instructions{Return{}}}});
 
@@ -49,7 +49,7 @@ int main() {
         // No instructions, empty function prototype.
         a.expect_eq(parse("\x03\x40\x0b\x0b"), InsnVec{Loop{.type{BlockType::Empty{}}}});
         // No instructions, function returning an f32.
-        a.expect_eq(parse("\x03\x7d\x0b\x0b"), InsnVec{Loop{.type{wasm::ValueType{wasm::ValueType::Kind::Float32}}}});
+        a.expect_eq(parse("\x03\x7d\x0b\x0b"), InsnVec{Loop{.type{wasm::ValueType::Float32}}});
         // Return, empty function prototype.
         a.expect_eq(parse("\x03\x40\x0f\x0b\x0b"), InsnVec{Loop{.type{BlockType::Empty{}}, .instructions{Return{}}}});
 

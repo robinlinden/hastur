@@ -16,25 +16,19 @@ using TypeIdx = std::uint32_t;
 using FuncIdx = std::uint32_t;
 
 // https://webassembly.github.io/spec/core/syntax/types.html
-struct ValueType {
-    enum Kind : std::uint8_t {
-        // Number types.
-        Int32,
-        Int64,
-        Float32,
-        Float64,
+enum class ValueType {
+    // Number types.
+    Int32,
+    Int64,
+    Float32,
+    Float64,
 
-        // Vector types.
-        Vector128,
+    // Vector types.
+    Vector128,
 
-        // Reference types.
-        FunctionReference,
-        ExternReference,
-    };
-
-    Kind kind{};
-
-    [[nodiscard]] bool operator==(ValueType const &) const = default;
+    // Reference types.
+    FunctionReference,
+    ExternReference,
 };
 
 // https://webassembly.github.io/spec/core/binary/types.html#result-types

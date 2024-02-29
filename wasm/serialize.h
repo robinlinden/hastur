@@ -18,21 +18,21 @@
 
 namespace wasm {
 
-constexpr std::string_view to_string(ValueType const &vt) {
-    switch (vt.kind) {
-        case ValueType::Kind::Int32:
+constexpr std::string_view to_string(ValueType vt) {
+    switch (vt) {
+        case ValueType::Int32:
             return "i32";
-        case ValueType::Kind::Int64:
+        case ValueType::Int64:
             return "i64";
-        case ValueType::Kind::Float32:
+        case ValueType::Float32:
             return "f32";
-        case ValueType::Kind::Float64:
+        case ValueType::Float64:
             return "f64";
-        case ValueType::Kind::Vector128:
+        case ValueType::Vector128:
             return "v128";
-        case ValueType::Kind::FunctionReference:
+        case ValueType::FunctionReference:
             return "funcref";
-        case ValueType::Kind::ExternReference:
+        case ValueType::ExternReference:
             return "externref";
     }
 

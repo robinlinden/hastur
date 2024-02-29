@@ -14,14 +14,12 @@ int main() {
     using namespace wasm::instructions;
 
     s.add_test("block", [](etest::IActions &a) {
-        a.expect_eq(to_string(Block{.type{wasm::ValueType{wasm::ValueType::Kind::Int32}},
-                            .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
+        a.expect_eq(to_string(Block{.type{wasm::ValueType::Int32}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
                 "block (result i32) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
         a.expect_eq(to_string(Block{.type{wasm::TypeIdx{7}}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
                 "block (type 7) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
-        a.expect_eq(to_string(Block{.type{wasm::ValueType{wasm::ValueType::Kind::Int32}},
-                            .instructions{Block{.type{wasm::ValueType{wasm::ValueType::Kind::Int32}},
-                                                  .instructions{I32Const{8}}},
+        a.expect_eq(to_string(Block{.type{wasm::ValueType::Int32},
+                            .instructions{Block{.type{wasm::ValueType::Int32}, .instructions{I32Const{8}}},
                                     I32Const{2},
                                     I32Const{2},
                                     I32Add{}}}),
@@ -30,14 +28,12 @@ int main() {
     });
 
     s.add_test("loop", [](etest::IActions &a) {
-        a.expect_eq(to_string(Loop{.type{wasm::ValueType{wasm::ValueType::Kind::Int32}},
-                            .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
+        a.expect_eq(to_string(Loop{.type{wasm::ValueType::Int32}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
                 "loop (result i32) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
         a.expect_eq(to_string(Loop{.type{wasm::TypeIdx{7}}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
                 "loop (type 7) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
-        a.expect_eq(to_string(Loop{.type{wasm::ValueType{wasm::ValueType::Kind::Int32}},
-                            .instructions{Loop{.type{wasm::ValueType{wasm::ValueType::Kind::Int32}},
-                                                  .instructions{I32Const{8}}},
+        a.expect_eq(to_string(Loop{.type{wasm::ValueType::Int32},
+                            .instructions{Loop{.type{wasm::ValueType::Int32}, .instructions{I32Const{8}}},
                                     I32Const{2},
                                     I32Const{2},
                                     I32Add{}}}),
