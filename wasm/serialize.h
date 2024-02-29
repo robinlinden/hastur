@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef WASM_SERIALIZE_H
-#define WASM_SERIALIZE_H
+#ifndef WASM_SERIALIZE_H_
+#define WASM_SERIALIZE_H_
 
 #include "wasm/instructions.h"
 #include "wasm/types.h"
