@@ -22,6 +22,7 @@ enum class ModuleParseError {
     InvalidFunctionSection,
     InvalidTableSection,
     InvalidMemorySection,
+    InvalidGlobalSection,
     InvalidExportSection,
     InvalidStartSection,
     InvalidCodeSection,

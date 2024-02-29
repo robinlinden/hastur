@@ -99,6 +99,42 @@ std::optional<Limits> parse(std::istream &is) {
     return Limits{.min = *min, .max = *max};
 }
 
+template<>
+std::optional<GlobalType> parse(std::istream &is) {
+    auto valtype = parse<ValueType>(is);
+    if (!valtype) {
+        return std::nullopt;
+    }
+
+    std::uint8_t mut{};
+    if (!is.read(reinterpret_cast<char *>(&mut), sizeof(mut)) || mut > 1) {
+        return std::nullopt;
+    }
+
+    return GlobalType{
+            .type = *std::move(valtype),
+            .mutability = mut == 0 ? GlobalType::Mutability::Const : GlobalType::Mutability::Var,
+    };
+}
+
+template<>
+std::optional<GlobalSection::Global> parse(std::istream &is) {
+    auto type = parse<GlobalType>(is);
+    if (!type) {
+        return std::nullopt;
+    }
+
+    auto init = instructions::parse(is);
+    if (!init) {
+        return std::nullopt;
+    }
+
+    return GlobalSection::Global{
+            .type = *std::move(type),
+            .init = *std::move(init),
+    };
+}
+
 // https://webassembly.github.io/spec/core/binary/types.html#function-types
 template<>
 std::optional<FunctionType> parse(std::istream &is) {
@@ -279,6 +315,14 @@ std::optional<MemorySection> parse_memory_section(std::istream &is) {
     return std::nullopt;
 }
 
+std::optional<GlobalSection> parse_global_section(std::istream &is) {
+    if (auto maybe_globals = parse_vector<GlobalSection::Global>(is)) {
+        return GlobalSection{*std::move(maybe_globals)};
+    }
+
+    return std::nullopt;
+}
+
 std::optional<ExportSection> parse_export_section(std::istream &is) {
     if (auto maybe_exports = parse_vector<Export>(is)) {
         return ExportSection{.exports = std::move(maybe_exports).value()};
@@ -386,6 +430,12 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
                 module.memory_section = parse_memory_section(is);
                 if (!module.memory_section) {
                     return tl::unexpected{ModuleParseError::InvalidMemorySection};
+                }
+                break;
+            case SectionId::Global:
+                module.global_section = parse_global_section(is);
+                if (!module.global_section) {
+                    return tl::unexpected{ModuleParseError::InvalidGlobalSection};
                 }
                 break;
             case SectionId::Export:

@@ -43,6 +43,33 @@ struct MemorySection {
     [[nodiscard]] bool operator==(MemorySection const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/types.html#binary-globaltype
+struct GlobalType {
+    enum class Mutability {
+        Const,
+        Var,
+    };
+
+    ValueType type{};
+    Mutability mutability{};
+
+    [[nodiscard]] bool operator==(GlobalType const &) const = default;
+};
+
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-globalsec
+struct GlobalSection {
+    struct Global {
+        GlobalType type{};
+        std::vector<instructions::Instruction> init{};
+
+        [[nodiscard]] bool operator==(Global const &) const = default;
+    };
+
+    std::vector<Global> globals{};
+
+    [[nodiscard]] bool operator==(GlobalSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-export
 struct Export {
     enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
@@ -95,7 +122,7 @@ struct Module {
     std::optional<FunctionSection> function_section{};
     std::optional<TableSection> table_section{};
     std::optional<MemorySection> memory_section{};
-    // TODO(robinlinden): global_section
+    std::optional<GlobalSection> global_section{};
     std::optional<ExportSection> export_section{};
     std::optional<StartSection> start_section{};
     // TODO(robinlinden): element_section

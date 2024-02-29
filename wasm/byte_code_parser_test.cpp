@@ -282,6 +282,80 @@ void memory_section_tests() {
     });
 }
 
+void global_section_tests() {
+    etest::test("global section, missing data", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+    });
+
+    etest::test("global section, empty", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {0})).value();
+        expect_eq(module.global_section, wasm::GlobalSection{});
+    });
+
+    etest::test("global section, missing global after count", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+    });
+
+    etest::test("global section, missing globaltype valuetype", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+    });
+
+    etest::test("global section, missing globaltype mutability", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+    });
+
+    etest::test("global section, invalid globaltype mutability", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 2}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+    });
+
+    etest::test("global section, missing init", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 0}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+    });
+
+    etest::test("global section, const i32 42", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 0, 0x41, 42, 0x0b}))
+                              .value();
+        expect_eq(module.global_section,
+                wasm::GlobalSection{.globals{{
+                        .type{wasm::ValueType{wasm::ValueType::Int32}, wasm::GlobalType::Mutability::Const},
+                        .init{wasm::instructions::I32Const{42}},
+                }}});
+    });
+
+    etest::test("global section, var i32 42", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 1, 0x41, 42, 0x0b}))
+                              .value();
+        expect_eq(module.global_section,
+                wasm::GlobalSection{.globals{{
+                        .type{wasm::ValueType{wasm::ValueType::Int32}, wasm::GlobalType::Mutability::Var},
+                        .init{wasm::instructions::I32Const{42}},
+                }}});
+    });
+
+    etest::test("global section, multiple globals", [] {
+        auto module = ByteCodeParser::parse_module(
+                make_module_bytes(SectionId::Global, {2, 0x7f, 1, 0x41, 42, 0x0b, 0x7f, 0, 0x41, 42, 0x0b}))
+                              .value();
+        expect_eq(module.global_section,
+                wasm::GlobalSection{.globals{
+                        {
+                                .type{wasm::ValueType{wasm::ValueType::Int32}, wasm::GlobalType::Mutability::Var},
+                                .init{wasm::instructions::I32Const{42}},
+                        },
+                        {
+                                .type{wasm::ValueType{wasm::ValueType::Int32}, wasm::GlobalType::Mutability::Const},
+                                .init{wasm::instructions::I32Const{42}},
+                        },
+                }});
+    });
+}
+
 void type_section_tests() {
     etest::test("type section, missing type data", [] {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {}));
@@ -485,6 +559,7 @@ int main() {
     function_section_tests();
     table_section_tests();
     memory_section_tests();
+    global_section_tests();
     export_section_tests();
     start_section_tests();
     code_section_tests();
