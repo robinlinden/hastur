@@ -183,6 +183,26 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           ./bazelisk run browser:tui file://$(pwd)/example.html
 
+  wasi-wasm:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      WASMTIME_VERSION: v18.0.2
+      WASMTIME_NAME: wasmtime-v18.0.2-x86_64-linux
+    steps:
+      - uses: actions/checkout@v4
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - name: Set up wasmtime
+        run: |
+          wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
+          tar -xf wasmtime.tar.xz
+          chmod +x ${WASMTIME_NAME}/wasmtime
+          echo "PATH=$(pwd)/${WASMTIME_NAME}:$PATH" >>$GITHUB_ENV
+          mkdir -p $HOME/.cache/wasmtime
+      - run: echo "build --config=wasi-wasm" >.bazelrc.local
+      # A lot of our deps don't work with wasi, so this is a few blessed packages I know work.
+      - run: ./bazelisk test --run_under=wasmtime azm/... css2/... geom/... js/... util/... wasm/...
+
   macos:
     runs-on: macos-13
     timeout-minutes: 30
