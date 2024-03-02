@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "wasm/byte_code_parser.h"
+#include "wasm/serialize.h"
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
@@ -11,36 +12,11 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <type_traits>
 
 namespace wasm {
 std::ostream &operator<<(std::ostream &, wasm::ValueType);
 std::ostream &operator<<(std::ostream &os, wasm::ValueType type) {
-    switch (type) {
-        case ValueType::Int32:
-            os << "i32";
-            break;
-        case ValueType::Int64:
-            os << "i64";
-            break;
-        case ValueType::Float32:
-            os << "f32";
-            break;
-        case ValueType::Float64:
-            os << "f64";
-            break;
-        case ValueType::Vector128:
-            os << "v128";
-            break;
-        case ValueType::FunctionReference:
-            os << "funcref";
-            break;
-        case ValueType::ExternReference:
-            os << "externref";
-            break;
-        default:
-            std::abort();
-    }
+    os << to_string(type);
     return os;
 }
 } // namespace wasm
