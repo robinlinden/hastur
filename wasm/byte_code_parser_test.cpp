@@ -56,6 +56,29 @@ std::stringstream make_module_bytes(SectionId id, std::vector<std::uint8_t> cons
     return wasm_bytes;
 }
 
+void parse_error_to_string_tests() {
+    using wasm::ModuleParseError;
+    etest::test("to_string(ModuleParseError)", [] {
+        expect_eq(wasm::to_string(ModuleParseError::UnexpectedEof), "Unexpected end of file");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidMagic), "Invalid magic number");
+        expect_eq(wasm::to_string(ModuleParseError::UnsupportedVersion), "Unsupported version");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidSectionId), "Invalid section id");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidSize), "Invalid section size");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidTypeSection), "Invalid type section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidFunctionSection), "Invalid function section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidTableSection), "Invalid table section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidMemorySection), "Invalid memory section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidGlobalSection), "Invalid global section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidExportSection), "Invalid export section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidStartSection), "Invalid start section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidCodeSection), "Invalid code section");
+        expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
+
+        auto last_error_value = static_cast<int>(ModuleParseError::UnhandledSection);
+        expect_eq(wasm::to_string(static_cast<ModuleParseError>(last_error_value + 1)), "Unknown error");
+    });
+}
+
 void export_section_tests() {
     etest::test("export section, missing export count", [] {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {}));
@@ -553,6 +576,7 @@ int main() {
                 tl::unexpected{wasm::ModuleParseError::UnhandledSection});
     });
 
+    parse_error_to_string_tests();
     type_section_tests();
     function_section_tests();
     table_section_tests();
