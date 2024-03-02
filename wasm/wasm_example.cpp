@@ -59,8 +59,7 @@ int main(int argc, char **argv) {
 
     auto module = wasm::ByteCodeParser::parse_module(fs);
     if (!module) {
-        std::cerr << "Unable to parse " << argv[1] << " as a wasm module: "
-                  << static_cast<std::underlying_type_t<wasm::ModuleParseError>>(module.error()) << '\n';
+        std::cerr << "Unable to parse " << argv[1] << " as a wasm module: " << to_string(module.error()) << '\n';
         return 1;
     }
 
