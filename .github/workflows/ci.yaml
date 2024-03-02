@@ -265,7 +265,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install pre-commit
-        run: sudo apt-get update && sudo apt-get install pre-commit
+        run: pip install pre-commit==3.6.2
       - name: Run pre-commit
         run: pre-commit run --all-files
 
