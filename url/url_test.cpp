@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,7 +7,7 @@
 
 #include "etest/etest.h"
 
-#include <simdjson.h>
+#include <simdjson.h> // IWYU pragma: keep
 
 #include <array>
 #include <cstdint>
@@ -761,6 +761,9 @@ int main() {
         etest::expect_eq(url->serialize(), "http://example.com/");
     });
 
+    // NOLINTBEGIN(misc-include-cleaner): What you're meant to include from
+    // simdjson depends on things like the architecture you're compiling for.
+    // This is handled automagically with detection macros inside simdjson.
     etest::test("Web Platform Tests", [] {
         url::UrlParser p;
 
@@ -864,6 +867,7 @@ int main() {
                     hash);
         }
     });
+    // NOLINTEND(misc-include-cleaner)
 
     int ret = etest::run_all_tests();
 
