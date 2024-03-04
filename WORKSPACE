@@ -135,6 +135,16 @@ local_repository(
     path = "third_party/glad",
 )
 
+# HEAD as of 2024-03-05.
+# https://github.com/html5lib/html5lib-tests/
+http_archive(
+    name = "html5lib-tests",  # MIT
+    build_file_content = """exports_files(["tokenizer/test1.test"])""",
+    integrity = "sha256-mUhh8tSAqB9amozHbhgHVKqcDWEQe0dhiWbaUm8bFI0=",
+    strip_prefix = "html5lib-tests-a9f44960a9fedf265093d22b2aa3c7ca123727b9",
+    url = "https://github.com/html5lib/html5lib-tests/archive/a9f44960a9fedf265093d22b2aa3c7ca123727b9.tar.gz",
+)
+
 # https://github.com/unicode-org/icu
 http_archive(
     name = "icu",  # Unicode-DFS-2016
