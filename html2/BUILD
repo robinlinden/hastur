@@ -41,8 +41,34 @@ extra_deps = {
     ),
 ) for src in glob(
     include = ["*_test.cpp"],
-    exclude = ["*_fuzz_test.cpp"],
+    exclude = [
+        "html5lib_test.cpp",
+        "*_fuzz_test.cpp",
+    ],
 )]
+
+cc_test(
+    name = "html5lib_test",
+    size = "small",
+    srcs = ["html5lib_test.cpp"],
+    copts = HASTUR_COPTS + select({
+        # simdjson leaks a bunch of warnings into our code.
+        "@platforms//os:windows": [
+            "/wd4100",
+            "/wd4706",
+        ],
+        "//conditions:default": [],
+    }),
+    data = ["@html5lib-tests//:tokenizer/test1.test"],
+    # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
+    # tests.
+    tags = ["no-cross"],
+    deps = [
+        ":html2",
+        "//etest",
+        "@simdjson",
+    ],
+)
 
 [cc_fuzz_test(
     name = src[:-4],
