@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -279,6 +279,7 @@ void rawtext_tests() {
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "style", .self_closing = true});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
     etest::test("rawtext, end tag open, eof", [] {
@@ -344,6 +345,7 @@ void rcdata_tests() {
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "title", .self_closing = true});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
     etest::test("rcdata, end tag open, eof", [] {
@@ -926,6 +928,7 @@ int main() {
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_token(tokens, EndTagToken{.tag_name = "script", .self_closing = true});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
     etest::test("script, misspelled self closing end tag", [] {
@@ -974,6 +977,7 @@ int main() {
         expect_text(tokens, "-->"sv);
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
     etest::test("script, misspelled escaped self closing end tag", [] {
