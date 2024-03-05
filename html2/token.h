@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -35,7 +35,6 @@ struct StartTagToken {
 
 struct EndTagToken {
     std::string tag_name{};
-    bool self_closing{false};
     std::vector<Attribute> attributes{};
     [[nodiscard]] bool operator==(EndTagToken const &) const = default;
 };

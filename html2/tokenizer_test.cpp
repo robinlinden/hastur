@@ -277,7 +277,7 @@ void rawtext_tests() {
         auto tokens = run_tokenizer("<style><div></style/>");
         expect_token(tokens, StartTagToken{.tag_name = "style"});
         expect_text(tokens, "<div>");
-        expect_token(tokens, EndTagToken{.tag_name = "style", .self_closing = true});
+        expect_token(tokens, EndTagToken{.tag_name = "style"});
         expect_token(tokens, EndOfFileToken{});
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
@@ -343,7 +343,7 @@ void rcdata_tests() {
         auto tokens = run_tokenizer("<title><div></title/>");
         expect_token(tokens, StartTagToken{.tag_name = "title"});
         expect_text(tokens, "<div>");
-        expect_token(tokens, EndTagToken{.tag_name = "title", .self_closing = true});
+        expect_token(tokens, EndTagToken{.tag_name = "title"});
         expect_token(tokens, EndOfFileToken{});
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
@@ -926,7 +926,7 @@ int main() {
         auto tokens = run_tokenizer("<script></script/>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
-        expect_token(tokens, EndTagToken{.tag_name = "script", .self_closing = true});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
@@ -973,7 +973,7 @@ int main() {
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--"sv);
-        expect_token(tokens, EndTagToken{.tag_name = "script", .self_closing = true});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_text(tokens, "-->"sv);
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});

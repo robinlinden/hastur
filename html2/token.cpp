@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -23,7 +23,7 @@ public:
                 t.system_identifier.value_or(R"("")"));
     }
     std::string operator()(StartTagToken const &t) { return fmt::format("StartTag {} {}", t.tag_name, t.self_closing); }
-    std::string operator()(EndTagToken const &t) { return fmt::format("EndTag {} {}", t.tag_name, t.self_closing); }
+    std::string operator()(EndTagToken const &t) { return fmt::format("EndTag {}", t.tag_name); }
     std::string operator()(CommentToken const &t) { return fmt::format("Comment {}", t.data); }
     std::string operator()(CharacterToken const &t) { return fmt::format("Character {}", t.data); }
     std::string operator()(EndOfFileToken const &) { return "EndOfFile"; }

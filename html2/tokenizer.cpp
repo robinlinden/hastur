@@ -1244,7 +1244,7 @@ void Tokenizer::run() {
                         if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
                             start_tag->self_closing = true;
                         } else {
-                            std::get<EndTagToken>(current_token_).self_closing = true;
+                            self_closing_end_tag_detected_ = true;
                         }
                         state_ = State::Data;
                         emit(std::move(current_token_));
@@ -2485,7 +2485,7 @@ void Tokenizer::emit(Token &&token) {
     } else if (auto *end_tag = std::get_if<EndTagToken>(&token)) {
         deduplicate(end_tag->attributes);
         // https://html.spec.whatwg.org/multipage/parsing.html#tokenization:parse-error-end-tag-with-trailing-solidus
-        if (end_tag->self_closing) {
+        if (std::exchange(self_closing_end_tag_detected_, false)) {
             emit(ParseError::EndTagWithTrailingSolidus);
         }
     }

@@ -186,6 +186,7 @@ private:
 
     std::uint32_t character_reference_code_{};
     bool adjusted_current_node_in_html_namespace_{true};
+    bool self_closing_end_tag_detected_{false};
 
     std::function<void(Tokenizer &, Token &&)> on_emit_{};
     std::function<void(Tokenizer &, ParseError)> on_error_{};
