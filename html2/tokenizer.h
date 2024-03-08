@@ -111,6 +111,7 @@ enum class ParseError {
     CharacterReferenceOutsideUnicodeRange,
     ControlCharacterReference,
     DuplicateAttribute,
+    EndTagWithAttributes,
     EndTagWithTrailingSolidus,
     EofBeforeTagName,
     EofInCdata,

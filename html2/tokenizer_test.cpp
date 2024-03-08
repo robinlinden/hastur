@@ -271,6 +271,7 @@ void rawtext_tests() {
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "style", .attributes{{"hello", "1"}}});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
     etest::test("rawtext in style, self-closing end tag", [] {
@@ -337,6 +338,7 @@ void rcdata_tests() {
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "title", .attributes{{"hello", "1"}}});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
     etest::test("rcdata in title, self-closing end tag", [] {
@@ -912,6 +914,7 @@ int main() {
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_token(tokens, EndTagToken{.tag_name = "script", .attributes = {{"src", "/foo.js"}}});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
     etest::test("script, misspelled end tag with attribute", [] {
@@ -957,6 +960,7 @@ int main() {
         expect_text(tokens, "-->"sv);
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
+        expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
     etest::test("script, misspelled escaped end tag with attributes", [] {

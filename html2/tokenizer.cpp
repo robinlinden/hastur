@@ -2484,6 +2484,11 @@ void Tokenizer::emit(Token &&token) {
         deduplicate(start_tag->attributes);
     } else if (auto *end_tag = std::get_if<EndTagToken>(&token)) {
         deduplicate(end_tag->attributes);
+        // https://html.spec.whatwg.org/multipage/parsing.html#tokenization:parse-error-end-tag-with-attributes
+        if (!end_tag->attributes.empty()) {
+            emit(ParseError::EndTagWithAttributes);
+        }
+
         // https://html.spec.whatwg.org/multipage/parsing.html#tokenization:parse-error-end-tag-with-trailing-solidus
         if (std::exchange(self_closing_end_tag_detected_, false)) {
             emit(ParseError::EndTagWithTrailingSolidus);
