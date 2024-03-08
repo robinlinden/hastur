@@ -35,7 +35,6 @@ struct StartTagToken {
 
 struct EndTagToken {
     std::string tag_name{};
-    std::vector<Attribute> attributes{};
     [[nodiscard]] bool operator==(EndTagToken const &) const = default;
 };
 

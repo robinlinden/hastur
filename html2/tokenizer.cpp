@@ -2482,11 +2482,11 @@ void Tokenizer::emit(Token &&token) {
     if (auto *start_tag = std::get_if<StartTagToken>(&token)) {
         last_start_tag_name_ = start_tag->tag_name;
         deduplicate(start_tag->attributes);
-    } else if (auto *end_tag = std::get_if<EndTagToken>(&token)) {
-        deduplicate(end_tag->attributes);
+    } else if (std::holds_alternative<EndTagToken>(token)) {
         // https://html.spec.whatwg.org/multipage/parsing.html#tokenization:parse-error-end-tag-with-attributes
-        if (!end_tag->attributes.empty()) {
+        if (!end_tag_attributes_.empty()) {
             emit(ParseError::EndTagWithAttributes);
+            end_tag_attributes_.clear();
         }
 
         // https://html.spec.whatwg.org/multipage/parsing.html#tokenization:parse-error-end-tag-with-trailing-solidus
@@ -2523,7 +2523,7 @@ std::vector<Attribute> &Tokenizer::attributes_for_current_element() {
     if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
         return start_tag->attributes;
     }
-    return std::get<EndTagToken>(current_token_).attributes;
+    return end_tag_attributes_;
 }
 
 void Tokenizer::start_attribute_in_current_tag_token(Attribute attr) {

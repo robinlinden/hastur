@@ -187,7 +187,11 @@ private:
 
     std::uint32_t character_reference_code_{};
     bool adjusted_current_node_in_html_namespace_{true};
+
+    // These end-tag bits aren't allowed to leave the tokenizer, but we need to
+    // keep them around internally to emit warnings when reasonable.
     bool self_closing_end_tag_detected_{false};
+    std::vector<Attribute> end_tag_attributes_{};
 
     std::function<void(Tokenizer &, Token &&)> on_emit_{};
     std::function<void(Tokenizer &, ParseError)> on_error_{};

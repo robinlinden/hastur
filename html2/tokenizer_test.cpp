@@ -269,7 +269,7 @@ void rawtext_tests() {
         auto tokens = run_tokenizer("<style><div></style hello='1'>");
         expect_token(tokens, StartTagToken{.tag_name = "style"});
         expect_text(tokens, "<div>");
-        expect_token(tokens, EndTagToken{.tag_name = "style", .attributes{{"hello", "1"}}});
+        expect_token(tokens, EndTagToken{.tag_name = "style"});
         expect_token(tokens, EndOfFileToken{});
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
@@ -336,7 +336,7 @@ void rcdata_tests() {
         auto tokens = run_tokenizer("<title><div></title hello='1'>");
         expect_token(tokens, StartTagToken{.tag_name = "title"});
         expect_text(tokens, "<div>");
-        expect_token(tokens, EndTagToken{.tag_name = "title", .attributes{{"hello", "1"}}});
+        expect_token(tokens, EndTagToken{.tag_name = "title"});
         expect_token(tokens, EndOfFileToken{});
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
@@ -912,7 +912,7 @@ int main() {
         auto tokens = run_tokenizer(R"(<script></script src="/foo.js">)");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
-        expect_token(tokens, EndTagToken{.tag_name = "script", .attributes = {{"src", "/foo.js"}}});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
@@ -956,7 +956,7 @@ int main() {
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--"sv);
-        expect_token(tokens, EndTagToken{.tag_name = "script", .attributes = {{"src", "/bar.js"}}});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_text(tokens, "-->"sv);
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
