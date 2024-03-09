@@ -41,6 +41,7 @@ enum class PropertyId {
     BorderTopWidth,
     CaptionSide,
     Color,
+    ColorScheme,
     Cursor,
     Direction,
     Display,
@@ -132,6 +133,7 @@ constexpr bool is_inherited(PropertyId id) {
         case css::PropertyId::BorderSpacing:
         case css::PropertyId::CaptionSide:
         case css::PropertyId::Color:
+        case css::PropertyId::ColorScheme:
         case css::PropertyId::Cursor:
         case css::PropertyId::Direction:
         case css::PropertyId::Elevation:

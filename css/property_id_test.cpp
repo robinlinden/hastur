@@ -35,5 +35,11 @@ int main() {
         }
     });
 
+    s.add_test("initial_value", [](etest::IActions &a) {
+        a.expect_eq(css::initial_value(css::PropertyId::Width), "auto");
+        a.expect_eq(css::initial_value(css::PropertyId::Color), "canvastext");
+        a.expect_eq(css::initial_value(css::PropertyId::ColorScheme), "normal");
+    });
+
     return s.run();
 }

@@ -44,6 +44,7 @@ std::map<std::string_view, PropertyId> const known_properties{
         {"border-top-width"sv, PropertyId::BorderTopWidth},
         {"caption-side"sv, PropertyId::CaptionSide},
         {"color"sv, PropertyId::Color},
+        {"color-scheme"sv, PropertyId::ColorScheme},
         {"cursor"sv, PropertyId::Cursor},
         {"direction"sv, PropertyId::Direction},
         {"display"sv, PropertyId::Display},
@@ -129,6 +130,9 @@ std::map<css::PropertyId, std::string_view> const initial_values{
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color#formal_definition
         {css::PropertyId::Color, "canvastext"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme#formal_definition
+        {css::PropertyId::ColorScheme, "normal"sv},
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis#formal_definition
         {css::PropertyId::FlexBasis, "auto"sv},
