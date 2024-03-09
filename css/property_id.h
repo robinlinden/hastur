@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -121,6 +121,8 @@ enum class PropertyId {
 PropertyId property_id_from_string(std::string_view);
 
 std::string_view to_string(PropertyId);
+
+std::string_view initial_value(PropertyId);
 
 // https://www.w3.org/TR/CSS22/propidx.html
 constexpr bool is_inherited(PropertyId id) {

@@ -33,102 +33,6 @@ using namespace std::literals;
 namespace style {
 namespace {
 
-// https://www.w3.org/TR/css-cascade/#initial-values
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<css::PropertyId, std::string_view> const initial_values{
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/background-color#formal_definition
-        {css::PropertyId::BackgroundColor, "transparent"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/color#formal_definition
-        {css::PropertyId::Color, "canvastext"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis#formal_definition
-        {css::PropertyId::FlexBasis, "auto"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction#formal_definition
-        {css::PropertyId::FlexDirection, "row"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-grow#formal_definition
-        {css::PropertyId::FlexGrow, "0"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink#formal_definition
-        {css::PropertyId::FlexShrink, "1"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap#formal_definition
-        {css::PropertyId::FlexWrap, "nowrap"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-size#formal_definition
-        {css::PropertyId::FontSize, "medium"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#formal_definition
-        {css::PropertyId::FontFamily, "sans-serif"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-style#formal_definition
-        {css::PropertyId::FontStyle, "normal"sv},
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#formal_definition
-        {css::PropertyId::FontWeight, "normal"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
-        {css::PropertyId::TextDecorationColor, "currentcolor"sv},
-        {css::PropertyId::TextDecorationLine, "none"sv},
-        {css::PropertyId::TextDecorationStyle, "solid"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-color#formal_definition
-        {css::PropertyId::BorderBottomColor, "currentcolor"sv},
-        {css::PropertyId::BorderLeftColor, "currentcolor"sv},
-        {css::PropertyId::BorderRightColor, "currentcolor"sv},
-        {css::PropertyId::BorderTopColor, "currentcolor"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
-        {css::PropertyId::BorderBottomLeftRadius, "0"sv},
-        {css::PropertyId::BorderBottomRightRadius, "0"sv},
-        {css::PropertyId::BorderTopLeftRadius, "0"sv},
-        {css::PropertyId::BorderTopRightRadius, "0"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-style#formal_definition
-        {css::PropertyId::BorderBottomStyle, "none"sv},
-        {css::PropertyId::BorderLeftStyle, "none"sv},
-        {css::PropertyId::BorderRightStyle, "none"sv},
-        {css::PropertyId::BorderTopStyle, "none"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/border-width#formal_definition
-        {css::PropertyId::BorderBottomWidth, "medium"sv},
-        {css::PropertyId::BorderLeftWidth, "medium"sv},
-        {css::PropertyId::BorderRightWidth, "medium"sv},
-        {css::PropertyId::BorderTopWidth, "medium"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/outline
-        {css::PropertyId::OutlineColor, "currentcolor"},
-        {css::PropertyId::OutlineStyle, "none"},
-        {css::PropertyId::OutlineWidth, "medium"},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/padding#formal_definition
-        {css::PropertyId::PaddingBottom, "0"sv},
-        {css::PropertyId::PaddingLeft, "0"sv},
-        {css::PropertyId::PaddingRight, "0"sv},
-        {css::PropertyId::PaddingTop, "0"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/display#formal_definition
-        {css::PropertyId::Display, "inline"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/height#formal_definition
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/max-height#formal_definition
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/min-height#formal_definition
-        {css::PropertyId::Height, "auto"sv},
-        {css::PropertyId::MaxHeight, "none"sv},
-        {css::PropertyId::MinHeight, "auto"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/margin#formal_definition
-        {css::PropertyId::MarginBottom, "0"sv},
-        {css::PropertyId::MarginLeft, "0"sv},
-        {css::PropertyId::MarginRight, "0"sv},
-        {css::PropertyId::MarginTop, "0"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/width#formal_definition
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/max-width#formal_definition
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/min-width#formal_definition
-        {css::PropertyId::Width, "auto"sv},
-        {css::PropertyId::MaxWidth, "none"sv},
-        {css::PropertyId::MinWidth, "auto"sv},
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/white-space
-        {css::PropertyId::WhiteSpace, "normal"sv},
-};
-
 std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     if (!hex_chars.starts_with('#')) {
         return std::nullopt;
@@ -268,7 +172,7 @@ std::string_view get_parent_raw_property(style::StyledNode const &node, css::Pro
         return node.parent->get_raw_property(property);
     }
 
-    return initial_values.at(property);
+    return css::initial_value(property);
 }
 
 std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std::string_view property) {
@@ -305,12 +209,12 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
             return parent->get_raw_property(property);
         }
 
-        return initial_values.at(property);
+        return css::initial_value(property);
     }
 
     if (it->second == "initial") {
         // https://developer.mozilla.org/en-US/docs/Web/CSS/initial
-        return initial_values.at(property);
+        return css::initial_value(property);
     }
 
     if (it->second == "inherit") {
