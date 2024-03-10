@@ -1243,5 +1243,10 @@ int main() {
         expect(css::parse("p { color: green; a { font-size: 3px; ").rules.empty()); //
     });
 
+    etest::test("parser: -webkit-lol", [] {
+        expect_eq(css::parse("p { -webkit-font-size: 3px; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{{css::PropertyId::Unknown, "3px"}});
+    });
+
     return etest::run_all_tests();
 }
