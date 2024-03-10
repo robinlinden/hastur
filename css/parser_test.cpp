@@ -1224,5 +1224,24 @@ int main() {
                 css::Rule{.selectors = {{"p"}}, .custom_properties = {{"--var", "value"}}});
     });
 
+    // TODO(robinlinden): Nested rules are currently skipped, but at least
+    // they mostly don't break parsing of the rule they're nested in.
+    etest::test("parser: nested rule", [] {
+        expect_eq(css::parse("p { color: green; a { font-size: 3px; } font-size: 5px; }").rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{"p"}},
+                                .declarations{
+                                        {css::PropertyId::Color, "green"},
+                                        {css::PropertyId::FontSize, "5px"},
+                                },
+                        },
+                });
+    });
+
+    etest::test("parser: eof in nested rule", [] {
+        expect(css::parse("p { color: green; a { font-size: 3px; ").rules.empty()); //
+    });
+
     return etest::run_all_tests();
 }

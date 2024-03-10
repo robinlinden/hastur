@@ -412,7 +412,29 @@ std::optional<css::Rule> Parser::parse_rule() {
     skip_whitespace_and_comments();
 
     while (peek() != '}') {
-        auto decl = parse_declaration();
+        // TODO(robinlinden): This doesn't get along with nested rules like
+        // `foo // { bar:baz { font-size: 3em; } }`
+        // due to the assumption that "ascii:" always is a CSS property name.
+        auto nested_rule_or_declaration_name = consume_while([](char c) { return c != ':' && c != '{'; });
+        if (!nested_rule_or_declaration_name || nested_rule_or_declaration_name->empty()) {
+            return std::nullopt;
+        }
+
+        if (peek() == '{'
+                || (!util::is_alpha(nested_rule_or_declaration_name->front())
+                        && nested_rule_or_declaration_name->front() != '-')) {
+            // TODO(robinlinden): Nested rule. Skip over it for now.
+            pos_ -= nested_rule_or_declaration_name->size();
+            if (auto nested_rule = parse_rule()) {
+                spdlog::warn("Ignoring nested rule: '{}'", to_string(*nested_rule));
+            } else {
+                spdlog::warn("Unable to parse nested rule: '{}'", *nested_rule_or_declaration_name);
+            }
+            skip_whitespace_and_comments();
+            continue;
+        }
+
+        auto decl = parse_declaration(*nested_rule_or_declaration_name);
         if (!decl) {
             return std::nullopt;
         }
@@ -434,12 +456,7 @@ std::optional<css::Rule> Parser::parse_rule() {
     return rule;
 }
 
-std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration() {
-    auto name = consume_while([](char c) { return c != ':'; });
-    if (!name) {
-        return std::nullopt;
-    }
-
+std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration(std::string_view name) {
     consume_char(); // :
     skip_whitespace_and_comments();
     auto value = consume_while([](char c) { return c != ';' && c != '}'; });
@@ -448,7 +465,7 @@ std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_decla
     }
 
     skip_if_neq('}'); // ;
-    return std::pair{*name, *value};
+    return std::pair{name, *value};
 }
 
 void Parser::add_declaration(Declarations &declarations, std::string_view name, std::string_view value) {

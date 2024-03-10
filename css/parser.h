@@ -52,7 +52,7 @@ private:
     void skip_whitespace_and_comments();
 
     std::optional<css::Rule> parse_rule();
-    std::optional<std::pair<std::string_view, std::string_view>> parse_declaration();
+    std::optional<std::pair<std::string_view, std::string_view>> parse_declaration(std::string_view name);
 
     static void add_declaration(Declarations &, std::string_view name, std::string_view value);
 
