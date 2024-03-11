@@ -16,6 +16,7 @@
 #include <regex>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -659,6 +660,11 @@ int main() {
 
         etest::require(url.has_value());
         etest::expect_eq(*url, url::Url{.scheme = "a", .host = url::Host{.type = url::HostType::Opaque}});
+    });
+
+    etest::test("URL parsing: invalid utf-8", [] {
+        url::UrlParser p;
+        std::ignore = p.parse("\x6f\x3a\x2f\x2f\x26\xe1\xd2\x2e\x3b\xf5\x26\xe1\xd2\x0b\x0a\x26\xe1\xd2\xc9");
     });
 
     etest::test("URL parsing: file url with base", [] {

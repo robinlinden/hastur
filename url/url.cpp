@@ -1659,12 +1659,9 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
     }
 
     std::string_view tmp = input;
-    int len = 0;
 
     while (!tmp.empty()) {
         std::uint32_t cp = util::utf8_to_utf32(tmp);
-
-        len = util::unicode_utf8_byte_count(cp);
 
         if (!is_url_codepoint(cp)) {
             validation_error(ValidationError::InvalidUrlUnit);
@@ -1675,7 +1672,11 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
         }
 
         // I don't *think* this can remove > size(), but maybe i should clamp it anyway
-        tmp.remove_prefix(len);
+
+        // len is 0 if the codepoint is larger than the maximum valid code
+        // point, 0x10ffff, meaning it'll have to take up at least 4 bytes.
+        int len = util::unicode_utf8_byte_count(cp);
+        tmp.remove_prefix(len == 0 ? 4 : len);
     }
 
     return util::percent_encode(input, PercentEncodeSet::c0_control);
