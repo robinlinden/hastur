@@ -1673,10 +1673,11 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
 
         // I don't *think* this can remove > size(), but maybe i should clamp it anyway
 
-        // len is 0 if the codepoint is larger than the maximum valid code
-        // point, 0x10ffff, meaning it'll have to take up at least 4 bytes.
-        int len = util::unicode_utf8_byte_count(cp);
-        tmp.remove_prefix(len == 0 ? 4 : len);
+        // unicode_utf8_byte_count fails if the codepoint is larger than the
+        // maximum valid code point, 0x10ffff, meaning it'll have to take up at
+        // least 4 bytes.
+        int len = util::unicode_utf8_byte_count(cp).value_or(4);
+        tmp.remove_prefix(len);
     }
 
     return util::percent_encode(input, PercentEncodeSet::c0_control);

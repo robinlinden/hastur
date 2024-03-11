@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -18,28 +18,28 @@ constexpr bool unicode_is_ascii(std::uint32_t code_point) {
     return code_point <= 0x7f;
 }
 
-constexpr int unicode_utf8_byte_count(std::uint32_t code_point) {
+constexpr std::optional<std::uint8_t> unicode_utf8_byte_count(std::uint32_t code_point) {
     if (unicode_is_ascii(code_point)) {
-        return 1;
+        return std::uint8_t{1};
     }
 
     if (code_point <= 0x7ff) {
-        return 2;
+        return std::uint8_t{2};
     }
 
     if (code_point <= 0xffff) {
-        return 3;
+        return std::uint8_t{3};
     }
 
     if (code_point <= 0x10ffff) {
-        return 4;
+        return std::uint8_t{4};
     }
 
-    return 0;
+    return std::nullopt;
 }
 
 constexpr std::string unicode_to_utf8(std::uint32_t code_point) {
-    switch (unicode_utf8_byte_count(code_point)) {
+    switch (unicode_utf8_byte_count(code_point).value_or(0)) {
         case 1:
             return {static_cast<char>(code_point & 0x7F)};
         case 2:

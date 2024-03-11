@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,8 +32,7 @@ int main() {
         expect_eq(unicode_utf8_byte_count(0x100000), 4);
         expect_eq(unicode_utf8_byte_count(0x10ffff), 4);
 
-        // Invalid code points return 0.
-        expect_eq(unicode_utf8_byte_count(0x110000), 0);
+        expect_eq(unicode_utf8_byte_count(0x110000), std::nullopt);
     });
 
     etest::test("unicode_to_utf8", [] {
