@@ -87,6 +87,12 @@ jobs:
           sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
           sudo apt-get update
           sudo apt-get install --allow-downgrades libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04
+      # See:
+      # * https://github.com/actions/runner-images/issues/9491#issuecomment-1989718917
+      # * https://github.com/google/sanitizers/issues/1716
+      - name: Work around Clang 14 and high-entropy ASLR incompatibility
+        if: startsWith(matrix.compiler, 'clang') && matrix.version == 14
+        run: sudo sysctl vm.mmap_rnd_bits=28
       - uses: actions/cache@v4
         with:
           path: ~/.cache/bazel
