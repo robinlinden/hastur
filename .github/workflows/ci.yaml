@@ -37,10 +37,10 @@ jobs:
             version: 15
             bazel: --config asan --config ubsan
 
-          - name: clang-17
+          - name: clang-18
             os: ubuntu-22.04
             compiler: clang
-            version: 17
+            version: 18
 
           - name: clang-15-libc++
             os: ubuntu-22.04
