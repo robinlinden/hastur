@@ -41,6 +41,24 @@ std::optional<T> parse(std::istream &&is) {
     return parse<T>(is);
 }
 
+// https://webassembly.github.io/spec/core/binary/values.html#names
+template<>
+std::optional<std::string> parse(std::istream &is) {
+    auto length = Leb128<std::uint32_t>::decode_from(is);
+    if (!length) {
+        return std::nullopt;
+    }
+
+    std::string str;
+    str.resize(*length);
+    // TODO(robinlinden): Handle non-ascii. This needs to be valid UTF-8.
+    if (!is.read(str.data(), *length) || std::ranges::any_of(str, [](char c) { return c > 0x79; })) {
+        return std::nullopt;
+    }
+
+    return str;
+}
+
 template<>
 std::optional<std::uint32_t> parse(std::istream &is) {
     auto v = Leb128<std::uint32_t>::decode_from(is);
@@ -177,21 +195,9 @@ std::optional<TableType> parse(std::istream &is) {
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-exportsec
 template<>
 std::optional<Export> parse(std::istream &is) {
-    // https://webassembly.github.io/spec/core/binary/values.html#names
-    auto name_length = Leb128<std::uint32_t>::decode_from(is);
-    if (!name_length) {
+    auto name = parse<std::string>(is);
+    if (!name) {
         return std::nullopt;
-    }
-    std::string name;
-    name.reserve(*name_length);
-    for (std::uint32_t i = 0; i < *name_length; ++i) {
-        // TODO(robinlinden): Handle non-ascii.
-        char c{};
-        if (!is.read(reinterpret_cast<char *>(&c), sizeof(c)) || c > 0x79) {
-            return std::nullopt;
-        }
-
-        name += c;
     }
 
     std::uint8_t type{};
@@ -205,7 +211,7 @@ std::optional<Export> parse(std::istream &is) {
     }
 
     return Export{
-            .name = std::move(name),
+            .name = *std::move(name),
             .type = static_cast<Export::Type>(type),
             .index = *index,
     };
