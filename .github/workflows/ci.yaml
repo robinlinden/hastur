@@ -90,8 +90,7 @@ jobs:
       # See:
       # * https://github.com/actions/runner-images/issues/9491#issuecomment-1989718917
       # * https://github.com/google/sanitizers/issues/1716
-      - name: Work around Clang 14 and high-entropy ASLR incompatibility
-        if: startsWith(matrix.compiler, 'clang') && matrix.version == 14
+      - name: Work around sanitizer and high-entropy ASLR incompatibility
         run: sudo sysctl vm.mmap_rnd_bits=28
       - uses: actions/cache@v4
         with:
