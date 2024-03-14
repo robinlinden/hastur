@@ -52,7 +52,7 @@ std::optional<std::string> parse(std::istream &is) {
     std::string str;
     str.resize(*length);
     // TODO(robinlinden): Handle non-ascii. This needs to be valid UTF-8.
-    if (!is.read(str.data(), *length) || std::ranges::any_of(str, [](char c) { return c > 0x79; })) {
+    if (!is.read(str.data(), *length) || std::ranges::any_of(str, [](unsigned char c) { return c > 0x7f; })) {
         return std::nullopt;
     }
 

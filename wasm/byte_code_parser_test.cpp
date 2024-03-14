@@ -127,6 +127,14 @@ void export_section_tests() {
                 }});
     });
 
+    etest::test("export section, extreme string", [] {
+        std::vector<std::uint8_t> content{1, 2, '~', '\0', static_cast<std::uint8_t>(wasm::Export::Type::Function), 5};
+
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, content)).value();
+        expect_eq(module.export_section,
+                wasm::ExportSection{.exports{wasm::Export{"~\0"s, wasm::Export::Type::Function, 5}}});
+    });
+
     etest::test("export section, missing name", [] {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1, 2}));
         expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
