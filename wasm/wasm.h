@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace wasm {
@@ -35,11 +36,28 @@ struct Global {
     [[nodiscard]] bool operator==(Global const &) const = default;
 };
 
+struct Import {
+    using Description = std::variant<TypeIdx, TableType, MemType, GlobalType>;
+
+    std::string module{};
+    std::string name{};
+    Description description{};
+
+    [[nodiscard]] bool operator==(Import const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/modules.html#type-section
 struct TypeSection {
     std::vector<FunctionType> types;
 
     [[nodiscard]] bool operator==(TypeSection const &) const = default;
+};
+
+// https://webassembly.github.io/spec/core/binary/modules.html#import-section
+struct ImportSection {
+    std::vector<Import> imports;
+
+    [[nodiscard]] bool operator==(ImportSection const &) const = default;
 };
 
 // https://webassembly.github.io/spec/core/binary/modules.html#function-section
@@ -118,7 +136,7 @@ struct CodeSection {
 struct Module {
     // TODO(robinlinden): custom_sections
     std::optional<TypeSection> type_section{};
-    // TODO(robinlinden): import_section
+    std::optional<ImportSection> import_section{};
     std::optional<FunctionSection> function_section{};
     std::optional<TableSection> table_section{};
     std::optional<MemorySection> memory_section{};

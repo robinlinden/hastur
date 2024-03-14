@@ -260,6 +260,53 @@ std::optional<CodeEntry> parse(std::istream &is) {
     };
 }
 
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-import
+template<>
+std::optional<Import> parse(std::istream &is) {
+    auto module = parse<std::string>(is);
+    if (!module) {
+        return std::nullopt;
+    }
+
+    auto name = parse<std::string>(is);
+    if (!name) {
+        return std::nullopt;
+    }
+
+    std::uint8_t kind{};
+    if (!is.read(reinterpret_cast<char *>(&kind), sizeof(kind))) {
+        return std::nullopt;
+    }
+
+    std::optional<Import::Description> desc{};
+    switch (kind) {
+        case 0x00:
+            desc = parse<TypeIdx>(is);
+            break;
+        case 0x01:
+            desc = parse<TableType>(is);
+            break;
+        case 0x02:
+            desc = parse<MemType>(is);
+            break;
+        case 0x03:
+            desc = parse<GlobalType>(is);
+            break;
+        default:
+            break;
+    }
+
+    if (!desc) {
+        return std::nullopt;
+    }
+
+    return Import{
+            .module = *std::move(module),
+            .name = *std::move(name),
+            .description = *std::move(desc),
+    };
+}
+
 // https://webassembly.github.io/spec/core/binary/conventions.html#vectors
 template<typename T>
 std::optional<std::vector<T>> parse_vector(std::istream &is) {
@@ -290,6 +337,14 @@ std::optional<std::vector<T>> parse_vector(std::istream &&is) {
 std::optional<TypeSection> parse_type_section(std::istream &is) {
     if (auto maybe_types = parse_vector<FunctionType>(is)) {
         return TypeSection{.types = *std::move(maybe_types)};
+    }
+
+    return std::nullopt;
+}
+
+std::optional<ImportSection> parse_import_section(std::istream &is) {
+    if (auto maybe_imports = parse_vector<Import>(is)) {
+        return ImportSection{.imports = *std::move(maybe_imports)};
     }
 
     return std::nullopt;
@@ -416,6 +471,12 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
                 module.type_section = parse_type_section(is);
                 if (!module.type_section) {
                     return tl::unexpected{ModuleParseError::InvalidTypeSection};
+                }
+                break;
+            case SectionId::Import:
+                module.import_section = parse_import_section(is);
+                if (!module.import_section) {
+                    return tl::unexpected{ModuleParseError::InvalidImportSection};
                 }
                 break;
             case SectionId::Function:

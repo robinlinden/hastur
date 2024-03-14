@@ -65,6 +65,7 @@ void parse_error_to_string_tests() {
         expect_eq(wasm::to_string(ModuleParseError::InvalidSectionId), "Invalid section id");
         expect_eq(wasm::to_string(ModuleParseError::InvalidSize), "Invalid section size");
         expect_eq(wasm::to_string(ModuleParseError::InvalidTypeSection), "Invalid type section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidImportSection), "Invalid import section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidFunctionSection), "Invalid function section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidTableSection), "Invalid table section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidMemorySection), "Invalid memory section");
@@ -472,6 +473,73 @@ void type_section_tests() {
     });
 }
 
+void import_section_tests() {
+    etest::test("import section, missing import count", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+    });
+
+    etest::test("import section, empty", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {0})).value();
+        expect_eq(module.import_section, wasm::ImportSection{});
+    });
+
+    etest::test("import section, missing module name", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+    });
+
+    etest::test("import section, missing field name", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a'}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+    });
+
+    etest::test("import section, missing import type", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b'}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+    });
+
+    etest::test("import section, invalid import type", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 5}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+    });
+
+    etest::test("import section, func", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 0, 42}));
+        expect_eq(module.value().import_section,
+                wasm::ImportSection{.imports{wasm::Import{"a", "b", wasm::TypeIdx{42}}}});
+    });
+
+    etest::test("import section, table", [] {
+        auto module =
+                ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 1, 0x70, 0, 42}));
+        expect_eq(module.value().import_section,
+                wasm::ImportSection{.imports{
+                        wasm::Import{"a", "b", wasm::TableType{wasm::ValueType::FunctionReference, {42}}},
+                }});
+    });
+
+    etest::test("import section, mem", [] {
+        auto module =
+                ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 2, 1, 12, 13}));
+        expect_eq(module.value().import_section,
+                wasm::ImportSection{.imports{
+                        wasm::Import{"a", "b", wasm::MemType{.min = 12, .max = 13}},
+                }});
+    });
+
+    etest::test("import section, global", [] {
+        auto module =
+                ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 3, 0x7f, 0}));
+        expect_eq(module.value().import_section,
+                wasm::ImportSection{.imports{wasm::Import{
+                        "a",
+                        "b",
+                        wasm::GlobalType{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Const},
+                }}});
+    });
+}
+
 void code_section_tests() {
     etest::test("code section, missing type data", [] {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {}));
@@ -586,6 +654,7 @@ int main() {
 
     parse_error_to_string_tests();
     type_section_tests();
+    import_section_tests();
     function_section_tests();
     table_section_tests();
     memory_section_tests();
