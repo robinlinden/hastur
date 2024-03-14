@@ -12,6 +12,8 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <string_view>
+#include <variant>
 
 namespace wasm {
 std::ostream &operator<<(std::ostream &, wasm::ValueType);
@@ -56,6 +58,20 @@ int main(int argc, char **argv) {
             std::cout << ") -> (";
             print_values(type.results);
             std::cout << ")\n";
+        }
+    }
+
+    if (auto const &import_section = module->import_section) {
+        struct ImportStringifier {
+            std::string_view operator()(wasm::TypeIdx) const { return "func"; }
+            std::string_view operator()(wasm::TableType const &) const { return "table"; }
+            std::string_view operator()(wasm::MemType const &) const { return "mem"; }
+            std::string_view operator()(wasm::GlobalType const &) const { return "global"; }
+        };
+
+        std::cout << "\n# Imports\n";
+        for (auto const &i : import_section->imports) {
+            std::cout << i.module << '.' << i.name << ": " << std::visit(ImportStringifier{}, i.description) << '\n';
         }
     }
 
