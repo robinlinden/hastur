@@ -15,6 +15,26 @@
 
 namespace wasm {
 
+// https://webassembly.github.io/spec/core/binary/types.html#binary-globaltype
+struct GlobalType {
+    enum class Mutability {
+        Const,
+        Var,
+    };
+
+    ValueType type{};
+    Mutability mutability{};
+
+    [[nodiscard]] bool operator==(GlobalType const &) const = default;
+};
+
+struct Global {
+    GlobalType type{};
+    std::vector<instructions::Instruction> init{};
+
+    [[nodiscard]] bool operator==(Global const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/modules.html#type-section
 struct TypeSection {
     std::vector<FunctionType> types;
@@ -43,28 +63,8 @@ struct MemorySection {
     [[nodiscard]] bool operator==(MemorySection const &) const = default;
 };
 
-// https://webassembly.github.io/spec/core/binary/types.html#binary-globaltype
-struct GlobalType {
-    enum class Mutability {
-        Const,
-        Var,
-    };
-
-    ValueType type{};
-    Mutability mutability{};
-
-    [[nodiscard]] bool operator==(GlobalType const &) const = default;
-};
-
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-globalsec
 struct GlobalSection {
-    struct Global {
-        GlobalType type{};
-        std::vector<instructions::Instruction> init{};
-
-        [[nodiscard]] bool operator==(Global const &) const = default;
-    };
-
     std::vector<Global> globals{};
 
     [[nodiscard]] bool operator==(GlobalSection const &) const = default;

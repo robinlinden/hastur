@@ -118,7 +118,7 @@ std::optional<GlobalType> parse(std::istream &is) {
 }
 
 template<>
-std::optional<GlobalSection::Global> parse(std::istream &is) {
+std::optional<Global> parse(std::istream &is) {
     auto type = parse<GlobalType>(is);
     if (!type) {
         return std::nullopt;
@@ -129,7 +129,7 @@ std::optional<GlobalSection::Global> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    return GlobalSection::Global{
+    return Global{
             .type = *std::move(type),
             .init = *std::move(init),
     };
@@ -314,7 +314,7 @@ std::optional<MemorySection> parse_memory_section(std::istream &is) {
 }
 
 std::optional<GlobalSection> parse_global_section(std::istream &is) {
-    if (auto maybe_globals = parse_vector<GlobalSection::Global>(is)) {
+    if (auto maybe_globals = parse_vector<Global>(is)) {
         return GlobalSection{*std::move(maybe_globals)};
     }
 
