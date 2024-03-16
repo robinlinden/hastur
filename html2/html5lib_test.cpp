@@ -118,9 +118,13 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
 }
 } // namespace
 
-int main() {
-    // TODO(robinlinden): Run all tests.
-    auto json = simdjson::padded_string::load("../html5lib-tests/tokenizer/test1.test");
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        std::cerr << "No test file provided\n";
+        return 1;
+    }
+
+    auto json = simdjson::padded_string::load(argv[1]);
     if (json.error() != simdjson::SUCCESS) {
         std::cerr << "Error loading test file: " << json.error() << '\n';
         return 1;

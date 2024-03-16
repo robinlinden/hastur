@@ -47,10 +47,12 @@ extra_deps = {
     ],
 )]
 
+# TODO(robinlinden): Run all tests.
 cc_test(
     name = "html5lib_test",
     size = "small",
     srcs = ["html5lib_test.cpp"],
+    args = ["$(location @html5lib-tests//:tokenizer/test1.test)"],
     copts = HASTUR_COPTS + select({
         # simdjson leaks a bunch of warnings into our code.
         "@platforms//os:windows": [
