@@ -139,7 +139,7 @@ local_repository(
 # https://github.com/html5lib/html5lib-tests/
 http_archive(
     name = "html5lib-tests",  # MIT
-    build_file_content = """exports_files(["tokenizer/test1.test"])""",
+    build_file = "//third_party:html5lib-tests.BUILD",
     integrity = "sha256-mUhh8tSAqB9amozHbhgHVKqcDWEQe0dhiWbaUm8bFI0=",
     strip_prefix = "html5lib-tests-a9f44960a9fedf265093d22b2aa3c7ca123727b9",
     url = "https://github.com/html5lib/html5lib-tests/archive/a9f44960a9fedf265093d22b2aa3c7ca123727b9.tar.gz",

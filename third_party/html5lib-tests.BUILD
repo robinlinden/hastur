@@ -1,0 +1,16 @@
+exports_files([
+    "tokenizer/contentModelFlags.test",
+    "tokenizer/domjs.test",
+    "tokenizer/entities.test",
+    "tokenizer/escapeFlag.test",
+    "tokenizer/namedEntities.test",
+    "tokenizer/numericEntities.test",
+    "tokenizer/pendingSpecChanges.test",
+    "tokenizer/test1.test",
+    "tokenizer/test2.test",
+    "tokenizer/test3.test",
+    "tokenizer/test4.test",
+    "tokenizer/unicodeChars.test",
+    "tokenizer/unicodeCharsProblematic.test",
+    "tokenizer/xmlViolation.test",
+])

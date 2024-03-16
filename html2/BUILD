@@ -47,12 +47,12 @@ extra_deps = {
     ],
 )]
 
-# TODO(robinlinden): Run all tests.
-cc_test(
-    name = "html5lib_test",
+# TODO(robinlinden): Look into the remaining tests.
+[cc_test(
+    name = "html5lib_{}".format(test.rpartition("/")[-1][:-5]),
     size = "small",
     srcs = ["html5lib_test.cpp"],
-    args = ["$(location @html5lib-tests//:tokenizer/test1.test)"],
+    args = ["$(location {})".format(test)],
     copts = HASTUR_COPTS + select({
         # simdjson leaks a bunch of warnings into our code.
         "@platforms//os:windows": [
@@ -61,7 +61,7 @@ cc_test(
         ],
         "//conditions:default": [],
     }),
-    data = ["@html5lib-tests//:tokenizer/test1.test"],
+    data = [test],
     # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
     # tests.
     tags = ["no-cross"],
@@ -70,7 +70,22 @@ cc_test(
         "//etest",
         "@simdjson",
     ],
-)
+) for test in [
+    # "@html5lib-tests//:tokenizer/contentModelFlags.test",
+    # "@html5lib-tests//:tokenizer/domjs.test",
+    "@html5lib-tests//:tokenizer/entities.test",
+    # "@html5lib-tests//:tokenizer/escapeFlag.test",
+    "@html5lib-tests//:tokenizer/namedEntities.test",
+    "@html5lib-tests//:tokenizer/numericEntities.test",
+    "@html5lib-tests//:tokenizer/pendingSpecChanges.test",
+    "@html5lib-tests//:tokenizer/test1.test",
+    "@html5lib-tests//:tokenizer/test2.test",
+    "@html5lib-tests//:tokenizer/test3.test",
+    "@html5lib-tests//:tokenizer/test4.test",
+    "@html5lib-tests//:tokenizer/unicodeChars.test",
+    "@html5lib-tests//:tokenizer/unicodeCharsProblematic.test",
+    # "@html5lib-tests//:tokenizer/xmlViolation.test",
+]]
 
 [cc_fuzz_test(
     name = src[:-4],
