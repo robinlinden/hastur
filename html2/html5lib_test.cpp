@@ -93,6 +93,11 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
                         std::string{attr.value().get_string().value()},
                 });
             }
+
+            if (++it != simdjson::ondemand::array_iterator{}) {
+                start.self_closing = (*it).value().get_bool().value();
+            }
+
             result.push_back(std::move(start));
             continue;
         }
