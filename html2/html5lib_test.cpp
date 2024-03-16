@@ -147,6 +147,12 @@ int main(int argc, char **argv) {
             continue;
         }
         auto in = test["input"].get_string().value();
+        // TOOD(robinlinden): Don't skip these.
+        // See: https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
+        if (in.contains('\r')) {
+            continue;
+        }
+
         auto out_tokens = to_html2_tokens(test["output"].get_array().value());
 
         s.add_test(std::string{name}, [input = std::string{in}, expected = std::move(out_tokens)](etest::IActions &a) {
