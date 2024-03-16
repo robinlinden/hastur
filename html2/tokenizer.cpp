@@ -2474,6 +2474,7 @@ void Tokenizer::emit(Token &&token) {
             for (std::size_t j = i + 1; j < attrs.size(); ++j) {
                 if (attrs[j].name == name) {
                     attrs.erase(attrs.begin() + j);
+                    j -= 1;
                 }
             }
         }
