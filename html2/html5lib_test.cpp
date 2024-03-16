@@ -65,7 +65,7 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
         auto it = token.begin().value();
         auto kind = (*it).get_string().value();
         if (kind == "DOCTYPE") {
-            auto name = std::string{(*++it).value().get_string().value()};
+            auto name = kGetOptionalStr((*++it).value());
             auto public_id = kGetOptionalStr((*++it).value());
             auto system_id = kGetOptionalStr((*++it).value());
             // The json has "correctness" instead of "force quirks", so we negate it.
