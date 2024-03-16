@@ -2340,18 +2340,21 @@ void Tokenizer::run() {
                 if (util::is_digit(*c)) {
                     character_reference_code_ *= 16;
                     character_reference_code_ += *c - 0x30;
+                    character_reference_code_ = std::min(character_reference_code_, 0x110000u);
                     continue;
                 }
 
                 if (util::is_upper_hex_digit(*c)) {
                     character_reference_code_ *= 16;
                     character_reference_code_ += *c - 0x37;
+                    character_reference_code_ = std::min(character_reference_code_, 0x110000u);
                     continue;
                 }
 
                 if (util::is_lower_hex_digit(*c)) {
                     character_reference_code_ *= 16;
                     character_reference_code_ += *c - 0x57;
+                    character_reference_code_ = std::min(character_reference_code_, 0x110000u);
                     continue;
                 }
 
@@ -2377,6 +2380,7 @@ void Tokenizer::run() {
                 if (util::is_digit(*c)) {
                     character_reference_code_ *= 10;
                     character_reference_code_ += *c - 0x30;
+                    character_reference_code_ = std::min(character_reference_code_, 0x110000u);
                     continue;
                 }
 

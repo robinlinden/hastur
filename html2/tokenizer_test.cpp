@@ -1281,6 +1281,13 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
+    etest::test("numeric character reference, very outside unicode range", [] {
+        auto tokens = run_tokenizer("&#x10000000000000041;");
+        expect_text(tokens, kReplacementCharacter);
+        expect_error(tokens, ParseError::CharacterReferenceOutsideUnicodeRange);
+        expect_token(tokens, EndOfFileToken{});
+    });
+
     etest::test("numeric character reference, surrogate", [] {
         auto tokens = run_tokenizer("&#xd900;");
         expect_text(tokens, kReplacementCharacter);
