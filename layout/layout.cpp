@@ -119,11 +119,11 @@ void collapse_whitespace(LayoutBox &box) {
     LayoutBox *last_text_box = nullptr;
     std::list<LayoutBox *> to_collapse{&box};
 
-    auto starts_text_run = [&](LayoutBox const &l) {
-        return last_text_box == nullptr && !std::holds_alternative<std::monostate>(l.layout_text);
+    auto starts_text_run = [](LayoutBox const &l) {
+        return !std::holds_alternative<std::monostate>(l.layout_text);
     };
-    auto ends_text_run = [&](LayoutBox const &l) {
-        return last_text_box != nullptr && l.type != LayoutType::Inline;
+    auto ends_text_run = [](LayoutBox const &l) {
+        return l.type != LayoutType::Inline;
     };
     auto needs_allocating_whitespace_collapsing = [](std::string_view text) {
         return (std::ranges::adjacent_find(
@@ -143,11 +143,11 @@ void collapse_whitespace(LayoutBox &box) {
     };
 
     for (auto it = to_collapse.begin(); it != to_collapse.end(); ++it) {
-        auto *current = *it;
-        if (starts_text_run(*current)) {
-            last_text_box = current;
+        auto &current = **it;
+        if (last_text_box == nullptr && starts_text_run(current)) {
+            last_text_box = &current;
             last_text_box->layout_text = util::trim_start(std::get<std::string_view>(last_text_box->layout_text));
-        } else if (!std::holds_alternative<std::monostate>(current->layout_text)) {
+        } else if (last_text_box != nullptr && !std::holds_alternative<std::monostate>(current.layout_text)) {
             // Remove all but 1 trailing space.
             auto &text = std::get<std::string_view>(last_text_box->layout_text);
             auto last_non_whitespace_idx = text.find_last_not_of(" \n\r\f\v\t");
@@ -158,18 +158,18 @@ void collapse_whitespace(LayoutBox &box) {
                 }
             }
 
-            if (last_text_box != nullptr
-                    && last_text_box->text()
-                               .transform([](auto sv) { return sv.empty() || util::is_whitespace(sv.back()); })
-                               .value_or(false)) {
-                current->layout_text = util::trim_start(std::get<std::string_view>(current->layout_text));
+            if (last_text_box->text()
+                            .transform([](auto sv) { return sv.empty() || util::is_whitespace(sv.back()); })
+                            .value_or(false)) {
+                current.layout_text = util::trim_start(std::get<std::string_view>(current.layout_text));
             }
-            if (last_text_box != nullptr
-                    && needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
+
+            if (needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
                 perform_allocating_collapsing(*last_text_box);
             }
-            last_text_box = current;
-        } else if (ends_text_run(*current)) {
+
+            last_text_box = &current;
+        } else if (last_text_box != nullptr && ends_text_run(current)) {
             last_text_box->layout_text = util::trim_end(std::get<std::string_view>(last_text_box->layout_text));
             if (needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
                 perform_allocating_collapsing(*last_text_box);
@@ -177,10 +177,10 @@ void collapse_whitespace(LayoutBox &box) {
             last_text_box = nullptr;
         }
 
-        for (std::size_t child_idx = 0; child_idx < current->children.size(); ++child_idx) {
+        for (std::size_t child_idx = 0; child_idx < current.children.size(); ++child_idx) {
             auto insertion_point = it;
             std::advance(insertion_point, 1 + child_idx);
-            to_collapse.insert(insertion_point, &current->children[child_idx]);
+            to_collapse.insert(insertion_point, &current.children[child_idx]);
         }
     }
 
