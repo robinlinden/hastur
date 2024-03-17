@@ -37,7 +37,10 @@ cc_library(
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
-    corpus = glob([src[:-4] + "_corpus/*"]),
+    corpus = glob(
+        include = [src[:-4] + "_corpus/*"],
+        allow_empty = True,
+    ),
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":wasm"],
 ) for src in glob(["*_fuzz_test.cpp"])]
