@@ -96,6 +96,16 @@ void export_section_tests() {
         expect_eq(module.export_section, wasm::ExportSection{});
     });
 
+    etest::test("export section, too (624485) many exports", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {0xe5, 0x8e, 0x26}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+    });
+
+    etest::test("export section, name too (624485 byte) long", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1, 0xe5, 0x8e, 0x26}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+    });
+
     etest::test("export section, one", [] {
         std::vector<std::uint8_t> content{1, 2, 'h', 'i', static_cast<std::uint8_t>(wasm::Export::Type::Function), 5};
 

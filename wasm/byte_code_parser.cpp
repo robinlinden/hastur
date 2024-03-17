@@ -12,6 +12,7 @@
 #include <tl/expected.hpp>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <istream>
@@ -25,6 +26,9 @@ using namespace std::literals;
 
 namespace wasm {
 namespace {
+
+// Number 100% made up. We'll definitely have to adjust this.
+constexpr std::size_t kMaxSequenceSize = UINT16_MAX;
 
 constexpr int kMagicSize = 4;
 constexpr int kVersionSize = 4;
@@ -45,7 +49,7 @@ std::optional<T> parse(std::istream &&is) {
 template<>
 std::optional<std::string> parse(std::istream &is) {
     auto length = Leb128<std::uint32_t>::decode_from(is);
-    if (!length) {
+    if (!length || *length > kMaxSequenceSize) {
         return std::nullopt;
     }
 
@@ -311,7 +315,7 @@ std::optional<Import> parse(std::istream &is) {
 template<typename T>
 std::optional<std::vector<T>> parse_vector(std::istream &is) {
     auto item_count = Leb128<std::uint32_t>::decode_from(is);
-    if (!item_count) {
+    if (!item_count || *item_count > kMaxSequenceSize) {
         return std::nullopt;
     }
 
