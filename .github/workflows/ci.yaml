@@ -188,12 +188,13 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           ./bazelisk run browser:tui file://$(pwd)/example.html
 
+  # https://github.com/bytecodealliance/wasmtime
   wasi-wasm:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v18.0.2
-      WASMTIME_NAME: wasmtime-v18.0.2-x86_64-linux
+      WASMTIME_VERSION: v18.0.3
+      WASMTIME_NAME: wasmtime-v18.0.3-x86_64-linux
     steps:
       - uses: actions/checkout@v4
       - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
@@ -367,7 +368,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: pip install black==23.11.0
+      - run: pip install black==24.3.0
       - run: black --check --diff .
 
   # https://github.com/python/mypy
