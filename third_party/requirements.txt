@@ -4,9 +4,9 @@
 #
 #    bazel run //third_party:requirements.update
 #
-glad2==2.0.5 \
-    --hash=sha256:ba0757b6aa3a204b637873b13d0b9b40865ae196df7290fc6c01d818e58af81c \
-    --hash=sha256:bbb4319439f1e9748f86d5177e8a8c710af29e5766ba4ccab6d56c182a01e63b
+glad2==2.0.6 \
+    --hash=sha256:08615aed3219ea1c77584bd5961d823bab226f8ac3831d09adf65c6fa877f8ec \
+    --hash=sha256:c421e05c697ec9c657dfe21e8633d59f1f2d0cfef38d408f20d2357d28f96642
     # via -r third_party/requirements.in
 jinja2==3.1.3 \
     --hash=sha256:7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa \
