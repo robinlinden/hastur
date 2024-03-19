@@ -32,7 +32,6 @@ public:
     int run();
 
 private:
-    // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     engine::Engine engine_;
     bool page_loaded_{};
 
