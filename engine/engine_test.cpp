@@ -89,9 +89,13 @@ int main() {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
                 std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
         })};
+        e.set_layout_width(123);
 
         auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        expect_eq(page->layout_width, 123);
+
         e.relayout(*page, 100);
+        expect_eq(page->layout_width, 100);
     });
 
     etest::test("css in <head><style> takes priority over browser built-in css", [] {
