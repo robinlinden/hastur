@@ -35,11 +35,11 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <span>
@@ -251,9 +251,6 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     engine_.set_layout_width(window_.getSize().x / scale_);
-    engine_.set_on_navigation_failure(std::bind_front(&App::on_navigation_failure, this));
-    engine_.set_on_page_loaded(std::bind_front(&App::on_page_loaded, this));
-    engine_.set_on_layout_updated(std::bind_front(&App::on_layout_updated, this));
 
     if (load_start_page) {
         ensure_has_scheme(url_buf_);
@@ -297,6 +294,10 @@ void App::step() {
             case sf::Event::Resized: {
                 canvas_->set_viewport_size(event.size.width, event.size.height);
                 engine_.set_layout_width(event.size.width / scale_);
+                if (maybe_page_) {
+                    engine_.relayout(**maybe_page_, event.size.width / scale_);
+                    on_layout_updated();
+                }
                 break;
             }
             case sf::Event::KeyPressed: {
@@ -364,7 +365,7 @@ void App::step() {
                 break;
             }
             case sf::Event::MouseMoved: {
-                if (!page_loaded_) {
+                if (!maybe_page_) {
                     break;
                 }
 
@@ -437,7 +438,7 @@ void App::step() {
         run_layout_widget();
     }
 
-    if (!page_loaded_ || engine_.layout() == nullptr) {
+    if (!maybe_page_ || (**maybe_page_).layout == std::nullopt) {
         canvas_->clear(gfx::Color{255, 255, 255});
     } else {
         render_layout();
@@ -458,13 +459,25 @@ int App::run() {
 void App::navigate() {
     spdlog::info("Navigating to '{}'", url_buf_);
     window_.setIcon(16, 16, kBrowserIcon.data());
-    page_loaded_ = false;
-    auto uri = uri::Uri::parse(url_buf_, engine_.uri());
+    auto uri = [this] {
+        if (maybe_page_) {
+            return uri::Uri::parse(url_buf_, (**maybe_page_).uri);
+        }
+
+        return uri::Uri::parse(url_buf_);
+    }();
+
     browse_history_.push(uri);
-    engine_.navigate(std::move(uri));
+    maybe_page_ = engine_.navigate(std::move(uri));
 
     // Make sure the displayed url is still correct if we followed any redirects.
-    url_buf_ = engine_.uri().uri;
+    if (maybe_page_) {
+        url_buf_ = (**maybe_page_).uri.uri;
+        on_page_loaded();
+    } else {
+        url_buf_ = maybe_page_.error().uri.uri;
+        on_navigation_failure(maybe_page_.error().response.err);
+    }
 }
 
 void App::navigate_back() {
@@ -490,7 +503,7 @@ void App::navigate_forward() {
 
 void App::on_navigation_failure(protocol::Error err) {
     update_status_line();
-    response_headers_str_ = engine_.response().headers.to_string();
+    response_headers_str_ = maybe_page_.error().response.headers.to_string();
     dom_str_.clear();
     stylesheet_str_.clear();
     layout_str_.clear();
@@ -524,8 +537,7 @@ void App::on_navigation_failure(protocol::Error err) {
 }
 
 void App::on_page_loaded() {
-    page_loaded_ = true;
-    if (auto page_title = try_get_text_content(engine_.dom(), "/html/head/title"sv)) {
+    if (auto page_title = try_get_text_content(page().dom, "/html/head/title"sv)) {
         window_.setTitle(fmt::format("{} - {}", *page_title, browser_title_));
     } else {
         window_.setTitle(browser_title_);
@@ -538,14 +550,14 @@ void App::on_page_loaded() {
         return rel != end(v->attributes) && rel->second == "icon" && v->attributes.contains("href");
     };
 
-    auto links = dom::nodes_by_xpath(engine_.dom().html(), "/html/head/link");
+    auto links = dom::nodes_by_xpath(page().dom.html(), "/html/head/link");
     std::ranges::reverse(links);
     for (auto const &link : links) {
         if (!is_favicon_link(link)) {
             continue;
         }
 
-        auto uri = uri::Uri::parse(link->attributes.at("href"), engine_.uri());
+        auto uri = uri::Uri::parse(link->attributes.at("href"), page().uri);
         auto icon = engine_.load(uri).response;
         sf::Image favicon;
         if (icon.err != protocol::Error::Ok || !favicon.loadFromMemory(icon.body.data(), icon.body.size())) {
@@ -558,26 +570,29 @@ void App::on_page_loaded() {
     }
 
     update_status_line();
-    response_headers_str_ = engine_.response().headers.to_string();
-    dom_str_ = dom::to_string(engine_.dom());
-    stylesheet_str_ = stylesheet_to_string(engine_.stylesheet());
+    response_headers_str_ = page().response.headers.to_string();
+    dom_str_ = dom::to_string(page().dom);
+    stylesheet_str_ = stylesheet_to_string(page().stylesheet);
     on_layout_updated();
 }
 
 void App::on_layout_updated() {
     reset_scroll();
     nav_widget_extra_info_.clear();
-    auto const *layout = engine_.layout();
-    layout_str_ = layout != nullptr ? layout::to_string(*layout) : "";
+    if (!maybe_page_) {
+        return;
+    }
+
+    auto const &layout = page().layout;
+    layout_str_ = layout.has_value() ? layout::to_string(*layout) : "";
 }
 
 layout::LayoutBox const *App::get_hovered_node(geom::Position document_position) const {
-    auto const *layout = engine_.layout();
-    if (!page_loaded_ || layout == nullptr) {
+    if (!maybe_page_.has_value() || !page().layout.has_value()) {
         return nullptr;
     }
 
-    return layout::box_at_position(*layout, document_position);
+    return layout::box_at_position(*page().layout, document_position);
 }
 
 geom::Position App::to_document_position(geom::Position window_position) const {
@@ -591,13 +606,13 @@ void App::reset_scroll() {
 }
 
 void App::scroll(int pixels) {
-    auto const *layout = engine_.layout();
-    if (!page_loaded_ || layout == nullptr) {
+    if (!maybe_page_ || !page().layout.has_value()) {
         return;
     }
 
+    auto const &layout = *page().layout;
     // Don't allow scrolling if the entire page fits on the screen.
-    if (static_cast<int>(window_.getSize().y) > layout->dimensions.margin_box().height) {
+    if (static_cast<int>(window_.getSize().y) > layout.dimensions.margin_box().height) {
         return;
     }
 
@@ -608,8 +623,8 @@ void App::scroll(int pixels) {
 
     int current_bottom_visible_y = static_cast<int>(window_.getSize().y) - scroll_offset_y_;
     int scrolled_bottom_visible_y = current_bottom_visible_y - pixels;
-    if (scrolled_bottom_visible_y > layout->dimensions.margin_box().height) {
-        pixels -= layout->dimensions.margin_box().height - scrolled_bottom_visible_y;
+    if (scrolled_bottom_visible_y > layout.dimensions.margin_box().height) {
+        pixels -= layout.dimensions.margin_box().height - scrolled_bottom_visible_y;
     }
 
     canvas_->add_translation(0, pixels);
@@ -617,7 +632,14 @@ void App::scroll(int pixels) {
 }
 
 void App::update_status_line() {
-    auto const &r = engine_.response();
+    auto const &r = [this] {
+        if (maybe_page_) {
+            return page().response;
+        }
+
+        return maybe_page_.error().response;
+    }();
+
     status_line_str_ = fmt::format("{} {} {}", r.status_line.version, r.status_line.status_code, r.status_line.reason);
 }
 
@@ -648,7 +670,7 @@ void App::run_http_response_widget() const {
             ImGui::TextUnformatted(response_headers_str_.c_str());
         }
         if (ImGui::CollapsingHeader("Body")) {
-            ImGui::TextUnformatted(engine_.response().body.c_str());
+            ImGui::TextUnformatted(page().response.body.c_str());
         }
     });
 }
@@ -674,16 +696,17 @@ void App::run_layout_widget() const {
 }
 
 void App::render_layout() {
-    auto const *layout = engine_.layout();
-    if (layout == nullptr) {
+    assert(maybe_page_);
+
+    if (page().layout == std::nullopt) {
         return;
     }
 
     if (render_debug_) {
-        render::debug::render_layout_depth(*canvas_, *layout);
+        render::debug::render_layout_depth(*canvas_, *page().layout);
     } else {
         render::render_layout(*canvas_,
-                *layout,
+                *page().layout,
                 culling_enabled_ ? std::optional{geom::Rect{0,
                         -scroll_offset_y_,
                         static_cast<int>(window_.getSize().x),

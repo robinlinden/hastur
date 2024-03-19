@@ -16,6 +16,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Cursor.hpp>
+#include <tl/expected.hpp>
 
 #include <memory>
 #include <string>
@@ -33,7 +34,8 @@ public:
 
 private:
     engine::Engine engine_;
-    bool page_loaded_{};
+    tl::expected<std::unique_ptr<engine::PageState>, engine::NavigationError> maybe_page_{
+            tl::unexpected<engine::NavigationError>{{}}};
 
     std::string browser_title_{};
     sf::Cursor cursor_{};
@@ -69,6 +71,9 @@ private:
     int process_iterations_{10};
 
     util::History<uri::Uri> browse_history_;
+
+    engine::PageState &page() { return *maybe_page_.value(); }
+    engine::PageState const &page() const { return *maybe_page_.value(); }
 
     void on_navigation_failure(protocol::Error);
     void on_page_loaded();

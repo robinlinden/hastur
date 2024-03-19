@@ -18,6 +18,7 @@ cc_library(
         "//type",
         "//type:naive",
         "//uri",
+        "@expected",
         "@spdlog",
     ],
 )

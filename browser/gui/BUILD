@@ -26,6 +26,7 @@ cc_binary(
         "//type:sfml",
         "//uri",
         "//util:history",
+        "@expected",
         "@fmt",
         "@imgui",
         "@imgui-sfml",

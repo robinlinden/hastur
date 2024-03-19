@@ -16,8 +16,10 @@
 #include "uri/uri.h"
 
 #include <spdlog/spdlog.h>
+#include <tl/expected.hpp>
 
 #include <future>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -27,49 +29,33 @@ using namespace std::literals;
 
 namespace engine {
 
-protocol::Error Engine::navigate(uri::Uri uri) {
+tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri) {
     auto result = load(std::move(uri));
-    state_.response = std::move(result.response);
-    state_.uri = std::move(result.uri_after_redirects);
 
-    switch (state_.response.err) {
-        case protocol::Error::Ok:
-            on_navigation_success();
-            break;
-        default:
-            on_navigation_failure_(state_.response.err);
-            break;
+    if (result.response.err != protocol::Error::Ok) {
+        return tl::unexpected{NavigationError{
+                .uri = std::move(result.uri_after_redirects),
+                .response = std::move(result.response),
+        }};
     }
 
-    return state_.response.err;
-}
+    auto state = std::make_unique<PageState>();
+    state->uri = std::move(result.uri_after_redirects);
+    state->response = std::move(result.response);
+    state->dom = html::parse(state->response.body);
+    state->stylesheet = css::default_style();
 
-void Engine::set_layout_width(int width) {
-    state_.layout_width = width;
-    if (!state_.styled) {
-        return;
-    }
-
-    state_.styled = style::style_tree(state_.dom.html_node, state_.stylesheet, {.window_width = state_.layout_width});
-    state_.layout = layout::create_layout(*state_.styled, state_.layout_width, *type_);
-    on_layout_update_();
-}
-
-void Engine::on_navigation_success() {
-    state_.dom = html::parse(state_.response.body);
-    state_.stylesheet = css::default_style();
-
-    for (auto const &style : dom::nodes_by_xpath(state_.dom.html(), "/html/head/style"sv)) {
+    for (auto const &style : dom::nodes_by_xpath(state->dom.html(), "/html/head/style"sv)) {
         if (style->children.empty()) {
             continue;
         }
 
         // Style can only contain text, and we enforce this in our HTML parser.
         auto const &style_content = std::get<dom::Text>(style->children[0]);
-        state_.stylesheet.splice(css::parse(style_content.text));
+        state->stylesheet.splice(css::parse(style_content.text));
     }
 
-    auto head_links = dom::nodes_by_xpath(state_.dom.html(), "/html/head/link");
+    auto head_links = dom::nodes_by_xpath(state->dom.html(), "/html/head/link");
     std::erase_if(head_links, [](auto const *link) {
         return !link->attributes.contains("rel")
                 || (link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet")
@@ -81,9 +67,9 @@ void Engine::on_navigation_success() {
     std::vector<std::future<css::StyleSheet>> future_new_rules;
     future_new_rules.reserve(head_links.size());
     for (auto const *link : head_links) {
-        future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> css::StyleSheet {
+        future_new_rules.push_back(std::async(std::launch::async, [=, this, &state]() -> css::StyleSheet {
             auto const &href = link->attributes.at("href");
-            auto stylesheet_url = uri::Uri::parse(href, state_.uri);
+            auto stylesheet_url = uri::Uri::parse(href, state->uri);
 
             spdlog::info("Downloading stylesheet from {}", stylesheet_url.uri);
             auto res = load(stylesheet_url);
@@ -131,13 +117,21 @@ void Engine::on_navigation_success() {
 
     // In order, wait for the download to finish and merge with the big stylesheet.
     for (auto &future_rules : future_new_rules) {
-        state_.stylesheet.splice(future_rules.get());
+        state->stylesheet.splice(future_rules.get());
     }
 
-    spdlog::info("Styling dom w/ {} rules", state_.stylesheet.rules.size());
-    state_.styled = style::style_tree(state_.dom.html_node, state_.stylesheet, {.window_width = state_.layout_width});
-    state_.layout = layout::create_layout(*state_.styled, state_.layout_width, *type_);
-    on_page_loaded_();
+    spdlog::info("Styling dom w/ {} rules", state->stylesheet.rules.size());
+    state->layout_width = layout_width_;
+    state->styled = style::style_tree(state->dom.html_node, state->stylesheet, {.window_width = state->layout_width});
+    state->layout = layout::create_layout(*state->styled, state->layout_width, *type_);
+
+    return state;
+}
+
+void Engine::relayout(PageState &state, int width) {
+    state.layout_width = width;
+    state.styled = style::style_tree(state.dom.html_node, state.stylesheet, {.window_width = state.layout_width});
+    state.layout = layout::create_layout(*state.styled, state.layout_width, *type_);
 }
 
 Engine::LoadResult Engine::load(uri::Uri uri) {

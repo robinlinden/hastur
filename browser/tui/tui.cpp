@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -48,20 +48,22 @@ int main(int argc, char **argv) {
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"s;
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
-    if (auto err = engine.navigate(uri); err != protocol::Error::Ok) {
-        spdlog::error(R"(Error loading "{}": {})", uri.uri, to_string(err));
+    auto maybe_page = engine.navigate(uri);
+    if (!maybe_page) {
+        spdlog::error(R"(Error loading "{}": {})", uri.uri, to_string(maybe_page.error().response.err));
         return 1;
     }
 
-    std::cout << dom::to_string(engine.dom());
+    auto page = std::move(*maybe_page);
+
+    std::cout << dom::to_string(page->dom);
     spdlog::info("Building TUI");
 
-    auto const *layout = engine.layout();
-    if (layout == nullptr) {
+    if (!page->layout.has_value()) {
         spdlog::error("Unable to create a layout of {}", uri.uri);
         return 1;
     }
 
-    std::cout << tui::render(*layout) << '\n';
+    std::cout << tui::render(*page->layout) << '\n';
     spdlog::info("Done");
 }
