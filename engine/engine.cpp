@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -29,47 +29,47 @@ namespace engine {
 
 protocol::Error Engine::navigate(uri::Uri uri) {
     auto result = load(std::move(uri));
-    response_ = std::move(result.response);
-    uri_ = std::move(result.uri_after_redirects);
+    state_.response = std::move(result.response);
+    state_.uri = std::move(result.uri_after_redirects);
 
-    switch (response_.err) {
+    switch (state_.response.err) {
         case protocol::Error::Ok:
             on_navigation_success();
             break;
         default:
-            on_navigation_failure_(response_.err);
+            on_navigation_failure_(state_.response.err);
             break;
     }
 
-    return response_.err;
+    return state_.response.err;
 }
 
 void Engine::set_layout_width(int width) {
-    layout_width_ = width;
-    if (!styled_) {
+    state_.layout_width = width;
+    if (!state_.styled) {
         return;
     }
 
-    styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
-    layout_ = layout::create_layout(*styled_, layout_width_, *type_);
+    state_.styled = style::style_tree(state_.dom.html_node, state_.stylesheet, {.window_width = state_.layout_width});
+    state_.layout = layout::create_layout(*state_.styled, state_.layout_width, *type_);
     on_layout_update_();
 }
 
 void Engine::on_navigation_success() {
-    dom_ = html::parse(response_.body);
-    stylesheet_ = css::default_style();
+    state_.dom = html::parse(state_.response.body);
+    state_.stylesheet = css::default_style();
 
-    for (auto const &style : dom::nodes_by_xpath(dom_.html(), "/html/head/style"sv)) {
+    for (auto const &style : dom::nodes_by_xpath(state_.dom.html(), "/html/head/style"sv)) {
         if (style->children.empty()) {
             continue;
         }
 
         // Style can only contain text, and we enforce this in our HTML parser.
         auto const &style_content = std::get<dom::Text>(style->children[0]);
-        stylesheet_.splice(css::parse(style_content.text));
+        state_.stylesheet.splice(css::parse(style_content.text));
     }
 
-    auto head_links = dom::nodes_by_xpath(dom_.html(), "/html/head/link");
+    auto head_links = dom::nodes_by_xpath(state_.dom.html(), "/html/head/link");
     std::erase_if(head_links, [](auto const *link) {
         return !link->attributes.contains("rel")
                 || (link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet")
@@ -83,7 +83,7 @@ void Engine::on_navigation_success() {
     for (auto const *link : head_links) {
         future_new_rules.push_back(std::async(std::launch::async, [=, this]() -> css::StyleSheet {
             auto const &href = link->attributes.at("href");
-            auto stylesheet_url = uri::Uri::parse(href, uri_);
+            auto stylesheet_url = uri::Uri::parse(href, state_.uri);
 
             spdlog::info("Downloading stylesheet from {}", stylesheet_url.uri);
             auto res = load(stylesheet_url);
@@ -131,12 +131,12 @@ void Engine::on_navigation_success() {
 
     // In order, wait for the download to finish and merge with the big stylesheet.
     for (auto &future_rules : future_new_rules) {
-        stylesheet_.splice(future_rules.get());
+        state_.stylesheet.splice(future_rules.get());
     }
 
-    spdlog::info("Styling dom w/ {} rules", stylesheet_.rules.size());
-    styled_ = style::style_tree(dom_.html_node, stylesheet_, {.window_width = layout_width_});
-    layout_ = layout::create_layout(*styled_, layout_width_, *type_);
+    spdlog::info("Styling dom w/ {} rules", state_.stylesheet.rules.size());
+    state_.styled = style::style_tree(state_.dom.html_node, state_.stylesheet, {.window_width = state_.layout_width});
+    state_.layout = layout::create_layout(*state_.styled, state_.layout_width, *type_);
     on_page_loaded_();
 }
 

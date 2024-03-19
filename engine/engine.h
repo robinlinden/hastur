@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -23,6 +23,16 @@
 
 namespace engine {
 
+struct PageState {
+    uri::Uri uri{};
+    protocol::Response response{};
+    dom::Document dom{};
+    css::StyleSheet stylesheet{};
+    std::unique_ptr<style::StyledNode> styled{};
+    std::optional<layout::LayoutBox> layout{};
+    int layout_width{};
+};
+
 class Engine {
 public:
     explicit Engine(std::unique_ptr<protocol::IProtocolHandler> protocol_handler,
@@ -37,11 +47,11 @@ public:
     void set_on_page_loaded(std::function<void()> cb) { on_page_loaded_ = std::move(cb); }
     void set_on_layout_updated(std::function<void()> cb) { on_layout_update_ = std::move(cb); }
 
-    uri::Uri const &uri() const { return uri_; }
-    protocol::Response const &response() const { return response_; }
-    dom::Document const &dom() const { return dom_; }
-    css::StyleSheet const &stylesheet() const { return stylesheet_; }
-    layout::LayoutBox const *layout() const { return layout_.has_value() ? &*layout_ : nullptr; }
+    uri::Uri const &uri() const { return state_.uri; }
+    protocol::Response const &response() const { return state_.response; }
+    dom::Document const &dom() const { return state_.dom; }
+    css::StyleSheet const &stylesheet() const { return state_.stylesheet; }
+    layout::LayoutBox const *layout() const { return state_.layout.has_value() ? &*state_.layout : nullptr; }
 
     struct [[nodiscard]] LoadResult {
         protocol::Response response;
@@ -59,17 +69,10 @@ private:
     std::function<void()> on_layout_update_{[] {
     }};
 
-    int layout_width_{};
-
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
     std::unique_ptr<type::IType> type_{};
 
-    uri::Uri uri_{};
-    protocol::Response response_{};
-    dom::Document dom_{};
-    css::StyleSheet stylesheet_{};
-    std::unique_ptr<style::StyledNode> styled_{};
-    std::optional<layout::LayoutBox> layout_{};
+    PageState state_{};
 
     void on_navigation_success();
 };
