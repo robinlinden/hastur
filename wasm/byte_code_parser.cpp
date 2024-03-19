@@ -471,6 +471,28 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
 
         auto id = static_cast<SectionId>(id_byte);
         switch (id) {
+            case SectionId::Custom: {
+                auto before = static_cast<std::int64_t>(is.tellg());
+                auto name = parse<std::string>(is);
+                if (!name) {
+                    return tl::unexpected{ModuleParseError::InvalidCustomSection};
+                }
+
+                auto consumed_by_name = static_cast<int64_t>(is.tellg()) - before;
+                auto remaining_size = static_cast<int64_t>(*size) - consumed_by_name;
+
+                std::vector<std::uint8_t> data;
+                data.resize(remaining_size);
+                if (!is.read(reinterpret_cast<char *>(data.data()), data.size())) {
+                    return tl::unexpected{ModuleParseError::InvalidCustomSection};
+                }
+
+                module.custom_sections.push_back(CustomSection{
+                        .name = *std::move(name),
+                        .data = std::move(data),
+                });
+                break;
+            }
             case SectionId::Type:
                 module.type_section = parse_type_section(is);
                 if (!module.type_section) {

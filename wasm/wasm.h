@@ -16,6 +16,13 @@
 
 namespace wasm {
 
+struct CustomSection {
+    std::string name{};
+    std::vector<std::uint8_t> data{};
+
+    [[nodiscard]] bool operator==(CustomSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/types.html#binary-globaltype
 struct GlobalType {
     enum class Mutability {
@@ -134,7 +141,8 @@ struct CodeSection {
 
 // https://webassembly.github.io/spec/core/syntax/modules.html
 struct Module {
-    // TODO(robinlinden): custom_sections
+    std::vector<CustomSection> custom_sections{};
+
     std::optional<TypeSection> type_section{};
     std::optional<ImportSection> import_section{};
     std::optional<FunctionSection> function_section{};

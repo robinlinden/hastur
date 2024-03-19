@@ -64,6 +64,7 @@ void parse_error_to_string_tests() {
         expect_eq(wasm::to_string(ModuleParseError::UnsupportedVersion), "Unsupported version");
         expect_eq(wasm::to_string(ModuleParseError::InvalidSectionId), "Invalid section id");
         expect_eq(wasm::to_string(ModuleParseError::InvalidSize), "Invalid section size");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidCustomSection), "Invalid custom section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidTypeSection), "Invalid type section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidImportSection), "Invalid import section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidFunctionSection), "Invalid function section");
@@ -77,6 +78,35 @@ void parse_error_to_string_tests() {
 
         auto last_error_value = static_cast<int>(ModuleParseError::UnhandledSection);
         expect_eq(wasm::to_string(static_cast<ModuleParseError>(last_error_value + 1)), "Unknown error");
+    });
+}
+
+void custom_section_tests() {
+    etest::test("custom section", [] {
+        std::vector<std::uint8_t> content{2, 'h', 'i', 1, 2, 3};
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Custom, content)).value();
+        expect_eq(module.custom_sections.at(0),
+                wasm::CustomSection{
+                        .name = "hi",
+                        .data = {1, 2, 3},
+                });
+    });
+
+    etest::test("custom section, eof in name", [] {
+        std::vector<std::uint8_t> content{2, 'h'};
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Custom, content));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
+    });
+
+    etest::test("custom section, eof in data", [] {
+        std::stringstream wasm_bytes;
+        wasm_bytes << "\0asm\1\0\0\0"sv;
+        wasm_bytes << static_cast<std::uint8_t>(SectionId::Custom);
+        wasm_bytes << static_cast<std::uint8_t>(100);
+        wasm_bytes << "\2hi";
+        wasm_bytes << "123";
+        auto module = ByteCodeParser::parse_module(wasm_bytes);
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
     });
 }
 
@@ -658,11 +688,12 @@ int main() {
     });
 
     etest::test("unhandled section", [] {
-        expect_eq(ByteCodeParser::parse_module(make_module_bytes(SectionId::Custom, {})),
+        expect_eq(ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {})),
                 tl::unexpected{wasm::ModuleParseError::UnhandledSection});
     });
 
     parse_error_to_string_tests();
+    custom_section_tests();
     type_section_tests();
     import_section_tests();
     function_section_tests();

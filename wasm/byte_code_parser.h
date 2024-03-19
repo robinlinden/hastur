@@ -19,6 +19,7 @@ enum class ModuleParseError {
     UnsupportedVersion,
     InvalidSectionId,
     InvalidSize,
+    InvalidCustomSection,
     InvalidTypeSection,
     InvalidImportSection,
     InvalidFunctionSection,
@@ -43,6 +44,8 @@ constexpr std::string_view to_string(ModuleParseError e) {
             return "Invalid section id";
         case ModuleParseError::InvalidSize:
             return "Invalid section size";
+        case ModuleParseError::InvalidCustomSection:
+            return "Invalid custom section";
         case ModuleParseError::InvalidTypeSection:
             return "Invalid type section";
         case ModuleParseError::InvalidImportSection:
