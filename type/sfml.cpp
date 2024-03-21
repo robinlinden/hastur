@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -62,12 +62,13 @@ Size SfmlFont::measure(std::string_view text, Px font_size) const {
 }
 
 std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name) const {
-    if (auto font = font_cache_.find(name); font != font_cache_.end()) {
+    if (auto font = font_cache_.find(name); font != font_cache_.end() && font->second.has_value()) {
         return font->second;
     }
 
     sf::Font font;
     if (auto path = find_path_to_font(name); !path || !font.loadFromFile(*path)) {
+        font_cache_.insert(std::pair{std::string{name}, std::nullopt});
         return std::nullopt;
     }
 
