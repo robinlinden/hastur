@@ -30,6 +30,7 @@
 #include <exception>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -76,6 +77,7 @@ std::shared_ptr<type::SfmlFont const> find_font(type::SfmlType &type, std::span<
             auto sf_font = std::static_pointer_cast<type::SfmlFont const>(*font);
             if (!sf_font->sf_font().hasGlyph('A')) {
                 spdlog::warn("Font '{}' does not have an 'A' glyph", family.font);
+                type.set_font(std::string{family.font}, std::nullopt);
                 continue;
             }
 
