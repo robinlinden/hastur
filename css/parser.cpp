@@ -266,6 +266,21 @@ StyleSheet Parser::parse_rules() {
 
     skip_whitespace_and_comments();
     while (!is_eof()) {
+        if (starts_with("@charset ")) {
+            advance(std::strlen("@charset"));
+            skip_whitespace_and_comments();
+            if (auto charset = consume_while([](char c) { return c != ';'; }); charset) {
+                spdlog::warn("Ignoring charset: {}", *charset);
+            } else {
+                spdlog::error("Eof while parsing charset");
+                return style;
+            }
+
+            consume_char(); // ;
+            skip_whitespace_and_comments();
+            continue;
+        }
+
         if (starts_with("@media ") || starts_with("@media(")) {
             advance(std::strlen("@media"));
             skip_whitespace_and_comments();

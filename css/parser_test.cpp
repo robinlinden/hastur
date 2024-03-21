@@ -1248,5 +1248,14 @@ int main() {
                 std::map<css::PropertyId, std::string>{{css::PropertyId::Unknown, "3px"}});
     });
 
+    etest::test("parser: @charset", [] {
+        expect_eq(css::parse("@charset 'shift-jis'; p { font-size: 3px; }").rules.at(0),
+                css::Rule{.selectors = {{"p"}}, .declarations{{css::PropertyId::FontSize, "3px"}}});
+    });
+
+    etest::test("parser: @charset eof", [] {
+        expect(css::parse("@charset 'shi").rules.empty()); //
+    });
+
     return etest::run_all_tests();
 }
