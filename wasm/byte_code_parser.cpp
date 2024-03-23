@@ -480,6 +480,9 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
 
                 auto consumed_by_name = static_cast<int64_t>(is.tellg()) - before;
                 auto remaining_size = static_cast<int64_t>(*size) - consumed_by_name;
+                if (remaining_size < 0 || remaining_size > std::int64_t{kMaxSequenceSize}) {
+                    return tl::unexpected{ModuleParseError::InvalidCustomSection};
+                }
 
                 std::vector<std::uint8_t> data;
                 data.resize(remaining_size);

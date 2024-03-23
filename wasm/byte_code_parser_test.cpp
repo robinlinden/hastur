@@ -108,6 +108,18 @@ void custom_section_tests() {
         auto module = ByteCodeParser::parse_module(wasm_bytes);
         expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
     });
+
+    etest::test("custom section, bad size (negative after name)", [] {
+        auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\0\0\0\0"s};
+        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+                tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
+    });
+
+    etest::test("custom section, bad size (too large after name)", [] {
+        auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\xe5\x85\x26\0\0\0\0"s};
+        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+                tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
+    });
 }
 
 void export_section_tests() {
