@@ -437,5 +437,32 @@ int main() {
         expect_eq(&e.font_system(), saved);
     });
 
+    etest::test("bad uri in redirect", [] {
+        std::map<std::string, Response> responses;
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 301},
+                .headers = {{"Location", ""}},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto res = e.navigate(uri::Uri::parse("hax://example.com").value());
+        expect_eq(res.error().response.err, protocol::Error::InvalidResponse);
+    });
+
+    etest::test("bad uri in style href", [] {
+        std::map<std::string, Response> responses;
+        std::string body = "<html><head><link rel=stylesheet href=";
+        body += std::string(1025, 'a');
+        body += " /></head></html>";
+        responses["hax://example.com"s] = Response{
+                .err = Error::Ok,
+                .status_line = {.status_code = 200},
+                .body{std::move(body)},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        expect_eq(page->response.err, protocol::Error::Ok);
+    });
+
     return etest::run_all_tests();
 }
