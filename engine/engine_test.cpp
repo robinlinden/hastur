@@ -59,7 +59,7 @@ int main() {
                 },
         }};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com"));
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
         expect_eq(page.value()->stylesheet.rules.back(),
                 css::Rule{
                         .selectors{"p"},
@@ -72,7 +72,7 @@ int main() {
                 std::pair{"hax://example.com"s, Response{.err = Error::Unresolved}},
         })};
 
-        auto page = e.navigate(uri::Uri::parse("hax://example.com"));
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
         expect_eq(page.has_value(), false);
     });
 
@@ -81,7 +81,7 @@ int main() {
                 std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
         })};
 
-        auto page = e.navigate(uri::Uri::parse("hax://example.com"));
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
         expect(page.has_value());
     });
 
@@ -91,7 +91,7 @@ int main() {
         })};
         e.set_layout_width(123);
 
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect_eq(page->layout_width, 123);
 
         e.relayout(*page, 100);
@@ -108,7 +108,7 @@ int main() {
                 },
         }};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         // Our default CSS gives <html> the property display: block.
         require(page->layout.has_value());
         expect_eq(page->layout->get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
@@ -123,7 +123,7 @@ int main() {
         }};
 
         e = engine::Engine{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
 
         // The CSS declared in the page should have a higher priority and give
         // <html> the property display: inline.
@@ -147,7 +147,7 @@ int main() {
                 },
         }};
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         require(page->layout.has_value());
         auto const *a = dom::nodes_by_xpath(*page->layout, "//a"sv).at(0);
         expect_eq(a->get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("red"));
@@ -176,7 +176,7 @@ int main() {
                 .body{"p { color: green; }"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(contains(
                 page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
         expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
@@ -196,7 +196,7 @@ int main() {
                 .body{"p { font-size: 123em; }"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(!contains(
                 page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
     });
@@ -222,7 +222,7 @@ int main() {
                 .body{gzipped_css},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(std::ranges::find(page->stylesheet.rules,
                        css::Rule{
                                .selectors{"p"},
@@ -238,7 +238,7 @@ int main() {
                 .body{std::move(gzipped_css)},
         };
         e = engine::Engine{std::make_unique<FakeProtocolHandler>(responses)};
-        page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(std::ranges::find(page->stylesheet.rules,
                        css::Rule{
                                .selectors{"p"},
@@ -263,7 +263,7 @@ int main() {
                 .body{std::move(gzipped_css)},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(std::ranges::find(page->stylesheet.rules,
                        css::Rule{
                                .selectors{"p"},
@@ -288,7 +288,7 @@ int main() {
                 .body{std::move(gzipped_css)},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(std::ranges::find(page->stylesheet.rules,
                        css::Rule{
                                .selectors{"p"},
@@ -311,7 +311,7 @@ int main() {
                 .body{zlibbed_css},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(std::ranges::find(page->stylesheet.rules,
                        css::Rule{
                                .selectors{"p"},
@@ -334,7 +334,7 @@ int main() {
                 .body{zlibbed_css},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect(std::ranges::find(page->stylesheet.rules,
                        css::Rule{
                                .selectors{"p"},
@@ -356,7 +356,7 @@ int main() {
                 .body{"<html><body>hello!</body></html>"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect_eq(page->response.err, protocol::Error::Ok);
         expect_eq(page->uri.uri, "hax://example.com/redirected");
 
@@ -371,7 +371,7 @@ int main() {
                 .status_line = {.status_code = 301},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        expect_eq(e.navigate(uri::Uri::parse("hax://example.com")).error().response.err,
+        expect_eq(e.navigate(uri::Uri::parse("hax://example.com").value()).error().response.err,
                 protocol::Error::InvalidResponse);
     });
 
@@ -395,7 +395,7 @@ int main() {
                 .body{"p { color: green; }"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        auto page = e.navigate(uri::Uri::parse("hax://example.com")).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         expect_eq(page->response.err, protocol::Error::Ok);
         expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
@@ -408,7 +408,7 @@ int main() {
                 .headers = {{"Location", "hax://example.com"}},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
-        expect_eq(e.navigate(uri::Uri::parse("hax://example.com")).error().response.err, //
+        expect_eq(e.navigate(uri::Uri::parse("hax://example.com").value()).error().response.err, //
                 protocol::Error::RedirectLimit);
     });
 
@@ -425,7 +425,7 @@ int main() {
                 .body{"<html><body>hello!</body></html>"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
-        auto res = e.load(uri::Uri::parse("hax://example.com"));
+        auto res = e.load(uri::Uri::parse("hax://example.com").value());
         expect_eq(res.uri_after_redirects, uri::Uri::parse("hax://example.com/redirected"));
         expect_eq(res.response, responses.at("hax://example.com/redirected"));
     });

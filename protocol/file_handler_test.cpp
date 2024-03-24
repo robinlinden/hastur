@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -62,7 +62,7 @@ private:
 int main() {
     etest::test("uri pointing to non-existent file", [] {
         protocol::FileHandler handler;
-        auto res = handler.handle(uri::Uri::parse("file:///this/file/does/definitely/not/exist.hastur"));
+        auto res = handler.handle(uri::Uri::parse("file:///this/file/does/definitely/not/exist.hastur").value());
         expect_eq(res, protocol::Response{protocol::Error::Unresolved});
     });
 
@@ -70,7 +70,7 @@ int main() {
         auto tmp_dir = fs::temp_directory_path();
 
         protocol::FileHandler handler;
-        auto res = handler.handle(uri::Uri::parse(fmt::format("file://{}", tmp_dir.generic_string())));
+        auto res = handler.handle(uri::Uri::parse(fmt::format("file://{}", tmp_dir.generic_string())).value());
         expect_eq(res, protocol::Response{protocol::Error::InvalidResponse});
     });
 
@@ -83,7 +83,7 @@ int main() {
         require(bool{tmp_file->fstream() << "hello!" << std::flush});
 
         protocol::FileHandler handler;
-        auto res = handler.handle(uri::Uri::parse(fmt::format("file://{}", tmp_file->path().generic_string())));
+        auto res = handler.handle(uri::Uri::parse(fmt::format("file://{}", tmp_file->path().generic_string())).value());
         expect_eq(res, protocol::Response{protocol::Error::Ok, {}, {}, "hello!"});
     });
 

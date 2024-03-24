@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -62,7 +62,7 @@ struct FakeSocket {
 };
 
 uri::Uri create_uri(std::string url = "http://example.com") {
-    return uri::Uri::parse(std::move(url));
+    return uri::Uri::parse(std::move(url)).value();
 }
 
 FakeSocket create_chunked_socket(std::string const &body) {

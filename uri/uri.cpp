@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,7 +9,6 @@
 
 #include <fmt/core.h>
 
-#include <exception>
 #include <functional>
 #include <optional>
 #include <regex>
@@ -36,29 +35,29 @@ void normalize(Uri &uri) {
 void complete_from_base_if_needed(Uri &uri, Uri const &base) {
     if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
         // Origin-relative.
-        uri = Uri::parse(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri));
+        uri = Uri::parse(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri)).value();
     } else if (uri.scheme.empty() && uri.authority.host.empty() && !uri.path.empty()) {
         // https://url.spec.whatwg.org/#path-relative-url-string
         if (base.path == "/") {
-            uri = Uri::parse(fmt::format("{}/{}", base.uri, uri.uri));
+            uri = Uri::parse(fmt::format("{}/{}", base.uri, uri.uri)).value();
         } else {
             auto end_of_last_path_segment = base.uri.find_last_of('/');
-            uri = Uri::parse(fmt::format("{}/{}", base.uri.substr(0, end_of_last_path_segment), uri.uri));
+            uri = Uri::parse(fmt::format("{}/{}", base.uri.substr(0, end_of_last_path_segment), uri.uri)).value();
         }
     } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
         // Scheme-relative.
-        uri = Uri::parse(fmt::format("{}:{}", base.scheme, uri.uri));
+        uri = Uri::parse(fmt::format("{}:{}", base.scheme, uri.uri)).value();
     }
 }
 
 } // namespace
 
-Uri Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
+std::optional<Uri> Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
     // Regex taken from RFC 3986.
     std::smatch match;
     std::regex const uri_regex{"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"};
     if (!std::regex_search(uristr, match, uri_regex)) {
-        std::terminate();
+        return std::nullopt;
     }
 
     Authority authority{};

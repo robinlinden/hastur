@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -24,7 +24,8 @@ struct Authority {
 };
 
 struct Uri {
-    static Uri parse(std::string uri, std::optional<std::reference_wrapper<Uri const>> base_uri = std::nullopt);
+    static std::optional<Uri> parse(
+            std::string uri, std::optional<std::reference_wrapper<Uri const>> base_uri = std::nullopt);
 
     std::string uri;
     std::string scheme;

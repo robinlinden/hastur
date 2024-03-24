@@ -467,8 +467,13 @@ void App::navigate() {
         return uri::Uri::parse(url_buf_);
     }();
 
-    browse_history_.push(uri);
-    maybe_page_ = engine_.navigate(std::move(uri));
+    if (!uri) {
+        spdlog::error("Unable to parse '{}'", url_buf_);
+        return;
+    }
+
+    browse_history_.push(*uri);
+    maybe_page_ = engine_.navigate(*std::move(uri));
 
     // Make sure the displayed url is still correct if we followed any redirects.
     if (maybe_page_) {
@@ -558,10 +563,15 @@ void App::on_page_loaded() {
         }
 
         auto uri = uri::Uri::parse(link->attributes.at("href"), page().uri);
-        auto icon = engine_.load(uri).response;
+        if (!uri) {
+            spdlog::warn("Unable to parse favicon uri '{}'", link->attributes.at("href"));
+            continue;
+        }
+
+        auto icon = engine_.load(*uri).response;
         sf::Image favicon;
         if (icon.err != protocol::Error::Ok || !favicon.loadFromMemory(icon.body.data(), icon.body.size())) {
-            spdlog::warn("Error loading favicon from '{}': {}", uri.uri, to_string(icon.err));
+            spdlog::warn("Error loading favicon from '{}': {}", uri->uri, to_string(icon.err));
             continue;
         }
 

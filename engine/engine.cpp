@@ -70,23 +70,27 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
         future_new_rules.push_back(std::async(std::launch::async, [=, this, &state]() -> css::StyleSheet {
             auto const &href = link->attributes.at("href");
             auto stylesheet_url = uri::Uri::parse(href, state->uri);
+            if (!stylesheet_url) {
+                spdlog::warn("Failed to parse href '{}', skipping stylesheet", href);
+                return {};
+            }
 
-            spdlog::info("Downloading stylesheet from {}", stylesheet_url.uri);
-            auto res = load(stylesheet_url);
+            spdlog::info("Downloading stylesheet from {}", stylesheet_url->uri);
+            auto res = load(*stylesheet_url);
             auto &style_data = res.response;
             stylesheet_url = std::move(res.uri_after_redirects);
 
             if (style_data.err != protocol::Error::Ok) {
-                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url.uri);
+                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url->uri);
                 return {};
             }
 
-            if ((stylesheet_url.scheme == "http" || stylesheet_url.scheme == "https")
+            if ((stylesheet_url->scheme == "http" || stylesheet_url->scheme == "https")
                     && style_data.status_line.status_code != 200) {
                 spdlog::warn("Error {}: {} downloading {}",
                         style_data.status_line.status_code,
                         style_data.status_line.reason,
-                        stylesheet_url.uri);
+                        stylesheet_url->uri);
                 return {};
             }
 
@@ -99,7 +103,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
                     auto const &err = decoded.error();
                     spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
                             *encoding,
-                            stylesheet_url.uri,
+                            stylesheet_url->uri,
                             err.code,
                             err.message);
                     return {};
@@ -107,7 +111,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
 
                 style_data.body = *std::move(decoded);
             } else if (encoding) {
-                spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url.uri);
+                spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url->uri);
                 return {};
             }
 
@@ -152,7 +156,13 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         }
 
         spdlog::info("Following {} redirect from {} to {}", response.status_line.status_code, uri.uri, *location);
-        uri = uri::Uri::parse(std::string(*location), uri);
+        auto new_uri = uri::Uri::parse(std::string(*location), uri);
+        if (!new_uri) {
+            response.err = protocol::Error::InvalidResponse;
+            return {std::move(response), std::move(uri)};
+        }
+
+        uri = *std::move(new_uri);
         response = protocol_handler_->handle(uri);
         if (redirect_count > kMaxRedirects) {
             response.err = protocol::Error::RedirectLimit;
