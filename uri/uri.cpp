@@ -56,7 +56,7 @@ std::optional<Uri> Uri::parse(std::string uristr, std::optional<std::reference_w
     // Regex taken from RFC 3986.
     std::smatch match;
     std::regex const uri_regex{"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"};
-    if (!std::regex_search(uristr, match, uri_regex)) {
+    if (!std::regex_search(uristr, match, uri_regex, std::regex_constants::match_not_null)) {
         return std::nullopt;
     }
 

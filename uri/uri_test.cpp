@@ -7,6 +7,8 @@
 
 #include "etest/etest.h"
 
+#include <optional>
+
 using etest::expect;
 using etest::expect_eq;
 using uri::Uri;
@@ -34,6 +36,10 @@ int main() {
         };
 
         expect(uri == expected);
+    });
+
+    etest::test("empty uris don't parse as uris", [] {
+        expect_eq(Uri::parse(""), std::nullopt); //
     });
 
     etest::test("https: user, pass, port, path, query", [] {
