@@ -8,6 +8,7 @@
 #include "etest/etest.h"
 
 #include <optional>
+#include <string>
 
 using etest::expect;
 using etest::expect_eq;
@@ -40,6 +41,10 @@ int main() {
 
     etest::test("empty uris don't parse as uris", [] {
         expect_eq(Uri::parse(""), std::nullopt); //
+    });
+
+    etest::test("large uris don't explode libstdc++", [] {
+        expect_eq(Uri::parse(std::string(1025, ':')), std::nullopt); //
     });
 
     etest::test("https: user, pass, port, path, query", [] {

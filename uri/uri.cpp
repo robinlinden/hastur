@@ -53,6 +53,12 @@ void complete_from_base_if_needed(Uri &uri, Uri const &base) {
 } // namespace
 
 std::optional<Uri> Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86164
+    // Fuzz-testing w/ libstdc++13 still breaks the stack if 2048 characters are allowed.
+    if (uristr.size() > 1024) {
+        return std::nullopt;
+    }
+
     // Regex taken from RFC 3986.
     std::smatch match;
     std::regex const uri_regex{"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"};
