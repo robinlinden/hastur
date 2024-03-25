@@ -24,7 +24,7 @@ struct Error {
     html2::SourceLocation location{};
 };
 
-std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(std::string_view input) {
+std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(std::string_view input, html2::State state) {
     std::vector<html2::Token> tokens;
     std::vector<Error> errors;
     html2::Tokenizer tokenizer{input,
@@ -44,6 +44,7 @@ std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(std::string_vi
             [&](html2::Tokenizer &t, html2::ParseError error) {
                 errors.push_back({error, t.current_source_location()});
             }};
+    tokenizer.set_state(state);
     tokenizer.run();
 
     return {std::move(tokens), std::move(errors)};
@@ -121,6 +122,34 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
 
     return result;
 }
+
+std::optional<html2::State> to_state(std::string_view state_name) {
+    if (state_name == "Data state") {
+        return html2::State::Data;
+    }
+
+    if (state_name == "RCDATA state") {
+        return html2::State::Rcdata;
+    }
+
+    if (state_name == "RAWTEXT state") {
+        return html2::State::Rawtext;
+    }
+
+    if (state_name == "Script data state") {
+        return html2::State::ScriptData;
+    }
+
+    if (state_name == "PLAINTEXT state") {
+        return html2::State::Plaintext;
+    }
+
+    if (state_name == "CDATA section state") {
+        return html2::State::CdataSection;
+    }
+
+    return std::nullopt;
+}
 } // namespace
 
 int main(int argc, char **argv) {
@@ -148,8 +177,25 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        // TOOD(robinlinden): Don't skip these.
+        std::vector<html2::State> initial_states{html2::State::Data};
+
         if (test["initialStates"].error() == simdjson::SUCCESS) {
+            initial_states.clear();
+
+            auto state_names = test["initialStates"].get_array().value();
+            for (auto state_name : state_names) {
+                auto state = to_state(state_name.get_string().value());
+                if (!state.has_value()) {
+                    std::cerr << "Unhandled state: " << state_name.get_string().value() << '\n';
+                    return 1;
+                }
+
+                initial_states.push_back(*state);
+            }
+        }
+
+        // TOOD(robinlinden): Don't skip these.
+        if (test["lastStartTag"].error() == simdjson::SUCCESS) {
             continue;
         }
 
@@ -162,11 +208,14 @@ int main(int argc, char **argv) {
 
         auto out_tokens = to_html2_tokens(test["output"].get_array().value());
 
-        s.add_test(std::string{name}, [input = std::string{in}, expected = std::move(out_tokens)](etest::IActions &a) {
-            auto [tokens, errors] = tokenize(input);
-            a.expect_eq(tokens, expected);
-            // TODO(robinlinden): Check that errors match.
-        });
+        for (auto state : initial_states) {
+            auto test_name = std::string{name} + " (state: " + std::to_string(static_cast<int>(state)) + ")";
+            s.add_test(std::move(test_name), [input = std::string{in}, expected = out_tokens, state](auto &a) {
+                auto [tokens, errors] = tokenize(input, state);
+                a.expect_eq(tokens, expected);
+                // TOOD(robinlinden): Check that errors match.
+            });
+        }
     }
 
     return s.run();
