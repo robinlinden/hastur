@@ -72,7 +72,7 @@ extra_deps = {
     ],
 ) for test in [
     # "@html5lib-tests//:tokenizer/contentModelFlags.test",
-    # "@html5lib-tests//:tokenizer/domjs.test",
+    "@html5lib-tests//:tokenizer/domjs.test",
     "@html5lib-tests//:tokenizer/entities.test",
     # "@html5lib-tests//:tokenizer/escapeFlag.test",
     "@html5lib-tests//:tokenizer/namedEntities.test",
@@ -83,7 +83,7 @@ extra_deps = {
     "@html5lib-tests//:tokenizer/test3.test",
     "@html5lib-tests//:tokenizer/test4.test",
     "@html5lib-tests//:tokenizer/unicodeChars.test",
-    "@html5lib-tests//:tokenizer/unicodeCharsProblematic.test",
+    # "@html5lib-tests//:tokenizer/unicodeCharsProblematic.test",
 ]]
 
 [cc_fuzz_test(

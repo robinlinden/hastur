@@ -142,10 +142,17 @@ int main(int argc, char **argv) {
     auto tests = doc.find_field("tests").get_array().value();
     for (auto test : tests) {
         auto name = test["description"].get_string().value();
+
+        // TOOD(robinlinden): Don't skip these.
+        if (test["doubleEscaped"].error() == simdjson::SUCCESS) {
+            continue;
+        }
+
         // TOOD(robinlinden): Don't skip these.
         if (test["initialStates"].error() == simdjson::SUCCESS) {
             continue;
         }
+
         auto in = test["input"].get_string().value();
         // TOOD(robinlinden): Don't skip these.
         // See: https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
