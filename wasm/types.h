@@ -29,6 +29,9 @@ enum class ValueType {
     // Reference types.
     FunctionReference,
     ExternReference,
+
+    // Placeholder type used during validation
+    Unknown,
 };
 
 // https://webassembly.github.io/spec/core/binary/types.html#result-types
