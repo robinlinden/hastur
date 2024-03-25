@@ -84,7 +84,6 @@ extra_deps = {
     "@html5lib-tests//:tokenizer/test4.test",
     "@html5lib-tests//:tokenizer/unicodeChars.test",
     "@html5lib-tests//:tokenizer/unicodeCharsProblematic.test",
-    # "@html5lib-tests//:tokenizer/xmlViolation.test",
 ]]
 
 [cc_fuzz_test(
