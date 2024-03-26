@@ -13,8 +13,9 @@
 #include "dom/dom.h"
 #include "util/string.h"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
-#include <cassert>
 #include <iterator>
 #include <memory>
 #include <string>
@@ -172,9 +173,10 @@ MatchingProperties matching_properties(
             // parsing only declarations. Replace with the //css2 parser once possible.
             auto element_style = css::parse("dummy{"s + style_attr->second + "}"s).rules;
             // The above should always parse to 1 rule when using the old parser.
-            assert(element_style.size() == 1);
             if (element_style.size() == 1) {
                 std::ranges::copy(element_style[0].declarations, std::back_inserter(matched_properties));
+            } else {
+                spdlog::warn("Failed to parse inline style '{}' for element '{}'", style_attr->second, element->name);
             }
         }
     }

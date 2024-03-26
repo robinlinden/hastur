@@ -18,6 +18,7 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -53,6 +54,11 @@ void inline_css_tests() {
         dom::Node dom = dom::Element{"div", {{"style", {"font-size:2px"}}}};
         auto styled = style::style_tree(dom, {}, {});
         expect_eq(styled->properties, std::vector{std::pair{css::PropertyId::FontSize, "2px"s}});
+    });
+
+    etest::test("inline css: doesn't explode", [] {
+        dom::Node dom = dom::Element{"div", {{"style", {"aaa"}}}};
+        std::ignore = style::style_tree(dom, {}, {});
     });
 
     etest::test("inline css: overrides the stylesheet", [] {
