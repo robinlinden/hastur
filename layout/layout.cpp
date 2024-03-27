@@ -223,10 +223,11 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     if (auto text = box.text()) {
         auto font = find_font(font_families);
         if (font) {
-            box.dimensions.content.width = (*font)->measure(*text, type::Px{font_size}).width;
+            box.dimensions.content.width = (*font)->measure(*text, type::Px{font_size}, type::Weight::Normal).width;
         } else {
             spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
-            box.dimensions.content.width = type::NaiveFont{}.measure(*text, type::Px{font_size}).width;
+            box.dimensions.content.width =
+                    type::NaiveFont{}.measure(*text, type::Px{font_size}, type::Weight::Normal).width;
         }
     }
 
@@ -285,7 +286,9 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                 std::size_t best_split_point = std::string_view::npos;
                 for (auto split_point = text->find(' '); split_point != std::string_view::npos;
                         split_point = text->find(' ', split_point + 1)) {
-                    if (last_child_end + font->measure(text->substr(0, split_point), font_size).width > bounds.width) {
+                    if (last_child_end
+                                    + font->measure(text->substr(0, split_point), font_size, type::Weight::Normal).width
+                            > bounds.width) {
                         break;
                     }
 
@@ -293,7 +296,8 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                 }
 
                 if (best_split_point != std::string_view::npos) {
-                    child->dimensions.content.width = font->measure(text->substr(0, best_split_point), font_size).width;
+                    child->dimensions.content.width =
+                            font->measure(text->substr(0, best_split_point), font_size, type::Weight::Normal).width;
                     auto bonus_child = *child;
                     bonus_child.layout_text = std::string{text->substr(best_split_point + 1)};
                     box.children.insert(box.children.begin() + i + 1, std::move(bonus_child));
@@ -304,7 +308,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                     child = &box.children[i];
                     child->layout_text = std::string{text->substr(0, best_split_point)};
                 } else {
-                    child->dimensions.content.width = font->measure(*text, font_size).width;
+                    child->dimensions.content.width = font->measure(*text, font_size, type::Weight::Normal).width;
                     last_child_end += child->dimensions.margin_box().width;
                 }
             }

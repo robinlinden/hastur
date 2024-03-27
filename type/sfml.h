@@ -23,7 +23,7 @@ class SfmlFont : public IFont {
 public:
     explicit SfmlFont(sf::Font const &font) : font_{font} {}
 
-    Size measure(std::string_view text, Px font_size) const override;
+    Size measure(std::string_view text, Px font_size, Weight) const override;
 
     sf::Font const &sf_font() const { return font_; }
 

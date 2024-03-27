@@ -54,9 +54,19 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
 
 } // namespace
 
-Size SfmlFont::measure(std::string_view text, Px font_size) const {
+Size SfmlFont::measure(std::string_view text, Px font_size, Weight weight) const {
     sf::Text sf_text{
             sf::String::fromUtf8(text.data(), text.data() + text.size()), font_, static_cast<unsigned>(font_size.v)};
+
+    switch (weight) {
+        case Weight::Normal:
+            sf_text.setStyle(sf::Text::Regular);
+            break;
+        case Weight::Bold:
+            sf_text.setStyle(sf::Text::Bold);
+            break;
+    }
+
     auto bounds = sf_text.getLocalBounds();
     return Size{static_cast<int>(bounds.width), static_cast<int>(bounds.height)};
 }
