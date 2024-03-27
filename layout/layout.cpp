@@ -227,8 +227,8 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     calculate_padding(box, font_size);
     calculate_border(box, font_size);
 
-    auto font_families = box.get_property<css::PropertyId::FontFamily>();
     if (auto text = box.text()) {
+        auto font_families = box.get_property<css::PropertyId::FontFamily>();
         auto weight = to_type(box.get_property<css::PropertyId::FontWeight>());
         auto font = find_font(font_families);
         if (font) {
