@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -1394,6 +1394,35 @@ int main() {
 
         auto layout = layout::create_layout(style, 0).value();
         expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
+    });
+
+    etest::test("text, bold", [] {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{
+                        {css::PropertyId::Display, "inline"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::FontWeight, "bold"},
+                },
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, 25, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children[0],
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 0, 25, 10}},
+                        .layout_text = "hello"sv,
+                }},
+        };
+
+        auto l = layout::create_layout(style, 30, NoType{}).value();
+        expect_eq(l, expected);
     });
 
     etest::test("text, no font available", [] {
