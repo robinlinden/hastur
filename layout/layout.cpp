@@ -213,20 +213,29 @@ void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
     }
 }
 
+type::Weight to_type(std::optional<style::FontWeight> const &weight) {
+    if (!weight || weight->value < style::FontWeight::kBold) {
+        return type::Weight::Normal;
+    }
+
+    return type::Weight::Bold;
+}
+
 void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
     calculate_padding(box, font_size);
     calculate_border(box, font_size);
 
-    auto font_families = box.get_property<css::PropertyId::FontFamily>();
     if (auto text = box.text()) {
+        auto font_families = box.get_property<css::PropertyId::FontFamily>();
+        auto weight = to_type(box.get_property<css::PropertyId::FontWeight>());
         auto font = find_font(font_families);
         if (font) {
-            box.dimensions.content.width = (*font)->measure(*text, type::Px{font_size}).width;
+            box.dimensions.content.width = (*font)->measure(*text, type::Px{font_size}, weight).width;
         } else {
             spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
-            box.dimensions.content.width = type::NaiveFont{}.measure(*text, type::Px{font_size}).width;
+            box.dimensions.content.width = type::NaiveFont{}.measure(*text, type::Px{font_size}, weight).width;
         }
     }
 
@@ -275,6 +284,9 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
     }
     auto font = *maybe_font;
 
+    auto weight =
+            to_type(!box.children.empty() ? box.children[0].get_property<css::PropertyId::FontWeight>() : std::nullopt);
+
     for (std::size_t i = 0; i < box.children.size(); ++i) {
         auto *child = &box.children[i];
         layout(*child, box.dimensions.content.translated(last_child_end, current_line * font_size.v));
@@ -285,7 +297,8 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                 std::size_t best_split_point = std::string_view::npos;
                 for (auto split_point = text->find(' '); split_point != std::string_view::npos;
                         split_point = text->find(' ', split_point + 1)) {
-                    if (last_child_end + font->measure(text->substr(0, split_point), font_size).width > bounds.width) {
+                    if (last_child_end + font->measure(text->substr(0, split_point), font_size, weight).width
+                            > bounds.width) {
                         break;
                     }
 
@@ -293,7 +306,8 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                 }
 
                 if (best_split_point != std::string_view::npos) {
-                    child->dimensions.content.width = font->measure(text->substr(0, best_split_point), font_size).width;
+                    child->dimensions.content.width =
+                            font->measure(text->substr(0, best_split_point), font_size, weight).width;
                     auto bonus_child = *child;
                     bonus_child.layout_text = std::string{text->substr(best_split_point + 1)};
                     box.children.insert(box.children.begin() + i + 1, std::move(bonus_child));
@@ -304,7 +318,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                     child = &box.children[i];
                     child->layout_text = std::string{text->substr(0, best_split_point)};
                 } else {
-                    child->dimensions.content.width = font->measure(*text, font_size).width;
+                    child->dimensions.content.width = font->measure(*text, font_size, weight).width;
                     last_child_end += child->dimensions.margin_box().width;
                 }
             }

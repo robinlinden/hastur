@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -22,10 +22,15 @@ struct Px {
     [[nodiscard]] bool operator==(Px const &) const = default;
 };
 
+enum class Weight {
+    Normal,
+    Bold,
+};
+
 class IFont {
 public:
     virtual ~IFont() = default;
-    [[nodiscard]] virtual Size measure(std::string_view, Px font_size) const = 0;
+    [[nodiscard]] virtual Size measure(std::string_view, Px font_size, Weight) const = 0;
 };
 
 class IType {
