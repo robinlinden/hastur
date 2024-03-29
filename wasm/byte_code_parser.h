@@ -29,6 +29,7 @@ enum class ModuleParseError {
     InvalidExportSection,
     InvalidStartSection,
     InvalidCodeSection,
+    InvalidDataCountSection,
     UnhandledSection,
 };
 
@@ -64,6 +65,8 @@ constexpr std::string_view to_string(ModuleParseError e) {
             return "Invalid start section";
         case ModuleParseError::InvalidCodeSection:
             return "Invalid code section";
+        case ModuleParseError::InvalidDataCountSection:
+            return "Invalid data count section";
         case ModuleParseError::UnhandledSection:
             return "Unhandled section";
     }

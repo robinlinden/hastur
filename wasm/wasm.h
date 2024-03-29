@@ -139,6 +139,12 @@ struct CodeSection {
     [[nodiscard]] bool operator==(CodeSection const &) const = default;
 };
 
+struct DataCountSection {
+    std::uint32_t count{};
+
+    [[nodiscard]] bool operator==(DataCountSection const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/syntax/modules.html
 struct Module {
     std::vector<CustomSection> custom_sections{};
@@ -154,7 +160,7 @@ struct Module {
     // TODO(robinlinden): element_section
     std::optional<CodeSection> code_section{};
     // TODO(robinlinden): data_section
-    // TODO(robinlinden): data_count_section
+    std::optional<DataCountSection> data_count_section{};
 
     [[nodiscard]] bool operator==(Module const &) const = default;
 };

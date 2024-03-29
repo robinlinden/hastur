@@ -550,6 +550,17 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
                     return tl::unexpected{ModuleParseError::InvalidCodeSection};
                 }
                 break;
+            case SectionId::DataCount: {
+                auto count = Leb128<std::uint32_t>::decode_from(is);
+                if (!count) {
+                    return tl::unexpected{ModuleParseError::InvalidDataCountSection};
+                }
+
+                module.data_count_section = DataCountSection{
+                        .count = *count,
+                };
+                break;
+            }
             default:
                 std::cerr << "Unhandled section: " << static_cast<int>(id) << '\n';
                 // Uncomment if you want to skip past unhandled sections for e.g. debugging.

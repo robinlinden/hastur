@@ -74,6 +74,7 @@ void parse_error_to_string_tests() {
         expect_eq(wasm::to_string(ModuleParseError::InvalidExportSection), "Invalid export section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidStartSection), "Invalid start section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidCodeSection), "Invalid code section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidDataCountSection), "Invalid data count section");
         expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
 
         auto last_error_value = static_cast<int>(ModuleParseError::UnhandledSection);
@@ -661,6 +662,18 @@ void code_section_tests() {
     });
 }
 
+void data_count_tests() {
+    etest::test("data count section, 42", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {42})).value();
+        expect_eq(module.data_count_section, wasm::DataCountSection{.count = 42});
+    });
+
+    etest::test("data count section, bad count", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {0x80}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataCountSection});
+    });
+}
+
 } // namespace
 
 int main() {
@@ -700,7 +713,7 @@ int main() {
     });
 
     etest::test("unhandled section", [] {
-        expect_eq(ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {})),
+        expect_eq(ByteCodeParser::parse_module(make_module_bytes(SectionId::Element, {})),
                 tl::unexpected{wasm::ModuleParseError::UnhandledSection});
     });
 
@@ -715,6 +728,7 @@ int main() {
     export_section_tests();
     start_section_tests();
     code_section_tests();
+    data_count_tests();
 
     return etest::run_all_tests();
 }
