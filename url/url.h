@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -214,8 +214,6 @@ private:
         input_ = input;
         pos_ = 0;
     }
-
-    constexpr std::size_t current_pos() const { return pos_; }
 
     // Main parser
     std::optional<Url> parse_basic(std::string input,

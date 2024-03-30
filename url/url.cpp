@@ -457,7 +457,7 @@ std::optional<Url> UrlParser::parse_basic(
         // This check accomodates the one scenario (commented on in
         // state_scheme_start, below) in which the parser position goes
         // negative.
-        if (is_eof() && current_pos() != static_cast<std::size_t>(-1)) {
+        if (is_eof() && pos_ != static_cast<std::size_t>(-1)) {
             break;
         }
 
