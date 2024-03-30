@@ -9,9 +9,11 @@
 
 #include <simdjson.h> // IWYU pragma: keep
 
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -24,13 +26,35 @@ struct Error {
     html2::SourceLocation location{};
 };
 
-std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(std::string_view input, html2::State state) {
+std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
+        std::string_view input, html2::State state, std::optional<std::string_view> const &last_start_tag) {
     std::vector<html2::Token> tokens;
     std::vector<Error> errors;
-    html2::Tokenizer tokenizer{input,
+    bool last_start_tag_set = true;
+
+    // Patch the input so that we can set the last seen start tag without adding
+    // a setter that should only really be used in tests to html2::Tokenizer.
+    std::string real_input;
+    if (last_start_tag) {
+        last_start_tag_set = false;
+        std::stringstream ss;
+        ss << "<" << *last_start_tag << ">" << input;
+        real_input = std::move(ss).str();
+    } else {
+        real_input = input;
+    }
+
+    html2::Tokenizer tokenizer{real_input,
             [&](html2::Tokenizer &t, html2::Token token) {
                 // The expected token output doesn't contain eof tokens.
                 if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+                    return;
+                }
+
+                if (!last_start_tag_set) {
+                    assert(std::holds_alternative<html2::StartTagToken>(token));
+                    last_start_tag_set = true;
+                    t.set_state(state);
                     return;
                 }
 
@@ -44,7 +68,13 @@ std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(std::string_vi
             [&](html2::Tokenizer &t, html2::ParseError error) {
                 errors.push_back({error, t.current_source_location()});
             }};
-    tokenizer.set_state(state);
+
+    // If we need to hack the input to set the start tag, the state-override
+    // should only take effect after seeing that first start tag.
+    if (last_start_tag_set) {
+        tokenizer.set_state(state);
+    }
+
     tokenizer.run();
 
     return {std::move(tokens), std::move(errors)};
@@ -194,9 +224,9 @@ int main(int argc, char **argv) {
             }
         }
 
-        // TOOD(robinlinden): Don't skip these.
+        std::optional<std::string> last_start_tag;
         if (test["lastStartTag"].error() == simdjson::SUCCESS) {
-            continue;
+            last_start_tag = test["lastStartTag"].get_string().value();
         }
 
         auto in = test["input"].get_string().value();
@@ -210,9 +240,9 @@ int main(int argc, char **argv) {
 
         for (auto state : initial_states) {
             auto test_name = std::string{name} + " (state: " + std::to_string(static_cast<int>(state)) + ")";
-            s.add_test(std::move(test_name), [input = std::string{in}, expected = out_tokens, state](auto &a) {
-                auto [tokens, errors] = tokenize(input, state);
-                a.expect_eq(tokens, expected);
+            s.add_test(std::move(test_name), [=, input = std::string{in}](auto &a) {
+                auto [tokens, errors] = tokenize(input, state, last_start_tag);
+                a.expect_eq(tokens, out_tokens);
                 // TOOD(robinlinden): Check that errors match.
             });
         }

@@ -71,10 +71,10 @@ extra_deps = {
         "@simdjson",
     ],
 ) for test in [
-    # "@html5lib-tests//:tokenizer/contentModelFlags.test",
+    "@html5lib-tests//:tokenizer/contentModelFlags.test",
     "@html5lib-tests//:tokenizer/domjs.test",
     "@html5lib-tests//:tokenizer/entities.test",
-    # "@html5lib-tests//:tokenizer/escapeFlag.test",
+    "@html5lib-tests//:tokenizer/escapeFlag.test",
     "@html5lib-tests//:tokenizer/namedEntities.test",
     "@html5lib-tests//:tokenizer/numericEntities.test",
     "@html5lib-tests//:tokenizer/pendingSpecChanges.test",
