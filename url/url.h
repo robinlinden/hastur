@@ -1,15 +1,15 @@
-// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef URL_URL_H_
 #define URL_URL_H_
 
-#include "util/base_parser.h"
 #include "util/string.h"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -148,10 +148,8 @@ enum class ValidationError {
 std::string_view description(ValidationError);
 
 // This parser is current with the WHATWG URL specification as of 27 September 2023
-class UrlParser final : util::BaseParser {
+class UrlParser final {
 public:
-    UrlParser() : util::BaseParser("") {}
-
     std::optional<Url> parse(std::string input, std::optional<Url> base = std::nullopt);
 
     void set_on_error(std::function<void(ValidationError)> on_error) { on_error_ = std::move(on_error); }
@@ -182,6 +180,42 @@ private:
         Failure,
         Terminate
     };
+
+    // Parse helpers
+    constexpr std::optional<char> peek() const {
+        if (is_eof()) {
+            return std::nullopt;
+        }
+
+        return input_[pos_];
+    }
+
+    constexpr std::optional<std::string_view> peek(std::size_t chars) const {
+        if (is_eof()) {
+            return std::nullopt;
+        }
+
+        return input_.substr(pos_, chars);
+    }
+
+    constexpr std::string_view remaining_from(std::size_t skip) const {
+        return pos_ + skip >= input_.size() ? "" : input_.substr(pos_ + skip);
+    }
+
+    constexpr bool is_eof() const { return pos_ >= input_.size(); }
+
+    constexpr void advance(std::size_t n) { pos_ += n; }
+
+    constexpr void back(std::size_t n) { pos_ -= n; }
+
+    constexpr void reset() { pos_ = 0; }
+
+    constexpr void reset(std::string_view input) {
+        input_ = input;
+        pos_ = 0;
+    }
+
+    constexpr std::size_t current_pos() const { return pos_; }
 
     // Main parser
     std::optional<Url> parse_basic(std::string input,
@@ -237,6 +271,9 @@ private:
     }
 
     // Parser state
+    std::string_view input_{};
+    std::size_t pos_{0};
+
     Url url_;
     std::optional<Url> base_;
     std::optional<ParserState> state_override_;

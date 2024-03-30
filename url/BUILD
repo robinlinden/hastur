@@ -36,7 +36,6 @@ cc_library(
     deps = [
         ":icudata",
         ":rtti_hack",
-        "//util:base_parser",
         "//util:string",
         "//util:unicode",
         "//util:uuid",
