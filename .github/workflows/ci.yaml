@@ -162,7 +162,7 @@ jobs:
   linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    container: gcc:13.1.0
+    container: gcc:13.2.0
     steps:
       - uses: actions/checkout@v4
       - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
@@ -193,8 +193,8 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v18.0.3
-      WASMTIME_NAME: wasmtime-v18.0.3-x86_64-linux
+      WASMTIME_VERSION: v19.0.0
+      WASMTIME_NAME: wasmtime-v19.0.0-x86_64-linux
     steps:
       - uses: actions/checkout@v4
       - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
@@ -271,7 +271,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install pre-commit
-        run: pip install pre-commit==3.6.2
+        run: pip install pre-commit==3.7.0
       - name: Run pre-commit
         run: pre-commit run --all-files
 
