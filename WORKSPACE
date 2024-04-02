@@ -6,15 +6,15 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file"
 # https://github.com/bazelbuild/apple_support
 http_archive(
     name = "build_bazel_apple_support",
-    integrity = "sha256-qLpv0J0P/rqbXzmPOkYmJHD+Ct3dtO9a+n6rGNABp7A=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/1.14.0/apple_support.1.14.0.tar.gz",
+    integrity = "sha256-xLsrc2fEhDgjAK7nW+WYuS+EeJb7MbvSLzojRq32aoA=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.15.1/apple_support.1.15.1.tar.gz",
 )
 
 # https://github.com/bazelbuild/platforms
 http_archive(
     name = "platforms",  # Apache-2.0
-    sha256 = "8150406605389ececb6da07cbcb509d5637a3ab9a24bc69b1101531367d89d74",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.8/platforms-0.0.8.tar.gz",
+    integrity = "sha256-XtpTnIQSZQMcL4LYrno6ZJC9YhduDAOPxGnqv5H2FJs=",
+    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.9/platforms-0.0.9.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_cc
@@ -26,12 +26,11 @@ http_archive(
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
-# v0.4.1 + fix for rules_python 0.27.0 compatibility.
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "484242608494d91e4c8e5efb2d748d3f0ec2c9346d31b107667afc5d81a0f8c2",
-    strip_prefix = "rules_fuzzing-67ba0264c46c173a75825f2ae0a0b4b9b17c5e59",
-    url = "https://github.com/bazelbuild/rules_fuzzing/archive/67ba0264c46c173a75825f2ae0a0b4b9b17c5e59.tar.gz",
+    integrity = "sha256-dyBsVLcfTdUzUSOm/yqOpojspTeNNLSDgRTf9xZSzyY=",
+    strip_prefix = "rules_fuzzing-0.5.1",
+    url = "https://github.com/bazelbuild/rules_fuzzing/releases/download/v0.5.1/rules_fuzzing-0.5.1.zip",
 )
 
 # https://github.com/bazelbuild/rules_python
@@ -299,11 +298,10 @@ http_archive(
 http_archive(
     name = "xcursor",  # MIT
     build_file = "//third_party:xcursor.BUILD",
-    integrity = "sha256-iRTpjSBuz2Z+o4vWguqUQSWKLFOGZhCfWvTa3WGq630=",
-    patch_cmds = ["sed -i'' -e /config.h/d src/xcursorint.h"],
-    strip_prefix = "libxcursor-libXcursor-1.2.1",
+    integrity = "sha256-m3DxifDxfAHudBII/B6zXbFqAb/u9iR7+XBUF5m0yVo=",
+    strip_prefix = "libxcursor-libXcursor-1.2.2",
     urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.1/libxcursor-libXcursor-1.2.1.tar.gz",
+        "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.2/libxcursor-libXcursor-1.2.2.tar.gz",
         # TODO(robinlinden): Mirror.
     ],
 )
