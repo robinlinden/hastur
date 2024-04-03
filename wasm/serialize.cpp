@@ -9,12 +9,35 @@
 
 #include <cstddef>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <variant>
 
 namespace wasm::instructions {
+namespace {
+
+struct InstructionStringifyVisitor {
+    std::stringstream out;
+    std::size_t indent = 0;
+
+    void apply_indent();
+
+    void operator()(Block const &t);
+    void operator()(Loop const &t);
+    void operator()(BreakIf const &t);
+    void operator()(Return const &);
+    void operator()(I32Const const &t);
+    void operator()(LocalGet const &t);
+    void operator()(LocalSet const &t);
+    void operator()(LocalTee const &t);
+    void operator()(I32Load const &t);
+
+    template<typename T>
+    requires std::is_empty_v<T>
+    void operator()(T const &);
+};
 
 void InstructionStringifyVisitor::apply_indent() {
     for (std::size_t i = 0; i < indent; i++) {
@@ -97,6 +120,8 @@ void InstructionStringifyVisitor::operator()(I32Load const &t) {
         out << " " << memarg;
     }
 }
+
+} // namespace
 
 std::string to_string(Instruction const &inst) {
     InstructionStringifyVisitor v;
