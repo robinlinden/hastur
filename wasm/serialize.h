@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -88,7 +89,7 @@ constexpr std::string to_string(MemArg const &ma, std::optional<std::uint32_t> n
 }
 
 struct InstructionStringifyVisitor {
-    std::string out;
+    std::stringstream out;
     std::size_t indent = 0;
 
     void apply_indent();
@@ -108,7 +109,7 @@ struct InstructionStringifyVisitor {
     void operator()(T const &);
 };
 
-std::string to_string(Instruction const &inst, std::optional<InstructionStringifyVisitor> = std::nullopt);
+std::string to_string(Instruction const &);
 
 } // namespace wasm::instructions
 

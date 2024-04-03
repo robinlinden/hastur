@@ -11,129 +11,97 @@
 #include <optional>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 namespace wasm::instructions {
 
 void InstructionStringifyVisitor::apply_indent() {
     for (std::size_t i = 0; i < indent; i++) {
-        out += "\t";
+        out << "\t";
     }
 }
 
 void InstructionStringifyVisitor::operator()(Block const &t) {
-    out += Block::kMnemonic;
-    out += " ";
-    out += to_string(t.type);
-    out += " ";
+    out << Block::kMnemonic << " " << to_string(t.type) << " ";
 
     indent++;
 
     for (Instruction const &i : t.instructions) {
-        out += "\n";
+        out << "\n";
         apply_indent();
-
-        std::string subinst = to_string(i, *this);
-
-        out += subinst;
+        std::visit(*this, i);
     }
 
     indent--;
 
-    out += "\n";
+    out << "\n";
     apply_indent();
-    out += "end";
+    out << "end";
 }
 
 void InstructionStringifyVisitor::operator()(Loop const &t) {
-    out += Loop::kMnemonic;
-    out += " ";
-    out += to_string(t.type);
-    out += " ";
+    out << Loop::kMnemonic << " " << to_string(t.type) << " ";
 
     indent++;
 
     for (Instruction const &i : t.instructions) {
-        out += "\n";
+        out << "\n";
         apply_indent();
-
-        std::string subinst = to_string(i, *this);
-
-        out += subinst;
+        std::visit(*this, i);
     }
 
     indent--;
 
-    out += "\n";
+    out << "\n";
     apply_indent();
-    out += "end";
+    out << "end";
 }
 
 void InstructionStringifyVisitor::operator()(BreakIf const &t) {
-    out += BreakIf::kMnemonic;
-    out += " ";
-    out += std::to_string(t.label_idx);
+    out << BreakIf::kMnemonic << " " << std::to_string(t.label_idx);
 }
 
 void InstructionStringifyVisitor::operator()(Return const &) {
-    out += Return::kMnemonic;
+    out << Return::kMnemonic;
 }
 
 void InstructionStringifyVisitor::operator()(I32Const const &t) {
-    out += I32Const::kMnemonic;
-    out += " ";
-    out += std::to_string(t.value);
+    out << I32Const::kMnemonic << " " << std::to_string(t.value);
 }
 
 template<typename T>
 requires std::is_empty_v<T>
 void InstructionStringifyVisitor::operator()(T const &) {
-    out += T::kMnemonic;
+    out << T::kMnemonic;
 }
 
 void InstructionStringifyVisitor::operator()(LocalGet const &t) {
-    out += LocalGet::kMnemonic;
-    out += " ";
-    out += std::to_string(t.idx);
+    out << LocalGet::kMnemonic << " " << std::to_string(t.idx);
 }
 
 void InstructionStringifyVisitor::operator()(LocalSet const &t) {
-    out += LocalSet::kMnemonic;
-    out += " ";
-    out += std::to_string(t.idx);
+    out << LocalSet::kMnemonic << " " << std::to_string(t.idx);
 }
 
 void InstructionStringifyVisitor::operator()(LocalTee const &t) {
-    out += LocalTee::kMnemonic;
-    out += " ";
-    out += std::to_string(t.idx);
+    out << LocalTee::kMnemonic << " " << std::to_string(t.idx);
 }
 
 void InstructionStringifyVisitor::operator()(I32Load const &t) {
-    out += I32Load::kMnemonic;
+    out << I32Load::kMnemonic;
 
     std::string memarg = to_string(t.arg, 32);
 
     if (!memarg.empty()) {
-        out += " ";
-        out += memarg;
+        out << " " << memarg;
     }
 }
 
-std::string to_string(Instruction const &inst, std::optional<InstructionStringifyVisitor> visitor) {
-    if (visitor.has_value()) {
-        visitor.value().out.clear();
-
-        std::visit(*visitor, inst);
-
-        return visitor.value().out;
-    }
-
+std::string to_string(Instruction const &inst) {
     InstructionStringifyVisitor v;
-
     std::visit(v, inst);
-
-    return v.out;
+    return std::move(v.out).str();
 }
 
 } // namespace wasm::instructions
