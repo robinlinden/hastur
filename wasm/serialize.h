@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +15,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <variant>
 
 namespace wasm {
@@ -96,47 +98,14 @@ struct InstructionStringifyVisitor {
     void operator()(BreakIf const &t);
     void operator()(Return const &);
     void operator()(I32Const const &t);
-    void operator()(I32EqualZero const &);
-    void operator()(I32Equal const &);
-    void operator()(I32NotEqual const &);
-    void operator()(I32LessThanSigned const &);
-    void operator()(I32LessThanUnsigned const &);
-    void operator()(I32GreaterThanSigned const &);
-    void operator()(I32GreaterThanUnsigned const &);
-    void operator()(I32LessThanEqualSigned const &);
-    void operator()(I32LessThanEqualUnsigned const &);
-    void operator()(I32GreaterThanEqualSigned const &);
-    void operator()(I32GreaterThanEqualUnsigned const &);
-    void operator()(I32CountLeadingZeros const &);
-    void operator()(I32CountTrailingZeros const &);
-    void operator()(I32PopulationCount const &);
-    void operator()(I32Add const &);
-    void operator()(I32Subtract const &);
-    void operator()(I32Multiply const &);
-    void operator()(I32DivideSigned const &);
-    void operator()(I32DivideUnsigned const &);
-    void operator()(I32RemainderSigned const &);
-    void operator()(I32RemainderUnsigned const &);
-    void operator()(I32And const &);
-    void operator()(I32Or const &);
-    void operator()(I32ExclusiveOr const &);
-    void operator()(I32ShiftLeft const &);
-    void operator()(I32ShiftRightSigned const &);
-    void operator()(I32ShiftRightUnsigned const &);
-    void operator()(I32RotateLeft const &);
-    void operator()(I32RotateRight const &);
-    void operator()(I32WrapI64 const &);
-    void operator()(I32TruncateF32Signed const &);
-    void operator()(I32TruncateF32Unsigned const &);
-    void operator()(I32TruncateF64Signed const &);
-    void operator()(I32TruncateF64Unsigned const &);
-    void operator()(I32ReinterpretF32 const &);
-    void operator()(I32Extend8Signed const &);
-    void operator()(I32Extend16Signed const &);
     void operator()(LocalGet const &t);
     void operator()(LocalSet const &t);
     void operator()(LocalTee const &t);
     void operator()(I32Load const &t);
+
+    template<typename T>
+    requires std::is_empty_v<T>
+    void operator()(T const &);
 };
 
 std::string to_string(Instruction const &inst, std::optional<InstructionStringifyVisitor> = std::nullopt);
