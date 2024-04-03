@@ -679,8 +679,13 @@ void App::run_http_response_widget() const {
         if (ImGui::CollapsingHeader("Headers")) {
             ImGui::TextUnformatted(response_headers_str_.c_str());
         }
+
         if (ImGui::CollapsingHeader("Body")) {
-            ImGui::TextUnformatted(page().response.body.c_str());
+            if (maybe_page_) {
+                ImGui::TextUnformatted(page().response.body.c_str());
+            } else {
+                ImGui::TextUnformatted(maybe_page_.error().response.body.c_str());
+            }
         }
     });
 }
