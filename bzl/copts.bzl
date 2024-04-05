@@ -36,15 +36,11 @@ HASTUR_CLANG_CL_WARNING_FLAGS = [
     "-Wno-unused-command-line-argument",
 ]
 
-# Only a compiler named exactly "gcc" matches "@rules_cc//cc/compiler:gcc", so
-# we still need a default-branch for gcc-11, gcc-12, etc.
-# https://github.com/bazelbuild/bazel/issues/12707
-# https://github.com/bazelbuild/bazel/issues/17794
 HASTUR_COPTS = select({
     "@rules_cc//cc/compiler:clang": HASTUR_LINUX_WARNING_FLAGS,
     "@rules_cc//cc/compiler:clang-cl": HASTUR_CLANG_CL_WARNING_FLAGS,
+    "@rules_cc//cc/compiler:gcc": HASTUR_LINUX_WARNING_FLAGS,
     "@rules_cc//cc/compiler:msvc-cl": HASTUR_MSVC_WARNING_FLAGS,
-    "//conditions:default": HASTUR_LINUX_WARNING_FLAGS,
 })
 
 # C++ fuzzing requires a Clang compiler: https://github.com/bazelbuild/rules_fuzzing#prerequisites
