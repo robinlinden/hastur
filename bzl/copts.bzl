@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -49,6 +49,9 @@ HASTUR_COPTS = select({
 
 # C++ fuzzing requires a Clang compiler: https://github.com/bazelbuild/rules_fuzzing#prerequisites
 HASTUR_FUZZ_PLATFORMS = select({
-    "@rules_cc//cc/compiler:clang": ["@platforms//os:linux"],
+    "@rules_cc//cc/compiler:clang": [
+        "@platforms//os:linux",
+        "@platforms//os:macos",
+    ],
     "//conditions:default": ["@platforms//:incompatible"],
 })
