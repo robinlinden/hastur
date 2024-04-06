@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -70,7 +70,7 @@ struct DrawTextWithFontOptionsCmd {
     std::string text{};
     std::vector<std::string> font_options{};
     int size{};
-    FontStyle style{FontStyle::Normal};
+    FontStyle style{};
     Color color{};
 
     [[nodiscard]] bool operator==(DrawTextWithFontOptionsCmd const &) const = default;
@@ -81,7 +81,7 @@ struct DrawTextCmd {
     std::string text{};
     std::string font{};
     int size{};
-    FontStyle style{FontStyle::Normal};
+    FontStyle style{};
     Color color{};
 
     [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;

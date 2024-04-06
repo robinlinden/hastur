@@ -34,43 +34,35 @@ constexpr bool is_fully_transparent(gfx::Color const &c) {
     return c.a == 0;
 }
 
-gfx::FontStyle to_gfx(style::FontStyle style) {
-    switch (style) {
-        case style::FontStyle::Italic:
-        case style::FontStyle::Oblique:
-            return gfx::FontStyle::Italic;
-        case style::FontStyle::Normal:
-        default:
-            return gfx::FontStyle::Normal;
-    }
-}
-
-gfx::FontStyle to_gfx(std::optional<style::FontWeight> style) {
-    if (!style || style->value < style::FontWeight::kBold) {
-        return gfx::FontStyle::Normal;
+gfx::FontStyle to_gfx(style::FontStyle style,
+        std::optional<style::FontWeight> weight,
+        std::vector<style::TextDecorationLine> const &decorations) {
+    gfx::FontStyle gfx;
+    if (style == style::FontStyle::Italic || style == style::FontStyle::Oblique) {
+        gfx.italic = true;
     }
 
-    return gfx::FontStyle::Bold;
-}
+    if (weight && weight->value >= style::FontWeight::kBold) {
+        gfx.bold = true;
+    }
 
-gfx::FontStyle to_gfx(std::vector<style::TextDecorationLine> const &decorations) {
-    gfx::FontStyle style{};
     for (auto const &decoration : decorations) {
         switch (decoration) {
             case style::TextDecorationLine::None:
-                return {};
+                break;
             case style::TextDecorationLine::Underline:
-                style |= gfx::FontStyle::Underlined;
+                gfx.underlined = true;
                 break;
             case style::TextDecorationLine::LineThrough:
-                style |= gfx::FontStyle::Strikethrough;
+                gfx.strikethrough = true;
                 break;
             default:
                 spdlog::warn("Unhandled text decoration line '{}'", std::to_underlying(decoration));
                 break;
         }
     }
-    return style;
+
+    return gfx;
 }
 
 void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::string_view text) {
@@ -81,12 +73,10 @@ void render_text(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::st
         return fs;
     }();
     auto font_size = gfx::FontSize{.px = layout.get_property<css::PropertyId::FontSize>()};
-    auto style = to_gfx(layout.get_property<css::PropertyId::FontStyle>());
-    auto weight = to_gfx(layout.get_property<css::PropertyId::FontWeight>());
-    style |= weight;
+    auto style = to_gfx(layout.get_property<css::PropertyId::FontStyle>(),
+            layout.get_property<css::PropertyId::FontWeight>(),
+            layout.get_property<css::PropertyId::TextDecorationLine>());
     auto color = layout.get_property<css::PropertyId::Color>();
-    auto text_decoration_line = to_gfx(layout.get_property<css::PropertyId::TextDecorationLine>());
-    style |= text_decoration_line;
     painter.draw_text(layout.dimensions.content.position(), text, fonts, font_size, style, color);
 }
 

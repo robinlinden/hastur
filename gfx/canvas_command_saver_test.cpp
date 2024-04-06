@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -92,14 +92,13 @@ int main() {
 
     etest::test("CanvasCommandSaver::draw_text", [] {
         CanvasCommandSaver saver;
-        saver.draw_text({1, 2}, "hello!"sv, {"comic sans"}, {11}, FontStyle::Normal, {1, 2, 3});
+        saver.draw_text({1, 2}, "hello!"sv, {"comic sans"}, {11}, {}, {1, 2, 3});
         expect_eq(saver.take_commands(),
-                CanvasCommands{DrawTextCmd{{1, 2}, "hello!"s, {"comic sans"}, 11, FontStyle::Normal, {1, 2, 3}}});
+                CanvasCommands{DrawTextCmd{{1, 2}, "hello!"s, {"comic sans"}, 11, {}, {1, 2, 3}}});
 
-        saver.draw_text({1, 2}, "hello!"sv, std::vector<gfx::Font>{{"comic sans"}}, {11}, FontStyle::Normal, {1, 2, 3});
+        saver.draw_text({1, 2}, "hello!"sv, std::vector<gfx::Font>{{"comic sans"}}, {11}, {}, {1, 2, 3});
         expect_eq(saver.take_commands(),
-                CanvasCommands{DrawTextWithFontOptionsCmd{
-                        {1, 2}, "hello!"s, {{"comic sans"}}, 11, FontStyle::Normal, {1, 2, 3}}});
+                CanvasCommands{DrawTextWithFontOptionsCmd{{1, 2}, "hello!"s, {{"comic sans"}}, 11, {}, {1, 2, 3}}});
     });
 
     etest::test("CanvasCommandSaver::draw_pixels", [] {
@@ -118,8 +117,8 @@ int main() {
         saver.add_translation(1234, 5678);
         saver.fill_rect({9, 9, 9, 9}, {0x12, 0x34, 0x56});
         saver.draw_rect({9, 9, 9, 9}, {0x10, 0x11, 0x12}, {}, {});
-        saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, FontStyle::Italic, {3, 2, 1});
-        saver.draw_text({1, 5}, "hello?"sv, {{{"font1"}, {"font2"}}}, {42}, FontStyle::Normal, {1, 2, 3});
+        saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, {.italic = true}, {3, 2, 1});
+        saver.draw_text({1, 5}, "hello?"sv, {{{"font1"}, {"font2"}}}, {42}, {}, {1, 2, 3});
         saver.clear(gfx::Color{1, 2, 3});
         saver.draw_pixels({1, 2, 3, 4}, {{0x12, 0x34, 0x56, 0x78}});
         auto cmds = saver.take_commands();

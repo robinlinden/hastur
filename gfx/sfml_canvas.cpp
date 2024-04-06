@@ -106,16 +106,22 @@ sf::Glsl::Vec4 to_vec4(Color const &color) {
 
 sf::Text::Style to_sfml(FontStyle style) {
     auto sf_style = sf::Text::Style::Regular;
-    auto transfer_enum_bit = [&]<FontStyle SourceBitT, sf::Text::Style TargetBitT> {
-        if ((style & SourceBitT) == SourceBitT) {
-            sf_style = static_cast<sf::Text::Style>(sf_style | TargetBitT);
-        }
-    };
+    if (style.bold) {
+        sf_style = static_cast<sf::Text::Style>(sf_style | sf::Text::Style::Bold);
+    }
 
-    transfer_enum_bit.template operator()<FontStyle::Italic, sf::Text::Style::Italic>();
-    transfer_enum_bit.template operator()<FontStyle::Bold, sf::Text::Style::Bold>();
-    transfer_enum_bit.template operator()<FontStyle::Underlined, sf::Text::Style::Underlined>();
-    transfer_enum_bit.template operator()<FontStyle::Strikethrough, sf::Text::Style::StrikeThrough>();
+    if (style.italic) {
+        sf_style = static_cast<sf::Text::Style>(sf_style | sf::Text::Style::Italic);
+    }
+
+    if (style.underlined) {
+        sf_style = static_cast<sf::Text::Style>(sf_style | sf::Text::Style::Underlined);
+    }
+
+    if (style.strikethrough) {
+        sf_style = static_cast<sf::Text::Style>(sf_style | sf::Text::Style::StrikeThrough);
+    }
+
     return sf_style;
 }
 

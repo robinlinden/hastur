@@ -1,9 +1,8 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "gfx/color.h"
-#include "gfx/font.h"
 #include "gfx/icanvas.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
@@ -65,26 +64,25 @@ int main(int argc, char **argv) {
 
         canvas->draw_rect({400, 100, 50, 50}, gfx::Color{80, 80, 80}, {}, {.top_right{50, 50}, .bottom_left{25, 25}});
 
-        canvas->draw_text({100, 50}, "hello!"sv, {"arial"}, {16}, gfx::FontStyle::Normal, gfx::Color{});
-        canvas->draw_text({100, 80}, "hello, but fancy!"sv, {"arial"}, {16}, gfx::FontStyle::Italic, gfx::Color{});
+        canvas->draw_text({100, 50}, "hello!"sv, {"arial"}, {16}, {}, gfx::Color{});
+        canvas->draw_text({100, 80}, "hello, but fancy!"sv, {"arial"}, {16}, {.italic = true}, gfx::Color{});
         canvas->draw_text({100, 110},
                 "hello, but *even fancier*!"sv,
                 {"arial"},
                 {32},
-                gfx::FontStyle::Italic | gfx::FontStyle::Bold,
+                {.bold = true, .italic = true},
                 gfx::Color{});
         canvas->draw_text({120, 150},
                 "hmmmm"sv,
                 {"arial"},
                 {24},
-                gfx::FontStyle::Italic | gfx::FontStyle::Bold | gfx::FontStyle::Underlined,
+                {.bold = true, .italic = true, .underlined = true},
                 gfx::Color{});
         canvas->draw_text({150, 200},
                 "oh no"sv,
                 {"arial"},
                 {24},
-                gfx::FontStyle::Italic | gfx::FontStyle::Bold | gfx::FontStyle::Underlined
-                        | gfx::FontStyle::Strikethrough,
+                {.bold = true, .italic = true, .strikethrough = true, .underlined = true},
                 kHotPink);
         auto px = std::to_array<std::uint8_t>(
                 {100, 100, 100, 0xff, 200, 200, 200, 0xff, 50, 50, 50, 0xff, 200, 0, 0, 0xff});

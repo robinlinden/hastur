@@ -10,7 +10,6 @@
 #include "geom/geom.h"
 #include "gfx/canvas_command_saver.h"
 #include "gfx/color.h"
-#include "gfx/font.h"
 #include "gfx/icanvas.h"
 #include "layout/layout_box.h"
 #include "style/styled_node.h"
@@ -53,7 +52,7 @@ int main() {
 
         expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
-                        gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"comic sans"}, 10, gfx::FontStyle::Italic}});
+                        gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"comic sans"}, 10, {.italic = true}}});
     });
 
     etest::test("render block with background-color", [] {
@@ -337,7 +336,7 @@ int main() {
                                 "hello",
                                 {"arial"},
                                 16,
-                                gfx::FontStyle::Strikethrough,
+                                {.strikethrough = true},
                                 gfx::Color::from_css_name("canvastext").value(),
                         },
                 });
@@ -354,7 +353,7 @@ int main() {
                                 "hello",
                                 {"arial"},
                                 16,
-                                gfx::FontStyle::Underlined | gfx::FontStyle::Italic,
+                                {.italic = true, .underlined = true},
                                 gfx::Color::from_css_name("canvastext").value(),
                         },
                 });
@@ -370,7 +369,7 @@ int main() {
                                 "hello",
                                 {"arial"},
                                 16,
-                                gfx::FontStyle::Italic,
+                                {.italic = true},
                                 gfx::Color::from_css_name("canvastext").value(),
                         },
                 });
@@ -386,7 +385,7 @@ int main() {
                                 "hello",
                                 {"arial"},
                                 16,
-                                gfx::FontStyle::Bold | gfx::FontStyle::Italic,
+                                {.bold = true, .italic = true},
                                 gfx::Color::from_css_name("canvastext").value(),
                         },
                 });
