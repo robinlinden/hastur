@@ -23,6 +23,7 @@ int main() {
         a.expect_eq(register_index(Reg32::Ecx), 1);
         a.expect_eq(register_index(Reg32::Edx), 2);
         a.expect_eq(register_index(Reg32::Ebx), 3);
+        // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
         a.expect_eq(register_index(static_cast<Reg32>(std::underlying_type_t<Reg32>{30})), std::nullopt);
     });
 

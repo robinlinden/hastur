@@ -78,6 +78,7 @@ void parse_error_to_string_tests() {
         expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
 
         auto last_error_value = static_cast<int>(ModuleParseError::UnhandledSection);
+        // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
         expect_eq(wasm::to_string(static_cast<ModuleParseError>(last_error_value + 1)), "Unknown error");
     });
 }

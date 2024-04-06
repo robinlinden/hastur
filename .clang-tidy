@@ -29,7 +29,6 @@
 # haven't been doing so far.
 #
 # TODO(robinlinden): Look into and enable:
-# * clang-analyzer-optin.core.EnumCastOutOfRange
 # * performance-enum-size
 Checks: >
   bugprone-*,
@@ -66,7 +65,6 @@ Checks: >
   -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,
   -cert-dcl21-cpp,
-  -clang-analyzer-optin.core.EnumCastOutOfRange,
   -google-build-using-namespace,
   -misc-const-correctness,
   -misc-no-recursion,

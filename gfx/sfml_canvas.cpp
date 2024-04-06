@@ -105,6 +105,7 @@ sf::Glsl::Vec4 to_vec4(Color const &color) {
 }
 
 sf::Text::Style to_sfml(FontStyle style) {
+    // NOLINTBEGIN(clang-analyzer-optin.core.EnumCastOutOfRange)
     auto sf_style = sf::Text::Style::Regular;
     if (style.bold) {
         sf_style = static_cast<sf::Text::Style>(sf_style | sf::Text::Style::Bold);
@@ -123,6 +124,7 @@ sf::Text::Style to_sfml(FontStyle style) {
     }
 
     return sf_style;
+    // NOLINTEND(clang-analyzer-optin.core.EnumCastOutOfRange)
 }
 
 } // namespace
