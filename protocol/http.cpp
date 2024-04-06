@@ -43,7 +43,13 @@ bool Http::use_port(uri::Uri const &uri) {
 
 std::string Http::create_get_request(uri::Uri const &uri, std::optional<std::string_view> user_agent) {
     std::stringstream ss;
-    ss << fmt::format("GET {} HTTP/1.1\r\n", uri.path);
+    ss << fmt::format("GET {}", uri.path);
+    if (!uri.query.empty()) {
+        ss << '?' << uri.query;
+    }
+
+    ss << " HTTP/1.1\r\n";
+
     if (Http::use_port(uri)) {
         ss << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
     } else {

@@ -13,6 +13,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <utility>
 
 using namespace std::string_view_literals;
@@ -302,6 +303,20 @@ int main() {
                         .status_line{"HTTP/1.1", 200, "OK"},
                         .headers{{"one", "1"}, {"two", "2"}},
                 });
+    });
+
+    etest::test("query parameters are included", [] {
+        FakeSocket socket{};
+        auto uri = uri::Uri{
+                .uri = {"http://example.com/hello?target=world"},
+                .scheme = "http",
+                .authority = {.host = "example.com"},
+                .path = "/hello",
+                .query = "target=world",
+        };
+        std::ignore = protocol::Http::get(socket, uri, std::nullopt);
+        auto first_request_line = socket.write_data.substr(0, socket.write_data.find("\r\n"));
+        expect_eq(first_request_line, "GET /hello?target=world HTTP/1.1");
     });
 
     return etest::run_all_tests();
