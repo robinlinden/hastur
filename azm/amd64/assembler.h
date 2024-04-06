@@ -15,7 +15,7 @@
 
 namespace azm::amd64 {
 
-enum class Reg32 {
+enum class Reg32 : std::uint8_t {
     Eax,
     Ecx,
     Edx,

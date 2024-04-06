@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef CSS2_TOKEN_H_
 #define CSS2_TOKEN_H_
 
+#include <cstdint>
 #include <string>
 #include <variant>
 
@@ -26,7 +28,7 @@ struct AtKeywordToken {
 };
 
 struct HashToken {
-    enum class Type {
+    enum class Type : std::uint8_t {
         Unrestricted,
         Id,
     };
@@ -58,7 +60,7 @@ struct DelimToken {
     [[nodiscard]] bool operator==(DelimToken const &) const = default;
 };
 
-enum class NumericType {
+enum class NumericType : std::uint8_t {
     Integer,
     Number,
 };

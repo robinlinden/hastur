@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -40,7 +41,7 @@ struct Document {
     Node html_node;
 
     // https://dom.spec.whatwg.org/#concept-document-mode
-    enum class Mode {
+    enum class Mode : std::uint8_t {
         NoQuirks,
         Quirks,
         LimitedQuirks,

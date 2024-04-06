@@ -27,9 +27,6 @@
 #
 # -modernize-use-trailing-return-type: Stylistic change, and something we
 # haven't been doing so far.
-#
-# TODO(robinlinden): Look into and enable:
-# * performance-enum-size
 Checks: >
   bugprone-*,
   cert-*,
@@ -71,8 +68,7 @@ Checks: >
   -modernize-make-unique,
   -modernize-use-emplace,
   -modernize-use-nodiscard,
-  -modernize-use-trailing-return-type,
-  -performance-enum-size
+  -modernize-use-trailing-return-type
 
 WarningsAsErrors: "*"
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,7 @@
 
 #include <tl/expected.hpp>
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
@@ -17,7 +18,7 @@ struct ZlibError {
     int code{};
 };
 
-enum class ZlibMode {
+enum class ZlibMode : std::uint8_t {
     Zlib,
     Gzip,
 };

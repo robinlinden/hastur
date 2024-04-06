@@ -30,7 +30,7 @@ using wasm::ByteCodeParser;
 namespace {
 
 // https://webassembly.github.io/spec/core/binary/modules.html#sections
-enum class SectionId {
+enum class SectionId : std::uint8_t {
     Custom = 0,
     Type = 1,
     Import = 2,

@@ -414,7 +414,7 @@ std::optional<CodeSection> parse_code_section(std::istream &is) {
 
 tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream &is) {
     // https://webassembly.github.io/spec/core/binary/modules.html#sections
-    enum class SectionId {
+    enum class SectionId : std::uint8_t {
         Custom = 0,
         Type = 1,
         Import = 2,

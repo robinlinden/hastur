@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +14,7 @@
 #include "style/styled_node.h"
 
 #include <cassert>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -23,7 +24,7 @@
 
 namespace layout {
 
-enum class LayoutType {
+enum class LayoutType : std::uint8_t {
     Inline,
     Block,
     AnonymousBlock, // Holds groups of sequential inline boxes.

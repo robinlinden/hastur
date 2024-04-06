@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,13 +9,14 @@
 #include "html2/token.h"
 #include "html2/tokenizer.h"
 
+#include <cstdint>
 #include <span>
 #include <string>
 #include <string_view>
 
 namespace html2 {
 
-enum class QuirksMode {
+enum class QuirksMode : std::uint8_t {
     NoQuirks,
     Quirks,
     LimitedQuirks,

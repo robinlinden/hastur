@@ -5,6 +5,7 @@
 #ifndef TYPE_TYPE_H_
 #define TYPE_TYPE_H_
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -22,7 +23,7 @@ struct Px {
     [[nodiscard]] bool operator==(Px const &) const = default;
 };
 
-enum class Weight {
+enum class Weight : std::uint8_t {
     Normal,
     Bold,
 };

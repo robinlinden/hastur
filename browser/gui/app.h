@@ -18,6 +18,7 @@
 #include <SFML/Window/Cursor.hpp>
 #include <tl/expected.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -49,7 +50,7 @@ private:
     std::string layout_str_{};
     std::string nav_widget_extra_info_{};
 
-    enum class Canvas {
+    enum class Canvas : std::uint8_t {
         OpenGL,
         Sfml,
     };

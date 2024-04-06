@@ -25,7 +25,7 @@ struct CustomSection {
 
 // https://webassembly.github.io/spec/core/binary/types.html#binary-globaltype
 struct GlobalType {
-    enum class Mutability {
+    enum class Mutability : std::uint8_t {
         Const,
         Var,
     };
@@ -97,7 +97,7 @@ struct GlobalSection {
 
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-export
 struct Export {
-    enum class Type { Function = 0, Table = 1, Memory = 2, Global = 3 };
+    enum class Type : std::uint8_t { Function = 0, Table = 1, Memory = 2, Global = 3 };
 
     std::string name{};
     Type type{};

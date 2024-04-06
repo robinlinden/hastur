@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -7,6 +7,7 @@
 #define PROTOCOL_RESPONSE_H_
 
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <map>
 #include <optional>
@@ -16,7 +17,7 @@
 
 namespace protocol {
 
-enum class Error {
+enum class Error : std::uint8_t {
     Ok,
     Unresolved,
     Unhandled,

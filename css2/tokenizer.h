@@ -9,6 +9,7 @@
 #include "css2/token.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>
@@ -19,7 +20,7 @@
 namespace css2 {
 
 // https://www.w3.org/TR/css-syntax-3/#tokenizer-algorithms
-enum class State {
+enum class State : std::uint8_t {
     Main,
     CommentStart,
     Comment,
@@ -31,7 +32,7 @@ enum class State {
     Whitespace,
 };
 
-enum class ParseError {
+enum class ParseError : std::uint8_t {
     EofInComment,
     EofInEscapeSequence,
     EofInString,

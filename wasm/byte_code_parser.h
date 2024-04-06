@@ -7,13 +7,14 @@
 
 #include <tl/expected.hpp>
 
+#include <cstdint>
 #include <iosfwd>
 #include <optional>
 #include <string_view>
 
 namespace wasm {
 
-enum class ModuleParseError {
+enum class ModuleParseError : std::uint8_t {
     UnexpectedEof,
     InvalidMagic,
     UnsupportedVersion,

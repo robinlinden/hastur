@@ -24,7 +24,7 @@ namespace url {
 
 void icu_cleanup();
 
-enum class HostType { DnsDomain, Ip4Addr, Ip6Addr, Opaque, Empty };
+enum class HostType : std::uint8_t { DnsDomain, Ip4Addr, Ip6Addr, Opaque, Empty };
 
 struct Host {
     HostType type;
@@ -110,7 +110,7 @@ struct Url {
     bool operator==(Url const &b) const { return serialize() == b.serialize(); }
 };
 
-enum class ValidationError {
+enum class ValidationError : std::uint8_t {
     // IDNA
     DomainToAscii,
     DomainToUnicode,
@@ -155,7 +155,7 @@ public:
     void set_on_error(std::function<void(ValidationError)> on_error) { on_error_ = std::move(on_error); }
 
 private:
-    enum class ParserState {
+    enum class ParserState : std::uint8_t {
         SchemeStart,
         Scheme,
         NoScheme,

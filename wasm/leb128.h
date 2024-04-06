@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -16,7 +16,7 @@
 
 namespace wasm {
 
-enum class Leb128ParseError {
+enum class Leb128ParseError : std::uint8_t {
     Invalid,
     NonZeroExtraBits,
     UnexpectedEof,

@@ -19,6 +19,7 @@
 #include <array>
 #include <cassert>
 #include <charconv>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <optional>
@@ -507,7 +508,7 @@ void Parser::add_declaration(Declarations &declarations, std::string_view name, 
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/border
 void Parser::expand_border(std::string_view name, Declarations &declarations, std::string_view value) {
-    enum class BorderSide { Left, Right, Top, Bottom };
+    enum class BorderSide : std::uint8_t { Left, Right, Top, Bottom };
 
     static constexpr auto kIdsFor = [](BorderSide side) -> BorderOrOutlinePropertyIds {
         switch (side) {
@@ -551,7 +552,7 @@ void Parser::expand_border_or_outline_impl(
         return;
     }
 
-    enum class BorderPropertyType { Color, Style, Width };
+    enum class BorderPropertyType : std::uint8_t { Color, Style, Width };
     auto guess_type = [](std::string_view v) -> BorderPropertyType {
         if (is_in_array<kBorderStyleKeywords>(v)) {
             return BorderPropertyType::Style;

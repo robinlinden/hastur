@@ -11,6 +11,7 @@
 #include "util/string.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -20,7 +21,7 @@
 
 namespace style {
 
-enum class BorderStyle {
+enum class BorderStyle : std::uint8_t {
     None,
     Hidden,
     Dotted,
@@ -35,13 +36,13 @@ enum class BorderStyle {
 
 using OutlineStyle = BorderStyle;
 
-enum class DisplayValue {
+enum class DisplayValue : std::uint8_t {
     None,
     Inline,
     Block,
 };
 
-enum class FontStyle {
+enum class FontStyle : std::uint8_t {
     Normal,
     Italic,
     Oblique,
@@ -56,7 +57,7 @@ struct FontWeight {
     static constexpr FontWeight bold() { return {kBold}; }
 };
 
-enum class TextDecorationLine {
+enum class TextDecorationLine : std::uint8_t {
     None,
     Underline,
     Overline,
@@ -64,7 +65,7 @@ enum class TextDecorationLine {
     Blink,
 };
 
-enum class WhiteSpace {
+enum class WhiteSpace : std::uint8_t {
     Normal,
     Pre,
     Nowrap,

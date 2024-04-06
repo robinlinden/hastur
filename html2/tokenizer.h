@@ -19,7 +19,7 @@
 namespace html2 {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#tokenization
-enum class State {
+enum class State : std::uint8_t {
     Data = 1, // So the state enum values match the number in the spec.
     Rcdata,
     Rawtext,
@@ -102,7 +102,7 @@ enum class State {
     NumericCharacterReferenceEnd,
 };
 
-enum class ParseError {
+enum class ParseError : std::uint8_t {
     AbruptClosingOfEmptyComment,
     AbruptDoctypePublicIdentifier,
     AbruptDoctypeSystemIdentifier,

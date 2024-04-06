@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
@@ -118,7 +119,7 @@ struct Identifier {
 };
 
 // TODO(robinlinden): Support more operators.
-enum class BinaryOperator {
+enum class BinaryOperator : std::uint8_t {
     Minus,
     Plus,
 };
@@ -163,7 +164,7 @@ struct VariableDeclarator {
 
 struct VariableDeclaration {
     std::vector<VariableDeclarator> declarations;
-    enum class Kind {
+    enum class Kind : std::uint8_t {
         Var,
     };
     Kind kind{Kind::Var};

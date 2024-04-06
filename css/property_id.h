@@ -5,11 +5,12 @@
 #ifndef CSS_PROPERTY_ID_H_
 #define CSS_PROPERTY_ID_H_
 
+#include <cstdint>
 #include <string_view>
 
 namespace css {
 
-enum class PropertyId {
+enum class PropertyId : std::uint8_t {
     Unknown,
 
     Azimuth,

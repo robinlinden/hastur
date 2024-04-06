@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -13,7 +13,7 @@ namespace img {
 
 class Gif {
 public:
-    enum class Version {
+    enum class Version : std::uint8_t {
         Gif87a,
         Gif89a,
     };

@@ -16,7 +16,7 @@ using TypeIdx = std::uint32_t;
 using FuncIdx = std::uint32_t;
 
 // https://webassembly.github.io/spec/core/syntax/types.html
-enum class ValueType {
+enum class ValueType : std::uint8_t {
     // Number types.
     Int32,
     Int64,
