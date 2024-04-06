@@ -10,6 +10,7 @@
 #include "css/rule.h"
 #include "css/style_sheet.h"
 
+#include <concepts>
 #include <cstddef>
 #include <map>
 #include <optional>

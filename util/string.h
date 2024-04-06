@@ -11,6 +11,7 @@
 #include <array>
 #include <cassert>
 #include <charconv>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>

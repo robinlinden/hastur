@@ -303,12 +303,12 @@ jobs:
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-17 libc++abi-17-dev libc++-17-dev
-      - run: echo "CC=clang-17" >>$GITHUB_ENV && echo "CXX=clang++-17" >>$GITHUB_ENV
+          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-18 libc++abi-18-dev libc++-18-dev
+      - run: echo "CC=clang-18" >>$GITHUB_ENV && echo "CXX=clang++-18" >>$GITHUB_ENV
       - run: |
-          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-17 100
-          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-17
+          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-18 100
+          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-18
           update-alternatives --query clang-tidy
           clang-tidy --version
       - run: bazel build ... --config libc++ --config clang-tidy --keep_going

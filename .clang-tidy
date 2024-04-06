@@ -27,6 +27,12 @@
 #
 # -modernize-use-trailing-return-type: Stylistic change, and something we
 # haven't been doing so far.
+#
+# TODO(robinlinden): Look into and enable:
+# * bugprone-optional-value-conversion
+# * clang-analyzer-optin.core.EnumCastOutOfRange
+# * misc-header-include-cycle
+# * performance-enum-size
 Checks: >
   bugprone-*,
   cert-*,
@@ -60,15 +66,19 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
+  -bugprone-optional-value-conversion,
   -bugprone-unchecked-optional-access,
   -cert-dcl21-cpp,
+  -clang-analyzer-optin.core.EnumCastOutOfRange,
   -google-build-using-namespace,
   -misc-const-correctness,
+  -misc-header-include-cycle,
   -misc-no-recursion,
   -modernize-make-unique,
   -modernize-use-emplace,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
+  -performance-enum-size
 
 WarningsAsErrors: "*"
 

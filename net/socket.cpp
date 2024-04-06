@@ -16,7 +16,8 @@
 #include <asio/ssl/context.hpp>
 #include <asio/ssl/stream.hpp>
 #include <asio/ssl/stream_base.hpp>
-#include <openssl/ssl.h>
+// Provides us with SSL_set_tlsext_host_name, even if iwyu can't tell.
+#include <openssl/ssl.h> // IWYU pragma: keep
 
 #include <cstddef>
 #include <memory>
