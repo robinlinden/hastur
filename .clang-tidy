@@ -29,7 +29,6 @@
 # haven't been doing so far.
 #
 # TODO(robinlinden): Look into and enable:
-# * bugprone-optional-value-conversion
 # * clang-analyzer-optin.core.EnumCastOutOfRange
 # * performance-enum-size
 Checks: >
@@ -65,7 +64,6 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
-  -bugprone-optional-value-conversion,
   -bugprone-unchecked-optional-access,
   -cert-dcl21-cpp,
   -clang-analyzer-optin.core.EnumCastOutOfRange,

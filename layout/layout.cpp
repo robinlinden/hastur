@@ -486,7 +486,7 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width,
     collapse_whitespace(*tree);
 
     Layouter{node.get_property<css::PropertyId::FontSize>(), type}.layout(*tree, {0, 0, width, 0});
-    return *tree;
+    return tree;
 }
 
 } // namespace layout

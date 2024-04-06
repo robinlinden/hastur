@@ -211,12 +211,12 @@ std::optional<std::string> try_parse_font_style(Tokenizer &tokenizer) {
 std::optional<std::string_view> try_parse_font_weight(Tokenizer &tokenizer) {
     if (auto maybe_font_weight = tokenizer.get()) {
         if (is_weight(*maybe_font_weight)) {
-            return *maybe_font_weight;
+            return maybe_font_weight;
         }
 
         if (auto maybe_int = to_int(*maybe_font_weight)) {
             if (*maybe_int >= 1 && *maybe_int <= 1000) {
-                return *maybe_font_weight;
+                return maybe_font_weight;
             }
         }
     }
@@ -226,7 +226,7 @@ std::optional<std::string_view> try_parse_font_weight(Tokenizer &tokenizer) {
 std::optional<std::string_view> try_parse_font_variant(Tokenizer &tokenizer) {
     if (auto maybe_font_variant = tokenizer.get()) {
         if (*maybe_font_variant == "small-caps") {
-            return *maybe_font_variant;
+            return maybe_font_variant;
         }
     }
     return std::nullopt;
@@ -235,7 +235,7 @@ std::optional<std::string_view> try_parse_font_variant(Tokenizer &tokenizer) {
 std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) {
     if (auto maybe_font_stretch = tokenizer.get()) {
         if (is_stretch(*maybe_font_stretch)) {
-            return *maybe_font_stretch;
+            return maybe_font_stretch;
         }
     }
     return std::nullopt;
