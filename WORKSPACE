@@ -123,6 +123,10 @@ http_archive(
 http_archive(
     name = "ftxui",  # MIT
     build_file = "//third_party:ftxui.BUILD",
+    patch_cmds = [
+        # Work around circular header dependency detected by clang-tidy 18.
+        """sed -i'' -e /deprecated.hpp/d include/ftxui/dom/elements.hpp""",
+    ],
     sha256 = "a2991cb222c944aee14397965d9f6b050245da849d8c5da7c72d112de2786b5b",
     strip_prefix = "FTXUI-5.0.0",
     url = "https://github.com/ArthurSonzogni/FTXUI/archive/v5.0.0.tar.gz",

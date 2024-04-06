@@ -31,7 +31,6 @@
 # TODO(robinlinden): Look into and enable:
 # * bugprone-optional-value-conversion
 # * clang-analyzer-optin.core.EnumCastOutOfRange
-# * misc-header-include-cycle
 # * performance-enum-size
 Checks: >
   bugprone-*,
@@ -72,7 +71,6 @@ Checks: >
   -clang-analyzer-optin.core.EnumCastOutOfRange,
   -google-build-using-namespace,
   -misc-const-correctness,
-  -misc-header-include-cycle,
   -misc-no-recursion,
   -modernize-make-unique,
   -modernize-use-emplace,
