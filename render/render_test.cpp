@@ -439,6 +439,83 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
     });
 
+    etest::test("culling w/ element border", [] {
+        dom::Node dom = dom::Element{"dummy"};
+        auto styled = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::BackgroundColor, "#010203"},
+                        {css::PropertyId::BorderLeftWidth, "1px"},
+                        {css::PropertyId::BorderRightWidth, "1px"},
+                        {css::PropertyId::BorderTopWidth, "1px"},
+                        {css::PropertyId::BorderBottomWidth, "1px"},
+                        {css::PropertyId::BorderLeftColor, "#070809"},
+                        {css::PropertyId::BorderRightColor, "#0A0B0C"},
+                        {css::PropertyId::BorderTopColor, "#0D0E0F"},
+                        {css::PropertyId::BorderBottomColor, "#101112"},
+                        {css::PropertyId::BorderLeftStyle, "solid"},
+                        {css::PropertyId::BorderRightStyle, "solid"},
+                        {css::PropertyId::BorderTopStyle, "solid"},
+                        {css::PropertyId::BorderBottomStyle, "solid"},
+                },
+        };
+
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .type = layout::LayoutType::Block,
+                .dimensions = {.content{0, 0, 20, 40}, .border{1, 1, 1, 1}},
+        };
+
+        gfx::CanvasCommandSaver saver;
+
+        gfx::Color color{1, 2, 3};
+        CanvasCommands expected{
+                gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                gfx::DrawRectCmd{
+                        {0, 0, 20, 40},
+                        color,
+                        {
+                                .left{gfx::Color{0x07, 0x08, 0x09}, 1},
+                                .right{gfx::Color{0x0A, 0x0B, 0x0C}, 1},
+                                .top{gfx::Color{0x0D, 0x0E, 0x0F}, 1},
+                                .bottom{gfx::Color{0x10, 0x11, 0x12}, 1},
+                        },
+                },
+        };
+        // No cull rect.
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(), expected);
+
+        // Intersecting cull rects.
+        render::render_layout(saver, layout, geom::Rect{-1, -1, 22, 42});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{10, 10, 5, 5});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{-2, -2, 100, 100});
+        expect_eq(saver.take_commands(), expected);
+
+        // Only intersecting because of the border.
+        render::render_layout(saver, layout, geom::Rect{-1, -1, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{20, 40, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{20, 0, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+        render::render_layout(saver, layout, geom::Rect{0, 40, 1, 1});
+        expect_eq(saver.take_commands(), expected);
+
+        // Non-intersecting cull rects.
+        render::render_layout(saver, layout, geom::Rect{0, 41, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        render::render_layout(saver, layout, geom::Rect{21, 41, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        render::render_layout(saver, layout, geom::Rect{21, -1, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        render::render_layout(saver, layout, geom::Rect{-2, -2, 1, 1});
+        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+    });
+
     etest::test("special backgrounds", [] {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Element{"body"}}};
         auto styled = style::StyledNode{

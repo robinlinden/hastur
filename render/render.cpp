@@ -124,7 +124,7 @@ bool should_render(layout::LayoutBox const &layout) {
 }
 
 void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
-    if (clip && clip->intersected(layout.dimensions.padding_box()).empty()) {
+    if (clip && clip->intersected(layout.dimensions.border_box()).empty()) {
         return;
     }
 
