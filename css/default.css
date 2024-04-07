@@ -82,28 +82,15 @@ wbr {
   display: inline;
 }
 
-address,
-blockquote,
 details,
-dialog,
-div,
 fieldset,
-figcaption,
-figure,
-footer,
-form,
-header,
-hr,
 li,
-main,
-pre,
 table {
   display: block;
 }
 
 /* TODO(robinlinden): margin-top/bottom -> margin-block-start/end once handled. */
 p {
-  display: block;
   margin-top: 1em;
   margin-bottom: 1em;
 }
@@ -172,6 +159,28 @@ h6 {
 
 /* Flow content */
 /* https://html.spec.whatwg.org/multipage/rendering.html#flow-content-3 */
+
+address,
+blockquote,
+center,
+dialog,
+div,
+figure,
+figcaption,
+footer,
+form,
+header,
+hr,
+legend,
+listing,
+main,
+p,
+plaintext,
+pre,
+search,
+xmp {
+  display: block;
+}
 
 listing,
 plaintext,
