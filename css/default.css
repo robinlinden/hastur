@@ -343,3 +343,15 @@ ol,
 ul {
   padding-left: 40px;
 }
+
+/* 15.3.11 The hr element */
+/* https://html.spec.whatwg.org/multipage/rendering.html#the-hr-element-2 */
+
+hr {
+  color: gray;
+  border-style: inset;
+  border-width: 1px;
+  margin-block: 0.5em;
+  margin-inline: auto;
+  overflow: hidden;
+}
