@@ -311,6 +311,8 @@ gfx::Color StyledNode::get_color_property(css::PropertyId property) const {
     return parse_color(color_text);
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/CSS/float
+// ^ has info about the weird float<->display property interaction.
 DisplayValue StyledNode::get_display_property() const {
     auto raw = get_raw_property(css::PropertyId::Display);
     if (raw == "none") {
@@ -318,7 +320,11 @@ DisplayValue StyledNode::get_display_property() const {
     }
 
     if (raw == "inline") {
-        return DisplayValue::Inline;
+        if (get_property<css::PropertyId::Float>().value_or(Float::None) == Float::None) {
+            return DisplayValue::Inline;
+        }
+
+        return DisplayValue::Block;
     }
 
     if (raw == "block") {

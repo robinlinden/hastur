@@ -305,8 +305,23 @@ int main() {
         expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::None);
     });
 
-    etest::test("get_property, unhandled display value",
-            [] { expect_property_eq<css::PropertyId::Display>("i cant believe this", style::DisplayValue::Block); });
+    etest::test("get_property, display", [] {
+        expect_property_eq<css::PropertyId::Display>("inline", style::DisplayValue::Inline);
+        expect_property_eq<css::PropertyId::Display>("i cant believe this", style::DisplayValue::Block);
+
+        // Weird float interactions.
+        dom::Node dom_node = dom::Element{"dummy"s};
+        style::StyledNode styled{
+                .node = dom_node,
+                .properties{
+                        {css::PropertyId::Display, "???"s},
+                        {css::PropertyId::Float, "left"s},
+                },
+        };
+
+        styled.properties[0] = {css::PropertyId::Display, "inline"s};
+        expect_eq(styled.get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
+    });
 
     etest::test("get_property, border-style", [] {
         expect_property_eq<css::PropertyId::BorderBottomStyle>("none", style::BorderStyle::None);
