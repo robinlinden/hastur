@@ -543,7 +543,8 @@ void App::on_navigation_failure(protocol::Error err) {
 
 void App::on_page_loaded() {
     if (auto page_title = try_get_text_content(page().dom, "/html/head/title"sv)) {
-        window_.setTitle(fmt::format("{} - {}", *page_title, browser_title_));
+        auto title = fmt::format("{} - {}", *page_title, browser_title_);
+        window_.setTitle(sf::String::fromUtf8(title.begin(), title.end()));
     } else {
         window_.setTitle(browser_title_);
     }
