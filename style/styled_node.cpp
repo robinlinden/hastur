@@ -329,6 +329,31 @@ DisplayValue StyledNode::get_display_property() const {
     return DisplayValue::Block;
 }
 
+std::optional<Float> StyledNode::get_float_property() const {
+    auto raw = get_raw_property(css::PropertyId::Float);
+    if (raw == "none") {
+        return Float::None;
+    }
+
+    if (raw == "left") {
+        return Float::Left;
+    }
+
+    if (raw == "right") {
+        return Float::Right;
+    }
+
+    if (raw == "inline-start") {
+        return Float::InlineStart;
+    }
+
+    if (raw == "inline-end") {
+        return Float::InlineEnd;
+    }
+
+    return std::nullopt;
+}
+
 FontStyle StyledNode::get_font_style_property() const {
     auto raw = get_raw_property(css::PropertyId::FontStyle);
     if (raw == "normal") {

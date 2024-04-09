@@ -53,6 +53,7 @@ enum class PropertyId : std::uint8_t {
     FlexGrow,
     FlexShrink,
     FlexWrap,
+    Float,
     FontFamily,
     FontFeatureSettings,
     FontKerning,

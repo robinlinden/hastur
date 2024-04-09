@@ -358,6 +358,15 @@ int main() {
         expect_property_eq<css::PropertyId::Color>("rgba(1 2)", kErrorColor);
     });
 
+    etest::test("get_property, float", [] {
+        expect_property_eq<css::PropertyId::Float>("none", style::Float::None);
+        expect_property_eq<css::PropertyId::Float>("left", style::Float::Left);
+        expect_property_eq<css::PropertyId::Float>("right", style::Float::Right);
+        expect_property_eq<css::PropertyId::Float>("inline-start", style::Float::InlineStart);
+        expect_property_eq<css::PropertyId::Float>("inline-end", style::Float::InlineEnd);
+        expect_property_eq<css::PropertyId::Float>("???", std::nullopt);
+    });
+
     etest::test("get_property, text-decoration-line", [] {
         using enum style::TextDecorationLine;
         expect_property_eq<css::PropertyId::TextDecorationLine>("none", std::vector{None});

@@ -42,6 +42,14 @@ enum class DisplayValue : std::uint8_t {
     Block,
 };
 
+enum class Float : std::uint8_t {
+    None,
+    Left,
+    Right,
+    InlineStart,
+    InlineEnd,
+};
+
 enum class FontStyle : std::uint8_t {
     Normal,
     Italic,
@@ -105,6 +113,8 @@ struct StyledNode {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
             return get_display_property();
+        } else if constexpr (T == css::PropertyId::Float) {
+            return get_float_property();
         } else if constexpr (T == css::PropertyId::FontFamily) {
             auto raw_font_family = get_raw_property(T);
             auto families = util::split(raw_font_family, ",");
@@ -133,6 +143,7 @@ private:
     BorderStyle get_border_style_property(css::PropertyId) const;
     gfx::Color get_color_property(css::PropertyId) const;
     DisplayValue get_display_property() const;
+    std::optional<Float> get_float_property() const;
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;
     std::optional<FontWeight> get_font_weight_property() const;

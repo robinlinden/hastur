@@ -55,6 +55,7 @@ std::map<std::string_view, PropertyId> const known_properties{
         {"flex-grow"sv, PropertyId::FlexGrow},
         {"flex-shrink"sv, PropertyId::FlexShrink},
         {"flex-wrap"sv, PropertyId::FlexWrap},
+        {"float"sv, PropertyId::Float},
         {"font-family"sv, PropertyId::FontFamily},
         {"font-feature-settings"sv, PropertyId::FontFeatureSettings},
         {"font-kerning"sv, PropertyId::FontKerning},
@@ -196,6 +197,8 @@ std::map<css::PropertyId, std::string_view> const initial_values{
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/display#formal_definition
         {css::PropertyId::Display, "inline"sv},
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/float#formal_definition
+        {css::PropertyId::Float, "none"sv},
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/height#formal_definition
         // https://developer.mozilla.org/en-US/docs/Web/CSS/max-height#formal_definition
