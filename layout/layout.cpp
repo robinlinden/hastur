@@ -290,6 +290,16 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
     for (std::size_t i = 0; i < box.children.size(); ++i) {
         auto *child = &box.children[i];
         layout(*child, box.dimensions.content.translated(last_child_end, current_line * font_size.v));
+
+        // TODO(robinlinden): This needs to get along better with whitespace
+        // collapsing. A <br> followed by a whitespace will be lead to a leading
+        // space on the new line.
+        if (auto const *ele = std::get_if<dom::Element>(&child->node->node); ele != nullptr && ele->name == "br"sv) {
+            current_line += 1;
+            last_child_end = 0;
+            continue;
+        }
+
         // TODO(robinlinden): Handle cases where the text isn't a direct child of the anonymous block.
         if (last_child_end + child->dimensions.margin_box().width > bounds.width) {
             auto text = child->text();

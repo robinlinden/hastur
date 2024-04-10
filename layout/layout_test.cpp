@@ -1594,6 +1594,62 @@ int main() {
         expect_eq(l, expected);
     });
 
+    etest::test("br", [] {
+        dom::Node dom = dom::Element{
+                .name{"html"},
+                .children{
+                        dom::Text{"hello"},
+                        dom::Element{"br"},
+                        dom::Text{"world"},
+                },
+        };
+        auto const &children = std::get<dom::Element>(dom).children;
+
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{
+                        style::StyledNode{.node{children[0]}},
+                        style::StyledNode{.node{children[1]}},
+                        style::StyledNode{.node{children[2]}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 25, 20}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, 25, 20}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{0, 0, 25, 10}},
+                                        .layout_text = "hello"sv,
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[1],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{25, 0, 0, 0}},
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[2],
+                                        .type = LayoutType::Inline,
+                                        .dimensions{{0, 10, 25, 10}},
+                                        .layout_text = "world"sv,
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 25).value();
+        expect_eq(l, expected);
+    });
+
     etest::test("display:none on root node", [] {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
