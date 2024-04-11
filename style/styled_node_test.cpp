@@ -504,13 +504,8 @@ int main() {
         auto &child = styled_node.children[0];
         child.parent = &styled_node;
 
-        // TODO(robinlinden)
-#if 0
         expect_eq(child.get_property<css::PropertyId::FontWeight>(), //
                 style::FontWeight::bold());
-#endif
-        expect_eq(child.get_property<css::PropertyId::FontWeight>(), //
-                std::nullopt);
     });
 
     return etest::run_all_tests();

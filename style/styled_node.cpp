@@ -241,16 +241,29 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     if (it->second.starts_with("var(") && (it->second.find(')') != std::string::npos)) {
         // Remove "var(" from the start and ")" from the end. 5 characters in total.
         auto var_name = it->second.substr(4, it->second.size() - 5);
-        auto prop = std::ranges::find(custom_properties, var_name, &std::pair<std::string, std::string>::first);
-        if (prop == end(custom_properties)) {
-            spdlog::info("No matching variable for custom property '{}'", var_name);
+        auto prop = resolve_variable(var_name);
+        if (!prop) {
             return it->second;
         }
 
-        return prop->second;
+        return *prop;
     }
 
     return it->second;
+}
+
+std::optional<std::string_view> StyledNode::resolve_variable(std::string_view name) const {
+    auto prop = std::ranges::find(custom_properties, name, &std::pair<std::string, std::string>::first);
+    if (prop == end(custom_properties)) {
+        if (parent != nullptr) {
+            return parent->resolve_variable(name);
+        }
+
+        spdlog::info("No matching variable for custom property '{}'", name);
+        return std::nullopt;
+    }
+
+    return prop->second;
 }
 
 BorderStyle StyledNode::get_border_style_property(css::PropertyId property) const {

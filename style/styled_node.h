@@ -140,6 +140,8 @@ struct StyledNode {
     }
 
 private:
+    std::optional<std::string_view> resolve_variable(std::string_view) const;
+
     BorderStyle get_border_style_property(css::PropertyId) const;
     gfx::Color get_color_property(css::PropertyId) const;
     DisplayValue get_display_property() const;
