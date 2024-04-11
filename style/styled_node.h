@@ -154,7 +154,8 @@ private:
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
-    return a.node == b.node && a.properties == b.properties && a.children == b.children;
+    return a.node == b.node && a.properties == b.properties && a.custom_properties == b.custom_properties
+            && a.children == b.children;
 }
 
 inline std::string_view dom_name(StyledNode const &node) {

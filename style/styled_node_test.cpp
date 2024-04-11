@@ -508,5 +508,21 @@ int main() {
                 style::FontWeight::bold());
     });
 
+    etest::test("==, custom properties", [] {
+        dom::Node dom = dom::Element{"baka"};
+
+        style::StyledNode with{
+                .node = dom,
+                .custom_properties{{"--a", "bold"}},
+        };
+
+        style::StyledNode without{.node = dom};
+
+        expect(with != without);
+
+        without.custom_properties = {{"--a", "bold"}};
+        expect_eq(with, without);
+    });
+
     return etest::run_all_tests();
 }
