@@ -175,6 +175,7 @@ MatchingProperties matching_properties(
             // The above should always parse to 1 rule when using the old parser.
             if (element_style.size() == 1) {
                 std::ranges::copy(element_style[0].declarations, std::back_inserter(matched_properties));
+                std::ranges::copy(element_style[0].custom_properties, std::back_inserter(matched_custom_properties));
             } else {
                 spdlog::warn("Failed to parse inline style '{}' for element '{}'", style_attr->second, element->name);
             }
@@ -215,7 +216,9 @@ void style_tree_impl(StyledNode &current,
         style_tree_impl(child_node, child, stylesheet, ctx);
     }
 
-    current.properties = matching_properties(current, stylesheet, ctx).normal;
+    auto [normal, custom] = matching_properties(current, stylesheet, ctx);
+    current.properties = std::move(normal);
+    current.custom_properties = std::move(custom);
 }
 } // namespace
 

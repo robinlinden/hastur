@@ -309,6 +309,23 @@ int main() {
         expect(res.normal.empty());
     });
 
+    etest::test("style_tree: custom variables", [] {
+        auto root = dom::Element{"html", {{"style", "--inline: 3px;"}}, {}};
+        css::StyleSheet stylesheet{{
+                {.selectors = {"html"}, .custom_properties = {{"--stylesheet", "5px"}}},
+        }};
+
+        style::StyledNode expected{
+                .node{root},
+                .custom_properties{
+                        {"--stylesheet", "5px"},
+                        {"--inline", "3px"},
+                },
+        };
+
+        expect_eq(*style::style_tree(root, stylesheet), expected);
+    });
+
     inline_css_tests();
     important_declarations_tests();
     return etest::run_all_tests();
