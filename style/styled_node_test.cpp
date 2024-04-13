@@ -488,6 +488,27 @@ int main() {
                 std::nullopt);
     });
 
+    etest::test("var() with fallback, var exists", [] {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{{css::PropertyId::FontWeight, "var(--a, 789)"}},
+                .custom_properties{{"--a", "123"}},
+        };
+
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 123);
+    });
+
+    etest::test("var() with fallback, no var exists", [] {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{{css::PropertyId::FontWeight, "var(--a, 789)"}},
+        };
+
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 789);
+    });
+
     etest::test("var, inherited custom property", [] {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{

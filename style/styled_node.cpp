@@ -239,10 +239,18 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     // TODO(robinlinden): Fallback values.
     // If this is a var() we can easily expand here, do so.
     if (it->second.starts_with("var(") && (it->second.find(')') != std::string::npos)) {
+        auto value = std::string_view{it->second};
+
         // Remove "var(" from the start and ")" from the end. 5 characters in total.
-        auto var_name = it->second.substr(4, it->second.size() - 5);
+        auto var = value.substr(4, value.size() - 5);
+        auto [var_name, fallback] = util::split_once(var, ",");
         auto prop = resolve_variable(var_name);
         if (!prop) {
+            fallback = util::trim(fallback);
+            if (!fallback.empty()) {
+                return fallback;
+            }
+
             return it->second;
         }
 
