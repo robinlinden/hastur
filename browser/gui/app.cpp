@@ -599,11 +599,16 @@ void App::on_layout_updated() {
 }
 
 layout::LayoutBox const *App::get_hovered_node(geom::Position document_position) const {
-    if (!maybe_page_.has_value() || !page().layout.has_value()) {
+    if (!maybe_page_.has_value()) {
         return nullptr;
     }
 
-    return layout::box_at_position(*page().layout, document_position);
+    auto const &maybe_layout = page().layout;
+    if (!maybe_layout.has_value()) {
+        return nullptr;
+    }
+
+    return layout::box_at_position(*maybe_layout, document_position);
 }
 
 geom::Position App::to_document_position(geom::Position window_position) const {
@@ -617,11 +622,16 @@ void App::reset_scroll() {
 }
 
 void App::scroll(int pixels) {
-    if (!maybe_page_ || !page().layout.has_value()) {
+    if (!maybe_page_.has_value()) {
         return;
     }
 
-    auto const &layout = *page().layout;
+    auto const &maybe_layout = page().layout;
+    if (!maybe_layout.has_value()) {
+        return;
+    }
+
+    auto const &layout = *maybe_layout;
     // Don't allow scrolling if the entire page fits on the screen.
     if (static_cast<int>(window_.getSize().y) > layout.dimensions.margin_box().height) {
         return;
@@ -714,15 +724,16 @@ void App::run_layout_widget() const {
 void App::render_layout() {
     assert(maybe_page_);
 
-    if (page().layout == std::nullopt) {
+    auto const &layout = page().layout;
+    if (layout == std::nullopt) {
         return;
     }
 
     if (render_debug_) {
-        render::debug::render_layout_depth(*canvas_, *page().layout);
+        render::debug::render_layout_depth(*canvas_, *layout);
     } else {
         render::render_layout(*canvas_,
-                *page().layout,
+                *layout,
                 culling_enabled_ ? std::optional{geom::Rect{0,
                         -scroll_offset_y_,
                         static_cast<int>(window_.getSize().x),

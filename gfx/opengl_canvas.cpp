@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -13,7 +13,9 @@
 #include <glad/gl.h>
 
 #include <array>
+#include <cassert>
 #include <string_view>
+#include <utility>
 
 namespace gfx {
 namespace {
@@ -24,7 +26,12 @@ std::string_view const vertex_shader{reinterpret_cast<char const *>(gfx_basic_sh
 std::string_view const fragment_shader{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len};
 } // namespace
 
-OpenGLCanvas::OpenGLCanvas() : border_shader_{OpenGLShader::create(vertex_shader, fragment_shader).value()} {
+OpenGLCanvas::OpenGLCanvas()
+    : border_shader_{[] {
+          auto shader = OpenGLShader::create(vertex_shader, fragment_shader);
+          assert(shader.has_value());
+          return std::move(shader).value();
+      }()} {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

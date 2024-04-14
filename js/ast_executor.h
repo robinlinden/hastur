@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -116,7 +116,9 @@ public:
         for (auto const &statement : v.body) {
             execute(statement);
             if (returning) {
-                return *std::exchange(returning, std::nullopt);
+                auto ret = *std::move(returning);
+                returning = std::nullopt;
+                return ret;
             }
         }
 

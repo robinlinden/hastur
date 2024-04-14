@@ -302,12 +302,14 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
         // TODO(robinlinden): Handle cases where the text isn't a direct child of the anonymous block.
         if (last_child_end + child->dimensions.margin_box().width > bounds.width) {
-            auto text = child->text();
-            if (text) {
+            auto maybe_text = child->text();
+            if (maybe_text.has_value()) {
+                std::string_view text = *maybe_text;
+
                 std::size_t best_split_point = std::string_view::npos;
-                for (auto split_point = text->find(' '); split_point != std::string_view::npos;
-                        split_point = text->find(' ', split_point + 1)) {
-                    if (last_child_end + font->measure(text->substr(0, split_point), font_size, weight).width
+                for (auto split_point = text.find(' '); split_point != std::string_view::npos;
+                        split_point = text.find(' ', split_point + 1)) {
+                    if (last_child_end + font->measure(text.substr(0, split_point), font_size, weight).width
                             > bounds.width) {
                         break;
                     }
@@ -317,18 +319,18 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
                 if (best_split_point != std::string_view::npos) {
                     child->dimensions.content.width =
-                            font->measure(text->substr(0, best_split_point), font_size, weight).width;
+                            font->measure(text.substr(0, best_split_point), font_size, weight).width;
                     auto bonus_child = *child;
-                    bonus_child.layout_text = std::string{text->substr(best_split_point + 1)};
+                    bonus_child.layout_text = std::string{text.substr(best_split_point + 1)};
                     box.children.insert(box.children.begin() + i + 1, std::move(bonus_child));
                     current_line += 1;
                     last_child_end = 0;
 
                     // Adding a child may have had to relocate the container content.
                     child = &box.children[i];
-                    child->layout_text = std::string{text->substr(0, best_split_point)};
+                    child->layout_text = std::string{text.substr(0, best_split_point)};
                 } else {
-                    child->dimensions.content.width = font->measure(*text, font_size, weight).width;
+                    child->dimensions.content.width = font->measure(text, font_size, weight).width;
                     last_child_end += child->dimensions.margin_box().width;
                 }
             }

@@ -7,6 +7,7 @@
 #include "etest/cxx_compat.h"
 #include "etest/etest2.h"
 
+#include <cassert>
 #include <functional>
 #include <optional>
 #include <string>
@@ -42,10 +43,12 @@ void disabled_test(std::string name, std::function<void()> body) noexcept {
 }
 
 void expect(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) noexcept {
+    assert(current_actions.has_value());
     current_actions.value().get().expect(b, std::move(log_message), loc);
 }
 
 void require(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) {
+    assert(current_actions.has_value());
     current_actions.value().get().require(b, std::move(log_message), loc);
 }
 

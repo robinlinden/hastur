@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -66,7 +66,9 @@ void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
         if (auto const *element = std::get_if<dom::Element>(&box.node->node)) {
             os << element->name << '\n';
         } else {
-            os << box.text().value() << '\n';
+            auto text = box.text();
+            assert(text.has_value());
+            os << text.value() << '\n';
         }
 
         for (std::uint8_t i = 0; i < depth; ++i) {

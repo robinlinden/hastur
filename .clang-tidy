@@ -7,9 +7,6 @@
 #
 # -bugprone-narrowing-conversions: Very noisy for not much gain.
 #
-# -bugprone-unchecked-optional-access: Makes clang-tidy hang during CI.
-# https://github.com/llvm/llvm-project/issues/59492
-#
 # -cert-dcl21-cpp: Deprecated, will be removed in clang-tidy 19.
 # https://releases.llvm.org/17.0.1/tools/clang/tools/extra/docs/clang-tidy/checks/cert/dcl21-cpp.html
 #
@@ -60,7 +57,6 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
-  -bugprone-unchecked-optional-access,
   -cert-dcl21-cpp,
   -google-build-using-namespace,
   -misc-const-correctness,

@@ -9,6 +9,7 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
+#include <cassert>
 #include <cstddef>
 #include <optional>
 #include <string>
@@ -63,7 +64,9 @@ struct FakeSocket {
 };
 
 uri::Uri create_uri(std::string url = "http://example.com") {
-    return uri::Uri::parse(std::move(url)).value();
+    auto parsed = uri::Uri::parse(std::move(url));
+    assert(parsed.has_value());
+    return std::move(parsed).value();
 }
 
 FakeSocket create_chunked_socket(std::string const &body) {

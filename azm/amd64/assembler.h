@@ -117,7 +117,9 @@ public:
     }
 
     void mov(Reg32 dst, Imm32 imm32) {
-        emit(0xb8 + register_index(dst).value());
+        auto idx = register_index(dst);
+        assert(idx.has_value());
+        emit(0xb8 + idx.value());
         emit(imm32);
     }
 
