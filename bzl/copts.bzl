@@ -45,9 +45,6 @@ HASTUR_COPTS = select({
 
 # C++ fuzzing requires a Clang compiler: https://github.com/bazelbuild/rules_fuzzing#prerequisites
 HASTUR_FUZZ_PLATFORMS = select({
-    "@rules_cc//cc/compiler:clang": [
-        "@platforms//os:linux",
-        "@platforms//os:macos",
-    ],
+    "@rules_cc//cc/compiler:clang": ["//bzl:linux_or_macos"],
     "//conditions:default": ["@platforms//:incompatible"],
 })
