@@ -47,12 +47,9 @@ extra_deps = {
     ],
 )]
 
-# TODO(robinlinden): Look into the remaining tests.
-[cc_test(
-    name = "html5lib_{}".format(test.rpartition("/")[-1][:-5]),
-    size = "small",
+cc_test(
+    name = "html5lib_test_runner",
     srcs = ["html5lib_test.cpp"],
-    args = ["$(location {})".format(test)],
     copts = HASTUR_COPTS + select({
         # simdjson leaks a bunch of warnings into our code.
         "@platforms//os:windows": [
@@ -61,15 +58,46 @@ extra_deps = {
         ],
         "//conditions:default": [],
     }),
-    data = [test],
+    tags = [
+        "manual",
+        "no-cross",
+    ],
     # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
     # tests.
-    tags = ["no-cross"],
     deps = [
         ":html2",
         "//etest",
         "@simdjson",
     ],
+)
+
+genrule(
+    name = "test_with_arg",
+    testonly = True,
+    outs = ["test_with_arg.sh"],
+    cmd = """
+        echo '#!/bin/sh' >$@
+        echo 'exec "$$1" "$$2"' >>$@
+        chmod +x $@
+    """,
+)
+
+# TODO(robinlinden): Look into the remaining tests.
+[sh_test(
+    name = "html5lib_{}".format(test.rpartition("/")[-1][:-5]),
+    size = "small",
+    srcs = [":test_with_arg"],
+    args = [
+        "$(location :html5lib_test_runner)",
+        "$(location {})".format(test),
+    ],
+    data = [
+        ":html5lib_test_runner",
+        test,
+    ],
+    # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
+    # tests.
+    tags = ["no-cross"],
 ) for test in [
     "@html5lib-tests//:tokenizer/contentModelFlags.test",
     "@html5lib-tests//:tokenizer/domjs.test",
