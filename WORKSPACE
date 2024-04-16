@@ -78,9 +78,9 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-RDBYWbTmZk27+FPB74ygJZ1pTwM3U64wn8slNMog9yE=",
-    strip_prefix = "asio-asio-1-29-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-29-0.tar.gz",
+    integrity = "sha256-dVvX+FpLJpxnrg6iVJB8B41AjM6OGjUq0u1mTSM3gOg=",
+    strip_prefix = "asio-asio-1-30-2",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-30-2.tar.gz",
 )
 
 # https://github.com/google/boringssl
@@ -174,9 +174,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-XZ3HOK9076NX8qn8Of5KKNKe8d/HJd0pd8zz8xlOmW4=",
-    strip_prefix = "imgui-1.90.4",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.4.tar.gz",
+    integrity = "sha256-6UtI26cxHIW6jj5v58c012oO7SGytCxRgP1XBtFWIkE=",
+    strip_prefix = "imgui-1.90.5",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.5.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -198,9 +198,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-4o4/RvABLUBbZ95sCnXo2MmmErBUjLWWh4IjN9c8p4s=",
-    strip_prefix = "simdjson-3.8.0",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.8.0.tar.gz",
+    integrity = "sha256-pLbnzYMXbgzLEHzjhSHaQKjfQcLTyQVm8qCvBbDNBcQ=",
+    strip_prefix = "simdjson-3.9.1",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.1.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -268,13 +268,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.280"
+VULKAN_TAG = "1.3.282"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-cXtJxS29N8eM8vfw/HFSksQudIQSGebMqRjNKTrV3OQ=",
+    integrity = "sha256-Ql/PWMgnMenOGIs5XR0/5ldBrabwSCuuA0eA61MLdtw=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -283,7 +283,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-5M00R5v4wZs6Mh0AKn3zErLYfMS+3s4hTdMoAX41tdo=",
+    integrity = "sha256-JDm6PbxjgYz2gd+pZRRPEjWzF5usfzdTDceEHhCAtNg=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
