@@ -24,6 +24,9 @@ namespace {
 struct Error {
     html2::ParseError error{};
     html2::SourceLocation location{};
+
+    // TODO(robinlinden): Check line and column as well.
+    [[nodiscard]] constexpr bool operator==(Error const &e) const { return error == e.error; }
 };
 
 std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
@@ -180,6 +183,223 @@ std::optional<html2::State> to_state(std::string_view state_name) {
 
     return std::nullopt;
 }
+
+std::optional<html2::ParseError> to_parse_error(std::string_view error_name) {
+    if (error_name == "abrupt-closing-of-empty-comment") {
+        return html2::ParseError::AbruptClosingOfEmptyComment;
+    }
+
+    if (error_name == "abrupt-doctype-public-identifier") {
+        return html2::ParseError::AbruptDoctypePublicIdentifier;
+    }
+
+    if (error_name == "abrupt-doctype-system-identifier") {
+        return html2::ParseError::AbruptDoctypeSystemIdentifier;
+    }
+
+    if (error_name == "absence-of-digits-in-numeric-character-reference") {
+        return html2::ParseError::AbsenceOfDigitsInNumericCharacterReference;
+    }
+
+    if (error_name == "cdata-in-html-content") {
+        return html2::ParseError::CdataInHtmlContent;
+    }
+
+    if (error_name == "character-reference-outside-unicode-range") {
+        return html2::ParseError::CharacterReferenceOutsideUnicodeRange;
+    }
+
+    if (error_name == "control-character-reference") {
+        return html2::ParseError::ControlCharacterReference;
+    }
+
+    if (error_name == "duplicate-attribute") {
+        return html2::ParseError::DuplicateAttribute;
+    }
+
+    if (error_name == "end-tag-with-attributes") {
+        return html2::ParseError::EndTagWithAttributes;
+    }
+
+    if (error_name == "end-tag-with-trailing-solidus") {
+        return html2::ParseError::EndTagWithTrailingSolidus;
+    }
+
+    if (error_name == "eof-before-tag-name") {
+        return html2::ParseError::EofBeforeTagName;
+    }
+
+    if (error_name == "eof-in-cdata") {
+        return html2::ParseError::EofInCdata;
+    }
+
+    if (error_name == "eof-in-comment") {
+        return html2::ParseError::EofInComment;
+    }
+
+    if (error_name == "eof-in-doctype") {
+        return html2::ParseError::EofInDoctype;
+    }
+
+    if (error_name == "eof-in-script-html-comment-like-text") {
+        return html2::ParseError::EofInScriptHtmlCommentLikeText;
+    }
+
+    if (error_name == "eof-in-tag") {
+        return html2::ParseError::EofInTag;
+    }
+
+    if (error_name == "incorrectly-closed-comment") {
+        return html2::ParseError::IncorrectlyClosedComment;
+    }
+
+    if (error_name == "incorrectly-opened-comment") {
+        return html2::ParseError::IncorrectlyOpenedComment;
+    }
+
+    if (error_name == "invalid-character-sequence-after-doctype-name") {
+        return html2::ParseError::InvalidCharacterSequenceAfterDoctypeName;
+    }
+
+    if (error_name == "invalid-first-character-of-tag-name") {
+        return html2::ParseError::InvalidFirstCharacterOfTagName;
+    }
+
+    if (error_name == "missing-attribute-value") {
+        return html2::ParseError::MissingAttributeValue;
+    }
+
+    if (error_name == "missing-doctype-name") {
+        return html2::ParseError::MissingDoctypeName;
+    }
+
+    if (error_name == "missing-doctype-public-identifier") {
+        return html2::ParseError::MissingDoctypePublicIdentifier;
+    }
+
+    if (error_name == "missing-doctype-system-identifier") {
+        return html2::ParseError::MissingDoctypeSystemIdentifier;
+    }
+
+    if (error_name == "missing-end-tag-name") {
+        return html2::ParseError::MissingEndTagName;
+    }
+
+    if (error_name == "missing-quote-before-doctype-public-identifier") {
+        return html2::ParseError::MissingQuoteBeforeDoctypePublicIdentifier;
+    }
+
+    if (error_name == "missing-quote-before-doctype-system-identifier") {
+        return html2::ParseError::MissingQuoteBeforeDoctypeSystemIdentifier;
+    }
+
+    if (error_name == "missing-semicolon-after-character-reference") {
+        return html2::ParseError::MissingSemicolonAfterCharacterReference;
+    }
+
+    if (error_name == "missing-whitespace-after-doctype-public-keyword") {
+        return html2::ParseError::MissingWhitespaceAfterDoctypePublicKeyword;
+    }
+
+    if (error_name == "missing-whitespace-after-doctype-system-keyword") {
+        return html2::ParseError::MissingWhitespaceAfterDoctypeSystemKeyword;
+    }
+
+    if (error_name == "missing-whitespace-before-doctype-name") {
+        return html2::ParseError::MissingWhitespaceBeforeDoctypeName;
+    }
+
+    if (error_name == "missing-whitespace-between-attributes") {
+        return html2::ParseError::MissingWhitespaceBetweenAttributes;
+    }
+
+    if (error_name == "missing-whitespace-between-doctype-public-and-system-identifiers") {
+        return html2::ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers;
+    }
+
+    if (error_name == "nested-comment") {
+        return html2::ParseError::NestedComment;
+    }
+
+    if (error_name == "noncharacter-character-reference") {
+        return html2::ParseError::NoncharacterCharacterReference;
+    }
+
+    if (error_name == "null-character-reference") {
+        return html2::ParseError::NullCharacterReference;
+    }
+
+    if (error_name == "surrogate-character-reference") {
+        return html2::ParseError::SurrogateCharacterReference;
+    }
+
+    if (error_name == "unexpected-character-after-doctype-system-identifier") {
+        return html2::ParseError::UnexpectedCharacterAfterDoctypeSystemIdentifier;
+    }
+
+    if (error_name == "unexpected-character-in-attribute-name") {
+        return html2::ParseError::UnexpectedCharacterInAttributeName;
+    }
+
+    if (error_name == "unexpected-character-in-unquoted-attribute-value") {
+        return html2::ParseError::UnexpectedCharacterInUnquotedAttributeValue;
+    }
+
+    if (error_name == "unexpected-equals-sign-before-attribute-name") {
+        return html2::ParseError::UnexpectedEqualsSignBeforeAttributeName;
+    }
+
+    if (error_name == "unexpected-null-character") {
+        return html2::ParseError::UnexpectedNullCharacter;
+    }
+
+    if (error_name == "unexpected-question-mark-instead-of-tag-name") {
+        return html2::ParseError::UnexpectedQuestionMarkInsteadOfTagName;
+    }
+
+    if (error_name == "unexpected-solidus-in-tag") {
+        return html2::ParseError::UnexpectedSolidusInTag;
+    }
+
+    if (error_name == "unknown-named-character-reference") {
+        return html2::ParseError::UnknownNamedCharacterReference;
+    }
+
+    std::cerr << "Unhandled error: " << error_name << '\n';
+    return std::nullopt;
+}
+
+std::optional<Error> to_error(simdjson::ondemand::value error) {
+    auto code = error["code"].get_string().value();
+    if (code == "control-character-in-input-stream" || code == "noncharacter-in-input-stream") {
+        // TODO(robinlinden): Handle.
+        std::cerr << "Unhandled error: " << code << '\n';
+        return std::nullopt;
+    }
+
+    auto parse_error = to_parse_error(code).value();
+    auto line = error["line"].get_uint64().value();
+    auto col = error["col"].get_uint64().value();
+    return Error{
+            parse_error,
+            {static_cast<int>(line), static_cast<int>(col)},
+    };
+}
+
+std::optional<std::vector<Error>> to_errors(simdjson::ondemand::array errors) {
+    std::vector<Error> result;
+    for (auto error : errors) {
+        auto maybe_error = to_error(error.value());
+        if (!maybe_error.has_value()) {
+            return std::nullopt;
+        }
+
+        result.push_back(*maybe_error);
+    }
+
+    return result;
+}
+
 } // namespace
 
 int main(int argc, char **argv) {
@@ -237,13 +457,23 @@ int main(int argc, char **argv) {
         }
 
         auto out_tokens = to_html2_tokens(test["output"].get_array().value());
+        std::vector<Error> out_errors;
+
+        if (test["errors"].error() == simdjson::SUCCESS) {
+            auto maybe_errors = to_errors(test["errors"].get_array().value());
+            if (!maybe_errors.has_value()) {
+                continue;
+            }
+
+            out_errors = *std::move(maybe_errors);
+        }
 
         for (auto state : initial_states) {
             auto test_name = std::string{name} + " (state: " + std::to_string(static_cast<int>(state)) + ")";
             s.add_test(std::move(test_name), [=, input = std::string{in}](auto &a) {
                 auto [tokens, errors] = tokenize(input, state, last_start_tag);
                 a.expect_eq(tokens, out_tokens);
-                // TOOD(robinlinden): Check that errors match.
+                a.expect_eq(errors, out_errors);
             });
         }
     }
