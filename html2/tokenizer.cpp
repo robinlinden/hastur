@@ -1924,7 +1924,7 @@ void Tokenizer::run() {
                     default:
                         emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
                         std::get<DoctypeToken>(current_token_).force_quirks = true;
-                        state_ = State::BogusDoctype;
+                        reconsume_in(State::BogusDoctype);
                         continue;
                 }
             }
@@ -1966,7 +1966,7 @@ void Tokenizer::run() {
                     default:
                         emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
                         std::get<DoctypeToken>(current_token_).force_quirks = true;
-                        state_ = State::BogusDoctype;
+                        reconsume_in(State::BogusDoctype);
                         continue;
                 }
             }
@@ -2005,7 +2005,7 @@ void Tokenizer::run() {
                     default:
                         emit(ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
                         std::get<DoctypeToken>(current_token_).force_quirks = true;
-                        state_ = State::BogusDoctype;
+                        reconsume_in(State::BogusDoctype);
                         continue;
                 }
             }
