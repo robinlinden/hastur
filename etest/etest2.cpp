@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -71,7 +71,7 @@ struct Actions : public IActions {
 
 int Suite::run(RunOptions const &opts) {
     std::vector<Test> tests_to_run;
-    std::ranges::copy(begin(tests_), end(tests_), std::back_inserter(tests_to_run));
+    std::ranges::copy(tests_, std::back_inserter(tests_to_run));
 
     std::cout << tests_.size() + disabled_tests_.size() << " test(s) registered";
     if (disabled_tests_.empty()) {
@@ -79,7 +79,7 @@ int Suite::run(RunOptions const &opts) {
     } else {
         std::cout << ", " << disabled_tests_.size() << " disabled.\n" << std::flush;
         if (opts.run_disabled_tests) {
-            std::ranges::copy(begin(disabled_tests_), end(disabled_tests_), std::back_inserter(tests_to_run));
+            std::ranges::copy(disabled_tests_, std::back_inserter(tests_to_run));
         }
     }
 
@@ -87,11 +87,8 @@ int Suite::run(RunOptions const &opts) {
         return 1;
     }
 
-    // TODO(robinlinden): std::ranges once clang-cl supports it. Last tested
-    // with LLVM 15.0.0.
-    auto const longest_name = std::max_element(tests_to_run.begin(),
-            tests_to_run.end(),
-            [](auto const &a, auto const &b) { return a.name.size() < b.name.size(); });
+    auto const longest_name = std::ranges::max_element(
+            tests_to_run, [](auto const &a, auto const &b) { return a.size() < b.size(); }, &Test::name);
 
     bool failure = false;
     for (auto const &test : tests_to_run) {
