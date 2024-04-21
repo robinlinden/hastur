@@ -17,6 +17,10 @@ genrule(
 
 cc_library(
     name = "idna",
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
     hdrs = [":generate_idna_data"] + glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
