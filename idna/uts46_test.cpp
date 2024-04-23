@@ -16,7 +16,11 @@ int main() {
     etest::Suite s{};
 
     s.add_test("disallowed", [](etest::IActions &a) {
+        // The first unicode value
         a.expect_eq(idna::Uts46::map("\0"sv), std::nullopt);
+        // and the last one, U+10FFFF, but in UTF-8.
+        a.expect_eq(idna::Uts46::map("\xf4\x8f\xbf\xbf"), std::nullopt);
+
         a.expect_eq(idna::Uts46::map(","), std::nullopt);
         a.expect_eq(idna::Uts46::map("\xc2\xa0"), std::nullopt);
         a.expect_eq(idna::Uts46::map("a⒈com"), std::nullopt);

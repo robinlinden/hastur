@@ -100,11 +100,16 @@ class IDNA:
             if len(cols) <= 1:
                 continue
 
-            code_point = int(cols[0].split("..")[0].lstrip("0") or "0", 16)
+            if ".." in cols[0]:
+                code_point = int(cols[0].split("..")[1].lstrip("0"), 16)
+            else:
+                code_point = int(cols[0].lstrip("0"), 16)
+
             status = cols[1]
             if status == "disallowed":
                 assert len(cols) == 2
                 if len(mappings) > 0 and isinstance(mappings[-1][1], Disallowed):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, Disallowed()))
             elif status == "disallowed_STD3_valid":
@@ -112,6 +117,7 @@ class IDNA:
                 if len(mappings) > 0 and isinstance(
                     mappings[-1][1], DisallowedStd3Valid
                 ):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, DisallowedStd3Valid()))
             elif status == "disallowed_STD3_mapped":
@@ -119,16 +125,19 @@ class IDNA:
                 if len(mappings) > 0 and mappings[-1][
                     1
                 ] == DisallowedStd3Mapped.from_string(cols[2]):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, DisallowedStd3Mapped.from_string(cols[2])))
             elif status == "ignored":
                 assert len(cols) == 2
                 if len(mappings) > 0 and isinstance(mappings[-1][1], Ignored):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, Ignored()))
             elif status == "mapped":
                 assert len(cols) == 3
                 if len(mappings) > 0 and mappings[-1][1] == Mapped.from_string(cols[2]):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, Mapped.from_string(cols[2])))
             elif status == "deviation":
@@ -136,18 +145,22 @@ class IDNA:
                 if len(mappings) > 0 and mappings[-1][1] == Deviation.from_string(
                     cols[2]
                 ):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, Deviation.from_string(cols[2])))
             elif status == "valid" and len(cols) == 2:
                 if len(mappings) > 0 and isinstance(mappings[-1][1], Valid):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, Valid()))
             elif status == "valid" and len(cols) == 4 and cols[3] == "NV8":
                 if len(mappings) > 0 and isinstance(mappings[-1][1], ValidNv8):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, ValidNv8()))
             elif status == "valid" and len(cols) == 4 and cols[3] == "XV8":
                 if len(mappings) > 0 and isinstance(mappings[-1][1], ValidXv8):
+                    mappings[-1] = (code_point, mappings[-1][1])
                     continue
                 mappings.append((code_point, ValidXv8()))
             else:

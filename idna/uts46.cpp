@@ -31,11 +31,6 @@ std::optional<std::string> Uts46::map(std::string_view input) {
         auto mapping = std::ranges::lower_bound(
                 uts46::kMappings, code_point, {}, &decltype(uts46::kMappings)::value_type::first);
 
-        // TODO(robinlinden): Generate better mapping table.
-        if (mapping->first != code_point) {
-            mapping -= 1;
-        }
-
         auto const &entry = mapping->second;
         if (std::holds_alternative<uts46::Ignored>(entry)) {
             continue;
