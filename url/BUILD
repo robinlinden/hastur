@@ -5,8 +5,8 @@ load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 cc_import(
     name = "icudata",
     static_library = select({
-        "@platforms//os:windows": "@icu//:sicudt74l.lib",
-        "//conditions:default": "@icu//:libicudt74l.a",
+        "@platforms//os:windows": "@icu//:sicudt75l.lib",
+        "//conditions:default": "@icu//:libicudt75l.a",
     }),
     tags = ["no-cross"],
     visibility = ["//visibility:private"],

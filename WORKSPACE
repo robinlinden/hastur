@@ -152,15 +152,15 @@ http_archive(
 http_archive(
     name = "icu",  # Unicode-DFS-2016
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-J7hlCpTfb5Rcs7aGvjvjIMKjLt8+zimBZyv5i7O6qeE=",
+    integrity = "sha256-kl5rS4z4hW4KwhT2804w3uY7e7elBGCrRgOVDv9I+J4=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
         "rm source/tools/toolutil/BUILD.bazel",
         "rm source/i18n/BUILD.bazel",
     ],
-    strip_prefix = "icu-release-74-2/icu4c",
-    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-74-2.tar.gz",
+    strip_prefix = "icu-release-75-1/icu4c",
+    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-75-1.tar.gz",
 )
 
 # https://www.unicode.org/Public/idna/
