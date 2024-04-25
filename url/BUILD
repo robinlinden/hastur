@@ -1,17 +1,6 @@
-load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
-
-cc_import(
-    name = "icudata",
-    static_library = select({
-        "@platforms//os:windows": "@icu//:sicudt75l.lib",
-        "//conditions:default": "@icu//:libicudt75l.a",
-    }),
-    tags = ["no-cross"],
-    visibility = ["//visibility:private"],
-    alwayslink = True,
-)
 
 cc_library(
     name = "rtti_hack",
@@ -34,12 +23,12 @@ cc_library(
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
-        ":icudata",
         ":rtti_hack",
         "//util:string",
         "//util:unicode",
         "//util:uuid",
         "@icu//:common",
+        "@icu//:icudata",
     ],
 )
 

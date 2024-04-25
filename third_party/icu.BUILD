@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_import", "cc_library")
 
 cc_library(
     name = "stubdata",
@@ -260,7 +260,6 @@ genrule(
         ":pkgdata",
         ":pkgdata_inc",
     ],
-    visibility = ["//visibility:public"],
 )
 
 genrule(
@@ -279,5 +278,14 @@ genrule(
         ":icupkg",
         ":pkgdata",
     ],
+)
+
+cc_import(
+    name = "icudata",
+    static_library = select({
+        "@platforms//os:windows": ":sicudt75l.lib",
+        "//conditions:default": ":libicudt75l.a",
+    }),
     visibility = ["//visibility:public"],
+    alwayslink = True,
 )
