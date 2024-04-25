@@ -1,12 +1,26 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 cc_library(
+    name = "stubdata",
+    srcs = glob(["source/stubdata/*.cpp"]),
+    hdrs = glob(["source/stubdata/*.h"]),
+    copts = select({
+        "@platforms//os:windows": [
+            "/GR",
+        ],
+        "//conditions:default": [
+            "-frtti",
+        ],
+    }),
+    linkstatic = True,
+    deps = [":common"],
+)
+
+cc_library(
     name = "common",
     srcs = glob([
         "source/common/*.h",
         "source/common/*.cpp",
-        "source/stubdata/*.h",
-        "source/stubdata/*.cpp",
     ]),
     hdrs = glob([
         "source/common/*.h",
@@ -17,13 +31,11 @@ cc_library(
             "/GR",
             "-Isource/common/",
             "-Isource/common/unicode/",
-            "-Isource/stubdata/",
         ],
         "//conditions:default": [
             "-frtti",
             "-I source/common/",
             "-I source/common/unicode/",
-            "-I source/stubdata/",
             "-Wno-deprecated-declarations",
         ],
     }) + select({
@@ -73,6 +85,7 @@ cc_library(
     deps = [
         ":common",
         ":i18n",
+        ":stubdata",
     ],
 )
 
