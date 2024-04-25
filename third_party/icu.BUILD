@@ -1,17 +1,18 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_import", "cc_library")
 
+ICU_COPTS = select({
+    "@platforms//os:windows": ["/GR"],
+    "//conditions:default": ["-frtti"],
+}) + select({
+    "@rules_cc//cc/compiler:clang-cl": ["-Wno-microsoft-include"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "stubdata",
     srcs = glob(["source/stubdata/*.cpp"]),
     hdrs = glob(["source/stubdata/*.h"]),
-    copts = select({
-        "@platforms//os:windows": [
-            "/GR",
-        ],
-        "//conditions:default": [
-            "-frtti",
-        ],
-    }),
+    copts = ICU_COPTS,
     linkstatic = True,
     deps = [":common"],
 )
@@ -26,23 +27,14 @@ cc_library(
         "source/common/*.h",
         "source/common/unicode/*.h",
     ]),
-    copts = select({
-        "@platforms//os:windows": [
-            "/GR",
-            "-Isource/common/",
-            "-Isource/common/unicode/",
-        ],
+    copts = ICU_COPTS + [
+        "-Isource/common/",
+        "-Isource/common/unicode/",
+    ] + select({
+        "@platforms//os:windows": [],
         "//conditions:default": [
-            "-frtti",
-            "-I source/common/",
-            "-I source/common/unicode/",
             "-Wno-deprecated-declarations",
         ],
-    }) + select({
-        "@rules_cc//cc/compiler:clang-cl": [
-            "-Wno-microsoft-include",
-        ],
-        "//conditions:default": [],
     }),
     defines = [
         "U_STATIC_IMPLEMENTATION",
@@ -67,14 +59,7 @@ cc_library(
     name = "toolutil",
     srcs = glob(["source/tools/toolutil/*.cpp"]),
     hdrs = glob(["source/tools/toolutil/*.h"]),
-    copts = select({
-        "@platforms//os:windows": [
-            "/GR",
-        ],
-        "//conditions:default": [
-            "-frtti",
-        ],
-    }),
+    copts = ICU_COPTS,
     linkstatic = True,
     local_defines = ["U_TOOLUTIL_IMPLEMENTATION"] + select({
         "@platforms//os:linux": ["U_ELF"],
@@ -96,19 +81,7 @@ cc_library(
         "source/i18n/*.h",
         "source/i18n/unicode/*.h",
     ]),
-    copts = select({
-        "@platforms//os:windows": [
-            "/GR",
-        ],
-        "//conditions:default": [
-            "-frtti",
-        ],
-    }) + select({
-        "@rules_cc//cc/compiler:clang-cl": [
-            "-Wno-microsoft-include",
-        ],
-        "//conditions:default": [],
-    }),
+    copts = ICU_COPTS,
     linkstatic = True,
     local_defines = [
         "U_I18N_IMPLEMENTATION",
