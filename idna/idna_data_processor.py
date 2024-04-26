@@ -171,21 +171,23 @@ class IDNA:
         return idna
 
 
+# The version of MSVC we target doesn't yet support \u{12abc}, so we always
+# write the full 8-character escapes.
 def to_cxx_variant(a: Mapping) -> str:
     if isinstance(a, Disallowed):
         return "Disallowed{}"
     elif isinstance(a, DisallowedStd3Valid):
         return "DisallowedStd3Valid{}"
     elif isinstance(a, DisallowedStd3Mapped):
-        mapping = "".join(f"\\u{c:04X}" for c in a.maps_to)
+        mapping = "".join(f"\\U{c:08X}" for c in a.maps_to)
         return f'DisallowedStd3Mapped{{"{mapping}"}}'
     elif isinstance(a, Ignored):
         return "Ignored{}"
     elif isinstance(a, Mapped):
-        mapping = "".join(f"\\u{c:04X}" for c in a.maps_to)
+        mapping = "".join(f"\\U{c:08X}" for c in a.maps_to)
         return f'Mapped{{"{mapping}"}}'
     elif isinstance(a, Deviation):
-        mapping = "".join(f"\\u{c:04X}" for c in a.maps_to)
+        mapping = "".join(f"\\U{c:08X}" for c in a.maps_to)
         return f'Deviation{{"{mapping}"}}'
     elif isinstance(a, Valid):
         return "Valid{}"
