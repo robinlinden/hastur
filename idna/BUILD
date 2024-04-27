@@ -15,13 +15,29 @@ genrule(
     tools = [":idna_data_processor"],
 )
 
+py_binary(
+    name = "unicode_data_processor",
+    srcs = ["unicode_data_processor.py"],
+)
+
+genrule(
+    name = "generate_unicode_data",
+    srcs = ["@ucd//:UnicodeData.txt"],
+    outs = ["unicode_data.h"],
+    cmd = "$(location :unicode_data_processor) $(location @ucd//:UnicodeData.txt) >$@",
+    tools = [":unicode_data_processor"],
+)
+
 cc_library(
     name = "idna",
     srcs = glob(
         include = ["*.cpp"],
         exclude = ["*_test.cpp"],
     ),
-    hdrs = [":generate_idna_data"] + glob(["*.h"]),
+    hdrs = glob(["*.h"]) + [
+        ":generate_idna_data",
+        ":generate_unicode_data",
+    ],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = ["//util:unicode"],

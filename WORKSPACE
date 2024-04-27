@@ -250,6 +250,14 @@ http_archive(
     url = "https://github.com/nothings/stb/archive/ae721c50eaf761660b4f90cc590453cdb0c2acd0.tar.gz",
 )
 
+# https://www.unicode.org/Public/
+http_archive(
+    name = "ucd",
+    build_file_content = """exports_files(["UnicodeData.txt"])""",
+    integrity = "sha256-yxxmPQU5JlAM1QEilzYEV1JxOgZr11gCCYWYt6cFYXc=",
+    url = "https://www.unicode.org/Public/15.1.0/ucd/UCD.zip",
+)
+
 # https://github.com/illiliti/libudev-zero
 http_archive(
     name = "udev-zero",  # ISC
