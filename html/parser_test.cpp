@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -328,6 +328,55 @@ int main() {
 
         auto const &span = std::get<dom::Element>(noscript.children.at(0));
         expect_eq(span.name, "span");
+    });
+
+    etest::test("end tag w/o any open elements", [] {
+        auto html = html::parse("</html></html>").html();
+        expect_eq(html.children.size(), std::size_t{2});
+
+        auto const &head = std::get<dom::Element>(html.children.at(0));
+        expect_eq(head, dom::Element{"head"});
+
+        auto const &body = std::get<dom::Element>(html.children.at(1));
+        expect_eq(body, dom::Element{"body"});
+    });
+
+    etest::test("mismatching end tag", [] {
+        auto html = html::parse("<p></a>").html();
+        expect_eq(html.children.size(), std::size_t{2});
+
+        auto const &head = std::get<dom::Element>(html.children.at(0));
+        expect_eq(head, dom::Element{"head"});
+
+        auto const &body = std::get<dom::Element>(html.children.at(1));
+        expect_eq(body, dom::Element{"body", {}, {dom::Element{"p"}}});
+    });
+
+    etest::test("comment", [] {
+        auto html = html::parse("</html><!-- hello -->").html();
+        expect_eq(html.children.size(), std::size_t{2});
+
+        auto const &head = std::get<dom::Element>(html.children.at(0));
+        expect_eq(head, dom::Element{"head"});
+
+        auto const &body = std::get<dom::Element>(html.children.at(1));
+        expect_eq(body, dom::Element{"body"});
+    });
+
+    etest::test("start tag after closing html", [] {
+        auto html = html::parse("</html><p></p>").html();
+        expect_eq(html.children.size(), std::size_t{2});
+
+        auto const &head = std::get<dom::Element>(html.children.at(0));
+        expect_eq(head, dom::Element{"head"});
+
+        auto const &body = std::get<dom::Element>(html.children.at(1));
+        expect_eq(body, dom::Element{"body"});
+    });
+
+    etest::test("doctype", [] {
+        auto doc = html::parse("<!doctype abcd>");
+        expect_eq(doc.doctype, "abcd");
     });
 
     return etest::run_all_tests();
