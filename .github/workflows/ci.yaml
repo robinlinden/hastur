@@ -378,6 +378,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install ruff==0.4.2
+      - run: ruff check --output-format=github
       - run: ruff format --diff
 
   # https://github.com/python/mypy
