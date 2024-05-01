@@ -13,8 +13,8 @@ http_archive(
 # https://github.com/bazelbuild/platforms
 http_archive(
     name = "platforms",  # Apache-2.0
-    integrity = "sha256-XtpTnIQSZQMcL4LYrno6ZJC9YhduDAOPxGnqv5H2FJs=",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.9/platforms-0.0.9.tar.gz",
+    integrity = "sha256-IY7+juc20mo1cmY7N0olPAErcW2K8MB+hC6C8jigp+4=",
+    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.10/platforms-0.0.10.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_cc
@@ -83,14 +83,16 @@ http_archive(
     url = "https://github.com/chriskohlhoff/asio/archive/asio-1-30-2.tar.gz",
 )
 
+# TODO(robinlinden): Broken as of 15cf0c04e817c6d3950030bc381db82044b6175c.
+#                    We're stuck on the commit before that for now.
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-CSOTpf8UZb8E/iJTV+WY+Z89iqPxXwa3oN5llFa6rfg=",
+    integrity = "sha256-UuUvjBHbJifybzBvYK/3qSIlc9UzvrjT0VRRNRBTK9E=",
     # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
     patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
-    strip_prefix = "boringssl-8bd1dfd1f68c3f08a6550d2707bdc429ebb0ecb9",
-    url = "https://github.com/google/boringssl/archive/8bd1dfd1f68c3f08a6550d2707bdc429ebb0ecb9.tar.gz",
+    strip_prefix = "boringssl-c0534bb964f085e4e2f273d23d08e9585e7518aa",
+    url = "https://github.com/google/boringssl/archive/c0534bb964f085e4e2f273d23d08e9585e7518aa.tar.gz",
 )
 
 http_archive(
@@ -138,7 +140,7 @@ local_repository(
     path = "third_party/glad",
 )
 
-# HEAD as of 2024-03-05.
+# HEAD as of 2024-05-01.
 # https://github.com/html5lib/html5lib-tests/
 http_archive(
     name = "html5lib-tests",  # MIT
@@ -236,9 +238,9 @@ http_archive(
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-U08u4aTcvrIiSYVu37K+dqHPT3CKILCsLtCQ7iTP28k=",
-    strip_prefix = "spdlog-1.13.0",
-    url = "https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz",
+    integrity = "sha256-FYZQgCmn0GcN/LLZdXXc3CQtOGiiWXQrafEAgBq04Ws=",
+    strip_prefix = "spdlog-1.14.1",
+    url = "https://github.com/gabime/spdlog/archive/v1.14.1.tar.gz",
 )
 
 # https://github.com/nothings/stb
@@ -276,13 +278,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.282"
+VULKAN_TAG = "1.3.283"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-Ql/PWMgnMenOGIs5XR0/5ldBrabwSCuuA0eA61MLdtw=",
+    integrity = "sha256-p2/3eBUBLHaryYESFcIWcSinOml7zCOUjoWNH33VSoU=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -291,7 +293,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-JDm6PbxjgYz2gd+pZRRPEjWzF5usfzdTDceEHhCAtNg=",
+    integrity = "sha256-GmIw0TqFqTn8zMg7ATu5veKOpS3/T5S+NsYFCMIXIwg=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -300,9 +302,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    integrity = "sha256-b2IE5eJIgNyHJDLARziPBwrRXM44G8SA+udQVE4tTJ4=",
-    strip_prefix = "wpt-merge_pr_44163",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_44163.tar.gz",
+    integrity = "sha256-QHTAJGHQJ19w2Q5MdWZ6cxFh4T3lNm88MIxbb4XGd5s=",
+    strip_prefix = "wpt-merge_pr_46011",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_46011.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
