@@ -371,14 +371,14 @@ jobs:
       - run: pip install gitlint==0.19.1
       - run: gitlint --commits origin/master..
 
-  # https://github.com/psf/black
-  black:
+  # https://github.com/astral-sh/ruff
+  ruff:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: pip install black==24.4.0
-      - run: black --check --diff .
+      - run: pip install ruff==0.4.2
+      - run: ruff format --diff
 
   # https://github.com/python/mypy
   mypy:
