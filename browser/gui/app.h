@@ -85,6 +85,7 @@ private:
 
     void navigate_back();
     void navigate_forward();
+    void reload();
 
     layout::LayoutBox const *get_hovered_node(geom::Position document_position) const;
     geom::Position to_document_position(geom::Position window_position) const;

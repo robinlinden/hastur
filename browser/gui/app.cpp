@@ -359,6 +359,13 @@ void App::step() {
                         navigate_back();
                         break;
                     }
+                    case sf::Keyboard::Key::R: {
+                        if (!event.key.control) {
+                            break;
+                        }
+                        reload();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -503,6 +510,15 @@ void App::navigate_forward() {
     }
 
     url_buf_ = entry->uri;
+    navigate();
+}
+
+void App::reload() {
+    if (!maybe_page_) {
+        return;
+    }
+
+    url_buf_ = (**maybe_page_).uri.uri;
     navigate();
 }
 
