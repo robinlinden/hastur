@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <charconv>
+#include <cstdint>
 #include <iterator>
 #include <limits>
 #include <optional>
@@ -19,6 +20,12 @@
 #include <variant>
 
 namespace css {
+
+enum class ColorScheme : std::uint8_t {
+    Light,
+    Dark,
+};
+
 // This namespace is a workaround required when using libstdc++.
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96645
 namespace detail {
@@ -27,11 +34,20 @@ namespace detail {
 // NOLINTNEXTLINE(bugprone-forward-declaration-namespace)
 struct Context {
     int window_width{};
+    ColorScheme color_scheme{ColorScheme::Light};
 };
 
 struct False {
     [[nodiscard]] bool operator==(False const &) const = default;
     constexpr bool evaluate(Context const &) const { return false; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
+struct PrefersColorScheme {
+    ColorScheme color_scheme{};
+    [[nodiscard]] bool operator==(PrefersColorScheme const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.color_scheme == color_scheme; }
 };
 
 struct Width {
@@ -48,9 +64,10 @@ class MediaQuery {
 public:
     using Context = detail::Context;
     using False = detail::False;
+    using PrefersColorScheme = detail::PrefersColorScheme;
     using Width = detail::Width;
 
-    using Query = std::variant<False, Width>;
+    using Query = std::variant<False, PrefersColorScheme, Width>;
     Query query{};
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
@@ -81,6 +98,18 @@ public:
 
         if (feature_name == "width" || feature_name == "min-width" || feature_name == "max-width") {
             return parse_width(feature_name, value_str);
+        }
+
+        if (feature_name == "prefers-color-scheme") {
+            if (value_str == "light") {
+                return MediaQuery{PrefersColorScheme{.color_scheme = ColorScheme::Light}};
+            }
+
+            if (value_str == "dark") {
+                return MediaQuery{PrefersColorScheme{.color_scheme = ColorScheme::Dark}};
+            }
+
+            return std::nullopt;
         }
 
         return std::nullopt;
@@ -127,6 +156,10 @@ inline std::string to_string(MediaQuery::Width const &width) {
 
 constexpr std::string to_string(MediaQuery::False const &) {
     return "false";
+}
+
+constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {
+    return q.color_scheme == ColorScheme::Light ? "prefers-color-scheme: light" : "prefers-color-scheme: dark";
 }
 
 constexpr std::string to_string(MediaQuery const &query) {

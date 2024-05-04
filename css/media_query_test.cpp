@@ -49,6 +49,11 @@ void to_string_tests(etest::Suite &s) {
                 "300 <= width <= 300");
     });
 
+    s.add_test("to_string: prefers-color-scheme", [](etest::IActions &a) {
+        a.expect_eq(css::to_string(css::MediaQuery::PrefersColorScheme{.color_scheme = css::ColorScheme::Light}), //
+                "prefers-color-scheme: light");
+    });
+
     s.add_test("to_string: width", [](etest::IActions &a) {
         a.expect_eq(css::to_string(css::MediaQuery::Width{.min = 299, .max = 301}), //
                 "299 <= width <= 301");
@@ -62,6 +67,30 @@ void to_string_tests(etest::Suite &s) {
 void false_tests(etest::Suite &s) {
     s.add_test("false", [](etest::IActions &a) {
         a.expect(!css::MediaQuery::False{}.evaluate({.window_width = 299})); //
+    });
+}
+
+void prefers_color_scheme_tests(etest::Suite &s) {
+    s.add_test("prefers-color-scheme: light", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(prefers-color-scheme: light)"),
+                css::MediaQuery{css::MediaQuery::PrefersColorScheme{.color_scheme = css::ColorScheme::Light}});
+
+        auto query = css::MediaQuery::PrefersColorScheme{.color_scheme = css::ColorScheme::Light};
+        a.expect(query.evaluate({.color_scheme = css::ColorScheme::Light}));
+        a.expect(!query.evaluate({.color_scheme = css::ColorScheme::Dark}));
+    });
+
+    s.add_test("prefers-color-scheme: dark", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(prefers-color-scheme: dark)"),
+                css::MediaQuery{css::MediaQuery::PrefersColorScheme{.color_scheme = css::ColorScheme::Dark}});
+
+        auto query = css::MediaQuery::PrefersColorScheme{.color_scheme = css::ColorScheme::Dark};
+        a.expect(!query.evaluate({.color_scheme = css::ColorScheme::Light}));
+        a.expect(query.evaluate({.color_scheme = css::ColorScheme::Dark}));
+    });
+
+    s.add_test("prefers-color-scheme: invalid-value", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(prefers-color-scheme: invalid)"), std::nullopt); //
     });
 }
 
@@ -101,6 +130,7 @@ int main() {
     parser_tests(s);
     to_string_tests(s);
     false_tests(s);
+    prefers_color_scheme_tests(s);
     width_tests(s);
     return s.run();
 }
