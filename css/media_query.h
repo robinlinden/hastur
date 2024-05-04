@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +8,7 @@
 #include "util/from_chars.h"
 #include "util/string.h"
 
+#include <cassert>
 #include <charconv>
 #include <iterator>
 #include <limits>
@@ -77,6 +78,20 @@ public:
             return std::nullopt;
         }
         auto value_str = s.substr(value_start);
+
+        if (feature_name == "width" || feature_name == "min-width" || feature_name == "max-width") {
+            return parse_width(feature_name, value_str);
+        }
+
+        return std::nullopt;
+    }
+
+    constexpr bool evaluate(Context const &ctx) const {
+        return std::visit([&](auto const &q) { return q.evaluate(ctx); }, query);
+    }
+
+private:
+    static std::optional<MediaQuery> parse_width(std::string_view feature_name, std::string_view value_str) {
         float value{};
         auto value_parse_res = util::from_chars(value_str.data(), value_str.data() + value_str.size(), value);
         if (value_parse_res.ec != std::errc{}) {
@@ -101,16 +116,8 @@ public:
             return MediaQuery{Width{.max = static_cast<int>(value)}};
         }
 
-        if (feature_name == "width") {
-            return MediaQuery{Width{.min = static_cast<int>(value), .max = static_cast<int>(value)}};
-        }
-
-        // ...and we only handle the width features.
-        return std::nullopt;
-    }
-
-    constexpr bool evaluate(Context const &ctx) const {
-        return std::visit([&](auto const &q) { return q.evaluate(ctx); }, query);
+        assert(feature_name == "width");
+        return MediaQuery{Width{.min = static_cast<int>(value), .max = static_cast<int>(value)}};
     }
 };
 
