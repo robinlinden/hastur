@@ -109,6 +109,9 @@ int main() {
         expect(is_match(dom::Element{"div", {{"class", "myclass"}}}, ".myclass"sv));
         expect(is_match(dom::Element{"div", {{"class", "first second"}}}, ".first"sv));
         expect(is_match(dom::Element{"div", {{"class", "first second"}}}, ".second"sv));
+
+        expect(is_match(dom::Element{"div", {{"class", "first second"}}}, ".first.second"sv));
+        expect(!is_match(dom::Element{"div", {{"class", "first second"}}}, ".first.third"sv));
     });
 
     etest::test("is_match: id", [] {

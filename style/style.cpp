@@ -138,7 +138,8 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
 
     if (selector_.starts_with('.')) {
         selector_.remove_prefix(1);
-        return has_class(element, selector_);
+        auto classes = util::split(selector_, ".");
+        return std::ranges::all_of(classes, [&](auto const &c) { return has_class(element, c); });
     }
 
     if (selector_.starts_with('#')) {
