@@ -36,15 +36,6 @@ public:
     Value operator()(ExpressionStatement const &v) { return execute(v.expression); }
 
     Value operator()(BinaryExpression const &v) {
-        // TODO(robinlinden): This should be done in a more generic fashion.
-        auto get_value_resolving_variables = [this](Expression const &expr) {
-            if (std::holds_alternative<Identifier>(expr)) {
-                return variables.at(execute(expr).as_string());
-            }
-
-            return execute(expr);
-        };
-
         auto lhs = get_value_resolving_variables(*v.lhs);
         auto rhs = get_value_resolving_variables(*v.rhs);
 
@@ -95,6 +86,12 @@ public:
         }
 
         return scope.execute(fn.as_native_function());
+    }
+
+    Value operator()(MemberExpression const &v) {
+        auto object = get_value_resolving_variables(*v.object);
+        auto property = execute(v.property);
+        return object.as_object().at(property.as_string());
     }
 
     Value operator()(Function const &v) {
@@ -152,6 +149,16 @@ public:
 
     std::map<std::string, Value, std::less<>> variables;
     std::optional<Value> returning;
+
+private:
+    // TODO(robinlinden): This should be done in a more generic fashion.
+    Value get_value_resolving_variables(Expression const &expr) {
+        if (std::holds_alternative<Identifier>(expr)) {
+            return variables.at(execute(expr).as_string());
+        }
+
+        return execute(expr);
+    }
 };
 
 } // namespace js::ast

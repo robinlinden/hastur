@@ -111,6 +111,18 @@ int main() {
         expect_eq(e.variables.size(), std::size_t{1});
     });
 
+    etest::test("member expression", [] {
+        Interpreter e;
+        e.variables["obj"] = Value{Object{{"hello", Value{5.}}}};
+
+        auto member_expr = MemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"obj"}),
+                .property = Identifier{"hello"},
+        };
+
+        expect_eq(e.execute(member_expr), Value{5.});
+    });
+
     etest::test("return, values are returned", [] {
         auto declaration = FunctionDeclaration{
                 .id = Identifier{"func"},
