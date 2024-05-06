@@ -50,6 +50,11 @@ struct PrefersColorScheme {
     constexpr bool evaluate(Context const &ctx) const { return ctx.color_scheme == color_scheme; }
 };
 
+struct True {
+    [[nodiscard]] bool operator==(True const &) const = default;
+    constexpr bool evaluate(Context const &) const { return true; }
+};
+
 struct Width {
     int min{};
     int max{std::numeric_limits<int>::max()};
@@ -65,9 +70,10 @@ public:
     using Context = detail::Context;
     using False = detail::False;
     using PrefersColorScheme = detail::PrefersColorScheme;
+    using True = detail::True;
     using Width = detail::Width;
 
-    using Query = std::variant<False, PrefersColorScheme, Width>;
+    using Query = std::variant<False, PrefersColorScheme, True, Width>;
     Query query{};
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
@@ -156,6 +162,10 @@ inline std::string to_string(MediaQuery::Width const &width) {
 
 constexpr std::string to_string(MediaQuery::False const &) {
     return "false";
+}
+
+constexpr std::string to_string(MediaQuery::True const &) {
+    return "true";
 }
 
 constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {

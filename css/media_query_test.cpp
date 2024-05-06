@@ -62,11 +62,21 @@ void to_string_tests(etest::Suite &s) {
     s.add_test("to_string: false", [](etest::IActions &a) {
         a.expect_eq(css::to_string(css::MediaQuery::False{}), "false"); //
     });
+
+    s.add_test("to_string: true", [](etest::IActions &a) {
+        a.expect_eq(css::to_string(css::MediaQuery::True{}), "true"); //
+    });
 }
 
 void false_tests(etest::Suite &s) {
     s.add_test("false", [](etest::IActions &a) {
         a.expect(!css::MediaQuery::False{}.evaluate({.window_width = 299})); //
+    });
+}
+
+void true_tests(etest::Suite &s) {
+    s.add_test("true", [](etest::IActions &a) {
+        a.expect(css::MediaQuery::True{}.evaluate({})); //
     });
 }
 
@@ -130,6 +140,7 @@ int main() {
     parser_tests(s);
     to_string_tests(s);
     false_tests(s);
+    true_tests(s);
     prefers_color_scheme_tests(s);
     width_tests(s);
     return s.run();
