@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "js/ast_executor.h"
+#include "js/interpreter.h"
 
 #include "js/ast.h"
 
@@ -21,7 +21,7 @@ using etest::require_eq;
 
 int main() {
     etest::test("literals", [] {
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(NumericLiteral{5.}), Value{5.});
         expect_eq(e.execute(StringLiteral{"hello"}), Value{"hello"});
     });
@@ -33,7 +33,7 @@ int main() {
                 .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
         };
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(plus_expr), Value{42.});
     });
 
@@ -44,7 +44,7 @@ int main() {
                 .rhs = std::make_shared<Expression>(Identifier{"thirtyone"}),
         };
 
-        AstExecutor e;
+        Interpreter e;
         e.variables["eleven"] = Value{11.};
         e.variables["thirtyone"] = Value{31.};
         expect_eq(e.execute(plus_expr), Value{42.});
@@ -57,7 +57,7 @@ int main() {
                 .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
         };
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(minus_expr), Value{-20.});
     });
 
@@ -75,7 +75,7 @@ int main() {
                 },
         }};
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(declaration), Value{});
         expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
     });
@@ -103,7 +103,7 @@ int main() {
                 },
         };
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(declaration), Value{});
         expect_eq(e.execute(call), Value{13. + 4.});
 
@@ -122,7 +122,7 @@ int main() {
 
         auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(declaration), Value{});
         expect_eq(e.execute(call), Value{42.});
     });
@@ -141,13 +141,13 @@ int main() {
 
         auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(declaration), Value{});
         expect_eq(e.execute(call), Value{});
     });
 
     etest::test("expression statement", [] {
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(ExpressionStatement{StringLiteral{"hi"}}), Value{"hi"});
         expect_eq(e.execute(ExpressionStatement{NumericLiteral{1213}}), Value{1213});
     });
@@ -158,7 +158,7 @@ int main() {
                 .if_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"true!"}}),
         };
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(if_stmt), Value{"true!"});
 
         if_stmt.test = NumericLiteral{0};
@@ -172,7 +172,7 @@ int main() {
                 .else_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"false!"}}),
         };
 
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(if_stmt), Value{"true!"});
 
         if_stmt.test = NumericLiteral{0};
@@ -180,7 +180,7 @@ int main() {
     });
 
     etest::test("native function", [] {
-        AstExecutor e;
+        Interpreter e;
 
         std::string argument{};
         e.variables["set_string_and_get_42"] = Value{NativeFunction{[&](auto args) {
@@ -199,13 +199,13 @@ int main() {
     });
 
     etest::test("empty statement", [] {
-        AstExecutor e;
+        Interpreter e;
         expect_eq(e.execute(EmptyStatement{}), Value{});
         expect(e.variables.empty());
     });
 
     etest::test("while statement", [] {
-        AstExecutor e;
+        Interpreter e;
 
         int loop_count{};
         e.variables["should_continue"] = Value{NativeFunction{[&](auto const &args) {

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef JS_AST_EXECUTOR_H_
-#define JS_AST_EXECUTOR_H_
+#ifndef JS_INTERPRETER_H_
+#define JS_INTERPRETER_H_
 
 #include "js/ast.h"
 
@@ -20,7 +20,7 @@
 
 namespace js::ast {
 
-class AstExecutor {
+class Interpreter {
 public:
     Value execute(auto const &ast) { return (*this)(ast); }
 
@@ -77,7 +77,7 @@ public:
     }
 
     Value operator()(CallExpression const &v) {
-        AstExecutor scope{*this};
+        Interpreter scope{*this};
 
         auto const &fn = variables.at(execute(*v.callee).as_string());
         assert(fn.is_function() || fn.is_native_function());
