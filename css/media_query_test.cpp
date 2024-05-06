@@ -54,6 +54,11 @@ void to_string_tests(etest::Suite &s) {
                 "prefers-color-scheme: light");
     });
 
+    s.add_test("to_string: type", [](etest::IActions &a) {
+        a.expect_eq(css::to_string(css::MediaQuery::Type{.type = css::MediaType::Print}), "print");
+        a.expect_eq(css::to_string(css::MediaQuery::Type{.type = css::MediaType::Screen}), "screen");
+    });
+
     s.add_test("to_string: width", [](etest::IActions &a) {
         a.expect_eq(css::to_string(css::MediaQuery::Width{.min = 299, .max = 301}), //
                 "299 <= width <= 301");
@@ -104,6 +109,28 @@ void prefers_color_scheme_tests(etest::Suite &s) {
     });
 }
 
+void type_tests(etest::Suite &s) {
+    s.add_test("type", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("all"), css::MediaQuery{css::MediaQuery::True{}});
+
+        a.expect_eq(css::MediaQuery::parse("print"),
+                css::MediaQuery{css::MediaQuery::Type{.type = css::MediaType::Print}} //
+        );
+        a.expect_eq(css::MediaQuery::parse("screen"),
+                css::MediaQuery{css::MediaQuery::Type{.type = css::MediaType::Screen}} //
+        );
+
+        a.expect_eq(css::MediaQuery::parse("asdf"), std::nullopt);
+
+        using Type = css::MediaQuery::Type;
+        a.expect(Type{.type = css::MediaType::Print}.evaluate({.media_type = css::MediaType::Print}));
+        a.expect(!Type{.type = css::MediaType::Print}.evaluate({.media_type = css::MediaType::Screen}));
+
+        a.expect(Type{.type = css::MediaType::Screen}.evaluate({.media_type = css::MediaType::Screen}));
+        a.expect(!Type{.type = css::MediaType::Screen}.evaluate({.media_type = css::MediaType::Print}));
+    });
+}
+
 void width_tests(etest::Suite &s) {
     s.add_test("width: width", [](etest::IActions &a) {
         a.expect_eq(css::MediaQuery::parse("(width: 300px)"),
@@ -142,6 +169,7 @@ int main() {
     false_tests(s);
     true_tests(s);
     prefers_color_scheme_tests(s);
+    type_tests(s);
     width_tests(s);
     return s.run();
 }

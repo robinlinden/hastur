@@ -26,6 +26,11 @@ enum class ColorScheme : std::uint8_t {
     Dark,
 };
 
+enum class MediaType : std::uint8_t {
+    Print,
+    Screen,
+};
+
 // This namespace is a workaround required when using libstdc++.
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96645
 namespace detail {
@@ -35,6 +40,7 @@ namespace detail {
 struct Context {
     int window_width{};
     ColorScheme color_scheme{ColorScheme::Light};
+    MediaType media_type{MediaType::Screen};
 };
 
 struct False {
@@ -55,6 +61,14 @@ struct True {
     constexpr bool evaluate(Context const &) const { return true; }
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media#media_types
+struct Type {
+    MediaType type{};
+    [[nodiscard]] bool operator==(Type const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.media_type == type; }
+};
+
 struct Width {
     int min{};
     int max{std::numeric_limits<int>::max()};
@@ -71,15 +85,27 @@ public:
     using False = detail::False;
     using PrefersColorScheme = detail::PrefersColorScheme;
     using True = detail::True;
+    using Type = detail::Type;
     using Width = detail::Width;
 
-    using Query = std::variant<False, PrefersColorScheme, True, Width>;
+    using Query = std::variant<False, PrefersColorScheme, True, Type, Width>;
     Query query{};
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
     // https://drafts.csswg.org/mediaqueries/#mq-syntax
     static constexpr std::optional<MediaQuery> parse(std::string_view s) {
-        // We only handle media-in-parens right now.
+        if (s == "all") {
+            return MediaQuery{True{}};
+        }
+
+        if (s == "print") {
+            return MediaQuery{Type{.type = MediaType::Print}};
+        }
+
+        if (s == "screen") {
+            return MediaQuery{Type{.type = MediaType::Screen}};
+        }
+
         if (!(s.starts_with('(') && s.ends_with(')'))) {
             return std::nullopt;
         }
@@ -166,6 +192,10 @@ constexpr std::string to_string(MediaQuery::False const &) {
 
 constexpr std::string to_string(MediaQuery::True const &) {
     return "true";
+}
+
+constexpr std::string to_string(MediaQuery::Type const &q) {
+    return q.type == MediaType::Print ? "print" : "screen";
 }
 
 constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {
