@@ -24,6 +24,7 @@ struct BinaryExpression;
 struct BlockStatement;
 struct ReturnStatement;
 struct CallExpression;
+struct MemberExpression;
 struct ExpressionStatement;
 struct FunctionDeclaration;
 struct Identifier;
@@ -46,7 +47,7 @@ using Statement = std::variant<Declaration,
         IfStatement,
         WhileStatement,
         EmptyStatement>;
-using Expression = std::variant<Identifier, Literal, CallExpression, BinaryExpression>;
+using Expression = std::variant<Identifier, Literal, CallExpression, MemberExpression, BinaryExpression>;
 
 struct NativeFunction {
     std::function<Value(std::vector<Value> const &)> f;
@@ -155,6 +156,11 @@ struct FunctionDeclaration {
 struct CallExpression {
     std::shared_ptr<Expression> callee;
     std::vector<std::shared_ptr<Expression>> arguments;
+};
+
+struct MemberExpression {
+    std::shared_ptr<Expression> object;
+    Identifier property;
 };
 
 struct VariableDeclarator {
