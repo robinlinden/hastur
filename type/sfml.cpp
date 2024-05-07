@@ -15,6 +15,7 @@
 #include <SFML/System/String.hpp>
 
 #include <algorithm>
+#include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -67,8 +68,21 @@ Size SfmlFont::measure(std::string_view text, Px font_size, Weight weight) const
             break;
     }
 
+    // Workaround for SFML saying that non-breaking spaces have 0 width.
+    int nbsp_extra_width = 0;
+    auto const nbsp_count = static_cast<int>(std::ranges::count(sf_text.getString(), std::uint32_t{0xA0}));
+    if (nbsp_count > 0) {
+        sf::Text sf_space{sf::String{" "}, font_, static_cast<unsigned>(font_size.v)};
+        if (weight == Weight::Bold) {
+            sf_space.setStyle(sf::Text::Bold);
+        }
+
+        nbsp_extra_width = static_cast<int>(sf_space.getLocalBounds().width);
+        nbsp_extra_width *= nbsp_count;
+    }
+
     auto bounds = sf_text.getLocalBounds();
-    return Size{static_cast<int>(bounds.width), static_cast<int>(bounds.height)};
+    return Size{static_cast<int>(bounds.width) + nbsp_extra_width, static_cast<int>(bounds.height)};
 }
 
 std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name) const {
