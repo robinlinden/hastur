@@ -24,6 +24,11 @@ jobs:
             bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: g++-12 valgrind
 
+          - name: gcc-14
+            os: ubuntu-24.04
+            compiler: gcc
+            version: 14
+
           - name: clang-16-tsan
             os: ubuntu-22.04
             compiler: clang
@@ -60,7 +65,7 @@ jobs:
 
     steps:
       - name: Prepare gcc install
-        if: startsWith(matrix.compiler, 'gcc') && matrix.version >= 13
+        if: matrix.os == 'ubuntu-22.04' && startsWith(matrix.compiler, 'gcc') && matrix.version >= 13
         run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
       - name: Prepare clang install
         if: startsWith(matrix.compiler, 'clang') && matrix.version >= 15
@@ -81,7 +86,7 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }}
+          sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev
       # See: https://github.com/actions/runner-images/issues/8659
       - name: Work around libstdc++ and Clang incompabilities
         if: startsWith(matrix.compiler, 'clang') && matrix.version <= 16
