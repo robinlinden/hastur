@@ -76,7 +76,7 @@ private:
     engine::PageState &page() { return *maybe_page_.value(); }
     engine::PageState const &page() const { return *maybe_page_.value(); }
 
-    void on_navigation_failure(protocol::Error);
+    void on_navigation_failure(protocol::ErrorCode);
     void on_page_loaded();
     void on_layout_updated();
 

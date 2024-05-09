@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,10 +32,10 @@ private:
 int main() {
     etest::test("added protocols are handled", [] {
         MultiProtocolHandler handler;
-        expect_eq(handler.handle(uri::Uri{.scheme = "hax"}).err, protocol::Error::Unhandled);
+        expect_eq(handler.handle(uri::Uri{.scheme = "hax"}).err, protocol::ErrorCode::Unhandled);
 
-        handler.add("hax", std::make_unique<FakeProtocolHandler>(protocol::Response{protocol::Error::Ok}));
-        expect_eq(handler.handle(uri::Uri{.scheme = "hax"}).err, protocol::Error::Ok);
+        handler.add("hax", std::make_unique<FakeProtocolHandler>(protocol::Response{protocol::ErrorCode::Ok}));
+        expect_eq(handler.handle(uri::Uri{.scheme = "hax"}).err, protocol::ErrorCode::Ok);
     });
 
     return etest::run_all_tests();

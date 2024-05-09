@@ -27,35 +27,35 @@ public:
         using namespace std::string_view_literals;
 
         if (!socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
-            return {Error::Unresolved};
+            return {ErrorCode::Unresolved};
         }
 
         socket.write(Http::create_get_request(uri, std::move(user_agent)));
         auto data = socket.read_until("\r\n"sv);
         if (data.empty()) {
-            return {Error::InvalidResponse};
+            return {ErrorCode::InvalidResponse};
         }
 
         auto status_line = Http::parse_status_line(data.substr(0, data.size() - 2));
         if (!status_line) {
-            return {Error::InvalidResponse};
+            return {ErrorCode::InvalidResponse};
         }
 
         data = socket.read_until("\r\n\r\n"sv);
         if (data.empty()) {
-            return {Error::InvalidResponse, std::move(*status_line)};
+            return {ErrorCode::InvalidResponse, std::move(*status_line)};
         }
 
         auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
         if (headers.size() == 0) {
-            return {Error::InvalidResponse, std::move(*status_line)};
+            return {ErrorCode::InvalidResponse, std::move(*status_line)};
         }
 
         auto encoding = headers.get("transfer-encoding"sv);
         if (encoding == "chunked"sv) {
             auto body = Http::get_chunked_body(socket);
             if (!body) {
-                return {Error::InvalidResponse, std::move(*status_line)};
+                return {ErrorCode::InvalidResponse, std::move(*status_line)};
             }
 
             data = *body;
@@ -63,7 +63,7 @@ public:
             data = socket.read_all();
         }
 
-        return {Error::Ok, std::move(*status_line), std::move(headers), std::move(data)};
+        return {ErrorCode::Ok, std::move(*status_line), std::move(headers), std::move(data)};
     }
 
 private:

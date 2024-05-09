@@ -228,7 +228,7 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
 
-        expect_eq(response.err, protocol::Error::InvalidResponse);
+        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
     etest::test("transfer-encoding chunked, no separator between chunk", [] {
@@ -238,7 +238,7 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
 
-        expect_eq(response.err, protocol::Error::InvalidResponse);
+        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
     etest::test("transfer-encoding chunked, chunk too short", [] {
@@ -248,7 +248,7 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
 
-        expect_eq(response.err, protocol::Error::InvalidResponse);
+        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
     etest::test("transfer-encoding chunked, chunk too long", [] {
@@ -258,7 +258,7 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
 
-        expect_eq(response.err, protocol::Error::InvalidResponse);
+        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
     etest::test("404 no headers no body", [] {
@@ -275,26 +275,26 @@ int main() {
     etest::test("connect failure", [] {
         FakeSocket socket{.connect_result = false};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::Error::Unresolved});
+        expect_eq(response, protocol::Response{.err = protocol::ErrorCode::Unresolved});
     });
 
     etest::test("empty response", [] {
         FakeSocket socket{};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::Error::InvalidResponse});
+        expect_eq(response, protocol::Response{.err = protocol::ErrorCode::InvalidResponse});
     });
 
     etest::test("empty status line", [] {
         FakeSocket socket{.read_data = "\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::Error::InvalidResponse});
+        expect_eq(response, protocol::Response{.err = protocol::ErrorCode::InvalidResponse});
     });
 
     etest::test("no headers", [] {
         FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\n \r\n\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
         expect_eq(response,
-                protocol::Response{.err = protocol::Error::InvalidResponse, .status_line{"HTTP/1.1", 200, "OK"}});
+                protocol::Response{.err = protocol::ErrorCode::InvalidResponse, .status_line{"HTTP/1.1", 200, "OK"}});
     });
 
     etest::test("mixed valid and invalid headers", [] {
@@ -302,7 +302,7 @@ int main() {
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
         expect_eq(response,
                 protocol::Response{
-                        .err = protocol::Error::Ok,
+                        .err = protocol::ErrorCode::Ok,
                         .status_line{"HTTP/1.1", 200, "OK"},
                         .headers{{"one", "1"}, {"two", "2"}},
                 });

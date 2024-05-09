@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -27,7 +27,7 @@ public:
             return it->second->handle(uri);
         }
 
-        return {Error::Unhandled};
+        return {ErrorCode::Unhandled};
     }
 
 private:

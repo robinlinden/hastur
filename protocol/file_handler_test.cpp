@@ -63,7 +63,7 @@ int main() {
     etest::test("uri pointing to non-existent file", [] {
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse("file:///this/file/does/definitely/not/exist.hastur").value());
-        expect_eq(res, protocol::Response{protocol::Error::Unresolved});
+        expect_eq(res, protocol::Response{protocol::ErrorCode::Unresolved});
     });
 
     etest::test("uri pointing to a folder", [] {
@@ -71,7 +71,7 @@ int main() {
 
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse(fmt::format("file://{}", tmp_dir.generic_string())).value());
-        expect_eq(res, protocol::Response{protocol::Error::InvalidResponse});
+        expect_eq(res, protocol::Response{protocol::ErrorCode::InvalidResponse});
     });
 
     etest::test("uri pointing to a regular file", [] {
@@ -84,7 +84,7 @@ int main() {
 
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse(fmt::format("file://{}", tmp_file->path().generic_string())).value());
-        expect_eq(res, protocol::Response{protocol::Error::Ok, {}, {}, "hello!"});
+        expect_eq(res, protocol::Response{protocol::ErrorCode::Ok, {}, {}, "hello!"});
     });
 
     return etest::run_all_tests();

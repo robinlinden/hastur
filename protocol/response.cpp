@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -17,17 +17,17 @@
 
 namespace protocol {
 
-std::string_view to_string(Error e) {
+std::string_view to_string(ErrorCode e) {
     switch (e) {
-        case Error::Ok:
+        case ErrorCode::Ok:
             return "Ok";
-        case Error::Unresolved:
+        case ErrorCode::Unresolved:
             return "Unresolved";
-        case Error::Unhandled:
+        case ErrorCode::Unhandled:
             return "Unhandled";
-        case Error::InvalidResponse:
+        case ErrorCode::InvalidResponse:
             return "InvalidResponse";
-        case Error::RedirectLimit:
+        case ErrorCode::RedirectLimit:
             return "RedirectLimit";
     }
     return "Unknown";

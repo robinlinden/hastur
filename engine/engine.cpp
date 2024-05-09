@@ -32,7 +32,7 @@ namespace engine {
 tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri) {
     auto result = load(std::move(uri));
 
-    if (result.response.err != protocol::Error::Ok) {
+    if (result.response.err != protocol::ErrorCode::Ok) {
         return tl::unexpected{NavigationError{
                 .uri = std::move(result.uri_after_redirects),
                 .response = std::move(result.response),
@@ -80,7 +80,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
             auto &style_data = res.response;
             stylesheet_url = std::move(res.uri_after_redirects);
 
-            if (style_data.err != protocol::Error::Ok) {
+            if (style_data.err != protocol::ErrorCode::Ok) {
                 spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url->uri);
                 return {};
             }
@@ -147,25 +147,25 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
 
     int redirect_count = 0;
     protocol::Response response = protocol_handler_->handle(uri);
-    while (response.err == protocol::Error::Ok && is_redirect(response.status_line.status_code)) {
+    while (response.err == protocol::ErrorCode::Ok && is_redirect(response.status_line.status_code)) {
         ++redirect_count;
         auto location = response.headers.get("Location");
         if (!location) {
-            response.err = protocol::Error::InvalidResponse;
+            response.err = protocol::ErrorCode::InvalidResponse;
             return {std::move(response), std::move(uri)};
         }
 
         spdlog::info("Following {} redirect from {} to {}", response.status_line.status_code, uri.uri, *location);
         auto new_uri = uri::Uri::parse(std::string(*location), uri);
         if (!new_uri) {
-            response.err = protocol::Error::InvalidResponse;
+            response.err = protocol::ErrorCode::InvalidResponse;
             return {std::move(response), std::move(uri)};
         }
 
         uri = *std::move(new_uri);
         response = protocol_handler_->handle(uri);
         if (redirect_count > kMaxRedirects) {
-            response.err = protocol::Error::RedirectLimit;
+            response.err = protocol::ErrorCode::RedirectLimit;
             return {std::move(response), std::move(uri)};
         }
     }

@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -37,15 +37,15 @@ int main() {
         expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
     });
 
-    etest::test("error, to_string", [] {
-        using protocol::Error;
-        expect_eq(to_string(Error::Ok), "Ok"sv);
-        expect_eq(to_string(Error::Unresolved), "Unresolved"sv);
-        expect_eq(to_string(Error::Unhandled), "Unhandled"sv);
-        expect_eq(to_string(Error::InvalidResponse), "InvalidResponse"sv);
-        expect_eq(to_string(Error::RedirectLimit), "RedirectLimit"sv);
+    etest::test("ErrorCode, to_string", [] {
+        using protocol::ErrorCode;
+        expect_eq(to_string(ErrorCode::Ok), "Ok"sv);
+        expect_eq(to_string(ErrorCode::Unresolved), "Unresolved"sv);
+        expect_eq(to_string(ErrorCode::Unhandled), "Unhandled"sv);
+        expect_eq(to_string(ErrorCode::InvalidResponse), "InvalidResponse"sv);
+        expect_eq(to_string(ErrorCode::RedirectLimit), "RedirectLimit"sv);
         // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
-        expect_eq(to_string(static_cast<Error>(std::underlying_type_t<Error>{20})), "Unknown"sv);
+        expect_eq(to_string(static_cast<ErrorCode>(std::underlying_type_t<ErrorCode>{20})), "Unknown"sv);
     });
 
     return etest::run_all_tests();

@@ -522,7 +522,7 @@ void App::reload() {
     navigate();
 }
 
-void App::on_navigation_failure(protocol::Error err) {
+void App::on_navigation_failure(protocol::ErrorCode err) {
     update_status_line();
     response_headers_str_ = maybe_page_.error().response.headers.to_string();
     dom_str_.clear();
@@ -530,27 +530,27 @@ void App::on_navigation_failure(protocol::Error err) {
     layout_str_.clear();
 
     switch (err) {
-        case protocol::Error::Unresolved: {
+        case protocol::ErrorCode::Unresolved: {
             nav_widget_extra_info_ = fmt::format("Unable to resolve endpoint for '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
-        case protocol::Error::Unhandled: {
+        case protocol::ErrorCode::Unhandled: {
             nav_widget_extra_info_ = fmt::format("Unhandled protocol for '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
-        case protocol::Error::InvalidResponse: {
+        case protocol::ErrorCode::InvalidResponse: {
             nav_widget_extra_info_ = fmt::format("Invalid response from '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
-        case protocol::Error::RedirectLimit: {
+        case protocol::ErrorCode::RedirectLimit: {
             nav_widget_extra_info_ = fmt::format("Redirect limit hit while loading '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
-        case protocol::Error::Ok:
+        case protocol::ErrorCode::Ok:
         default:
             spdlog::error("This should never happen: {}", static_cast<int>(err));
             break;
@@ -587,7 +587,7 @@ void App::on_page_loaded() {
 
         auto icon = engine_.load(*uri).response;
         sf::Image favicon;
-        if (icon.err != protocol::Error::Ok || !favicon.loadFromMemory(icon.body.data(), icon.body.size())) {
+        if (icon.err != protocol::ErrorCode::Ok || !favicon.loadFromMemory(icon.body.data(), icon.body.size())) {
             spdlog::warn("Error loading favicon from '{}': {}", uri->uri, to_string(icon.err));
             continue;
         }

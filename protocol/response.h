@@ -17,7 +17,7 @@
 
 namespace protocol {
 
-enum class Error : std::uint8_t {
+enum class ErrorCode : std::uint8_t {
     Ok,
     Unresolved,
     Unhandled,
@@ -25,7 +25,7 @@ enum class Error : std::uint8_t {
     RedirectLimit,
 };
 
-std::string_view to_string(Error);
+std::string_view to_string(ErrorCode);
 
 struct StatusLine {
     std::string version;
@@ -56,7 +56,7 @@ private:
 };
 
 struct Response {
-    Error err{};
+    ErrorCode err{};
     StatusLine status_line;
     Headers headers;
     std::string body;

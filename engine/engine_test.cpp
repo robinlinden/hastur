@@ -28,7 +28,7 @@ using namespace std::literals;
 using etest::expect;
 using etest::expect_eq;
 using etest::require;
-using protocol::Error;
+using protocol::ErrorCode;
 using protocol::Response;
 
 namespace {
@@ -53,7 +53,7 @@ int main() {
         std::map<std::string, Response> responses{{
                 "hax://example.com"s,
                 Response{
-                        .err = Error::Ok,
+                        .err = ErrorCode::Ok,
                         .status_line = {.status_code = 200},
                         .body{"<html><head><style>p { font-size: 123em; }</style></head></html>"},
                 },
@@ -69,7 +69,7 @@ int main() {
 
     etest::test("navigation failure", [] {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
-                std::pair{"hax://example.com"s, Response{.err = Error::Unresolved}},
+                std::pair{"hax://example.com"s, Response{.err = ErrorCode::Unresolved}},
         })};
 
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
@@ -78,7 +78,7 @@ int main() {
 
     etest::test("page load", [] {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
-                std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
+                std::pair{"hax://example.com"s, Response{.err = ErrorCode::Ok}},
         })};
 
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
@@ -87,7 +87,7 @@ int main() {
 
     etest::test("layout update", [] {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::map{
-                std::pair{"hax://example.com"s, Response{.err = Error::Ok}},
+                std::pair{"hax://example.com"s, Response{.err = ErrorCode::Ok}},
         })};
         e.set_layout_width(123);
 
@@ -102,7 +102,7 @@ int main() {
         std::map<std::string, Response> responses{{
                 "hax://example.com"s,
                 Response{
-                        .err = Error::Ok,
+                        .err = ErrorCode::Ok,
                         .status_line = {.status_code = 200},
                         .body{"<html></html>"},
                 },
@@ -116,7 +116,7 @@ int main() {
         responses = std::map<std::string, Response>{{
                 "hax://example.com"s,
                 Response{
-                        .err = Error::Ok,
+                        .err = ErrorCode::Ok,
                         .status_line = {.status_code = 200},
                         .body{"<html><head><style>html { display: inline; }</style></head></html>"},
                 },
@@ -135,7 +135,7 @@ int main() {
         std::map<std::string, Response> responses{{
                 "hax://example.com"s,
                 Response{
-                        .err = Error::Ok,
+                        .err = ErrorCode::Ok,
                         .status_line = {.status_code = 200},
                         .body{"<html><head><style>"
                               "a { color: red; } "
@@ -158,7 +158,7 @@ int main() {
     etest::test("stylesheet link, parallel download", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head>"
                       "<link rel=stylesheet href=one.css />"
@@ -166,12 +166,12 @@ int main() {
                       "</head></html>"},
         };
         responses["hax://example.com/one.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"p { font-size: 123em; }"},
         };
         responses["hax://example.com/two.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"p { color: green; }"},
         };
@@ -185,12 +185,12 @@ int main() {
     etest::test("stylesheet link, unsupported Content-Encoding", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
         };
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "really-borked-content-type"}},
                 .body{"p { font-size: 123em; }"},
@@ -211,12 +211,12 @@ int main() {
     etest::test("stylesheet link, gzip Content-Encoding", [gzipped_css]() mutable {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
         };
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "gzip"}},
                 .body{gzipped_css},
@@ -232,7 +232,7 @@ int main() {
 
         // And again, but with x-gzip instead.
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "x-gzip"}},
                 .body{std::move(gzipped_css)},
@@ -250,14 +250,14 @@ int main() {
     etest::test("stylesheet link, gzip Content-Encoding, bad header", [gzipped_css]() mutable {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
         };
         // Ruin the gzip header.
         gzipped_css[1] += 1;
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "gzip"}},
                 .body{std::move(gzipped_css)},
@@ -275,14 +275,14 @@ int main() {
     etest::test("stylesheet link, gzip Content-Encoding, crc32 mismatch", [gzipped_css]() mutable {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
         };
         // Ruin the content.
         gzipped_css[20] += 1;
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "gzip"}},
                 .body{std::move(gzipped_css)},
@@ -300,12 +300,12 @@ int main() {
     etest::test("stylesheet link, gzip Content-Encoding, served zlib", [zlibbed_css] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
         };
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "gzip"}},
                 .body{zlibbed_css},
@@ -323,12 +323,12 @@ int main() {
     etest::test("stylesheet link, deflate Content-Encoding", [zlibbed_css] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
         };
         responses["hax://example.com/lol.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .headers{{"Content-Encoding", "deflate"}},
                 .body{zlibbed_css},
@@ -346,18 +346,18 @@ int main() {
     etest::test("redirect", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 301},
                 .headers = {{"Location", "hax://example.com/redirected"}},
         };
         responses["hax://example.com/redirected"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><body>hello!</body></html>"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        expect_eq(page->response.err, protocol::Error::Ok);
+        expect_eq(page->response.err, protocol::ErrorCode::Ok);
         expect_eq(page->uri.uri, "hax://example.com/redirected");
 
         auto const &body = std::get<dom::Element>(page->dom.html().children.at(1));
@@ -367,60 +367,60 @@ int main() {
     etest::test("redirect not providing Location header", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 301},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         expect_eq(e.navigate(uri::Uri::parse("hax://example.com").value()).error().response.err,
-                protocol::Error::InvalidResponse);
+                protocol::ErrorCode::InvalidResponse);
     });
 
     etest::test("redirect, style", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><head>"
                       "<link rel=stylesheet href=hello.css />"
                       "</head></html>"},
         };
         responses["hax://example.com/hello.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 301},
                 .headers = {{"Location", "hax://example.com/redirected.css"}},
         };
         responses["hax://example.com/redirected.css"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"p { color: green; }"},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        expect_eq(page->response.err, protocol::Error::Ok);
+        expect_eq(page->response.err, protocol::ErrorCode::Ok);
         expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
 
     etest::test("redirect loop", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 301},
                 .headers = {{"Location", "hax://example.com"}},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         expect_eq(e.navigate(uri::Uri::parse("hax://example.com").value()).error().response.err, //
-                protocol::Error::RedirectLimit);
+                protocol::ErrorCode::RedirectLimit);
     });
 
     etest::test("load", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 301},
                 .headers = {{"Location", "hax://example.com/redirected"}},
         };
         responses["hax://example.com/redirected"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{"<html><body>hello!</body></html>"},
         };
@@ -440,13 +440,13 @@ int main() {
     etest::test("bad uri in redirect", [] {
         std::map<std::string, Response> responses;
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 301},
                 .headers = {{"Location", ""}},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto res = e.navigate(uri::Uri::parse("hax://example.com").value());
-        expect_eq(res.error().response.err, protocol::Error::InvalidResponse);
+        expect_eq(res.error().response.err, protocol::ErrorCode::InvalidResponse);
     });
 
     etest::test("bad uri in style href", [] {
@@ -455,13 +455,13 @@ int main() {
         body += std::string(1025, 'a');
         body += " /></head></html>";
         responses["hax://example.com"s] = Response{
-                .err = Error::Ok,
+                .err = ErrorCode::Ok,
                 .status_line = {.status_code = 200},
                 .body{std::move(body)},
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        expect_eq(page->response.err, protocol::Error::Ok);
+        expect_eq(page->response.err, protocol::ErrorCode::Ok);
     });
 
     return etest::run_all_tests();
