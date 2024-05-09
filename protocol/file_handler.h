@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,11 +11,13 @@
 
 #include "uri/uri.h"
 
+#include <tl/expected.hpp>
+
 namespace protocol {
 
 class FileHandler final : public IProtocolHandler {
 public:
-    [[nodiscard]] Response handle(uri::Uri const &uri) override;
+    [[nodiscard]] tl::expected<Response, Error> handle(uri::Uri const &uri) override;
 };
 
 } // namespace protocol

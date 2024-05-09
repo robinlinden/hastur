@@ -36,7 +36,7 @@ struct PageState {
 
 struct NavigationError {
     uri::Uri uri{};
-    protocol::Response response{};
+    protocol::Error response{};
 };
 
 class Engine {
@@ -52,7 +52,7 @@ public:
     void relayout(PageState &, int layout_width);
 
     struct [[nodiscard]] LoadResult {
-        protocol::Response response;
+        tl::expected<protocol::Response, protocol::Error> response;
         uri::Uri uri_after_redirects;
     };
     LoadResult load(uri::Uri);

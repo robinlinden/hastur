@@ -9,6 +9,8 @@
 
 #include "uri/uri.h"
 
+#include <tl/expected.hpp>
+
 #include <filesystem>
 #include <fstream>
 #include <ios>
@@ -17,21 +19,21 @@
 
 namespace protocol {
 
-Response FileHandler::handle(uri::Uri const &uri) {
+tl::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
     auto path = std::filesystem::path(uri.path);
     if (!exists(path)) {
-        return {ErrorCode::Unresolved};
+        return tl::unexpected{protocol::Error{ErrorCode::Unresolved}};
     }
 
     if (!is_regular_file(path)) {
-        return {ErrorCode::InvalidResponse};
+        return tl::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
     }
 
     auto file = std::ifstream(path, std::ios::in | std::ios::binary);
     auto size = file_size(path);
     auto content = std::string(size, '\0');
     file.read(content.data(), size);
-    return {ErrorCode::Ok, {}, {}, std::move(content)};
+    return Response{{}, {}, std::move(content)};
 }
 
 } // namespace protocol

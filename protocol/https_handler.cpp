@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -10,9 +10,11 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
+#include <tl/expected.hpp>
+
 namespace protocol {
 
-Response HttpsHandler::handle(uri::Uri const &uri) {
+tl::expected<Response, Error> HttpsHandler::handle(uri::Uri const &uri) {
     return Http::get(net::SecureSocket{}, uri, user_agent_);
 }
 

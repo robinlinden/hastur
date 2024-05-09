@@ -32,16 +32,16 @@ namespace engine {
 tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri) {
     auto result = load(std::move(uri));
 
-    if (result.response.err != protocol::ErrorCode::Ok) {
+    if (!result.response.has_value()) {
         return tl::unexpected{NavigationError{
                 .uri = std::move(result.uri_after_redirects),
-                .response = std::move(result.response),
+                .response = std::move(result.response.error()),
         }};
     }
 
     auto state = std::make_unique<PageState>();
     state->uri = std::move(result.uri_after_redirects);
-    state->response = std::move(result.response);
+    state->response = std::move(result.response.value());
     state->dom = html::parse(state->response.body);
     state->stylesheet = css::default_style();
 
@@ -80,25 +80,25 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
             auto &style_data = res.response;
             stylesheet_url = std::move(res.uri_after_redirects);
 
-            if (style_data.err != protocol::ErrorCode::Ok) {
-                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.err), stylesheet_url->uri);
+            if (!style_data.has_value()) {
+                spdlog::warn("Error {} downloading {}", static_cast<int>(style_data.error().err), stylesheet_url->uri);
                 return {};
             }
 
             if ((stylesheet_url->scheme == "http" || stylesheet_url->scheme == "https")
-                    && style_data.status_line.status_code != 200) {
+                    && style_data->status_line.status_code != 200) {
                 spdlog::warn("Error {}: {} downloading {}",
-                        style_data.status_line.status_code,
-                        style_data.status_line.reason,
+                        style_data->status_line.status_code,
+                        style_data->status_line.reason,
                         stylesheet_url->uri);
                 return {};
             }
 
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding#directives
-            auto encoding = style_data.headers.get("Content-Encoding");
+            auto encoding = style_data->headers.get("Content-Encoding");
             if (encoding == "gzip" || encoding == "x-gzip" || encoding == "deflate") {
                 auto zlib_mode = encoding == "deflate" ? archive::ZlibMode::Zlib : archive::ZlibMode::Gzip;
-                auto decoded = archive::zlib_decode(style_data.body, zlib_mode);
+                auto decoded = archive::zlib_decode(style_data->body, zlib_mode);
                 if (!decoded) {
                     auto const &err = decoded.error();
                     spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
@@ -109,13 +109,13 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
                     return {};
                 }
 
-                style_data.body = *std::move(decoded);
+                style_data->body = *std::move(decoded);
             } else if (encoding) {
                 spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url->uri);
                 return {};
             }
 
-            return css::parse(style_data.body);
+            return css::parse(style_data->body);
         }));
     }
 
@@ -146,27 +146,36 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
     };
 
     int redirect_count = 0;
-    protocol::Response response = protocol_handler_->handle(uri);
-    while (response.err == protocol::ErrorCode::Ok && is_redirect(response.status_line.status_code)) {
+    auto response = protocol_handler_->handle(uri);
+    while (response.has_value() && is_redirect(response->status_line.status_code)) {
         ++redirect_count;
-        auto location = response.headers.get("Location");
+        auto location = response->headers.get("Location");
         if (!location) {
-            response.err = protocol::ErrorCode::InvalidResponse;
-            return {std::move(response), std::move(uri)};
+            return {
+                    .response = tl::unexpected{protocol::Error{
+                            protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
+                    .uri_after_redirects = std::move(uri),
+            };
         }
 
-        spdlog::info("Following {} redirect from {} to {}", response.status_line.status_code, uri.uri, *location);
+        spdlog::info("Following {} redirect from {} to {}", response->status_line.status_code, uri.uri, *location);
         auto new_uri = uri::Uri::parse(std::string(*location), uri);
         if (!new_uri) {
-            response.err = protocol::ErrorCode::InvalidResponse;
-            return {std::move(response), std::move(uri)};
+            return {
+                    .response = tl::unexpected{protocol::Error{
+                            protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
+                    .uri_after_redirects = std::move(uri),
+            };
         }
 
         uri = *std::move(new_uri);
         response = protocol_handler_->handle(uri);
         if (redirect_count > kMaxRedirects) {
-            response.err = protocol::ErrorCode::RedirectLimit;
-            return {std::move(response), std::move(uri)};
+            return {
+                    .response = tl::unexpected{protocol::Error{
+                            protocol::ErrorCode::RedirectLimit, std::move(response->status_line)}},
+                    .uri_after_redirects = std::move(uri),
+            };
         }
     }
 

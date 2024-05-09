@@ -524,7 +524,7 @@ void App::reload() {
 
 void App::on_navigation_failure(protocol::ErrorCode err) {
     update_status_line();
-    response_headers_str_ = maybe_page_.error().response.headers.to_string();
+    response_headers_str_.clear();
     dom_str_.clear();
     stylesheet_str_.clear();
     layout_str_.clear();
@@ -587,8 +587,8 @@ void App::on_page_loaded() {
 
         auto icon = engine_.load(*uri).response;
         sf::Image favicon;
-        if (icon.err != protocol::ErrorCode::Ok || !favicon.loadFromMemory(icon.body.data(), icon.body.size())) {
-            spdlog::warn("Error loading favicon from '{}': {}", uri->uri, to_string(icon.err));
+        if (!icon.has_value() || !favicon.loadFromMemory(icon->body.data(), icon->body.size())) {
+            spdlog::warn("Error loading favicon from '{}': {}", uri->uri, to_string(icon.error().err));
             continue;
         }
 
@@ -669,15 +669,15 @@ void App::scroll(int pixels) {
 }
 
 void App::update_status_line() {
-    auto const &r = [this] {
+    auto const &status = [this] {
         if (maybe_page_) {
-            return page().response;
+            return page().response.status_line;
         }
 
-        return maybe_page_.error().response;
+        return maybe_page_.error().response.status_line.value_or(protocol::StatusLine{});
     }();
 
-    status_line_str_ = fmt::format("{} {} {}", r.status_line.version, r.status_line.status_code, r.status_line.reason);
+    status_line_str_ = fmt::format("{} {} {}", status.version, status.status_code, status.reason);
 }
 
 void App::run_overlay() {
@@ -710,8 +710,6 @@ void App::run_http_response_widget() const {
         if (ImGui::CollapsingHeader("Body")) {
             if (maybe_page_) {
                 ImGui::TextUnformatted(page().response.body.c_str());
-            } else {
-                ImGui::TextUnformatted(maybe_page_.error().response.body.c_str());
             }
         }
     });

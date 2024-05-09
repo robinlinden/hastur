@@ -56,12 +56,18 @@ private:
 };
 
 struct Response {
-    ErrorCode err{};
     StatusLine status_line;
     Headers headers;
     std::string body;
 
     [[nodiscard]] bool operator==(Response const &) const = default;
+};
+
+struct Error {
+    ErrorCode err{};
+    std::optional<StatusLine> status_line;
+
+    [[nodiscard]] bool operator==(Error const &) const = default;
 };
 
 } // namespace protocol

@@ -106,7 +106,7 @@ int main() {
                 "</head>\n"
                 "</html>\n";
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
         require(response.headers.size() == 13);
         expect_eq(socket.host, "example.com");
@@ -155,7 +155,7 @@ int main() {
                 "<A HREF=\"http://www.google.com/\">here</A>.\r\n"
                 "</BODY></HTML>\r\n";
 
-        auto response = protocol::Http::get(socket, create_uri("http://google.com"), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri("http://google.com"), std::nullopt).value();
 
         require(response.headers.size() == 7);
         expect_eq(socket.host, "google.com");
@@ -187,7 +187,7 @@ int main() {
                 "0\r\n"
                 "\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
         expect_eq(response.body,
                 "<!DOCTYPE html>\r\n"
@@ -206,7 +206,7 @@ int main() {
                 "  5\r\nhello\r\n"
                 " 0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
         expect_eq(response.body, "hello");
     });
@@ -216,7 +216,7 @@ int main() {
                 "5  \r\nhello\r\n"
                 "0  \r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
         expect_eq(response.body, "hello");
     });
@@ -226,7 +226,7 @@ int main() {
                 "8684838388283847263674\r\nhello\r\n"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
         expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
@@ -236,7 +236,7 @@ int main() {
                 "5\r\nhello"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
         expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
@@ -246,7 +246,7 @@ int main() {
                 "6\r\nhello\r\n"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
         expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
@@ -256,7 +256,7 @@ int main() {
                 "3\r\nhello\r\n"
                 "0\r\n\r\n");
 
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
         expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
@@ -264,37 +264,36 @@ int main() {
     etest::test("404 no headers no body", [] {
         FakeSocket socket;
         socket.read_data = "HTTP/1.1 404 Not Found\r\n\r\n";
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
-        require(response.headers.size() == 0);
-        expect_eq(response.status_line.version, "HTTP/1.1"sv);
-        expect_eq(response.status_line.status_code, 404);
-        expect_eq(response.status_line.reason, "Not Found");
+        expect_eq(response.status_line->version, "HTTP/1.1"sv);
+        expect_eq(response.status_line->status_code, 404);
+        expect_eq(response.status_line->reason, "Not Found");
     });
 
     etest::test("connect failure", [] {
         FakeSocket socket{.connect_result = false};
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::ErrorCode::Unresolved});
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
+        expect_eq(response, protocol::Error{.err = protocol::ErrorCode::Unresolved});
     });
 
     etest::test("empty response", [] {
         FakeSocket socket{};
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::ErrorCode::InvalidResponse});
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
+        expect_eq(response, protocol::Error{.err = protocol::ErrorCode::InvalidResponse});
     });
 
     etest::test("empty status line", [] {
         FakeSocket socket{.read_data = "\r\n"};
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response, protocol::Response{.err = protocol::ErrorCode::InvalidResponse});
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
+        expect_eq(response, protocol::Error{.err = protocol::ErrorCode::InvalidResponse});
     });
 
     etest::test("no headers", [] {
         FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\n \r\n\r\n"};
-        auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
         expect_eq(response,
-                protocol::Response{.err = protocol::ErrorCode::InvalidResponse, .status_line{"HTTP/1.1", 200, "OK"}});
+                protocol::Error{protocol::ErrorCode::InvalidResponse, protocol::StatusLine{"HTTP/1.1", 200, "OK"}});
     });
 
     etest::test("mixed valid and invalid headers", [] {
@@ -302,7 +301,6 @@ int main() {
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
         expect_eq(response,
                 protocol::Response{
-                        .err = protocol::ErrorCode::Ok,
                         .status_line{"HTTP/1.1", 200, "OK"},
                         .headers{{"one", "1"}, {"two", "2"}},
                 });

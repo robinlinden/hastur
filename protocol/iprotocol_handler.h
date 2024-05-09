@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,12 +9,14 @@
 
 #include "uri/uri.h"
 
+#include <tl/expected.hpp>
+
 namespace protocol {
 
 class IProtocolHandler {
 public:
     virtual ~IProtocolHandler() = default;
-    [[nodiscard]] virtual Response handle(uri::Uri const &) = 0;
+    [[nodiscard]] virtual tl::expected<Response, Error> handle(uri::Uri const &) = 0;
 };
 
 } // namespace protocol

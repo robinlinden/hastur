@@ -8,6 +8,8 @@
 
 #include "uri/uri.h"
 
+#include <tl/expected.hpp>
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -22,12 +24,12 @@ public:
         handlers_[std::move(protocol)] = std::move(handler);
     }
 
-    [[nodiscard]] Response handle(uri::Uri const &uri) override {
+    [[nodiscard]] tl::expected<Response, Error> handle(uri::Uri const &uri) override {
         if (auto it = handlers_.find(uri.scheme); it != handlers_.end()) {
             return it->second->handle(uri);
         }
 
-        return {ErrorCode::Unhandled};
+        return tl::unexpected{Error{ErrorCode::Unhandled}};
     }
 
 private:
