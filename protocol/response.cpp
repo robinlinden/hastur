@@ -19,8 +19,6 @@ namespace protocol {
 
 std::string_view to_string(ErrorCode e) {
     switch (e) {
-        case ErrorCode::Ok:
-            return "Ok";
         case ErrorCode::Unresolved:
             return "Unresolved";
         case ErrorCode::Unhandled:

@@ -39,7 +39,6 @@ int main() {
 
     etest::test("ErrorCode, to_string", [] {
         using protocol::ErrorCode;
-        expect_eq(to_string(ErrorCode::Ok), "Ok"sv);
         expect_eq(to_string(ErrorCode::Unresolved), "Unresolved"sv);
         expect_eq(to_string(ErrorCode::Unhandled), "Unhandled"sv);
         expect_eq(to_string(ErrorCode::InvalidResponse), "InvalidResponse"sv);

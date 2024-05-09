@@ -18,7 +18,6 @@
 namespace protocol {
 
 enum class ErrorCode : std::uint8_t {
-    Ok,
     Unresolved,
     Unhandled,
     InvalidResponse,

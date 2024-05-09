@@ -550,10 +550,6 @@ void App::on_navigation_failure(protocol::ErrorCode err) {
             spdlog::error(nav_widget_extra_info_);
             break;
         }
-        case protocol::ErrorCode::Ok:
-        default:
-            spdlog::error("This should never happen: {}", static_cast<int>(err));
-            break;
     }
 }
 
