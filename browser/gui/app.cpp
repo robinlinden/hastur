@@ -583,8 +583,13 @@ void App::on_page_loaded() {
 
         auto icon = engine_.load(*uri).response;
         sf::Image favicon;
-        if (!icon.has_value() || !favicon.loadFromMemory(icon->body.data(), icon->body.size())) {
+        if (!icon.has_value()) {
             spdlog::warn("Error loading favicon from '{}': {}", uri->uri, to_string(icon.error().err));
+            continue;
+        }
+
+        if (!favicon.loadFromMemory(icon->body.data(), icon->body.size())) {
+            spdlog::warn("Error parsing favicon data from '{}'", uri->uri);
             continue;
         }
 
