@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -19,7 +19,7 @@ namespace os {
 // If the dwFreeType parameter is MEM_RELEASE, this parameter must be 0 (zero).
 // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualfree
 ExecutableMemory::~ExecutableMemory() {
-    if (memory_ != nullptr && !VirtualFree(memory_, 0, MEM_RELEASE)) {
+    if (memory_ != nullptr && (VirtualFree(memory_, 0, MEM_RELEASE) == 0)) {
         std::abort();
     }
 }
@@ -37,9 +37,9 @@ std::optional<ExecutableMemory> ExecutableMemory::allocate_containing(std::span<
     std::memcpy(memory, data.data(), data.size());
 
     DWORD old_protect{};
-    if (!VirtualProtect(memory, data.size(), PAGE_EXECUTE, &old_protect)
-            || !FlushInstructionCache(GetCurrentProcess(), memory, data.size())) {
-        if (!VirtualFree(memory, 0, MEM_RELEASE)) {
+    if ((VirtualProtect(memory, data.size(), PAGE_EXECUTE, &old_protect) == 0)
+            || (FlushInstructionCache(GetCurrentProcess(), memory, data.size()) == 0)) {
+        if (VirtualFree(memory, 0, MEM_RELEASE) == 0) {
             std::abort();
         }
 
