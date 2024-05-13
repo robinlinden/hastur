@@ -24,6 +24,26 @@
 #
 # -modernize-use-trailing-return-type: Stylistic change, and something we
 # haven't been doing so far.
+#
+# -readability-container-data-pointer: We actually want a pointer to the first element.
+#
+# -readability-convert-member-functions-to-static: Makes some APIs confusing, especially when
+# used in combination with readability-static-accessed-through-instance.
+#
+# -readability-function-cognitive-complexity: TODO(robinlinden): Investigate. Maybe case-by-case.
+#
+# -readability-function-size: TODO(robinlinden): Investigate. Maybe case-by-case.
+#
+# -readability-identifier-length: Requiring at least 3 characters for identifiers is silly.
+#
+# -readability-magic-numbers: Things implemented from specs and unit tests
+# contain a lot of magic numbers.
+#
+# -readability-named-parameter: Leaving out argument names is fine where it doesn't add anything.
+#
+# -readability-redundant-member-init: TODO(robinlinden): Investigate.
+#
+# -readability-uppercase-literal-suffix: TODO(robinlinden): Investigate.
 Checks: >
   bugprone-*,
   cert-*,
@@ -34,27 +54,8 @@ Checks: >
   misc-*,
   modernize-*,
   performance-*,
-  readability-avoid-const-params-in-decls,
+  readability-*,
   readability-avoid-unconditional-preprocessor-if,
-  readability-container-size-empty,
-  readability-duplicate-include,
-  readability-else-after-return,
-  readability-identifier-naming,
-  readability-implicit-bool-conversion,
-  readability-inconsistent-declaration-parameter-name,
-  readability-isolate-declaration,
-  readability-make-member-function-const,
-  readability-misleading-indentation,
-  readability-non-const-parameter,
-  readability-qualified-auto,
-  readability-redundant-control-flow,
-  readability-redundant-preprocessor,
-  readability-redundant-string-init,
-  readability-simplify-boolean-expr,
-  readability-simplify-subscript-expr,
-  readability-static-definition-in-anonymous-namespace,
-  readability-string-compare,
-  readability-use-anyofallof,
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
@@ -65,7 +66,17 @@ Checks: >
   -modernize-make-unique,
   -modernize-use-emplace,
   -modernize-use-nodiscard,
-  -modernize-use-trailing-return-type
+  -modernize-use-trailing-return-type,
+  -readability-container-data-pointer,
+  -readability-convert-member-functions-to-static,
+  -readability-function-cognitive-complexity,
+  -readability-function-size,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-redundant-member-init,
+  -readability-static-accessed-through-instance,
+  -readability-uppercase-literal-suffix
 
 WarningsAsErrors: "*"
 
