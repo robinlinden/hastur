@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
 //
@@ -102,7 +102,7 @@ constexpr bool no_case_compare(std::string_view a, std::string_view b) {
 
 constexpr std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
     std::vector<std::string_view> result{};
-    for (auto p = str.find(sep); p != str.npos; p = str.find(sep)) {
+    for (auto p = str.find(sep); p != std::string_view::npos; p = str.find(sep)) {
         result.push_back(str.substr(0, p));
         str.remove_prefix(std::min(p + sep.size(), str.size()));
     }
@@ -111,7 +111,7 @@ constexpr std::vector<std::string_view> split(std::string_view str, std::string_
 }
 
 constexpr std::pair<std::string_view, std::string_view> split_once(std::string_view str, std::string_view sep) {
-    if (auto p = str.find(sep); p != str.npos) {
+    if (auto p = str.find(sep); p != std::string_view::npos) {
         return {str.substr(0, p), str.substr(p + sep.size())};
     }
     return {str, ""};
