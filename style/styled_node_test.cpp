@@ -480,10 +480,8 @@ int main() {
         };
 
         // TODO(robinlinden)
-#if 0
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
-                style::FontWeight::bold());
-#endif
+        // expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+        //         style::FontWeight::bold());
         expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
                 std::nullopt);
     });

@@ -46,25 +46,21 @@ using InsertionMode = std::variant<Initial,
         AfterHead,
         InBody,
         Text,
-#if 0
-        InTable,
-        InTableText,
-        InCaption,
-        InColumnGroup,
-        InTableBody,
-        InRow,
-        InCell,
-        InSelect,
-        InSelectInTable,
-        InTemplate,
-        AfterBody,
-#endif
+        // InTable,
+        // InTableText,
+        // InCaption,
+        // InColumnGroup,
+        // InTableBody,
+        // InRow,
+        // InCell,
+        // InSelect,
+        // InSelectInTable,
+        // InTemplate,
+        // AfterBody,
         InFrameset,
         AfterFrameset
-#if 0
-        AfterAfterBody,
-        AfterAfterFrameset
-#endif
+        // AfterAfterBody,
+        // AfterAfterFrameset
         >;
 
 struct InTable {};
