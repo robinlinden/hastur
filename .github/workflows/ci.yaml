@@ -24,18 +24,19 @@ jobs:
             bazel: --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: g++-12 valgrind
 
-          - name: clang-14-tsan
+          - name: clang-16-tsan
             os: ubuntu-22.04
             compiler: clang
-            version: 14
+            version: 16
             bazel: --config tsan
+            apt: libclang-rt-16-dev
 
-          # https://github.com/llvm/llvm-project/issues/49689
-          - name: clang-15-asan-ubsan
+          - name: clang-16-asan-ubsan
             os: ubuntu-22.04
             compiler: clang
-            version: 15
+            version: 16
             bazel: --config asan --config ubsan
+            apt: libclang-rt-16-dev
 
           - name: clang-18
             os: ubuntu-22.04
@@ -43,12 +44,12 @@ jobs:
             version: 18
             apt: libclang-rt-18-dev
 
-          - name: clang-15-libc++
+          - name: clang-16-libc++
             os: ubuntu-22.04
             compiler: clang
-            version: 15
+            version: 16
             bazel: --config libc++
-            apt: libc++abi-15-dev libc++-15-dev
+            apt: libc++abi-16-dev libc++-16-dev
 
           - name: clang-17-libc++
             os: ubuntu-22.04
