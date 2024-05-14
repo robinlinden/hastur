@@ -16,8 +16,7 @@
 #include "type/type.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -51,7 +50,7 @@ public:
             std::unique_ptr<type::IType> type = std::make_unique<type::NaiveType>())
         : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)} {}
 
-    [[nodiscard]] tl::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
+    [[nodiscard]] std::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
 
     void relayout(PageState &, Options);
 

@@ -695,11 +695,10 @@ void App::run_debug_widget() const {
         std::cout << "\nStylesheet:\n" << stylesheet_to_string(page().stylesheet) << '\n';
     }
 
-    std::optional<layout::LayoutBox> const &layout =
-            maybe_page_.transform(&engine::PageState::layout).value_or(std::nullopt);
-    ImGui::BeginDisabled(layout == std::nullopt);
+    ImGui::BeginDisabled(!maybe_page_ || page().layout == std::nullopt);
 
     if (ImGui::Button("Layout")) {
+        auto const &layout = page().layout;
         assert(layout);
         std::cout << "\nLayout:\n" << to_string(*layout) << '\n';
     }

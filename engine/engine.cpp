@@ -19,7 +19,6 @@
 #include "uri/uri.h"
 
 #include <spdlog/spdlog.h>
-#include <tl/expected.hpp>
 
 #include <cstddef>
 #include <expected>
@@ -85,18 +84,18 @@ css::MediaQuery::Context to_media_context(Options opts) {
 
 } // namespace
 
-tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri, Options opts) {
+std::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri, Options opts) {
     auto result = load(std::move(uri));
 
     if (!result.response.has_value()) {
-        return tl::unexpected{NavigationError{
+        return std::unexpected{NavigationError{
                 .uri = std::move(result.uri_after_redirects),
                 .response = std::move(result.response.error()),
         }};
     }
 
     if (!try_decompress_response_body(result.uri_after_redirects, *result.response)) {
-        return tl::unexpected{NavigationError{
+        return std::unexpected{NavigationError{
                 .uri = std::move(result.uri_after_redirects),
                 .response{protocol::Error{
                         protocol::ErrorCode::InvalidResponse,
