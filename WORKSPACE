@@ -102,14 +102,6 @@ http_archive(
     url = "https://github.com/google/boringssl/archive/c0534bb964f085e4e2f273d23d08e9585e7518aa.tar.gz",
 )
 
-http_archive(
-    name = "expected",  # CC0-1.0
-    build_file = "//third_party:expected.BUILD",
-    sha256 = "1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6",
-    strip_prefix = "expected-1.1.0",
-    url = "https://github.com/tartanllama/expected/archive/v1.1.0.tar.gz",
-)
-
 # https://github.com/fmtlib/fmt
 http_archive(
     name = "fmt",  # MIT
