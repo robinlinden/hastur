@@ -5,9 +5,8 @@
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <iosfwd>
 #include <optional>
 #include <string_view>
@@ -76,8 +75,8 @@ constexpr std::string_view to_string(ModuleParseError e) {
 
 class ByteCodeParser {
 public:
-    static tl::expected<Module, ModuleParseError> parse_module(std::istream &);
-    static tl::expected<Module, ModuleParseError> parse_module(std::istream &&is) { return parse_module(is); }
+    static std::expected<Module, ModuleParseError> parse_module(std::istream &);
+    static std::expected<Module, ModuleParseError> parse_module(std::istream &&is) { return parse_module(is); }
 
     // TODO(robinlinden): Make private once instructions are parsed eagerly.
     static std::optional<ValueType> parse_value_type(std::istream &);

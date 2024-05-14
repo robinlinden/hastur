@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,9 +8,8 @@
 
 #include "wasm.h"
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <string_view>
 
 namespace wasm::validation {
@@ -35,7 +35,7 @@ enum class ValidationError : std::uint8_t {
 
 std::string_view to_string(ValidationError);
 
-tl::expected<void, ValidationError> validate(Module const &);
+std::expected<void, ValidationError> validate(Module const &);
 
 } // namespace wasm::validation
 

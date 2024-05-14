@@ -6,9 +6,8 @@
 
 #include "etest/etest.h"
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <limits>
 #include <optional>
 #include <source_location>
@@ -31,7 +30,7 @@ template<typename T>
 void expect_decode_failure(
         std::string bytes, Leb128ParseError error, std::source_location loc = std::source_location::current()) {
     expect_eq(Leb128<T>::decode_from(std::stringstream{std::move(bytes)}),
-            tl::unexpected{error},
+            std::unexpected{error},
             std::nullopt,
             std::move(loc));
 };
