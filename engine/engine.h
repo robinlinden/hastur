@@ -16,8 +16,7 @@
 #include "type/type.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -47,7 +46,7 @@ public:
 
     void set_layout_width(int layout_width) { layout_width_ = layout_width; }
 
-    [[nodiscard]] tl::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri);
+    [[nodiscard]] std::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri);
 
     void relayout(PageState &, int layout_width);
 

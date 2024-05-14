@@ -16,7 +16,6 @@
 #include "uri/uri.h"
 
 #include <spdlog/spdlog.h>
-#include <tl/expected.hpp>
 
 #include <expected>
 #include <future>
@@ -30,11 +29,11 @@ using namespace std::literals;
 
 namespace engine {
 
-tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri) {
+std::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri) {
     auto result = load(std::move(uri));
 
     if (!result.response.has_value()) {
-        return tl::unexpected{NavigationError{
+        return std::unexpected{NavigationError{
                 .uri = std::move(result.uri_after_redirects),
                 .response = std::move(result.response.error()),
         }};
