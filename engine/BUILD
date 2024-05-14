@@ -40,6 +40,5 @@ cc_test(
         "//type",
         "//type:naive",
         "//uri",
-        "@expected",
     ],
 )

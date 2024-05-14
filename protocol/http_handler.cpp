@@ -10,11 +10,11 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
+#include <expected>
 
 namespace protocol {
 
-tl::expected<Response, Error> HttpHandler::handle(uri::Uri const &uri) {
+std::expected<Response, Error> HttpHandler::handle(uri::Uri const &uri) {
     return Http::get(net::Socket{}, uri, user_agent_);
 }
 

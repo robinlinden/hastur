@@ -17,9 +17,8 @@
 #include "type/type.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
 #include <algorithm>
+#include <expected>
 #include <map>
 #include <memory>
 #include <string>
@@ -34,14 +33,14 @@ using etest::require;
 using protocol::ErrorCode;
 using protocol::Response;
 
-using Responses = std::map<std::string, tl::expected<Response, protocol::Error>>;
+using Responses = std::map<std::string, std::expected<Response, protocol::Error>>;
 
 namespace {
 
 class FakeProtocolHandler final : public protocol::IProtocolHandler {
 public:
     explicit FakeProtocolHandler(Responses responses) : responses_{std::move(responses)} {}
-    [[nodiscard]] tl::expected<Response, protocol::Error> handle(uri::Uri const &uri) override {
+    [[nodiscard]] std::expected<Response, protocol::Error> handle(uri::Uri const &uri) override {
         return responses_.at(uri.uri);
     }
 
@@ -75,7 +74,7 @@ int main() {
 
     etest::test("navigation failure", [] {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(Responses{
-                std::pair{"hax://example.com"s, tl::unexpected{protocol::Error{ErrorCode::Unresolved}}},
+                std::pair{"hax://example.com"s, std::unexpected{protocol::Error{ErrorCode::Unresolved}}},
         })};
 
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
