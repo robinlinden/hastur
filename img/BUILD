@@ -33,7 +33,6 @@ cc_library(
     hdrs = ["qoi.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["@expected"],
 )
 
 # See: https://www.mjt.me.uk/posts/smallest-png/
@@ -56,10 +55,7 @@ extra_srcs = {
         [],
     ),
     copts = HASTUR_COPTS,
-    deps = [":%s" % src[:-9]] + [
-        "//etest",
-        "@expected",
-    ],
+    deps = [":%s" % src[:-9]] + ["//etest"],
 ) for src in glob(
     include = ["*_test.cpp"],
     exclude = ["*_fuzz_test.cpp"],

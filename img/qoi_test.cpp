@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,8 +6,7 @@
 
 #include "etest/etest.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <sstream>
 #include <string>
 
@@ -19,48 +18,48 @@ using namespace std::literals;
 
 int main() {
     etest::test("abrupt eof before magic", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoi"s}), tl::unexpected{QoiError::AbruptEof}); //
+        expect_eq(Qoi::from(std::stringstream{"qoi"s}), std::unexpected{QoiError::AbruptEof}); //
     });
 
     etest::test("invalid magic", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoib"s}), tl::unexpected{QoiError::InvalidMagic}); //
+        expect_eq(Qoi::from(std::stringstream{"qoib"s}), std::unexpected{QoiError::InvalidMagic}); //
     });
 
     etest::test("abrupt eof before width", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0"s}), tl::unexpected{QoiError::AbruptEof}); //
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0"s}), std::unexpected{QoiError::AbruptEof}); //
     });
 
     etest::test("abrupt eof before height", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0"s}), tl::unexpected{QoiError::AbruptEof}); //
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0"s}), std::unexpected{QoiError::AbruptEof}); //
     });
 
     etest::test("unreasonably large image", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0"s}), tl::unexpected{QoiError::ImageTooLarge}); //
+        expect_eq(Qoi::from(std::stringstream{"qoif\1\0\0\0\1\0\0\0"s}), std::unexpected{QoiError::ImageTooLarge}); //
     });
 
     etest::test("channels error handling", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1"s}), tl::unexpected{QoiError::AbruptEof});
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\5"s}), tl::unexpected{QoiError::InvalidChannels});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1"s}), std::unexpected{QoiError::AbruptEof});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\5"s}), std::unexpected{QoiError::InvalidChannels});
     });
 
     etest::test("colorspace error handling", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3"s}), tl::unexpected{QoiError::AbruptEof});
-        expect_eq(
-                Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3\2"s}), tl::unexpected{QoiError::InvalidColorspace});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3"s}), std::unexpected{QoiError::AbruptEof});
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\1\3\2"s}),
+                std::unexpected{QoiError::InvalidColorspace});
     });
 
     etest::test("missing pixel data", [] {
-        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1"s}), tl::unexpected{QoiError::AbruptEof}); //
+        expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1"s}), std::unexpected{QoiError::AbruptEof}); //
     });
 
     etest::test("QOI_OP_RGB w/o pixel data", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xfe\1\2"s}),
-                tl::unexpected{QoiError::AbruptEof}); //
+                std::unexpected{QoiError::AbruptEof}); //
     });
 
     etest::test("QOI_OP_RGBA w/o pixel data", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\1\0\0\0\2\3\1\xff\1\2"s}),
-                tl::unexpected{QoiError::AbruptEof}); //
+                std::unexpected{QoiError::AbruptEof}); //
     });
 
     etest::test("QOI_OP_RGBA", [] {
@@ -99,7 +98,7 @@ int main() {
     etest::test("QOI_OP_LUMA, missing extra byte", [] {
         // diff of {-24, -16, -9}, {25, 18, 22}
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\2\0\0\0\1\3\1\x90"s}), //
-                tl::unexpected{QoiError::AbruptEof});
+                std::unexpected{QoiError::AbruptEof});
     });
 
     etest::test("0x0 image", [] {
@@ -108,12 +107,12 @@ int main() {
 
     etest::test("missing footer", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\0\0\0\0\0\3\1"s}), //
-                tl::unexpected{QoiError::AbruptEof});
+                std::unexpected{QoiError::AbruptEof});
     });
 
     etest::test("invalid footer", [] {
         expect_eq(Qoi::from(std::stringstream{"qoif\0\0\0\0\0\0\0\0\3\1\0\0\0\0\0\0\0\2"s}),
-                tl::unexpected{QoiError::InvalidEndMarker});
+                std::unexpected{QoiError::InvalidEndMarker});
     });
 
     etest::test("it works", [] {
