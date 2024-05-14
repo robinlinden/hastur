@@ -1,21 +1,21 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "archive/zlib.h"
 
-#include <tl/expected.hpp>
 #include <zconf.h>
 #include <zlib.h>
 
 #include <cstddef>
+#include <expected>
 #include <string>
 #include <string_view>
 #include <utility>
 
 namespace archive {
 
-tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode mode) {
+std::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode mode) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
             .avail_in = static_cast<uInt>(data.size()),
@@ -41,7 +41,7 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode
     }();
     constexpr int kWindowBits = 15;
     if (auto error = inflateInit2(&s, kWindowBits + zlib_mode); error != Z_OK) {
-        return tl::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
+        return std::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
     }
 
     std::string out{};
@@ -58,7 +58,7 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode
                 msg = s.msg;
             }
             inflateEnd(&s);
-            return tl::unexpected{ZlibError{.message = std::move(msg), .code = ret}};
+            return std::unexpected{ZlibError{.message = std::move(msg), .code = ret}};
         }
 
         uInt inflated_bytes = static_cast<uInt>(buf.size()) - s.avail_out;

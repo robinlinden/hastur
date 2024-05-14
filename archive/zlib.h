@@ -5,9 +5,8 @@
 #ifndef ARCHIVE_ZLIB_H_
 #define ARCHIVE_ZLIB_H_
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <string>
 #include <string_view>
 
@@ -23,7 +22,7 @@ enum class ZlibMode : std::uint8_t {
     Gzip,
 };
 
-tl::expected<std::string, ZlibError> zlib_decode(std::string_view, ZlibMode);
+std::expected<std::string, ZlibError> zlib_decode(std::string_view, ZlibMode);
 
 } // namespace archive
 
