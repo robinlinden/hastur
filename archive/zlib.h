@@ -5,10 +5,9 @@
 #ifndef ARCHIVE_ZLIB_H_
 #define ARCHIVE_ZLIB_H_
 
-#include <tl/expected.hpp>
-
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <span>
 #include <string>
 #include <vector>
@@ -25,7 +24,7 @@ enum class ZlibMode : std::uint8_t {
     Gzip,
 };
 
-tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(std::span<std::byte const>, ZlibMode);
+std::expected<std::vector<std::byte>, ZlibError> zlib_decode(std::span<std::byte const>, ZlibMode);
 
 } // namespace archive
 

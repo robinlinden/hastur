@@ -6,10 +6,9 @@
 #ifndef ARCHIVE_ZSTD_H_
 #define ARCHIVE_ZSTD_H_
 
-#include <tl/expected.hpp>
-
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -26,7 +25,7 @@ enum class ZstdError : std::uint8_t {
 
 std::string_view to_string(ZstdError);
 
-tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte const>);
+std::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte const>);
 
 } // namespace archive
 
