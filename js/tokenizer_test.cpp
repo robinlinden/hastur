@@ -1,13 +1,13 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "js/tokenizer.h"
 
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
 #include <optional>
+#include <source_location>
 #include <string_view>
 #include <vector>
 
@@ -17,7 +17,7 @@ namespace {
 
 void expect_tokens(std::string_view input,
         std::vector<Token> tokens,
-        etest::source_location const &loc = etest::source_location::current()) {
+        std::source_location const &loc = std::source_location::current()) {
     tokens.push_back(Eof{});
     etest::expect_eq(tokenize(input), tokens, std::nullopt, loc);
 }

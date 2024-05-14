@@ -9,7 +9,6 @@
 #include "css/property_id.h"
 #include "css/rule.h"
 
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
 #include <fmt/core.h>
@@ -19,6 +18,7 @@
 #include <cstddef>
 #include <iterator>
 #include <map>
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -79,7 +79,7 @@ bool check_initial_font_values(std::map<css::PropertyId, std::string> const &dec
 
 template<class KeyT, class ValueT>
 ValueT get_and_erase(
-        std::map<KeyT, ValueT> &map, KeyT key, etest::source_location const &loc = etest::source_location::current()) {
+        std::map<KeyT, ValueT> &map, KeyT key, std::source_location const &loc = std::source_location::current()) {
     require(map.contains(key), {}, loc);
     ValueT value = map.at(key);
     map.erase(key);

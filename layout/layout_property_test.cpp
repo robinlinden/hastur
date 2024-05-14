@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,13 +6,13 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 #include "gfx/color.h"
 #include "layout/unresolved_value.h"
 #include "style/styled_node.h"
 
 #include <optional>
+#include <source_location>
 #include <string>
 #include <utility>
 #include <vector>
@@ -25,7 +25,7 @@ template<css::PropertyId IdT>
 void expect_property_eq(std::optional<std::string> value,
         auto expected,
         std::vector<std::pair<css::PropertyId, std::string>> extra_properties = {},
-        etest::source_location const &loc = etest::source_location::current()) {
+        std::source_location const &loc = std::source_location::current()) {
     dom::Node dom_node = dom::Element{"dummy"s};
     style::StyledNode styled_node{
             .node = dom_node,

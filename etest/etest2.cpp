@@ -4,14 +4,13 @@
 
 #include "etest/etest2.h"
 
-#include "etest/cxx_compat.h"
-
 #include <algorithm>
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <optional>
+#include <source_location>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -32,7 +31,7 @@ struct TestFailure : public std::exception {};
 struct Actions : public IActions {
     // Weak test requirement. Allows the test to continue even if the check fails.
     void expect(
-            bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) noexcept override {
+            bool b, std::optional<std::string_view> log_message, std::source_location const &loc) noexcept override {
         if (b) {
             return;
         }
@@ -46,7 +45,7 @@ struct Actions : public IActions {
     }
 
     // Hard test requirement. Stops the test (using an exception) if the check fails.
-    void require(bool b, std::optional<std::string_view> log_message, etest::source_location const &loc) override {
+    void require(bool b, std::optional<std::string_view> log_message, std::source_location const &loc) override {
         if (b) {
             return;
         }

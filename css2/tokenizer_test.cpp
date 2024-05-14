@@ -7,9 +7,9 @@
 
 #include "css2/token.h"
 
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -35,10 +35,10 @@ public:
 
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
-    etest::source_location loc;
+    std::source_location loc;
 };
 
-TokenizerOutput run_tokenizer(std::string_view input, etest::source_location loc = etest::source_location::current()) {
+TokenizerOutput run_tokenizer(std::string_view input, std::source_location loc = std::source_location::current()) {
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
     Tokenizer{input,
@@ -50,16 +50,15 @@ TokenizerOutput run_tokenizer(std::string_view input, etest::source_location loc
     return {std::move(tokens), std::move(errors), std::move(loc)};
 }
 
-void expect_token(TokenizerOutput &output,
-        Token const &t,
-        etest::source_location const &loc = etest::source_location::current()) {
+void expect_token(
+        TokenizerOutput &output, Token const &t, std::source_location const &loc = std::source_location::current()) {
     require(!output.tokens.empty(), "Unexpected end of token list", loc);
     expect_eq(output.tokens.front(), t, {}, loc);
     output.tokens.erase(begin(output.tokens));
 }
 
 void expect_error(
-        TokenizerOutput &output, ParseError e, etest::source_location const &loc = etest::source_location::current()) {
+        TokenizerOutput &output, ParseError e, std::source_location const &loc = std::source_location::current()) {
     require(!output.errors.empty(), "Unexpected end of error list", loc);
     expect_eq(output.errors.front(), e, {}, loc);
     output.errors.erase(begin(output.errors));

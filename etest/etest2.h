@@ -1,16 +1,15 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef ETEST_ETEST2_H_
 #define ETEST_ETEST2_H_
 
-#include "etest/cxx_compat.h"
-
 #include <concepts>
 #include <functional>
 #include <iosfwd>
 #include <optional>
+#include <source_location>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -37,19 +36,19 @@ public:
     // Weak test requirement. Allows the test to continue even if the check fails.
     virtual void expect(bool,
             std::optional<std::string_view> log_message = std::nullopt,
-            etest::source_location const &loc = etest::source_location::current()) noexcept = 0;
+            std::source_location const &loc = std::source_location::current()) noexcept = 0;
 
     // Hard test requirement. Stops the test (using an exception) if the check fails.
     virtual void require(bool,
             std::optional<std::string_view> log_message = std::nullopt,
-            etest::source_location const &loc = etest::source_location::current()) = 0;
+            std::source_location const &loc = std::source_location::current()) = 0;
 
     // Weak test requirement. Prints the types compared on failure (if printable).
     template<Printable T, Printable U>
     void expect_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
-            etest::source_location const &loc = etest::source_location::current()) noexcept {
+            std::source_location const &loc = std::source_location::current()) noexcept {
         if (a == b) {
             return;
         }
@@ -63,7 +62,7 @@ public:
     void expect_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
-            etest::source_location const &loc = etest::source_location::current()) noexcept {
+            std::source_location const &loc = std::source_location::current()) noexcept {
         expect(a == b, std::move(log_message), loc);
     }
 
@@ -72,7 +71,7 @@ public:
     void require_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
-            etest::source_location const &loc = etest::source_location::current()) {
+            std::source_location const &loc = std::source_location::current()) {
         if (a == b) {
             return;
         }
@@ -86,7 +85,7 @@ public:
     void require_eq(T const &a,
             U const &b,
             std::optional<std::string_view> log_message = std::nullopt,
-            etest::source_location const &loc = etest::source_location::current()) {
+            std::source_location const &loc = std::source_location::current()) {
         require(a == b, std::move(log_message), loc);
     }
 };

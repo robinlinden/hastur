@@ -6,11 +6,11 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 #include "gfx/color.h"
 
 #include <optional>
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -24,7 +24,7 @@ using etest::expect_eq;
 namespace {
 template<css::PropertyId IdT>
 void expect_property_eq(
-        std::string value, auto expected, etest::source_location const &loc = etest::source_location::current()) {
+        std::string value, auto expected, std::source_location const &loc = std::source_location::current()) {
     dom::Node dom_node = dom::Element{"dummy"s};
     style::StyledNode styled_node{
             .node = dom_node,
@@ -39,7 +39,7 @@ template<css::PropertyId IdT>
 void expect_relative_property_eq(std::string value,
         std::string parent_value,
         auto expected,
-        etest::source_location const &loc = etest::source_location::current()) {
+        std::source_location const &loc = std::source_location::current()) {
     dom::Node dom_node = dom::Element{"dummy"s};
     style::StyledNode styled_node{
             .node = dom_node,

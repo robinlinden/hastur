@@ -6,12 +6,12 @@
 
 #include "html2/token.h"
 
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
 #include <array>
 #include <iterator>
 #include <optional>
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -47,7 +47,7 @@ public:
 
     std::vector<Token> tokens;
     std::vector<ParseErrorWithLocation> errors;
-    etest::source_location loc;
+    std::source_location loc;
 };
 
 struct Options {
@@ -57,7 +57,7 @@ struct Options {
 
 TokenizerOutput run_tokenizer(std::string_view input,
         Options const &opts = Options{},
-        etest::source_location loc = etest::source_location::current()) {
+        std::source_location loc = std::source_location::current()) {
     std::vector<Token> tokens;
     std::vector<ParseErrorWithLocation> errors;
     Tokenizer tokenizer{input,
@@ -85,9 +85,8 @@ TokenizerOutput run_tokenizer(std::string_view input,
     return {std::move(tokens), std::move(errors), std::move(loc)};
 }
 
-void expect_token(TokenizerOutput &output,
-        Token const &t,
-        etest::source_location const &loc = etest::source_location::current()) {
+void expect_token(
+        TokenizerOutput &output, Token const &t, std::source_location const &loc = std::source_location::current()) {
     require(!output.tokens.empty(), "Unexpected end of token list", loc);
     expect_eq(output.tokens.front(), t, {}, loc);
     output.tokens.erase(begin(output.tokens));
@@ -95,14 +94,14 @@ void expect_token(TokenizerOutput &output,
 
 void expect_text(TokenizerOutput &output,
         std::string_view text,
-        etest::source_location const &loc = etest::source_location::current()) {
+        std::source_location const &loc = std::source_location::current()) {
     for (auto c : text) {
         expect_token(output, CharacterToken{c}, loc);
     }
 }
 
 void expect_error(
-        TokenizerOutput &output, ParseError e, etest::source_location const &loc = etest::source_location::current()) {
+        TokenizerOutput &output, ParseError e, std::source_location const &loc = std::source_location::current()) {
     require(!output.errors.empty(), "Unexpected end of error list", loc);
     expect_eq(output.errors.front().error, e, {}, loc);
     output.errors.erase(begin(output.errors));
@@ -110,7 +109,7 @@ void expect_error(
 
 void expect_error(TokenizerOutput &output,
         ParseErrorWithLocation const &e,
-        etest::source_location const &loc = etest::source_location::current()) {
+        std::source_location const &loc = std::source_location::current()) {
     require(!output.errors.empty(), "Unexpected end of error list", loc);
     expect_eq(output.errors.front(), e, {}, loc);
     output.errors.erase(begin(output.errors));

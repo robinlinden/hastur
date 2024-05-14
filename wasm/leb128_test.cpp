@@ -1,10 +1,9 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "wasm/leb128.h"
 
-#include "etest/cxx_compat.h"
 #include "etest/etest.h"
 
 #include <tl/expected.hpp>
@@ -12,6 +11,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <source_location>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -23,13 +23,13 @@ using wasm::Leb128ParseError;
 
 namespace {
 template<typename T>
-void expect_decoded(std::string bytes, T expected, etest::source_location loc = etest::source_location::current()) {
+void expect_decoded(std::string bytes, T expected, std::source_location loc = std::source_location::current()) {
     expect_eq(Leb128<T>::decode_from(std::stringstream{std::move(bytes)}), expected, std::nullopt, std::move(loc));
 };
 
 template<typename T>
 void expect_decode_failure(
-        std::string bytes, Leb128ParseError error, etest::source_location loc = etest::source_location::current()) {
+        std::string bytes, Leb128ParseError error, std::source_location loc = std::source_location::current()) {
     expect_eq(Leb128<T>::decode_from(std::stringstream{std::move(bytes)}),
             tl::unexpected{error},
             std::nullopt,
