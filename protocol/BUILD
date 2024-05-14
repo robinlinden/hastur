@@ -15,7 +15,6 @@ cc_library(
         "//net",
         "//uri",
         "//util:string",
-        "@expected",
         "@fmt",
     ],
 )
@@ -38,7 +37,6 @@ cc_library(
         ":protocol",
         "//etest",
         "//uri",
-        "@expected",
         "@fmt",
     ],
 ) for src in glob(

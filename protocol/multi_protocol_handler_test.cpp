@@ -10,8 +10,7 @@
 #include "etest/etest.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <memory>
 #include <utility>
 
@@ -23,12 +22,12 @@ namespace {
 class FakeProtocolHandler final : public protocol::IProtocolHandler {
 public:
     explicit FakeProtocolHandler(protocol::Response response) : response_{std::move(response)} {}
-    [[nodiscard]] tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &) override {
+    [[nodiscard]] std::expected<protocol::Response, protocol::Error> handle(uri::Uri const &) override {
         return response_;
     }
 
 private:
-    tl::expected<protocol::Response, protocol::Error> response_;
+    std::expected<protocol::Response, protocol::Error> response_;
 };
 
 } // namespace
@@ -37,7 +36,7 @@ int main() {
     etest::test("added protocols are handled", [] {
         MultiProtocolHandler handler;
         expect_eq(handler.handle(uri::Uri{.scheme = "hax"}),
-                tl::unexpected{protocol::Error{protocol::ErrorCode::Unhandled}});
+                std::unexpected{protocol::Error{protocol::ErrorCode::Unhandled}});
 
         handler.add("hax", std::make_unique<FakeProtocolHandler>(protocol::Response{}));
         expect_eq(handler.handle(uri::Uri{.scheme = "hax"}), protocol::Response{});

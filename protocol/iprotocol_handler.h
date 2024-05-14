@@ -9,14 +9,14 @@
 
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
+#include <expected>
 
 namespace protocol {
 
 class IProtocolHandler {
 public:
     virtual ~IProtocolHandler() = default;
-    [[nodiscard]] virtual tl::expected<Response, Error> handle(uri::Uri const &) = 0;
+    [[nodiscard]] virtual std::expected<Response, Error> handle(uri::Uri const &) = 0;
 };
 
 } // namespace protocol

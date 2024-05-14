@@ -11,10 +11,9 @@
 #include "uri/uri.h"
 #include "util/string.h"
 
-#include <tl/expected.hpp>
-
 #include <charconv>
 #include <cstddef>
+#include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -25,40 +24,40 @@ namespace protocol {
 
 class Http {
 public:
-    static tl::expected<Response, Error> get(
+    static std::expected<Response, Error> get(
             auto &&socket, uri::Uri const &uri, std::optional<std::string_view> user_agent) {
         using namespace std::string_view_literals;
 
         if (!socket.connect(uri.authority.host, Http::use_port(uri) ? uri.authority.port : uri.scheme)) {
-            return tl::unexpected{Error{ErrorCode::Unresolved}};
+            return std::unexpected{Error{ErrorCode::Unresolved}};
         }
 
         socket.write(Http::create_get_request(uri, std::move(user_agent)));
         auto data = socket.read_until("\r\n"sv);
         if (data.empty()) {
-            return tl::unexpected{Error{ErrorCode::InvalidResponse}};
+            return std::unexpected{Error{ErrorCode::InvalidResponse}};
         }
 
         auto status_line = Http::parse_status_line(data.substr(0, data.size() - 2));
         if (!status_line) {
-            return tl::unexpected{Error{ErrorCode::InvalidResponse}};
+            return std::unexpected{Error{ErrorCode::InvalidResponse}};
         }
 
         data = socket.read_until("\r\n\r\n"sv);
         if (data.empty()) {
-            return tl::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
+            return std::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
         }
 
         auto headers = Http::parse_headers(data.substr(0, data.size() - 4));
         if (headers.size() == 0) {
-            return tl::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
+            return std::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
         }
 
         auto encoding = headers.get("transfer-encoding"sv);
         if (encoding == "chunked"sv) {
             auto body = Http::get_chunked_body(socket);
             if (!body) {
-                return tl::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
+                return std::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
             }
 
             data = *body;

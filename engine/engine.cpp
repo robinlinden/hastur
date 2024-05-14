@@ -18,6 +18,7 @@
 #include <spdlog/spdlog.h>
 #include <tl/expected.hpp>
 
+#include <expected>
 #include <future>
 #include <memory>
 #include <string>
@@ -152,7 +153,7 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         auto location = response->headers.get("Location");
         if (!location) {
             return {
-                    .response = tl::unexpected{protocol::Error{
+                    .response = std::unexpected{protocol::Error{
                             protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
                     .uri_after_redirects = std::move(uri),
             };
@@ -162,7 +163,7 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         auto new_uri = uri::Uri::parse(std::string(*location), uri);
         if (!new_uri) {
             return {
-                    .response = tl::unexpected{protocol::Error{
+                    .response = std::unexpected{protocol::Error{
                             protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
                     .uri_after_redirects = std::move(uri),
             };
@@ -172,7 +173,7 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         response = protocol_handler_->handle(uri);
         if (redirect_count > kMaxRedirects) {
             return {
-                    .response = tl::unexpected{protocol::Error{
+                    .response = std::unexpected{protocol::Error{
                             protocol::ErrorCode::RedirectLimit, std::move(response->status_line)}},
                     .uri_after_redirects = std::move(uri),
             };

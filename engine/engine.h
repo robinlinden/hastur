@@ -52,7 +52,7 @@ public:
     void relayout(PageState &, int layout_width);
 
     struct [[nodiscard]] LoadResult {
-        tl::expected<protocol::Response, protocol::Error> response;
+        std::expected<protocol::Response, protocol::Error> response;
         uri::Uri uri_after_redirects;
     };
     LoadResult load(uri::Uri);

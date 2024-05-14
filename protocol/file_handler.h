@@ -11,13 +11,13 @@
 
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
+#include <expected>
 
 namespace protocol {
 
 class FileHandler final : public IProtocolHandler {
 public:
-    [[nodiscard]] tl::expected<Response, Error> handle(uri::Uri const &uri) override;
+    [[nodiscard]] std::expected<Response, Error> handle(uri::Uri const &uri) override;
 };
 
 } // namespace protocol
