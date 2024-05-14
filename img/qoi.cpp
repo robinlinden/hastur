@@ -1,15 +1,14 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "img/qoi.h"
 
-#include <tl/expected.hpp>
-
 #include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <istream>
 #include <string>
 #include <utility>
@@ -42,7 +41,7 @@ std::size_t seen_pixels_index(Px const &px) {
 } // namespace
 
 // https://qoiformat.org/qoi-specification.pdf
-tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
+std::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     // A QOI file consists of a 14-byte header, followed by any number of
     // data "chunks" and an 8-byte end marker.
     //
@@ -58,21 +57,21 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     magic.resize(4);
 
     if (!is.read(magic.data(), magic.size())) {
-        return tl::unexpected{QoiError::AbruptEof};
+        return std::unexpected{QoiError::AbruptEof};
     }
 
     if (magic != "qoif") {
-        return tl::unexpected{QoiError::InvalidMagic};
+        return std::unexpected{QoiError::InvalidMagic};
     }
 
     std::uint32_t width{};
     if (!is.read(reinterpret_cast<char *>(&width), sizeof(width))) {
-        return tl::unexpected{QoiError::AbruptEof};
+        return std::unexpected{QoiError::AbruptEof};
     }
 
     std::uint32_t height{};
     if (!is.read(reinterpret_cast<char *>(&height), sizeof(height))) {
-        return tl::unexpected{QoiError::AbruptEof};
+        return std::unexpected{QoiError::AbruptEof};
     }
 
     static_assert((std::endian::native == std::endian::big) || (std::endian::native == std::endian::little),
@@ -86,25 +85,25 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     // This matches the implementation at https://github.com/phoboslab/qoi
     static constexpr std::size_t kMaxPixelCount{400'000'000};
     if ((width > 0) && (height > kMaxPixelCount / width)) {
-        return tl::unexpected{QoiError::ImageTooLarge};
+        return std::unexpected{QoiError::ImageTooLarge};
     }
 
     std::uint8_t channels{};
     if (!is.read(reinterpret_cast<char *>(&channels), sizeof(channels))) {
-        return tl::unexpected{QoiError::AbruptEof};
+        return std::unexpected{QoiError::AbruptEof};
     }
 
     if (channels != 3 && channels != 4) {
-        return tl::unexpected{QoiError::InvalidChannels};
+        return std::unexpected{QoiError::InvalidChannels};
     }
 
     std::uint8_t colorspace{};
     if (!is.read(reinterpret_cast<char *>(&colorspace), sizeof(colorspace))) {
-        return tl::unexpected{QoiError::AbruptEof};
+        return std::unexpected{QoiError::AbruptEof};
     }
 
     if (colorspace != 0 && colorspace != 1) {
-        return tl::unexpected{QoiError::InvalidColorspace};
+        return std::unexpected{QoiError::InvalidColorspace};
     }
 
     std::vector<unsigned char> pixels{};
@@ -116,7 +115,7 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     while (pixels.size() != bytes_needed) {
         std::uint8_t chunk{};
         if (!is.read(reinterpret_cast<char *>(&chunk), sizeof(chunk))) {
-            return tl::unexpected{QoiError::AbruptEof};
+            return std::unexpected{QoiError::AbruptEof};
         }
 
         auto const short_tag = chunk & 0b1100'0000;
@@ -124,11 +123,11 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
 
         if (chunk == kQoiOpRgb) {
             if (!is.read(reinterpret_cast<char *>(&previous_pixel), 3)) {
-                return tl::unexpected{QoiError::AbruptEof};
+                return std::unexpected{QoiError::AbruptEof};
             }
         } else if (chunk == kQoiOpRgba) {
             if (!is.read(reinterpret_cast<char *>(&previous_pixel), 4)) {
-                return tl::unexpected{QoiError::AbruptEof};
+                return std::unexpected{QoiError::AbruptEof};
             }
         } else if (short_tag == kQoiOpIndex) {
             previous_pixel = seen_pixels[short_value];
@@ -143,7 +142,7 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
         } else if (short_tag == kQoiOpLuma) {
             std::uint8_t extra_data{};
             if (!is.read(reinterpret_cast<char *>(&extra_data), sizeof(extra_data))) {
-                return tl::unexpected{QoiError::AbruptEof};
+                return std::unexpected{QoiError::AbruptEof};
             }
 
             static constexpr auto kGreenBias = -32;
@@ -177,11 +176,11 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     // 0x01 byte.
     std::array<std::uint8_t, 8> footer{};
     if (!is.read(reinterpret_cast<char *>(footer.data()), footer.size())) {
-        return tl::unexpected{QoiError::AbruptEof};
+        return std::unexpected{QoiError::AbruptEof};
     }
 
     if (footer != decltype(footer){0, 0, 0, 0, 0, 0, 0, 1}) {
-        return tl::unexpected{QoiError::InvalidEndMarker};
+        return std::unexpected{QoiError::InvalidEndMarker};
     }
 
     return Qoi{
