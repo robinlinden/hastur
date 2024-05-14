@@ -9,11 +9,10 @@
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
-#include <tl/expected.hpp>
-
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <iostream>
 #include <istream>
 #include <optional>
@@ -412,7 +411,7 @@ std::optional<CodeSection> parse_code_section(std::istream &is) {
 
 } // namespace
 
-tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream &is) {
+std::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream &is) {
     // https://webassembly.github.io/spec/core/binary/modules.html#sections
     enum class SectionId : std::uint8_t {
         Custom = 0,
@@ -436,14 +435,14 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
     buf.resize(kMagicSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\0asm"sv) {
-        return tl::unexpected{ModuleParseError::InvalidMagic};
+        return std::unexpected{ModuleParseError::InvalidMagic};
     }
 
     // https://webassembly.github.io/spec/core/binary/modules.html#binary-version
     buf.resize(kVersionSize);
     is.read(buf.data(), buf.size());
     if (!is || buf != "\1\0\0\0"sv) {
-        return tl::unexpected{ModuleParseError::UnsupportedVersion};
+        return std::unexpected{ModuleParseError::UnsupportedVersion};
     }
 
     Module module;
@@ -458,15 +457,15 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
         }
 
         if (id_byte < static_cast<int>(SectionId::Custom) || id_byte > static_cast<int>(SectionId::DataCount)) {
-            return tl::unexpected{ModuleParseError::InvalidSectionId};
+            return std::unexpected{ModuleParseError::InvalidSectionId};
         }
 
         auto size = Leb128<std::uint32_t>::decode_from(is);
         if (!size) {
             if (size.error() == Leb128ParseError::UnexpectedEof) {
-                return tl::unexpected{ModuleParseError::UnexpectedEof};
+                return std::unexpected{ModuleParseError::UnexpectedEof};
             }
-            return tl::unexpected{ModuleParseError::InvalidSize};
+            return std::unexpected{ModuleParseError::InvalidSize};
         }
 
         auto id = static_cast<SectionId>(id_byte);
@@ -475,19 +474,19 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
                 auto before = static_cast<std::int64_t>(is.tellg());
                 auto name = parse<std::string>(is);
                 if (!name) {
-                    return tl::unexpected{ModuleParseError::InvalidCustomSection};
+                    return std::unexpected{ModuleParseError::InvalidCustomSection};
                 }
 
                 auto consumed_by_name = static_cast<int64_t>(is.tellg()) - before;
                 auto remaining_size = static_cast<int64_t>(*size) - consumed_by_name;
                 if (remaining_size < 0 || remaining_size > std::int64_t{kMaxSequenceSize}) {
-                    return tl::unexpected{ModuleParseError::InvalidCustomSection};
+                    return std::unexpected{ModuleParseError::InvalidCustomSection};
                 }
 
                 std::vector<std::uint8_t> data;
                 data.resize(remaining_size);
                 if (!is.read(reinterpret_cast<char *>(data.data()), data.size())) {
-                    return tl::unexpected{ModuleParseError::InvalidCustomSection};
+                    return std::unexpected{ModuleParseError::InvalidCustomSection};
                 }
 
                 module.custom_sections.push_back(CustomSection{
@@ -499,61 +498,61 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
             case SectionId::Type:
                 module.type_section = parse_type_section(is);
                 if (!module.type_section) {
-                    return tl::unexpected{ModuleParseError::InvalidTypeSection};
+                    return std::unexpected{ModuleParseError::InvalidTypeSection};
                 }
                 break;
             case SectionId::Import:
                 module.import_section = parse_import_section(is);
                 if (!module.import_section) {
-                    return tl::unexpected{ModuleParseError::InvalidImportSection};
+                    return std::unexpected{ModuleParseError::InvalidImportSection};
                 }
                 break;
             case SectionId::Function:
                 module.function_section = parse_function_section(is);
                 if (!module.function_section) {
-                    return tl::unexpected{ModuleParseError::InvalidFunctionSection};
+                    return std::unexpected{ModuleParseError::InvalidFunctionSection};
                 }
                 break;
             case SectionId::Table:
                 module.table_section = parse_table_section(is);
                 if (!module.table_section) {
-                    return tl::unexpected{ModuleParseError::InvalidTableSection};
+                    return std::unexpected{ModuleParseError::InvalidTableSection};
                 }
                 break;
             case SectionId::Memory:
                 module.memory_section = parse_memory_section(is);
                 if (!module.memory_section) {
-                    return tl::unexpected{ModuleParseError::InvalidMemorySection};
+                    return std::unexpected{ModuleParseError::InvalidMemorySection};
                 }
                 break;
             case SectionId::Global:
                 module.global_section = parse_global_section(is);
                 if (!module.global_section) {
-                    return tl::unexpected{ModuleParseError::InvalidGlobalSection};
+                    return std::unexpected{ModuleParseError::InvalidGlobalSection};
                 }
                 break;
             case SectionId::Export:
                 module.export_section = parse_export_section(is);
                 if (!module.export_section) {
-                    return tl::unexpected{ModuleParseError::InvalidExportSection};
+                    return std::unexpected{ModuleParseError::InvalidExportSection};
                 }
                 break;
             case SectionId::Start:
                 module.start_section = parse_start_section(is);
                 if (!module.start_section) {
-                    return tl::unexpected{ModuleParseError::InvalidStartSection};
+                    return std::unexpected{ModuleParseError::InvalidStartSection};
                 }
                 break;
             case SectionId::Code:
                 module.code_section = parse_code_section(is);
                 if (!module.code_section) {
-                    return tl::unexpected{ModuleParseError::InvalidCodeSection};
+                    return std::unexpected{ModuleParseError::InvalidCodeSection};
                 }
                 break;
             case SectionId::DataCount: {
                 auto count = Leb128<std::uint32_t>::decode_from(is);
                 if (!count) {
-                    return tl::unexpected{ModuleParseError::InvalidDataCountSection};
+                    return std::unexpected{ModuleParseError::InvalidDataCountSection};
                 }
 
                 module.data_count_section = DataCountSection{
@@ -566,7 +565,7 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
                 // Uncomment if you want to skip past unhandled sections for e.g. debugging.
                 // is.seekg(*size, std::ios::cur);
                 // break;
-                return tl::unexpected{ModuleParseError::UnhandledSection};
+                return std::unexpected{ModuleParseError::UnhandledSection};
         }
     }
 
