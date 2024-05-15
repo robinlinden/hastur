@@ -21,21 +21,21 @@ jobs:
             os: ubuntu-22.04
             compiler: gcc
             version: 12
-            bazel: --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
+            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
             apt: g++-12 valgrind
 
           - name: clang-16-tsan
             os: ubuntu-22.04
             compiler: clang
             version: 16
-            bazel: --config tsan
+            bazel: -c dbg --config tsan
             apt: libclang-rt-16-dev
 
           - name: clang-16-asan-ubsan
             os: ubuntu-22.04
             compiler: clang
             version: 16
-            bazel: --config asan --config ubsan
+            bazel: -c dbg --config asan --config ubsan
             apt: libclang-rt-16-dev
 
           - name: clang-18
