@@ -40,8 +40,8 @@ jobs:
             os: ubuntu-22.04
             compiler: clang
             version: 16
-            bazel: -c dbg --config asan --config ubsan
-            apt: libclang-rt-16-dev
+            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16
+            apt: libclang-rt-16-dev llvm-16
 
           - name: clang-18
             os: ubuntu-22.04
