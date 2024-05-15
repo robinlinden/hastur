@@ -21,7 +21,7 @@ jobs:
             os: ubuntu-22.04
             compiler: gcc
             version: 12
-            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all"
+            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32"
             apt: g++-12 valgrind
 
           - name: gcc-14
