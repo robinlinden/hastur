@@ -89,8 +89,13 @@ http_archive(
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
     integrity = "sha256-UuUvjBHbJifybzBvYK/3qSIlc9UzvrjT0VRRNRBTK9E=",
-    # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
-    patch_cmds = ["""sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD"""],
+    patch_cmds = [
+        # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
+        """sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD""",
+        # boringssl tries to use _Generic in C++ code.
+        """sed -i'' -e 's/#if OPENSSL_HAS_BUILTIN(__builtin_addc)/& \\&\\& !defined(__cplusplus)/g' src/crypto/internal.h""",
+        """sed -i'' -e 's/#if OPENSSL_HAS_BUILTIN(__builtin_subc)/& \\&\\& !defined(__cplusplus)/g' src/crypto/internal.h""",
+    ],
     strip_prefix = "boringssl-c0534bb964f085e4e2f273d23d08e9585e7518aa",
     url = "https://github.com/google/boringssl/archive/c0534bb964f085e4e2f273d23d08e9585e7518aa.tar.gz",
 )
