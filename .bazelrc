@@ -122,12 +122,18 @@ build:zig-cross --dynamic_mode=off
 build:zig-cross --build_tag_filters=-no-cross
 build:zig-cross --test_tag_filters=-no-cross
 
-build:linux-aarch64-musl --config=zig-cross
+build:zig-cross-musl --config=zig-cross
+build:zig-cross-musl --copt=-fPIC
+# TODO(robinlinden): asio assumes __GLIBC__ is defined.
+build:zig-cross-musl --copt=-Wno-error=undef
+
+build:linux-amd64-musl --config=zig-cross-musl
+build:linux-amd64-musl --platforms=@zig_sdk//platform:linux_amd64
+build:linux-amd64-musl --extra_toolchains=@zig_sdk//toolchain:linux_amd64_musl
+
+build:linux-aarch64-musl --config=zig-cross-musl
 build:linux-aarch64-musl --platforms=@zig_sdk//platform:linux_arm64
 build:linux-aarch64-musl --extra_toolchains=@zig_sdk//toolchain:linux_arm64_musl
-build:linux-aarch64-musl --copt=-fPIC
-# TODO(robinlinden): asio assumes __GLIBC__ is defined.
-build:linux-aarch64-musl --copt=-Wno-error=undef
 
 build:macos-amd64 --config=zig-cross
 build:macos-amd64 --platforms=@zig_sdk//platform:darwin_amd64
