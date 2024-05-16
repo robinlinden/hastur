@@ -47,8 +47,8 @@ http_archive(
 # https://github.com/uber/hermetic_cc_toolchain
 http_archive(
     name = "hermetic_cc_toolchain",
-    integrity = "sha256-O8bsEnYi/c60Epywa296sJjE1TkSTd6WpjGOfDKlP3o=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.0.1/hermetic_cc_toolchain-v3.0.1.tar.gz",
+    integrity = "sha256-3wka/CXXOwlI7TcdPWG+7ylEf2kFCOArwk5wAczBLTg=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.1.0/hermetic_cc_toolchain-v3.1.0.tar.gz",
 )
 
 # Misc tools
