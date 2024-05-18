@@ -13,20 +13,20 @@
 namespace net {
 
 struct FakeSocket {
-    bool connect(std::string_view h, std::string_view s) {
+    constexpr bool connect(std::string_view h, std::string_view s) {
         host = h;
         service = s;
         return connect_result;
     }
 
-    std::size_t write(std::string_view data) {
+    constexpr std::size_t write(std::string_view data) {
         write_data = data;
         return write_data.size();
     }
 
-    std::string read_all() const { return read_data; }
+    constexpr std::string read_all() const { return read_data; }
 
-    std::string read_until(std::string_view d) {
+    constexpr std::string read_until(std::string_view d) {
         delimiter = d;
         std::string result{};
         if (auto pos = read_data.find(d); pos != std::string::npos) {
@@ -37,7 +37,7 @@ struct FakeSocket {
         return result;
     }
 
-    std::string read_bytes(std::size_t bytes) {
+    constexpr std::string read_bytes(std::size_t bytes) {
         std::string result = read_data.substr(0, bytes);
         read_data.erase(0, bytes);
         return result;
