@@ -68,6 +68,7 @@ extra_srcs = {
 [cc_fuzz_test(
     name = src[:-4],
     size = "small",
+    testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,

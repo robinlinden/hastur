@@ -56,6 +56,7 @@ cc_test(
 cc_fuzz_test(
     name = "url_fuzz_test",
     size = "small",
+    testonly = True,
     srcs = ["url_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
     corpus = glob(["url_fuzz_test_corpus/**"]),

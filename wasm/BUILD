@@ -35,6 +35,7 @@ cc_library(
 [cc_fuzz_test(
     name = src[:-4],
     size = "small",
+    testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
     corpus = glob(

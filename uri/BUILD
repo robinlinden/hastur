@@ -28,6 +28,7 @@ cc_test(
 cc_fuzz_test(
     name = "uri_fuzz_test",
     size = "small",
+    testonly = True,
     srcs = ["uri_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,

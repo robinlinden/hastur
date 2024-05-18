@@ -28,6 +28,7 @@ cc_library(
 
 cc_fuzz_test(
     name = "css_parser_fuzz_test",
+    testonly = True,
     srcs = ["parser_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
