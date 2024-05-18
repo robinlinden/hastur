@@ -27,7 +27,10 @@ cc_library(
     srcs = [src],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
-    deps = [":protocol"],
+    deps = [
+        ":protocol",
+        "//net:test",
+    ],
 ) for src in glob(["*_fuzz_test.cpp"])]
 
 [cc_test(
@@ -38,6 +41,7 @@ cc_library(
     deps = [
         ":protocol",
         "//etest",
+        "//net:test",
         "//uri",
         "@expected",
         "@fmt",

@@ -31,6 +31,13 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "test",
+    testonly = True,
+    hdrs = glob(["test/*.h"]),
+    visibility = ["//visibility:public"],
+)
+
 [cc_test(
     name = src[:-4],
     size = "small",

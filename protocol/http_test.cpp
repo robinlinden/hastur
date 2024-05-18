@@ -6,11 +6,11 @@
 #include "protocol/http.h"
 
 #include "etest/etest.h"
+#include "net/test/fake_socket.h"
 #include "protocol/response.h"
 #include "uri/uri.h"
 
 #include <cassert>
-#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -21,47 +21,9 @@ using namespace std::string_view_literals;
 
 using etest::expect_eq;
 using etest::require;
+using net::FakeSocket;
 
 namespace {
-
-struct FakeSocket {
-    bool connect(std::string_view h, std::string_view s) {
-        host = h;
-        service = s;
-        return connect_result;
-    }
-
-    std::size_t write(std::string_view data) {
-        write_data = data;
-        return write_data.size();
-    }
-
-    std::string read_all() const { return read_data; }
-
-    std::string read_until(std::string_view d) {
-        delimiter = d;
-        std::string result{};
-        if (auto pos = read_data.find(d); pos != std::string::npos) {
-            pos += d.size();
-            result = read_data.substr(0, pos);
-            read_data.erase(0, pos);
-        }
-        return result;
-    }
-
-    std::string read_bytes(std::size_t bytes) {
-        std::string result = read_data.substr(0, bytes);
-        read_data.erase(0, bytes);
-        return result;
-    }
-
-    std::string host{};
-    std::string service{};
-    std::string write_data{};
-    std::string read_data{};
-    std::string delimiter{};
-    bool connect_result{true};
-};
 
 uri::Uri create_uri(std::string url = "http://example.com") {
     auto parsed = uri::Uri::parse(std::move(url));
