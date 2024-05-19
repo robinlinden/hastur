@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -28,6 +28,14 @@ unsigned active_window_scale_factor() {
     }
 
     return 1;
+}
+
+bool is_dark_mode() {
+    if (auto const *env_var = std::getenv("HST_DARK_MODE")) {
+        return std::strcmp(env_var, "1") == 0;
+    }
+
+    return false;
 }
 
 // NOLINTEND(concurrency-mt-unsafe)

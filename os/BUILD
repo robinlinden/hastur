@@ -64,6 +64,7 @@ cc_library(
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
         "@platforms//os:windows": [
+            "-DEFAULTLIB:Advapi32",
             "-DEFAULTLIB:Shcore",
             "-DEFAULTLIB:User32",
         ],

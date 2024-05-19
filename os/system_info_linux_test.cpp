@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -28,6 +28,8 @@ int main() {
     unsetenv("GDK_SCALE");
     unsetenv("ELM_SCALE");
 
+    unsetenv("HST_DARK_MODE");
+
     s.add_test("active_window_scale_factor", [](etest::IActions &a) {
         static constexpr int kOnlyIfUnset = 0;
 
@@ -45,6 +47,19 @@ int main() {
 
         setenv("HST_SCALE", "50", kOnlyIfUnset);
         a.expect_eq(os::active_window_scale_factor(), 50u);
+    });
+
+    s.add_test("is_dark_mode", [](etest::IActions &a) {
+        static constexpr int kOverwrite = 1;
+
+        // We default to false.
+        a.expect_eq(os::is_dark_mode(), false);
+
+        setenv("HST_DARK_MODE", "0", kOverwrite);
+        a.expect_eq(os::is_dark_mode(), false);
+
+        setenv("HST_DARK_MODE", "1", kOverwrite);
+        a.expect_eq(os::is_dark_mode(), true);
     });
 
     return s.run();
