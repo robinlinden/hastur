@@ -27,6 +27,7 @@ namespace engine {
 struct Options {
     // Default chosen by rolling 1d600.
     int layout_width{600};
+    bool dark_mode{false};
 };
 
 struct PageState {

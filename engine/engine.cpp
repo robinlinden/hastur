@@ -6,6 +6,7 @@
 
 #include "archive/zlib.h"
 #include "css/default.h"
+#include "css/media_query.h"
 #include "css/parser.h"
 #include "css/style_sheet.h"
 #include "dom/dom.h"
@@ -28,6 +29,16 @@
 using namespace std::literals;
 
 namespace engine {
+namespace {
+
+css::MediaQuery::Context to_media_context(Options opts) {
+    return {
+            .window_width = opts.layout_width,
+            .color_scheme = opts.dark_mode ? css::ColorScheme::Dark : css::ColorScheme::Light,
+    };
+}
+
+} // namespace
 
 tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri, Options opts) {
     auto result = load(std::move(uri));
@@ -126,7 +137,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
 
     spdlog::info("Styling dom w/ {} rules", state->stylesheet.rules.size());
     state->layout_width = opts.layout_width;
-    state->styled = style::style_tree(state->dom.html_node, state->stylesheet, {.window_width = state->layout_width});
+    state->styled = style::style_tree(state->dom.html_node, state->stylesheet, to_media_context(opts));
     state->layout = layout::create_layout(*state->styled, state->layout_width, *type_);
 
     return state;
@@ -134,7 +145,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
 
 void Engine::relayout(PageState &state, Options opts) {
     state.layout_width = opts.layout_width;
-    state.styled = style::style_tree(state.dom.html_node, state.stylesheet, {.window_width = state.layout_width});
+    state.styled = style::style_tree(state.dom.html_node, state.stylesheet, to_media_context(opts));
     state.layout = layout::create_layout(*state.styled, state.layout_width, *type_);
 }
 

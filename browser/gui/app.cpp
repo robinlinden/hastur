@@ -13,6 +13,7 @@
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
 #include "layout/layout_box.h"
+#include "os/system_info.h"
 #include "protocol/handler_factory.h"
 #include "protocol/response.h"
 #include "render/render.h"
@@ -776,7 +777,10 @@ void App::switch_canvas() {
 }
 
 engine::Options App::make_options() const {
-    return {.layout_width = static_cast<int>(window_.getSize().x / scale_)};
+    return {
+            .layout_width = static_cast<int>(window_.getSize().x / scale_),
+            .dark_mode = os::is_dark_mode(),
+    };
 }
 
 } // namespace browser::gui
