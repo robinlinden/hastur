@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "os/system_info.h"
 
-#include "os/windows_setup.h"
+#include "os/windows_setup.h" // IWYU pragma: keep
 
 #include <shellscalingapi.h>
 

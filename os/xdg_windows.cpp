@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "os/xdg.h"
 
-#include "os/windows_setup.h"
+#include "os/windows_setup.h" // IWYU pragma: keep
 
 #include <Knownfolders.h>
 #include <Objbase.h>

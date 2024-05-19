@@ -4,7 +4,7 @@
 
 #include "os/memory.h"
 
-#include "os/windows_setup.h"
+#include "os/windows_setup.h" // IWYU pragma: keep
 
 #include <Memoryapi.h>
 
