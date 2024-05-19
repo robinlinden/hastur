@@ -36,6 +36,13 @@ cc_library(
     deps = ["@expected"],
 )
 
+cc_library(
+    name = "lzw",
+    hdrs = ["lzw.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+)
+
 # TODO(robinlinden): Separate APIs for gzip and zlib.
 alias(
     name = "gzip",
