@@ -94,12 +94,11 @@ int main() {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(Responses{
                 std::pair{"hax://example.com"s, Response{}},
         })};
-        e.set_layout_width(123);
 
-        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value(), {.layout_width = 123}).value();
         expect_eq(page->layout_width, 123);
 
-        e.relayout(*page, 100);
+        e.relayout(*page, {.layout_width = 100});
         expect_eq(page->layout_width, 100);
     });
 

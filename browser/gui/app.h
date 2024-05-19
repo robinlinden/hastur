@@ -108,6 +108,8 @@ private:
     void show_render_surface();
 
     void switch_canvas();
+
+    engine::Options make_options() const;
 };
 
 } // namespace browser::gui

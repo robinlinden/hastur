@@ -7,6 +7,7 @@
 #include "css/rule.h"
 #include "css/style_sheet.h"
 #include "dom/dom.h"
+#include "engine/engine.h"
 #include "geom/geom.h"
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
@@ -250,8 +251,6 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
 
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
-    engine_.set_layout_width(window_.getSize().x / scale_);
-
     if (load_start_page) {
         ensure_has_scheme(url_buf_);
         navigate();
@@ -273,8 +272,6 @@ void App::set_scale(unsigned scale) {
         window_.setSize({kDefaultResolutionX * scale_, kDefaultResolutionY * scale_});
         canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
     }
-
-    engine_.set_layout_width(window_size.x / scale_);
 }
 
 void App::step() {
@@ -293,9 +290,8 @@ void App::step() {
             }
             case sf::Event::Resized: {
                 canvas_->set_viewport_size(event.size.width, event.size.height);
-                engine_.set_layout_width(event.size.width / scale_);
                 if (maybe_page_) {
-                    engine_.relayout(**maybe_page_, event.size.width / scale_);
+                    engine_.relayout(**maybe_page_, make_options());
                     on_layout_updated();
                 }
                 break;
@@ -480,7 +476,7 @@ void App::navigate() {
     }
 
     browse_history_.push(*uri);
-    maybe_page_ = engine_.navigate(*std::move(uri));
+    maybe_page_ = engine_.navigate(*std::move(uri), make_options());
 
     // Make sure the displayed url is still correct if we followed any redirects.
     if (maybe_page_) {
@@ -777,6 +773,10 @@ void App::switch_canvas() {
     canvas_->set_scale(scale_);
     auto [width, height] = window_.getSize();
     canvas_->set_viewport_size(width, height);
+}
+
+engine::Options App::make_options() const {
+    return {.layout_width = static_cast<int>(window_.getSize().x / scale_)};
 }
 
 } // namespace browser::gui

@@ -24,6 +24,11 @@
 
 namespace engine {
 
+struct Options {
+    // Default chosen by rolling 1d600.
+    int layout_width{600};
+};
+
 struct PageState {
     uri::Uri uri{};
     protocol::Response response{};
@@ -45,11 +50,9 @@ public:
             std::unique_ptr<type::IType> type = std::make_unique<type::NaiveType>())
         : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)} {}
 
-    void set_layout_width(int layout_width) { layout_width_ = layout_width; }
+    [[nodiscard]] tl::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
 
-    [[nodiscard]] tl::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri);
-
-    void relayout(PageState &, int layout_width);
+    void relayout(PageState &, Options);
 
     struct [[nodiscard]] LoadResult {
         tl::expected<protocol::Response, protocol::Error> response;
@@ -62,7 +65,6 @@ public:
 private:
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
     std::unique_ptr<type::IType> type_{};
-    int layout_width_{600}; // Default chosen by rolling 1d600.
 };
 
 } // namespace engine

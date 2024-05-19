@@ -29,7 +29,7 @@ using namespace std::literals;
 
 namespace engine {
 
-tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri) {
+tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri, Options opts) {
     auto result = load(std::move(uri));
 
     if (!result.response.has_value()) {
@@ -125,15 +125,15 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     }
 
     spdlog::info("Styling dom w/ {} rules", state->stylesheet.rules.size());
-    state->layout_width = layout_width_;
+    state->layout_width = opts.layout_width;
     state->styled = style::style_tree(state->dom.html_node, state->stylesheet, {.window_width = state->layout_width});
     state->layout = layout::create_layout(*state->styled, state->layout_width, *type_);
 
     return state;
 }
 
-void Engine::relayout(PageState &state, int width) {
-    state.layout_width = width;
+void Engine::relayout(PageState &state, Options opts) {
+    state.layout_width = opts.layout_width;
     state.styled = style::style_tree(state.dom.html_node, state.stylesheet, {.window_width = state.layout_width});
     state.layout = layout::create_layout(*state.styled, state.layout_width, *type_);
 }
