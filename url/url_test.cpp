@@ -304,7 +304,7 @@ int main() {
     etest::test("URL parsing: ipv6 and port", [] {
         url::UrlParser p;
 
-        const std::array<std::uint16_t, 8> addr{0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
+        std::array<std::uint16_t, 8> const addr{0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
 
         std::optional<url::Url> url = p.parse("https://[2001:db8:85a3::8a2e:370:7334]:631");
 
@@ -323,7 +323,7 @@ int main() {
     etest::test("URL parsing: ipv6 v4-mapped with port", [] {
         url::UrlParser p;
 
-        const std::array<std::uint16_t, 8> addr{0, 0, 0, 0, 0, 0xffff, 0x4ccb, 0x8c22};
+        std::array<std::uint16_t, 8> const addr{0, 0, 0, 0, 0, 0xffff, 0x4ccb, 0x8c22};
 
         std::optional<url::Url> url = p.parse("https://[0000:0000:0000:0000:0000:ffff:4ccb:8c22]:631");
 
@@ -342,7 +342,7 @@ int main() {
     etest::test("URL parsing: ipv6 v4-mapped compressed with dot-decimal", [] {
         url::UrlParser p;
 
-        const std::array<std::uint16_t, 8> addr{0, 0, 0, 0, 0, 0xffff, 0x4ccb, 0x8c22};
+        std::array<std::uint16_t, 8> const addr{0, 0, 0, 0, 0, 0xffff, 0x4ccb, 0x8c22};
 
         std::optional<url::Url> url = p.parse("https://[::ffff:76.203.140.34]:631");
 

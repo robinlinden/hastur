@@ -228,7 +228,7 @@ std::unique_ptr<type::IType> create_font_system() {
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
     : engine_{protocol::HandlerFactory::create(
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"),
-            create_font_system()},
+              create_font_system()},
       browser_title_{std::move(browser_title)},
       window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY), browser_title_},
       url_buf_{std::move(start_page_hint)},
@@ -750,9 +750,9 @@ void App::render_layout() {
         render::render_layout(*canvas_,
                 *layout,
                 culling_enabled_ ? std::optional{geom::Rect{0,
-                        -scroll_offset_y_,
-                        static_cast<int>(window_.getSize().x),
-                        static_cast<int>(window_.getSize().y)}}
+                                           -scroll_offset_y_,
+                                           static_cast<int>(window_.getSize().x),
+                                           static_cast<int>(window_.getSize().y)}}
                                  : std::nullopt);
     }
 }
