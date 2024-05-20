@@ -87,13 +87,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev
-      # See: https://github.com/actions/runner-images/issues/8659
-      - name: Work around libstdc++ and Clang incompabilities
-        if: startsWith(matrix.compiler, 'clang') && matrix.version <= 16
-        run: |
-          sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
-          sudo apt-get update
-          sudo apt-get install --allow-downgrades libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04
       # See:
       # * https://github.com/actions/runner-images/issues/9491#issuecomment-1989718917
       # * https://github.com/google/sanitizers/issues/1716
