@@ -467,9 +467,9 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
             // Parse error.
             a.push_head_as_current_open_element();
             auto mode_override = current_insertion_mode_override(a, AfterHead{});
-            InHead{}.process(mode_override, token);
+            auto new_state = InHead{}.process(mode_override, token);
             a.remove_from_open_elements("head");
-            return {};
+            return new_state;
         }
 
         if (start->tag_name == "head") {

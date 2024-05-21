@@ -366,6 +366,12 @@ void after_head_tests() {
         auto res = parse("<head></head><frameset>", {});
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"frameset"}}});
     });
+
+    etest::test("AfterHead: <style>p { color: green; }", [] {
+        auto res = parse("<head></head><style>p { color: green; }</style>", {});
+        auto style = dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}};
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}}});
+    });
 }
 
 void in_frameset_tests() {
