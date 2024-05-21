@@ -28,17 +28,17 @@ http_archive(
 # https://github.com/bazelbuild/rules_fuzzing
 http_archive(
     name = "rules_fuzzing",
-    integrity = "sha256-dyBsVLcfTdUzUSOm/yqOpojspTeNNLSDgRTf9xZSzyY=",
-    strip_prefix = "rules_fuzzing-0.5.1",
-    url = "https://github.com/bazelbuild/rules_fuzzing/releases/download/v0.5.1/rules_fuzzing-0.5.1.zip",
+    integrity = "sha256-5rwhm/rJ4fg7Mn3QkPcoqflz7pm5tdjloYSicy7whiM=",
+    strip_prefix = "rules_fuzzing-0.5.2",
+    url = "https://github.com/bazelbuild/rules_fuzzing/releases/download/v0.5.2/rules_fuzzing-0.5.2.zip",
 )
 
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-xovcT77CXeW1STuIGc/Id8TqKZwNyxXCRMWgAgjN4xE=",
-    strip_prefix = "rules_python-0.31.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.31.0/rules_python-0.31.0.tar.gz",
+    integrity = "sha256-SRLO1w3BoqjkuGzsIzsZLKBT6CvHLYd7mOEmFW6PIo0=",
+    strip_prefix = "rules_python-0.32.2",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.32.2/rules_python-0.32.2.tar.gz",
 )
 
 # Third-party Bazel
@@ -181,9 +181,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-6UtI26cxHIW6jj5v58c012oO7SGytCxRgP1XBtFWIkE=",
-    strip_prefix = "imgui-1.90.5",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.5.tar.gz",
+    integrity = "sha256-cLSwWsCTjoK01bjVlIDT4spjylcN+4jFUCODHzhyN60=",
+    strip_prefix = "imgui-1.90.6",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.6.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -205,9 +205,13 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-pLbnzYMXbgzLEHzjhSHaQKjfQcLTyQVm8qCvBbDNBcQ=",
-    strip_prefix = "simdjson-3.9.1",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.1.tar.gz",
+    integrity = "sha256-efvnAPSsPdacTwgnWvWDmdqr1hK8oMBGWuqVnGAlZlE=",
+    patch_cmds = [
+        # Add missing required header.
+        "sed -i'' -e '9i\\\n#include <type_traits>' src/implementation.cpp",
+    ],
+    strip_prefix = "simdjson-3.9.2",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.2.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -389,7 +393,7 @@ python_register_toolchains(
     name = "python_3_12",
     # Running the build as root works, but leads to cache-misses for .pyc files.
     ignore_root_user_error = True,
-    python_version = "3.12.1",
+    python_version = "3.12.3",
 )
 
 load("@python_3_12//:defs.bzl", "interpreter")
