@@ -173,7 +173,7 @@ jobs:
     container: gcc:13.2.0
     steps:
       - uses: actions/checkout@v4
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - run: ./bazelisk test etest/... --copt=-fno-exceptions
 
   linux-aarch64-muslc:
@@ -188,7 +188,7 @@ jobs:
           restore-keys: aarch64_linux_muslc-
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
       - run: sudo update-binfmts --enable qemu-aarch64
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
       - run: ./bazelisk test ...
       - name: Run tui
@@ -201,11 +201,11 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v20.0.0
-      WASMTIME_NAME: wasmtime-v20.0.0-x86_64-linux
+      WASMTIME_VERSION: v21.0.0
+      WASMTIME_NAME: wasmtime-v21.0.0-x86_64-linux
     steps:
       - uses: actions/checkout@v4
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 && chmod +x bazelisk
+      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - name: Set up wasmtime
         run: |
           wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
@@ -279,7 +279,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install pre-commit
-        run: pip install pre-commit==3.7.0
+        run: pip install pre-commit==3.7.1
       - name: Run pre-commit
         run: pre-commit run --all-files
 
@@ -376,7 +376,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: pip install ruff==0.4.2
+      - run: pip install ruff==0.4.4
       - run: ruff check --output-format=github
       - run: ruff format --diff
 
