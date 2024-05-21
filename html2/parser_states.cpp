@@ -274,8 +274,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
 
     if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
         if (start->tag_name == "html") {
-            InBody{}.process(a, token);
-            return {};
+            return InBody{}.process(a, token);
         }
 
         if (start->tag_name == "head") {
@@ -319,8 +318,7 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
     if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
         auto const &name = start->tag_name;
         if (name == "html") {
-            InBody{}.process(a, token);
-            return {};
+            return InBody{}.process(a, token);
         }
 
         if (name == "base" || name == "basefont" || name == "bgsound" || name == "link") {
