@@ -215,8 +215,7 @@ jobs:
       # Register wasmtime as the wasm binary format handler.
       - run: echo -n ":wasm32-wasi:M::\x00asm:\xff\xff\xff\xff:$(pwd)/${WASMTIME_NAME}/wasmtime:" | sudo tee /proc/sys/fs/binfmt_misc/register
       - run: echo "build --config=wasi-wasm" >.bazelrc.local
-      # A lot of our deps don't work with wasi, so this is a few blessed packages I know work.
-      - run: ./bazelisk test azm/... css2/... geom/... js/... util/... wasm/...
+      - run: ./bazelisk test ...
 
   macos:
     runs-on: macos-13
