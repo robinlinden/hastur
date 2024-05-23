@@ -211,11 +211,12 @@ jobs:
           wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
           tar -xf wasmtime.tar.xz
           chmod +x ${WASMTIME_NAME}/wasmtime
-          echo "PATH=$(pwd)/${WASMTIME_NAME}:$PATH" >>$GITHUB_ENV
           mkdir -p $HOME/.cache/wasmtime
+      # Register wasmtime as the wasm binary format handler.
+      - run: echo -n ":wasm32-wasi:M::\x00asm:\xff\xff\xff\xff:$(pwd)/${WASMTIME_NAME}/wasmtime:" | sudo tee /proc/sys/fs/binfmt_misc/register
       - run: echo "build --config=wasi-wasm" >.bazelrc.local
       # A lot of our deps don't work with wasi, so this is a few blessed packages I know work.
-      - run: ./bazelisk test --run_under=wasmtime azm/... css2/... geom/... js/... util/... wasm/...
+      - run: ./bazelisk test azm/... css2/... geom/... js/... util/... wasm/...
 
   macos:
     runs-on: macos-13
