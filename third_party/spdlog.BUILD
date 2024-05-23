@@ -19,6 +19,10 @@ cc_library(
         "@platforms//os:windows": [],
     }),
     strip_include_prefix = "include",
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
     deps = ["@fmt"],
 )

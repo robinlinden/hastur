@@ -16,6 +16,7 @@ cc_library(
     local_defines = select({
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
+        "@platforms//os:wasi": [],
         "@platforms//os:windows": [
             "_UNICODE",
             "UNICODE",

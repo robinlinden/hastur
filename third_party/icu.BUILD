@@ -52,6 +52,10 @@ cc_library(
         "U_COMMON_IMPLEMENTATION",
     ],
     strip_include_prefix = "source/common/",
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )
 

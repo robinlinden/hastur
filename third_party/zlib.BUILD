@@ -17,5 +17,9 @@ cc_library(
         "@platforms//os:macos": ["Z_HAVE_UNISTD_H"],
         "@platforms//os:windows": [],
     }),
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )

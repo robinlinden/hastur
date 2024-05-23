@@ -10,12 +10,14 @@ cc_library(
 OS_DEPS = select({
     "@platforms//os:linux": [],
     "@platforms//os:macos": [],
+    "@platforms//os:wasi": [],
     "@platforms//os:windows": [":windows_setup"],
 })
 
 OS_LOCAL_DEFINES = select({
     "@platforms//os:linux": [],
     "@platforms//os:macos": [],
+    "@platforms//os:wasi": [],
     "@platforms//os:windows": ["WIN32_LEAN_AND_MEAN"],
 })
 
@@ -36,6 +38,10 @@ cc_library(
         ],
     }),
     local_defines = OS_LOCAL_DEFINES,
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
     deps = OS_DEPS,
 )
@@ -56,6 +62,7 @@ cc_library(
     srcs = select({
         "@platforms//os:linux": ["system_info_linux.cpp"],
         "@platforms//os:macos": ["system_info_linux.cpp"],
+        "@platforms//os:wasi": ["system_info_linux.cpp"],
         "@platforms//os:windows": ["system_info_windows.cpp"],
     }),
     hdrs = ["system_info.h"],
@@ -63,6 +70,7 @@ cc_library(
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
+        "@platforms//os:wasi": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:Advapi32",
             "-DEFAULTLIB:Shcore",
@@ -91,6 +99,7 @@ cc_library(
     srcs = select({
         "@platforms//os:linux": ["xdg_linux.cpp"],
         "@platforms//os:macos": ["xdg_macos.cpp"],
+        "@platforms//os:wasi": ["xdg_linux.cpp"],
         "@platforms//os:windows": ["xdg_windows.cpp"],
     }),
     hdrs = ["xdg.h"],
@@ -98,6 +107,7 @@ cc_library(
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
+        "@platforms//os:wasi": [],
         "@platforms//os:windows": [
             "-DEFAULTLIB:Shell32",
             "-DEFAULTLIB:Kernel32",

@@ -7,5 +7,9 @@ cc_library(
         "include/vk_video/*.h",
     ]),
     strip_include_prefix = "include",
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )

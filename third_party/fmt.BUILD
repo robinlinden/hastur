@@ -10,5 +10,9 @@ cc_library(
     hdrs = glob(["include/**/*.h"]),
     includes = ["include/"],
     strip_include_prefix = "include",
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )

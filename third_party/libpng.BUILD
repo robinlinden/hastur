@@ -25,6 +25,10 @@ cc_library(
     ],
     includes = ["."],
     local_defines = ["PNG_ARM_NEON_OPT=0"],
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
     deps = ["@zlib"],
 )

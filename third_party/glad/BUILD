@@ -30,5 +30,9 @@ cc_library(
     srcs = GLAD_SRCS,
     hdrs = GLAD_HDRS,
     includes = ["."],
+    target_compatible_with = select({
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )
