@@ -9,7 +9,6 @@
 
 #include <fmt/core.h>
 
-#include <cassert>
 #include <functional>
 #include <optional>
 #include <regex>
@@ -33,30 +32,44 @@ void normalize(Uri &uri) {
     }
 }
 
-void complete_from_base_if_needed(Uri &uri, Uri const &base) {
+[[nodiscard]] bool complete_from_base_if_needed(Uri &uri, Uri const &base) {
     if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
         // Origin-relative.
         auto new_uri = Uri::parse(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri));
-        assert(new_uri.has_value());
+        if (!new_uri) {
+            return false;
+        }
+
         uri = *std::move(new_uri);
     } else if (uri.scheme.empty() && uri.authority.host.empty() && !uri.path.empty()) {
         // https://url.spec.whatwg.org/#path-relative-url-string
         if (base.path == "/") {
             auto new_uri = Uri::parse(fmt::format("{}/{}", base.uri, uri.uri));
-            assert(new_uri);
+            if (!new_uri) {
+                return false;
+            }
+
             uri = *std::move(new_uri);
         } else {
             auto end_of_last_path_segment = base.uri.find_last_of('/');
             auto new_uri = Uri::parse(fmt::format("{}/{}", base.uri.substr(0, end_of_last_path_segment), uri.uri));
-            assert(new_uri);
+            if (!new_uri) {
+                return false;
+            }
+
             uri = *std::move(new_uri);
         }
     } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
         // Scheme-relative.
         auto new_uri = Uri::parse(fmt::format("{}:{}", base.scheme, uri.uri));
-        assert(new_uri);
+        if (!new_uri) {
+            return false;
+        }
+
         uri = *std::move(new_uri);
     }
+
+    return true;
 }
 
 } // namespace
@@ -114,7 +127,9 @@ std::optional<Uri> Uri::parse(std::string uristr, std::optional<std::reference_w
     normalize(uri);
 
     if (base_uri) {
-        complete_from_base_if_needed(uri, base_uri->get());
+        if (!complete_from_base_if_needed(uri, base_uri->get())) {
+            return std::nullopt;
+        }
     }
 
     return uri;

@@ -47,6 +47,16 @@ int main() {
         expect_eq(Uri::parse(std::string(1025, ':')), std::nullopt); //
     });
 
+    etest::test("large uris in are handled when base-uris are used", [] {
+        auto base = Uri::parse("https://example.com").value();
+        expect_eq(Uri::parse(std::string(1020, '/'), base), std::nullopt);
+        expect_eq(Uri::parse(std::string(1020, 'a'), base), std::nullopt);
+
+        base = Uri::parse("https://example.com/foo/bar").value();
+        expect_eq(Uri::parse(std::string(1020, 'a'), base), std::nullopt);
+        expect_eq(Uri::parse("//" + std::string(1020, 'a'), base), std::nullopt);
+    });
+
     etest::test("https: user, pass, port, path, query", [] {
         auto https_uri =
                 Uri::parse("https://zero-one:muh_password@example-domain.net:8080/muh/long/path.html?foo=bar").value();
