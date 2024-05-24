@@ -490,10 +490,8 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
         }
     }
 
-    // TODO(robinlinden): Insert an HTML element for "body", switch to InBody,
-    // reprocess current token.  We can't really do this before we're ready to
-    // drop the old html parser's element handling.
-    return {};
+    a.insert_element_for({.tag_name = "body"});
+    return InBody{}.process(a, token).value_or(InBody{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody

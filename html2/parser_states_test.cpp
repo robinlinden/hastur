@@ -60,7 +60,7 @@ void initial_tests() {
     etest::test("Initial: comment", [] {
         auto res = parse("<!-- hello --><!DOCTYPE html>", {});
         expect_eq(res.document.doctype, "html");
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("Initial: doctype, sane", [] {
@@ -119,44 +119,49 @@ void initial_tests() {
 void before_html_tests() {
     etest::test("BeforeHtml: doctype", [] {
         auto res = parse("<!DOCTYPE html>", {.initial_insertion_mode = html2::BeforeHtml{}});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHtml: comment", [] {
         auto res = parse("<!DOCTYPE html><!-- hello --><html foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHtml: html tag", [] {
         auto res = parse("<html foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHtml: boring whitespace before html is dropped", [] {
         auto res = parse("<!DOCTYPE asdf>\t\n\f\r <html foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {{"foo", "bar"}}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHtml: head end-tag", [] {
         auto res = parse("</head>", {.initial_insertion_mode = html2::BeforeHtml{}});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHtml: dropped end-tag", [] {
         auto res = parse("</img>", {.initial_insertion_mode = html2::BeforeHtml{}});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 }
 
 void before_head_tests() {
     etest::test("BeforeHead: comment", [] {
         auto res = parse("<html><!-- comment --><head foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHead: doctype", [] {
         auto res = parse("<html><!DOCTYPE html><head foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHead: html tag", [] {
@@ -168,39 +173,43 @@ void before_head_tests() {
 
     etest::test("BeforeHead: head tag", [] {
         auto res = parse("<head foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHead: end-tag fallthrough", [] {
         auto res = parse("</head>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHead: ignored end-tag", [] {
         auto res = parse("</p><head foo=bar>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}, dom::Element{"body"}}});
     });
 
     etest::test("BeforeHtml: boring whitespace before head is dropped", [] {
         auto res = parse("<html>\t\n\f\r <head foo='bar'>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}, dom::Element{"body"}}});
     });
 }
 
 void in_head_tests() {
     etest::test("InHead: comment", [] {
         auto res = parse("<html><head><!-- comment --><meta>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: doctype", [] {
         auto res = parse("<head><!doctype HTML>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: end tag parse error", [] {
         auto res = parse("<head></p>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: html attributes are reparented", [] {
@@ -217,24 +226,27 @@ void in_head_tests() {
                 NodeVec{dom::Element{"base"}, dom::Element{"basefont"}, dom::Element{"bgsound"}, dom::Element{"link"}};
         auto head = dom::Element{"head", {}, std::move(head_children)};
 
-        expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head)}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head), dom::Element{"body"}}});
     });
 
     etest::test("InHead: meta", [] {
         auto res = parse("<meta>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: title", [] {
         auto res = parse("<title><body>&amp;</title>", {});
         auto title = dom::Element{"title", {}, {dom::Text{"<body>&"}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(title)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(title)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: style", [] {
         auto res = parse("<style>p { color: green; }</style>", {});
         auto style = dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: style, abrupt eof", [] {
@@ -246,12 +258,13 @@ void in_head_tests() {
     etest::test("InHead: script", [] {
         auto res = parse("<script>totally.js()</script>", {});
         auto script = dom::Element{"script", {}, {dom::Text{"totally.js()"}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(script)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(script)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: head end tag", [] {
         auto res = parse("</head>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 }
 
@@ -259,7 +272,8 @@ void in_head_noscript_tests() {
     etest::test("InHeadNoscript: doctype is ignored", [] {
         auto res = parse("<noscript><!doctype html></noscript>", {});
         auto const &html = res.document.html();
-        expect_eq(html, dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"noscript"}}}}});
+        expect_eq(html,
+                dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"noscript"}}}, dom::Element{"body"}}});
     });
 
     etest::test("InHeadNoscript: html attributes are reparented", [] {
@@ -278,36 +292,40 @@ void in_head_noscript_tests() {
     etest::test("InHeadNoScript: style w/ end tags", [] {
         auto res = parse("<noscript><style>p { color: green; }</style></noscript>", {});
         auto noscript = dom::Element{"noscript", {}, {dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHeadNoScript: br", [] {
         auto res = parse("<noscript></br>", {});
         auto noscript = dom::Element{"noscript"};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHeadNoScript: noscript", [] {
         auto res = parse("<noscript><noscript>", {});
         auto noscript = dom::Element{"noscript"};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}, dom::Element{"body"}}});
     });
 }
 
 void after_head_tests() {
     etest::test("AfterHead: boring whitespace", [] {
         auto res = parse("<head></head> ", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Text{" "}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head"}, dom::Text{" "}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: comment", [] {
         auto res = parse("<head></head><!-- comment -->", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: doctype", [] {
         auto res = parse("<head></head><!doctype html>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: html", [] {
@@ -329,37 +347,37 @@ void after_head_tests() {
                 NodeVec{dom::Element{"base"}, dom::Element{"basefont"}, dom::Element{"bgsound"}, dom::Element{"link"}};
         auto head = dom::Element{"head", {}, std::move(head_children)};
 
-        expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head)}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head), dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: head", [] {
         auto res = parse("<head></head><head>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: </template>", [] {
         auto res = parse("<head></head></template>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: </body>", [] {
         auto res = parse("<head></head></body>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: </html>", [] {
         auto res = parse("<head></head></html>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: </br>", [] {
         auto res = parse("<head></head></br>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: </error>", [] {
         auto res = parse("<head></head></error>", {});
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}}});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     etest::test("AfterHead: <frameset>", [] {
@@ -370,7 +388,8 @@ void after_head_tests() {
     etest::test("AfterHead: <style>p { color: green; }", [] {
         auto res = parse("<head></head><style>p { color: green; }</style>", {});
         auto style = dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}, dom::Element{"body"}}});
     });
 }
 
