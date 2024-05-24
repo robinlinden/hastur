@@ -59,7 +59,6 @@ cc_fuzz_test(
     testonly = True,
     srcs = ["url_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
-    corpus = glob(["url_fuzz_test_corpus/**"]),
     tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":url"],
