@@ -6,6 +6,7 @@ common --noenable_bzlmod
 
 build --enable_platform_specific_config
 coverage --combined_report=lcov
+coverage --instrumentation_filter=-'_fuzz_test'
 test --test_output=errors
 test --test_summary=terse
 test --test_verbose_timeout_warnings
