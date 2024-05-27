@@ -153,10 +153,6 @@ jobs:
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
           echo "CC=clang-16" >> $GITHUB_ENV
           echo "CXX=clang++-16" >> $GITHUB_ENV
-          # See: https://github.com/actions/runner-images/issues/8659
-          sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
-          sudo apt-get update
-          sudo apt-get install --allow-downgrades libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
       - name: Summary
