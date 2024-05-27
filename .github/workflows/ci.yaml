@@ -43,12 +43,6 @@ jobs:
             bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16
             apt: libclang-rt-16-dev llvm-16
 
-          - name: clang-18
-            os: ubuntu-22.04
-            compiler: clang
-            version: 18
-            apt: libclang-rt-18-dev
-
           - name: clang-16-libc++
             os: ubuntu-22.04
             compiler: clang
@@ -124,8 +118,8 @@ jobs:
           - compiler: gcc
             version: 13
           - compiler: clang
-            version: 16
-            bazel: --config=clang16-coverage
+            version: 18
+            bazel: --config=clang18-coverage
     steps:
       - uses: actions/checkout@v4
         with:
@@ -151,8 +145,8 @@ jobs:
           sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.version }} main"
           sudo apt-get update
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
-          echo "CC=clang-16" >> $GITHUB_ENV
-          echo "CXX=clang++-16" >> $GITHUB_ENV
+          echo "CC=clang-18" >> $GITHUB_ENV
+          echo "CXX=clang++-18" >> $GITHUB_ENV
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
       - name: Summary
