@@ -14,6 +14,7 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <iomanip>
 #include <ios>
 #include <iterator>
@@ -276,14 +277,10 @@ constexpr std::string percent_encoded_triplets_to_upper(std::string_view input) 
     std::string output;
 
     for (std::size_t i = 0; i < input.size(); i++) {
+        output += input[i];
         if (input[i] == '%' && (input.size() > i + 2 && is_hex_digit(input[i + 1]) && is_hex_digit(input[i + 2]))) {
-            output += input[i];
-            output += uppercased(input[i + 1]);
-            output += uppercased(input[i + 2]);
-
+            std::format_to(std::back_inserter(output), "{}{}", uppercased(input[i + 1]), uppercased(input[i + 2]));
             i += 2;
-        } else {
-            output += input[i];
         }
     }
 
