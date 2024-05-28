@@ -14,6 +14,18 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "zstd",
+    srcs = ["zstd.cpp"],
+    hdrs = ["zstd.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        "@expected",
+        "@zstd",
+    ],
+)
+
 # TODO(robinlinden): Separate APIs for gzip and zlib.
 alias(
     name = "gzip",
@@ -28,6 +40,7 @@ alias(
     deps = [
         ":%s" % src[:-9],
         "//etest",
+        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

@@ -373,6 +373,14 @@ http_archive(
     url = "https://github.com/madler/zlib/archive/v1.3.1.tar.gz",
 )
 
+http_archive(
+    name = "zstd",  # BSD-3-Clause
+    build_file = "//third_party:zstd.BUILD",
+    integrity = "sha256-jCngbPQqrMHq/EB3ri7Gxvy5amJhV+BZPV6Co0/UA8E=",
+    strip_prefix = "zstd-1.5.6",
+    url = "https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz",
+)
+
 # Third-party setup
 # =========================================================
 
