@@ -154,7 +154,7 @@ jobs:
       - name: Upload
         run: |
           pip install codecov-cli==0.6.0
-          codecovcli upload-process --token ${{ secrets.CODECOV_TOKEN }} -Z -f bazel-out/_coverage/_coverage_report.dat
+          codecovcli upload-process --token ${{ secrets.CODECOV_TOKEN }} --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
