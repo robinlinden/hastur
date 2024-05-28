@@ -153,9 +153,8 @@ jobs:
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          wget --no-verbose --output-document=codecov https://github.com/codecov/uploader/releases/download/v0.7.3/codecov-linux
-          chmod +x codecov
-          ./codecov --token ${{ secrets.CODECOV_TOKEN }} -Z -f bazel-out/_coverage/_coverage_report.dat
+          pip install codecov-cli==0.6.0
+          codecovcli upload-process --token ${{ secrets.CODECOV_TOKEN }} -Z -f bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
