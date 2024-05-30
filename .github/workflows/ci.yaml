@@ -152,9 +152,11 @@ jobs:
       - name: Summary
         run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           pip install codecov-cli==0.6.0
-          codecovcli upload-process --token ${{ secrets.CODECOV_TOKEN }} --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
+          codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
