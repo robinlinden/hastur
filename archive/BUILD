@@ -26,6 +26,20 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "brotli",
+    srcs = ["brotli.cpp"],
+    hdrs = ["brotli.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        "@brotli//:brotli_inc",
+        "@brotli//:brotlicommon",
+        "@brotli//:brotlidec",
+        "@expected",
+    ],
+)
+
 # TODO(robinlinden): Separate APIs for gzip and zlib.
 alias(
     name = "gzip",
