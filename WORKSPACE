@@ -103,6 +103,14 @@ http_archive(
 )
 
 http_archive(
+    name = "brotli",  # MIT
+    integrity = "sha256-5yCmyilCi4A/StFlNxdx9TmPq6OX7fZ3iDehhZnqE/8=",
+    patch_cmds = ["""sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel"""],
+    strip_prefix = "brotli-1.1.0",
+    url = "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz",
+)
+
+http_archive(
     name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
     sha256 = "1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6",
