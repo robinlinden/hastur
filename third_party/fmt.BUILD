@@ -8,11 +8,11 @@ cc_library(
         exclude = ["src/fmt.cc"],
     ),
     hdrs = glob(["include/**/*.h"]),
-    includes = ["include/"],
-    strip_include_prefix = "include",
-    target_compatible_with = select({
-        "@platforms//os:wasi": ["@platforms//:incompatible"],
+    defines = select({
+        "@platforms//os:wasi": ["FMT_USE_FCNTL=0"],
         "//conditions:default": [],
     }),
+    includes = ["include/"],
+    strip_include_prefix = "include",
     visibility = ["//visibility:public"],
 )
