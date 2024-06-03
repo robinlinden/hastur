@@ -136,9 +136,15 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
         return true;
     }
 
-    if (selector_.starts_with('.')) {
-        selector_.remove_prefix(1);
-        auto classes = util::split(selector_, ".");
+    auto class_position = selector_.find('.');
+    if (class_position != std::string_view::npos) {
+        auto class_string = selector_.substr(class_position);
+        if (class_position != 0 && selector_.substr(0, class_position) != element.name) {
+            return false;
+        }
+
+        class_string.remove_prefix(1);
+        auto classes = util::split(class_string, ".");
         return std::ranges::all_of(classes, [&](auto const &c) { return has_class(element, c); });
     }
 

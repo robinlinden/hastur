@@ -112,6 +112,12 @@ int main() {
 
         expect(is_match(dom::Element{"div", {{"class", "first second"}}}, ".first.second"sv));
         expect(!is_match(dom::Element{"div", {{"class", "first second"}}}, ".first.third"sv));
+
+        expect(is_match(dom::Element{"div", {{"class", "first second"}}}, "div.first"sv));
+        expect(is_match(dom::Element{"div", {{"class", "first second"}}}, "div.second"sv));
+        expect(is_match(dom::Element{"div", {{"class", "first second"}}}, "div.second.first"sv));
+        expect(!is_match(dom::Element{"div", {{"class", "first second"}}}, "div.third"sv));
+        expect(!is_match(dom::Element{"div", {{"class", "first second"}}}, "p.first"sv));
     });
 
     etest::test("is_match: id", [] {
