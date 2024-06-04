@@ -3,14 +3,9 @@ load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
 cc_library(
-    name = "archive",
-    srcs = glob(
-        include = ["*.cpp"],
-        exclude = [
-            "*_test.cpp",
-        ],
-    ),
-    hdrs = glob(["*.h"]),
+    name = "zlib",
+    srcs = ["zlib.cpp"],
+    hdrs = ["zlib.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
@@ -19,13 +14,19 @@ cc_library(
     ],
 )
 
+# TODO(robinlinden): Separate APIs for gzip and zlib.
+alias(
+    name = "gzip",
+    actual = ":zlib",
+)
+
 [cc_test(
     name = src[:-4],
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
-        ":archive",
+        ":%s" % src[:-9],
         "//etest",
     ],
 ) for src in glob(
@@ -40,5 +41,5 @@ cc_library(
     srcs = [src],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
-    deps = [":archive"],
+    deps = [":%s" % src[:-14]],
 ) for src in glob(["*_fuzz_test.cpp"])]
