@@ -9,6 +9,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//archive:zlib",
+        "//archive:zstd",
         "//css",
         "//dom",
         "//html",

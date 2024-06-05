@@ -204,6 +204,11 @@ int main() {
     std::string zlibbed_css =
             "\x78\x5e\x2b\x50\xa8\x56\x48\xcb\xcf\x2b\xd1\x2d\xce\xac\x4a\xb5\x52\x30\x34\x32\x4e\xcd\xb5\x56\xa8\xe5\x02\x00\x63\xc3\x07\x6f"s;
 
+    // zstd-compressed `p { font-size: 123em; }`, generated with:
+    // echo -n "p { font-size: 123em; }" | zstd -19 -
+    std::string zstd_compressed_css =
+            "\x28\xb5\x2f\xfd\x04\x68\xb9\x00\x00\x70\x20\x7b\x20\x66\x6f\x6e\x74\x2d\x73\x69\x7a\x65\x3a\x20\x31\x32\x33\x65\x6d\x3b\x20\x7d\x32\x30\x89\x03"s;
+
     etest::test("stylesheet link, gzip Content-Encoding", [gzipped_css]() mutable {
         Responses responses;
         responses["hax://example.com"s] = Response{
@@ -326,6 +331,49 @@ int main() {
                                .declarations{{css::PropertyId::FontSize, "123em"}},
                        })
                 != end(page->stylesheet.rules));
+    });
+
+    etest::test("stylesheet link, zstd Content-Encoding", [zstd_compressed_css] {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
+        };
+        responses["hax://example.com/lol.css"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "zstd"}},
+                .body{zstd_compressed_css},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        expect(std::ranges::find(page->stylesheet.rules,
+                       css::Rule{
+                               .selectors{"p"},
+                               .declarations{{css::PropertyId::FontSize, "123em"}},
+                       })
+                != end(page->stylesheet.rules));
+    });
+
+    etest::test("stylesheet link, zstd decoding failure", [zstd_compressed_css]() mutable {
+        zstd_compressed_css[0] += 1;
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<html><head><link rel=stylesheet href=lol.css /></head></html>"},
+        };
+        responses["hax://example.com/lol.css"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "zstd"}},
+                .body{zstd_compressed_css},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        expect(std::ranges::find(page->stylesheet.rules,
+                       css::Rule{
+                               .selectors{"p"},
+                               .declarations{{css::PropertyId::FontSize, "123em"}},
+                       })
+                == end(page->stylesheet.rules));
     });
 
     etest::test("redirect", [] {

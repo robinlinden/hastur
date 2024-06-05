@@ -5,6 +5,7 @@
 #include "engine/engine.h"
 
 #include "archive/zlib.h"
+#include "archive/zstd.h"
 #include "css/default.h"
 #include "css/media_query.h"
 #include "css/parser.h"
@@ -19,10 +20,13 @@
 #include <spdlog/spdlog.h>
 #include <tl/expected.hpp>
 
+#include <cstdint>
 #include <future>
 #include <memory>
+#include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -121,6 +125,22 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
                 }
 
                 style_data->body = *std::move(decoded);
+            } else if (encoding == "zstd") {
+                static_assert(std::is_same_v<char, std::uint8_t> || std::is_same_v<unsigned char, std::uint8_t>);
+                std::span<std::uint8_t const> body_view{
+                        reinterpret_cast<std::uint8_t const *>(style_data->body.data()), style_data->body.size()};
+                auto decoded = archive::zstd_decode(body_view);
+                if (!decoded) {
+                    auto const &err = decoded.error();
+                    spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
+                            *encoding,
+                            stylesheet_url->uri,
+                            static_cast<int>(err),
+                            to_string(err));
+                    return {};
+                }
+
+                style_data->body = std::string(reinterpret_cast<char const *>(decoded->data()), decoded->size());
             } else if (encoding) {
                 spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url->uri);
                 return {};
