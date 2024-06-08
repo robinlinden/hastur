@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -118,6 +118,10 @@ public:
 
         assert(it != open_elements_.end());
         open_elements_.erase(it);
+    }
+
+    void reconstruct_active_formatting_elements() override {
+        // TODO(robinlinden): Implement.
     }
 
 private:

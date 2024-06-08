@@ -40,6 +40,7 @@ public:
     virtual void set_frameset_ok(bool) = 0;
     virtual void push_head_as_current_open_element() = 0;
     virtual void remove_from_open_elements(std::string_view element_name) = 0;
+    virtual void reconstruct_active_formatting_elements() = 0;
 
     virtual InsertionMode current_insertion_mode() const = 0;
 };

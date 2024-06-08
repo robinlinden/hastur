@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -116,6 +116,10 @@ void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
 
         if (auto const *start = std::get_if<html2::StartTagToken>(&token);
                 start != nullptr && start->tag_name == "body") {
+            return;
+        }
+
+        if (std::holds_alternative<html2::CharacterToken>(token)) {
             return;
         }
     }
@@ -255,6 +259,13 @@ void Parser::generate_text_node_if_needed() {
     bool is_uninteresting = std::ranges::all_of(text, [](char c) { return util::is_whitespace(c); });
     if (is_uninteresting) {
         return;
+    }
+
+    if (!open_elements_.back()->children.empty()) {
+        if (auto *t = std::get_if<dom::Text>(&open_elements_.back()->children.back()); t != nullptr) {
+            t->text += text;
+            return;
+        }
     }
 
     open_elements_.back()->children.emplace_back(dom::Text{std::move(text)});

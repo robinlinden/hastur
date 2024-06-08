@@ -51,6 +51,7 @@ public:
     void remove_from_open_elements(std::string_view element_name) override {
         wrapped_.remove_from_open_elements(element_name);
     }
+    void reconstruct_active_formatting_elements() override { wrapped_.reconstruct_active_formatting_elements(); }
 
 private:
     IActions &wrapped_;
@@ -500,6 +501,35 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 // Incomplete.
 std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
+    auto const *character = std::get_if<html2::CharacterToken>(&token);
+    if (character != nullptr && character->data == '\0') {
+        // Parse error.
+        return {};
+    }
+
+    if (is_boring_whitespace(token)) {
+        a.reconstruct_active_formatting_elements();
+        a.insert_character(std::get<html2::CharacterToken>(token));
+        return {};
+    }
+
+    if (character != nullptr) {
+        a.reconstruct_active_formatting_elements();
+        a.insert_character(*character);
+        a.set_frameset_ok(false);
+        return {};
+    }
+
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert.
+        return {};
+    }
+
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
         // Parse error.
         // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
@@ -507,6 +537,29 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         // The spec says to add attributes not already in the top element of the
         // stack of open elements. By top, they obviously mean the <html> tag.
         a.merge_into_html_node(start->attributes);
+        return {};
+    }
+
+    static constexpr auto kInHeadElements = std::to_array<std::string_view>({
+            "base"sv,
+            "basefont"sv,
+            "bgsound"sv,
+            "link"sv,
+            "meta"sv,
+            "noframes"sv,
+            "script"sv,
+            "style"sv,
+            "template"sv,
+            "title"sv,
+    });
+
+    if (auto const *start = std::get_if<html2::StartTagToken>(&token);
+            start != nullptr && is_in_array<kInHeadElements>(start->tag_name)) {
+        return InHead{}.process(a, token);
+    }
+
+    if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr && end->tag_name == "template") {
+        return InHead{}.process(a, token);
     }
 
     return {};

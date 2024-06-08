@@ -16,6 +16,8 @@
 #include <variant>
 #include <vector>
 
+using namespace std::literals;
+
 using etest::expect_eq;
 
 using NodeVec = std::vector<dom::Node>;
@@ -393,6 +395,50 @@ void after_head_tests() {
     });
 }
 
+void in_body_tests() {
+    etest::test("InBody: null character", [] {
+        auto res = parse("<body>\0"sv, {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body"});
+    });
+
+    etest::test("InBody: boring whitespace", [] {
+        auto res = parse("<body>\t"sv, {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body", {}, {dom::Text{"\t"}}});
+    });
+
+    etest::test("InBody: character", [] {
+        auto res = parse("<body>asdf"sv, {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body", {}, {dom::Text{"asdf"}}});
+    });
+
+    etest::test("InBody: comment", [] {
+        auto res = parse("<body><!-- comment -->", {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body"});
+    });
+
+    etest::test("InBody: doctype", [] {
+        auto res = parse("<body><!doctype html>", {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body"});
+    });
+
+    etest::test("InBody: in-head-element", [] {
+        auto res = parse("<body><title><html>&amp;</title>", {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body", {}, {dom::Element{"title", {}, {dom::Text{"<html>&"}}}}});
+    });
+
+    etest::test("InBody: template end tag", [] {
+        auto res = parse("<body></template>", {});
+        auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(actual_body, dom::Element{"body"});
+    });
+}
+
 void in_frameset_tests() {
     etest::test("InFrameset: boring whitespace", [] {
         auto res = parse("<head></head><frameset> ", {});
@@ -499,6 +545,7 @@ int main() {
     in_head_tests();
     in_head_noscript_tests();
     after_head_tests();
+    in_body_tests();
     in_frameset_tests();
     return etest::run_all_tests();
 }
