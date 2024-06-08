@@ -182,6 +182,7 @@ constexpr bool is_quirky_when_system_identifier_is_empty(std::string_view public
 } // namespace
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
+// Incomplete.
 std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         return {};
@@ -297,6 +298,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
+// Incomplete.
 // TODO(robinlinden): Template nonsense.
 std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
@@ -416,6 +418,7 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     return InHead{}.process(a, token).value_or(InHead{});
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
 std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         a.insert_character(std::get<html2::CharacterToken>(token));
@@ -495,6 +498,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+// Incomplete.
 std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
     if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
         // Parse error.
@@ -508,6 +512,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     return {};
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
+// Incomplete.
 std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &token) {
     if (auto const *character = std::get_if<html2::CharacterToken>(&token)) {
         assert(character->data != '\0');
@@ -523,6 +529,7 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
     return {};
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
 std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         a.insert_character(std::get<html2::CharacterToken>(token));
@@ -582,6 +589,8 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const
     return {};
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterframeset
+// Incomplete.
 std::optional<InsertionMode> AfterFrameset::process(IActions &, html2::Token const &) {
     return {};
 }
