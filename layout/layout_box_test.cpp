@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -9,6 +9,7 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
+#include "dom/xpath.h"
 #include "etest/etest.h"
 #include "style/styled_node.h"
 

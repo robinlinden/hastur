@@ -7,6 +7,7 @@
 #include "css/rule.h"
 #include "css/style_sheet.h"
 #include "dom/dom.h"
+#include "dom/xpath.h"
 #include "engine/engine.h"
 #include "geom/geom.h"
 #include "gfx/color.h"

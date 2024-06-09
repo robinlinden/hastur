@@ -6,7 +6,7 @@
 #include "render/render.h"
 
 #include "css/property_id.h"
-#include "dom/dom.h"
+#include "dom/xpath.h"
 #include "geom/geom.h"
 #include "gfx/color.h"
 #include "gfx/font.h"

@@ -6,6 +6,7 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
+#include "dom/xpath.h"
 #include "etest/etest.h"
 #include "gfx/color.h"
 

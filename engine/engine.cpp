@@ -11,6 +11,7 @@
 #include "css/parser.h"
 #include "css/style_sheet.h"
 #include "dom/dom.h"
+#include "dom/xpath.h"
 #include "html/parser.h"
 #include "layout/layout.h"
 #include "protocol/response.h"

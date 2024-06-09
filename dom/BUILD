@@ -3,19 +3,22 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "dom",
-    srcs = ["dom.cpp"],
-    hdrs = ["dom.h"],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
 )
 
-cc_test(
-    name = "dom_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["dom_test.cpp"],
+    srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
         ":dom",
         "//etest",
     ],
-)
+) for src in glob(["*_test.cpp"])]
