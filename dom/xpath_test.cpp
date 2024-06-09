@@ -8,16 +8,12 @@
 
 #include "etest/etest2.h"
 
-#include <string_view>
 #include <vector>
 
 using dom::Element;
 using dom::Text;
 
 namespace {
-std::vector<dom::Element const *> nodes_by_xpath(dom::Node const &root, std::string_view xpath) {
-    return nodes_by_xpath(std::get<dom::Element>(root), xpath);
-}
 
 void descendant_axis_tests(etest::Suite &s) {
     s.add_test("descendant axis, root node match", [](etest::IActions &a) {
@@ -110,7 +106,7 @@ int main() {
     union_operator_tests(s);
 
     s.add_test("unsupported xpaths don't return anything", [](etest::IActions &a) {
-        dom::Node dom = dom::Element{"div"};
+        dom::Element dom = dom::Element{"div"};
         auto nodes = nodes_by_xpath(dom, "div");
         a.expect(nodes.empty());
     });
