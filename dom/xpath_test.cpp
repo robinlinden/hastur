@@ -6,54 +6,51 @@
 
 #include "dom/dom.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <string_view>
 #include <vector>
 
 using dom::Element;
 using dom::Text;
-using etest::expect;
-using etest::expect_eq;
-using etest::require;
 
 namespace {
 std::vector<dom::Element const *> nodes_by_xpath(dom::Node const &root, std::string_view xpath) {
     return nodes_by_xpath(std::get<dom::Element>(root), xpath);
 }
 
-void descendant_axis_tests() {
-    etest::test("descendant axis, root node match", [] {
+void descendant_axis_tests(etest::Suite &s) {
+    s.add_test("descendant axis, root node match", [](etest::IActions &a) {
         dom::Element dom{"div"};
         auto nodes = nodes_by_xpath(dom, "div");
-        expect(nodes.empty());
+        a.expect(nodes.empty());
 
         nodes = nodes_by_xpath(dom, "//div");
-        expect_eq(*nodes.at(0), dom);
+        a.expect_eq(*nodes.at(0), dom);
     });
 
-    etest::test("descendant axis, nested matches", [] {
+    s.add_test("descendant axis, nested matches", [](etest::IActions &a) {
         dom::Element const &first{"div", {}, {dom::Element{"div", {}, {dom::Element{"div"}}}}};
         auto const &second = std::get<dom::Element>(first.children[0]);
         auto const &third = std::get<dom::Element>(second.children[0]);
 
         auto nodes = nodes_by_xpath(first, "//div");
-        expect_eq(nodes, std::vector{&first, &second, &third});
+        a.expect_eq(nodes, std::vector{&first, &second, &third});
 
         nodes = nodes_by_xpath(first, "//div/div");
-        expect_eq(nodes, std::vector{&second, &third});
+        a.expect_eq(nodes, std::vector{&second, &third});
 
         nodes = nodes_by_xpath(first, "//div//div");
-        expect_eq(nodes, std::vector{&second, &third});
+        a.expect_eq(nodes, std::vector{&second, &third});
     });
 
-    etest::test("descendant axis, no matches", [] {
+    s.add_test("descendant axis, no matches", [](etest::IActions &a) {
         dom::Element dom{"div"};
         auto nodes = nodes_by_xpath(dom, "//p");
-        expect(nodes.empty());
+        a.expect(nodes.empty());
     });
 
-    etest::test("descendant axis, mixed child and descendant axes", [] {
+    s.add_test("descendant axis, mixed child and descendant axes", [](etest::IActions &a) {
         dom::Element div{
                 .name{"div"},
                 .children{
@@ -70,21 +67,21 @@ void descendant_axis_tests() {
         auto const &div_last_span = std::get<dom::Element>(div.children[2]);
 
         auto nodes = nodes_by_xpath(div, "//p");
-        expect_eq(nodes, std::vector{&p});
+        a.expect_eq(nodes, std::vector{&p});
 
         nodes = nodes_by_xpath(div, "//p/span");
-        expect_eq(nodes, std::vector{&p_span});
+        a.expect_eq(nodes, std::vector{&p_span});
 
         nodes = nodes_by_xpath(div, "/div/p//a");
-        expect_eq(nodes, std::vector{&p_span_a});
+        a.expect_eq(nodes, std::vector{&p_span_a});
 
         nodes = nodes_by_xpath(div, "//span");
-        expect_eq(nodes, std::vector{&div_first_span, &p_span, &div_last_span});
+        a.expect_eq(nodes, std::vector{&div_first_span, &p_span, &div_last_span});
     });
 }
 
-void union_operator_tests() {
-    etest::test("union operator", [] {
+void union_operator_tests(etest::Suite &s) {
+    s.add_test("union operator", [](etest::IActions &a) {
         dom::Element div{
                 .name{"div"},
                 .children{
@@ -100,23 +97,25 @@ void union_operator_tests() {
         auto const &div_last_span = std::get<dom::Element>(div.children[2]);
 
         auto nodes = nodes_by_xpath(div, "/div/p|//span");
-        expect_eq(nodes, std::vector{&p, &div_first_span, &p_span, &div_last_span});
+        a.expect_eq(nodes, std::vector{&p, &div_first_span, &p_span, &div_last_span});
     });
 }
 
 } // namespace
 
 int main() {
-    descendant_axis_tests();
-    union_operator_tests();
+    etest::Suite s{"xpath"};
 
-    etest::test("unsupported xpaths don't return anything", [] {
+    descendant_axis_tests(s);
+    union_operator_tests(s);
+
+    s.add_test("unsupported xpaths don't return anything", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div"};
         auto nodes = nodes_by_xpath(dom, "div");
-        expect(nodes.empty());
+        a.expect(nodes.empty());
     });
 
-    etest::test("no matches", [] {
+    s.add_test("no matches", [](etest::IActions &a) {
         auto const dom_root = dom::Element{
                 .name{"html"},
                 .children{
@@ -126,10 +125,10 @@ int main() {
         };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/a");
-        expect(nodes.empty());
+        a.expect(nodes.empty());
     });
 
-    etest::test("root match", [] {
+    s.add_test("root match", [](etest::IActions &a) {
         auto const dom_root = dom::Element{
                 .name{"html"},
                 .children{
@@ -139,11 +138,11 @@ int main() {
         };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html");
-        require(nodes.size() == 1);
-        expect(nodes[0]->name == "html");
+        a.require(nodes.size() == 1);
+        a.expect(nodes[0]->name == "html");
     });
 
-    etest::test("path with one element node", [] {
+    s.add_test("path with one element node", [](etest::IActions &a) {
         auto const dom_root = dom::Element{
                 .name{"html"},
                 .children{
@@ -153,11 +152,11 @@ int main() {
         };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
-        require(nodes.size() == 1);
-        expect(nodes[0]->name == "p");
+        a.require(nodes.size() == 1);
+        a.expect(nodes[0]->name == "p");
     });
 
-    etest::test("path with multiple element nodes", [] {
+    s.add_test("path with multiple element nodes", [](etest::IActions &a) {
         auto const dom_root = dom::Element{
                 .name{"html"},
                 .children{
@@ -173,19 +172,19 @@ int main() {
         };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
-        require(nodes.size() == 2);
+        a.require(nodes.size() == 2);
 
         auto const first = *nodes[0];
-        expect(first.name == "p");
-        expect(first.attributes.empty());
+        a.expect(first.name == "p");
+        a.expect(first.attributes.empty());
 
         auto const second = *nodes[1];
-        expect(second.name == "p");
-        expect(second.attributes.size() == 1);
-        expect(second.attributes.at("display") == "none");
+        a.expect(second.name == "p");
+        a.expect(second.attributes.size() == 1);
+        a.expect(second.attributes.at("display") == "none");
     });
 
-    etest::test("matching nodes in different branches", [] {
+    s.add_test("matching nodes in different branches", [](etest::IActions &a) {
         auto const dom_root = dom::Element{
                 .name{"html"},
                 .children{
@@ -211,20 +210,20 @@ int main() {
         };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/div/p");
-        require(nodes.size() == 2);
+        a.require(nodes.size() == 2);
 
         auto const first = *nodes[0];
-        expect(first.name == "p");
-        expect(first.attributes.size() == 1);
-        expect(first.attributes.at("display") == "none");
+        a.expect(first.name == "p");
+        a.expect(first.attributes.size() == 1);
+        a.expect(first.attributes.at("display") == "none");
 
         auto const second = *nodes[1];
-        expect(second.name == "p");
-        expect(second.attributes.size() == 1);
-        expect(second.attributes.at("display") == "block");
+        a.expect(second.name == "p");
+        a.expect(second.attributes.size() == 1);
+        a.expect(second.attributes.at("display") == "block");
     });
 
-    etest::test("non-element node in search path", [] {
+    s.add_test("non-element node in search path", [](etest::IActions &a) {
         auto const dom_root = dom::Element{
                 .name{"html"},
                 .children{
@@ -235,8 +234,8 @@ int main() {
         };
 
         auto const nodes = nodes_by_xpath(dom_root, "/html/body/p");
-        expect(nodes.size() == 1);
+        a.expect(nodes.size() == 1);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }

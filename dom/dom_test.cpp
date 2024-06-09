@@ -4,22 +4,23 @@
 
 #include "dom/dom.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <string_view>
 
 using namespace std::literals;
 
 using dom::Element;
-using etest::expect_eq;
 
 int main() {
-    etest::test("to_string", [] {
+    etest::Suite s{"dom"};
+
+    s.add_test("to_string", [](etest::IActions &a) {
         auto document = dom::Document{.doctype{"html5"}};
         document.html_node = dom::Element{.name{"span"}, .children{{dom::Text{"hello"}}}};
         auto expected = "doctype: html5\ntag: span\n  value: hello\n"sv;
-        expect_eq(to_string(document), expected);
+        a.expect_eq(to_string(document), expected);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
