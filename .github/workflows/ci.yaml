@@ -269,6 +269,10 @@ jobs:
           echo "build --features=static_link_msvcrt" >.bazelrc.local
           echo "build --host_features=static_link_msvcrt" >>.bazelrc.local
           echo "build --copt=-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" >>.bazelrc.local
+      # TODO(robinlinden): Remove once the default LLVM install in GitHub Actions is compatible with MSVC.
+      # https://github.com/actions/runner-images/issues/10001
+      - name: Work around broken LLVM install in GitHub Actions
+        run: choco uninstall llvm
       - run: bazel test ...
       - name: Run tui
         run: |
