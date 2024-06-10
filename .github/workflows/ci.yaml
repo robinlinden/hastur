@@ -233,6 +233,12 @@ jobs:
           path: ~/.cache/bazel
           key: windows_msvc-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
+      # TODO(robinlinden): Remove once GitHub Actions is less broken.
+      # https://github.com/actions/runner-images/issues/10004
+      - name: Work around broken msvcrt install in GitHub Actions
+        run: |
+          echo "build --features=static_link_msvcrt" >.bazelrc.local
+          echo "build --host_features=static_link_msvcrt" >>.bazelrc.local
       - name: Test
         run: bazel test ... -c dbg
       - name: Run tui
@@ -256,6 +262,13 @@ jobs:
           key: windows_clang_cl-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
+      # TODO(robinlinden): Remove once GitHub Actions is less broken.
+      # https://github.com/actions/runner-images/issues/10004
+      - name: Work around broken msvcrt install in GitHub Actions
+        run: |
+          echo "build --features=static_link_msvcrt" >.bazelrc.local
+          echo "build --host_features=static_link_msvcrt" >>.bazelrc.local
+          echo "build --copt=-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" >>.bazelrc.local
       - run: bazel test ...
       - name: Run tui
         run: |
