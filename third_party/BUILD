@@ -7,7 +7,12 @@ compile_pip_requirements(
     timeout = "moderate",
     requirements_in = "requirements.in",
     requirements_txt = "requirements.txt",
-    tags = ["no-cross"],
+    tags = [
+        "no-cross",
+        # This also creates a "requirements_test" which calls into bash which is
+        # very leaky and upsets valgrind.
+        "no-valgrind",
+    ],
 )
 
 test_suite(
