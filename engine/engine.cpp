@@ -95,6 +95,16 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
         }};
     }
 
+    if (!try_decompress_response_body(result.uri_after_redirects, *result.response)) {
+        return tl::unexpected{NavigationError{
+                .uri = std::move(result.uri_after_redirects),
+                .response{protocol::Error{
+                        protocol::ErrorCode::InvalidResponse,
+                        result.response->status_line,
+                }},
+        }};
+    }
+
     auto state = std::make_unique<PageState>();
     state->uri = std::move(result.uri_after_redirects);
     state->response = std::move(result.response.value());

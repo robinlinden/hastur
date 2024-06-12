@@ -377,6 +377,35 @@ int main() {
                 == end(page->stylesheet.rules));
     });
 
+    // echo -n "<p>hello" | zstd -19 -
+    std::string zstd_compressed_html =
+            "\x28\xb5\x2f\xfd\x04\x68\x41\x00\x00\x3c\x70\x3e\x68\x65\x6c\x6c\x6f\x8a\xc4\x1a\x8d"s;
+
+    etest::test("html, zstd-compressed", [zstd_compressed_html] {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "zstd"}},
+                .body{zstd_compressed_html},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        auto const &body = std::get<dom::Element>(page->dom.html().children.at(1));
+        expect_eq(body, dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}});
+    });
+
+    etest::test("html, unhandled content-encoding", [zstd_compressed_html] {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "aaaaaaaaa"}},
+                .body{zstd_compressed_html},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
+        expect_eq(page.error().response.err, protocol::ErrorCode::InvalidResponse);
+    });
+
     etest::test("redirect", [] {
         Responses responses;
         responses["hax://example.com"s] = Response{
