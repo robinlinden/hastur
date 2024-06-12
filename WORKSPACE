@@ -36,9 +36,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-SRLO1w3BoqjkuGzsIzsZLKBT6CvHLYd7mOEmFW6PIo0=",
-    strip_prefix = "rules_python-0.32.2",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.32.2/rules_python-0.32.2.tar.gz",
+    integrity = "sha256-W8+jhSRE0ISx0yYnFM7BUbeXZI1NRE6piVx8ftec1xU=",
+    strip_prefix = "rules_python-0.33.1",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.33.1/rules_python-0.33.1.tar.gz",
 )
 
 # Third-party Bazel
@@ -181,9 +181,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-cLSwWsCTjoK01bjVlIDT4spjylcN+4jFUCODHzhyN60=",
-    strip_prefix = "imgui-1.90.6",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.6.tar.gz",
+    integrity = "sha256-9ga0+0BqoPja021KndPW8P059fBpPnRoq8AtVF+1Ba4=",
+    strip_prefix = "imgui-1.90.8",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.8.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -205,13 +205,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-efvnAPSsPdacTwgnWvWDmdqr1hK8oMBGWuqVnGAlZlE=",
-    patch_cmds = [
-        # Add missing required header.
-        "sed -i'' -e '9i\\\n#include <type_traits>' src/implementation.cpp",
-    ],
-    strip_prefix = "simdjson-3.9.2",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.2.tar.gz",
+    integrity = "sha256-m/E74A+h4cWJGpDbw5uYPgmXLwlyqJVsIKmXTO38yi8=",
+    strip_prefix = "simdjson-3.9.4",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.4.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -287,13 +283,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.283"
+VULKAN_TAG = "1.3.287"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-p2/3eBUBLHaryYESFcIWcSinOml7zCOUjoWNH33VSoU=",
+    integrity = "sha256-UU1eJCWXn/4xO3f3EnTxmWVLLYlXGQR2NstG0QVVzWs=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -302,7 +298,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-GmIw0TqFqTn8zMg7ATu5veKOpS3/T5S+NsYFCMIXIwg=",
+    integrity = "sha256-J6M+OU1cWIhh30defok26SAGVZ4szcvu158eFv2mFPk=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -311,9 +307,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    integrity = "sha256-QHTAJGHQJ19w2Q5MdWZ6cxFh4T3lNm88MIxbb4XGd5s=",
-    strip_prefix = "wpt-merge_pr_46011",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_46011.tar.gz",
+    integrity = "sha256-312jtMN0eGhqck8BdLBnvHP02o6YCECzQbPyGCss+TE=",
+    strip_prefix = "wpt-merge_pr_46647",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_46647.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
