@@ -36,6 +36,46 @@ using namespace std::literals;
 namespace engine {
 namespace {
 
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding#directives
+[[nodiscard]] bool try_decompress_response_body(uri::Uri const &uri, protocol::Response &response) {
+    auto encoding = response.headers.get("Content-Encoding");
+    if (!encoding) {
+        return true;
+    }
+
+    if (encoding == "gzip" || encoding == "x-gzip" || encoding == "deflate") {
+        auto zlib_mode = encoding == "deflate" ? archive::ZlibMode::Zlib : archive::ZlibMode::Gzip;
+        auto decoded = archive::zlib_decode(response.body, zlib_mode);
+        if (!decoded) {
+            auto const &err = decoded.error();
+            spdlog::error("Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, err.code, err.message);
+            return false;
+        }
+
+        response.body = *std::move(decoded);
+        return true;
+    }
+
+    if (encoding == "zstd") {
+        static_assert(std::is_same_v<char, std::uint8_t> || std::is_same_v<unsigned char, std::uint8_t>);
+        std::span<std::uint8_t const> body_view{
+                reinterpret_cast<std::uint8_t const *>(response.body.data()), response.body.size()};
+        auto decoded = archive::zstd_decode(body_view);
+        if (!decoded) {
+            auto const &err = decoded.error();
+            spdlog::error(
+                    "Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, static_cast<int>(err), to_string(err));
+            return false;
+        }
+
+        response.body = std::string(reinterpret_cast<char const *>(decoded->data()), decoded->size());
+        return true;
+    }
+
+    spdlog::warn("Got unsupported encoding '{}' from '{}'", *encoding, uri.uri);
+    return false;
+}
+
 css::MediaQuery::Context to_media_context(Options opts) {
     return {
             .window_width = opts.layout_width,
@@ -110,40 +150,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
                 return {};
             }
 
-            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding#directives
-            auto encoding = style_data->headers.get("Content-Encoding");
-            if (encoding == "gzip" || encoding == "x-gzip" || encoding == "deflate") {
-                auto zlib_mode = encoding == "deflate" ? archive::ZlibMode::Zlib : archive::ZlibMode::Gzip;
-                auto decoded = archive::zlib_decode(style_data->body, zlib_mode);
-                if (!decoded) {
-                    auto const &err = decoded.error();
-                    spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
-                            *encoding,
-                            stylesheet_url->uri,
-                            err.code,
-                            err.message);
-                    return {};
-                }
-
-                style_data->body = *std::move(decoded);
-            } else if (encoding == "zstd") {
-                static_assert(std::is_same_v<char, std::uint8_t> || std::is_same_v<unsigned char, std::uint8_t>);
-                std::span<std::uint8_t const> body_view{
-                        reinterpret_cast<std::uint8_t const *>(style_data->body.data()), style_data->body.size()};
-                auto decoded = archive::zstd_decode(body_view);
-                if (!decoded) {
-                    auto const &err = decoded.error();
-                    spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
-                            *encoding,
-                            stylesheet_url->uri,
-                            static_cast<int>(err),
-                            to_string(err));
-                    return {};
-                }
-
-                style_data->body = std::string(reinterpret_cast<char const *>(decoded->data()), decoded->size());
-            } else if (encoding) {
-                spdlog::warn("Got unsupported encoding '{}', skipping stylesheet '{}'", *encoding, stylesheet_url->uri);
+            if (!try_decompress_response_body(*stylesheet_url, *style_data)) {
                 return {};
             }
 
