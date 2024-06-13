@@ -235,6 +235,15 @@ http_archive(
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Unix/VulkanImplX11.cpp",
+        # SFML does non-standard things with std::basic_string<Uint32>.
+        # This will not compile with libc++19.
+        "sed -i'' -e '36i\\\n#ifdef _LIBCPP_VERSION\\\n' include/SFML/System/String.hpp",
+        "sed -i'' -e '37i\\\n#pragma clang diagnostic push\\\n' include/SFML/System/String.hpp",
+        "sed -i'' -e '38i\\\n#pragma clang diagnostic ignored \"-Wdeprecated-declarations\"\\\n' include/SFML/System/String.hpp",
+        "sed -i'' -e '39i\\\n#endif\\\n' include/SFML/System/String.hpp",
+        "sed -i'' -e '619i\\\n#ifdef _LIBCPP_VERSION\\\n' include/SFML/System/String.hpp",
+        "sed -i'' -e '620i\\\n#pragma clang diagnostic pop\\\n' include/SFML/System/String.hpp",
+        "sed -i'' -e '621i\\\n#endif\\\n' include/SFML/System/String.hpp",
     ],
     strip_prefix = "SFML-2.6.1",
     url = "https://github.com/SFML/SFML/archive/2.6.1.tar.gz",
