@@ -439,6 +439,36 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
     return lines;
 }
 
+std::optional<TextTransform> StyledNode::get_text_transform_property() const {
+    auto raw = get_raw_property(css::PropertyId::TextTransform);
+    if (raw == "none") {
+        return TextTransform::None;
+    }
+
+    if (raw == "capitalize") {
+        return TextTransform::Capitalize;
+    }
+
+    if (raw == "uppercase") {
+        return TextTransform::Uppercase;
+    }
+
+    if (raw == "lowercase") {
+        return TextTransform::Lowercase;
+    }
+
+    if (raw == "full-width") {
+        return TextTransform::FullWidth;
+    }
+
+    if (raw == "full-size-kana") {
+        return TextTransform::FullSizeKana;
+    }
+
+    spdlog::warn("Unhandled text-transform value '{}'", raw);
+    return std::nullopt;
+}
+
 static constexpr int kDefaultFontSize{16};
 // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;

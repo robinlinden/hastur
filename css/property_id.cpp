@@ -160,6 +160,9 @@ std::map<css::PropertyId, std::string_view> const initial_values{
         {css::PropertyId::TextDecorationLine, "none"sv},
         {css::PropertyId::TextDecorationStyle, "solid"sv},
 
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/text-transform#formal_definition
+        {css::PropertyId::TextTransform, "none"sv},
+
         // https://developer.mozilla.org/en-US/docs/Web/CSS/border-color#formal_definition
         {css::PropertyId::BorderBottomColor, "currentcolor"sv},
         {css::PropertyId::BorderLeftColor, "currentcolor"sv},

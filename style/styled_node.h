@@ -73,6 +73,15 @@ enum class TextDecorationLine : std::uint8_t {
     Blink,
 };
 
+enum class TextTransform : std::uint8_t {
+    None,
+    Capitalize,
+    Uppercase,
+    Lowercase,
+    FullWidth,
+    FullSizeKana,
+};
+
 enum class WhiteSpace : std::uint8_t {
     Normal,
     Pre,
@@ -131,6 +140,8 @@ struct StyledNode {
             return get_font_weight_property();
         } else if constexpr (T == css::PropertyId::TextDecorationLine) {
             return get_text_decoration_line_property();
+        } else if constexpr (T == css::PropertyId::TextTransform) {
+            return get_text_transform_property();
         } else if constexpr (T == css::PropertyId::WhiteSpace) {
             return get_white_space_property();
         } else {
@@ -150,6 +161,7 @@ private:
     int get_font_size_property() const;
     std::optional<FontWeight> get_font_weight_property() const;
     std::vector<TextDecorationLine> get_text_decoration_line_property() const;
+    std::optional<TextTransform> get_text_transform_property() const;
     std::optional<WhiteSpace> get_white_space_property() const;
 };
 

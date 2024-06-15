@@ -395,6 +395,18 @@ int main() {
         expect_property_eq<css::PropertyId::TextDecorationLine>("unhandled!", std::vector<style::TextDecorationLine>{});
     });
 
+    etest::test("get_property, text-transform", [] {
+        using enum style::TextTransform;
+        expect_property_eq<css::PropertyId::TextTransform>("none", None);
+        expect_property_eq<css::PropertyId::TextTransform>("capitalize", Capitalize);
+        expect_property_eq<css::PropertyId::TextTransform>("uppercase", Uppercase);
+        expect_property_eq<css::PropertyId::TextTransform>("lowercase", Lowercase);
+        expect_property_eq<css::PropertyId::TextTransform>("full-width", FullWidth);
+        expect_property_eq<css::PropertyId::TextTransform>("full-size-kana", FullSizeKana);
+
+        expect_property_eq<css::PropertyId::TextTransform>("unhandled!", std::nullopt);
+    });
+
     etest::test("get_property, white-space", [] {
         expect_property_eq<css::PropertyId::WhiteSpace>("normal", style::WhiteSpace::Normal);
         expect_property_eq<css::PropertyId::WhiteSpace>("pre", style::WhiteSpace::Pre);
