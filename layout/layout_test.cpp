@@ -333,6 +333,152 @@ void whitespace_collapsing_tests() {
     });
 }
 
+void text_transform_tests() {
+    etest::test("text-transform: uppercase", [] {
+        constexpr auto kText = "hello   goodbye"sv;
+        constexpr auto kExpectedText = "HELLO GOODBYE"sv;
+        constexpr auto kTextWidth = kExpectedText.length() * 5;
+
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kText}}}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
+        dom::Element const &html_element = std::get<dom::Element>(html);
+
+        style::StyledNode p_style{
+                .node{html_element.children[0]},
+                .properties{{css::PropertyId::Display, "inline"}, {css::PropertyId::TextTransform, "uppercase"}},
+                .children{style::StyledNode{std::get<dom::Element>(html_element.children.at(0)).children.at(0)}},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(p_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox p_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, kTextWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .layout_text{std::string{kExpectedText}},
+                }},
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .children{std::move(p_layout)},
+                }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+
+    etest::test("text-transform: lowercase", [] {
+        constexpr auto kText = "HELLO   GOODBYE"sv;
+        constexpr auto kExpectedText = "hello goodbye"sv;
+        constexpr auto kTextWidth = kExpectedText.length() * 5;
+
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kText}}}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
+        dom::Element const &html_element = std::get<dom::Element>(html);
+
+        style::StyledNode p_style{
+                .node{html_element.children[0]},
+                .properties{{css::PropertyId::Display, "inline"}, {css::PropertyId::TextTransform, "lowercase"}},
+                .children{style::StyledNode{std::get<dom::Element>(html_element.children.at(0)).children.at(0)}},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(p_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox p_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, kTextWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .layout_text{std::string{kExpectedText}},
+                }},
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .children{std::move(p_layout)},
+                }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+
+    etest::test("text-transform: capitalize", [] {
+        constexpr auto kText = "HE?LO   GOODBYE!"sv;
+        constexpr auto kExpectedText = "He?Lo Goodbye!"sv;
+        constexpr auto kTextWidth = kExpectedText.length() * 5;
+
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kText}}}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
+        dom::Element const &html_element = std::get<dom::Element>(html);
+
+        style::StyledNode p_style{
+                .node{html_element.children[0]},
+                .properties{{css::PropertyId::Display, "inline"}, {css::PropertyId::TextTransform, "capitalize"}},
+                .children{style::StyledNode{std::get<dom::Element>(html_element.children.at(0)).children.at(0)}},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .children{std::move(p_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox p_layout{
+                .node = &style.children.at(0),
+                .type = LayoutType::Inline,
+                .dimensions{{0, 0, kTextWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(0),
+                        .type = LayoutType::Inline,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .layout_text{std::string{kExpectedText}},
+                }},
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .type = LayoutType::Block,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .type = LayoutType::AnonymousBlock,
+                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .children{std::move(p_layout)},
+                }},
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        expect_eq(actual, expected_layout);
+    });
+}
+
 void img_tests() {
     etest::test("img, no alt or src", [] {
         dom::Node dom = dom::Element{"body", {}, {dom::Element{"img"}}};
@@ -1707,6 +1853,7 @@ int main() {
     });
 
     whitespace_collapsing_tests();
+    text_transform_tests();
     img_tests();
 
     return etest::run_all_tests();

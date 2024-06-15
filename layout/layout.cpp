@@ -192,6 +192,51 @@ void collapse_whitespace(LayoutBox &box) {
     }
 }
 
+void apply_text_transforms(LayoutBox &box) {
+    if (std::holds_alternative<std::string>(box.layout_text)
+            || std::holds_alternative<std::string_view>(box.layout_text)) {
+        if (auto transform = box.get_property<css::PropertyId::TextTransform>();
+                transform && *transform != style::TextTransform::None) {
+            if (std::holds_alternative<std::string_view>(box.layout_text)) {
+                box.layout_text = std::string{std::get<std::string_view>(box.layout_text)};
+            }
+
+            auto &text = std::get<std::string>(box.layout_text);
+
+            // TODO(robinlinden): FullWidth, FullSizeKana.
+            // TODO(robinlinden): Handle language-specific cases.
+            switch (*transform) {
+                case style::TextTransform::FullWidth:
+                case style::TextTransform::FullSizeKana:
+                case style::TextTransform::None:
+                    break;
+                case style::TextTransform::Uppercase:
+                    std::ranges::for_each(text, [](char &c) { c = util::uppercased(c); });
+                    break;
+                case style::TextTransform::Lowercase:
+                    std::ranges::for_each(text, [](char &c) { c = util::lowercased(c); });
+                    break;
+                case style::TextTransform::Capitalize:
+                    std::ranges::for_each(text, [first = true](char &c) mutable {
+                        if (first && util::is_alpha(c)) {
+                            first = false;
+                            c = util::uppercased(c);
+                        } else if (!first && !util::is_alpha(c)) {
+                            first = true;
+                        } else {
+                            c = util::lowercased(c);
+                        }
+                    });
+                    break;
+            }
+        }
+    }
+
+    for (auto &child : box.children) {
+        apply_text_transforms(child);
+    }
+}
+
 void calculate_position(LayoutBox &box, geom::Rect const &parent) {
     auto const &d = box.dimensions;
     box.dimensions.content.x = parent.x + d.padding.left + d.border.left + d.margin.left;
@@ -495,7 +540,10 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width,
         return {};
     }
 
+    // TODO(robinlinden): Merge the different passes. They're separate because
+    // it was easier, but it's definitely less efficient.
     collapse_whitespace(*tree);
+    apply_text_transforms(*tree);
 
     Layouter{node.get_property<css::PropertyId::FontSize>(), type}.layout(*tree, {0, 0, width, 0});
     return tree;
