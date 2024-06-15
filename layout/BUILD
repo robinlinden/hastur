@@ -28,6 +28,7 @@ cc_library(
     name = src[:-4],
     size = "small",
     srcs = [src],
+    copts = HASTUR_COPTS,
     deps = [
         ":layout",
         "//css",
