@@ -31,9 +31,11 @@ HASTUR_MSVC_WARNING_FLAGS = [
 ]
 
 HASTUR_CLANG_CL_WARNING_FLAGS = [
-    "-Wno-error",
+    # -Wall in clang-cl is an alias of -Weverything, and -W4 is an alias of clang's -Wall + -Wextra.
+    "-W4",
+    "-Werror",
+    # Common idiom for zeroing members.
     "-Wno-missing-field-initializers",
-    "-Wno-unused-command-line-argument",
 ]
 
 HASTUR_COPTS = select({
