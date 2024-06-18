@@ -186,13 +186,12 @@ jobs:
           restore-keys: aarch64_linux_muslc-
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
       - run: sudo update-binfmts --enable qemu-aarch64
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
-      - run: ./bazelisk test ...
+      - run: bazel test ...
       - name: Run tui
         run: |
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          ./bazelisk run browser:tui file://$(pwd)/example.html
+          bazel run browser:tui file://$(pwd)/example.html
 
   # https://github.com/bytecodealliance/wasmtime
   wasi-wasm:
@@ -203,7 +202,6 @@ jobs:
       WASMTIME_NAME: wasmtime-v21.0.1-x86_64-linux
     steps:
       - uses: actions/checkout@v4
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
       - name: Set up wasmtime
         run: |
           wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
@@ -213,7 +211,7 @@ jobs:
       # Register wasmtime as the wasm binary format handler.
       - run: echo -n ":wasm32-wasi:M::\x00asm:\xff\xff\xff\xff:$(pwd)/${WASMTIME_NAME}/wasmtime:" | sudo tee /proc/sys/fs/binfmt_misc/register
       - run: echo "build --config=wasi-wasm" >.bazelrc.local
-      - run: ./bazelisk test ...
+      - run: bazel test ...
 
   macos:
     runs-on: macos-13
