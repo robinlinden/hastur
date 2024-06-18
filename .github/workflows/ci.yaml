@@ -214,7 +214,13 @@ jobs:
       - run: bazel test ...
 
   macos:
-    runs-on: macos-13
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-13
+          - os: macos-14
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
