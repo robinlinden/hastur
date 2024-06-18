@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -1187,7 +1188,7 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
         opts |= UIDNA_USE_STD3_RULES;
     }
 
-    auto *uts = icu::IDNA::createUTS46Instance(opts, err);
+    auto uts = std::unique_ptr<icu::IDNA>{icu::IDNA::createUTS46Instance(opts, err)};
 
     if (U_FAILURE(err) != 0) {
         std::cerr << "Failed to create UTS46 instance: " << u_errorName(err) << '\n' << std::flush;
@@ -1197,8 +1198,6 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
     err = U_ZERO_ERROR;
 
     uts->nameToASCII_UTF8(domain, tmp, inf, err);
-
-    delete uts;
 
     std::uint32_t proc_err = inf.getErrors();
 
