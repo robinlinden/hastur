@@ -53,6 +53,42 @@ int main() {
         expect(html.attributes.empty());
     });
 
+    etest::test("element w/ attributes", [] {
+        auto html = html::parse("<body><p hello=world>"sv).html();
+        expect_eq(html,
+                dom::Element{"html",
+                        {},
+                        {dom::Element{"head"}, dom::Element{"body", {}, {dom::Element{"p", {{"hello", "world"}}}}}}});
+    });
+
+    etest::test("element before body", [] {
+        auto html = html::parse("</head><p>"sv).html();
+        expect_eq(
+                html, dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body", {}, {dom::Element{"p"}}}}});
+    });
+
+    etest::test("eof before body", [] {
+        auto html = html::parse("</head>"sv).html();
+        expect_eq(html, dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
+    });
+
+    etest::test("script", [] {
+        auto html = html::parse("</head><script>console.log(13)"sv).html();
+        dom::Element expected{
+                "html",
+                {},
+                {
+                        dom::Element{"head"},
+                        dom::Element{
+                                "body",
+                                {},
+                                {dom::Element{"script", {}, {dom::Text{"console.log(13)"}}}},
+                        },
+                },
+        };
+        expect_eq(html, expected);
+    });
+
     etest::test("self-closing single element", [] {
         auto doc = html::parse("<br>"sv);
 
