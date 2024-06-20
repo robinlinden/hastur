@@ -129,12 +129,6 @@ void Parser::on_token(html2::Tokenizer &, html2::Token &&token) {
     }
 }
 
-void Parser::operator()(html2::DoctypeToken const &doctype) {
-    if (doctype.name.has_value()) {
-        doc_.doctype = *doctype.name;
-    }
-}
-
 void Parser::operator()(html2::StartTagToken const &start_tag) {
     if (start_tag.tag_name == "script"sv) {
         tokenizer_.set_state(html2::State::ScriptData);
@@ -218,10 +212,6 @@ void Parser::operator()(html2::EndTagToken const &end_tag) {
     }
 
     open_elements_.pop_back();
-}
-
-void Parser::operator()(html2::CommentToken const &) {
-    // Do nothing.
 }
 
 void Parser::operator()(html2::CharacterToken const &character) {

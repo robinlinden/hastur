@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,12 +32,13 @@ public:
     }
 
     // These must be public for std::visit to be happy with Parser as a visitor.
-    void operator()(html2::DoctypeToken const &);
     void operator()(html2::StartTagToken const &);
     void operator()(html2::EndTagToken const &);
-    void operator()(html2::CommentToken const &);
     void operator()(html2::CharacterToken const &);
     void operator()(html2::EndOfFileToken const &);
+    void operator()(auto const &) {
+        // We're ignoring doctypes and comments in the old parser.
+    }
 
 private:
     Parser(std::string_view input, ParserOptions const &opts)

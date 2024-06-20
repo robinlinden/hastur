@@ -415,5 +415,10 @@ int main() {
         expect_eq(doc.doctype, "abcd");
     });
 
+    etest::test("doctype, but too late!", [] {
+        auto doc = html::parse("<!doctype abcd></head><!doctype html>");
+        expect_eq(doc.doctype, "abcd");
+    });
+
     return etest::run_all_tests();
 }
