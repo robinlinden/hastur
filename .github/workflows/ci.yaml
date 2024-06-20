@@ -162,7 +162,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          pip install codecov-cli==0.6.0
+          pip install codecov-cli==0.7.1
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
@@ -198,8 +198,8 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v21.0.1
-      WASMTIME_NAME: wasmtime-v21.0.1-x86_64-linux
+      WASMTIME_VERSION: v22.0.0
+      WASMTIME_NAME: wasmtime-v22.0.0-x86_64-linux
     steps:
       - uses: actions/checkout@v4
       - name: Set up wasmtime
@@ -395,7 +395,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: pip install ruff==0.4.8
+      - run: pip install ruff==0.4.10
       - run: ruff check --output-format=github
       - run: ruff format --diff
 
