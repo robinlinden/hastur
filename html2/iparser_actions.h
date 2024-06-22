@@ -13,6 +13,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace html2 {
 
@@ -42,7 +43,25 @@ public:
     virtual void remove_from_open_elements(std::string_view element_name) = 0;
     virtual void reconstruct_active_formatting_elements() = 0;
 
+    // The most recently opened element is the first element in the list.
+    virtual std::vector<std::string_view> names_of_open_elements() const = 0;
+
     virtual InsertionMode current_insertion_mode() const = 0;
+
+    // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
+    bool has_element_in_button_scope(std::string_view element_name) const {
+        for (auto const element : names_of_open_elements()) {
+            if (element == "button") {
+                return false;
+            }
+
+            if (element == element_name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 } // namespace html2

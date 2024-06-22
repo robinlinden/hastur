@@ -254,7 +254,8 @@ void in_head_tests() {
     etest::test("InHead: style, abrupt eof", [] {
         auto res = parse("<style>p { color: green; }", {});
         auto style = dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: script", [] {
@@ -288,7 +289,8 @@ void in_head_noscript_tests() {
     etest::test("InHeadNoScript: style", [] {
         auto res = parse("<noscript><style>p { color: green; }", {});
         auto noscript = dom::Element{"noscript", {}, {dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHeadNoScript: style w/ end tags", [] {
@@ -436,6 +438,39 @@ void in_body_tests() {
         auto res = parse("<body></template>", {});
         auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
         expect_eq(actual_body, dom::Element{"body"});
+    });
+
+    etest::test("InBody: automatically-closed p element", [] {
+        auto res = parse("<body><p>hello<p>world", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body,
+                dom::Element{
+                        "body",
+                        {},
+                        {
+                                dom::Element{"p", {}, {dom::Text{"hello"}}},
+                                dom::Element{"p", {}, {dom::Text{"world"}}},
+                        },
+                });
+    });
+
+    etest::test("InBody: automatically-closed p element, not current element", [] {
+        auto res = parse("<body><p>hello<ruby><rb><p>world", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body,
+                dom::Element{
+                        "body",
+                        {},
+                        {
+                                dom::Element{"p",
+                                        {},
+                                        {
+                                                dom::Text{"hello"},
+                                                dom::Element{"ruby", {}, {dom::Element{"rb"}}},
+                                        }},
+                                dom::Element{"p", {}, {dom::Text{"world"}}},
+                        },
+                });
     });
 }
 

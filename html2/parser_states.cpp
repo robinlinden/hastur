@@ -52,6 +52,7 @@ public:
         wrapped_.remove_from_open_elements(element_name);
     }
     void reconstruct_active_formatting_elements() override { wrapped_.reconstruct_active_formatting_elements(); }
+    std::vector<std::string_view> names_of_open_elements() const override { return wrapped_.names_of_open_elements(); }
 
 private:
     IActions &wrapped_;
@@ -178,6 +179,115 @@ constexpr bool is_quirky_when_system_identifier_is_empty(std::string_view public
     a.set_tokenizer_state(html2::State::Rcdata);
     a.store_original_insertion_mode(a.current_insertion_mode());
     return Text{};
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#special
+bool is_special(std::string_view node_name) {
+    static constexpr auto kSpecial = std::to_array<std::string_view>({
+            "address",
+            "applet",
+            "area",
+            "article",
+            "aside",
+            "base",
+            "basefont",
+            "bgsound",
+            "blockquote",
+            "body",
+            "br",
+            "button",
+            "caption",
+            "center",
+            "col",
+            "colgroup",
+            "dd",
+            "details",
+            "dir",
+            "div",
+            "dl",
+            "dt",
+            "embed",
+            "fieldset",
+            "figcaption",
+            "figure",
+            "footer",
+            "form",
+            "frame",
+            "frameset",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "head",
+            "header",
+            "hgroup",
+            "hr",
+            "html",
+            "iframe",
+            "img",
+            "input",
+            "keygen",
+            "li",
+            "link",
+            "listing",
+            "main",
+            "marquee",
+            "menu",
+            "meta",
+            "nav",
+            "noembed",
+            "noframes",
+            "noscript",
+            "object",
+            "ol",
+            "p",
+            "param",
+            "plaintext",
+            "pre",
+            "script",
+            "search",
+            "section",
+            "select",
+            "source",
+            "style",
+            "summary",
+            "table",
+            "tbody",
+            "td",
+            "template",
+            "textarea",
+            "tfoot",
+            "th",
+            "thead",
+            "title",
+            "tr",
+            "track",
+            "ul",
+            "wbr",
+            "xmp",
+    });
+
+    return is_in_array<kSpecial>(node_name);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#closing-elements-that-have-implied-end-tags
+bool is_implicity_closed(std::string_view node_name) {
+    static constexpr auto kImplicityClosed = std::to_array<std::string_view>({
+            "dd",
+            "dt",
+            "li",
+            "optgroup",
+            "option",
+            "p",
+            "rb",
+            "rp",
+            "rt",
+            "rtc",
+    });
+
+    return is_in_array<kImplicityClosed>(node_name);
 }
 
 } // namespace
@@ -357,7 +467,7 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
             // TODO(robinlinden): A lot of things. See spec.
             a.insert_element_for(*start);
             a.set_tokenizer_state(html2::State::ScriptData);
-            a.store_original_insertion_mode(InHead{});
+            a.store_original_insertion_mode(a.current_insertion_mode());
             return Text{};
         }
     } else if (auto const *end = std::get_if<html2::EndTagToken>(&token)) {
@@ -504,6 +614,22 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 // Incomplete.
 // NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
+    auto close_a_p_element = [&] {
+        while (a.current_node_name() != "p" && is_implicity_closed(a.current_node_name())) {
+            a.pop_current_node();
+        }
+
+        if (a.current_node_name() != "p") {
+            // Parse error.
+        }
+
+        while (a.current_node_name() != "p") {
+            a.pop_current_node();
+        }
+
+        a.pop_current_node();
+    };
+
     auto const *character = std::get_if<html2::CharacterToken>(&token);
     if (character != nullptr && character->data == '\0') {
         // Parse error.
@@ -533,7 +659,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
+    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    if (start != nullptr && start->tag_name == "html") {
         // Parse error.
         // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
 
@@ -556,13 +683,122 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "title"sv,
     });
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token);
-            start != nullptr && is_in_array<kInHeadElements>(start->tag_name)) {
+    if (start != nullptr && is_in_array<kInHeadElements>(start->tag_name)) {
         return InHead{}.process(a, token);
     }
 
-    if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr && end->tag_name == "template") {
+    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "template") {
         return InHead{}.process(a, token);
+    }
+
+    // TODO(robinlinden): Most things.
+
+    // If the stack of open elements has a p element in button scope, then close a p element.
+
+    // Insert an HTML element for the token.
+
+    static constexpr auto kClosesPElements = std::to_array<std::string_view>({
+            "address",
+            "article",
+            "aside",
+            "blockquote",
+            "center",
+            "details",
+            "dialog",
+            "dir",
+            "div",
+            "dl",
+            "fieldset",
+            "figcaption",
+            "figure",
+            "footer",
+            "header",
+            "hgroup",
+            "main",
+            "menu",
+            "nav",
+            "ol",
+            "p",
+            "search",
+            "section",
+            "summary",
+            "ul",
+    });
+    if (start != nullptr && is_in_array<kClosesPElements>(start->tag_name)) {
+        if (a.has_element_in_button_scope("p")) {
+            close_a_p_element();
+        }
+
+        a.insert_element_for(*start);
+        return {};
+    }
+
+    // TODO(robinlinden): Most things.
+
+    static constexpr auto kImmediatelyPoppedElements = std::to_array<std::string_view>({
+            "area",
+            "br",
+            "embed",
+            "img",
+            "keygen",
+            "wbr",
+    });
+    if (start != nullptr && is_in_array<kImmediatelyPoppedElements>(start->tag_name)) {
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+        a.set_frameset_ok(false);
+        return {};
+    }
+
+    // TODO(robinlinden): Most things.
+
+    if (start != nullptr && ((start->tag_name == "noembed") || (start->tag_name == "noscript" && a.scripting()))) {
+        return generic_raw_text_parse(a, *start);
+    }
+
+    // TODO(robinlinden): Most things.
+
+    if (start != nullptr) {
+        a.insert_element_for(*start);
+        a.reconstruct_active_formatting_elements();
+        return {};
+    }
+
+    // TODO(robinlinden): Non-spec-compliant hack, remove.
+    if (end != nullptr && (end->tag_name == "body" || end->tag_name == "html")) {
+        return {};
+    }
+
+    if (end != nullptr) {
+        for (auto const name : a.names_of_open_elements()) {
+            if (name == end->tag_name) {
+                // Generate implied end tags.
+                while (a.current_node_name() != end->tag_name && is_implicity_closed(a.current_node_name())) {
+                    a.pop_current_node();
+                }
+
+                if (a.current_node_name() != end->tag_name) {
+                    // Parse error.
+                }
+
+                while (a.current_node_name() != end->tag_name) {
+                    a.pop_current_node();
+                }
+
+                a.pop_current_node();
+                break;
+            }
+
+            if (is_special(name)) {
+                // Parse error.
+                return {};
+            }
+        }
+
+        return {};
     }
 
     return {};
@@ -575,6 +811,14 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
         assert(character->data != '\0');
         a.insert_character(*character);
         return {};
+    }
+
+    if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+        // Parse error.
+        // TODO(robinlinden): If current node is a script, set its already-started to true.
+        a.pop_current_node();
+        auto mode = a.original_insertion_mode();
+        return std::visit([&](auto &m) { return m.process(a, token).value_or(m); }, mode);
     }
 
     if ([[maybe_unused]] auto const *end = std::get_if<html2::EndTagToken>(&token)) {

@@ -78,12 +78,12 @@ int main() {
                 "html",
                 {},
                 {
-                        dom::Element{"head"},
                         dom::Element{
-                                "body",
+                                "head",
                                 {},
                                 {dom::Element{"script", {}, {dom::Text{"console.log(13)"}}}},
                         },
+                        dom::Element{"body"},
                 },
         };
         expect_eq(html, expected);
@@ -342,6 +342,7 @@ int main() {
         auto html = html::parse("<body><noscript><span>"sv, {.scripting = true}).html();
 
         auto const &body = std::get<dom::Element>(html.children.at(1));
+
         expect_eq(body.name, "body");
 
         auto const &noscript = std::get<dom::Element>(body.children.at(0));
@@ -407,7 +408,7 @@ int main() {
         expect_eq(head, dom::Element{"head"});
 
         auto const &body = std::get<dom::Element>(html.children.at(1));
-        expect_eq(body, dom::Element{"body"});
+        expect_eq(body, dom::Element{"body", {}, {dom::Element{"p"}}});
     });
 
     etest::test("doctype", [] {
