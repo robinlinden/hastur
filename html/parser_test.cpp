@@ -39,9 +39,9 @@ int main() {
         auto html = document.html();
         expect(html.name == "html"s);
         require(html.children.size() == 2);
-        expect(std::get<dom::Element>(html.children[0]).name == "head"s);
+        expect(std::get<dom::Element>(html.children.at(0)).name == "head"s);
 
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect_eq(body.name, "body"s);
 
         expect_eq(std::get<dom::Element>(body.children.at(0)).name, "p");
@@ -110,12 +110,12 @@ int main() {
     etest::test("multiple elements", [] {
         auto doc = html::parse("<span></span><div></div>"sv);
 
-        auto const &span = std::get<dom::Element>(body(doc).children[0]);
+        auto const &span = std::get<dom::Element>(body(doc).children.at(0));
         expect(span.children.empty());
         expect(span.name == "span"s);
         expect(span.attributes.empty());
 
-        auto const &div = std::get<dom::Element>(body(doc).children[1]);
+        auto const &div = std::get<dom::Element>(body(doc).children.at(1));
         expect(div.children.empty());
         expect(div.name == "div"s);
         expect(div.attributes.empty());
@@ -127,11 +127,11 @@ int main() {
         expect(html.name == "html"s);
         expect(html.attributes.empty());
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         expect(head.name == "head"s);
         expect(head.attributes.empty());
 
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect(body.name == "body"s);
         expect(body.attributes.empty());
     });
@@ -140,7 +140,7 @@ int main() {
         auto nodes = html::parse("<meta charset='utf-8'/>"sv).html().children;
         require(nodes.size() == 2);
 
-        auto const &head = std::get<dom::Element>(nodes[0]);
+        auto const &head = std::get<dom::Element>(nodes.at(0));
         auto const &meta = std::get<dom::Element>(head.children.at(0));
         expect(meta.children.empty());
         expect(meta.name == "meta"s);
@@ -152,7 +152,7 @@ int main() {
         auto nodes = html::parse(R"(<meta charset="utf-8"/>)"sv).html().children;
         require(nodes.size() == 2);
 
-        auto const &head = std::get<dom::Element>(nodes[0]);
+        auto const &head = std::get<dom::Element>(nodes.at(0));
         auto const &meta = std::get<dom::Element>(head.children.at(0));
         expect(meta.children.empty());
         expect(meta.name == "meta"s);
@@ -164,7 +164,7 @@ int main() {
         auto nodes = html::parse(R"(<meta name="viewport" content="width=100em, initial-scale=1"/>)"sv).html().children;
         require(nodes.size() == 2);
 
-        auto const &head = std::get<dom::Element>(nodes[0]);
+        auto const &head = std::get<dom::Element>(nodes.at(0));
         auto const &meta = std::get<dom::Element>(head.children.at(0));
         expect(meta.children.empty());
         expect(meta.name == "meta"s);
@@ -180,7 +180,7 @@ int main() {
         expect(html.attributes.size() == 1);
         expect(html.attributes.at("bonus"s) == "hello"s);
 
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect(body.name == "body"s);
         expect(body.attributes.size() == 1);
         expect(body.attributes.at("style"s) == "fancy"s);
@@ -214,13 +214,13 @@ int main() {
         auto html = html::parse("<br><p></p>"sv).html();
         require(html.children.size() == 2);
 
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
 
-        auto const &br = std::get<dom::Element>(body.children[0]);
+        auto const &br = std::get<dom::Element>(body.children.at(0));
         expect(br.name == "br"sv);
         expect(br.children.empty());
 
-        auto const &p = std::get<dom::Element>(body.children[1]);
+        auto const &p = std::get<dom::Element>(body.children.at(1));
         expect(p.name == "p"sv);
         expect(p.children.empty());
     });
@@ -229,12 +229,12 @@ int main() {
         auto html = html::parse("<script><hello></script>"sv).html();
         require_eq(html.children.size(), std::size_t{2});
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         auto const &script = std::get<dom::Element>(head.children.at(0));
         expect_eq(script.name, "script"sv);
         expect_eq(script.children.size(), std::size_t{1});
 
-        auto const &script_content = std::get<dom::Text>(script.children[0]);
+        auto const &script_content = std::get<dom::Text>(script.children.at(0));
         expect_eq(script_content.text, "<hello>"sv);
     });
 
@@ -245,14 +245,14 @@ int main() {
         expect_eq(p1.name, "p");
 
         require_eq(p1.children.size(), std::size_t{1});
-        auto const &p1_text = std::get<dom::Text>(p1.children[0]);
+        auto const &p1_text = std::get<dom::Text>(p1.children.at(0));
         expect_eq(p1_text, dom::Text{"hello"});
 
-        auto const &p2 = std::get<dom::Element>(body(doc).children[1]);
+        auto const &p2 = std::get<dom::Element>(body(doc).children.at(1));
         expect_eq(p2.name, "p");
 
         require_eq(p2.children.size(), std::size_t{1});
-        auto const &p2_text = std::get<dom::Text>(p2.children[0]);
+        auto const &p2_text = std::get<dom::Text>(p2.children.at(0));
         expect_eq(p2_text, dom::Text{"world"});
     });
 
@@ -260,14 +260,14 @@ int main() {
         auto html = html::parse("<head></head><body>hello</body>"sv).html();
         require_eq(html.children.size(), std::size_t{2});
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         expect_eq(head.name, "head");
 
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect_eq(body.name, "body");
 
         require_eq(body.children.size(), std::size_t{1});
-        auto const &body_text = std::get<dom::Text>(body.children[0]);
+        auto const &body_text = std::get<dom::Text>(body.children.at(0));
         expect_eq(body_text, dom::Text{"hello"});
     });
 
@@ -275,9 +275,9 @@ int main() {
         auto html = html::parse("").html();
         require_eq(html.children.size(), std::size_t{2});
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         expect_eq(head.name, "head");
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect_eq(body.name, "body");
     });
 
@@ -285,9 +285,9 @@ int main() {
         auto html = html::parse("</html>").html();
         require_eq(html.children.size(), std::size_t{2});
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         expect_eq(head.name, "head");
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect_eq(body.name, "body");
     });
 
@@ -295,7 +295,7 @@ int main() {
         auto html = html::parse("<head></html>").html();
         require_eq(html.children.size(), std::size_t{2});
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         expect_eq(head.name, "head");
     });
 
@@ -313,14 +313,14 @@ int main() {
         auto html = html::parse("hello?"sv).html();
         require_eq(html.children.size(), std::size_t{2});
 
-        auto const &head = std::get<dom::Element>(html.children[0]);
+        auto const &head = std::get<dom::Element>(html.children.at(0));
         expect_eq(head.name, "head");
 
-        auto const &body = std::get<dom::Element>(html.children[1]);
+        auto const &body = std::get<dom::Element>(html.children.at(1));
         expect_eq(body.name, "body");
 
         require_eq(body.children.size(), std::size_t{1});
-        auto const &body_text = std::get<dom::Text>(body.children[0]);
+        auto const &body_text = std::get<dom::Text>(body.children.at(0));
         expect_eq(body_text, dom::Text{"hello?"});
     });
 
