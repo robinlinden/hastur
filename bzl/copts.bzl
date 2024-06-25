@@ -19,6 +19,7 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-fno-common",
     "-Wnon-virtual-dtor",
     "-Woverloaded-virtual",
+    "-Wnrvo",
     # Common idiom for zeroing members.
     "-Wno-missing-field-initializers",
 ]
