@@ -7,9 +7,11 @@
 
 #include <tl/expected.hpp>
 
+#include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
-#include <string_view>
+#include <vector>
 
 namespace archive {
 
@@ -23,7 +25,7 @@ enum class ZlibMode : std::uint8_t {
     Gzip,
 };
 
-tl::expected<std::string, ZlibError> zlib_decode(std::string_view, ZlibMode);
+tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(std::span<std::byte const>, ZlibMode);
 
 } // namespace archive
 

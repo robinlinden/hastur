@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,6 +6,9 @@
 
 #include "etest/etest.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <span>
 #include <string_view>
 
 using namespace archive;
@@ -13,6 +16,10 @@ using namespace etest;
 using namespace std::literals;
 
 namespace {
+
+std::span<std::byte const> as_bytes(std::string_view s) {
+    return {reinterpret_cast<std::byte const *>(s.data()), s.size()};
+}
 
 constexpr auto kExpected = "p { font-size: 123em; }\n"sv;
 
@@ -28,17 +35,19 @@ constexpr auto kZlibbedCss =
 
 int main() {
     etest::test("zlib", [] {
-        expect(!zlib_decode("", ZlibMode::Zlib).has_value());
-        expect(!zlib_decode(kGzippedCss, ZlibMode::Zlib).has_value());
+        expect(!zlib_decode({}, ZlibMode::Zlib).has_value());
+        expect(!zlib_decode(as_bytes(kGzippedCss), ZlibMode::Zlib).has_value());
 
-        expect_eq(zlib_decode(kZlibbedCss, ZlibMode::Zlib), kExpected);
+        auto res = zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Zlib);
+        expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
     });
 
     etest::test("gzip", [] {
-        expect(!zlib_decode("", ZlibMode::Gzip).has_value());
-        expect(!zlib_decode(kZlibbedCss, ZlibMode::Gzip).has_value());
+        expect(!zlib_decode({}, ZlibMode::Gzip).has_value());
+        expect(!zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Gzip).has_value());
 
-        expect_eq(zlib_decode(kGzippedCss, ZlibMode::Gzip), kExpected);
+        auto res = zlib_decode(as_bytes(kGzippedCss), ZlibMode::Gzip);
+        expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
     });
 
     return etest::run_all_tests();

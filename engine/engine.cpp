@@ -42,22 +42,23 @@ namespace {
         return true;
     }
 
+    std::span<std::byte const> body_view{
+            reinterpret_cast<std::byte const *>(response.body.data()), response.body.size()};
+
     if (encoding == "gzip" || encoding == "x-gzip" || encoding == "deflate") {
         auto zlib_mode = encoding == "deflate" ? archive::ZlibMode::Zlib : archive::ZlibMode::Gzip;
-        auto decoded = archive::zlib_decode(response.body, zlib_mode);
+        auto decoded = archive::zlib_decode(body_view, zlib_mode);
         if (!decoded) {
             auto const &err = decoded.error();
             spdlog::error("Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, err.code, err.message);
             return false;
         }
 
-        response.body = *std::move(decoded);
+        response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
         return true;
     }
 
     if (encoding == "zstd") {
-        std::span<std::byte const> body_view{
-                reinterpret_cast<std::byte const *>(response.body.data()), response.body.size()};
         auto decoded = archive::zstd_decode(body_view);
         if (!decoded) {
             auto const &err = decoded.error();

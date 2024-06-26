@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,13 +9,14 @@
 #include <zlib.h>
 
 #include <cstddef>
+#include <span>
 #include <string>
-#include <string_view>
 #include <utility>
+#include <vector>
 
 namespace archive {
 
-tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode mode) {
+tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(std::span<std::byte const> data, ZlibMode mode) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
             .avail_in = static_cast<uInt>(data.size()),
@@ -44,7 +45,7 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode
         return tl::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
     }
 
-    std::string out{};
+    std::vector<std::byte> out{};
     std::string buf{};
     constexpr auto kZlibInflateChunkSize = std::size_t{64} * 1024; // Chosen by a fair dice roll.
     buf.resize(kZlibInflateChunkSize);
@@ -62,7 +63,8 @@ tl::expected<std::string, ZlibError> zlib_decode(std::string_view data, ZlibMode
         }
 
         uInt inflated_bytes = static_cast<uInt>(buf.size()) - s.avail_out;
-        out += buf.substr(0, inflated_bytes);
+        auto const *buf_ptr = reinterpret_cast<std::byte const *>(buf.data());
+        out.insert(out.end(), buf_ptr, buf_ptr + inflated_bytes);
     } while (s.avail_out == 0);
 
     inflateEnd(&s);
