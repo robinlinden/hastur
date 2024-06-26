@@ -33,8 +33,8 @@ jobs:
             os: ubuntu-22.04
             compiler: clang
             version: 16
-            bazel: -c dbg --config tsan --config libfuzzer
-            apt: libclang-rt-16-dev
+            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16 --config libfuzzer
+            apt: libclang-rt-16-dev llvm-16
             fuzz: true
 
           - name: clang-16-asan-ubsan
