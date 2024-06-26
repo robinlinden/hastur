@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Run all fuzz tests under a given pattern.
+#
+# Example usage:
+# ./bzl/run_fuzz_tests wasm/... --config libfuzzer -c dbg -- --timeout_secs=3
+
+set -euo pipefail
+
+TARGETS=$(bazel query "filter(.*_fuzz_test_run$, $1)")
+shift
+
+for tgt in ${TARGETS}; do
+  bazel run "$tgt" "$@"
+done

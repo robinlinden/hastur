@@ -106,11 +106,10 @@ jobs:
         run: |
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
-      # TODO(robinlinden): Run all fuzz tests for "some time" in CI.
-      - name: Fuzz test sanity check
+      - name: Fuzz test
         if: ${{ matrix.fuzz }}
         run: |
-          bazel run wasm:leb128_fuzz_test_run \
+          ./bzl/run_fuzz_tests ... \
             ${{ matrix.bazel }} \
             -- --timeout_secs=10
 
