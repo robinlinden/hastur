@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,10 +10,17 @@
 #include <tl/expected.hpp>
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <span>
 #include <string>
 #include <vector>
+
+namespace {
+std::span<std::byte const> as_bytes(std::span<std::uint8_t const> s) {
+    return {reinterpret_cast<std::byte const *>(s.data()), s.size()};
+}
+} // namespace
 
 int main() {
     etest::Suite s{"zstd"};
@@ -56,15 +64,14 @@ int main() {
                 0x8c,
                 0x62});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(ret.has_value());
-        a.expect_eq(ret->size(), 22ul);
-        a.expect_eq(std::string(ret->begin(), ret->end()), "This is a test string\n");
+        a.expect_eq(std::string(reinterpret_cast<char const *>(ret->data()), ret->size()), "This is a test string\n");
     });
 
     s.add_test("empty input", [](etest::IActions &a) {
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode({});
+        auto ret = zstd_decode({});
 
         a.expect(!ret.has_value());
         a.expect_eq(ret.error(), ZstdError::InputEmpty);
@@ -74,7 +81,7 @@ int main() {
         constexpr auto kCompress = std::to_array<std::uint8_t>(
                 {0x28, 0xb5, 0x2f, 0xfd, 0x24, 0x00, 0x01, 0x00, 0x00, 0x99, 0xe9, 0xd8, 0x51});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(ret.has_value());
         a.expect(ret->empty());
@@ -105,13 +112,13 @@ int main() {
                 0x9e,
                 0xc3});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(ret.has_value());
         a.expect_eq(ret->size(), 131072ul); // ZSTD_DStreamOutSize, the default chunk value
 
-        for (std::uint8_t byte : *ret) {
-            a.expect_eq(byte, 0x41);
+        for (std::byte byte : *ret) {
+            a.expect_eq(byte, std::byte{0x41});
         }
     });
 
@@ -144,13 +151,13 @@ int main() {
                 0xf6,
                 0x4a});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(ret.has_value());
         a.expect_eq(ret->size(), 262144ul); // ZSTD_DStreamOutSize * 2
 
-        for (std::uint8_t byte : *ret) {
-            a.expect_eq(byte, 0x41);
+        for (std::byte byte : *ret) {
+            a.expect_eq(byte, std::byte{0x41});
         }
     });
 
@@ -183,13 +190,13 @@ int main() {
                 0xc2,
                 0xad});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(ret.has_value());
         a.expect_eq(ret->size(), 131092ul); // ZSTD_DStreamOutSize + 20
 
-        for (std::uint8_t byte : *ret) {
-            a.expect_eq(byte, 0x41);
+        for (std::byte byte : *ret) {
+            a.expect_eq(byte, std::byte{0x41});
         }
     });
 
@@ -215,7 +222,7 @@ int main() {
                 0x00,
                 0x00});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(!ret.has_value());
         a.expect_eq(ret.error(), ZstdError::ZstdInternalError);
@@ -251,7 +258,7 @@ int main() {
                 0x72,
                 0x69});
 
-        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+        auto ret = zstd_decode(as_bytes(kCompress));
 
         a.expect(!ret.has_value());
         a.expect_eq(ret.error(), ZstdError::DecodeEarlyTermination);

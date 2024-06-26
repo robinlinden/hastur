@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,8 +8,8 @@
 #include <tl/expected.hpp>
 #include <zstd.h>
 
+#include <climits>
 #include <cstddef>
-#include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <span>
@@ -34,7 +35,7 @@ std::string_view to_string(ZstdError err) {
     return "Unknown error";
 }
 
-tl::expected<std::vector<std::uint8_t>, ZstdError> zstd_decode(std::span<uint8_t const> const input) {
+tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte const> const input) {
     if (input.empty()) {
         return tl::unexpected{ZstdError::InputEmpty};
     }
@@ -51,8 +52,9 @@ tl::expected<std::vector<std::uint8_t>, ZstdError> zstd_decode(std::span<uint8_t
 
     std::size_t const chunk_size = ZSTD_DStreamOutSize();
 
-    std::vector<std::uint8_t> out;
+    std::vector<std::byte> out;
 
+    static_assert(CHAR_BIT == 8, "zstd requires 8-bit input");
     ZSTD_inBuffer in_buf = {input.data(), input.size_bytes(), 0};
 
     std::size_t count = 0;

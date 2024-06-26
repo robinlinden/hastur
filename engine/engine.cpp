@@ -21,13 +21,12 @@
 #include <spdlog/spdlog.h>
 #include <tl/expected.hpp>
 
-#include <cstdint>
+#include <cstddef>
 #include <future>
 #include <memory>
 #include <span>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -57,9 +56,8 @@ namespace {
     }
 
     if (encoding == "zstd") {
-        static_assert(std::is_same_v<char, std::uint8_t> || std::is_same_v<unsigned char, std::uint8_t>);
-        std::span<std::uint8_t const> body_view{
-                reinterpret_cast<std::uint8_t const *>(response.body.data()), response.body.size()};
+        std::span<std::byte const> body_view{
+                reinterpret_cast<std::byte const *>(response.body.data()), response.body.size()};
         auto decoded = archive::zstd_decode(body_view);
         if (!decoded) {
             auto const &err = decoded.error();

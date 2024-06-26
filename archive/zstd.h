@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -25,7 +26,7 @@ enum class ZstdError : std::uint8_t {
 
 std::string_view to_string(ZstdError);
 
-tl::expected<std::vector<std::uint8_t>, ZstdError> zstd_decode(std::span<std::uint8_t const>);
+tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte const>);
 
 } // namespace archive
 
