@@ -67,7 +67,7 @@ namespace {
             return false;
         }
 
-        response.body = std::string(reinterpret_cast<char const *>(decoded->data()), decoded->size());
+        response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
         return true;
     }
 
