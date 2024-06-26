@@ -33,15 +33,17 @@ jobs:
             os: ubuntu-22.04
             compiler: clang
             version: 16
-            bazel: -c dbg --config tsan
+            bazel: -c dbg --config tsan --config libfuzzer
             apt: libclang-rt-16-dev
+            fuzz: true
 
           - name: clang-16-asan-ubsan
             os: ubuntu-22.04
             compiler: clang
             version: 16
-            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16
+            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16 --config libfuzzer
             apt: libclang-rt-16-dev llvm-16
+            fuzz: true
 
           - name: clang-16-libc++
             os: ubuntu-22.04
@@ -106,10 +108,9 @@ jobs:
           bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
       # TODO(robinlinden): Run all fuzz tests for "some time" in CI.
       - name: Fuzz test sanity check
-        if: startsWith(matrix.compiler, 'clang') && !endsWith(matrix.name, 'libc++')
+        if: ${{ matrix.fuzz }}
         run: |
           bazel run wasm:leb128_fuzz_test_run \
-            --config libfuzzer \
             ${{ matrix.bazel }} \
             -- --timeout_secs=10
 
