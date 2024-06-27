@@ -187,8 +187,9 @@ std::unique_ptr<type::IType> create_font_system() {
             }
         }
 
-        spdlog::warn(
-                "Unable to find a font for '{}', looked for [{}], good luck", name, fmt::join(file_name_options, ", "));
+        std::ostringstream ss;
+        std::ranges::copy(file_name_options, std::ostream_iterator<std::string_view>{ss, ", "});
+        spdlog::warn("Unable to find a font for '{}', looked for [{}], good luck", name, ss.view());
     };
 
     static constexpr auto kMonospaceFontFileNames = std::to_array<std::string_view>({
