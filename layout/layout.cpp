@@ -15,7 +15,6 @@
 #include "type/type.h"
 #include "util/string.h"
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -28,6 +27,7 @@
 #include <optional>
 #include <ranges>
 #include <span>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -279,7 +279,9 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
         if (font) {
             box.dimensions.content.width = (*font)->measure(*text, type::Px{font_size}, weight).width;
         } else {
-            spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
+            std::ostringstream ss;
+            std::ranges::copy(font_families, std::ostream_iterator<std::string_view>{ss, ", "});
+            spdlog::warn("No font found for font-families: {}", ss.view());
             box.dimensions.content.width = type::NaiveFont{}.measure(*text, type::Px{font_size}, weight).width;
         }
     }
@@ -324,7 +326,10 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
     auto maybe_font = find_font(font_families);
     if (!maybe_font) {
-        spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
+        // TODO(robinlinden): This will be directly printable in C++23/P2286R8.
+        std::ostringstream ss;
+        std::ranges::copy(font_families, std::ostream_iterator<std::string_view>{ss, ", "});
+        spdlog::warn("No font found for font-families: {}", ss.view());
         maybe_font = std::make_shared<type::NaiveFont>();
     }
     auto font = *maybe_font;
