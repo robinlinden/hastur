@@ -59,6 +59,7 @@ int main() {
         tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
 
         a.expect(ret.has_value());
+        a.expect_eq(ret->size(), 22ul);
         a.expect_eq(std::string(ret->begin(), ret->end()), "This is a test string\n");
     });
 
@@ -67,6 +68,129 @@ int main() {
 
         a.expect(!ret.has_value());
         a.expect_eq(ret.error(), ZstdError::InputEmpty);
+    });
+
+    s.add_test("zero-sized output", [](etest::IActions &a) {
+        constexpr auto kCompress = std::to_array<std::uint8_t>(
+                {0x28, 0xb5, 0x2f, 0xfd, 0x24, 0x00, 0x01, 0x00, 0x00, 0x99, 0xe9, 0xd8, 0x51});
+
+        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+
+        a.expect(ret.has_value());
+        a.expect(ret->empty());
+    });
+
+    s.add_test("decoding terminates on even chunk size", [](etest::IActions &a) {
+        constexpr auto kCompress = std::to_array<std::uint8_t>({0x28,
+                0xb5,
+                0x2f,
+                0xfd,
+                0x04,
+                0x58,
+                0x55,
+                0x00,
+                0x00,
+                0x10,
+                0x41,
+                0x41,
+                0x01,
+                0x00,
+                0xfb,
+                0xff,
+                0x39,
+                0xc0,
+                0x02,
+                0xe7,
+                0x8e,
+                0x9e,
+                0xc3});
+
+        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+
+        a.expect(ret.has_value());
+        a.expect_eq(ret->size(), 131072ul); // ZSTD_DStreamOutSize, the default chunk value
+
+        for (std::uint8_t byte : *ret) {
+            a.expect_eq(byte, 0x41);
+        }
+    });
+
+    s.add_test("decoding terminates on even chunk size * 2", [](etest::IActions &a) {
+        constexpr auto kCompress = std::to_array<std::uint8_t>({0x28,
+                0xb5,
+                0x2f,
+                0xfd,
+                0x04,
+                0x58,
+                0x54,
+                0x00,
+                0x00,
+                0x10,
+                0x41,
+                0x41,
+                0x01,
+                0x00,
+                0xfb,
+                0xff,
+                0x39,
+                0xc0,
+                0x02,
+                0x03,
+                0x00,
+                0x10,
+                0x41,
+                0x42,
+                0x70,
+                0xf6,
+                0x4a});
+
+        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+
+        a.expect(ret.has_value());
+        a.expect_eq(ret->size(), 262144ul); // ZSTD_DStreamOutSize * 2
+
+        for (std::uint8_t byte : *ret) {
+            a.expect_eq(byte, 0x41);
+        }
+    });
+
+    s.add_test("decoding terminates on chunk size + 20", [](etest::IActions &a) {
+        constexpr auto kCompress = std::to_array<std::uint8_t>({0x28,
+                0xb5,
+                0x2f,
+                0xfd,
+                0x04,
+                0x58,
+                0x54,
+                0x00,
+                0x00,
+                0x10,
+                0x41,
+                0x41,
+                0x01,
+                0x00,
+                0xfb,
+                0xff,
+                0x39,
+                0xc0,
+                0x02,
+                0xa3,
+                0x00,
+                0x00,
+                0x41,
+                0x65,
+                0xa2,
+                0xc2,
+                0xad});
+
+        tl::expected<std::vector<std::uint8_t>, ZstdError> ret = zstd_decode(kCompress);
+
+        a.expect(ret.has_value());
+        a.expect_eq(ret->size(), 131092ul); // ZSTD_DStreamOutSize + 20
+
+        for (std::uint8_t byte : *ret) {
+            a.expect_eq(byte, 0x41);
+        }
     });
 
     s.add_test("junk input", [](etest::IActions &a) {

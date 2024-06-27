@@ -7,7 +7,6 @@
 #include <tl/expected.hpp>
 #include <zstd.h>
 
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -56,11 +55,13 @@ tl::expected<std::vector<std::uint8_t>, ZstdError> zstd_decode(std::span<uint8_t
 
     ZSTD_inBuffer in_buf = {input.data(), input.size_bytes(), 0};
 
-    std::size_t count = 1;
+    std::size_t count = 0;
     std::size_t last_ret = 0;
     std::size_t last_pos = 0;
 
     while (in_buf.pos < in_buf.size) {
+        count++;
+
         if ((chunk_size * count) > kMaxOutSize) {
             return tl::unexpected{ZstdError::MaximumOutputLengthExceeded};
         }
@@ -77,16 +78,19 @@ tl::expected<std::vector<std::uint8_t>, ZstdError> zstd_decode(std::span<uint8_t
 
         last_ret = ret;
         last_pos = out_buf.pos;
-        count++;
     }
-
-    assert(last_pos > 0);
 
     if (last_ret != 0) {
         return tl::unexpected{ZstdError::DecodeEarlyTermination};
     }
 
-    auto const out_size = (chunk_size * count) - (chunk_size * count - last_pos);
+    std::size_t out_size = 0;
+
+    if (count == 1) {
+        out_size = last_pos;
+    } else {
+        out_size = last_pos == 0 ? chunk_size * count : (chunk_size * count) - (chunk_size - last_pos);
+    }
 
     // Shrink buffer to match what we actually decoded
     out.resize(out_size);
