@@ -161,8 +161,14 @@ jobs:
       - name: Upload
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        # TODO(robinlinden): codecov-cli 0.7.x breaks PRs from forks w/
+        # "Error: Codecov token not found. Please provide Codecov token with -t flag."
+        # whereas in 0.6.0, it still correctly detects PRs where tokenless
+        # uploads are required:
+        # "info - 2024-06-21 21:24:10,269 -- The PR is happening in a forked
+        #  repo. Using tokenless upload."
         run: |
-          pip install codecov-cli==0.7.1
+          pip install codecov-cli==0.6.0
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
