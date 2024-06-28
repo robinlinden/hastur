@@ -115,6 +115,24 @@ constexpr bool is_non_space_whitespace(char c) {
     return c != ' ' && util::is_whitespace(c);
 }
 
+void remove_empty_text_boxes(LayoutBox &box) {
+    for (auto it = box.children.begin(); it != box.children.end();) {
+        auto text = it->text();
+        if (text.has_value() && text->empty()) {
+            it = box.children.erase(it);
+            continue;
+        }
+
+        remove_empty_text_boxes(*it);
+        if (it->type == LayoutType::AnonymousBlock && it->children.empty()) {
+            it = box.children.erase(it);
+            continue;
+        }
+
+        ++it;
+    }
+}
+
 void collapse_whitespace(LayoutBox &box) {
     LayoutBox *last_text_box = nullptr;
     std::list<LayoutBox *> to_collapse{&box};
@@ -146,7 +164,13 @@ void collapse_whitespace(LayoutBox &box) {
         auto &current = **it;
         if (last_text_box == nullptr && starts_text_run(current)) {
             last_text_box = &current;
-            last_text_box->layout_text = util::trim_start(std::get<std::string_view>(last_text_box->layout_text));
+            auto &text = std::get<std::string_view>(last_text_box->layout_text);
+            text = util::trim_start(text);
+
+            // A completely empty text box can't start a text run.
+            if (text.empty()) {
+                last_text_box = nullptr;
+            }
         } else if (last_text_box != nullptr && !std::holds_alternative<std::monostate>(current.layout_text)) {
             // Remove all but 1 trailing space.
             auto &text = std::get<std::string_view>(last_text_box->layout_text);
@@ -190,6 +214,8 @@ void collapse_whitespace(LayoutBox &box) {
             perform_allocating_collapsing(*last_text_box);
         }
     }
+
+    remove_empty_text_boxes(box);
 }
 
 void apply_text_transforms(LayoutBox &box) {
