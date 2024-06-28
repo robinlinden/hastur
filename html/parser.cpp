@@ -8,7 +8,6 @@
 #include "html2/parser_states.h"
 #include "html2/token.h"
 #include "html2/tokenizer.h"
-#include "util/string.h"
 
 #include <spdlog/spdlog.h>
 
@@ -246,8 +245,7 @@ void Parser::operator()(html2::EndOfFileToken const &) {
 void Parser::generate_text_node_if_needed() {
     assert(!open_elements_.empty());
     auto text = std::exchange(current_text_, {}).str();
-    bool is_uninteresting = std::ranges::all_of(text, [](char c) { return util::is_whitespace(c); });
-    if (is_uninteresting) {
+    if (text.empty()) {
         return;
     }
 
