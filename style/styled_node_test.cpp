@@ -421,12 +421,21 @@ int main() {
     etest::test("get_property, non-inherited property for a text node", [] {
         dom::Node dom = dom::Element{"hello"};
         dom::Node text = dom::Text{"world"};
-        style::StyledNode styled_node{.node = dom, .properties = {{css::PropertyId::TextDecorationLine, "blink"s}}};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::TextDecorationLine, "blink"s},
+                        {css::PropertyId::Display, "block"s},
+                },
+        };
         auto const &child = styled_node.children.emplace_back(style::StyledNode{.node = text, .parent = &styled_node});
 
         expect(!css::is_inherited(css::PropertyId::TextDecorationLine));
         expect_eq(child.get_property<css::PropertyId::TextDecorationLine>(),
                 std::vector{style::TextDecorationLine::Blink});
+
+        // Text is always "display: inline".
+        expect_eq(child.get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
     });
 
     etest::test("get_property, font-weight", [] {
