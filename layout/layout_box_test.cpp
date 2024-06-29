@@ -21,7 +21,6 @@
 
 using etest::expect;
 using etest::expect_eq;
-using layout::LayoutType;
 using namespace std::literals;
 
 namespace {
@@ -58,17 +57,15 @@ int main() {
         set_up_parent_ptrs(style_root);
 
         std::vector<layout::LayoutBox> layout_children{
-                {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}, "hello"sv},
-                {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}, "goodbye"sv},
+                {&style_root.children[0].children[0], {{0, 0, 25, 10}}, {}, "hello"sv},
+                {&style_root.children[0].children[1], {{25, 0, 35, 10}}, {}, "goodbye"sv},
         };
         auto expected_layout = layout::LayoutBox{.node = &style_root,
-                .type = LayoutType::Block,
                 .dimensions = {{0, 0, 100, 10}},
                 .children{{
                         &style_root.children[0],
-                        LayoutType::Block,
                         {{0, 0, 100, 10}},
-                        {{nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {std::move(layout_children)}}},
+                        {{nullptr, {{0, 0, 60, 10}}, {std::move(layout_children)}}},
                 }}};
 
         auto layout_root = layout::create_layout(style_root, 100);
@@ -79,17 +76,18 @@ int main() {
     });
 
     etest::test("box_at_position", [] {
+        dom::Node dom = dom::Element{"dummy"};
+        style::StyledNode style{dom, {{css::PropertyId::Display, "block"}}};
         std::vector<layout::LayoutBox> children{
-                {nullptr, LayoutType::AnonymousBlock, {{30, 30, 5, 5}}, {}},
-                {nullptr, LayoutType::Block, {{45, 45, 5, 5}}, {}},
+                {nullptr, {{30, 30, 5, 5}}, {}},
+                {&style, {{45, 45, 5, 5}}, {}},
         };
 
         auto layout = layout::LayoutBox{
-                .node = nullptr,
-                .type = LayoutType::Block,
+                .node = &style,
                 .dimensions = {{0, 0, 100, 100}},
                 .children{
-                        {nullptr, LayoutType::Block, {{25, 25, 50, 50}}, {std::move(children)}},
+                        {&style, {{25, 25, 50, 50}}, {std::move(children)}},
                 },
         };
 
@@ -128,7 +126,6 @@ int main() {
 
         // Verify that we have a shady anon-box to deal with in here.
         expect_eq(layout.children.size(), std::size_t{2});
-        expect_eq(layout.children.at(1).type, LayoutType::AnonymousBlock);
 
         auto const &anon_block = layout.children.at(1);
 

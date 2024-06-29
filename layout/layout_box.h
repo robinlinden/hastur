@@ -14,7 +14,6 @@
 #include "style/styled_node.h"
 
 #include <cassert>
-#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -24,27 +23,21 @@
 
 namespace layout {
 
-enum class LayoutType : std::uint8_t {
-    Inline,
-    Block,
-    AnonymousBlock, // Holds groups of sequential inline boxes.
-};
-
 struct LayoutBox {
     style::StyledNode const *node;
-    LayoutType type;
     BoxModel dimensions;
     std::vector<LayoutBox> children;
     std::variant<std::monostate, std::string_view, std::string> layout_text;
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
+    bool is_anonymous_block() const { return node == nullptr; }
     std::optional<std::string_view> text() const;
 
     template<css::PropertyId T>
     auto get_property() const {
         // Calling get_property on an anonymous block (the only type that
         // doesn't have a StyleNode) is a programming error.
-        assert(type != LayoutType::AnonymousBlock);
+        assert(!is_anonymous_block());
         assert(node);
         if constexpr (T == css::PropertyId::BorderBottomLeftRadius || T == css::PropertyId::BorderBottomRightRadius
                 || T == css::PropertyId::BorderTopLeftRadius || T == css::PropertyId::BorderTopRightRadius) {
@@ -76,7 +69,7 @@ inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
     assert(node.node);
     std::vector<LayoutBox const *> children{};
     for (auto const &child : node.children) {
-        if (child.type == LayoutType::AnonymousBlock) {
+        if (child.is_anonymous_block()) {
             for (auto const &inline_child : child.children) {
                 assert(inline_child.node);
                 if (!std::holds_alternative<dom::Element>(inline_child.node->node)) {

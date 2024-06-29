@@ -1,16 +1,18 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "tui/tui.h"
 
+#include "css/property_id.h"
 #include "layout/layout_box.h"
+#include "style/styled_node.h"
 
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
 #include <ftxui/screen/screen.hpp>
 
-#include <cstdlib>
+#include <cassert>
 #include <string>
 
 namespace tui {
@@ -28,19 +30,20 @@ ftxui::Elements parse_children(layout::LayoutBox const &box) {
 }
 
 ftxui::Element element_from_node(layout::LayoutBox const &box) {
-    switch (box.type) {
-        case layout::LayoutType::Inline: {
-            if (auto text = box.text()) {
-                return ftxui::paragraph(std::string{*text});
-            }
-            return hbox(parse_children(box));
-        }
-        case layout::LayoutType::AnonymousBlock:
-        case layout::LayoutType::Block: {
-            return flex(vbox(parse_children(box)));
-        }
+    if (box.is_anonymous_block()) {
+        return flex(vbox(parse_children(box)));
     }
-    std::abort(); // unreachable
+
+    auto const display = box.get_property<css::PropertyId::Display>();
+    assert(display == style::DisplayValue::Block || display == style::DisplayValue::Inline);
+    if (display == style::DisplayValue::Inline) {
+        if (auto text = box.text()) {
+            return ftxui::paragraph(std::string{*text});
+        }
+        return hbox(parse_children(box));
+    }
+
+    return flex(vbox(parse_children(box)));
 }
 
 } // namespace

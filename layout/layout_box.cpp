@@ -16,7 +16,6 @@
 
 #include <cassert>
 #include <cstdint>
-#include <cstdlib>
 #include <iterator>
 #include <optional>
 #include <ostream>
@@ -32,17 +31,18 @@ using namespace std::literals;
 namespace layout {
 namespace {
 
-std::string_view to_str(LayoutType type) {
-    switch (type) {
-        case LayoutType::Inline:
-            return "inline";
-        case LayoutType::Block:
-            return "block";
-        case LayoutType::AnonymousBlock:
-            return "ablock";
+std::string_view layout_type(LayoutBox const &box) {
+    if (box.is_anonymous_block()) {
+        return "ablock";
     }
-    assert(false);
-    std::abort();
+
+    auto const display = box.get_property<css::PropertyId::Display>();
+    assert(display == style::DisplayValue::Block || display == style::DisplayValue::Inline);
+    if (display == style::DisplayValue::Inline) {
+        return "inline";
+    }
+
+    return "block";
 }
 
 std::string to_str(geom::Rect const &rect) {
@@ -77,7 +77,7 @@ void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
     }
 
     auto const &d = box.dimensions;
-    os << to_str(box.type) << " " << to_str(d.content) << " " << to_str(d.padding) << " " << to_str(d.margin) << '\n';
+    os << layout_type(box) << " " << to_str(d.content) << " " << to_str(d.padding) << " " << to_str(d.margin) << '\n';
     for (auto const &child : box.children) {
         print_box(child, os, depth + 1);
     }
@@ -122,7 +122,7 @@ LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
         }
     }
 
-    if (box.type == LayoutType::AnonymousBlock) {
+    if (box.is_anonymous_block()) {
         return nullptr;
     }
 

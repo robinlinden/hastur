@@ -66,13 +66,13 @@ private:
 };
 
 bool last_node_was_anonymous(LayoutBox const &box) {
-    return !box.children.empty() && box.children.back().type == LayoutType::AnonymousBlock;
+    return !box.children.empty() && box.children.back().is_anonymous_block();
 }
 
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     if (auto const *text = std::get_if<dom::Text>(&node.node)) {
-        return LayoutBox{.node = &node, .type = LayoutType::Inline, .layout_text = std::string_view{text->text}};
+        return LayoutBox{.node = &node, .layout_text = std::string_view{text->text}};
     }
 
     assert(std::holds_alternative<dom::Element>(node.node));
@@ -81,15 +81,13 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
         return std::nullopt;
     }
 
-    auto type = display == style::DisplayValue::Inline ? LayoutType::Inline : LayoutType::Block;
-
     if (auto const &element = std::get<dom::Element>(node.node); element.name == "img"sv) {
         if (auto alt = element.attributes.find("alt"sv); alt != element.attributes.end()) {
-            return LayoutBox{.node = &node, .type = type, .layout_text = std::string_view{alt->second}};
+            return LayoutBox{.node = &node, .layout_text = std::string_view{alt->second}};
         }
     }
 
-    LayoutBox box{&node, type};
+    LayoutBox box{&node};
 
     for (auto const &child : node.children) {
         auto child_box = create_tree(child);
@@ -97,9 +95,10 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
             continue;
         }
 
-        if (child_box->type == LayoutType::Inline && box.type != LayoutType::Inline) {
+        if (child_box->get_property<css::PropertyId::Display>() == style::DisplayValue::Inline
+                && display != style::DisplayValue::Inline) {
             if (!last_node_was_anonymous(box)) {
-                box.children.push_back(LayoutBox{nullptr, LayoutType::AnonymousBlock});
+                box.children.push_back(LayoutBox{nullptr});
             }
 
             box.children.back().children.push_back(std::move(*child_box));
@@ -124,7 +123,7 @@ void remove_empty_text_boxes(LayoutBox &box) {
         }
 
         remove_empty_text_boxes(*it);
-        if (it->type == LayoutType::AnonymousBlock && it->children.empty()) {
+        if (it->is_anonymous_block() && it->children.empty()) {
             it = box.children.erase(it);
             continue;
         }
@@ -141,7 +140,7 @@ void collapse_whitespace(LayoutBox &box) {
         return !std::holds_alternative<std::monostate>(l.layout_text);
     };
     auto ends_text_run = [](LayoutBox const &l) {
-        return l.type != LayoutType::Inline;
+        return l.is_anonymous_block() || l.get_property<css::PropertyId::Display>() != style::DisplayValue::Inline;
     };
     auto needs_allocating_whitespace_collapsing = [](std::string_view text) {
         return (std::ranges::adjacent_find(
@@ -271,17 +270,20 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
 }
 
 void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
-    switch (box.type) {
-        case LayoutType::Inline:
-            layout_inline(box, bounds);
-            return;
-        case LayoutType::Block:
-            layout_block(box, bounds);
-            return;
-        case LayoutType::AnonymousBlock:
-            layout_anonymous_block(box, bounds);
-            return;
+    if (box.is_anonymous_block()) {
+        layout_anonymous_block(box, bounds);
+        return;
     }
+
+    // Nodes w/ `display: none` aren't added to the tree and shouldn't end up here.
+    auto display = box.get_property<css::PropertyId::Display>();
+    assert(display == style::DisplayValue::Inline || display == style::DisplayValue::Block);
+    if (display == style::DisplayValue::Inline) {
+        layout_inline(box, bounds);
+        return;
+    }
+
+    layout_block(box, bounds);
 }
 
 type::Weight to_type(std::optional<style::FontWeight> const &weight) {
