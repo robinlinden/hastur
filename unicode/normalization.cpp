@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "unicode/unicode.h"
+#include "unicode/normalization.h"
 
 #include "unicode/unicode_data.h"
 
@@ -42,7 +42,7 @@ void decompose_to(std::ostream &os, char32_t code_point) {
 
 } // namespace
 
-std::string Unicode::decompose(std::string_view input) {
+std::string Normalization::decompose(std::string_view input) {
     std::stringstream ss{};
 
     for (auto const code_point : util::CodePointView{input}) {
