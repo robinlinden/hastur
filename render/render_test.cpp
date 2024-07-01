@@ -43,7 +43,9 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .children = {{&styled.children[0], {}, {}, "hello"sv}},
+                .children{{
+                        .children{{&styled.children[0], {}, {}, "hello"sv}},
+                }},
         };
 
         gfx::CanvasCommandSaver saver;
