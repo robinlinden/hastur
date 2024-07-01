@@ -17,13 +17,11 @@ genrule(
 
 cc_library(
     name = "unicode",
-    srcs = glob(
+    srcs = [":generate_unicode_data"] + glob(
         include = ["*.cpp"],
         exclude = ["*_test.cpp"],
     ),
-    hdrs = glob(["*.h"]) + [
-        ":generate_unicode_data",
-    ],
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = ["//util:unicode"],
