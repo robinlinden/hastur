@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef IDNA_UNICODE_H_
-#define IDNA_UNICODE_H_
+#ifndef UNICODE_UNICODE_H_
+#define UNICODE_UNICODE_H_
 
 #include <string>
 #include <string_view>
 
-namespace idna {
+namespace unicode {
 
 class Unicode {
 public:
@@ -16,6 +16,6 @@ public:
     static std::string decompose(std::string_view);
 };
 
-} // namespace idna
+} // namespace unicode
 
 #endif

@@ -58,14 +58,14 @@ if __name__ == "__main__":
 
             // This file is generated. Do not touch it.
 
-            #ifndef IDNA_UNICODE_DATA_H_
-            #define IDNA_UNICODE_DATA_H_
+            #ifndef UNICODE_UNICODE_DATA_H_
+            #define UNICODE_UNICODE_DATA_H_
             // clang-format off
 
             #include <array>
             #include <string_view>
 
-            namespace idna::unicode {{
+            namespace unicode::generated {{
 
             struct Decomposition {{
                 char32_t code_point{{}};
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                 {",\n                ".join(d.to_cxx_class() for d in decompositions)}
             }}}};
 
-            }} // namespace idna::unicode
+            }} // namespace unicode::generated
 
             // clang-format on
             #endif

@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "idna/unicode.h"
+#include "unicode/unicode.h"
 
-#include "idna/unicode_data.h"
+#include "unicode/unicode_data.h"
 
 #include "util/unicode.h"
 
@@ -16,7 +16,7 @@
 #include <string_view>
 #include <utility>
 
-namespace idna {
+namespace unicode {
 namespace {
 
 void decompose_to(std::ostream &os, char32_t code_point) {
@@ -25,7 +25,7 @@ void decompose_to(std::ostream &os, char32_t code_point) {
     // * clang-tidy says this is pointer-ish, but msvc disagrees.
     // NOLINTNEXTLINE(misc-include-cleaner,readability-qualified-auto)
     auto maybe_decomposition = std::ranges::lower_bound(
-            unicode::kDecompositions, code_point, {}, &decltype(unicode::kDecompositions)::value_type::code_point);
+            generated::kDecompositions, code_point, {}, &decltype(generated::kDecompositions)::value_type::code_point);
 
     // This code point does not decompose.
     if (maybe_decomposition->code_point != code_point) {
@@ -52,4 +52,4 @@ std::string Unicode::decompose(std::string_view input) {
     return std::move(ss).str();
 }
 
-} // namespace idna
+} // namespace unicode
