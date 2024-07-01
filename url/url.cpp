@@ -7,8 +7,8 @@
 
 #include "url/rtti_hack.h" // IWYU pragma: keep
 
+#include "unicode/util.h"
 #include "util/string.h"
-#include "util/unicode.h"
 #include "util/uuid.h"
 
 // unicode/uclean is for u_cleanup, but icu does a lot of macro magic renaming
@@ -1085,7 +1085,7 @@ void UrlParser::state_path() {
             state_ = ParserState::Fragment;
         }
     } else {
-        if (!is_url_codepoint(util::utf8_to_utf32(remaining_from(0))) && c != '%') {
+        if (!is_url_codepoint(unicode::utf8_to_utf32(remaining_from(0))) && c != '%') {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
@@ -1110,7 +1110,7 @@ void UrlParser::state_opaque_path() {
 
         state_ = ParserState::Fragment;
     } else {
-        if (!is_eof() && !is_url_codepoint(util::utf8_to_utf32(remaining_from(0))) && c != '%') {
+        if (!is_eof() && !is_url_codepoint(unicode::utf8_to_utf32(remaining_from(0))) && c != '%') {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
@@ -1143,7 +1143,7 @@ void UrlParser::state_query() {
             state_ = ParserState::Fragment;
         }
     } else if (!is_eof()) {
-        if (!is_url_codepoint(util::utf8_to_utf32(remaining_from(0))) && c != '%') {
+        if (!is_url_codepoint(unicode::utf8_to_utf32(remaining_from(0))) && c != '%') {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
@@ -1160,7 +1160,7 @@ void UrlParser::state_query() {
 // https://url.spec.whatwg.org/#fragment-state
 void UrlParser::state_fragment() {
     if (auto c = peek(); !is_eof()) {
-        if (!is_url_codepoint(util::utf8_to_utf32(remaining_from(0))) && c != '%') {
+        if (!is_url_codepoint(unicode::utf8_to_utf32(remaining_from(0))) && c != '%') {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
@@ -1660,7 +1660,7 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
     std::string_view tmp = input;
 
     while (!tmp.empty()) {
-        std::uint32_t cp = util::utf8_to_utf32(tmp);
+        std::uint32_t cp = unicode::utf8_to_utf32(tmp);
 
         if (!is_url_codepoint(cp)) {
             validation_error(ValidationError::InvalidUrlUnit);
@@ -1675,7 +1675,7 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
         // unicode_utf8_byte_count fails if the codepoint is larger than the
         // maximum valid code point, 0x10ffff, meaning it'll have to take up at
         // least 4 bytes.
-        int len = util::unicode_utf8_byte_count(cp).value_or(4);
+        int len = unicode::utf8_byte_count(cp).value_or(4);
         tmp.remove_prefix(len);
     }
 
@@ -1686,8 +1686,7 @@ bool UrlParser::is_url_codepoint(std::uint32_t cp) const {
     return cp == '!' || cp == '$' || cp == '&' || cp == '\'' || cp == '(' || cp == ')' || cp == '*' || cp == '+'
             || cp == ',' || cp == '-' || cp == '.' || cp == '/' || cp == ':' || cp == ';' || cp == '=' || cp == '?'
             || cp == '@' || cp == '_' || cp == '~'
-            || (cp >= 0x00a0 && cp <= 0x10fffd && !util::is_unicode_noncharacter(cp)
-                    && !util::is_unicode_surrogate(cp));
+            || (cp >= 0x00a0 && cp <= 0x10fffd && !unicode::is_noncharacter(cp) && !unicode::is_surrogate(cp));
 }
 
 // NOLINTEND(bugprone-unchecked-optional-access)

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef UTIL_UNICODE_H_
-#define UTIL_UNICODE_H_
+#ifndef UNICODE_UTIL_H_
+#define UNICODE_UTIL_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -12,14 +12,14 @@
 #include <string_view>
 #include <utility>
 
-namespace util {
+namespace unicode {
 
-constexpr bool unicode_is_ascii(std::uint32_t code_point) {
+constexpr bool is_ascii(std::uint32_t code_point) {
     return code_point <= 0x7f;
 }
 
-constexpr std::optional<std::uint8_t> unicode_utf8_byte_count(std::uint32_t code_point) {
-    if (unicode_is_ascii(code_point)) {
+constexpr std::optional<std::uint8_t> utf8_byte_count(std::uint32_t code_point) {
+    if (is_ascii(code_point)) {
         return std::uint8_t{1};
     }
 
@@ -38,8 +38,8 @@ constexpr std::optional<std::uint8_t> unicode_utf8_byte_count(std::uint32_t code
     return std::nullopt;
 }
 
-constexpr std::string unicode_to_utf8(std::uint32_t code_point) {
-    switch (unicode_utf8_byte_count(code_point).value_or(0)) {
+constexpr std::string to_utf8(std::uint32_t code_point) {
+    switch (utf8_byte_count(code_point).value_or(0)) {
         case 1:
             return {static_cast<char>(code_point & 0x7F)};
         case 2:
@@ -66,12 +66,12 @@ constexpr std::string unicode_to_utf8(std::uint32_t code_point) {
 }
 
 // https://infra.spec.whatwg.org/#surrogate
-constexpr bool is_unicode_surrogate(std::uint32_t code_point) {
+constexpr bool is_surrogate(std::uint32_t code_point) {
     return code_point >= 0xD800 && code_point <= 0xDFFF;
 }
 
 // https://infra.spec.whatwg.org/#noncharacter
-constexpr bool is_unicode_noncharacter(std::uint32_t code_point) {
+constexpr bool is_noncharacter(std::uint32_t code_point) {
     if (code_point >= 0xFDD0 && code_point <= 0xFDEF) {
         return true;
     }
@@ -242,6 +242,6 @@ private:
     };
 };
 
-} // namespace util
+} // namespace unicode
 
 #endif

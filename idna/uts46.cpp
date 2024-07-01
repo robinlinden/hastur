@@ -6,7 +6,7 @@
 
 #include "idna/idna_data.h"
 
-#include "util/unicode.h"
+#include "unicode/util.h"
 
 // NOLINTNEXTLINE(misc-include-cleaner): This is used for std::ranges::lower_bound.
 #include <algorithm>
@@ -23,7 +23,7 @@ std::optional<std::string> Uts46::map(std::string_view input) {
     // input.size is just an estimate, but probably good enough for now.
     result.reserve(input.size());
 
-    for (auto const code_point : util::CodePointView{input}) {
+    for (auto const code_point : unicode::CodePointView{input}) {
         // * clang-tidy thinks std::ranges::lower_bound is provided by
         //   <bits/ranges_algo.h> when it's actually provided by <algorithm>.
         // * clang-tidy says this is pointer-ish, but msvc disagrees.
@@ -57,14 +57,14 @@ std::optional<std::string> Uts46::map(std::string_view input) {
 
         // These would be mapped in transitional processing, but we don't support that.
         if (std::holds_alternative<uts46::Deviation>(entry)) {
-            result += util::unicode_to_utf8(code_point);
+            result += unicode::to_utf8(code_point);
             continue;
         }
 
         if (std::holds_alternative<uts46::Valid>(entry) //
                 || std::holds_alternative<uts46::ValidNv8>(entry) //
                 || std::holds_alternative<uts46::ValidXv8>(entry)) {
-            result += util::unicode_to_utf8(code_point);
+            result += unicode::to_utf8(code_point);
             continue;
         }
     }

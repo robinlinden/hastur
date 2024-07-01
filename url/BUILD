@@ -24,8 +24,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":rtti_hack",
+        "//unicode:util",
         "//util:string",
-        "//util:unicode",
         "//util:uuid",
         "@icu//:common",
         "@icu//:icudata",

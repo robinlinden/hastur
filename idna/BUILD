@@ -26,7 +26,7 @@ cc_library(
     ],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["//util:unicode"],
+    deps = ["//unicode:util"],
 )
 
 [cc_test(
@@ -37,6 +37,6 @@ cc_library(
     deps = [
         ":idna",
         "//etest",
-        "//util:unicode",
+        "//unicode:util",
     ],
 ) for src in glob(["*_test.cpp"])]

@@ -16,15 +16,22 @@ genrule(
 )
 
 cc_library(
-    name = "unicode",
-    srcs = [":generate_unicode_data"] + glob(
-        include = ["*.cpp"],
-        exclude = ["*_test.cpp"],
-    ),
-    hdrs = glob(["*.h"]),
+    name = "normalization",
+    srcs = [
+        "normalization.cpp",
+        ":generate_unicode_data",
+    ],
+    hdrs = ["normalization.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["//util:unicode"],
+    deps = [":util"],
+)
+
+cc_library(
+    name = "util",
+    hdrs = ["util.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
 )
 
 [cc_test(
@@ -33,8 +40,8 @@ cc_library(
     srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
-        ":unicode",
+        ":normalization",
+        ":util",
         "//etest",
-        "//util:unicode",
     ],
 ) for src in glob(["*_test.cpp"])]

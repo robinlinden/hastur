@@ -7,8 +7,8 @@
 #include "html2/character_reference.h"
 #include "html2/token.h"
 
+#include "unicode/util.h"
 #include "util/string.h"
-#include "util/unicode.h"
 
 #include <algorithm>
 #include <cassert>
@@ -2244,9 +2244,9 @@ void Tokenizer::run() {
                 }
 
                 temporary_buffer_.clear();
-                temporary_buffer_.append(util::unicode_to_utf8(maybe_reference->first_codepoint));
+                temporary_buffer_.append(unicode::to_utf8(maybe_reference->first_codepoint));
                 if (maybe_reference->second_codepoint) {
-                    temporary_buffer_.append(util::unicode_to_utf8(*maybe_reference->second_codepoint));
+                    temporary_buffer_.append(unicode::to_utf8(*maybe_reference->second_codepoint));
                 }
 
                 flush_code_points_consumed_as_a_character_reference();
@@ -2406,12 +2406,12 @@ void Tokenizer::run() {
                     character_reference_code_ = 0xFFFD;
                 }
 
-                if (util::is_unicode_surrogate(character_reference_code_)) {
+                if (unicode::is_surrogate(character_reference_code_)) {
                     emit(ParseError::SurrogateCharacterReference);
                     character_reference_code_ = 0xFFFD;
                 }
 
-                if (util::is_unicode_noncharacter(character_reference_code_)) {
+                if (unicode::is_noncharacter(character_reference_code_)) {
                     emit(ParseError::NoncharacterCharacterReference);
                 }
 
@@ -2452,7 +2452,7 @@ void Tokenizer::run() {
                     character_reference_code_ = it->second;
                 }
 
-                temporary_buffer_ = util::unicode_to_utf8(character_reference_code_);
+                temporary_buffer_ = unicode::to_utf8(character_reference_code_);
                 flush_code_points_consumed_as_a_character_reference();
                 state_ = return_state_;
                 continue;

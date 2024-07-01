@@ -7,8 +7,8 @@
 
 #include "css2/token.h"
 
+#include "unicode/util.h"
 #include "util/string.h"
-#include "util/unicode.h"
 
 #include <cassert>
 #include <charconv>
@@ -397,7 +397,7 @@ std::string Tokenizer::consume_an_escaped_code_point() {
     auto c = consume_next_input_character();
     if (!c) {
         emit(ParseError::EofInEscapeSequence);
-        return util::unicode_to_utf8(kReplacementCharacter);
+        return unicode::to_utf8(kReplacementCharacter);
     }
 
     if (util::is_hex_digit(*c)) {
@@ -422,11 +422,11 @@ std::string Tokenizer::consume_an_escaped_code_point() {
 
         // https://www.w3.org/TR/css-syntax-3/#maximum-allowed-code-point
         static constexpr std::uint32_t kMaximumAllowedCodePoint = 0x10FFFF;
-        if (code_point == 0 || code_point > kMaximumAllowedCodePoint || util::is_unicode_surrogate(code_point)) {
+        if (code_point == 0 || code_point > kMaximumAllowedCodePoint || unicode::is_surrogate(code_point)) {
             code_point = kReplacementCharacter;
         }
 
-        return util::unicode_to_utf8(code_point);
+        return unicode::to_utf8(code_point);
     }
 
     return std::string{*c};

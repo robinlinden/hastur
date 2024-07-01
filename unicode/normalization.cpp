@@ -5,8 +5,7 @@
 #include "unicode/normalization.h"
 
 #include "unicode/unicode_data.h"
-
-#include "util/unicode.h"
+#include "unicode/util.h"
 
 // NOLINTNEXTLINE(misc-include-cleaner): This is used for std::ranges::lower_bound.
 #include <algorithm>
@@ -29,13 +28,13 @@ void decompose_to(std::ostream &os, char32_t code_point) {
 
     // This code point does not decompose.
     if (maybe_decomposition->code_point != code_point) {
-        os << util::unicode_to_utf8(code_point);
+        os << to_utf8(code_point);
         return;
     }
 
     // Recursively decompose the decomposition. This is needed as some code
     // points decompose into code points that also decompose.
-    for (auto const decomposed : util::CodePointView{maybe_decomposition->decomposes_to}) {
+    for (auto const decomposed : CodePointView{maybe_decomposition->decomposes_to}) {
         decompose_to(os, decomposed);
     }
 }
@@ -45,7 +44,7 @@ void decompose_to(std::ostream &os, char32_t code_point) {
 std::string Normalization::decompose(std::string_view input) {
     std::stringstream ss{};
 
-    for (auto const code_point : util::CodePointView{input}) {
+    for (auto const code_point : CodePointView{input}) {
         decompose_to(ss, code_point);
     }
 

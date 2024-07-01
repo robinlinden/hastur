@@ -1,11 +1,11 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef IDNA_PUNYCODE_H_
 #define IDNA_PUNYCODE_H_
 
-#include "util/unicode.h"
+#include "unicode/util.h"
 
 #include <algorithm>
 #include <functional>
@@ -134,7 +134,7 @@ private:
     static constexpr std::string unicode_to_utf8(std::u32string const &code_points) {
         std::string result{};
         for (auto const code_point : code_points) {
-            result += util::unicode_to_utf8(code_point);
+            result += unicode::to_utf8(code_point);
         }
 
         return result;

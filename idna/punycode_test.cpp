@@ -1,11 +1,11 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "idna/punycode.h"
 
 #include "etest/etest2.h"
-#include "util/unicode.h"
+#include "unicode/util.h"
 
 #include <string>
 #include <vector>
@@ -14,7 +14,7 @@ namespace {
 std::string unicode_as_utf8_string(std::vector<int> const &code_points) {
     std::string result{};
     for (auto const code_point : code_points) {
-        result += util::unicode_to_utf8(code_point);
+        result += unicode::to_utf8(code_point);
     }
 
     return result;
