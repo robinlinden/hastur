@@ -335,6 +335,13 @@ gfx::Color StyledNode::get_color_property(css::PropertyId property) const {
 // https://developer.mozilla.org/en-US/docs/Web/CSS/float
 // ^ has info about the weird float<->display property interaction.
 DisplayValue StyledNode::get_display_property() const {
+    // TODO(robinlinden): Special-case for text not needed once the special case
+    // where we get the parent properties for text in get_raw_property is
+    // removed.
+    if (std::holds_alternative<dom::Text>(node)) {
+        return DisplayValue::Inline;
+    }
+
     auto raw = get_raw_property(css::PropertyId::Display);
     if (raw == "none") {
         return DisplayValue::None;

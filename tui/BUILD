@@ -8,7 +8,9 @@ cc_library(
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
+        "//css",
         "//layout",
+        "//style",
         "@ftxui",
         "@spdlog",
     ],

@@ -120,7 +120,12 @@ void do_render(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
 }
 
 bool should_render(layout::LayoutBox const &layout) {
-    return layout.type == layout::LayoutType::Block || layout.type == layout::LayoutType::Inline;
+    if (layout.is_anonymous_block()) {
+        return false;
+    }
+
+    auto const display = layout.get_property<css::PropertyId::Display>();
+    return display == style::DisplayValue::Block || display == style::DisplayValue::Inline;
 }
 
 void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {

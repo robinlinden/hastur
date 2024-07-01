@@ -43,8 +43,9 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Inline,
-                .children = {{&styled.children[0], layout::LayoutType::Inline, {}, {}, "hello"sv}},
+                .children{{
+                        .children{{&styled.children[0], {}, {}, "hello"sv}},
+                }},
         };
 
         gfx::CanvasCommandSaver saver;
@@ -64,7 +65,6 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{10, 20, 100, 100}, {}, {}, {}},
         };
 
@@ -87,11 +87,10 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{10, 20, 100, 100}, {}, {}, {}},
                 .children{
-                        {nullptr, layout::LayoutType::Block, {{10, 20, 10, 10}}, {}, "hello"sv},
-                        {nullptr, layout::LayoutType::Block, {{10, 30, 10, 10}}, {}, "world"sv},
+                        {nullptr, {{10, 20, 10, 10}}, {}, "hello"sv},
+                        {nullptr, {{10, 30, 10, 10}}, {}, "world"sv},
                 },
         };
 
@@ -115,7 +114,6 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{10, 20, 100, 100}, {}, {}, {}},
         };
 
@@ -134,7 +132,6 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{0, 0, 20, 40}, {}, {10, 10, 10, 10}, {}},
         };
 
@@ -163,7 +160,6 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{0, 0, 20, 40}, {}, {2, 4, 6, 8}, {}},
         };
 
@@ -192,9 +188,8 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Inline,
                 .dimensions = {},
-                .children = {{&styled.children[0], layout::LayoutType::Inline, {{0, 0, 20, 20}}, {}}},
+                .children = {{&styled.children[0], {{0, 0, 20, 20}}, {}}},
         };
 
         gfx::CanvasCommandSaver saver;
@@ -212,7 +207,6 @@ int main() {
         auto styled = style::StyledNode{.node = dom};
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{0, 0, 20, 20}},
         };
 
@@ -248,7 +242,6 @@ int main() {
         auto styled = style::StyledNode{.node = dom};
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{0, 0, 20, 20}},
         };
 
@@ -400,7 +393,6 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{0, 0, 20, 40}},
         };
 
@@ -463,7 +455,6 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {.content{0, 0, 20, 40}, .border{1, 1, 1, 1}},
         };
 
@@ -529,9 +520,8 @@ int main() {
 
         auto layout = layout::LayoutBox{
                 .node = &styled,
-                .type = layout::LayoutType::Block,
                 .dimensions = {{0, 0, 20, 40}},
-                .children = {{&styled.children[0], layout::LayoutType::Block, {{0, 0, 10, 10}}}},
+                .children = {{&styled.children[0], {{0, 0, 10, 10}}}},
         };
 
         gfx::CanvasCommandSaver saver;

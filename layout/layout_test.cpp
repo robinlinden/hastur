@@ -28,7 +28,6 @@ using etest::expect;
 using etest::expect_eq;
 using etest::require;
 using etest::require_eq;
-using layout::LayoutType;
 
 namespace {
 
@@ -75,22 +74,18 @@ void whitespace_collapsing_tests() {
 
         layout::LayoutBox p_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kTextWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .layout_text{kCollapsedText},
                 }},
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
@@ -134,23 +129,19 @@ void whitespace_collapsing_tests() {
 
         layout::LayoutBox a_layout{
                 .node = &style.children.at(0).children.at(1),
-                .type = LayoutType::Inline,
                 .dimensions{{kFirstWidth, 0, kSecondWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(1).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{kFirstWidth, 0, kSecondWidth, 10}},
                         .layout_text{kCollapsedSecond},
                 }},
         };
         layout::LayoutBox p_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kFirstWidth + kSecondWidth, 10}},
                 .children{
                         layout::LayoutBox{
                                 .node = &style.children.at(0).children.at(0),
-                                .type = LayoutType::Inline,
                                 .dimensions{{0, 0, kFirstWidth, 10}},
                                 .layout_text{kCollapsedFirst},
                         },
@@ -159,11 +150,9 @@ void whitespace_collapsing_tests() {
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, kFirstWidth + kSecondWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
@@ -207,23 +196,19 @@ void whitespace_collapsing_tests() {
 
         layout::LayoutBox a_layout{
                 .node = &style.children.at(0).children.at(1),
-                .type = LayoutType::Inline,
                 .dimensions{{first_width, 0, second_width, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(1).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{first_width, 0, second_width, 10}},
                         .layout_text{collapsed_second},
                 }},
         };
         layout::LayoutBox p_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, first_width + second_width, 10}},
                 .children{
                         layout::LayoutBox{
                                 .node = &style.children.at(0).children.at(0),
-                                .type = LayoutType::Inline,
                                 .dimensions{{0, 0, first_width, 10}},
                                 .layout_text{collapsed_first},
                         },
@@ -232,11 +217,9 @@ void whitespace_collapsing_tests() {
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, first_width + second_width, 10}},
                         .children{std::move(p_layout)},
                 }},
@@ -283,45 +266,37 @@ void whitespace_collapsing_tests() {
 
         layout::LayoutBox first_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kFirstWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, kFirstWidth, 10}},
                         .layout_text{kCollapsedFirst},
                 }},
         };
         layout::LayoutBox second_layout{
                 .node = &style.children.at(2),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 10, kSecondWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(2).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 10, kSecondWidth, 10}},
                         .layout_text{kCollapsedSecond},
                 }},
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 20}},
                 .children{
                         layout::LayoutBox{
                                 .node = nullptr,
-                                .type = LayoutType::AnonymousBlock,
                                 .dimensions{{0, 0, kFirstWidth, 10}},
                                 .children{std::move(first_layout)},
                         },
                         layout::LayoutBox{
                                 .node = &style.children.at(1),
-                                .type = LayoutType::Block,
                                 .dimensions{{0, 10, 1234, 0}},
                         },
                         layout::LayoutBox{
                                 .node = nullptr,
-                                .type = LayoutType::AnonymousBlock,
                                 .dimensions{{0, 10, kSecondWidth, 10}},
                                 .children{std::move(second_layout)},
                         },
@@ -367,40 +342,33 @@ void whitespace_collapsing_tests() {
 
         layout::LayoutBox first_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kFirstWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, kFirstWidth, 10}},
                         .layout_text{kFirstText},
                 }},
         };
         layout::LayoutBox space_layout{
                 .node = &style.children.at(1),
-                .type = LayoutType::Inline,
                 .dimensions{{kFirstWidth, 0, kSpaceWidth, 10}},
                 .layout_text{std::string{" "}},
         };
         layout::LayoutBox second_layout{
                 .node = &style.children.at(2),
-                .type = LayoutType::Inline,
                 .dimensions{{kFirstWidth + kSpaceWidth, 0, kSecondWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(2).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{kFirstWidth + kSpaceWidth, 0, kSecondWidth, 10}},
                         .layout_text{kSecondText},
                 }},
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{
                         layout::LayoutBox{
                                 .node = nullptr,
-                                .type = LayoutType::AnonymousBlock,
                                 .dimensions{{0, 0, kFirstWidth + kSpaceWidth + kSecondWidth, 10}},
                                 .children{
                                         std::move(first_layout),
@@ -449,16 +417,13 @@ void whitespace_collapsing_tests() {
 
         layout::LayoutBox first_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{
                         layout::LayoutBox{
-                                .type = LayoutType::AnonymousBlock,
                                 .dimensions{{0, 0, kFirstWidth, 10}},
                                 .children{
                                         layout::LayoutBox{
                                                 .node = &style.children.at(0).children.at(0),
-                                                .type = LayoutType::Inline,
                                                 .dimensions{{0, 0, kFirstWidth, 10}},
                                                 .layout_text{kFirstText},
                                         },
@@ -468,16 +433,13 @@ void whitespace_collapsing_tests() {
         };
         layout::LayoutBox second_layout{
                 .node = &style.children.at(2),
-                .type = LayoutType::Block,
                 .dimensions{{0, 10, 1234, 10}},
                 .children{
                         layout::LayoutBox{
-                                .type = LayoutType::AnonymousBlock,
                                 .dimensions{{0, 10, kSecondWidth, 10}},
                                 .children{
                                         layout::LayoutBox{
                                                 .node = &style.children.at(2).children.at(0),
-                                                .type = LayoutType::Inline,
                                                 .dimensions{{0, 10, kSecondWidth, 10}},
                                                 .layout_text{kSecondText},
                                         },
@@ -487,7 +449,6 @@ void whitespace_collapsing_tests() {
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 20}},
                 .children{
                         std::move(first_layout),
@@ -524,22 +485,18 @@ void text_transform_tests() {
 
         layout::LayoutBox p_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kTextWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .layout_text{std::string{kExpectedText}},
                 }},
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
@@ -572,22 +529,18 @@ void text_transform_tests() {
 
         layout::LayoutBox p_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kTextWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .layout_text{std::string{kExpectedText}},
                 }},
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
@@ -620,22 +573,18 @@ void text_transform_tests() {
 
         layout::LayoutBox p_layout{
                 .node = &style.children.at(0),
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, kTextWidth, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children.at(0).children.at(0),
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .layout_text{std::string{kExpectedText}},
                 }},
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, kTextWidth, 10}},
                         .children{std::move(p_layout)},
                 }},
@@ -664,11 +613,9 @@ void img_tests() {
 
         auto expected_layout = layout::LayoutBox{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 100, 0}},
                 .children{{
                         &style.children[0],
-                        LayoutType::Block,
                         {{0, 0, 100, 0}},
                 }},
         };
@@ -694,11 +641,9 @@ void img_tests() {
 
         auto expected_layout = layout::LayoutBox{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 100, 10}},
                 .children{{
                         &style.children[0],
-                        LayoutType::Block,
                         {{0, 0, 100, 10}},
                         {},
                         "hello"sv,
@@ -741,12 +686,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {}, {}},
-                {&style_root.children[1], LayoutType::Block, {}, {
-                    {&style_root.children[1].children[0], LayoutType::Block, {}, {}},
+                {&style_root.children[0], {}, {}},
+                {&style_root.children[1], {}, {
+                    {&style_root.children[1].children[0], {}, {}},
                 }},
             }
         };
@@ -778,11 +722,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {},
             .children = {
-                {&style_root.children[1], LayoutType::Block, {}, {
-                    {&style_root.children[1].children[0], LayoutType::Block, {}, {}},
+                {&style_root.children[1], {}, {
+                    {&style_root.children[1].children[0], {}, {}},
                 }},
             }
         };
@@ -813,13 +756,12 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {},
             .children = {
-                {nullptr, LayoutType::AnonymousBlock, {}, {
-                    {&style_root.children[0], LayoutType::Inline, {}, {}},
-                    {&style_root.children[1], LayoutType::Inline, {}, {
-                        {&style_root.children[1].children[0], LayoutType::Inline, {}, {}},
+                {nullptr, {}, {
+                    {&style_root.children[0], {}, {}},
+                    {&style_root.children[1], {}, {
+                        {&style_root.children[1].children[0], {}, {}},
                     }},
                 }},
             }
@@ -842,9 +784,8 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
                 .node = &style_root,
-                .type = LayoutType::Inline,
                 .dimensions = {},
-                .children = {{&style_root.children[0], LayoutType::Inline, {}, {}}},
+                .children = {{&style_root.children[0], {}, {}}},
         };
 
         auto layout_root = layout::create_layout(style_root, 0);
@@ -875,13 +816,12 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 10}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 10}}, {
-                    {nullptr, LayoutType::AnonymousBlock, {{0, 0, 60, 10}}, {
-                        {&style_root.children[0].children[0], LayoutType::Inline, {{0, 0, 25, 10}}, {}, "hello"sv},
-                        {&style_root.children[0].children[1], LayoutType::Inline, {{25, 0, 35, 10}}, {}, "goodbye"sv},
+                {&style_root.children[0], {{0, 0, 100, 10}}, {
+                    {nullptr, {{0, 0, 60, 10}}, {
+                        {&style_root.children[0].children[0], {{0, 0, 25, 10}}, {}, "hello"sv},
+                        {&style_root.children[0].children[1], {{25, 0, 35, 10}}, {}, "goodbye"sv},
                     }},
                 }},
             }
@@ -914,11 +854,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
                 }},
             }
         };
@@ -946,11 +885,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
                 }},
             }
         };
@@ -978,11 +916,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 200, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
                 }},
             }
         };
@@ -1010,11 +947,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 50, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 25, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 50, 0}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 25, 0}}, {}},
                 }},
             }
         };
@@ -1042,11 +978,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 0}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
                 }},
             }
         };
@@ -1074,11 +1009,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 0, 100}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 0, 0}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 0, 0}}, {}},
                 }},
             }
         };
@@ -1108,12 +1042,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 0, 25}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 25}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 25}}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 25, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 0, 25}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 0, 25}}, {}},
+                    {&style_root.children[0].children[1], {{0, 25, 0, 0}}, {}},
                 }},
             }
         };
@@ -1143,12 +1076,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 0, 400}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 25}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 25}}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 25, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 0, 25}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 0, 25}}, {}},
+                    {&style_root.children[0].children[1], {{0, 25, 0, 0}}, {}},
                 }},
             }
         };
@@ -1178,12 +1110,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 0, 10}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 0, 400}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 0, 400}}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 400, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 0, 400}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 0, 400}}, {}},
+                    {&style_root.children[0].children[1], {{0, 400, 0, 0}}, {}},
                 }},
             }
         };
@@ -1222,12 +1153,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 120}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 120}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 80, 100}, {10, 10, 10, 10}, {}, {0, 0, 0, 0}}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 120, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 120}}, {
+                    {&style_root.children[0].children[0], {{10, 10, 80, 100}, {10, 10, 10, 10}, {}, {0, 0, 0, 0}}, {}},
+                    {&style_root.children[0].children[1], {{0, 120, 100, 0}}, {}},
                 }},
             }
         };
@@ -1270,12 +1200,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 130}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 130}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 14, 78, 100}, {}, {10, 12, 14, 16}, {}}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 130, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 130}}, {
+                    {&style_root.children[0].children[0], {{10, 14, 78, 100}, {}, {10, 12, 14, 16}, {}}, {}},
+                    {&style_root.children[0].children[1], {{0, 130, 100, 0}}, {}},
                 }},
             }
         };
@@ -1312,11 +1241,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 100}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 100}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{0, 0, 100, 100}, {}, {}, {}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 100}}, {
+                    {&style_root.children[0].children[0], {{0, 0, 100, 100}, {}, {}, {}}, {}},
                 }},
             }
         };
@@ -1354,12 +1282,11 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 100, 20}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 100, 20}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{10, 10, 80, 0}, {}, {}, {10, 10, 10, 10}}, {}},
-                    {&style_root.children[0].children[1], LayoutType::Block, {{0, 20, 100, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 100, 20}}, {
+                    {&style_root.children[0].children[0], {{10, 10, 80, 0}, {}, {}, {10, 10, 10, 10}}, {}},
+                    {&style_root.children[0].children[1], {{0, 20, 100, 0}}, {}},
                 }},
             }
         };
@@ -1394,11 +1321,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 200, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 200, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{50, 0, 100, 0}, {}, {}, {50, 50, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 200, 0}}, {
+                    {&style_root.children[0].children[0], {{50, 0, 100, 0}, {}, {}, {50, 50, 0, 0}}, {}},
                 }},
             }
         };
@@ -1433,11 +1359,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 200, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 200, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{80, 0, 100, 0}, {}, {}, {80, 20, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 200, 0}}, {
+                    {&style_root.children[0].children[0], {{80, 0, 100, 0}, {}, {}, {80, 20, 0, 0}}, {}},
                 }},
             }
         };
@@ -1472,11 +1397,10 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 200, 0}},
             .children = {
-                {&style_root.children[0], LayoutType::Block, {{0, 0, 200, 0}}, {
-                    {&style_root.children[0].children[0], LayoutType::Block, {{75, 0, 100, 0}, {}, {}, {75, 25, 0, 0}}, {}},
+                {&style_root.children[0], {{0, 0, 200, 0}}, {
+                    {&style_root.children[0].children[0], {{75, 0, 100, 0}, {}, {}, {75, 25, 0, 0}}, {}},
                 }},
             }
         };
@@ -1500,7 +1424,6 @@ int main() {
 
             auto expected_layout = layout::LayoutBox{
                 .node = &style_root,
-                .type = LayoutType::Block,
                 .dimensions = {{0, 0, 100, 100}},
                 .children = {}
             };
@@ -1522,7 +1445,6 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 200, 200}},
             .children = {}
         };
@@ -1546,7 +1468,6 @@ int main() {
 
             auto expected_layout = layout::LayoutBox{
                 .node = &style_root,
-                .type = LayoutType::Block,
                 .dimensions = {{0, 0, 10, 10}},
                 .children = {}
             };
@@ -1568,7 +1489,6 @@ int main() {
 
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
-            .type = LayoutType::Block,
             .dimensions = {{0, 0, 10, 10}},
             .children = {}
         };
@@ -1585,7 +1505,7 @@ int main() {
                         {css::PropertyId::Width, "100px"},
                         {css::PropertyId::MaxWidth, "none"}},
         };
-        layout::LayoutBox expected_layout{.node = &style, .type = LayoutType::Block, .dimensions{{0, 0, 100, 0}}};
+        layout::LayoutBox expected_layout{.node = &style, .dimensions{{0, 0, 100, 0}}};
 
         auto layout = layout::create_layout(style, 0);
         expect_eq(layout, expected_layout);
@@ -1599,7 +1519,7 @@ int main() {
                         {css::PropertyId::Height, "100px"},
                         {css::PropertyId::MaxHeight, "none"}},
         };
-        layout::LayoutBox expected_layout{.node = &style, .type = LayoutType::Block, .dimensions{{0, 0, 0, 100}}};
+        layout::LayoutBox expected_layout{.node = &style, .dimensions{{0, 0, 0, 100}}};
 
         auto layout = layout::create_layout(style, 0);
         expect_eq(layout, expected_layout);
@@ -1619,11 +1539,9 @@ int main() {
         };
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 0, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children[0],
-                        .type = LayoutType::Block,
                         .dimensions{{0, 0, 0, 10}},
                 }},
         };
@@ -1671,7 +1589,6 @@ int main() {
 
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 0, 0}},
         };
 
@@ -1688,7 +1605,6 @@ int main() {
 
         layout::LayoutBox expected_layout{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 0, 0}},
         };
 
@@ -1724,11 +1640,9 @@ int main() {
 
         layout::LayoutBox expected{
                 .node = &style,
-                .type = LayoutType::Inline,
                 .dimensions{{0, 0, 25, 10}},
                 .children{layout::LayoutBox{
                         .node = &style.children[0],
-                        .type = LayoutType::Inline,
                         .dimensions{{0, 0, 25, 10}},
                         .layout_text = "hello"sv,
                 }},
@@ -1749,15 +1663,12 @@ int main() {
 
         layout::LayoutBox expected{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 30, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, 25, 10}},
                         .children{layout::LayoutBox{
                                 .node = &style.children[0],
-                                .type = LayoutType::Inline,
                                 .dimensions{{0, 0, 25, 10}},
                                 .layout_text = "hello"sv,
                         }},
@@ -1811,23 +1722,19 @@ int main() {
         // views into the dom text.
         layout::LayoutBox expected{
                 .node = &style,
-                .type = LayoutType::Block,
                 // 2 lines, where the widest one is 5 characters.
                 .dimensions{{0, 0, 30, 20}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, 25, 20}},
                         .children{
                                 layout::LayoutBox{
                                         .node = &style.children[0],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{0, 0, 10, 10}},
                                         .layout_text = "hi"s,
                                 },
                                 layout::LayoutBox{
                                         .node = &style.children[0],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{0, 10, 25, 10}},
                                         .layout_text = "hello"s,
                                 },
@@ -1850,22 +1757,18 @@ int main() {
 
         layout::LayoutBox expected{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 30, 20}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, 25, 20}},
                         .children{
                                 layout::LayoutBox{
                                         .node = &style.children[0],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{0, 0, 25, 10}},
                                         .layout_text = "oh no"s,
                                 },
                                 layout::LayoutBox{
                                         .node = &style.children[0],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{0, 10, 20, 10}},
                                         .layout_text = "!! !"s,
                                 },
@@ -1888,15 +1791,12 @@ int main() {
 
         layout::LayoutBox expected{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 15, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, 25, 10}},
                         .children{layout::LayoutBox{
                                 .node = &style.children[0],
-                                .type = LayoutType::Inline,
                                 .dimensions{{0, 0, 25, 10}},
                                 .layout_text = "hello"sv,
                         }},
@@ -1931,27 +1831,22 @@ int main() {
 
         layout::LayoutBox expected{
                 .node = &style,
-                .type = LayoutType::Block,
                 .dimensions{{0, 0, 25, 20}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .type = LayoutType::AnonymousBlock,
                         .dimensions{{0, 0, 25, 20}},
                         .children{
                                 layout::LayoutBox{
                                         .node = &style.children[0],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{0, 0, 25, 10}},
                                         .layout_text = "hello"sv,
                                 },
                                 layout::LayoutBox{
                                         .node = &style.children[1],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{25, 0, 0, 0}},
                                 },
                                 layout::LayoutBox{
                                         .node = &style.children[2],
-                                        .type = LayoutType::Inline,
                                         .dimensions{{0, 10, 25, 10}},
                                         .layout_text = "world"sv,
                                 },
