@@ -254,7 +254,8 @@ void in_head_tests() {
     etest::test("InHead: style, abrupt eof", [] {
         auto res = parse("<style>p { color: green; }", {});
         auto style = dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(style)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHead: script", [] {
@@ -288,7 +289,8 @@ void in_head_noscript_tests() {
     etest::test("InHeadNoScript: style", [] {
         auto res = parse("<noscript><style>p { color: green; }", {});
         auto noscript = dom::Element{"noscript", {}, {dom::Element{"style", {}, {dom::Text{"p { color: green; }"}}}}};
-        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}}});
+        expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}, dom::Element{"body"}}});
     });
 
     etest::test("InHeadNoScript: style w/ end tags", [] {
