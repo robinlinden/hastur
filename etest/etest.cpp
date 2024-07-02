@@ -21,6 +21,7 @@ Suite &registry() {
     return test_registry;
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::optional<std::reference_wrapper<IActions>> current_actions{};
 } // namespace
 
