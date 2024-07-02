@@ -256,7 +256,7 @@ constexpr std::string percent_decode(std::string_view input) {
             output += input[i];
         } else {
             std::string_view digits = input.substr(i + 1, 2);
-            std::uint8_t num;
+            std::uint8_t num{};
 
             [[maybe_unused]] auto res = std::from_chars(digits.data(), digits.data() + digits.size(), num, 16);
 
@@ -299,7 +299,7 @@ constexpr std::string percent_decode_unreserved(std::string_view input) {
             output += input[i];
         } else {
             std::string_view digits = input.substr(i + 1, 2);
-            std::uint8_t num;
+            std::uint8_t num{};
 
             [[maybe_unused]] auto res = std::from_chars(digits.data(), digits.data() + digits.size(), num, 16);
 

@@ -416,7 +416,7 @@ std::string Tokenizer::consume_an_escaped_code_point() {
             std::ignore = consume_next_input_character();
         }
 
-        std::uint32_t code_point;
+        std::uint32_t code_point{};
         [[maybe_unused]] auto res = std::from_chars(hex.data(), hex.data() + hex.size(), code_point, 16);
         assert(res.ec == std::errc{} && res.ptr == hex.data() + hex.size());
 

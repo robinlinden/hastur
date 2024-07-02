@@ -851,7 +851,7 @@ void UrlParser::state_port() {
     } else if ((is_eof() || c == '/' || c == '?' || c == '#') || (special_schemes.contains(url_.scheme) && c == '\\')
             || state_override_.has_value()) {
         if (!buffer_.empty()) {
-            std::uint32_t port;
+            std::uint32_t port{};
 
             auto res = std::from_chars(buffer_.data(), buffer_.data() + buffer_.size(), port);
 
@@ -1446,7 +1446,7 @@ std::optional<std::tuple<std::uint64_t, bool>> UrlParser::parse_ipv4_number(std:
     }
 
     // TODO(zero-one): Differ width based on largest integer value supported by platform?
-    std::uint64_t out;
+    std::uint64_t out{};
 
     auto res = std::from_chars(input.data(), input.data() + input.size(), out, r);
 
@@ -1514,7 +1514,7 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
         std::size_t length = 0;
 
         for (; length < 4 && pointer < input.size() && util::is_hex_digit(input[pointer]); pointer++, length++) {
-            std::uint64_t out;
+            std::uint64_t out{};
 
             auto res = std::from_chars(input.data() + pointer, input.data() + pointer + 1, out, 16);
 
@@ -1562,7 +1562,7 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
                 }
 
                 while (pointer < input.size() && util::is_digit(input[pointer])) {
-                    std::uint64_t number;
+                    std::uint64_t number{};
 
                     auto res = std::from_chars(input.data() + pointer, input.data() + pointer + 1, number);
 
