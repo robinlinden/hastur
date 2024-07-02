@@ -12,7 +12,7 @@
 #include "dom/dom.h"
 #include "etest/etest.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <algorithm>
 #include <array>

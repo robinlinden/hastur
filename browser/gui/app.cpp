@@ -28,8 +28,8 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
-#include <fmt/core.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <imgui_internal.h>

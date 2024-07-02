@@ -9,7 +9,7 @@
 #include "etest/etest.h"
 #include "uri/uri.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <cerrno>
 #include <filesystem>

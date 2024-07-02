@@ -8,6 +8,8 @@
 
 #include "etest/etest.h"
 
+#include <fmt/format.h>
+
 #include <array>
 #include <iterator>
 #include <optional>
@@ -17,8 +19,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-
-#include <fmt/core.h>
 
 using namespace std::literals;
 

@@ -4,7 +4,7 @@
 
 #include "html2/token.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <string>
 #include <variant>

@@ -13,6 +13,15 @@ cc_library(
         "//conditions:default": [],
     }),
     includes = ["include/"],
+    local_defines = select({
+        "@platforms//os:wasi": [
+            # Not available in wasi, but that's fine because we never print to
+            # files using fmt.
+            "flockfile(x)",
+            "funlockfile(x)",
+        ],
+        "//conditions:default": [],
+    }),
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
 )

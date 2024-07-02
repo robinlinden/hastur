@@ -9,7 +9,7 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/cfg/env.h>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/dup_filter_sink.h>

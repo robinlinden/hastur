@@ -113,9 +113,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-ElDkzFi/Bu5jFWdSP0iEjcRZYTPhY/AmFcl/eLq2yBE=",
-    strip_prefix = "fmt-10.2.1",
-    url = "https://github.com/fmtlib/fmt/archive/10.2.1.tar.gz",
+    integrity = "sha256-jiDiqs3T8mT6W+nLqHn6OXLFK/2dUxARIlDn6q9JLyw=",
+    strip_prefix = "fmt-11.0.0",
+    url = "https://github.com/fmtlib/fmt/archive/11.0.0.tar.gz",
 )
 
 # https://github.com/freetype/freetype
