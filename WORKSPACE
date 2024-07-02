@@ -182,9 +182,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-9ga0+0BqoPja021KndPW8P059fBpPnRoq8AtVF+1Ba4=",
-    strip_prefix = "imgui-1.90.8",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.8.tar.gz",
+    integrity = "sha256-BJQ5GXIeh0rHWi9F5utsAiQ5UDRme/UIkjOIr9paUL8=",
+    strip_prefix = "imgui-1.90.9",
+    url = "https://github.com/ocornut/imgui/archive/v1.90.9.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -262,9 +262,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-zYK+PdxBRu9zj4CnlKg/LtRfqrHFsjJ4EheI73tZjok=",
-    strip_prefix = "stb-ae721c50eaf761660b4f90cc590453cdb0c2acd0",
-    url = "https://github.com/nothings/stb/archive/ae721c50eaf761660b4f90cc590453cdb0c2acd0.tar.gz",
+    integrity = "sha256-sBqpPhqWiu1V9D4HLJjuQB0vIOiXqr2xoWbHFmiG7RE=",
+    strip_prefix = "stb-013ac3beddff3dbffafd5177e7972067cd2b5083",
+    url = "https://github.com/nothings/stb/archive/013ac3beddff3dbffafd5177e7972067cd2b5083.tar.gz",
 )
 
 # https://www.unicode.org/Public/
@@ -293,13 +293,13 @@ http_archive(
     url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
 )
 
-VULKAN_TAG = "1.3.287"
+VULKAN_TAG = "1.3.289"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-UU1eJCWXn/4xO3f3EnTxmWVLLYlXGQR2NstG0QVVzWs=",
+    integrity = "sha256-/GbbbeZqbjUnwRD/Hbd6hq6XgE/n8BlyXo0lrNyHXG8=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -308,7 +308,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-J6M+OU1cWIhh30defok26SAGVZ4szcvu158eFv2mFPk=",
+    integrity = "sha256-6RkF/LPOQ9EQouVMn4Wk1mV7ebUVr5ozwip4jNsmF14=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
