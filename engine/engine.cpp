@@ -132,7 +132,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     std::vector<std::future<css::StyleSheet>> future_new_rules;
     future_new_rules.reserve(head_links.size());
     for (auto const *link : head_links) {
-        future_new_rules.push_back(std::async(std::launch::async, [=, this, &state]() -> css::StyleSheet {
+        future_new_rules.push_back(std::async(std::launch::async, [this, link, &state]() -> css::StyleSheet {
             auto const &href = link->attributes.at("href");
             auto stylesheet_url = uri::Uri::parse(href, state->uri);
             if (!stylesheet_url) {
