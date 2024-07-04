@@ -43,6 +43,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <span>
@@ -437,10 +438,7 @@ void App::step() {
     run_overlay();
     run_nav_widget();
     if (display_debug_gui_) {
-        run_http_response_widget();
-        run_dom_widget();
-        run_stylesheet_widget();
-        run_layout_widget();
+        run_debug_widget();
     }
 
     if (!maybe_page_ || (**maybe_page_).layout == std::nullopt) {
@@ -521,12 +519,6 @@ void App::reload() {
 }
 
 void App::on_navigation_failure(protocol::ErrorCode err) {
-    update_status_line();
-    response_headers_str_.clear();
-    dom_str_.clear();
-    stylesheet_str_.clear();
-    layout_str_.clear();
-
     switch (err) {
         case protocol::ErrorCode::Unresolved: {
             nav_widget_extra_info_ = fmt::format("Unable to resolve endpoint for '{}'", url_buf_);
@@ -595,22 +587,12 @@ void App::on_page_loaded() {
         break;
     }
 
-    update_status_line();
-    response_headers_str_ = page().response.headers.to_string();
-    dom_str_ = dom::to_string(page().dom);
-    stylesheet_str_ = stylesheet_to_string(page().stylesheet);
     on_layout_updated();
 }
 
 void App::on_layout_updated() {
     reset_scroll();
     nav_widget_extra_info_.clear();
-    if (!maybe_page_) {
-        return;
-    }
-
-    auto const &layout = page().layout;
-    layout_str_ = layout.has_value() ? layout::to_string(*layout) : "";
 }
 
 layout::LayoutBox const *App::get_hovered_node(geom::Position document_position) const {
@@ -667,18 +649,6 @@ void App::scroll(int pixels) {
     scroll_offset_y_ += pixels;
 }
 
-void App::update_status_line() {
-    auto const &status = [this] {
-        if (maybe_page_) {
-            return page().response.status_line;
-        }
-
-        return maybe_page_.error().response.status_line.value_or(protocol::StatusLine{});
-    }();
-
-    status_line_str_ = fmt::format("{} {} {}", status.version, status.status_code, status.reason);
-}
-
 void App::run_overlay() {
     ImGui::SFML::Update(window_, clock_.restart());
 }
@@ -698,40 +668,51 @@ void App::run_nav_widget() {
     });
 }
 
-void App::run_http_response_widget() const {
-    auto const &size = window_.getSize();
-    im::window("HTTP Response", {size.x / 2.f, 0}, {size.x / 2.f, size.y / 2.f}, [this] {
-        ImGui::TextUnformatted(status_line_str_.c_str());
-        if (ImGui::CollapsingHeader("Headers")) {
-            ImGui::TextUnformatted(response_headers_str_.c_str());
-        }
+void App::run_debug_widget() const {
+    ImGui::TextUnformatted("Print");
+    ImGui::BeginDisabled(!maybe_page_.has_value());
 
-        if (ImGui::CollapsingHeader("Body")) {
+    if (ImGui::Button("Status line")) {
+        auto const &status = [this] {
             if (maybe_page_) {
-                ImGui::TextUnformatted(page().response.body.c_str());
+                return page().response.status_line;
             }
-        }
-    });
-}
 
-void App::run_dom_widget() const {
-    im::window("DOM", {0, 70.f * scale_}, {window_.getSize().x / 2.f, window_.getSize().y / 2.f}, [this] {
-        ImGui::TextUnformatted(dom_str_.c_str());
-    });
-}
+            return maybe_page_.error().response.status_line.value_or(protocol::StatusLine{});
+        }();
 
-void App::run_stylesheet_widget() const {
-    auto const &size = window_.getSize();
-    im::window("Stylesheet", {0, 70.f * scale_ + size.y / 2.f}, {size.x / 2.f, size.y / 2.f}, [this] {
-        ImGui::TextUnformatted(stylesheet_str_.c_str());
-    });
-}
+        std::cout << "\nStatus line:\n"
+                  << fmt::format("{} {} {}", status.version, status.status_code, status.reason) << '\n';
+    }
 
-void App::run_layout_widget() const {
-    auto const &size = window_.getSize();
-    im::window("Layout", {size.x / 2.f, size.y / 2.f}, {size.x / 2.f, size.y / 2.f}, [this] {
-        ImGui::TextUnformatted(layout_str_.c_str());
-    });
+    if (ImGui::Button("Response headers")) {
+        std::cout << "\nResponse headers:\n" << page().response.headers.to_string() << '\n';
+    }
+
+    if (ImGui::Button("Response body")) {
+        std::cout << "\nResponse body:\n" << page().response.body << '\n';
+    }
+
+    if (ImGui::Button("DOM")) {
+        std::cout << "\nDOM:\n" << to_string(page().dom) << '\n';
+    }
+
+    if (ImGui::Button("Stylesheet")) {
+        std::cout << "\nStylesheet:\n" << stylesheet_to_string(page().stylesheet) << '\n';
+    }
+
+    std::optional<layout::LayoutBox> const &layout =
+            maybe_page_.transform(&engine::PageState::layout).value_or(std::nullopt);
+    ImGui::BeginDisabled(layout == std::nullopt);
+
+    if (ImGui::Button("Layout")) {
+        assert(layout);
+        std::cout << "\nLayout:\n" << to_string(*layout) << '\n';
+    }
+
+    ImGui::EndDisabled();
+
+    ImGui::EndDisabled();
 }
 
 void App::render_layout() {

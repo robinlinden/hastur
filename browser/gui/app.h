@@ -43,11 +43,6 @@ private:
     sf::RenderWindow window_{};
     sf::Clock clock_{};
     std::string url_buf_{};
-    std::string status_line_str_{};
-    std::string response_headers_str_{};
-    std::string dom_str_{};
-    std::string stylesheet_str_{};
-    std::string layout_str_{};
     std::string nav_widget_extra_info_{};
 
     enum class Canvas : std::uint8_t {
@@ -93,15 +88,10 @@ private:
     void reset_scroll();
     void scroll(int pixels);
 
-    void update_status_line();
-
     void run_overlay();
     void focus_url_input();
     void run_nav_widget();
-    void run_http_response_widget() const;
-    void run_dom_widget() const;
-    void run_stylesheet_widget() const;
-    void run_layout_widget() const;
+    void run_debug_widget() const;
 
     void render_layout();
     void render_overlay();
