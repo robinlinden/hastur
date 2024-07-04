@@ -167,16 +167,6 @@ X  XX      XX  X
 X              X
 XXXXXXXXXXXXXXXX)");
 
-namespace im {
-void window(char const *title, ImVec2 const &position, ImVec2 const &size, auto content) {
-    ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-    ImGui::Begin(title, nullptr, ImGuiWindowFlags_HorizontalScrollbar);
-    content();
-    ImGui::End();
-}
-} // namespace im
-
 std::unique_ptr<type::IType> create_font_system() {
     auto type = std::make_unique<type::SfmlType>();
     auto set_up_font = [&type](std::string name, std::span<std::string_view const> file_name_options) {
@@ -659,13 +649,17 @@ void App::focus_url_input() {
 }
 
 void App::run_nav_widget() {
-    im::window("Navigation", {0, 0}, {window_.getSize().x / 2.f, 0}, [this] {
-        if (ImGui::InputText("Url", &url_buf_, ImGuiInputTextFlags_EnterReturnsTrue)) {
-            ensure_has_scheme(url_buf_);
-            navigate();
-        }
-        ImGui::TextUnformatted(nav_widget_extra_info_.c_str());
-    });
+    ImGui::SetNextWindowPos({0, 0}, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize({window_.getSize().x / 2.f, 0}, ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Navigation");
+    if (ImGui::InputText("Url", &url_buf_, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        ensure_has_scheme(url_buf_);
+        navigate();
+    }
+
+    ImGui::TextUnformatted(nav_widget_extra_info_.c_str());
+    ImGui::End();
 }
 
 void App::run_debug_widget() const {
