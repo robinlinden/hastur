@@ -648,7 +648,7 @@ void App::scroll(int pixels) {
 
     auto const &layout = *maybe_layout;
     // Don't allow scrolling if the entire page fits on the screen.
-    if (static_cast<int>(window_.getSize().y) > layout.dimensions.margin_box().height) {
+    if (static_cast<int>(window_.getSize().y / scale_) > layout.dimensions.margin_box().height) {
         return;
     }
 
@@ -657,7 +657,7 @@ void App::scroll(int pixels) {
         pixels = -scroll_offset_y_;
     }
 
-    int current_bottom_visible_y = static_cast<int>(window_.getSize().y) - scroll_offset_y_;
+    int current_bottom_visible_y = static_cast<int>(window_.getSize().y / scale_) - scroll_offset_y_;
     int scrolled_bottom_visible_y = current_bottom_visible_y - pixels;
     if (scrolled_bottom_visible_y > layout.dimensions.margin_box().height) {
         pixels -= layout.dimensions.margin_box().height - scrolled_bottom_visible_y;
