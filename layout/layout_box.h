@@ -92,10 +92,17 @@ inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
 }
 
 // TODO(robinlinden): This should be internal.
-int to_px(std::string_view property,
+std::optional<int> try_to_px(std::string_view property,
         int font_size,
         int root_font_size,
         std::optional<int> parent_property_value = std::nullopt);
+
+inline int to_px(std::string_view property,
+        int font_size,
+        int root_font_size,
+        std::optional<int> parent_property_value = std::nullopt) {
+    return try_to_px(property, font_size, root_font_size, parent_property_value).value_or(0);
+}
 
 } // namespace layout
 

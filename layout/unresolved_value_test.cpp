@@ -1,10 +1,12 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "layout/unresolved_value.h"
 
 #include "etest/etest2.h"
+
+#include <optional>
 
 int main() {
     etest::Suite s{"UnresolvedValue"};
@@ -59,6 +61,17 @@ int main() {
 
         // If the third argument is not provided, you get nothing.
         a.expect_eq(uv.resolve(123, 456), 0);
+    });
+
+    s.add_test("try_resolve", [](etest::IActions &a) {
+        // %, no parent provided.
+        auto const percent = layout::UnresolvedValue{.raw = "50%"};
+        a.expect_eq(percent.try_resolve(100, 100), std::nullopt);
+        a.expect_eq(percent.try_resolve(100, 100, 100), 50);
+
+        // Nonsense.
+        auto const nonsense = layout::UnresolvedValue{.raw = "foo"};
+        a.expect_eq(nonsense.try_resolve(100, 100, 100), std::nullopt);
     });
 
     return s.run();

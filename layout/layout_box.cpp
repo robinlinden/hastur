@@ -135,7 +135,7 @@ std::string to_string(LayoutBox const &box) {
     return std::move(ss).str();
 }
 
-int to_px(std::string_view property,
+std::optional<int> try_to_px(std::string_view property,
         int const font_size,
         int const root_font_size,
         std::optional<int> parent_property_value) {
@@ -148,7 +148,7 @@ int to_px(std::string_view property,
     auto parse_result = util::from_chars(property.data(), property.data() + property.size(), res);
     if (parse_result.ec != std::errc{}) {
         spdlog::warn("Unable to parse property '{}' in to_px", property);
-        return 0;
+        return std::nullopt;
     }
 
     auto const parsed_length = std::distance(property.data(), parse_result.ptr);
@@ -157,7 +157,7 @@ int to_px(std::string_view property,
     if (unit == "%") {
         if (!parent_property_value.has_value()) {
             spdlog::warn("Missing parent-value for property w/ '%' unit");
-            return 0;
+            return std::nullopt;
         }
 
         return static_cast<int>(res / 100.f * (*parent_property_value));
@@ -188,7 +188,7 @@ int to_px(std::string_view property,
     }
 
     spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
-    return static_cast<int>(res);
+    return std::nullopt;
 }
 
 } // namespace layout
