@@ -1914,6 +1914,26 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 50);
     });
 
+    etest::test("invalid width", [] {
+        dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
+        auto const &div = std::get<dom::Element>(dom).children[0];
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Width, "asdf"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        style::StyledNode{
+                                .node{div},
+                                .properties{{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
+                        },
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.dimensions.border_box().width, 1000);
+        expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
+    });
+
     whitespace_collapsing_tests();
     text_transform_tests();
     img_tests();

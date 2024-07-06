@@ -448,8 +448,14 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
 
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
-    if (auto width = box.get_property<css::PropertyId::Width>(); !width.is_auto()) {
-        box.dimensions.content.width = width.resolve(font_size, root_font_size_, parent.width);
+    auto width = box.get_property<css::PropertyId::Width>();
+    std::optional<int> resolved_width;
+    if (!width.is_auto()) {
+        resolved_width = width.try_resolve(font_size, root_font_size_, parent.width);
+    }
+
+    if (resolved_width) {
+        box.dimensions.content.width = *resolved_width;
         calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
     } else {
         if (margin_left != "auto") {
