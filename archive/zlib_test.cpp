@@ -4,7 +4,7 @@
 
 #include "archive/zlib.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -12,7 +12,6 @@
 #include <string_view>
 
 using namespace archive;
-using namespace etest;
 using namespace std::literals;
 
 namespace {
@@ -34,21 +33,22 @@ constexpr auto kZlibbedCss =
 } // namespace
 
 int main() {
-    etest::test("zlib", [] {
-        expect(!zlib_decode({}, ZlibMode::Zlib).has_value());
-        expect(!zlib_decode(as_bytes(kGzippedCss), ZlibMode::Zlib).has_value());
+    etest::Suite s{};
+    s.add_test("zlib", [](etest::IActions &a) {
+        a.expect(!zlib_decode({}, ZlibMode::Zlib).has_value());
+        a.expect(!zlib_decode(as_bytes(kGzippedCss), ZlibMode::Zlib).has_value());
 
         auto res = zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Zlib);
-        expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
+        a.expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
     });
 
-    etest::test("gzip", [] {
-        expect(!zlib_decode({}, ZlibMode::Gzip).has_value());
-        expect(!zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Gzip).has_value());
+    s.add_test("gzip", [](etest::IActions &a) {
+        a.expect(!zlib_decode({}, ZlibMode::Gzip).has_value());
+        a.expect(!zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Gzip).has_value());
 
         auto res = zlib_decode(as_bytes(kGzippedCss), ZlibMode::Gzip);
-        expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
+        a.expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
