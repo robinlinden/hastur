@@ -475,10 +475,15 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
         }
     }
 
-    if (auto max = box.get_property<css::PropertyId::MaxWidth>(); !max.is_none()) {
-        auto resolved = max.resolve(font_size, root_font_size_, parent.width);
-        if (box.dimensions.content.width > resolved) {
-            box.dimensions.content.width = resolved;
+    auto max = box.get_property<css::PropertyId::MaxWidth>();
+    std::optional<int> resolved_max;
+    if (!max.is_none()) {
+        resolved_max = max.try_resolve(font_size, root_font_size_, parent.width);
+    }
+
+    if (resolved_max) {
+        if (box.dimensions.content.width > *resolved_max) {
+            box.dimensions.content.width = *resolved_max;
             calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
         }
     }

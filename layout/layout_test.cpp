@@ -1914,7 +1914,7 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 50);
     });
 
-    etest::test("invalid width", [] {
+    etest::test("invalid width properties", [] {
         dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
         auto const &div = std::get<dom::Element>(dom).children[0];
         style::StyledNode style{
@@ -1930,6 +1930,11 @@ int main() {
         set_up_parent_ptrs(style);
 
         auto layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.dimensions.border_box().width, 1000);
+        expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
+
+        style.properties.push_back({css::PropertyId::MaxWidth, "asdf"});
+        layout = layout::create_layout(style, 1000).value();
         expect_eq(layout.dimensions.border_box().width, 1000);
         expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
     });
