@@ -59,11 +59,6 @@ int main() {
         a.expect_eq("DelimToken ,", to_string(t));
     });
 
-    s.add_test("to_string DelimToken", [](etest::IActions &a) {
-        DelimToken t{','};
-        a.expect_eq("DelimToken ,", to_string(t));
-    });
-
     s.add_test("to_string NumberToken integer", [](etest::IActions &a) {
         NumberToken t{NumericType::Integer, 53};
         a.expect_eq("NumberToken 53", to_string(t));
