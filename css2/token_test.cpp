@@ -1,156 +1,158 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "css2/token.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 using namespace css2;
 
 int main() {
-    etest::test("to_string IdentToken", [] {
+    etest::Suite s{};
+    s.add_test("to_string IdentToken", [](etest::IActions &a) {
         IdentToken t{"foo"};
-        etest::expect_eq("IdentToken foo", to_string(t));
+        a.expect_eq("IdentToken foo", to_string(t));
     });
 
-    etest::test("to_string FunctionToken", [] {
+    s.add_test("to_string FunctionToken", [](etest::IActions &a) {
         FunctionToken t{"foo"};
-        etest::expect_eq("FunctionToken foo", to_string(t));
+        a.expect_eq("FunctionToken foo", to_string(t));
     });
 
-    etest::test("to_string AtKeywordToken", [] {
+    s.add_test("to_string AtKeywordToken", [](etest::IActions &a) {
         AtKeywordToken t{"foo"};
-        etest::expect_eq("AtKeywordToken foo", to_string(t));
+        a.expect_eq("AtKeywordToken foo", to_string(t));
     });
 
-    etest::test("to_string HashToken id", [] {
+    s.add_test("to_string HashToken id", [](etest::IActions &a) {
         HashToken t{HashToken::Type::Id, "foo"};
-        etest::expect_eq("HashToken foo (id)", to_string(t));
+        a.expect_eq("HashToken foo (id)", to_string(t));
     });
 
-    etest::test("to_string HashToken unrestricted", [] {
+    s.add_test("to_string HashToken unrestricted", [](etest::IActions &a) {
         HashToken t{HashToken::Type::Unrestricted, "foo"};
-        etest::expect_eq("HashToken foo (unrestricted)", to_string(t));
+        a.expect_eq("HashToken foo (unrestricted)", to_string(t));
     });
 
-    etest::test("to_string StringToken", [] {
+    s.add_test("to_string StringToken", [](etest::IActions &a) {
         StringToken t{"foo"};
-        etest::expect_eq("StringToken foo", to_string(t));
+        a.expect_eq("StringToken foo", to_string(t));
     });
 
-    etest::test("to_string BadStringToken", [] {
+    s.add_test("to_string BadStringToken", [](etest::IActions &a) {
         BadStringToken t{};
-        etest::expect_eq("BadStringToken", to_string(t));
+        a.expect_eq("BadStringToken", to_string(t));
     });
 
-    etest::test("to_string UrlToken", [] {
-        etest::expect_eq("UrlToken evilcorp.ltd", to_string(UrlToken{"evilcorp.ltd"})); //
+    s.add_test("to_string UrlToken", [](etest::IActions &a) {
+        a.expect_eq("UrlToken evilcorp.ltd", to_string(UrlToken{"evilcorp.ltd"})); //
     });
 
-    etest::test("to_string BadUrlToken", [] {
-        etest::expect_eq("BadUrlToken", to_string(BadUrlToken{})); //
+    s.add_test("to_string BadUrlToken", [](etest::IActions &a) {
+        a.expect_eq("BadUrlToken", to_string(BadUrlToken{})); //
     });
 
-    etest::test("to_string DelimToken", [] {
+    s.add_test("to_string DelimToken", [](etest::IActions &a) {
         DelimToken t{','};
-        etest::expect_eq("DelimToken ,", to_string(t));
+        a.expect_eq("DelimToken ,", to_string(t));
     });
 
-    etest::test("to_string DelimToken", [] {
+    s.add_test("to_string DelimToken", [](etest::IActions &a) {
         DelimToken t{','};
-        etest::expect_eq("DelimToken ,", to_string(t));
+        a.expect_eq("DelimToken ,", to_string(t));
     });
 
-    etest::test("to_string NumberToken integer", [] {
+    s.add_test("to_string NumberToken integer", [](etest::IActions &a) {
         NumberToken t{NumericType::Integer, 53};
-        etest::expect_eq("NumberToken 53", to_string(t));
+        a.expect_eq("NumberToken 53", to_string(t));
     });
 
-    etest::test("to_string NumberToken number", [] {
+    s.add_test("to_string NumberToken number", [](etest::IActions &a) {
         NumberToken t{NumericType::Number, 1.33};
-        etest::expect_eq("NumberToken 1.33", to_string(t));
+        a.expect_eq("NumberToken 1.33", to_string(t));
     });
 
-    etest::test("to_string PercentageToken integer", [] {
+    s.add_test("to_string PercentageToken integer", [](etest::IActions &a) {
         PercentageToken t{NumericType::Integer, 923};
-        etest::expect_eq("PercentageToken 923", to_string(t));
+        a.expect_eq("PercentageToken 923", to_string(t));
     });
 
-    etest::test("to_string PercentageToken number", [] {
+    s.add_test("to_string PercentageToken number", [](etest::IActions &a) {
         PercentageToken t{NumericType::Number, 44.123};
-        etest::expect_eq("PercentageToken 44.123", to_string(t));
+        a.expect_eq("PercentageToken 44.123", to_string(t));
     });
 
-    etest::test("to_string DimensionToken integer", [] {
+    s.add_test("to_string DimensionToken integer", [](etest::IActions &a) {
         DimensionToken t{NumericType::Integer, 1, "px"};
-        etest::expect_eq("DimensionToken 1px", to_string(t));
+        a.expect_eq("DimensionToken 1px", to_string(t));
     });
 
-    etest::test("to_string DimensionToken number", [] {
+    s.add_test("to_string DimensionToken number", [](etest::IActions &a) {
         DimensionToken t{NumericType::Number, 1.5, "em"};
-        etest::expect_eq("DimensionToken 1.5em", to_string(t));
+        a.expect_eq("DimensionToken 1.5em", to_string(t));
     });
 
-    etest::test("to_string WhitespaceToken", [] {
+    s.add_test("to_string WhitespaceToken", [](etest::IActions &a) {
         WhitespaceToken t{};
-        etest::expect_eq("WhitespaceToken", to_string(t));
+        a.expect_eq("WhitespaceToken", to_string(t));
     });
 
-    etest::test("to_string CdoToken", [] {
+    s.add_test("to_string CdoToken", [](etest::IActions &a) {
         CdoToken t{};
-        etest::expect_eq("CdoToken", to_string(t));
+        a.expect_eq("CdoToken", to_string(t));
     });
 
-    etest::test("to_string CdcToken", [] {
+    s.add_test("to_string CdcToken", [](etest::IActions &a) {
         CdcToken t{};
-        etest::expect_eq("CdcToken", to_string(t));
+        a.expect_eq("CdcToken", to_string(t));
     });
 
-    etest::test("to_string ColonToken", [] {
+    s.add_test("to_string ColonToken", [](etest::IActions &a) {
         ColonToken t{};
-        etest::expect_eq("ColonToken", to_string(t));
+        a.expect_eq("ColonToken", to_string(t));
     });
 
-    etest::test("to_string SemiColonToken", [] {
+    s.add_test("to_string SemiColonToken", [](etest::IActions &a) {
         SemiColonToken t{};
-        etest::expect_eq("SemiColonToken", to_string(t));
+        a.expect_eq("SemiColonToken", to_string(t));
     });
 
-    etest::test("to_string CommaToken", [] {
+    s.add_test("to_string CommaToken", [](etest::IActions &a) {
         CommaToken t{};
-        etest::expect_eq("CommaToken", to_string(t));
+        a.expect_eq("CommaToken", to_string(t));
     });
 
-    etest::test("to_string OpenSquareToken", [] {
+    s.add_test("to_string OpenSquareToken", [](etest::IActions &a) {
         OpenSquareToken t{};
-        etest::expect_eq("OpenSquareToken", to_string(t));
+        a.expect_eq("OpenSquareToken", to_string(t));
     });
 
-    etest::test("to_string CloseSquareToken", [] {
+    s.add_test("to_string CloseSquareToken", [](etest::IActions &a) {
         CloseSquareToken t{};
-        etest::expect_eq("CloseSquareToken", to_string(t));
+        a.expect_eq("CloseSquareToken", to_string(t));
     });
 
-    etest::test("to_string OpenParenToken", [] {
+    s.add_test("to_string OpenParenToken", [](etest::IActions &a) {
         OpenParenToken t{};
-        etest::expect_eq("OpenParenToken", to_string(t));
+        a.expect_eq("OpenParenToken", to_string(t));
     });
 
-    etest::test("to_string CloseParenToken", [] {
+    s.add_test("to_string CloseParenToken", [](etest::IActions &a) {
         CloseParenToken t{};
-        etest::expect_eq("CloseParenToken", to_string(t));
+        a.expect_eq("CloseParenToken", to_string(t));
     });
 
-    etest::test("to_string OpenCurlyToken", [] {
+    s.add_test("to_string OpenCurlyToken", [](etest::IActions &a) {
         OpenCurlyToken t{};
-        etest::expect_eq("OpenCurlyToken", to_string(t));
+        a.expect_eq("OpenCurlyToken", to_string(t));
     });
 
-    etest::test("to_string CloseCurlyToken", [] {
+    s.add_test("to_string CloseCurlyToken", [](etest::IActions &a) {
         CloseCurlyToken t{};
-        etest::expect_eq("CloseCurlyToken", to_string(t));
+        a.expect_eq("CloseCurlyToken", to_string(t));
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
