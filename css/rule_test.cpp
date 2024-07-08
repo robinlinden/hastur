@@ -8,12 +8,11 @@
 #include "css/media_query.h"
 #include "css/property_id.h"
 
-#include "etest/etest.h"
-
-using etest::expect_eq;
+#include "etest/etest2.h"
 
 int main() {
-    etest::test("rule to string, one selector and declaration", [] {
+    etest::Suite s{};
+    s.add_test("rule to string, one selector and declaration", [](etest::IActions &a) {
         css::Rule rule;
         rule.selectors.emplace_back("div");
         rule.declarations.emplace(css::PropertyId::BackgroundColor, "black");
@@ -22,10 +21,10 @@ int main() {
                 "Selectors: div\n"
                 "Declarations:\n"
                 "  background-color: black\n";
-        expect_eq(css::to_string(rule), expected);
+        a.expect_eq(css::to_string(rule), expected);
     });
 
-    etest::test("rule to string, two selectors and several declarations", [] {
+    s.add_test("rule to string, two selectors and several declarations", [](etest::IActions &a) {
         css::Rule rule;
         rule.selectors.emplace_back("h1");
         rule.selectors.emplace_back("h2");
@@ -39,10 +38,10 @@ int main() {
                 "  color: blue\n"
                 "  font-family: Arial\n"
                 "  text-align: center\n";
-        expect_eq(css::to_string(rule), expected);
+        a.expect_eq(css::to_string(rule), expected);
     });
 
-    etest::test("rule to string, two selectors and several declarations", [] {
+    s.add_test("rule to string, two selectors and several declarations", [](etest::IActions &a) {
         css::Rule rule;
         rule.selectors.emplace_back("h1");
         rule.declarations.emplace(css::PropertyId::Color, "blue");
@@ -56,10 +55,10 @@ int main() {
                 "  text-align: center\n"
                 "Media query:\n"
                 "  0 <= width <= 900\n";
-        expect_eq(css::to_string(rule), expected);
+        a.expect_eq(css::to_string(rule), expected);
     });
 
-    etest::test("rule to string, important declaration", [] {
+    s.add_test("rule to string, important declaration", [](etest::IActions &a) {
         css::Rule rule;
         rule.selectors.emplace_back("div");
         rule.important_declarations.emplace(css::PropertyId::BackgroundColor, "black");
@@ -69,10 +68,10 @@ int main() {
                 "Declarations:\n"
                 "Important declarations:\n"
                 "  background-color: black\n";
-        expect_eq(css::to_string(rule), expected);
+        a.expect_eq(css::to_string(rule), expected);
     });
 
-    etest::test("rule to string, custom property", [] {
+    s.add_test("rule to string, custom property", [](etest::IActions &a) {
         css::Rule rule;
         rule.selectors.emplace_back("div");
         rule.custom_properties.emplace("--ping", "pong");
@@ -82,8 +81,8 @@ int main() {
                 "Declarations:\n"
                 "Custom properties:\n"
                 "  --ping: pong\n";
-        expect_eq(css::to_string(rule), expected);
+        a.expect_eq(css::to_string(rule), expected);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
