@@ -41,7 +41,7 @@ int main() {
         a.expect_eq(css::to_string(rule), expected);
     });
 
-    s.add_test("rule to string, two selectors and several declarations", [](etest::IActions &a) {
+    s.add_test("rule to string, media query", [](etest::IActions &a) {
         css::Rule rule;
         rule.selectors.emplace_back("h1");
         rule.declarations.emplace(css::PropertyId::Color, "blue");
