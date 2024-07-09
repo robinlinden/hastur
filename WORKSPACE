@@ -284,15 +284,6 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-# https://github.com/facebookexperimental/libunifex
-http_archive(
-    name = "unifex",  # Apache-2.0 WITH LLVM-exception
-    build_file = "//third_party:unifex.BUILD",
-    sha256 = "d5ce3b616e166da31e6b4284764a1feeba52aade868bcbffa94cfd86b402716e",
-    strip_prefix = "libunifex-0.4.0",
-    url = "https://github.com/facebookexperimental/libunifex/archive/v0.4.0.tar.gz",
-)
-
 VULKAN_TAG = "1.3.289"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
