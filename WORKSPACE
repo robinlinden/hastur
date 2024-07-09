@@ -37,9 +37,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_python
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-W8+jhSRE0ISx0yYnFM7BUbeXZI1NRE6piVx8ftec1xU=",
-    strip_prefix = "rules_python-0.33.1",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.33.1/rules_python-0.33.1.tar.gz",
+    integrity = "sha256-4/HMegTZsJY1r7MTBzHtgrX1jq3IIz1O+1mUTZL/wG8=",
+    strip_prefix = "rules_python-0.33.2",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.33.2/rules_python-0.33.2.tar.gz",
 )
 
 # Third-party Bazel
@@ -113,9 +113,9 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-jiDiqs3T8mT6W+nLqHn6OXLFK/2dUxARIlDn6q9JLyw=",
-    strip_prefix = "fmt-11.0.0",
-    url = "https://github.com/fmtlib/fmt/archive/11.0.0.tar.gz",
+    integrity = "sha256-fQCff4mshMCoP3ntYCRj0JL79mdjdmqQfJf9ArEA9ek=",
+    strip_prefix = "fmt-11.0.1",
+    url = "https://github.com/fmtlib/fmt/archive/11.0.1.tar.gz",
 )
 
 # https://github.com/freetype/freetype
@@ -206,9 +206,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-m/E74A+h4cWJGpDbw5uYPgmXLwlyqJVsIKmXTO38yi8=",
-    strip_prefix = "simdjson-3.9.4",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.4.tar.gz",
+    integrity = "sha256-PZ6JSg3thcAA7Ftu0UUKtLA39EupXrOw/vtM2nLNnas=",
+    strip_prefix = "simdjson-3.9.5",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.5.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -308,9 +308,9 @@ http_archive(
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    integrity = "sha256-312jtMN0eGhqck8BdLBnvHP02o6YCECzQbPyGCss+TE=",
-    strip_prefix = "wpt-merge_pr_46647",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_46647.tar.gz",
+    integrity = "sha256-b9e2HuwsOniLZDVvc+WRkh/qZW5FQtFrs2l8Uj+coDM=",
+    strip_prefix = "wpt-merge_pr_47050",
+    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_47050.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
