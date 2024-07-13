@@ -304,13 +304,14 @@ http_archive(
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
+# HEAD as of 2024-07-13
 # https://github.com/web-platform-tests/wpt
 http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    integrity = "sha256-b9e2HuwsOniLZDVvc+WRkh/qZW5FQtFrs2l8Uj+coDM=",
-    strip_prefix = "wpt-merge_pr_47050",
-    url = "https://github.com/web-platform-tests/wpt/archive/refs/tags/merge_pr_47050.tar.gz",
+    integrity = "sha256-fGBDYcOvggvyutrTNyDdW1Vgc5jTLtlbTWIS3WRSOiY=",
+    strip_prefix = "wpt-f3dd9cba239a9655951ee62ec4dafc8fe37df2c5",
+    url = "https://github.com/web-platform-tests/wpt/archive/f3dd9cba239a9655951ee62ec4dafc8fe37df2c5.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
