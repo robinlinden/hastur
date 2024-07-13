@@ -6,12 +6,12 @@
 #define LAYOUT_LAYOUT_BOX_H_
 
 #include "layout/box_model.h"
-#include "layout/unresolved_value.h"
 
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
+#include "style/unresolved_value.h"
 
 #include <cassert>
 #include <optional>
@@ -44,7 +44,7 @@ struct LayoutBox {
             return get_border_radius_property(T);
         } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
                 || T == css::PropertyId::MaxWidth) {
-            return UnresolvedValue{node->get_raw_property(T)};
+            return style::UnresolvedValue{node->get_raw_property(T)};
         } else {
             return node->get_property<T>();
         }
@@ -89,19 +89,6 @@ inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
         children.push_back(&child);
     }
     return children;
-}
-
-// TODO(robinlinden): This should be internal.
-std::optional<int> try_to_px(std::string_view property,
-        int font_size,
-        int root_font_size,
-        std::optional<int> parent_property_value = std::nullopt);
-
-inline int to_px(std::string_view property,
-        int font_size,
-        int root_font_size,
-        std::optional<int> parent_property_value = std::nullopt) {
-    return try_to_px(property, font_size, root_font_size, parent_property_value).value_or(0);
 }
 
 } // namespace layout

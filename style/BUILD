@@ -3,14 +3,11 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "style",
-    srcs = [
-        "style.cpp",
-        "styled_node.cpp",
-    ],
-    hdrs = [
-        "style.h",
-        "styled_node.h",
-    ],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
