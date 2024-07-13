@@ -8,8 +8,8 @@
 #include "dom/dom.h"
 #include "etest/etest2.h"
 #include "gfx/color.h"
-#include "layout/unresolved_value.h"
 #include "style/styled_node.h"
+#include "style/unresolved_value.h"
 
 #include <optional>
 #include <source_location>
@@ -68,14 +68,14 @@ int main() {
     });
 
     s.add_test("width", [](etest::IActions &a) {
-        expect_property_eq<MinWidth>(a, "13px", layout::UnresolvedValue{"13px"});
-        expect_property_eq<MinWidth>(a, "auto", layout::UnresolvedValue{"auto"});
+        expect_property_eq<MinWidth>(a, "13px", style::UnresolvedValue{"13px"});
+        expect_property_eq<MinWidth>(a, "auto", style::UnresolvedValue{"auto"});
 
-        expect_property_eq<Width>(a, "42px", layout::UnresolvedValue{"42px"});
-        expect_property_eq<Width>(a, "auto", layout::UnresolvedValue{"auto"});
+        expect_property_eq<Width>(a, "42px", style::UnresolvedValue{"42px"});
+        expect_property_eq<Width>(a, "auto", style::UnresolvedValue{"auto"});
 
-        expect_property_eq<MaxWidth>(a, "420px", layout::UnresolvedValue{"420px"});
-        expect_property_eq<MaxWidth>(a, "none", layout::UnresolvedValue{"none"});
+        expect_property_eq<MaxWidth>(a, "420px", style::UnresolvedValue{"420px"});
+        expect_property_eq<MaxWidth>(a, "none", style::UnresolvedValue{"none"});
     });
 
     return s.run();

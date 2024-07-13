@@ -9,20 +9,16 @@
 #include "dom/dom.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
-#include "util/from_chars.h"
+#include "style/unresolved_value.h"
 #include "util/string.h"
-
-#include <spdlog/spdlog.h>
 
 #include <cassert>
 #include <cstdint>
-#include <iterator>
 #include <optional>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <utility>
 #include <variant>
 
@@ -108,7 +104,7 @@ std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) co
 
     int font_size = node->get_property<css::PropertyId::FontSize>();
     int root_font_size = get_root_font_size(*node);
-    return {to_px(horizontal, font_size, root_font_size), to_px(vertical, font_size, root_font_size)};
+    return {style::to_px(horizontal, font_size, root_font_size), style::to_px(vertical, font_size, root_font_size)};
 }
 
 LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
@@ -133,62 +129,6 @@ std::string to_string(LayoutBox const &box) {
     std::stringstream ss;
     print_box(box, ss);
     return std::move(ss).str();
-}
-
-std::optional<int> try_to_px(std::string_view property,
-        int const font_size,
-        int const root_font_size,
-        std::optional<int> parent_property_value) {
-    // Special case for 0 since it won't ever have a unit that needs to be handled.
-    if (property == "0") {
-        return 0;
-    }
-
-    float res{};
-    auto parse_result = util::from_chars(property.data(), property.data() + property.size(), res);
-    if (parse_result.ec != std::errc{}) {
-        spdlog::warn("Unable to parse property '{}' in to_px", property);
-        return std::nullopt;
-    }
-
-    auto const parsed_length = std::distance(property.data(), parse_result.ptr);
-    auto const unit = property.substr(parsed_length);
-
-    if (unit == "%") {
-        if (!parent_property_value.has_value()) {
-            spdlog::warn("Missing parent-value for property w/ '%' unit");
-            return std::nullopt;
-        }
-
-        return static_cast<int>(res / 100.f * (*parent_property_value));
-    }
-
-    if (unit == "px") {
-        return static_cast<int>(res);
-    }
-
-    if (unit == "em") {
-        res *= static_cast<float>(font_size);
-        return static_cast<int>(res);
-    }
-
-    if (unit == "rem") {
-        res *= static_cast<float>(root_font_size);
-        return static_cast<int>(res);
-    }
-
-    // https://www.w3.org/TR/css3-values/#ex
-    // https://www.w3.org/TR/css3-values/#ch
-    if (unit == "ex" || unit == "ch") {
-        // Technically, these are the height of an 'x' or '0' glyph
-        // respectively, but we're allowed to approximate it as 50% of the em
-        // value.
-        static constexpr float kExToEmRatio = 0.5f;
-        return static_cast<int>(res * kExToEmRatio * font_size);
-    }
-
-    spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
-    return std::nullopt;
 }
 
 } // namespace layout

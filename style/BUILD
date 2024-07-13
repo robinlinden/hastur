@@ -3,14 +3,11 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_library(
     name = "style",
-    srcs = [
-        "style.cpp",
-        "styled_node.cpp",
-    ],
-    hdrs = [
-        "style.h",
-        "styled_node.h",
-    ],
+    srcs = glob(
+        include = ["*.cpp"],
+        exclude = ["*_test.cpp"],
+    ),
+    hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
@@ -23,24 +20,10 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "style_test",
+[cc_test(
+    name = src[:-4],
     size = "small",
-    srcs = ["style_test.cpp"],
-    copts = HASTUR_COPTS,
-    deps = [
-        ":style",
-        "//css",
-        "//dom",
-        "//etest",
-        "@fmt",
-    ],
-)
-
-cc_test(
-    name = "styled_node_test",
-    size = "small",
-    srcs = ["styled_node_test.cpp"],
+    srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
         ":style",
@@ -48,5 +31,6 @@ cc_test(
         "//dom",
         "//etest",
         "//gfx",
+        "@fmt",
     ],
-)
+) for src in glob(["*_test.cpp"])]
