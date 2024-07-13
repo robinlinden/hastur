@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <span>
 #include <string>
 #include <string_view>
@@ -122,6 +123,14 @@ public:
 
     void reconstruct_active_formatting_elements() override {
         // TODO(robinlinden): Implement.
+    }
+
+    std::vector<std::string_view> names_of_open_elements() const override {
+        std::vector<std::string_view> names;
+        names.reserve(open_elements_.size());
+        std::ranges::transform(open_elements_, std::back_inserter(names), &dom::Element::name);
+        std::ranges::reverse(names);
+        return names;
     }
 
 private:
