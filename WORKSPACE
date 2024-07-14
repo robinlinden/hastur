@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 
@@ -304,14 +305,14 @@ http_archive(
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# HEAD as of 2024-07-13
+# Can't use http_archive for wpt as their archives don't have stable checksums.
+# See: https://github.com/web-platform-tests/wpt/issues/47124
 # https://github.com/web-platform-tests/wpt
-http_archive(
+git_repository(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    integrity = "sha256-fGBDYcOvggvyutrTNyDdW1Vgc5jTLtlbTWIS3WRSOiY=",
-    strip_prefix = "wpt-f3dd9cba239a9655951ee62ec4dafc8fe37df2c5",
-    url = "https://github.com/web-platform-tests/wpt/archive/f3dd9cba239a9655951ee62ec4dafc8fe37df2c5.tar.gz",
+    commit = "f3dd9cba239a9655951ee62ec4dafc8fe37df2c5",  # HEAD as of 2024-07-13
+    remote = "https://github.com/web-platform-tests/wpt",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
