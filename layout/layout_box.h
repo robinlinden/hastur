@@ -11,13 +11,11 @@
 #include "dom/dom.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
-#include "style/unresolved_value.h"
 
 #include <cassert>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <variant>
 #include <vector>
 
@@ -39,19 +37,8 @@ struct LayoutBox {
         // doesn't have a StyleNode) is a programming error.
         assert(!is_anonymous_block());
         assert(node);
-        if constexpr (T == css::PropertyId::BorderBottomLeftRadius || T == css::PropertyId::BorderBottomRightRadius
-                || T == css::PropertyId::BorderTopLeftRadius || T == css::PropertyId::BorderTopRightRadius) {
-            return get_border_radius_property(T);
-        } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
-                || T == css::PropertyId::MaxWidth) {
-            return style::UnresolvedValue{node->get_raw_property(T)};
-        } else {
-            return node->get_property<T>();
-        }
+        return node->get_property<T>();
     }
-
-private:
-    std::pair<int, int> get_border_radius_property(css::PropertyId) const;
 };
 
 LayoutBox const *box_at_position(LayoutBox const &, geom::Position);

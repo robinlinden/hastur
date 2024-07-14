@@ -9,8 +9,6 @@
 #include "dom/dom.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
-#include "style/unresolved_value.h"
-#include "util/string.h"
 
 #include <cassert>
 #include <cstdint>
@@ -79,14 +77,6 @@ void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
     }
 }
 
-int get_root_font_size(style::StyledNode const &node) {
-    auto const *n = &node;
-    while (n->parent != nullptr) {
-        n = n->parent;
-    }
-    return n->get_property<css::PropertyId::FontSize>();
-}
-
 } // namespace
 
 std::optional<std::string_view> LayoutBox::text() const {
@@ -96,15 +86,6 @@ std::optional<std::string_view> LayoutBox::text() const {
         std::optional<std::string_view> operator()(std::string_view const &s) { return s; }
     };
     return std::visit(Visitor{}, layout_text);
-}
-
-std::pair<int, int> LayoutBox::get_border_radius_property(css::PropertyId id) const {
-    auto raw = node->get_raw_property(id);
-    auto [horizontal, vertical] = raw.contains('/') ? util::split_once(raw, "/") : std::pair{raw, raw};
-
-    int font_size = node->get_property<css::PropertyId::FontSize>();
-    int root_font_size = get_root_font_size(*node);
-    return {style::to_px(horizontal, font_size, root_font_size), style::to_px(vertical, font_size, root_font_size)};
 }
 
 LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
