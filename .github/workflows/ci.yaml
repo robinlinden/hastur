@@ -99,7 +99,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: ${{ matrix.name }}-
       - name: Test
         run: bazel test //... ${{ matrix.bazel }}
       - name: Run
@@ -135,7 +134,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: coverage-${{ matrix.compiler }}-${{ matrix.version }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: coverage-${{ matrix.compiler }}-${{ matrix.version }}-
       - name: Setup (gcc)
         if: startsWith(matrix.compiler, 'gcc')
         run: |
@@ -189,7 +187,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: aarch64_linux_muslc-
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
       - run: sudo update-binfmts --enable qemu-aarch64
       - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
@@ -315,7 +312,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-          restore-keys: clang_tidy-
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
