@@ -4,6 +4,8 @@
 
 #include "style/styled_node.h"
 
+#include "style/unresolved_value.h"
+
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "dom/xpath.h"
@@ -54,7 +56,9 @@ void expect_relative_property_eq(std::string value,
 } // namespace
 
 int main() {
-    etest::test("get_property", [] { expect_property_eq<css::PropertyId::Width>("15px", "15px"); });
+    etest::test("get_property", [] {
+        expect_property_eq<css::PropertyId::Width>("15px", style::UnresolvedValue{"15px"}); //
+    });
 
     etest::test("property inheritance", [] {
         dom::Node dom_node = dom::Element{"dummy"s};
@@ -67,7 +71,7 @@ int main() {
         auto &child = root.children.emplace_back(style::StyledNode{dom_node, {}, {}, &root});
 
         // Not inherited, returns the initial value.
-        expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
+        expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
 
         // Inherited, returns the parent's value.
         expect_eq(child.get_property<css::PropertyId::FontSize>(), 15);
@@ -112,7 +116,7 @@ int main() {
         child.parent = &root;
 
         // inherit, but not in parent, so receives initial value for property.
-        expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
+        expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
 
         // inherit, value in parent.
         expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
@@ -142,7 +146,7 @@ int main() {
         child.parent = &root;
 
         // unset, not inherited, so receives initial value for property.
-        expect_eq(child.get_property<css::PropertyId::Width>(), "auto"sv);
+        expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
 
         // unset, inherited, value in parent.
         expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));

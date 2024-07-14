@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef LAYOUT_UNRESOLVED_VALUE_H_
-#define LAYOUT_UNRESOLVED_VALUE_H_
+#ifndef STYLE_UNRESOLVED_VALUE_H_
+#define STYLE_UNRESOLVED_VALUE_H_
 
 #include <optional>
 #include <string_view>
 
-namespace layout {
+namespace style {
 
 struct UnresolvedValue {
     std::string_view raw{};
@@ -21,6 +21,19 @@ struct UnresolvedValue {
             int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
 };
 
-} // namespace layout
+// TODO(robinlinden): This should be internal.
+std::optional<int> try_to_px(std::string_view property,
+        int font_size,
+        int root_font_size,
+        std::optional<int> parent_property_value = std::nullopt);
+
+inline int to_px(std::string_view property,
+        int font_size,
+        int root_font_size,
+        std::optional<int> parent_property_value = std::nullopt) {
+    return try_to_px(property, font_size, root_font_size, parent_property_value).value_or(0);
+}
+
+} // namespace style
 
 #endif

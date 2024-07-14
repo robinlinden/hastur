@@ -5,6 +5,8 @@
 #ifndef STYLE_STYLED_NODE_H_
 #define STYLE_STYLED_NODE_H_
 
+#include "style/unresolved_value.h"
+
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "gfx/color.h"
@@ -144,6 +146,13 @@ struct StyledNode {
             return get_text_transform_property();
         } else if constexpr (T == css::PropertyId::WhiteSpace) {
             return get_white_space_property();
+        } else if constexpr (T == css::PropertyId::BorderBottomLeftRadius
+                || T == css::PropertyId::BorderBottomRightRadius || T == css::PropertyId::BorderTopLeftRadius
+                || T == css::PropertyId::BorderTopRightRadius) {
+            return get_border_radius_property(T);
+        } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
+                || T == css::PropertyId::MaxWidth) {
+            return UnresolvedValue{get_raw_property(T)};
         } else {
             return get_raw_property(T);
         }
@@ -163,6 +172,7 @@ private:
     std::vector<TextDecorationLine> get_text_decoration_line_property() const;
     std::optional<TextTransform> get_text_transform_property() const;
     std::optional<WhiteSpace> get_white_space_property() const;
+    std::pair<int, int> get_border_radius_property(css::PropertyId) const;
 };
 
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {

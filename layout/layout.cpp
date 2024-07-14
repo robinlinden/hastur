@@ -11,6 +11,7 @@
 #include "dom/dom.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
+#include "style/unresolved_value.h"
 #include "type/naive.h"
 #include "type/type.h"
 #include "util/string.h"
@@ -426,10 +427,10 @@ void Layouter::calculate_left_and_right_margin(LayoutBox &box,
         int margin_px = (parent.width - box.dimensions.border_box().width) / 2;
         box.dimensions.margin.left = box.dimensions.margin.right = margin_px;
     } else if (margin_left == "auto" && margin_right != "auto") {
-        box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size_);
+        box.dimensions.margin.right = style::to_px(margin_right, font_size, root_font_size_);
         box.dimensions.margin.left = parent.width - box.dimensions.margin_box().width;
     } else if (margin_left != "auto" && margin_right == "auto") {
-        box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size_);
+        box.dimensions.margin.left = style::to_px(margin_left, font_size, root_font_size_);
         box.dimensions.margin.right = parent.width - box.dimensions.margin_box().width;
     } else {
         // TODO(mkiael): Compute margin depending on direction property
@@ -441,10 +442,10 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
     assert(box.node != nullptr);
 
     auto margin_top = box.get_property<css::PropertyId::MarginTop>();
-    box.dimensions.margin.top = to_px(margin_top, font_size, root_font_size_);
+    box.dimensions.margin.top = style::to_px(margin_top, font_size, root_font_size_);
 
     auto margin_bottom = box.get_property<css::PropertyId::MarginBottom>();
-    box.dimensions.margin.bottom = to_px(margin_bottom, font_size, root_font_size_);
+    box.dimensions.margin.bottom = style::to_px(margin_bottom, font_size, root_font_size_);
 
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
@@ -459,10 +460,10 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
         calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
     } else {
         if (margin_left != "auto") {
-            box.dimensions.margin.left = to_px(margin_left, font_size, root_font_size_);
+            box.dimensions.margin.left = style::to_px(margin_left, font_size, root_font_size_);
         }
         if (margin_right != "auto") {
-            box.dimensions.margin.right = to_px(margin_right, font_size, root_font_size_);
+            box.dimensions.margin.right = style::to_px(margin_right, font_size, root_font_size_);
         }
         box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
     }
@@ -497,30 +498,32 @@ void Layouter::calculate_height(LayoutBox &box, int const font_size) const {
     }
 
     if (auto height = box.get_property<css::PropertyId::Height>(); height != "auto") {
-        box.dimensions.content.height = to_px(height, font_size, root_font_size_);
+        box.dimensions.content.height = style::to_px(height, font_size, root_font_size_);
     }
 
     if (auto min = box.get_property<css::PropertyId::MinHeight>(); min != "auto") {
-        box.dimensions.content.height = std::max(box.dimensions.content.height, to_px(min, font_size, root_font_size_));
+        box.dimensions.content.height =
+                std::max(box.dimensions.content.height, style::to_px(min, font_size, root_font_size_));
     }
 
     if (auto max = box.get_property<css::PropertyId::MaxHeight>(); max != "none") {
-        box.dimensions.content.height = std::min(box.dimensions.content.height, to_px(max, font_size, root_font_size_));
+        box.dimensions.content.height =
+                std::min(box.dimensions.content.height, style::to_px(max, font_size, root_font_size_));
     }
 }
 
 void Layouter::calculate_padding(LayoutBox &box, int const font_size) const {
     auto padding_left = box.get_property<css::PropertyId::PaddingLeft>();
-    box.dimensions.padding.left = to_px(padding_left, font_size, root_font_size_);
+    box.dimensions.padding.left = style::to_px(padding_left, font_size, root_font_size_);
 
     auto padding_right = box.get_property<css::PropertyId::PaddingRight>();
-    box.dimensions.padding.right = to_px(padding_right, font_size, root_font_size_);
+    box.dimensions.padding.right = style::to_px(padding_right, font_size, root_font_size_);
 
     auto padding_top = box.get_property<css::PropertyId::PaddingTop>();
-    box.dimensions.padding.top = to_px(padding_top, font_size, root_font_size_);
+    box.dimensions.padding.top = style::to_px(padding_top, font_size, root_font_size_);
 
     auto padding_bottom = box.get_property<css::PropertyId::PaddingBottom>();
-    box.dimensions.padding.bottom = to_px(padding_bottom, font_size, root_font_size_);
+    box.dimensions.padding.bottom = style::to_px(padding_bottom, font_size, root_font_size_);
 }
 
 // https://drafts.csswg.org/css-backgrounds/#the-border-width
@@ -537,7 +540,7 @@ void Layouter::calculate_border(LayoutBox &box, int const font_size) const {
             return it->second;
         }
 
-        return to_px(border_width_property, font_size, root_font_size_);
+        return style::to_px(border_width_property, font_size, root_font_size_);
     };
 
     if (box.get_property<css::PropertyId::BorderLeftStyle>() != style::BorderStyle::None) {

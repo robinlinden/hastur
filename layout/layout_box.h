@@ -6,7 +6,6 @@
 #define LAYOUT_LAYOUT_BOX_H_
 
 #include "layout/box_model.h"
-#include "layout/unresolved_value.h"
 
 #include "css/property_id.h"
 #include "dom/dom.h"
@@ -17,7 +16,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <variant>
 #include <vector>
 
@@ -39,21 +37,8 @@ struct LayoutBox {
         // doesn't have a StyleNode) is a programming error.
         assert(!is_anonymous_block());
         assert(node);
-        if constexpr (T == css::PropertyId::BorderBottomLeftRadius || T == css::PropertyId::BorderBottomRightRadius
-                || T == css::PropertyId::BorderTopLeftRadius || T == css::PropertyId::BorderTopRightRadius) {
-            return get_border_radius_property(T);
-        } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
-                || T == css::PropertyId::MaxWidth) {
-            return UnresolvedValue{node->get_raw_property(T)};
-        } else {
-            return node->get_property<T>();
-        }
+        return node->get_property<T>();
     }
-
-private:
-    std::pair<int, int> get_border_radius_property(css::PropertyId) const;
-    std::optional<int> get_min_width_property() const;
-    std::optional<int> get_max_width_property() const;
 };
 
 LayoutBox const *box_at_position(LayoutBox const &, geom::Position);
@@ -89,19 +74,6 @@ inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
         children.push_back(&child);
     }
     return children;
-}
-
-// TODO(robinlinden): This should be internal.
-std::optional<int> try_to_px(std::string_view property,
-        int font_size,
-        int root_font_size,
-        std::optional<int> parent_property_value = std::nullopt);
-
-inline int to_px(std::string_view property,
-        int font_size,
-        int root_font_size,
-        std::optional<int> parent_property_value = std::nullopt) {
-    return try_to_px(property, font_size, root_font_size, parent_property_value).value_or(0);
 }
 
 } // namespace layout

@@ -4,6 +4,8 @@
 
 #include "style/styled_node.h"
 
+#include "style/unresolved_value.h"
+
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "gfx/color.h"
@@ -32,6 +34,14 @@ using namespace std::literals;
 
 namespace style {
 namespace {
+
+int get_root_font_size(style::StyledNode const &node) {
+    auto const *n = &node;
+    while (n->parent != nullptr) {
+        n = n->parent;
+    }
+    return n->get_property<css::PropertyId::FontSize>();
+}
 
 std::optional<gfx::Color> try_from_hex_chars(std::string_view hex_chars) {
     if (!hex_chars.starts_with('#')) {
@@ -691,6 +701,15 @@ std::optional<WhiteSpace> StyledNode::get_white_space_property() const {
 
     spdlog::warn("Unhandled white-space '{}'", raw);
     return std::nullopt;
+}
+
+std::pair<int, int> StyledNode::get_border_radius_property(css::PropertyId id) const {
+    auto raw = get_raw_property(id);
+    auto [horizontal, vertical] = raw.contains('/') ? util::split_once(raw, "/") : std::pair{raw, raw};
+
+    int font_size = get_property<css::PropertyId::FontSize>();
+    int root_font_size = get_root_font_size(*this);
+    return {to_px(horizontal, font_size, root_font_size), to_px(vertical, font_size, root_font_size)};
 }
 
 } // namespace style
