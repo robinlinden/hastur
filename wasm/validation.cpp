@@ -153,12 +153,12 @@ struct InstValidator {
     std::vector<ControlFrame> control_stack;
 
     void push_val(ValueOrUnknown const &);
-    tl::expected<ValueOrUnknown, ValidationError> pop_val();
-    tl::expected<ValueOrUnknown, ValidationError> pop_val_expect(ValueOrUnknown const &);
+    [[nodiscard]] tl::expected<ValueOrUnknown, ValidationError> pop_val();
+    [[nodiscard]] tl::expected<ValueOrUnknown, ValidationError> pop_val_expect(ValueOrUnknown const &);
     void push_vals(std::vector<ValueType> const &);
-    tl::expected<std::vector<ValueOrUnknown>, ValidationError> pop_vals(std::vector<ValueType> const &);
+    [[nodiscard]] tl::expected<std::vector<ValueOrUnknown>, ValidationError> pop_vals(std::vector<ValueType> const &);
     void push_ctrl(Instruction, std::vector<ValueType>, std::vector<ValueType>);
-    tl::expected<ControlFrame, ValidationError> pop_ctrl();
+    [[nodiscard]] tl::expected<ControlFrame, ValidationError> pop_ctrl();
     std::vector<ValueType> const &label_types(ControlFrame const &);
     void mark_unreachable();
 };
