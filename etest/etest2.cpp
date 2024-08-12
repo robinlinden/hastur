@@ -91,7 +91,7 @@ int Suite::run(RunOptions const &opts) {
 
     bool failure = false;
     for (auto const &test : tests_to_run) {
-        std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": ";
+        std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": " << std::flush;
 
         Actions a{};
 #ifdef ETEST_EXCEPTIONS
