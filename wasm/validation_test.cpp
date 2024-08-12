@@ -197,5 +197,19 @@ int main() {
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
     });
 
+    s.add_test("Function: localtee, valid", [=](etest::IActions &a) mutable {
+        m.code_section->entries[0].code = {I32Const{42}, LocalTee{.idx = 0}};
+        m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
+
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Function: localtee, missing arg", [=](etest::IActions &a) mutable {
+        m.code_section->entries[0].code = {LocalTee{.idx = 0}};
+        m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+    });
+
     return s.run();
 }

@@ -408,8 +408,11 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
                 return tl::unexpected{ValidationError::LocalUndefined};
             }
 
+            if (auto pop_res = v.pop_val_expect(func_code.locals[lt->idx].type); !pop_res.has_value()) {
+                return tl::unexpected{pop_res.error()};
+            }
+
             v.push_val(func_code.locals[lt->idx].type);
-            v.pop_val_expect(func_code.locals[lt->idx].type);
         }
         // https://webassembly.github.io/spec/core/valid/instructions.html#memory-instructions
         else if (I32Load const *i32l = std::get_if<I32Load>(&inst)) {
