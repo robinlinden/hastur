@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -180,6 +181,20 @@ int main() {
         m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
 
         a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Function: localset & localget, valid", [=](etest::IActions &a) mutable {
+        m.code_section->entries[0].code = {I32Const{42}, LocalSet{.idx = 0}, LocalGet{.idx = 0}};
+        m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
+
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Function: localset & localget, missing arg", [=](etest::IActions &a) mutable {
+        m.code_section->entries[0].code = {LocalSet{.idx = 0}, LocalGet{.idx = 0}};
+        m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     return s.run();

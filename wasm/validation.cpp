@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -399,7 +400,9 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
                 return tl::unexpected{ValidationError::LocalUndefined};
             }
 
-            v.pop_val_expect(func_code.locals[ls->idx].type);
+            if (auto pop_res = v.pop_val_expect(func_code.locals[ls->idx].type); !pop_res.has_value()) {
+                return tl::unexpected{pop_res.error()};
+            }
         } else if (LocalTee const *lt = std::get_if<LocalTee>(&inst)) {
             if (lt->idx >= func_code.locals.size()) {
                 return tl::unexpected{ValidationError::LocalUndefined};
