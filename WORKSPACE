@@ -114,18 +114,18 @@ http_archive(
 http_archive(
     name = "fmt",  # MIT
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-fQCff4mshMCoP3ntYCRj0JL79mdjdmqQfJf9ArEA9ek=",
-    strip_prefix = "fmt-11.0.1",
-    url = "https://github.com/fmtlib/fmt/archive/11.0.1.tar.gz",
+    integrity = "sha256-bLHm03vct1bbvlm+Q4eQ20Cc20hoxm6IjV358T98An8=",
+    strip_prefix = "fmt-11.0.2",
+    url = "https://github.com/fmtlib/fmt/archive/11.0.2.tar.gz",
 )
 
 # https://github.com/freetype/freetype
 http_archive(
     name = "freetype2",  # FTL
     build_file = "//third_party:freetype2.BUILD",
-    sha256 = "427201f5d5151670d05c1f5b45bef5dda1f2e7dd971ef54f0feaaa7ffd2ab90c",
-    strip_prefix = "freetype-VER-2-13-2",
-    url = "https://github.com/freetype/freetype/archive/VER-2-13-2.tar.gz",
+    integrity = "sha256-vFyJjkdW03Pg2ZG6sFMDbF6yqnwNXGfoZi3cbaQMQQM=",
+    strip_prefix = "freetype-VER-2-13-3",
+    url = "https://github.com/freetype/freetype/archive/VER-2-13-3.tar.gz",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
@@ -207,9 +207,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-PZ6JSg3thcAA7Ftu0UUKtLA39EupXrOw/vtM2nLNnas=",
-    strip_prefix = "simdjson-3.9.5",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.9.5.tar.gz",
+    integrity = "sha256-nDBVLx3Q7j0IMrsca3uX2BOxjV7ylMENy2/CQuWUfeg=",
+    strip_prefix = "simdjson-3.10.0",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.10.0.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -263,9 +263,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-sBqpPhqWiu1V9D4HLJjuQB0vIOiXqr2xoWbHFmiG7RE=",
-    strip_prefix = "stb-013ac3beddff3dbffafd5177e7972067cd2b5083",
-    url = "https://github.com/nothings/stb/archive/013ac3beddff3dbffafd5177e7972067cd2b5083.tar.gz",
+    integrity = "sha256-vGzPCL7Aj+qO9CPHEX3KBtL2LSsnxUhfaGVYS1M/p/o=",
+    strip_prefix = "stb-f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31",
+    url = "https://github.com/nothings/stb/archive/f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31.tar.gz",
 )
 
 # https://www.unicode.org/Public/
