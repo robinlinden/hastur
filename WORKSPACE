@@ -1,4 +1,3 @@
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 
@@ -313,14 +312,17 @@ http_archive(
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# Can't use http_archive for wpt as their archives don't have stable checksums.
+# Stuck on the last commit where the archive has the same content every
+# download. git_repository sort of works if we want to upgrade, but it's so slow
+# that downloading wpt occasionally times out in CI.
 # See: https://github.com/web-platform-tests/wpt/issues/47124
 # https://github.com/web-platform-tests/wpt
-git_repository(
+http_archive(
     name = "wpt",  # BSD-3-Clause
     build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    commit = "f3dd9cba239a9655951ee62ec4dafc8fe37df2c5",  # HEAD as of 2024-07-13
-    remote = "https://github.com/web-platform-tests/wpt",
+    integrity = "sha256-sUgB+WnWZ3UEjMoPO5kL4g2kot0TigulBNHbCTi4v9A=",
+    strip_prefix = "wpt-13861f4a19afa26daa9e2a4ca2dcce82fc2e1236",
+    url = "https://github.com/web-platform-tests/wpt/archive/13861f4a19afa26daa9e2a4ca2dcce82fc2e1236.tar.gz",
 )
 
 # The freedesktop GitLab goes down too often to be trusted.
