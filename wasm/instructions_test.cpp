@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "wasm/instructions.h"
 
+#include "wasm/byte_code_parser.h"
 #include "wasm/types.h"
 
 #include "etest/etest2.h"
@@ -20,7 +21,7 @@ using InsnVec = std::vector<wasm::instructions::Instruction>;
 namespace {
 std::optional<InsnVec> parse(std::string s) {
     std::stringstream ss{std::move(s)};
-    return wasm::instructions::parse(ss);
+    return wasm::ByteCodeParser::parse_instructions(ss);
 }
 } // namespace
 

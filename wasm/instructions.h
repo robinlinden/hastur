@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -9,8 +9,6 @@
 #include "wasm/types.h"
 
 #include <cstdint>
-#include <iosfwd>
-#include <optional>
 #include <string_view>
 #include <variant>
 #include <vector>
@@ -18,8 +16,6 @@
 namespace wasm::instructions {
 
 struct BlockType {
-    static std::optional<BlockType> parse(std::istream &);
-
     struct Empty {
         [[nodiscard]] bool operator==(Empty const &) const = default;
     };
@@ -28,8 +24,6 @@ struct BlockType {
 };
 
 struct MemArg {
-    static std::optional<MemArg> parse(std::istream &);
-
     std::uint32_t align{};
     std::uint32_t offset{};
 
@@ -443,7 +437,6 @@ struct I32Load {
     MemArg arg{};
     [[nodiscard]] bool operator==(I32Load const &) const = default;
 };
-std::optional<std::vector<Instruction>> parse(std::istream &);
 
 } // namespace wasm::instructions
 

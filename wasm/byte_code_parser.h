@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "wasm/types.h"
+#include "wasm/instructions.h"
 #include "wasm/wasm.h"
 
 #include <tl/expected.hpp>
@@ -11,6 +11,7 @@
 #include <iosfwd>
 #include <optional>
 #include <string_view>
+#include <vector>
 
 namespace wasm {
 
@@ -79,8 +80,8 @@ public:
     static tl::expected<Module, ModuleParseError> parse_module(std::istream &);
     static tl::expected<Module, ModuleParseError> parse_module(std::istream &&is) { return parse_module(is); }
 
-    // TODO(robinlinden): Make private once instructions are parsed eagerly.
-    static std::optional<ValueType> parse_value_type(std::istream &);
+    // TODO(robinlinden): Make private.
+    static std::optional<std::vector<instructions::Instruction>> parse_instructions(std::istream &);
 };
 
 } // namespace wasm
