@@ -59,7 +59,6 @@ private:
 
     bool render_debug_{};
     bool display_debug_gui_{};
-    bool culling_enabled_{true};
 
     unsigned scale_{1};
 

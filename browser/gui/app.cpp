@@ -320,11 +320,6 @@ void App::step() {
                         spdlog::info("Switched canvas to {}", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML");
                         break;
                     }
-                    case sf::Keyboard::Key::F3: {
-                        culling_enabled_ = !culling_enabled_;
-                        spdlog::info("Culling enabled: {}", culling_enabled_);
-                        break;
-                    }
                     case sf::Keyboard::Key::F4: {
                         display_debug_gui_ = !display_debug_gui_;
                         spdlog::info("Display debug gui: {}", display_debug_gui_);
@@ -722,11 +717,10 @@ void App::render_layout() {
     } else {
         render::render_layout(*canvas_,
                 *layout,
-                culling_enabled_ ? std::optional{geom::Rect{0,
-                                           -scroll_offset_y_,
-                                           static_cast<int>(window_.getSize().x),
-                                           static_cast<int>(window_.getSize().y)}}
-                                 : std::nullopt);
+                std::optional{geom::Rect{0,
+                        -scroll_offset_y_,
+                        static_cast<int>(window_.getSize().x),
+                        static_cast<int>(window_.getSize().y)}});
     }
 }
 
