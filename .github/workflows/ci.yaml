@@ -172,7 +172,7 @@ jobs:
   linux-gcc-13-no-exceptions:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    container: gcc:13.2.0
+    container: gcc:13.3.0
     steps:
       - uses: actions/checkout@v4
       - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
@@ -201,8 +201,8 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v22.0.0
-      WASMTIME_NAME: wasmtime-v22.0.0-x86_64-linux
+      WASMTIME_VERSION: v24.0.0
+      WASMTIME_NAME: wasmtime-v24.0.0-x86_64-linux
     steps:
       - uses: actions/checkout@v4
       - name: Set up wasmtime
@@ -284,7 +284,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install pre-commit
-        run: pip install pre-commit==3.7.1
+        run: pip install pre-commit==3.8.0
       - name: Run pre-commit
         run: pre-commit run --all-files
 
@@ -342,7 +342,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: npm install --global prettier@3.3.2
+      - run: npm install --global prettier@3.3.3
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
       - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
@@ -353,7 +353,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_amd64 && chmod +x shfmt
+      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.9.0/shfmt_v3.9.0_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
 
@@ -380,7 +380,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - run: pip install ruff==0.4.10
+      - run: pip install ruff==0.6.1
       - run: ruff check --output-format=github
       - run: ruff format --diff
 
