@@ -124,8 +124,7 @@ bool should_render(layout::LayoutBox const &layout) {
         return false;
     }
 
-    auto const display = layout.get_property<css::PropertyId::Display>();
-    return display == style::DisplayValue::Block || display == style::DisplayValue::Inline;
+    return layout.get_property<css::PropertyId::Display>().has_value();
 }
 
 void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {

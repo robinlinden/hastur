@@ -115,7 +115,7 @@ int main() {
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         // Our default CSS gives <html> the property display: block.
         require(page->layout.has_value());
-        expect_eq(page->layout->get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
+        expect_eq(page->layout->get_property<css::PropertyId::Display>(), style::Display::block_flow());
 
         responses = Responses{{
                 "hax://example.com"s,
@@ -131,7 +131,7 @@ int main() {
         // The CSS declared in the page should have a higher priority and give
         // <html> the property display: inline.
         require(page->layout.has_value());
-        expect_eq(page->layout->get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
+        expect_eq(page->layout->get_property<css::PropertyId::Display>(), style::Display::inline_flow());
     });
 
     etest::test("multiple inline <head><style> elements are allowed", [] {

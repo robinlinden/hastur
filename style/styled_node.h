@@ -38,10 +38,22 @@ enum class BorderStyle : std::uint8_t {
 
 using OutlineStyle = BorderStyle;
 
-enum class DisplayValue : std::uint8_t {
-    None,
-    Inline,
-    Block,
+struct Display {
+    enum class Outer : std::uint8_t {
+        Inline,
+        Block,
+    };
+    enum class Inner : std::uint8_t {
+        Flow,
+    };
+
+    Outer outer{};
+    Inner inner{};
+
+    [[nodiscard]] constexpr bool operator==(Display const &) const = default;
+
+    constexpr static Display inline_flow() { return {Outer::Inline, Inner::Flow}; }
+    constexpr static Display block_flow() { return {Outer::Block, Inner::Flow}; }
 };
 
 enum class Float : std::uint8_t {
@@ -164,7 +176,7 @@ private:
 
     BorderStyle get_border_style_property(css::PropertyId) const;
     gfx::Color get_color_property(css::PropertyId) const;
-    DisplayValue get_display_property() const;
+    std::optional<Display> get_display_property() const;
     std::optional<Float> get_float_property() const;
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;

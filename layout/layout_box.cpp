@@ -31,8 +31,9 @@ std::string_view layout_type(LayoutBox const &box) {
     }
 
     auto const display = box.get_property<css::PropertyId::Display>();
-    assert(display == style::DisplayValue::Block || display == style::DisplayValue::Inline);
-    if (display == style::DisplayValue::Inline) {
+    assert(display.has_value());
+    assert(display->outer == style::Display::Outer::Block || display->outer == style::Display::Outer::Inline);
+    if (display->outer == style::Display::Outer::Inline) {
         return "inline";
     }
 

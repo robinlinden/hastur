@@ -307,12 +307,13 @@ int main() {
                 .children = {},
         };
 
-        expect_eq(styled_node.get_property<css::PropertyId::Display>(), style::DisplayValue::None);
+        expect_eq(styled_node.get_property<css::PropertyId::Display>(), std::nullopt);
     });
 
     etest::test("get_property, display", [] {
-        expect_property_eq<css::PropertyId::Display>("inline", style::DisplayValue::Inline);
-        expect_property_eq<css::PropertyId::Display>("i cant believe this", style::DisplayValue::Block);
+        using style::Display;
+        expect_property_eq<css::PropertyId::Display>("inline", Display::inline_flow());
+        expect_property_eq<css::PropertyId::Display>("i cant believe this", Display::block_flow());
 
         // Weird float interactions.
         dom::Node dom_node = dom::Element{"dummy"s};
@@ -325,7 +326,7 @@ int main() {
         };
 
         styled.properties[0] = {css::PropertyId::Display, "inline"s};
-        expect_eq(styled.get_property<css::PropertyId::Display>(), style::DisplayValue::Block);
+        expect_eq(styled.get_property<css::PropertyId::Display>(), Display::block_flow());
     });
 
     etest::test("get_property, border-style", [] {
@@ -439,7 +440,7 @@ int main() {
                 std::vector{style::TextDecorationLine::Blink});
 
         // Text is always "display: inline".
-        expect_eq(child.get_property<css::PropertyId::Display>(), style::DisplayValue::Inline);
+        expect_eq(child.get_property<css::PropertyId::Display>(), style::Display::inline_flow());
     });
 
     etest::test("get_property, font-weight", [] {

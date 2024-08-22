@@ -35,8 +35,9 @@ ftxui::Element element_from_node(layout::LayoutBox const &box) {
     }
 
     auto const display = box.get_property<css::PropertyId::Display>();
-    assert(display == style::DisplayValue::Block || display == style::DisplayValue::Inline);
-    if (display == style::DisplayValue::Inline) {
+    assert(display.has_value());
+    assert(display == style::Display::inline_flow() || display == style::Display::block_flow());
+    if (display == style::Display::inline_flow()) {
         if (auto text = box.text()) {
             return ftxui::paragraph(std::string{*text});
         }

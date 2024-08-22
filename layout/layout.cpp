@@ -78,7 +78,7 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
 
     assert(std::holds_alternative<dom::Element>(node.node));
     auto display = node.get_property<css::PropertyId::Display>();
-    if (display == style::DisplayValue::None) {
+    if (!display.has_value()) {
         return std::nullopt;
     }
 
@@ -96,8 +96,9 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
             continue;
         }
 
-        if (child_box->get_property<css::PropertyId::Display>() == style::DisplayValue::Inline
-                && display != style::DisplayValue::Inline) {
+        auto child_display = child.get_property<css::PropertyId::Display>();
+        assert(child_display.has_value());
+        if (child_display == style::Display::inline_flow() && display != style::Display::inline_flow()) {
             if (!last_node_was_anonymous(box)) {
                 box.children.push_back(LayoutBox{nullptr});
             }
@@ -141,7 +142,7 @@ void collapse_whitespace(LayoutBox &box) {
         return !std::holds_alternative<std::monostate>(l.layout_text);
     };
     auto ends_text_run = [](LayoutBox const &l) {
-        return l.is_anonymous_block() || l.get_property<css::PropertyId::Display>() != style::DisplayValue::Inline;
+        return l.is_anonymous_block() || l.get_property<css::PropertyId::Display>() != style::Display::inline_flow();
     };
     auto needs_allocating_whitespace_collapsing = [](std::string_view text) {
         return (std::ranges::adjacent_find(
@@ -278,8 +279,8 @@ void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
 
     // Nodes w/ `display: none` aren't added to the tree and shouldn't end up here.
     auto display = box.get_property<css::PropertyId::Display>();
-    assert(display == style::DisplayValue::Inline || display == style::DisplayValue::Block);
-    if (display == style::DisplayValue::Inline) {
+    assert(display.has_value());
+    if (display == style::Display::inline_flow()) {
         layout_inline(box, bounds);
         return;
     }
