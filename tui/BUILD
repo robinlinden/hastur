@@ -12,7 +12,6 @@ cc_library(
         "//layout",
         "//style",
         "@ftxui",
-        "@spdlog",
     ],
 )
 
