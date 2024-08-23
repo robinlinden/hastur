@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <sstream>
@@ -74,6 +75,7 @@ void parse_error_to_string_tests() {
         expect_eq(wasm::to_string(ModuleParseError::InvalidExportSection), "Invalid export section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidStartSection), "Invalid start section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidCodeSection), "Invalid code section");
+        expect_eq(wasm::to_string(ModuleParseError::InvalidDataSection), "Invalid data section");
         expect_eq(wasm::to_string(ModuleParseError::InvalidDataCountSection), "Invalid data count section");
         expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
 
@@ -663,6 +665,43 @@ void code_section_tests() {
     });
 }
 
+void data_tests() {
+    using wasm::DataSection;
+
+    etest::test("data section, passive data, everything's fine", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1, 1, 3, 1, 2, 3})).value();
+        expect_eq(module.data_section,
+                DataSection{.data{DataSection::PassiveData{{std::byte{1}, std::byte{2}, std::byte{3}}}}});
+    });
+
+    etest::test("data section, passive data, 2 datas", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {2, 1, 1, 37, 1, 1, 42})).value();
+        expect_eq(module.data_section,
+                DataSection{
+                        .data{DataSection::PassiveData{{std::byte{37}}}, DataSection::PassiveData{{std::byte{42}}}}});
+    });
+
+    etest::test("data section, passive data, eof", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1, 1, 3, 1, 2}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+    });
+
+    etest::test("data section, unhandled type", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1, 5}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+    });
+
+    etest::test("data section, missing type", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1}));
+        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+    });
+
+    etest::test("data section, empty", [] {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {0})).value();
+        expect_eq(module.data_section, DataSection{});
+    });
+}
+
 void data_count_tests() {
     etest::test("data count section, 42", [] {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {42})).value();
@@ -729,6 +768,7 @@ int main() {
     export_section_tests();
     start_section_tests();
     code_section_tests();
+    data_tests();
     data_count_tests();
 
     return etest::run_all_tests();

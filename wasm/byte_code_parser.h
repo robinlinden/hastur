@@ -31,6 +31,7 @@ enum class ModuleParseError : std::uint8_t {
     InvalidExportSection,
     InvalidStartSection,
     InvalidCodeSection,
+    InvalidDataSection,
     InvalidDataCountSection,
     UnhandledSection,
 };
@@ -67,6 +68,8 @@ constexpr std::string_view to_string(ModuleParseError e) {
             return "Invalid start section";
         case ModuleParseError::InvalidCodeSection:
             return "Invalid code section";
+        case ModuleParseError::InvalidDataSection:
+            return "Invalid data section";
         case ModuleParseError::InvalidDataCountSection:
             return "Invalid data count section";
         case ModuleParseError::UnhandledSection:

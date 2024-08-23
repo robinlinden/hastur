@@ -8,6 +8,7 @@
 #include "wasm/instructions.h"
 #include "wasm/types.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -139,6 +140,21 @@ struct CodeSection {
     [[nodiscard]] bool operator==(CodeSection const &) const = default;
 };
 
+// https://webassembly.github.io/spec/core/binary/modules.html#data-section
+struct DataSection {
+    // TODO(robinlinden): Active data.
+    struct PassiveData {
+        std::vector<std::byte> data{};
+
+        [[nodiscard]] bool operator==(PassiveData const &) const = default;
+    };
+
+    using Data = std::variant<PassiveData>;
+    std::vector<Data> data{};
+
+    [[nodiscard]] bool operator==(DataSection const &) const = default;
+};
+
 struct DataCountSection {
     std::uint32_t count{};
 
@@ -159,7 +175,7 @@ struct Module {
     std::optional<StartSection> start_section{};
     // TODO(robinlinden): element_section
     std::optional<CodeSection> code_section{};
-    // TODO(robinlinden): data_section
+    std::optional<DataSection> data_section{};
     std::optional<DataCountSection> data_count_section{};
 
     [[nodiscard]] bool operator==(Module const &) const = default;

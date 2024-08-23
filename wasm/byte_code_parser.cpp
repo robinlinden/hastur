@@ -72,6 +72,15 @@ std::optional<std::uint32_t> parse(std::istream &is) {
     return v ? std::optional{*v} : std::nullopt;
 }
 
+template<>
+std::optional<std::byte> parse(std::istream &is) {
+    std::byte b{};
+    if (!is.read(reinterpret_cast<char *>(&b), sizeof(b))) {
+        return std::nullopt;
+    }
+    return b;
+}
+
 // https://webassembly.github.io/spec/core/binary/types.html
 template<>
 std::optional<ValueType> parse(std::istream &is) {
@@ -267,6 +276,29 @@ std::optional<CodeEntry> parse(std::istream &is) {
     };
 }
 
+// https://webassembly.github.io/spec/core/binary/modules.html#binary-codesec
+template<>
+std::optional<DataSection::Data> parse(std::istream &is) {
+    auto type = Leb128<std::uint32_t>::decode_from(is);
+    if (!type) {
+        return std::nullopt;
+    }
+
+    static constexpr std::uint32_t kPassiveDataTag = 1;
+
+    if (*type == kPassiveDataTag) {
+        // TODO(robinlinden): We can read more than 1 byte at a time to speed this up.
+        auto init = parse_vector<std::byte>(is);
+        if (!init) {
+            return std::nullopt;
+        }
+
+        return DataSection::Data{DataSection::PassiveData{.data = *std::move(init)}};
+    }
+
+    return std::nullopt;
+}
+
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-import
 template<>
 std::optional<Import> parse(std::istream &is) {
@@ -452,6 +484,14 @@ std::optional<CodeSection> parse_code_section(std::istream &is) {
     return std::nullopt;
 }
 
+std::optional<DataSection> parse_data_section(std::istream &is) {
+    if (auto data_entries = parse_vector<DataSection::Data>(is)) {
+        return DataSection{.data = *std::move(data_entries)};
+    }
+
+    return std::nullopt;
+}
+
 } // namespace
 
 tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream &is) {
@@ -590,6 +630,12 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
                 module.code_section = parse_code_section(is);
                 if (!module.code_section) {
                     return tl::unexpected{ModuleParseError::InvalidCodeSection};
+                }
+                break;
+            case SectionId::Data:
+                module.data_section = parse_data_section(is);
+                if (!module.data_section) {
+                    return tl::unexpected{ModuleParseError::InvalidDataSection};
                 }
                 break;
             case SectionId::DataCount: {
