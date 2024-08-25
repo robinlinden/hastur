@@ -116,24 +116,15 @@ struct StyledNode {
 
     template<css::PropertyId T>
     auto get_property() const {
-        // Some of these branches have the same content, but we still want to
-        // keep related properties grouped together and away from unrelated
-        // ones, e.g. all border-<side>-color properties in the same branch.
-        // NOLINTBEGIN(bugprone-branch-clone)
-        if constexpr (T == css::PropertyId::BackgroundColor) {
-            return get_color_property(T);
-        } else if constexpr (T == css::PropertyId::BorderBottomColor || T == css::PropertyId::BorderLeftColor
-                || T == css::PropertyId::BorderRightColor || T == css::PropertyId::BorderTopColor) {
+        if constexpr (T == css::PropertyId::BackgroundColor || T == css::PropertyId::BorderBottomColor
+                || T == css::PropertyId::BorderLeftColor || T == css::PropertyId::BorderRightColor
+                || T == css::PropertyId::BorderTopColor || T == css::PropertyId::OutlineColor
+                || T == css::PropertyId::Color) {
             return get_color_property(T);
         } else if constexpr (T == css::PropertyId::BorderBottomStyle || T == css::PropertyId::BorderLeftStyle
-                || T == css::PropertyId::BorderRightStyle || T == css::PropertyId::BorderTopStyle) {
+                || T == css::PropertyId::BorderRightStyle || T == css::PropertyId::BorderTopStyle
+                || T == css::PropertyId::OutlineStyle) {
             return get_border_style_property(T);
-        } else if constexpr (T == css::PropertyId::OutlineStyle) {
-            return get_border_style_property(T);
-        } else if constexpr (T == css::PropertyId::OutlineColor) {
-            return get_color_property(T);
-        } else if constexpr (T == css::PropertyId::Color) {
-            return get_color_property(T);
         } else if constexpr (T == css::PropertyId::Display) {
             return get_display_property();
         } else if constexpr (T == css::PropertyId::Float) {
@@ -168,7 +159,6 @@ struct StyledNode {
         } else {
             return get_raw_property(T);
         }
-        // NOLINTEND(bugprone-branch-clone)
     }
 
 private:
