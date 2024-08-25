@@ -154,7 +154,9 @@ struct StyledNode {
                 || T == css::PropertyId::BorderTopRightRadius) {
             return get_border_radius_property(T);
         } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
-                || T == css::PropertyId::MaxWidth) {
+                || T == css::PropertyId::MaxWidth || T == css::PropertyId::MarginLeft
+                || T == css::PropertyId::MarginRight || T == css::PropertyId::MarginTop
+                || T == css::PropertyId::MarginBottom) {
             return UnresolvedValue{get_raw_property(T)};
         } else {
             return get_raw_property(T);

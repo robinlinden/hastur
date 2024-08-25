@@ -56,8 +56,8 @@ private:
 
     void calculate_left_and_right_margin(LayoutBox &,
             geom::Rect const &parent,
-            std::string_view margin_left,
-            std::string_view margin_right,
+            style::UnresolvedValue margin_left,
+            style::UnresolvedValue margin_right,
             int font_size) const;
     void calculate_width_and_margin(LayoutBox &, geom::Rect const &parent, int font_size) const;
     void calculate_height(LayoutBox &, int font_size) const;
@@ -421,17 +421,17 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
 void Layouter::calculate_left_and_right_margin(LayoutBox &box,
         geom::Rect const &parent,
-        std::string_view margin_left,
-        std::string_view margin_right,
+        style::UnresolvedValue margin_left,
+        style::UnresolvedValue margin_right,
         int const font_size) const {
-    if (margin_left == "auto" && margin_right == "auto") {
+    if (margin_left.is_auto() && margin_right.is_auto()) {
         int margin_px = (parent.width - box.dimensions.border_box().width) / 2;
         box.dimensions.margin.left = box.dimensions.margin.right = margin_px;
-    } else if (margin_left == "auto" && margin_right != "auto") {
-        box.dimensions.margin.right = style::to_px(margin_right, font_size, root_font_size_);
+    } else if (margin_left.is_auto() && !margin_right.is_auto()) {
+        box.dimensions.margin.right = margin_right.resolve(font_size, root_font_size_);
         box.dimensions.margin.left = parent.width - box.dimensions.margin_box().width;
-    } else if (margin_left != "auto" && margin_right == "auto") {
-        box.dimensions.margin.left = style::to_px(margin_left, font_size, root_font_size_);
+    } else if (!margin_left.is_auto() && margin_right.is_auto()) {
+        box.dimensions.margin.left = margin_left.resolve(font_size, root_font_size_);
         box.dimensions.margin.right = parent.width - box.dimensions.margin_box().width;
     } else {
         // TODO(mkiael): Compute margin depending on direction property
@@ -442,11 +442,9 @@ void Layouter::calculate_left_and_right_margin(LayoutBox &box,
 void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) const {
     assert(box.node != nullptr);
 
-    auto margin_top = box.get_property<css::PropertyId::MarginTop>();
-    box.dimensions.margin.top = style::to_px(margin_top, font_size, root_font_size_);
-
-    auto margin_bottom = box.get_property<css::PropertyId::MarginBottom>();
-    box.dimensions.margin.bottom = style::to_px(margin_bottom, font_size, root_font_size_);
+    auto &margins = box.dimensions.margin;
+    margins.top = box.get_property<css::PropertyId::MarginTop>().resolve(font_size, root_font_size_);
+    margins.bottom = box.get_property<css::PropertyId::MarginBottom>().resolve(font_size, root_font_size_);
 
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
@@ -460,11 +458,11 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
         box.dimensions.content.width = *resolved_width;
         calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
     } else {
-        if (margin_left != "auto") {
-            box.dimensions.margin.left = style::to_px(margin_left, font_size, root_font_size_);
+        if (!margin_left.is_auto()) {
+            margins.left = margin_left.resolve(font_size, root_font_size_);
         }
-        if (margin_right != "auto") {
-            box.dimensions.margin.right = style::to_px(margin_right, font_size, root_font_size_);
+        if (!margin_right.is_auto()) {
+            margins.right = margin_right.resolve(font_size, root_font_size_);
         }
         box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
     }
