@@ -246,7 +246,6 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
         return get_raw_property(css::PropertyId::Color);
     }
 
-    // TODO(robinlinden): Fallback values.
     // If this is a var() we can easily expand here, do so.
     if (it->second.starts_with("var(") && (it->second.find(')') != std::string::npos)) {
         auto value = std::string_view{it->second};
