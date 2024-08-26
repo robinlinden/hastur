@@ -152,6 +152,7 @@ jobs:
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
           echo "CC=clang-18" >> $GITHUB_ENV
           echo "CXX=clang++-18" >> $GITHUB_ENV
+      - run: sudo apt-get install libx11-dev
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
       - name: Summary
