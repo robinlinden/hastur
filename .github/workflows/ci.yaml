@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - name: gcc-12
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: gcc
             version: 12
             bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
@@ -30,7 +30,7 @@ jobs:
             version: 14
 
           - name: clang-18-tsan
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: clang
             version: 18
             bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
@@ -38,7 +38,7 @@ jobs:
             fuzz: true
 
           - name: clang-18-asan-ubsan
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: clang
             version: 18
             bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
@@ -46,35 +46,27 @@ jobs:
             fuzz: true
 
           - name: clang-16-libc++
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: clang
             version: 16
             bazel: --config libc++
             apt: libc++abi-16-dev libc++-16-dev
 
           - name: clang-17-libc++
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: clang
             version: 17
             bazel: --config libc++
             apt: libc++abi-17-dev libc++-17-dev libclang-rt-17-dev
 
           - name: clang-18-libc++
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             compiler: clang
             version: 18
             bazel: --config libc++
             apt: libc++abi-18-dev libc++-18-dev libclang-rt-18-dev
 
     steps:
-      - name: Prepare gcc install
-        if: matrix.os == 'ubuntu-22.04' && startsWith(matrix.compiler, 'gcc') && matrix.version >= 13
-        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-      - name: Prepare clang install
-        if: startsWith(matrix.compiler, 'clang') && matrix.version >= 15
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.version }} main"
       - name: Setup gcc
         if: startsWith(matrix.compiler, 'gcc')
         run: |
@@ -114,7 +106,7 @@ jobs:
 
   coverage:
     name: linux-${{ matrix.compiler }}-${{ matrix.version }}-coverage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     strategy:
@@ -137,7 +129,6 @@ jobs:
       - name: Setup (gcc)
         if: startsWith(matrix.compiler, 'gcc')
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install --no-install-recommends lcov gcc-${{ matrix.version }} g++-${{ matrix.version }}
           echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
@@ -146,8 +137,6 @@ jobs:
       - name: Setup (clang)
         if: startsWith(matrix.compiler, 'clang')
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.version }} main"
           sudo apt-get update
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
           echo "CC=clang-18" >> $GITHUB_ENV
@@ -171,7 +160,7 @@ jobs:
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-gcc-13-no-exceptions:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     container: gcc:13.3.0
     steps:
@@ -180,7 +169,7 @@ jobs:
       - run: ./bazelisk test etest/... --copt=-fno-exceptions
 
   linux-aarch64-muslc:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -199,7 +188,7 @@ jobs:
 
   # https://github.com/bytecodealliance/wasmtime
   wasi-wasm:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       WASMTIME_VERSION: v24.0.0
@@ -280,7 +269,7 @@ jobs:
       - run: bazel run browser -- --exit-after-load http://localhost:12345/example.html
 
   pre-commit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -290,7 +279,7 @@ jobs:
         run: pre-commit run --all-files
 
   clang-format:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -305,7 +294,7 @@ jobs:
         run: git diff --exit-code
 
   clang-tidy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -313,10 +302,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-      - name: Set up the llvm repository
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-18 libc++abi-18-dev libc++-18-dev
       - run: echo "CC=clang-18" >>$GITHUB_ENV && echo "CXX=clang++-18" >>$GITHUB_ENV
       - run: |
@@ -327,7 +312,7 @@ jobs:
       - run: bazel build ... --config libc++ --config clang-tidy --keep_going
 
   buildifier:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -339,7 +324,7 @@ jobs:
         run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl")
 
   prettier:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -350,7 +335,7 @@ jobs:
       - run: git diff --exit-code
 
   shfmt:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -359,14 +344,14 @@ jobs:
       - run: git diff --exit-code
 
   link-liveness:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - run: grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider --no-verbose
 
   gitlint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -377,7 +362,7 @@ jobs:
 
   # https://github.com/astral-sh/ruff
   ruff:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -387,7 +372,7 @@ jobs:
 
   # https://github.com/python/mypy
   mypy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
