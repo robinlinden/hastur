@@ -29,20 +29,20 @@ jobs:
             compiler: gcc
             version: 14
 
-          - name: clang-16-tsan
+          - name: clang-18-tsan
             os: ubuntu-22.04
             compiler: clang
-            version: 16
-            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16 --config libfuzzer
-            apt: libclang-rt-16-dev llvm-16
+            version: 18
+            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
+            apt: libclang-rt-18-dev llvm-18
             fuzz: true
 
-          - name: clang-16-asan-ubsan
+          - name: clang-18-asan-ubsan
             os: ubuntu-22.04
             compiler: clang
-            version: 16
-            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-16 --config libfuzzer
-            apt: libclang-rt-16-dev llvm-16
+            version: 18
+            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
+            apt: libclang-rt-18-dev llvm-18
             fuzz: true
 
           - name: clang-16-libc++
