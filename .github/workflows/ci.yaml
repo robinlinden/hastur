@@ -82,11 +82,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev
-      # See:
-      # * https://github.com/actions/runner-images/issues/9491#issuecomment-1989718917
-      # * https://github.com/google/sanitizers/issues/1716
-      - name: Work around sanitizer and high-entropy ASLR incompatibility
-        run: sudo sysctl vm.mmap_rnd_bits=28
       - uses: actions/cache@v4
         with:
           path: ~/.cache/bazel
