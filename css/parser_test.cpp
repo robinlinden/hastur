@@ -1257,5 +1257,10 @@ int main() {
         a.expect(css::parse("@charset 'shi").rules.empty()); //
     });
 
+    s.add_test("parser: @import", [](etest::IActions &a) {
+        a.expect_eq(css::parse("@import 'test.css'; p { font-size: 3px; }").rules.at(0),
+                css::Rule{{"p"}, {{css::PropertyId::FontSize, "3px"}}});
+    });
+
     return s.run();
 }

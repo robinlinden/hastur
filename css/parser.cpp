@@ -314,6 +314,14 @@ StyleSheet Parser::parse_rules() {
                 return style;
             }
 
+            if (kind == "@import") {
+                std::ignore = consume_while([](char c) { return c != ';'; });
+                consume_char(); // ;
+                skip_whitespace_and_comments();
+                spdlog::warn("Encountered unhandled import at-rule", *kind);
+                continue;
+            }
+
             spdlog::warn("Encountered unhandled {} at-rule", *kind);
 
             skip_whitespace_and_comments();
