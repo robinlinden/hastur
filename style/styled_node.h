@@ -156,7 +156,10 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::MinWidth || T == css::PropertyId::Width
                 || T == css::PropertyId::MaxWidth || T == css::PropertyId::MarginLeft
                 || T == css::PropertyId::MarginRight || T == css::PropertyId::MarginTop
-                || T == css::PropertyId::MarginBottom) {
+                || T == css::PropertyId::MarginBottom || T == css::PropertyId::PaddingLeft
+                || T == css::PropertyId::PaddingRight || T == css::PropertyId::PaddingTop
+                || T == css::PropertyId::PaddingBottom || T == css::PropertyId::MinHeight
+                || T == css::PropertyId::Height || T == css::PropertyId::MaxHeight) {
             return UnresolvedValue{get_raw_property(T)};
         } else {
             return get_raw_property(T);

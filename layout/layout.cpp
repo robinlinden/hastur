@@ -491,38 +491,32 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
 
 void Layouter::calculate_height(LayoutBox &box, int const font_size) const {
     assert(box.node != nullptr);
+    auto &content = box.dimensions.content;
+
     if (auto text = box.text()) {
         int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
-        box.dimensions.content.height = lines * font_size;
+        content.height = lines * font_size;
     }
 
-    if (auto height = box.get_property<css::PropertyId::Height>(); height != "auto") {
-        box.dimensions.content.height = style::to_px(height, font_size, root_font_size_);
+    if (auto height = box.get_property<css::PropertyId::Height>(); !height.is_auto()) {
+        content.height = height.resolve(font_size, root_font_size_);
     }
 
-    if (auto min = box.get_property<css::PropertyId::MinHeight>(); min != "auto") {
-        box.dimensions.content.height =
-                std::max(box.dimensions.content.height, style::to_px(min, font_size, root_font_size_));
+    if (auto min = box.get_property<css::PropertyId::MinHeight>(); !min.is_auto()) {
+        content.height = std::max(content.height, min.resolve(font_size, root_font_size_));
     }
 
-    if (auto max = box.get_property<css::PropertyId::MaxHeight>(); max != "none") {
-        box.dimensions.content.height =
-                std::min(box.dimensions.content.height, style::to_px(max, font_size, root_font_size_));
+    if (auto max = box.get_property<css::PropertyId::MaxHeight>(); !max.is_none()) {
+        content.height = std::min(content.height, max.resolve(font_size, root_font_size_));
     }
 }
 
 void Layouter::calculate_padding(LayoutBox &box, int const font_size) const {
-    auto padding_left = box.get_property<css::PropertyId::PaddingLeft>();
-    box.dimensions.padding.left = style::to_px(padding_left, font_size, root_font_size_);
-
-    auto padding_right = box.get_property<css::PropertyId::PaddingRight>();
-    box.dimensions.padding.right = style::to_px(padding_right, font_size, root_font_size_);
-
-    auto padding_top = box.get_property<css::PropertyId::PaddingTop>();
-    box.dimensions.padding.top = style::to_px(padding_top, font_size, root_font_size_);
-
-    auto padding_bottom = box.get_property<css::PropertyId::PaddingBottom>();
-    box.dimensions.padding.bottom = style::to_px(padding_bottom, font_size, root_font_size_);
+    auto &padding = box.dimensions.padding;
+    padding.left = box.get_property<css::PropertyId::PaddingLeft>().resolve(font_size, root_font_size_);
+    padding.right = box.get_property<css::PropertyId::PaddingRight>().resolve(font_size, root_font_size_);
+    padding.top = box.get_property<css::PropertyId::PaddingTop>().resolve(font_size, root_font_size_);
+    padding.bottom = box.get_property<css::PropertyId::PaddingBottom>().resolve(font_size, root_font_size_);
 }
 
 // https://drafts.csswg.org/css-backgrounds/#the-border-width
