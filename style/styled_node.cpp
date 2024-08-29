@@ -198,7 +198,23 @@ std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std:
     return std::pair{res, unit};
 }
 
+// https://drafts.csswg.org/css-backgrounds/#the-border-width
+// NOLINTNEXTLINE(cert-err58-cpp)
+std::map<std::string_view, int> const border_width_keywords{
+        {"thin", 3},
+        {"medium", 5},
+        {"thick", 7},
+};
+
 } // namespace
+
+int UnresolvedBorderWidth::resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to) const {
+    if (auto it = border_width_keywords.find(width.raw); it != border_width_keywords.end()) {
+        return it->second;
+    }
+
+    return width.resolve(font_size, root_font_size, percent_relative_to);
+}
 
 std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     // We don't support selector specificity yet, so the last property is found

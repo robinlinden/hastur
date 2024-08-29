@@ -105,6 +105,12 @@ enum class WhiteSpace : std::uint8_t {
     PreLine,
 };
 
+struct UnresolvedBorderWidth {
+    UnresolvedValue width{};
+
+    int resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
+};
+
 struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<css::PropertyId, std::string>> properties;
@@ -161,6 +167,9 @@ struct StyledNode {
                 || T == css::PropertyId::PaddingBottom || T == css::PropertyId::MinHeight
                 || T == css::PropertyId::Height || T == css::PropertyId::MaxHeight) {
             return UnresolvedValue{get_raw_property(T)};
+        } else if constexpr (T == css::PropertyId::BorderBottomWidth || T == css::PropertyId::BorderLeftWidth
+                || T == css::PropertyId::BorderRightWidth || T == css::PropertyId::BorderTopWidth) {
+            return UnresolvedBorderWidth{{get_raw_property(T)}};
         } else {
             return get_raw_property(T);
         }

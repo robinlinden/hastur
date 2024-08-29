@@ -24,7 +24,6 @@
 #include <cstdlib>
 #include <iterator>
 #include <list>
-#include <map>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -519,41 +518,25 @@ void Layouter::calculate_padding(LayoutBox &box, int const font_size) const {
     padding.bottom = box.get_property<css::PropertyId::PaddingBottom>().resolve(font_size, root_font_size_);
 }
 
-// https://drafts.csswg.org/css-backgrounds/#the-border-width
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, int> const border_width_keywords{
-        {"thin", 3},
-        {"medium", 5},
-        {"thick", 7},
-};
-
 void Layouter::calculate_border(LayoutBox &box, int const font_size) const {
-    auto as_px = [&](std::string_view border_width_property) {
-        if (auto it = border_width_keywords.find(border_width_property); it != border_width_keywords.end()) {
-            return it->second;
-        }
-
-        return style::to_px(border_width_property, font_size, root_font_size_);
-    };
-
     if (box.get_property<css::PropertyId::BorderLeftStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderLeftWidth>();
-        box.dimensions.border.left = as_px(border_width);
+        box.dimensions.border.left = border_width.resolve(font_size, root_font_size_);
     }
 
     if (box.get_property<css::PropertyId::BorderRightStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderRightWidth>();
-        box.dimensions.border.right = as_px(border_width);
+        box.dimensions.border.right = border_width.resolve(font_size, root_font_size_);
     }
 
     if (box.get_property<css::PropertyId::BorderTopStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderTopWidth>();
-        box.dimensions.border.top = as_px(border_width);
+        box.dimensions.border.top = border_width.resolve(font_size, root_font_size_);
     }
 
     if (box.get_property<css::PropertyId::BorderBottomStyle>() != style::BorderStyle::None) {
         auto border_width = box.get_property<css::PropertyId::BorderBottomWidth>();
-        box.dimensions.border.bottom = as_px(border_width);
+        box.dimensions.border.bottom = border_width.resolve(font_size, root_font_size_);
     }
 }
 
