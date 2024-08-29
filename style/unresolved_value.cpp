@@ -16,40 +16,33 @@
 namespace style {
 
 int UnresolvedValue::resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to) const {
-    return to_px(raw, font_size, root_font_size, percent_relative_to);
+    return try_resolve(font_size, root_font_size, percent_relative_to).value_or(0);
 }
 
 std::optional<int> UnresolvedValue::try_resolve(
         int font_size, int root_font_size, std::optional<int> percent_relative_to) const {
-    return try_to_px(raw, font_size, root_font_size, percent_relative_to);
-}
-
-std::optional<int> try_to_px(std::string_view property,
-        int const font_size,
-        int const root_font_size,
-        std::optional<int> parent_property_value) {
     // Special case for 0 since it won't ever have a unit that needs to be handled.
-    if (property == "0") {
+    if (raw == "0") {
         return 0;
     }
 
     float res{};
-    auto parse_result = util::from_chars(property.data(), property.data() + property.size(), res);
+    auto parse_result = util::from_chars(raw.data(), raw.data() + raw.size(), res);
     if (parse_result.ec != std::errc{}) {
-        spdlog::warn("Unable to parse property '{}' in to_px", property);
+        spdlog::warn("Unable to parse property '{}' in to_px", raw);
         return std::nullopt;
     }
 
-    auto const parsed_length = std::distance(property.data(), parse_result.ptr);
-    auto const unit = property.substr(parsed_length);
+    auto const parsed_length = std::distance(raw.data(), parse_result.ptr);
+    auto const unit = raw.substr(parsed_length);
 
     if (unit == "%") {
-        if (!parent_property_value.has_value()) {
+        if (!percent_relative_to.has_value()) {
             spdlog::warn("Missing parent-value for property w/ '%' unit");
             return std::nullopt;
         }
 
-        return static_cast<int>(res / 100.f * (*parent_property_value));
+        return static_cast<int>(res / 100.f * (*percent_relative_to));
     }
 
     if (unit == "px") {
@@ -76,7 +69,7 @@ std::optional<int> try_to_px(std::string_view property,
         return static_cast<int>(res * kExToEmRatio * font_size);
     }
 
-    spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", property, unit);
+    spdlog::warn("Bad property '{}' w/ unit '{}' in to_px", raw, unit);
     return std::nullopt;
 }
 

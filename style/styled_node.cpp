@@ -721,10 +721,12 @@ std::optional<WhiteSpace> StyledNode::get_white_space_property() const {
 std::pair<int, int> StyledNode::get_border_radius_property(css::PropertyId id) const {
     auto raw = get_raw_property(id);
     auto [horizontal, vertical] = raw.contains('/') ? util::split_once(raw, "/") : std::pair{raw, raw};
+    auto horizontal_prop = UnresolvedValue{horizontal};
+    auto vertical_prop = UnresolvedValue{vertical};
 
     int font_size = get_property<css::PropertyId::FontSize>();
     int root_font_size = get_root_font_size(*this);
-    return {to_px(horizontal, font_size, root_font_size), to_px(vertical, font_size, root_font_size)};
+    return {horizontal_prop.resolve(font_size, root_font_size), vertical_prop.resolve(font_size, root_font_size)};
 }
 
 } // namespace style
