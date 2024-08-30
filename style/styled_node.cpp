@@ -15,12 +15,12 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <iterator>
-#include <map>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -199,17 +199,19 @@ std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std:
 }
 
 // https://drafts.csswg.org/css-backgrounds/#the-border-width
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, int> const border_width_keywords{
+constexpr auto kBorderWidthKeywords = std::to_array<std::pair<std::string_view, int>>({
         {"thin", 3},
         {"medium", 5},
         {"thick", 7},
-};
+});
 
 } // namespace
 
 int UnresolvedBorderWidth::resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to) const {
-    if (auto it = border_width_keywords.find(width.raw); it != border_width_keywords.end()) {
+    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
+    if (auto it = std::ranges::find(
+                kBorderWidthKeywords, width.raw, &decltype(kBorderWidthKeywords)::value_type::first);
+            it != kBorderWidthKeywords.end()) {
         return it->second;
     }
 
@@ -504,8 +506,7 @@ std::optional<TextTransform> StyledNode::get_text_transform_property() const {
 static constexpr int kDefaultFontSize{16};
 // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, float> const font_size_absolute_size_keywords{
+constexpr auto kFontSizeAbsoluteSizeKeywords = std::to_array<std::pair<std::string_view, float>>({
         {"xx-small", 3 / 5.f},
         {"x-small", 3 / 4.f},
         {"small", 8 / 9.f},
@@ -514,7 +515,7 @@ std::map<std::string_view, float> const font_size_absolute_size_keywords{
         {"x-large", 3 / 2.f},
         {"xx-large", 2 / 1.f},
         {"xxx-large", 3 / 1.f},
-};
+});
 
 int StyledNode::get_font_size_property() const {
     auto get_closest_font_size_and_owner =
@@ -537,7 +538,10 @@ int StyledNode::get_font_size_property() const {
     }
     auto raw_value = closest->first;
 
-    if (auto it = font_size_absolute_size_keywords.find(raw_value); it != end(font_size_absolute_size_keywords)) {
+    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
+    if (auto it = std::ranges::find(
+                kFontSizeAbsoluteSizeKeywords, raw_value, &decltype(kFontSizeAbsoluteSizeKeywords)::value_type::first);
+            it != end(kFontSizeAbsoluteSizeKeywords)) {
         return std::lround(it->second * kMediumFontSize);
     }
 
