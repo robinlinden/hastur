@@ -1,10 +1,11 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
-py_binary(
+cc_binary(
     name = "unicode_data_processor",
-    srcs = ["unicode_data_processor.py"],
+    srcs = ["unicode_data_processor.cpp"],
+    copts = HASTUR_COPTS,
+    deps = ["//util:string"],
 )
 
 genrule(
