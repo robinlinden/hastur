@@ -56,6 +56,7 @@ http_archive(
 # =========================================================
 
 # HEAD as of 2022-12-17.
+# https://github.com/hedronvision/bazel-compile-commands-extractor
 http_archive(
     name = "hedron_compile_commands",
     sha256 = "9b5683e6e0d764585f41639076f0be421a4c495c8f993c186e4449977ce03e5e",
@@ -93,6 +94,7 @@ http_archive(
     url = "https://github.com/google/boringssl/archive/d4ae47e5884c815c90579fa548ac600f7b9ba12a.tar.gz",
 )
 
+# https://github.com/google/brotli
 http_archive(
     name = "brotli",  # MIT
     integrity = "sha256-5yCmyilCi4A/StFlNxdx9TmPq6OX7fZ3iDehhZnqE/8=",
@@ -101,6 +103,7 @@ http_archive(
     url = "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz",
 )
 
+# https://github.com/tartanllama/expected
 http_archive(
     name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
@@ -358,6 +361,7 @@ http_archive(
     ],
 )
 
+# https://gitlab.freedesktop.org/xorg/lib/libxrender
 http_archive(
     name = "xrender",  # MIT
     build_file = "//third_party:xrender.BUILD",
@@ -378,6 +382,7 @@ http_archive(
     url = "https://github.com/madler/zlib/archive/v1.3.1.tar.gz",
 )
 
+# https://github.com/facebook/zstd
 http_archive(
     name = "zstd",  # BSD-3-Clause
     build_file = "//third_party:zstd.BUILD",
