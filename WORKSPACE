@@ -84,21 +84,13 @@ http_archive(
     url = "https://github.com/chriskohlhoff/asio/archive/asio-1-30-2.tar.gz",
 )
 
-# TODO(robinlinden): Broken as of 15cf0c04e817c6d3950030bc381db82044b6175c.
-#                    We're stuck on the commit before that for now.
+# HEAD as of 2024-09-03.
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-UuUvjBHbJifybzBvYK/3qSIlc9UzvrjT0VRRNRBTK9E=",
-    patch_cmds = [
-        # boringssl//:ssl cheats and pulls in private includes from boringssl//:crypto.
-        """sed -i'' -e '33i\\\npackage(features=["-layering_check"])' BUILD""",
-        # boringssl tries to use _Generic in C++ code.
-        """sed -i'' -e 's/#if OPENSSL_HAS_BUILTIN(__builtin_addc)/& \\&\\& !defined(__cplusplus)/g' src/crypto/internal.h""",
-        """sed -i'' -e 's/#if OPENSSL_HAS_BUILTIN(__builtin_subc)/& \\&\\& !defined(__cplusplus)/g' src/crypto/internal.h""",
-    ],
-    strip_prefix = "boringssl-c0534bb964f085e4e2f273d23d08e9585e7518aa",
-    url = "https://github.com/google/boringssl/archive/c0534bb964f085e4e2f273d23d08e9585e7518aa.tar.gz",
+    integrity = "sha256-RMoVjHrCg7TgQdwAVQQAwyAEGYByPNeB10KbIn2cxOA=",
+    strip_prefix = "boringssl-d4ae47e5884c815c90579fa548ac600f7b9ba12a",
+    url = "https://github.com/google/boringssl/archive/d4ae47e5884c815c90579fa548ac600f7b9ba12a.tar.gz",
 )
 
 http_archive(
@@ -186,6 +178,10 @@ http_file(
     url = "https://www.unicode.org/Public/idna/15.1.0/IdnaMappingTable.txt",
 )
 
+# 1.91.0 doesn't build w/ clang-cl:
+# external/imgui/imgui_widgets.cpp(5196,62): error: invalid bitwise operation
+# between different enumeration types ('ImGuiItemFlagsPrivate_' and
+# 'ImGuiItemFlags_')
 # https://github.com/ocornut/imgui
 http_archive(
     name = "imgui",  # MIT
@@ -214,9 +210,9 @@ http_archive(
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-nDBVLx3Q7j0IMrsca3uX2BOxjV7ylMENy2/CQuWUfeg=",
-    strip_prefix = "simdjson-3.10.0",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.10.0.tar.gz",
+    integrity = "sha256-Ho+IHLLA9ibFbNNmWDLx6XudT/xkitnhBnwTSGK7oGA=",
+    strip_prefix = "simdjson-3.10.1",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.10.1.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -292,13 +288,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.3.289"
+VULKAN_TAG = "1.3.295"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-/GbbbeZqbjUnwRD/Hbd6hq6XgE/n8BlyXo0lrNyHXG8=",
+    integrity = "sha256-tFaLmEvkuKMXNDzBTYVGaeJYcFB5oWyr7z+5IwL1VWE=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -307,7 +303,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-6RkF/LPOQ9EQouVMn4Wk1mV7ebUVr5ozwip4jNsmF14=",
+    integrity = "sha256-VWpBt6IX+Qp7zL6BMJPu9HhOI5gu+rO6zCUyDSvsWMI=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
