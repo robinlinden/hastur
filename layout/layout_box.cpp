@@ -52,6 +52,7 @@ std::string to_str(geom::EdgeSize const &edge) {
     return std::move(ss).str();
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void print_box(LayoutBox const &box, std::ostream &os, std::uint8_t depth = 0) {
     for (std::uint8_t i = 0; i < depth; ++i) {
         os << "  ";
@@ -89,6 +90,7 @@ std::optional<std::string_view> LayoutBox::text() const {
     return std::visit(Visitor{}, layout_text);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 LayoutBox const *box_at_position(LayoutBox const &box, geom::Position p) {
     if (!box.dimensions.contains(p)) {
         return nullptr;

@@ -40,6 +40,7 @@ bool has_class(dom::Element const &element, std::string_view needle_class) {
 } // namespace
 
 // TODO(robinlinden): This needs to match more things.
+// NOLINTNEXTLINE(misc-no-recursion)
 bool is_match(style::StyledNode const &node, std::string_view selector) {
     auto const &element = std::get<dom::Element>(node.node);
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
@@ -205,6 +206,7 @@ MatchingProperties matching_properties(
 }
 
 namespace {
+// NOLINTNEXTLINE(misc-no-recursion)
 void style_tree_impl(StyledNode &current,
         dom::Node const &root,
         css::StyleSheet const &stylesheet,

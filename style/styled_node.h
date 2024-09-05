@@ -111,6 +111,7 @@ struct UnresolvedBorderWidth {
     int resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
 };
 
+// NOLINTNEXTLINE(misc-no-recursion)
 struct StyledNode {
     dom::Node const &node;
     std::vector<std::pair<css::PropertyId, std::string>> properties;
@@ -191,10 +192,12 @@ private:
     std::pair<int, int> get_border_radius_property(css::PropertyId) const;
 };
 
+// NOLINTBEGIN(misc-no-recursion)
 [[nodiscard]] inline bool operator==(style::StyledNode const &a, style::StyledNode const &b) noexcept {
     return a.node == b.node && a.properties == b.properties && a.custom_properties == b.custom_properties
             && a.children == b.children;
 }
+// NOLINTEND(misc-no-recursion)
 
 inline std::string_view dom_name(StyledNode const &node) {
     return std::get<dom::Element>(node.node).name;

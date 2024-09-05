@@ -661,6 +661,7 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
     return module;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_instructions(std::istream &is) {
     using namespace instructions;
     std::vector<Instruction> instructions{};

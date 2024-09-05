@@ -20,6 +20,7 @@ namespace {
 
 ftxui::Element element_from_node(layout::LayoutBox const &box);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 ftxui::Elements parse_children(layout::LayoutBox const &box) {
     ftxui::Elements children;
     for (auto const &child : box.children) {
@@ -29,6 +30,7 @@ ftxui::Elements parse_children(layout::LayoutBox const &box) {
     return children;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 ftxui::Element element_from_node(layout::LayoutBox const &box) {
     if (box.is_anonymous_block()) {
         return flex(vbox(parse_children(box)));

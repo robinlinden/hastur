@@ -32,6 +32,7 @@ void normalize(Uri &uri) {
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 [[nodiscard]] bool complete_from_base_if_needed(Uri &uri, Uri const &base) {
     if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
         // Origin-relative.
@@ -74,6 +75,7 @@ void normalize(Uri &uri) {
 
 } // namespace
 
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<Uri> Uri::parse(std::string uristr, std::optional<std::reference_wrapper<Uri const>> base_uri) {
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86164
     // Fuzz-testing w/ libstdc++13 still breaks the stack if 2048 characters are allowed.

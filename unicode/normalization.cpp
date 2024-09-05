@@ -18,6 +18,7 @@
 namespace unicode {
 namespace {
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void decompose_to(std::ostream &os, char32_t code_point) {
     // * clang-tidy thinks std::ranges::lower_bound is provided by
     //   <bits/ranges_algo.h> when it's actually provided by <algorithm>.

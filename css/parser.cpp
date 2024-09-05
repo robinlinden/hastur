@@ -405,6 +405,7 @@ constexpr void Parser::skip_whitespace() {
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void Parser::skip_whitespace_and_comments() {
     if (starts_with("/*")) {
         advance(2);
@@ -419,6 +420,7 @@ void Parser::skip_whitespace_and_comments() {
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<css::Rule> Parser::parse_rule() {
     Rule rule{};
     while (peek() != '{') {

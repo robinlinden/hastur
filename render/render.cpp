@@ -127,6 +127,7 @@ bool should_render(layout::LayoutBox const &layout) {
     return layout.get_property<css::PropertyId::Display>().has_value();
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
     if (clip && clip->intersected(layout.dimensions.border_box()).empty()) {
         return;
@@ -170,6 +171,7 @@ void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::
 namespace debug {
 namespace {
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void render_layout_depth_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     painter.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
     for (auto const &child : layout.children) {

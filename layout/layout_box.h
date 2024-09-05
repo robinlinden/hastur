@@ -21,11 +21,13 @@
 
 namespace layout {
 
+// NOLINTNEXTLINE(misc-no-recursion)
 struct LayoutBox {
     style::StyledNode const *node;
     BoxModel dimensions;
     std::vector<LayoutBox> children;
     std::variant<std::monostate, std::string_view, std::string> layout_text;
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
     bool is_anonymous_block() const { return node == nullptr; }

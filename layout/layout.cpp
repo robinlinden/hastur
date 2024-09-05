@@ -70,6 +70,7 @@ bool last_node_was_anonymous(LayoutBox const &box) {
 }
 
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     if (auto const *text = std::get_if<dom::Text>(&node.node)) {
         return LayoutBox{.node = &node, .layout_text = std::string_view{text->text}};
@@ -115,6 +116,7 @@ constexpr bool is_non_space_whitespace(char c) {
     return c != ' ' && util::is_whitespace(c);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void remove_empty_text_boxes(LayoutBox &box) {
     for (auto it = box.children.begin(); it != box.children.end();) {
         auto text = it->text();
@@ -218,6 +220,7 @@ void collapse_whitespace(LayoutBox &box) {
     remove_empty_text_boxes(box);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void apply_text_transforms(LayoutBox &box) {
     if (std::holds_alternative<std::string>(box.layout_text)
             || std::holds_alternative<std::string_view>(box.layout_text)) {
@@ -270,6 +273,7 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
     box.dimensions.content.y = parent.y + parent.height + d.border.top + d.padding.top + d.margin.top;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
     if (box.is_anonymous_block()) {
         layout_anonymous_block(box, bounds);
@@ -295,6 +299,7 @@ type::Weight to_type(std::optional<style::FontWeight> const &weight) {
     return type::Weight::Bold;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
@@ -329,6 +334,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     calculate_height(box, font_size);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds) const {
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
@@ -343,6 +349,7 @@ void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds) const {
     calculate_height(box, font_size);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) const {
     calculate_position(box, bounds);
     int last_child_end{};

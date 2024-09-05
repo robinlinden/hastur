@@ -301,6 +301,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
 // Incomplete.
 // TODO(robinlinden): Template nonsense.
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         // TODO(robinlinden): Should be inserting characters, but our last
@@ -420,6 +421,7 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
         a.insert_character(std::get<html2::CharacterToken>(token));
@@ -500,6 +502,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 // Incomplete.
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
     auto const *character = std::get_if<html2::CharacterToken>(&token);
     if (character != nullptr && character->data == '\0') {

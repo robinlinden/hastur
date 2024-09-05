@@ -175,6 +175,7 @@ gfx::Color parse_color(std::string_view str) {
     return gfx::Color{0xFF, 0, 0};
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 std::string_view get_parent_raw_property(style::StyledNode const &node, css::PropertyId property) {
     if (node.parent != nullptr) {
         return node.parent->get_raw_property(property);
@@ -216,6 +217,7 @@ int UnresolvedBorderWidth::resolve(int font_size, int root_font_size, std::optio
     return width.resolve(font_size, root_font_size, percent_relative_to);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     // We don't support selector specificity yet, so the last property is found
     // in order to allow website style to override the browser built-in style.
@@ -285,6 +287,7 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     return it->second;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<std::string_view> StyledNode::resolve_variable(std::string_view name) const {
     auto prop = std::ranges::find(custom_properties, name, &std::pair<std::string, std::string>::first);
     if (prop == end(custom_properties)) {
@@ -515,6 +518,7 @@ constexpr auto kFontSizeAbsoluteSizeKeywords = std::to_array<std::pair<std::stri
         {"xxx-large", 3 / 1.f},
 });
 
+// NOLINTNEXTLINE(misc-no-recursion)
 int StyledNode::get_font_size_property() const {
     auto get_closest_font_size_and_owner =
             [](StyledNode const *starting_node) -> std::optional<std::pair<std::string_view, StyledNode const *>> {
@@ -543,6 +547,7 @@ int StyledNode::get_font_size_property() const {
         return std::lround(it->second * kMediumFontSize);
     }
 
+    // NOLINTNEXTLINE(misc-no-recursion)
     auto parent_or_default_font_size = [&] {
         auto const *owner = closest->second;
         if (owner->parent == nullptr) {
@@ -617,6 +622,7 @@ int StyledNode::get_font_size_property() const {
 }
 
 // https://drafts.csswg.org/css-fonts-4/#font-weight-prop
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<FontWeight> StyledNode::get_font_weight_property() const {
     auto raw = get_raw_property(css::PropertyId::FontWeight);
     if (raw == "normal") {
@@ -628,6 +634,7 @@ std::optional<FontWeight> StyledNode::get_font_weight_property() const {
     }
 
     if (raw == "bolder") {
+        // NOLINTNEXTLINE(misc-no-recursion)
         auto parent_weight = [&] {
             if (parent == nullptr) {
                 return FontWeight::normal();
@@ -653,6 +660,7 @@ std::optional<FontWeight> StyledNode::get_font_weight_property() const {
     }
 
     if (raw == "lighter") {
+        // NOLINTNEXTLINE(misc-no-recursion)
         auto parent_weight = [&] {
             if (parent == nullptr) {
                 return FontWeight::normal();

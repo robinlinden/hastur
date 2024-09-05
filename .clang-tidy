@@ -16,8 +16,6 @@
 #
 # -misc-const-correctness: Consts some things that can't be const, and very very noisy.
 #
-# -misc-no-recursion: We use a lot of recursion.
-#
 # -modernize-make-unique, -modernize-use-emplace: Clang doesn't implement p0960
 # yet, and we're not adding c-tors to all our structs.
 #
@@ -75,7 +73,6 @@ Checks: >
   -cppcoreguidelines-special-member-functions,
   -google-build-using-namespace,
   -misc-const-correctness,
-  -misc-no-recursion,
   -modernize-make-unique,
   -modernize-use-emplace,
   -modernize-use-nodiscard,

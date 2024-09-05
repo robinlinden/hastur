@@ -38,6 +38,7 @@ public:
 
 // Until we have a nicer tree-creation abstraction for the tests, this needs to
 // be called if a test relies on property inheritance.
+// NOLINTNEXTLINE(misc-no-recursion)
 void set_up_parent_ptrs(style::StyledNode &parent) {
     for (auto &child : parent.children) {
         child.parent = &parent;

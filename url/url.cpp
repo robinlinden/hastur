@@ -281,6 +281,7 @@ std::string Url::serialize(bool exclude_fragment, bool rfc3986_norm) const {
 }
 
 // https://url.spec.whatwg.org/#concept-url-origin
+// NOLINTNEXTLINE(misc-no-recursion)
 Origin Url::origin() const {
     // Return tuple origin of the path URL
     if (scheme == "blob") {
