@@ -48,10 +48,6 @@ build:macos --host_cxxopt='-std=c++2b'
 build:macos      --cxxopt='-fno-rtti'
 build:macos --host_cxxopt='-fno-rtti'
 
-# Force DWARF-4 format for debug symbols for compatibility with valgrind.
-# See: https://bugs.kde.org/show_bug.cgi?id=452758
-build:linux --copt='-gdwarf-4'
-
 build:windows --enable_runfiles
 build:windows --action_env=LOCALAPPDATA # Quirk for running vswhere, remove when icu no-longer needed
 build:windows --action_env=ProgramData # Quirk for running vswhere, remove when icu no-longer needed
