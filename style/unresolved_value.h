@@ -6,6 +6,7 @@
 #define STYLE_UNRESOLVED_VALUE_H_
 
 #include <optional>
+#include <source_location>
 #include <string_view>
 
 namespace style {
@@ -16,9 +17,14 @@ struct UnresolvedValue {
 
     constexpr bool is_auto() const { return raw == "auto"; }
     constexpr bool is_none() const { return raw == "none"; }
-    int resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
-    std::optional<int> try_resolve(
-            int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
+    int resolve(int font_size,
+            int root_font_size,
+            std::optional<int> percent_relative_to = std::nullopt,
+            std::source_location const &caller = std::source_location::current()) const;
+    std::optional<int> try_resolve(int font_size,
+            int root_font_size,
+            std::optional<int> percent_relative_to = std::nullopt,
+            std::source_location const &caller = std::source_location::current()) const;
 };
 
 } // namespace style
