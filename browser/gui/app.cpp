@@ -16,6 +16,7 @@
 #include "layout/layout_box.h"
 #include "os/system_info.h"
 #include "protocol/handler_factory.h"
+#include "protocol/in_memory_cache.h"
 #include "protocol/response.h"
 #include "render/render.h"
 #include "type/sfml.h"
@@ -220,8 +221,8 @@ std::unique_ptr<type::IType> create_font_system() {
 
 // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
-    : engine_{protocol::HandlerFactory::create(
-                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"),
+    : engine_{std::make_unique<protocol::InMemoryCache>(protocol::HandlerFactory::create(
+                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0")),
               create_font_system()},
       browser_title_{std::move(browser_title)},
       window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY), browser_title_},
