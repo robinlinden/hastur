@@ -6,6 +6,7 @@
 #ifndef URI_URI_H_
 #define URI_URI_H_
 
+#include <compare> // NOLINT: Needed for operator<=>.
 #include <functional>
 #include <optional>
 #include <string>
@@ -20,7 +21,7 @@ struct Authority {
 
     [[nodiscard]] bool empty() const { return user.empty() && passwd.empty() && host.empty() && port.empty(); }
 
-    [[nodiscard]] bool operator==(Authority const &) const = default;
+    [[nodiscard]] auto operator<=>(Authority const &) const = default;
 };
 
 struct Uri {
@@ -34,7 +35,7 @@ struct Uri {
     std::string query;
     std::string fragment;
 
-    [[nodiscard]] bool operator==(Uri const &) const = default;
+    [[nodiscard]] auto operator<=>(Uri const &) const = default;
 };
 
 } // namespace uri
