@@ -4,14 +4,14 @@
 
 #include "html2/tokenizer.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <optional>
-#include <stddef.h> // NOLINT
-#include <stdint.h> // NOLINT
 #include <string_view>
 
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size); // NOLINT
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size); // NOLINT
 
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size) {
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size) {
     html2::Tokenizer{std::string_view{reinterpret_cast<char const *>(data), size},
             [](html2::Tokenizer &tokenizer, html2::Token &&token) {
                 if (auto const *start_tag = std::get_if<html2::StartTagToken>(&token)) {

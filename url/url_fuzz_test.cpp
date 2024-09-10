@@ -5,10 +5,10 @@
 #include "url/url.h"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size);
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size);
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size) {
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size) {
     url::UrlParser p;
     std::optional<url::Url> url;
 

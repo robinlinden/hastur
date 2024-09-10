@@ -7,13 +7,12 @@
 #include "net/test/fake_socket.h"
 
 #include <cstddef>
-#include <stddef.h> // NOLINT
-#include <stdint.h> // NOLINT
+#include <cstdint>
 #include <tuple>
 
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size); // NOLINT
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size); // NOLINT
 
-extern "C" int LLVMFuzzerTestOneInput(uint8_t const *data, size_t size) {
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size) {
     net::FakeSocket socket{.read_data{reinterpret_cast<char const *>(data), size}};
     std::ignore = protocol::Http::get(socket, {}, std::nullopt);
     return 0;
