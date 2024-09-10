@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <span>
 
-extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size); // NOLINT
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size) {
     std::ignore = archive::brotli_decode({reinterpret_cast<std::byte const *>(data), size});

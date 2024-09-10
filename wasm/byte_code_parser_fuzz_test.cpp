@@ -10,7 +10,7 @@
 #include <string>
 #include <tuple>
 
-extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size); // NOLINT
+extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size) {
     std::ignore = wasm::ByteCodeParser::parse_module(
