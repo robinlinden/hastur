@@ -449,8 +449,17 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
     assert(box.node != nullptr);
 
     auto &margins = box.dimensions.margin;
-    margins.top = box.get_property<css::PropertyId::MarginTop>().resolve(font_size, root_font_size_);
-    margins.bottom = box.get_property<css::PropertyId::MarginBottom>().resolve(font_size, root_font_size_);
+    if (auto margin_top = box.get_property<css::PropertyId::MarginTop>(); !margin_top.is_auto()) {
+        margins.top = margin_top.resolve(font_size, root_font_size_);
+    } else {
+        margins.top = 0;
+    }
+
+    if (auto margin_bottom = box.get_property<css::PropertyId::MarginBottom>(); !margin_bottom.is_auto()) {
+        margins.bottom = margin_bottom.resolve(font_size, root_font_size_);
+    } else {
+        margins.bottom = 0;
+    }
 
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
