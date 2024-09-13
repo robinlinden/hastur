@@ -88,42 +88,35 @@ std::optional<Uri> parse_uri(std::string uristr) {
 }
 
 [[nodiscard]] bool complete_from_base_if_needed(Uri &uri, Uri const &base) {
-    if (uri.scheme.empty() && uri.authority.host.empty() && uri.path.starts_with('/')) {
-        // Origin-relative.
-        auto new_uri = parse_uri(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri));
-        if (!new_uri) {
-            return false;
-        }
-
-        uri = *std::move(new_uri);
-    } else if (uri.scheme.empty() && uri.authority.host.empty() && !uri.path.empty()) {
-        // https://url.spec.whatwg.org/#path-relative-url-string
-        if (base.path == "/") {
-            auto new_uri = parse_uri(fmt::format("{}/{}", base.uri, uri.uri));
-            if (!new_uri) {
-                return false;
-            }
-
-            uri = *std::move(new_uri);
-        } else {
-            auto end_of_last_path_segment = base.uri.find_last_of('/');
-            auto new_uri = parse_uri(fmt::format("{}/{}", base.uri.substr(0, end_of_last_path_segment), uri.uri));
-            if (!new_uri) {
-                return false;
-            }
-
-            uri = *std::move(new_uri);
-        }
-    } else if (uri.scheme.empty() && !uri.authority.host.empty() && uri.uri.starts_with("//")) {
-        // Scheme-relative.
-        auto new_uri = parse_uri(fmt::format("{}:{}", base.scheme, uri.uri));
-        if (!new_uri) {
-            return false;
-        }
-
-        uri = *std::move(new_uri);
+    if (!uri.scheme.empty()) {
+        return true;
     }
 
+    std::optional<Uri> completed;
+    if (uri.authority.host.empty() && uri.path.starts_with('/')) {
+        // Origin-relative.
+        completed = parse_uri(fmt::format("{}://{}{}", base.scheme, base.authority.host, uri.uri));
+    } else if (uri.authority.host.empty() && !uri.path.empty()) {
+        // https://url.spec.whatwg.org/#path-relative-url-string
+        if (base.path == "/") {
+            completed = parse_uri(fmt::format("{}/{}", base.uri, uri.uri));
+        } else {
+            auto end_of_last_path_segment = base.uri.find_last_of('/');
+            completed = parse_uri(fmt::format("{}/{}", base.uri.substr(0, end_of_last_path_segment), uri.uri));
+        }
+    } else if (!uri.authority.host.empty() && uri.uri.starts_with("//")) {
+        // Scheme-relative.
+        completed = parse_uri(fmt::format("{}:{}", base.scheme, uri.uri));
+    } else {
+        // No completion needed.
+        return true;
+    }
+
+    if (!completed) {
+        return false;
+    }
+
+    uri = *std::move(completed);
     return true;
 }
 
