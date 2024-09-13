@@ -5,17 +5,17 @@
 
 #include "uri/uri.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <optional>
 #include <string>
 
-using etest::expect;
-using etest::expect_eq;
 using uri::Uri;
 
 int main() {
-    etest::test("https: simple uri", [] {
+    etest::Suite s;
+
+    s.add_test("https: simple uri", [](etest::IActions &a) {
         auto uri = Uri::parse("https://example.com");
         Uri expected{
                 .uri = "https://example.com",
@@ -24,10 +24,10 @@ int main() {
                 .path = "/",
         };
 
-        expect(uri == expected);
+        a.expect(uri == expected);
     });
 
-    etest::test("https: short uri", [] {
+    s.add_test("https: short uri", [](etest::IActions &a) {
         auto uri = Uri::parse("https://gr.ht");
         Uri expected{
                 .uri = "https://gr.ht",
@@ -36,139 +36,139 @@ int main() {
                 .path = "/",
         };
 
-        expect(uri == expected);
+        a.expect(uri == expected);
     });
 
-    etest::test("empty uris don't parse as uris", [] {
-        expect_eq(Uri::parse(""), std::nullopt); //
+    s.add_test("empty uris don't parse as uris", [](etest::IActions &a) {
+        a.expect_eq(Uri::parse(""), std::nullopt); //
     });
 
-    etest::test("large uris don't explode libstdc++", [] {
-        expect_eq(Uri::parse(std::string(1025, ':')), std::nullopt); //
+    s.add_test("large uris don't explode libstdc++", [](etest::IActions &a) {
+        a.expect_eq(Uri::parse(std::string(1025, ':')), std::nullopt); //
     });
 
-    etest::test("large uris in are handled when base-uris are used", [] {
+    s.add_test("large uris in are handled when base-uris are used", [](etest::IActions &a) {
         auto base = Uri::parse("https://example.com").value();
-        expect_eq(Uri::parse(std::string(1020, '/'), base), std::nullopt);
-        expect_eq(Uri::parse(std::string(1020, 'a'), base), std::nullopt);
+        a.expect_eq(Uri::parse(std::string(1020, '/'), base), std::nullopt);
+        a.expect_eq(Uri::parse(std::string(1020, 'a'), base), std::nullopt);
 
         base = Uri::parse("https://example.com/foo/bar").value();
-        expect_eq(Uri::parse(std::string(1020, 'a'), base), std::nullopt);
-        expect_eq(Uri::parse("//" + std::string(1020, 'a'), base), std::nullopt);
+        a.expect_eq(Uri::parse(std::string(1020, 'a'), base), std::nullopt);
+        a.expect_eq(Uri::parse("//" + std::string(1020, 'a'), base), std::nullopt);
     });
 
-    etest::test("https: user, pass, port, path, query", [] {
+    s.add_test("https: user, pass, port, path, query", [](etest::IActions &a) {
         auto https_uri =
                 Uri::parse("https://zero-one:muh_password@example-domain.net:8080/muh/long/path.html?foo=bar").value();
 
-        expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user == "zero-one");
-        expect(https_uri.authority.passwd == "muh_password");
-        expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port == "8080");
-        expect(https_uri.path == "/muh/long/path.html");
-        expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment.empty());
+        a.expect(https_uri.scheme == "https");
+        a.expect(https_uri.authority.user == "zero-one");
+        a.expect(https_uri.authority.passwd == "muh_password");
+        a.expect(https_uri.authority.host == "example-domain.net");
+        a.expect(https_uri.authority.port == "8080");
+        a.expect(https_uri.path == "/muh/long/path.html");
+        a.expect(https_uri.query == "foo=bar");
+        a.expect(https_uri.fragment.empty());
     });
 
-    etest::test("https: user, pass, path, query", [] {
+    s.add_test("https: user, pass, path, query", [](etest::IActions &a) {
         auto https_uri =
                 Uri::parse("https://zero-one:muh_password@example-domain.net/muh/long/path.html?foo=bar").value();
 
-        expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user == "zero-one");
-        expect(https_uri.authority.passwd == "muh_password");
-        expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port.empty());
-        expect(https_uri.path == "/muh/long/path.html");
-        expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment.empty());
+        a.expect(https_uri.scheme == "https");
+        a.expect(https_uri.authority.user == "zero-one");
+        a.expect(https_uri.authority.passwd == "muh_password");
+        a.expect(https_uri.authority.host == "example-domain.net");
+        a.expect(https_uri.authority.port.empty());
+        a.expect(https_uri.path == "/muh/long/path.html");
+        a.expect(https_uri.query == "foo=bar");
+        a.expect(https_uri.fragment.empty());
     });
 
-    etest::test("https: user, path, query", [] {
+    s.add_test("https: user, path, query", [](etest::IActions &a) {
         auto https_uri = Uri::parse("https://zero-one@example-domain.net/muh/long/path.html?foo=bar").value();
 
-        expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user == "zero-one");
-        expect(https_uri.authority.passwd.empty());
-        expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port.empty());
-        expect(https_uri.path == "/muh/long/path.html");
-        expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment.empty());
+        a.expect(https_uri.scheme == "https");
+        a.expect(https_uri.authority.user == "zero-one");
+        a.expect(https_uri.authority.passwd.empty());
+        a.expect(https_uri.authority.host == "example-domain.net");
+        a.expect(https_uri.authority.port.empty());
+        a.expect(https_uri.path == "/muh/long/path.html");
+        a.expect(https_uri.query == "foo=bar");
+        a.expect(https_uri.fragment.empty());
     });
 
-    etest::test("https: path, query", [] {
+    s.add_test("https: path, query", [](etest::IActions &a) {
         auto https_uri = Uri::parse("https://example-domain.net/muh/long/path.html?foo=bar").value();
 
-        expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user.empty());
-        expect(https_uri.authority.passwd.empty());
-        expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port.empty());
-        expect(https_uri.path == "/muh/long/path.html");
-        expect(https_uri.query == "foo=bar");
-        expect(https_uri.fragment.empty());
+        a.expect(https_uri.scheme == "https");
+        a.expect(https_uri.authority.user.empty());
+        a.expect(https_uri.authority.passwd.empty());
+        a.expect(https_uri.authority.host == "example-domain.net");
+        a.expect(https_uri.authority.port.empty());
+        a.expect(https_uri.path == "/muh/long/path.html");
+        a.expect(https_uri.query == "foo=bar");
+        a.expect(https_uri.fragment.empty());
     });
 
-    etest::test("https: path, fragment", [] {
+    s.add_test("https: path, fragment", [](etest::IActions &a) {
         auto https_uri = Uri::parse("https://example-domain.net/muh/long/path.html#About").value();
 
-        expect(https_uri.scheme == "https");
-        expect(https_uri.authority.user.empty());
-        expect(https_uri.authority.passwd.empty());
-        expect(https_uri.authority.host == "example-domain.net");
-        expect(https_uri.authority.port.empty());
-        expect(https_uri.path == "/muh/long/path.html");
-        expect(https_uri.query.empty());
-        expect(https_uri.fragment == "About");
+        a.expect(https_uri.scheme == "https");
+        a.expect(https_uri.authority.user.empty());
+        a.expect(https_uri.authority.passwd.empty());
+        a.expect(https_uri.authority.host == "example-domain.net");
+        a.expect(https_uri.authority.port.empty());
+        a.expect(https_uri.path == "/muh/long/path.html");
+        a.expect(https_uri.query.empty());
+        a.expect(https_uri.fragment == "About");
     });
 
-    etest::test("mailto: path", [] {
+    s.add_test("mailto: path", [](etest::IActions &a) {
         auto mailto_uri = Uri::parse("mailto:example@example.net").value();
 
-        expect(mailto_uri.scheme == "mailto");
-        expect(mailto_uri.authority.user.empty());
-        expect(mailto_uri.authority.passwd.empty());
-        expect(mailto_uri.authority.host.empty());
-        expect(mailto_uri.authority.port.empty());
-        expect(mailto_uri.path == "example@example.net");
-        expect(mailto_uri.query.empty());
-        expect(mailto_uri.fragment.empty());
+        a.expect(mailto_uri.scheme == "mailto");
+        a.expect(mailto_uri.authority.user.empty());
+        a.expect(mailto_uri.authority.passwd.empty());
+        a.expect(mailto_uri.authority.host.empty());
+        a.expect(mailto_uri.authority.port.empty());
+        a.expect(mailto_uri.path == "example@example.net");
+        a.expect(mailto_uri.query.empty());
+        a.expect(mailto_uri.fragment.empty());
     });
 
-    etest::test("tel: path", [] {
+    s.add_test("tel: path", [](etest::IActions &a) {
         auto tel_uri = Uri::parse("tel:+1-830-476-5664").value();
 
-        expect(tel_uri.scheme == "tel");
-        expect(tel_uri.authority.user.empty());
-        expect(tel_uri.authority.passwd.empty());
-        expect(tel_uri.authority.host.empty());
-        expect(tel_uri.authority.port.empty());
-        expect(tel_uri.path == "+1-830-476-5664");
-        expect(tel_uri.query.empty());
-        expect(tel_uri.fragment.empty());
+        a.expect(tel_uri.scheme == "tel");
+        a.expect(tel_uri.authority.user.empty());
+        a.expect(tel_uri.authority.passwd.empty());
+        a.expect(tel_uri.authority.host.empty());
+        a.expect(tel_uri.authority.port.empty());
+        a.expect(tel_uri.path == "+1-830-476-5664");
+        a.expect(tel_uri.query.empty());
+        a.expect(tel_uri.fragment.empty());
     });
 
-    etest::test("relative, no host", [] {
+    s.add_test("relative, no host", [](etest::IActions &a) {
         auto uri = Uri::parse("hello/there.html").value();
-        expect_eq(uri, Uri{.uri = "hello/there.html", .path = "hello/there.html"});
+        a.expect_eq(uri, Uri{.uri = "hello/there.html", .path = "hello/there.html"});
     });
 
-    etest::test("absolute, no host", [] {
+    s.add_test("absolute, no host", [](etest::IActions &a) {
         auto uri = Uri::parse("/hello/there.html").value();
-        expect_eq(uri, Uri{.uri = "/hello/there.html", .path = "/hello/there.html"});
+        a.expect_eq(uri, Uri{.uri = "/hello/there.html", .path = "/hello/there.html"});
     });
 
-    etest::test("scheme-relative", [] {
+    s.add_test("scheme-relative", [](etest::IActions &a) {
         auto uri = Uri::parse("//example.com/hello/there.html").value();
-        expect_eq(uri,
+        a.expect_eq(uri,
                 Uri{.uri = "//example.com/hello/there.html",
                         .authority = {.host = "example.com"},
                         .path = "/hello/there.html"});
     });
 
-    etest::test("normalization, lowercasing scheme+host", [] {
+    s.add_test("normalization, lowercasing scheme+host", [](etest::IActions &a) {
         auto actual = Uri::parse("HTTPS://EXAMPLE.COM/").value();
         Uri expected{
                 .uri = "HTTPS://EXAMPLE.COM/",
@@ -177,35 +177,35 @@ int main() {
                 .path = "/",
         };
 
-        expect_eq(actual, expected);
+        a.expect_eq(actual, expected);
     });
 
-    etest::test("origin-relative completion", [] {
+    s.add_test("origin-relative completion", [](etest::IActions &a) {
         auto const base = uri::Uri::parse("hax://example.com").value();
         auto const completed = uri::Uri::parse("/test", base).value();
-        expect_eq(completed, uri::Uri::parse("hax://example.com/test").value());
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/test").value());
     });
 
-    etest::test("scheme-relative uri", [] {
+    s.add_test("scheme-relative uri", [](etest::IActions &a) {
         auto const base = uri::Uri::parse("hax://example.com").value();
         auto const completed = uri::Uri::parse("//example2.com/test", base).value();
-        expect_eq(completed, uri::Uri::parse("hax://example2.com/test").value());
+        a.expect_eq(completed, uri::Uri::parse("hax://example2.com/test").value());
     });
 
-    etest::test("path-relative uri", [] {
+    s.add_test("path-relative uri", [](etest::IActions &a) {
         auto const base = uri::Uri::parse("hax://example.com").value();
         auto completed = uri::Uri::parse("test", base).value();
-        expect_eq(completed, uri::Uri::parse("hax://example.com/test").value());
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/test").value());
 
         completed = uri::Uri::parse("hello/", completed).value();
-        expect_eq(completed, uri::Uri::parse("hax://example.com/hello/").value());
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/hello/").value());
 
         completed = uri::Uri::parse("test", completed).value();
-        expect_eq(completed, uri::Uri::parse("hax://example.com/hello/test").value());
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/hello/test").value());
 
         completed = uri::Uri::parse("goodbye", completed).value();
-        expect_eq(completed, uri::Uri::parse("hax://example.com/hello/goodbye").value());
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/hello/goodbye").value());
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
