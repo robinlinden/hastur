@@ -107,6 +107,15 @@ std::optional<Uri> parse_uri(std::string uristr) {
     } else if (!uri.authority.host.empty() && uri.uri.starts_with("//")) {
         // Scheme-relative.
         completed = parse_uri(fmt::format("{}:{}", base.scheme, uri.uri));
+    } else if (uri.uri.starts_with('#')) {
+        // Fragment-only.
+        // Strip the old fragment if needed
+        if (!base.fragment.empty()) {
+            auto start_of_fragment = base.uri.find('#');
+            completed = parse_uri(fmt::format("{}{}", base.uri.substr(0, start_of_fragment), uri.uri));
+        } else {
+            completed = parse_uri(fmt::format("{}{}", base.uri, uri.uri));
+        }
     } else {
         // No completion needed.
         return true;

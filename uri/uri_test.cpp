@@ -207,5 +207,17 @@ int main() {
         a.expect_eq(completed, uri::Uri::parse("hax://example.com/hello/goodbye").value());
     });
 
+    s.add_test("fragment completion", [](etest::IActions &a) {
+        auto const base = uri::Uri::parse("hax://example.com").value();
+        auto const completed = uri::Uri::parse("#test", base).value();
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com#test").value());
+    });
+
+    s.add_test("fragment completion, existing fragment", [](etest::IActions &a) {
+        auto const base = uri::Uri::parse("hax://example.com#foo").value();
+        auto const completed = uri::Uri::parse("#bar", base).value();
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com#bar").value());
+    });
+
     return s.run();
 }
