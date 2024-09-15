@@ -108,7 +108,7 @@ enum class WhiteSpace : std::uint8_t {
 struct UnresolvedBorderWidth {
     UnresolvedValue width{};
 
-    int resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to = std::nullopt) const;
+    int resolve(int font_size, ResolutionInfo, std::optional<int> percent_relative_to = std::nullopt) const;
 };
 
 // NOLINTNEXTLINE(misc-no-recursion)

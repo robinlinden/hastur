@@ -17,14 +17,14 @@
 namespace style {
 
 int UnresolvedValue::resolve(int font_size,
-        int root_font_size,
+        ResolutionInfo context,
         std::optional<int> percent_relative_to,
         std::source_location const &caller) const {
-    return try_resolve(font_size, root_font_size, percent_relative_to, caller).value_or(0);
+    return try_resolve(font_size, context, percent_relative_to, caller).value_or(0);
 }
 
 std::optional<int> UnresolvedValue::try_resolve(int font_size,
-        int root_font_size,
+        ResolutionInfo context,
         std::optional<int> percent_relative_to,
         std::source_location const &caller) const {
     // Special case for 0 since it won't ever have a unit that needs to be handled.
@@ -68,7 +68,7 @@ std::optional<int> UnresolvedValue::try_resolve(int font_size,
     }
 
     if (unit == "rem") {
-        res *= static_cast<float>(root_font_size);
+        res *= static_cast<float>(context.root_font_size);
         return static_cast<int>(res);
     }
 

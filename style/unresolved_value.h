@@ -11,6 +11,10 @@
 
 namespace style {
 
+struct ResolutionInfo {
+    int root_font_size{};
+};
+
 struct UnresolvedValue {
     std::string_view raw{};
     [[nodiscard]] bool operator==(UnresolvedValue const &) const = default;
@@ -18,11 +22,11 @@ struct UnresolvedValue {
     constexpr bool is_auto() const { return raw == "auto"; }
     constexpr bool is_none() const { return raw == "none"; }
     int resolve(int font_size,
-            int root_font_size,
+            ResolutionInfo,
             std::optional<int> percent_relative_to = std::nullopt,
             std::source_location const &caller = std::source_location::current()) const;
     std::optional<int> try_resolve(int font_size,
-            int root_font_size,
+            ResolutionInfo,
             std::optional<int> percent_relative_to = std::nullopt,
             std::source_location const &caller = std::source_location::current()) const;
 };

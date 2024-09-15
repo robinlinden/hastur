@@ -206,7 +206,8 @@ constexpr auto kBorderWidthKeywords = std::to_array<std::pair<std::string_view, 
 
 } // namespace
 
-int UnresolvedBorderWidth::resolve(int font_size, int root_font_size, std::optional<int> percent_relative_to) const {
+int UnresolvedBorderWidth::resolve(
+        int font_size, ResolutionInfo context, std::optional<int> percent_relative_to) const {
     // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
     if (auto it = std::ranges::find(
                 kBorderWidthKeywords, width.raw, &decltype(kBorderWidthKeywords)::value_type::first);
@@ -214,7 +215,7 @@ int UnresolvedBorderWidth::resolve(int font_size, int root_font_size, std::optio
         return it->second;
     }
 
-    return width.resolve(font_size, root_font_size, percent_relative_to);
+    return width.resolve(font_size, context, percent_relative_to);
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -736,7 +737,10 @@ std::pair<int, int> StyledNode::get_border_radius_property(css::PropertyId id) c
 
     int font_size = get_property<css::PropertyId::FontSize>();
     int root_font_size = get_root_font_size(*this);
-    return {horizontal_prop.resolve(font_size, root_font_size), vertical_prop.resolve(font_size, root_font_size)};
+    return {
+            horizontal_prop.resolve(font_size, {.root_font_size = root_font_size}),
+            vertical_prop.resolve(font_size, {.root_font_size = root_font_size}),
+    };
 }
 
 } // namespace style
