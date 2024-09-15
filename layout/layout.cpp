@@ -41,8 +41,7 @@ namespace {
 
 class Layouter {
 public:
-    Layouter(int root_font_size, type::IType const &type)
-        : resolution_context_{.root_font_size = root_font_size}, type_{type} {}
+    Layouter(style::ResolutionInfo context, type::IType const &type) : resolution_context_{context}, type_{type} {}
 
     void layout(LayoutBox &, geom::Rect const &bounds) const;
 
@@ -580,7 +579,12 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width,
     collapse_whitespace(*tree);
     apply_text_transforms(*tree);
 
-    Layouter{node.get_property<css::PropertyId::FontSize>(), type}.layout(*tree, {0, 0, width, 0});
+    style::ResolutionInfo resolution_context{
+            .root_font_size = node.get_property<css::PropertyId::FontSize>(),
+            .viewport_width = width,
+    };
+
+    Layouter{resolution_context, type}.layout(*tree, {0, 0, width, 0});
     return tree;
 }
 

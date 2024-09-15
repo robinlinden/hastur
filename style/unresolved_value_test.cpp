@@ -65,6 +65,14 @@ int main() {
         a.expect_eq(uv.resolve(123, {.root_font_size = 456}), 0);
     });
 
+    s.add_test("unit/vw", [](etest::IActions &a) {
+        // Based on the first argument, the current element's font-size.
+        auto const uv = UnresolvedValue{.raw = "25vw"};
+        a.expect_eq(uv.resolve(100, {.viewport_width = 100}), 25);
+        a.expect_eq(uv.resolve(123, {.viewport_width = 200}), 50);
+        a.expect_eq(uv.resolve(0, {.viewport_width = 0}), 0);
+    });
+
     s.add_test("try_resolve", [](etest::IActions &a) {
         // %, no parent provided.
         auto const percent = UnresolvedValue{.raw = "50%"};
