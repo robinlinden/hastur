@@ -445,10 +445,10 @@ int App::run() {
 }
 
 void App::navigate() {
-    spdlog::info("Navigating to '{}'", url_buf_);
     window_.setIcon(16, 16, kBrowserIcon.data());
     auto uri = [this] {
         if (maybe_page_) {
+            spdlog::info("Completing '{}' with '{}'", url_buf_, (**maybe_page_).uri.uri);
             return uri::Uri::parse(url_buf_, (**maybe_page_).uri);
         }
 
@@ -460,6 +460,7 @@ void App::navigate() {
         return;
     }
 
+    spdlog::info("Navigating to '{}'", uri->uri);
     browse_history_.push(*uri);
     maybe_page_ = engine_.navigate(*std::move(uri), make_options());
 
