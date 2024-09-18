@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace browser::gui {
@@ -39,7 +40,7 @@ private:
             tl::unexpected<engine::NavigationError>{{}}};
 
     std::string browser_title_{};
-    sf::Cursor cursor_{};
+    std::optional<sf::Cursor> cursor_{};
     sf::RenderWindow window_{};
     sf::Clock clock_{};
     std::string url_buf_{};

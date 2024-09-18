@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <string_view>
 
@@ -22,9 +23,12 @@ using namespace std::literals;
 constexpr auto kHotPink = gfx::Color::from_rgb(0xff'69'b4);
 
 int main(int argc, char **argv) {
-    sf::RenderWindow window{sf::VideoMode{800, 600}, "gfx"};
+    sf::RenderWindow window{sf::VideoMode{{800, 600}}, "gfx"};
     window.setVerticalSyncEnabled(true);
-    window.setActive(true);
+    if (!window.setActive(true)) {
+        std::cerr << "Failed to set window active\n";
+        return 1;
+    }
 
     type::SfmlType type;
 
@@ -39,17 +43,11 @@ int main(int argc, char **argv) {
 
     bool running = true;
     while (running) {
-        sf::Event event{};
-        while (window.pollEvent(event)) {
-            switch (event.type) {
-                case sf::Event::Closed:
-                    running = false;
-                    break;
-                case sf::Event::Resized:
-                    canvas->set_viewport_size(event.size.width, event.size.height);
-                    break;
-                default:
-                    break;
+        while (auto event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                running = false;
+            } else if (auto const *resized = event->getIf<sf::Event::Resized>()) {
+                canvas->set_viewport_size(resized->size.x, resized->size.y);
             }
         }
 

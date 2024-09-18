@@ -21,7 +21,7 @@ namespace type {
 
 class SfmlFont : public IFont {
 public:
-    explicit SfmlFont(sf::Font const &font) : font_{font} {}
+    explicit SfmlFont(sf::Font font) : font_{std::move(font)} {}
 
     Size measure(std::string_view text, Px font_size, Weight) const override;
 

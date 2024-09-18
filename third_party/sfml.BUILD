@@ -21,8 +21,17 @@ SFML_DEFINES = [
 ]
 
 cc_library(
+    name = "system_private_hdrs",
+    hdrs = glob(["src/SFML/System/*.hpp"]),
+    strip_include_prefix = "src/",
+)
+
+cc_library(
     name = "system",
-    srcs = glob(["src/SFML/System/*.cpp"]) + select({
+    srcs = glob([
+        "src/SFML/System/*.cpp",
+        "src/SFML/System/*.hpp",
+    ]) + select({
         "@platforms//os:linux": glob([
             "src/SFML/System/Unix/**/*.cpp",
             "src/SFML/System/Unix/**/*.hpp",
@@ -95,7 +104,10 @@ cc_library(
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
     linkopts = select({
-        "@platforms//os:linux": ["-lX11"],
+        "@platforms//os:linux": [
+            "-lX11",
+            "-lXi",
+        ],
         "@platforms//os:windows": [
             "-DEFAULTLIB:advapi32",
             "-DEFAULTLIB:gdi32",
@@ -111,6 +123,7 @@ cc_library(
     }),
     deps = [
         ":system",
+        ":system_private_hdrs",
         "@vulkan",
     ] + select({
         "@platforms//os:linux": [
@@ -128,9 +141,9 @@ objc_library(
         include = [
             "src/SFML/Window/*.cpp",
             "src/SFML/Window/*.hpp",
-            "src/SFML/Window/OSX/*.cpp",
-            "src/SFML/Window/OSX/*.h",
-            "src/SFML/Window/OSX/*.hpp",
+            "src/SFML/Window/macOS/*.cpp",
+            "src/SFML/Window/macOS/*.h",
+            "src/SFML/Window/macOS/*.hpp",
         ],
         exclude = [
             "src/SFML/Window/EGLCheck.cpp",
@@ -149,8 +162,8 @@ objc_library(
     includes = ["include/"],
     linkopts = ["-ObjC"],
     non_arc_srcs = glob([
-        "src/SFML/Window/OSX/*.m",
-        "src/SFML/Window/OSX/*.mm",
+        "src/SFML/Window/macOS/*.m",
+        "src/SFML/Window/macOS/*.mm",
     ]),
     sdk_frameworks = [
         "AppKit",
@@ -189,6 +202,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":system",
+        ":system_private_hdrs",
         ":window",
         "@freetype2",
         "@stb//:image",

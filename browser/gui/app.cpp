@@ -225,11 +225,10 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0")),
               create_font_system()},
       browser_title_{std::move(browser_title)},
-      window_{sf::VideoMode(kDefaultResolutionX, kDefaultResolutionY), browser_title_},
+      window_{sf::VideoMode({kDefaultResolutionX, kDefaultResolutionY}), browser_title_},
       url_buf_{std::move(start_page_hint)},
       canvas_{std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()))} {
-    window_.setMouseCursor(cursor_);
-    window_.setIcon(16, 16, kBrowserIcon.data());
+    window_.setIcon({16, 16}, kBrowserIcon.data());
     if (!ImGui::SFML::Init(window_)) {
         spdlog::critical("imgui-sfml initialization failed");
         std::abort();
@@ -269,148 +268,138 @@ void App::set_scale(unsigned scale) {
 }
 
 void App::step() {
-    sf::Event event{};
-    while (window_.pollEvent(event)) {
+    while (auto event = window_.pollEvent()) {
         // ImGui needs a few iterations to do what it wants to do. This was
         // pretty much picked at random after I still occasionally got
         // unexpected results when giving it 2 iterations.
         process_iterations_ = 5;
-        ImGui::SFML::ProcessEvent(event);
+        ImGui::SFML::ProcessEvent(window_, *event);
 
-        switch (event.type) {
-            case sf::Event::Closed: {
-                window_.close();
+        if (event->is<sf::Event::Closed>()) {
+            window_.close();
+        } else if (auto const *resized = event->getIf<sf::Event::Resized>()) {
+            canvas_->set_viewport_size(resized->size.x, resized->size.y);
+            if (maybe_page_) {
+                engine_.relayout(**maybe_page_, make_options());
+                on_layout_updated();
+            }
+        } else if (auto const *key_pressed = event->getIf<sf::Event::KeyPressed>()) {
+            if (ImGui::GetIO().WantCaptureKeyboard) {
                 break;
             }
-            case sf::Event::Resized: {
-                canvas_->set_viewport_size(event.size.width, event.size.height);
-                if (maybe_page_) {
-                    engine_.relayout(**maybe_page_, make_options());
-                    on_layout_updated();
-                }
-                break;
-            }
-            case sf::Event::KeyPressed: {
-                if (ImGui::GetIO().WantCaptureKeyboard) {
+
+            switch (key_pressed->code) {
+                case sf::Keyboard::Key::J: {
+                    scroll(key_pressed->shift ? -20 : -5);
                     break;
                 }
-
-                switch (event.key.code) {
-                    case sf::Keyboard::Key::J: {
-                        scroll(event.key.shift ? -20 : -5);
-                        break;
-                    }
-                    case sf::Keyboard::Key::K: {
-                        scroll(event.key.shift ? 20 : 5);
-                        break;
-                    }
-                    case sf::Keyboard::Key::L: {
-                        if (!event.key.control) {
-                            break;
-                        }
-                        focus_url_input();
-                        break;
-                    }
-                    case sf::Keyboard::Key::F1: {
-                        render_debug_ = !render_debug_;
-                        spdlog::info("Render debug: {}", render_debug_);
-                        break;
-                    }
-                    case sf::Keyboard::Key::F2: {
-                        switch_canvas();
-                        spdlog::info("Switched canvas to {}", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML");
-                        break;
-                    }
-                    case sf::Keyboard::Key::F4: {
-                        display_debug_gui_ = !display_debug_gui_;
-                        spdlog::info("Display debug gui: {}", display_debug_gui_);
-                        break;
-                    }
-                    case sf::Keyboard::Key::Left: {
-                        if (!event.key.alt) {
-                            break;
-                        }
-                        navigate_back();
-                        break;
-                    }
-                    case sf::Keyboard::Key::Right: {
-                        if (!event.key.alt) {
-                            break;
-                        }
-                        navigate_forward();
-                        break;
-                    }
-                    case sf::Keyboard::Key::Backspace: {
-                        navigate_back();
-                        break;
-                    }
-                    case sf::Keyboard::Key::R: {
-                        if (!event.key.control) {
-                            break;
-                        }
-                        reload();
-                        break;
-                    }
-                    default:
-                        break;
-                }
-                break;
-            }
-            case sf::Event::MouseMoved: {
-                if (!maybe_page_) {
+                case sf::Keyboard::Key::K: {
+                    scroll(key_pressed->shift ? 20 : 5);
                     break;
                 }
-
-                auto window_position = geom::Position{event.mouseMove.x, event.mouseMove.y};
-                auto document_position = to_document_position(std::move(window_position));
-                auto const *hovered = get_hovered_node(document_position);
-                nav_widget_extra_info_ =
-                        fmt::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
-
-                // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
-                if (ImGui::GetIO().WantCaptureMouse) {
-                    ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+                case sf::Keyboard::Key::L: {
+                    if (!key_pressed->control) {
+                        break;
+                    }
+                    focus_url_input();
                     break;
                 }
-
-                // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
-                // currently hovering over.
-                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-                if (try_get_uri(hovered).has_value()) {
-                    cursor_.loadFromSystem(sf::Cursor::Hand);
-                } else {
-                    cursor_.loadFromSystem(sf::Cursor::Arrow);
-                }
-                window_.setMouseCursor(cursor_);
-
-                break;
-            }
-            case sf::Event::MouseButtonReleased: {
-                if (ImGui::GetIO().WantCaptureMouse || event.mouseButton.button != sf::Mouse::Left) {
+                case sf::Keyboard::Key::F1: {
+                    render_debug_ = !render_debug_;
+                    spdlog::info("Render debug: {}", render_debug_);
                     break;
                 }
-
-                auto window_position = geom::Position{event.mouseButton.x, event.mouseButton.y};
-                auto document_position = to_document_position(std::move(window_position));
-                auto const *hovered = get_hovered_node(std::move(document_position));
-                if (auto uri = try_get_uri(hovered); uri.has_value()) {
-                    url_buf_ = std::string{*uri};
-                    navigate();
-                }
-
-                break;
-            }
-            case sf::Event::MouseWheelScrolled: {
-                if (ImGui::GetIO().WantCaptureMouse
-                        || event.mouseWheelScroll.wheel != sf::Mouse::Wheel::VerticalWheel) {
+                case sf::Keyboard::Key::F2: {
+                    switch_canvas();
+                    spdlog::info("Switched canvas to {}", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML");
                     break;
                 }
-
-                scroll(std::lround(event.mouseWheelScroll.delta) * kMouseWheelScrollFactor);
+                case sf::Keyboard::Key::F4: {
+                    display_debug_gui_ = !display_debug_gui_;
+                    spdlog::info("Display debug gui: {}", display_debug_gui_);
+                    break;
+                }
+                case sf::Keyboard::Key::Left: {
+                    if (!key_pressed->alt) {
+                        break;
+                    }
+                    navigate_back();
+                    break;
+                }
+                case sf::Keyboard::Key::Right: {
+                    if (!key_pressed->alt) {
+                        break;
+                    }
+                    navigate_forward();
+                    break;
+                }
+                case sf::Keyboard::Key::Backspace: {
+                    navigate_back();
+                    break;
+                }
+                case sf::Keyboard::Key::R: {
+                    if (!key_pressed->control) {
+                        break;
+                    }
+                    reload();
+                    break;
+                }
+                default:
+                    break;
+            }
+        } else if (auto const *mouse_moved = event->getIf<sf::Event::MouseMoved>()) {
+            if (!maybe_page_) {
                 break;
             }
-            default:
+
+            auto window_position = geom::Position{mouse_moved->position.x, mouse_moved->position.y};
+            auto document_position = to_document_position(std::move(window_position));
+            auto const *hovered = get_hovered_node(document_position);
+            nav_widget_extra_info_ =
+                    fmt::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
+
+            // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
+            if (ImGui::GetIO().WantCaptureMouse) {
+                ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
                 break;
+            }
+
+            // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
+            // currently hovering over.
+            ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+            bool is_uri = try_get_uri(hovered).has_value();
+            if (is_uri) {
+                cursor_ = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand);
+            } else {
+                cursor_ = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow);
+            }
+
+            if (cursor_) {
+                window_.setMouseCursor(*cursor_);
+            } else {
+                spdlog::warn("Unable to create cursor '{}'", is_uri ? "hand" : "arrow");
+            }
+        } else if (auto const *mouse_button_released = event->getIf<sf::Event::MouseButtonReleased>()) {
+            if (ImGui::GetIO().WantCaptureMouse || mouse_button_released->button != sf::Mouse::Button::Left) {
+                break;
+            }
+
+            auto window_position = geom::Position{mouse_button_released->position.x, mouse_button_released->position.y};
+            auto document_position = to_document_position(std::move(window_position));
+            auto const *hovered = get_hovered_node(std::move(document_position));
+            if (auto uri = try_get_uri(hovered); uri.has_value()) {
+                url_buf_ = std::string{*uri};
+                navigate();
+            }
+
+            break;
+        } else if (auto const *mouse_scroll = event->getIf<sf::Event::MouseWheelScrolled>()) {
+            if (ImGui::GetIO().WantCaptureMouse || mouse_scroll->wheel != sf::Mouse::Wheel::Vertical) {
+                break;
+            }
+
+            scroll(std::lround(mouse_scroll->delta) * kMouseWheelScrollFactor);
+            break;
         }
     }
 
@@ -446,7 +435,7 @@ int App::run() {
 }
 
 void App::navigate() {
-    window_.setIcon(16, 16, kBrowserIcon.data());
+    window_.setIcon({16, 16}, kBrowserIcon.data());
     auto uri = [this] {
         if (maybe_page_) {
             spdlog::info("Completing '{}' with '{}'", url_buf_, (**maybe_page_).uri.uri);
@@ -570,7 +559,7 @@ void App::on_page_loaded() {
             continue;
         }
 
-        window_.setIcon(favicon.getSize().x, favicon.getSize().y, favicon.getPixelsPtr());
+        window_.setIcon({favicon.getSize().x, favicon.getSize().y}, favicon.getPixelsPtr());
         break;
     }
 

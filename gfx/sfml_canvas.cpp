@@ -35,6 +35,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <tuple>
 
 using namespace std::literals;
 
@@ -59,7 +60,7 @@ sf::Font load_fallback_font() {
         for (auto const &entry : get_font_dir_iterator(path)) {
             if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
                 spdlog::info("Trying fallback {}", entry.path().string());
-                if (font.loadFromFile(entry.path().string())) {
+                if (font.openFromFile(entry.path().string())) {
                     spdlog::info("Using fallback {}", entry.path().string());
                     return font;
                 }
@@ -130,13 +131,14 @@ sf::Text::Style to_sfml(FontStyle style) {
 } // namespace
 
 SfmlCanvas::SfmlCanvas(sf::RenderTarget &target, type::SfmlType &type) : target_{target}, type_{type} {
-    border_shader_.loadFromMemory(
+    // TODO(robinlinden): Error-handling.
+    std::ignore = border_shader_.loadFromMemory(
             std::string{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len},
             std::string{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len});
 }
 
 void SfmlCanvas::set_viewport_size(int width, int height) {
-    sf::View viewport{sf::FloatRect{0, 0, static_cast<float>(width), static_cast<float>(height)}};
+    sf::View viewport{sf::FloatRect{{0, 0}, {static_cast<float>(width), static_cast<float>(height)}}};
     target_.setView(viewport);
 }
 
@@ -150,7 +152,7 @@ void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
     auto scaled{translated.scaled(scale_)};
 
     sf::RectangleShape drawable{{static_cast<float>(scaled.width), static_cast<float>(scaled.height)}};
-    drawable.setPosition(static_cast<float>(scaled.x), static_cast<float>(scaled.y));
+    drawable.setPosition({static_cast<float>(scaled.x), static_cast<float>(scaled.y)});
     drawable.setFillColor(sf::Color{color.r, color.g, color.b, color.a});
     target_.draw(drawable);
 }
@@ -162,7 +164,7 @@ void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders c
             inner_rect.expanded({borders.left.size, borders.right.size, borders.top.size, borders.bottom.size})};
 
     sf::RectangleShape drawable{{static_cast<float>(outer_rect.width), static_cast<float>(outer_rect.height)}};
-    drawable.setPosition(static_cast<float>(outer_rect.x), static_cast<float>(outer_rect.y));
+    drawable.setPosition({static_cast<float>(outer_rect.x), static_cast<float>(outer_rect.y)});
 
     border_shader_.setUniform("resolution", target_.getView().getSize());
 
@@ -202,13 +204,12 @@ void SfmlCanvas::draw_text(geom::Position p,
     auto font = find_font(type_, font_options);
     assert(font != nullptr);
 
-    sf::Text drawable;
-    drawable.setFont(font->sf_font());
+    sf::Text drawable{font->sf_font()};
     drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px * scale_);
     drawable.setStyle(to_sfml(style));
-    drawable.setPosition(static_cast<float>(p.x), static_cast<float>(p.y));
+    drawable.setPosition({static_cast<float>(p.x), static_cast<float>(p.y)});
     target_.draw(drawable);
 }
 
@@ -223,10 +224,14 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t cons
     // Textures need to be kept around while they're displayed. This will be
     // cleared when the canvas is cleared.
     sf::Texture &texture = textures_.emplace_back();
-    texture.create(static_cast<unsigned>(rect.width), static_cast<unsigned>(rect.height));
+    if (!texture.resize({static_cast<unsigned>(rect.width), static_cast<unsigned>(rect.height)})) {
+        spdlog::critical("Failed to resize texture");
+        std::terminate();
+    }
+
     texture.update(rgba_data.data());
     sf::Sprite sprite{texture};
-    sprite.setPosition(static_cast<float>(rect.x), static_cast<float>(rect.y));
+    sprite.setPosition({static_cast<float>(rect.x), static_cast<float>(rect.y)});
     target_.draw(sprite);
     sf::RectangleShape shape{{static_cast<float>(rect.width), static_cast<float>(rect.height)}};
     shape.setTexture(&texture);

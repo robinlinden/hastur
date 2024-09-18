@@ -57,7 +57,7 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
 
 Size SfmlFont::measure(std::string_view text, Px font_size, Weight weight) const {
     sf::Text sf_text{
-            sf::String::fromUtf8(text.data(), text.data() + text.size()), font_, static_cast<unsigned>(font_size.v)};
+            font_, sf::String::fromUtf8(text.data(), text.data() + text.size()), static_cast<unsigned>(font_size.v)};
 
     switch (weight) {
         case Weight::Normal:
@@ -72,17 +72,17 @@ Size SfmlFont::measure(std::string_view text, Px font_size, Weight weight) const
     int nbsp_extra_width = 0;
     auto const nbsp_count = static_cast<int>(std::ranges::count(sf_text.getString(), std::uint32_t{0xA0}));
     if (nbsp_count > 0) {
-        sf::Text sf_space{sf::String{" "}, font_, static_cast<unsigned>(font_size.v)};
+        sf::Text sf_space{font_, sf::String{" "}, static_cast<unsigned>(font_size.v)};
         if (weight == Weight::Bold) {
             sf_space.setStyle(sf::Text::Bold);
         }
 
-        nbsp_extra_width = static_cast<int>(sf_space.getLocalBounds().width);
+        nbsp_extra_width = static_cast<int>(sf_space.getLocalBounds().size.x);
         nbsp_extra_width *= nbsp_count;
     }
 
     auto bounds = sf_text.getLocalBounds();
-    return Size{static_cast<int>(bounds.width) + nbsp_extra_width, static_cast<int>(bounds.height)};
+    return Size{static_cast<int>(bounds.size.x) + nbsp_extra_width, static_cast<int>(bounds.size.y)};
 }
 
 std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name) const {
@@ -91,7 +91,7 @@ std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name
     }
 
     sf::Font font;
-    if (auto path = find_path_to_font(name); !path || !font.loadFromFile(*path)) {
+    if (auto path = find_path_to_font(name); !path || !font.openFromFile(*path)) {
         font_cache_.insert(std::pair{std::string{name}, std::nullopt});
         return std::nullopt;
     }

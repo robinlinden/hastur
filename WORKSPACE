@@ -198,15 +198,15 @@ http_archive(
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
+    integrity = "sha256-BJfOzt904nj4IFAJF1VJvEZyOmODSBpOujTBzD+ORhY=",
     patch_cmds = [
         # Use glad for OpenGL instead of the system OpenGL headers.
         "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
-        "sed -i'' -e '4i\\\n#include <glad/gl.h>' imgui-SFML.cpp",
-        "sed -i'' -e '277i\\\n\\\tif (gladLoaderLoadGL() == 0) return false;' imgui-SFML.cpp",
+        "sed -i'' -e '4i\\\n#include <glad/gl.h>\\\n' imgui-SFML.cpp",
+        "sed -i'' -e '226i\\\n\\\tif (gladLoaderLoadGL() == 0) std::abort();\\\n' imgui-SFML.cpp",
     ],
-    sha256 = "b1195ca1210dd46c8049cfc8cae7f31cd34f1591da7de1c56297b277ac9c5cc0",
-    strip_prefix = "imgui-sfml-2.6",
-    url = "https://github.com/SFML/imgui-sfml/archive/v2.6.tar.gz",
+    strip_prefix = "imgui-sfml-2a4dc2d33a4891148bb1ab150cfcfd0cb33c2b8c",
+    url = "https://github.com/SFML/imgui-sfml/archive/2a4dc2d33a4891148bb1ab150cfcfd0cb33c2b8c.tar.gz",
 )
 
 # https://github.com/simdjson/simdjson
@@ -231,29 +231,15 @@ http_archive(
 http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
-    integrity = "sha256-glNdueVxBdTzqK7avROGMd767cWTyrWJySS316Ef+50=",
+    integrity = "sha256-aA2n9DmKV2Z4fqnKad0cmkhxzzxINN362SJCXG95Lcg=",
     patch_cmds = [
-        # Work around SFML check for enough bytes for a given UTF-8 character
-        # crashing in MSVC debug builds with "cannot seek string_view iterator
-        # after end".
-        # See: https://github.com/SFML/SFML/issues/2113
-        "sed -i'' -e 's/if (begin + trailingBytes < end)/if (trailingBytes < std::distance(begin, end))/' include/SFML/System/Utf.inl",
         # SFML uses a non-standard include path to vulkan.h
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Unix/VulkanImplX11.cpp",
-        # SFML does non-standard things with std::basic_string<Uint32>.
-        # This will not compile with libc++19.
-        "sed -i'' -e '36i\\\n#ifdef _LIBCPP_VERSION\\\n' include/SFML/System/String.hpp",
-        "sed -i'' -e '37i\\\n#pragma clang diagnostic push\\\n' include/SFML/System/String.hpp",
-        "sed -i'' -e '38i\\\n#pragma clang diagnostic ignored \"-Wdeprecated-declarations\"\\\n' include/SFML/System/String.hpp",
-        "sed -i'' -e '39i\\\n#endif\\\n' include/SFML/System/String.hpp",
-        "sed -i'' -e '619i\\\n#ifdef _LIBCPP_VERSION\\\n' include/SFML/System/String.hpp",
-        "sed -i'' -e '620i\\\n#pragma clang diagnostic pop\\\n' include/SFML/System/String.hpp",
-        "sed -i'' -e '621i\\\n#endif\\\n' include/SFML/System/String.hpp",
     ],
-    strip_prefix = "SFML-2.6.1",
-    url = "https://github.com/SFML/SFML/archive/2.6.1.tar.gz",
+    strip_prefix = "SFML-3.0.0-rc.1",
+    url = "https://github.com/SFML/SFML/archive/3.0.0-rc.1.tar.gz",
 )
 
 # https://github.com/gabime/spdlog

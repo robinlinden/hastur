@@ -81,7 +81,7 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev
+          sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
       - uses: actions/cache@v4
         with:
           path: ~/.cache/bazel
@@ -136,7 +136,7 @@ jobs:
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
           echo "CC=clang-18" >> $GITHUB_ENV
           echo "CXX=clang++-18" >> $GITHUB_ENV
-      - run: sudo apt-get install libx11-dev
+      - run: sudo apt-get install libx11-dev libxi-dev
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
       - name: Summary

@@ -47,6 +47,8 @@ build:macos      --cxxopt='-std=c++2b'
 build:macos --host_cxxopt='-std=c++2b'
 build:macos      --cxxopt='-fno-rtti'
 build:macos --host_cxxopt='-fno-rtti'
+build:macos --objccopt='-ObjC++'
+build:macos --objccopt='-std=c++2b'
 
 build:windows --enable_runfiles
 build:windows --action_env=LOCALAPPDATA # Quirk for running vswhere, remove when icu no-longer needed
