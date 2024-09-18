@@ -775,6 +775,7 @@ int main() {
 
         simdjson::ondemand::parser parser;
 
+        // NOLINTNEXTLINE(clang-analyzer-unix.Errno): Problem in simdjson that probably doesn't affect us.
         auto json = simdjson::padded_string::load("../wpt/url/resources/urltestdata.json");
 
         simdjson::ondemand::document doc = parser.iterate(json);

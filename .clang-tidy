@@ -41,9 +41,17 @@
 #
 # -readability-named-parameter: Leaving out argument names is fine where it doesn't add anything.
 #
-# -readability-redundant-member-init: TODO(robinlinden): Investigate.
-#
-# -readability-uppercase-literal-suffix: TODO(robinlinden): Investigate.
+# TODO(robinlinden): Investigate.
+# -readability-redundant-member-init
+# -readability-uppercase-literal-suffix
+# -bugprone-suspicious-stringview-data-usage
+# -misc-use-internal-linkage
+# -modernize-min-max-use-initializer-list
+# -modernize-use-designated-initializers
+# -modernize-use-ranges
+# -performance-unnecessary-copy-initialization
+# -performance-unnecessary-value-param
+# -readability-math-missing-parentheses
 Checks: >
   bugprone-*,
   cert-*,
@@ -85,7 +93,15 @@ Checks: >
   -readability-magic-numbers,
   -readability-named-parameter,
   -readability-redundant-member-init,
-  -readability-uppercase-literal-suffix
+  -readability-uppercase-literal-suffix,
+  -bugprone-suspicious-stringview-data-usage,
+  -misc-use-internal-linkage,
+  -modernize-min-max-use-initializer-list,
+  -modernize-use-designated-initializers,
+  -modernize-use-ranges,
+  -performance-unnecessary-copy-initialization,
+  -performance-unnecessary-value-param,
+  -readability-math-missing-parentheses
 
 WarningsAsErrors: "*"
 

@@ -10,7 +10,7 @@
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <asio/ip/tcp.hpp>
-#include <asio/write.hpp>
+#include <asio/write.hpp> // NOLINT: Needed for asio::write.
 
 #include <cstdint>
 #include <future>
@@ -33,6 +33,7 @@ public:
             port.set_value(a.local_endpoint().port());
 
             auto sock = a.accept();
+            // NOLINTNEXTLINE(misc-include-cleaner): Provided by <asio/write.hpp>.
             asio::write(sock, asio::buffer(payload, payload.size()));
         }};
     }

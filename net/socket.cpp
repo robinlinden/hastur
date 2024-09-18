@@ -7,7 +7,7 @@
 
 #include <asio/buffer.hpp>
 #include <asio/completion_condition.hpp>
-#include <asio/connect.hpp>
+#include <asio/connect.hpp> // NOLINT: Needed for asio::connect.
 #include <asio/error_code.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
@@ -35,6 +35,7 @@ struct BaseSocketImpl {
             std::string_view service) {
         asio::error_code ec;
         auto endpoints = resolver.resolve(host, service, ec);
+        // NOLINTNEXTLINE(misc-include-cleaner): Provided by <asio/connect.hpp>.
         asio::connect(socket, endpoints, ec);
         return !ec;
     }
