@@ -297,11 +297,17 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-18 libc++abi-18-dev libc++-18-dev
-      - run: echo "CC=clang-18" >>$GITHUB_ENV && echo "CXX=clang++-18" >>$GITHUB_ENV
+      - name: Set up the llvm repository
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
+      # TODO(robinlinden): libc++-19 once we've done something about SFML having weird unsupported char_traits-stuff.
+      # See: https://releases.llvm.org/19.1.0/projects/libcxx/docs/ReleaseNotes.html#deprecations-and-removals
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-19 libc++abi-18-dev libc++-18-dev
+      - run: echo "CC=clang-19" >>$GITHUB_ENV && echo "CXX=clang++-19" >>$GITHUB_ENV
       - run: |
-          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-18 100
-          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-18
+          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-19 100
+          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-19
           update-alternatives --query clang-tidy
           clang-tidy --version
       - run: bazel build ... --config libc++ --config clang-tidy --keep_going
