@@ -49,7 +49,6 @@
 # -modernize-min-max-use-initializer-list
 # -modernize-use-designated-initializers
 # -modernize-use-ranges
-# -performance-unnecessary-copy-initialization
 # -readability-math-missing-parentheses
 Checks: >
   bugprone-*,
@@ -98,7 +97,6 @@ Checks: >
   -modernize-min-max-use-initializer-list,
   -modernize-use-designated-initializers,
   -modernize-use-ranges,
-  -performance-unnecessary-copy-initialization,
   -readability-math-missing-parentheses
 
 WarningsAsErrors: "*"

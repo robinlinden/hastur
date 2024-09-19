@@ -220,7 +220,7 @@ int main() {
         auto rules = css::parse("body { width: 50px; }"sv).rules;
         a.require(rules.size() == 1);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"body"s});
         a.expect(body.declarations.size() == 1);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
@@ -230,7 +230,7 @@ int main() {
         auto rules = css::parse("body { width: 50px !important; }"sv).rules;
         a.require_eq(rules.size(), std::size_t{1});
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect_eq(body.selectors, std::vector{"body"s});
         a.expect(body.declarations.empty());
         a.expect_eq(body.important_declarations.size(), std::size_t{1});
@@ -259,13 +259,13 @@ int main() {
         auto rules = css::parse("body{width:50px;font-family:inherit}head,p{display:none}"sv).rules;
         a.require(rules.size() == 2);
 
-        auto first = rules[0];
+        auto const &first = rules[0];
         a.expect(first.selectors == std::vector{"body"s});
         a.expect(first.declarations.size() == 2);
         a.expect(first.declarations.at(css::PropertyId::Width) == "50px"s);
         a.expect(first.declarations.at(css::PropertyId::FontFamily) == "inherit"s);
 
-        auto second = rules[1];
+        auto const &second = rules[1];
         a.expect(second.selectors == std::vector{"head"s, "p"s});
         a.expect(second.declarations.size() == 1);
         a.expect(second.declarations.at(css::PropertyId::Display) == "none"s);
@@ -275,12 +275,12 @@ int main() {
         auto rules = css::parse("body { width: 50px; }\np { font-size: 8em; }"sv).rules;
         a.require(rules.size() == 2);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"body"s});
         a.expect(body.declarations.size() == 1);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
 
-        auto p = rules[1];
+        auto const &p = rules[1];
         a.expect(p.selectors == std::vector{"p"s});
         a.expect(p.declarations.size() == 1);
         a.expect(p.declarations.at(css::PropertyId::FontSize) == "8em"s);
@@ -290,7 +290,7 @@ int main() {
         auto rules = css::parse("body, p { width: 50px; }"sv).rules;
         a.require(rules.size() == 1);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"body"s, "p"s});
         a.expect(body.declarations.size() == 1);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
@@ -300,7 +300,7 @@ int main() {
         auto rules = css::parse("body { width: 50px; height: 300px; }"sv).rules;
         a.require(rules.size() == 1);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"body"s});
         a.expect(body.declarations.size() == 2);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
@@ -311,7 +311,7 @@ int main() {
         auto rules = css::parse(".cls { width: 50px; }"sv).rules;
         a.require(rules.size() == 1);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{".cls"s});
         a.expect(body.declarations.size() == 1);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
@@ -321,7 +321,7 @@ int main() {
         auto rules = css::parse("#cls { width: 50px; }"sv).rules;
         a.require(rules.size() == 1);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"#cls"s});
         a.expect(body.declarations.size() == 1);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
@@ -331,7 +331,7 @@ int main() {
         auto rules = css::parse("body {}"sv).rules;
         a.require(rules.size() == 1);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"body"s});
         a.expect(body.declarations.empty());
     });
@@ -345,12 +345,12 @@ int main() {
         auto rules = css::parse("body { width: 50px; }/* comment. */ p { font-size: 8em; } /* comment. */"sv).rules;
         a.require(rules.size() == 2);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect(body.selectors == std::vector{"body"s});
         a.expect(body.declarations.size() == 1);
         a.expect(body.declarations.at(css::PropertyId::Width) == "50px"s);
 
-        auto p = rules[1];
+        auto const &p = rules[1];
         a.expect(p.selectors == std::vector{"p"s});
         a.expect(p.declarations.size() == 1);
         a.expect(p.declarations.at(css::PropertyId::FontSize) == "8em"s);
@@ -366,12 +366,12 @@ int main() {
         //         */p/**/{/**/padding/**/:/**/8em/**/4em/**/;/**//**/}/**/)"sv).rules;
         a.require_eq(rules.size(), 2UL);
 
-        auto body = rules[0];
+        auto const &body = rules[0];
         a.expect_eq(body.selectors, std::vector{"body"s});
         a.expect_eq(body.declarations.size(), 1UL);
         a.expect_eq(body.declarations.at(css::PropertyId::Width), "50px"s);
 
-        auto p = rules[1];
+        auto const &p = rules[1];
         a.expect_eq(p.selectors, std::vector{"p"s});
         a.expect_eq(p.declarations.size(), 4UL);
         a.expect_eq(p.declarations.at(css::PropertyId::PaddingTop), "8em"s);
@@ -390,19 +390,19 @@ int main() {
                              .rules;
         a.require(rules.size() == 3);
 
-        auto article = rules[0];
+        auto const &article = rules[0];
         a.expect(article.selectors == std::vector{"article"s});
         a.require(article.declarations.contains(css::PropertyId::Width));
         a.expect(article.declarations.at(css::PropertyId::Width) == "50px"s);
         a.expect_eq(article.media_query, css::MediaQuery{css::MediaQuery::Width{.min = 900}});
 
-        auto p = rules[1];
+        auto const &p = rules[1];
         a.expect(p.selectors == std::vector{"p"s});
         a.require(p.declarations.contains(css::PropertyId::FontSize));
         a.expect(p.declarations.at(css::PropertyId::FontSize) == "9em"s);
         a.expect_eq(p.media_query, css::MediaQuery{css::MediaQuery::Width{.min = 900}});
 
-        auto a_ele = rules[2];
+        auto const &a_ele = rules[2];
         a.expect(a_ele.selectors == std::vector{"a"s});
         a.require(a_ele.declarations.contains(css::PropertyId::BackgroundColor));
         a.expect(a_ele.declarations.at(css::PropertyId::BackgroundColor) == "indigo"s);
@@ -452,7 +452,7 @@ int main() {
                 property = "border";
             }
 
-            auto body = rules[0];
+            auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
             a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
                     == value);
@@ -492,7 +492,7 @@ int main() {
                 property = "border";
             }
 
-            auto body = rules[0];
+            auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
             a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
                     == values[0]);
@@ -527,7 +527,7 @@ int main() {
                 property = "border";
             }
 
-            auto body = rules[0];
+            auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
             a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
                     == values[0]);
@@ -563,7 +563,7 @@ int main() {
                 property = "border";
             }
 
-            auto body = rules[0];
+            auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
             a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
                     == values[0]);
@@ -616,7 +616,7 @@ int main() {
                 property = "border";
             }
 
-            auto body = rules[0];
+            auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
             a.expect_eq(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix))),
                     values[1]);
@@ -664,7 +664,7 @@ int main() {
                 property = "border";
             }
 
-            auto body = rules[0];
+            auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
             a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
                     == values[2]);
