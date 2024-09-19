@@ -50,7 +50,6 @@
 # -modernize-use-designated-initializers
 # -modernize-use-ranges
 # -performance-unnecessary-copy-initialization
-# -performance-unnecessary-value-param
 # -readability-math-missing-parentheses
 Checks: >
   bugprone-*,
@@ -100,7 +99,6 @@ Checks: >
   -modernize-use-designated-initializers,
   -modernize-use-ranges,
   -performance-unnecessary-copy-initialization,
-  -performance-unnecessary-value-param,
   -readability-math-missing-parentheses
 
 WarningsAsErrors: "*"

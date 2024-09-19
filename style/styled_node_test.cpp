@@ -27,7 +27,7 @@ using etest::expect_eq;
 namespace {
 template<css::PropertyId IdT>
 void expect_property_eq(
-        std::string value, auto expected, std::source_location const &loc = std::source_location::current()) {
+        std::string value, auto const &expected, std::source_location const &loc = std::source_location::current()) {
     dom::Node dom_node = dom::Element{"dummy"s};
     style::StyledNode styled_node{
             .node = dom_node,
