@@ -13,6 +13,7 @@
 
 #include <tl/expected.hpp>
 
+#include <string>
 #include <vector>
 
 int main() {
@@ -209,6 +210,23 @@ int main() {
         m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+    });
+
+    s.add_test("to_string(ValidationError): Every error has a message", [](etest::IActions &a) {
+        // This test will fail if we add new first or last errors, but that's fine.
+        static constexpr auto kFirstError = ValidationError::BlockTypeInvalid;
+        static constexpr auto kLastError = ValidationError::ValueStackUnexpected;
+
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<ValidationError>(error)) != "Unknown error",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<ValidationError>(error + 1)), "Unknown error");
     });
 
     return s.run();
