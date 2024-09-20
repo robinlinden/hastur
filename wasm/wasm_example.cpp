@@ -7,21 +7,11 @@
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
-#include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <iterator>
 #include <string_view>
 #include <variant>
-
-namespace wasm {
-std::ostream &operator<<(std::ostream &, wasm::ValueType);
-std::ostream &operator<<(std::ostream &os, wasm::ValueType type) {
-    os << to_string(type);
-    return os;
-}
-} // namespace wasm
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -47,8 +37,11 @@ int main(int argc, char **argv) {
         // https://en.cppreference.com/w/cpp/experimental/ostream_joiner soon, I hope.
         auto print_values = [](auto const &values) {
             if (!values.empty()) {
-                std::copy_n(begin(values), size(values) - 1, std::ostream_iterator<wasm::ValueType>(std::cout, ","));
-                std::copy_n(end(values) - 1, 1, std::ostream_iterator<wasm::ValueType>(std::cout));
+                for (std::size_t i = 0; i < values.size() - 1; ++i) {
+                    std::cout << to_string(values[i]) << ',';
+                }
+
+                std::cout << to_string(values.back());
             }
         };
 
@@ -94,7 +87,7 @@ int main(int argc, char **argv) {
         for (auto const &e : s->entries) {
             std::cout << e.code.size() << " instruction(s), " << e.locals.size() << " locals";
             for (auto const &local : e.locals) {
-                std::cout << " (" << local.type << ": " << local.count << ')';
+                std::cout << " (" << to_string(local.type) << ": " << local.count << ')';
             }
             std::cout << '\n';
         }

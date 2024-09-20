@@ -21,66 +21,12 @@
 #include <vector>
 
 namespace wasm::validation {
+namespace {
 
 using namespace wasm::instructions;
 
 using Unknown = std::monostate;
 using ValueOrUnknown = std::variant<Unknown, ValueType>;
-
-std::string_view to_string(ValidationError err) {
-    switch (err) {
-        case ValidationError::BlockTypeInvalid:
-            return "BlockType of a block or loop is invalid; the type section is undefined, or the type index was "
-                   "out-of-bounds.";
-        case ValidationError::CodeSectionUndefined:
-            return "A code section is required, but was not defined";
-        case ValidationError::ControlStackEmpty:
-            return "Attempted to pop from the control stack, but the control stack is empty";
-        case ValidationError::FuncTypeInvalid:
-            return "Function section references a non-existent type";
-        case ValidationError::FunctionSectionUndefined:
-            return "A function section is required, but was not defined";
-        case ValidationError::FuncUndefinedCode:
-            return "Function body is undefined/missing";
-        case ValidationError::LabelInvalid:
-            return "Attempted to branch to a label which isn't valid";
-        case ValidationError::LocalUndefined:
-            return "Attempted to index a local which isn't defined in the current code entry";
-        case ValidationError::MemoryBadAlignment:
-            return "Attempted a load or store with a bad alignment value";
-        case ValidationError::MemoryEmpty:
-            return "Attempted a load, but memory is empty";
-        case ValidationError::MemorySectionUndefined:
-            return "Attempted a load or store, but no memory section was defined";
-        case ValidationError::TypeSectionUndefined:
-            return "A type section is required, but was not defined";
-        case ValidationError::UnknownInstruction:
-            return "Unknown instruction encountered";
-        case ValidationError::ValueStackHeightMismatch:
-            return "Value stack height on exiting a control frame does not match the height on entry";
-        case ValidationError::ValueStackUnderflow:
-            return "Attempted to pop from the value stack, but stack height would underflow";
-        case ValidationError::ValueStackUnexpected:
-            return "Attempted to pop an expected value from the value stack, but got a different value";
-    }
-
-    return "Unknown error";
-}
-
-// https://webassembly.github.io/spec/core/valid/types.html#limits
-constexpr bool is_valid(Limits const &l, std::uint64_t k) {
-    if (l.min > k) {
-        return false;
-    }
-
-    if (l.max.has_value()) {
-        if (l.max > k || l.max < l.min) {
-            return false;
-        }
-    }
-
-    return true;
-}
 
 // https://webassembly.github.io/spec/core/valid/types.html#block-types
 constexpr bool is_valid(wasm::instructions::BlockType const &bt, Module const &m) {
@@ -91,6 +37,24 @@ constexpr bool is_valid(wasm::instructions::BlockType const &bt, Module const &m
 
         if (*t >= m.type_section->types.size()) {
             // Index outside bounds of defined types
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// TODO(Zer0-One): Start using these?
+// NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if)
+#if 0
+// https://webassembly.github.io/spec/core/valid/types.html#limits
+constexpr bool is_valid(Limits const &l, std::uint64_t k) {
+    if (l.min > k) {
+        return false;
+    }
+
+    if (l.max.has_value()) {
+        if (l.max > k || l.max < l.min) {
             return false;
         }
     }
@@ -138,6 +102,7 @@ constexpr bool is_match(TableType const &t1, TableType const &t2) {
 constexpr bool is_match(GlobalType const &g1, GlobalType const &g2) {
     return g1 == g2;
 }
+#endif
 
 // https://webassembly.github.io/spec/core/appendix/algorithm.html#validation-algorithm
 struct ControlFrame {
@@ -276,7 +241,6 @@ void InstValidator::mark_unreachable() {
     control_stack.back().unreachable = true;
 }
 
-namespace {
 // TODO(dzero): Serialize operand stack and control stack as part of the ValidationError to make debugging easier
 // https://webassembly.github.io/spec/core/valid/instructions.html#instruction-sequences
 tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
@@ -581,6 +545,46 @@ tl::expected<void, ValidationError> validate_functions(Module const &m, Function
 }
 
 } // namespace
+
+std::string_view to_string(ValidationError err) {
+    switch (err) {
+        case ValidationError::BlockTypeInvalid:
+            return "BlockType of a block or loop is invalid; the type section is undefined, or the type index was "
+                   "out-of-bounds.";
+        case ValidationError::CodeSectionUndefined:
+            return "A code section is required, but was not defined";
+        case ValidationError::ControlStackEmpty:
+            return "Attempted to pop from the control stack, but the control stack is empty";
+        case ValidationError::FuncTypeInvalid:
+            return "Function section references a non-existent type";
+        case ValidationError::FunctionSectionUndefined:
+            return "A function section is required, but was not defined";
+        case ValidationError::FuncUndefinedCode:
+            return "Function body is undefined/missing";
+        case ValidationError::LabelInvalid:
+            return "Attempted to branch to a label which isn't valid";
+        case ValidationError::LocalUndefined:
+            return "Attempted to index a local which isn't defined in the current code entry";
+        case ValidationError::MemoryBadAlignment:
+            return "Attempted a load or store with a bad alignment value";
+        case ValidationError::MemoryEmpty:
+            return "Attempted a load, but memory is empty";
+        case ValidationError::MemorySectionUndefined:
+            return "Attempted a load or store, but no memory section was defined";
+        case ValidationError::TypeSectionUndefined:
+            return "A type section is required, but was not defined";
+        case ValidationError::UnknownInstruction:
+            return "Unknown instruction encountered";
+        case ValidationError::ValueStackHeightMismatch:
+            return "Value stack height on exiting a control frame does not match the height on entry";
+        case ValidationError::ValueStackUnderflow:
+            return "Attempted to pop from the value stack, but stack height would underflow";
+        case ValidationError::ValueStackUnexpected:
+            return "Attempted to pop an expected value from the value stack, but got a different value";
+    }
+
+    return "Unknown error";
+}
 
 // https://webassembly.github.io/spec/core/valid/modules.html#modules
 tl::expected<void, ValidationError> validate(Module const &m) {
