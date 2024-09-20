@@ -421,7 +421,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
         box.dimensions.content.height =
                 std::max(box.dimensions.content.height, child->dimensions.margin_box().height * (current_line + 1));
         box.dimensions.content.width =
-                std::max(box.dimensions.content.width, std::max(last_child_end, child->dimensions.content.width));
+                std::max({box.dimensions.content.width, last_child_end, child->dimensions.content.width});
     }
 }
 
