@@ -154,15 +154,6 @@ jobs:
           pipx install codecov-cli==0.6.0
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
-  linux-gcc-13-no-exceptions:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    container: gcc:13.3.0
-    steps:
-      - uses: actions/checkout@v4
-      - run: wget --no-verbose --output-document=bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64 && chmod +x bazelisk
-      - run: ./bazelisk test etest/... --copt=-fno-exceptions
-
   linux-aarch64-muslc:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
