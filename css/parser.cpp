@@ -405,18 +405,13 @@ constexpr void Parser::skip_whitespace() {
     }
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 void Parser::skip_whitespace_and_comments() {
-    if (starts_with("/*")) {
+    skip_whitespace();
+    while (starts_with("/*")) {
         advance(2);
         consume_while([&](char) { return peek(2) != "*/"; });
         advance(2);
-    }
-
-    skip_whitespace();
-
-    if (starts_with("/*")) {
-        skip_whitespace_and_comments();
+        skip_whitespace();
     }
 }
 
