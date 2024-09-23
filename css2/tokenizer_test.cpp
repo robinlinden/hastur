@@ -370,6 +370,13 @@ int main() {
         expect_token(output, NumberToken{.data = 13});
     });
 
+    s.add_test("number: less ez", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "(13)");
+        expect_token(output, OpenParenToken{});
+        expect_token(output, NumberToken{.data = 13});
+        expect_token(output, CloseParenToken{});
+    });
+
     s.add_test("number: leading 0", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "00000001");
         expect_token(output, NumberToken{.data = 1});

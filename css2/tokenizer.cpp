@@ -368,18 +368,14 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
     std::variant<int, double> result{};
     std::string repr{};
 
-    std::optional<char> next_input;
-    if (first_byte == '-') {
+    assert(util::is_digit(first_byte) || first_byte == '-' || first_byte == '+');
+    if (first_byte != '+') {
         repr += first_byte;
-        next_input = consume_next_input_character();
-    } else if (first_byte == '+') {
-        next_input = consume_next_input_character();
-    } else {
-        next_input = first_byte;
     }
 
-    for (; next_input && util::is_digit(*next_input); next_input = consume_next_input_character()) {
+    for (auto next_input = peek_input(0); next_input && util::is_digit(*next_input); next_input = peek_input(0)) {
         repr += *next_input;
+        consume_next_input_character();
     }
 
     // TODO(robinlinden): Step 4, 5
