@@ -7,9 +7,6 @@
 #
 # -bugprone-narrowing-conversions: Very noisy for not much gain.
 #
-# -cert-dcl21-cpp: Deprecated, will be removed in clang-tidy 19.
-# https://releases.llvm.org/17.0.1/tools/clang/tools/extra/docs/clang-tidy/checks/cert/dcl21-cpp.html
-#
 # -cppcoreguidelines-[...]: TODO(robinlidnen): Investigate.
 #
 # -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
@@ -62,7 +59,6 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
-  -cert-dcl21-cpp,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-do-while,
   -cppcoreguidelines-avoid-magic-numbers,
