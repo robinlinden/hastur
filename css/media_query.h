@@ -35,8 +35,6 @@ enum class MediaType : std::uint8_t {
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96645
 namespace detail {
 
-// Clang-tidy thinks that maybe this has to do w/ a fwd-declaration in SFML.
-// NOLINTNEXTLINE(bugprone-forward-declaration-namespace)
 struct Context {
     int window_width{};
     ColorScheme color_scheme{ColorScheme::Light};
