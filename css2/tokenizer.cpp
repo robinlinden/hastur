@@ -395,15 +395,14 @@ std::variant<int, double> Tokenizer::consume_number(char first_byte) {
     // TODO(robinlinden): Step 5
 
     // The tokenizer will verify that this is a number before calling consume_number.
+    [[maybe_unused]] util::from_chars_result fc_res{};
     if (auto *int_res = std::get_if<int>(&result); int_res != nullptr) {
-        [[maybe_unused]] auto fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
-        assert(fc_res.ec == std::errc{});
+        fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
     } else {
-        [[maybe_unused]] auto fc_res =
-                util::from_chars(repr.data(), repr.data() + repr.size(), std::get<double>(result));
-        assert(fc_res.ec == std::errc{});
+        fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), std::get<double>(result));
     }
 
+    assert(fc_res.ec == std::errc{} && fc_res.ptr == repr.data() + repr.size());
     return result;
 }
 
