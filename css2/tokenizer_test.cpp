@@ -365,29 +365,29 @@ int main() {
         expect_token(output, CloseCurlyToken{});
     });
 
-    s.add_test("number: ez", [](etest::IActions &a) {
+    s.add_test("integer: ez", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "13");
         expect_token(output, NumberToken{.data = 13});
     });
 
-    s.add_test("number: less ez", [](etest::IActions &a) {
+    s.add_test("integer: less ez", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "(13)");
         expect_token(output, OpenParenToken{});
         expect_token(output, NumberToken{.data = 13});
         expect_token(output, CloseParenToken{});
     });
 
-    s.add_test("number: leading 0", [](etest::IActions &a) {
+    s.add_test("integer: leading 0", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "00000001");
         expect_token(output, NumberToken{.data = 1});
     });
 
-    s.add_test("plus: number", [](etest::IActions &a) {
+    s.add_test("plus: integer", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "+13");
         expect_token(output, NumberToken{.data = 13});
     });
 
-    s.add_test("plus: number w/ leading 0", [](etest::IActions &a) {
+    s.add_test("plus: integer w/ leading 0", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "+00000001");
         expect_token(output, NumberToken{.data = 1});
     });
@@ -398,12 +398,12 @@ int main() {
         expect_token(output, IdentToken{"hello"});
     });
 
-    s.add_test("hyphen: negative number", [](etest::IActions &a) {
+    s.add_test("hyphen: negative integer", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "-13");
         expect_token(output, NumberToken{.data = -13});
     });
 
-    s.add_test("hyphen: negative number w/ leading 0", [](etest::IActions &a) {
+    s.add_test("hyphen: negative integer w/ leading 0", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "-00000001");
         expect_token(output, NumberToken{.data = -1});
     });
