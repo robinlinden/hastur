@@ -414,5 +414,27 @@ int main() {
         expect_token(output, IdentToken{"lol"});
     });
 
+    s.add_test("number: ez", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "0.25");
+        expect_token(output, NumberToken{.type = css2::NumericType::Number, .data = 0.25});
+    });
+
+    s.add_test("number: and other things", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "(0.375)");
+        expect_token(output, OpenParenToken{});
+        expect_token(output, NumberToken{.type = css2::NumericType::Number, .data = 0.375});
+        expect_token(output, CloseParenToken{});
+    });
+
+    s.add_test("number: negative", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "-42.25");
+        expect_token(output, NumberToken{.type = css2::NumericType::Number, .data = -42.25});
+    });
+
+    s.add_test("number: with +", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "+13.25");
+        expect_token(output, NumberToken{.type = css2::NumericType::Number, .data = 13.25});
+    });
+
     return s.run();
 }

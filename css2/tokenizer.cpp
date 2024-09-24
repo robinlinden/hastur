@@ -8,6 +8,7 @@
 #include "css2/token.h"
 
 #include "unicode/util.h"
+#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <cassert>
@@ -378,11 +379,32 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
         consume_next_input_character();
     }
 
-    // TODO(robinlinden): Step 4, 5
+    if (peek_input(0) == '.' && util::is_digit(peek_input(1).value_or('Q'))) {
+        std::ignore = consume_next_input_character(); // '.'
+        auto v = consume_next_input_character();
+        assert(v.has_value());
+        repr += '.';
+        repr += *v;
+        type = NumericType::Number;
+        result = 0.;
 
-    [[maybe_unused]] auto fc_res = std::from_chars(repr.data(), repr.data() + repr.size(), std::get<int>(result));
+        for (auto next_input = peek_input(0); next_input && util::is_digit(*next_input); next_input = peek_input(0)) {
+            repr += *next_input;
+            consume_next_input_character();
+        }
+    }
+
+    // TODO(robinlinden): Step 5
+
     // The tokenizer will verify that this is a number before calling consume_number.
-    assert(fc_res.ec == std::errc{});
+    if (type == NumericType::Integer) {
+        [[maybe_unused]] auto fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), std::get<int>(result));
+        assert(fc_res.ec == std::errc{});
+    } else {
+        [[maybe_unused]] auto fc_res =
+                util::from_chars(repr.data(), repr.data() + repr.size(), std::get<double>(result));
+        assert(fc_res.ec == std::errc{});
+    }
 
     return {result, type};
 }
