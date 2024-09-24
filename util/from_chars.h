@@ -13,6 +13,7 @@
 
 #include <cerrno>
 #include <charconv>
+#include <concepts>
 #include <cstdlib>
 #include <iterator>
 #include <string>
@@ -25,12 +26,20 @@ using std::from_chars;
 using std::from_chars_result;
 
 // Not spec-compliant at all, but good enough for how we're using it.
-inline from_chars_result from_chars(char const *first, char const *last, float &value) {
+template<std::floating_point T>
+inline from_chars_result from_chars(char const *first, char const *last, T &value) {
     // Produce a null-terminated string that we can safely pass to std::strtof.
     std::string to_parse{first, last};
     char *end{};
+    T result{};
+
     errno = 0;
-    float result = std::strtof(to_parse.c_str(), &end);
+    if constexpr (std::same_as<T, float>) {
+        result = std::strtof(to_parse.c_str(), &end);
+    } else {
+        result = std::strtod(to_parse.c_str(), &end);
+    }
+
     if (end == to_parse.c_str()) {
         // No conversion could be performed.
         return {first, std::errc::invalid_argument};
