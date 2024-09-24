@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -29,6 +29,7 @@ inline from_chars_result from_chars(char const *first, char const *last, float &
     // Produce a null-terminated string that we can safely pass to std::strtof.
     std::string to_parse{first, last};
     char *end{};
+    errno = 0;
     float result = std::strtof(to_parse.c_str(), &end);
     if (end == to_parse.c_str()) {
         // No conversion could be performed.

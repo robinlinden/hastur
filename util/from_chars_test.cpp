@@ -14,22 +14,6 @@ using namespace std::literals;
 int main() {
     etest::Suite s;
 
-    s.add_test("success", [](etest::IActions &a) {
-        auto from = "100.5"sv;
-        float v{};
-        auto res = util::from_chars(from.data(), from.data() + from.size(), v);
-        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc{}});
-        a.expect_eq(v, 100.5f);
-    });
-
-    s.add_test("success, negative", [](etest::IActions &a) {
-        auto from = "-100.5"sv;
-        float v{};
-        auto res = util::from_chars(from.data(), from.data() + from.size(), v);
-        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc{}});
-        a.expect_eq(v, -100.5f);
-    });
-
     s.add_test("failure, out of range", [](etest::IActions &a) {
         auto from = "1e100000"sv;
         float v{};
@@ -48,6 +32,22 @@ int main() {
         auto res = util::from_chars(from.data(), from.data() + from.size(), v);
         a.expect_eq(res, util::from_chars_result{from.data(), std::errc::invalid_argument});
         a.expect_eq(v, 0.f);
+    });
+
+    s.add_test("success", [](etest::IActions &a) {
+        auto from = "100.5"sv;
+        float v{};
+        auto res = util::from_chars(from.data(), from.data() + from.size(), v);
+        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc{}});
+        a.expect_eq(v, 100.5f);
+    });
+
+    s.add_test("success, negative", [](etest::IActions &a) {
+        auto from = "-100.5"sv;
+        float v{};
+        auto res = util::from_chars(from.data(), from.data() + from.size(), v);
+        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc{}});
+        a.expect_eq(v, -100.5f);
     });
 
     return s.run();
