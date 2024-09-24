@@ -20,7 +20,9 @@ void add_tests(etest::Suite &s, std::string_view name_prefix) {
         auto from = "1e100000"sv;
         T v{};
         auto res = util::from_chars(from.data(), from.data() + from.size(), v);
-        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc::result_out_of_range});
+        a.expect_eq(res,
+                util::from_chars_result{from.data() + from.size(), std::errc::result_out_of_range},
+                std::make_error_code(res.ec).message());
 #ifndef _MSC_VER
         // Microsoft's STL sets v to HUGE_VALF when ERANGE occurs.
         // See: https://en.cppreference.com/w/cpp/utility/from_chars#Return_value
@@ -32,7 +34,9 @@ void add_tests(etest::Suite &s, std::string_view name_prefix) {
         auto from = "abcd"sv;
         T v{};
         auto res = util::from_chars(from.data(), from.data() + from.size(), v);
-        a.expect_eq(res, util::from_chars_result{from.data(), std::errc::invalid_argument});
+        a.expect_eq(res,
+                util::from_chars_result{from.data(), std::errc::invalid_argument},
+                std::make_error_code(res.ec).message());
         a.expect_eq(v, T{0.});
     });
 
@@ -40,7 +44,9 @@ void add_tests(etest::Suite &s, std::string_view name_prefix) {
         auto from = "100.5"sv;
         T v{};
         auto res = util::from_chars(from.data(), from.data() + from.size(), v);
-        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc{}});
+        a.expect_eq(res,
+                util::from_chars_result{from.data() + from.size(), std::errc{}},
+                std::make_error_code(res.ec).message());
         a.expect_eq(v, T{100.5});
     });
 
@@ -48,7 +54,9 @@ void add_tests(etest::Suite &s, std::string_view name_prefix) {
         auto from = "-100.5"sv;
         T v{};
         auto res = util::from_chars(from.data(), from.data() + from.size(), v);
-        a.expect_eq(res, util::from_chars_result{from.data() + from.size(), std::errc{}});
+        a.expect_eq(res,
+                util::from_chars_result{from.data() + from.size(), std::errc{}},
+                std::make_error_code(res.ec).message());
         a.expect_eq(v, T{-100.5});
     });
 }
