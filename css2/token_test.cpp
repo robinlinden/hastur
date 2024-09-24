@@ -59,33 +59,45 @@ int main() {
         a.expect_eq("DelimToken ,", to_string(t));
     });
 
-    s.add_test("to_string NumberToken integer", [](etest::IActions &a) {
-        NumberToken t{NumericType::Integer, 53};
+    s.add_test("NumberToken integer", [](etest::IActions &a) {
+        NumberToken t{53};
+        a.expect(t.is_integer());
+        a.expect(!t.is_number());
         a.expect_eq("NumberToken 53", to_string(t));
     });
 
-    s.add_test("to_string NumberToken number", [](etest::IActions &a) {
-        NumberToken t{NumericType::Number, 1.33};
+    s.add_test("NumberToken number", [](etest::IActions &a) {
+        NumberToken t{1.33};
+        a.expect(!t.is_integer());
+        a.expect(t.is_number());
         a.expect_eq("NumberToken 1.33", to_string(t));
     });
 
-    s.add_test("to_string PercentageToken integer", [](etest::IActions &a) {
-        PercentageToken t{NumericType::Integer, 923};
+    s.add_test("PercentageToken integer", [](etest::IActions &a) {
+        PercentageToken t{923};
+        a.expect(t.is_integer());
+        a.expect(!t.is_number());
         a.expect_eq("PercentageToken 923", to_string(t));
     });
 
-    s.add_test("to_string PercentageToken number", [](etest::IActions &a) {
-        PercentageToken t{NumericType::Number, 44.123};
+    s.add_test("PercentageToken number", [](etest::IActions &a) {
+        PercentageToken t{44.123};
+        a.expect(!t.is_integer());
+        a.expect(t.is_number());
         a.expect_eq("PercentageToken 44.123", to_string(t));
     });
 
-    s.add_test("to_string DimensionToken integer", [](etest::IActions &a) {
-        DimensionToken t{NumericType::Integer, 1, "px"};
+    s.add_test("DimensionToken integer", [](etest::IActions &a) {
+        DimensionToken t{1, "px"};
+        a.expect(t.is_integer());
+        a.expect(!t.is_number());
         a.expect_eq("DimensionToken 1px", to_string(t));
     });
 
-    s.add_test("to_string DimensionToken number", [](etest::IActions &a) {
-        DimensionToken t{NumericType::Number, 1.5, "em"};
+    s.add_test("DimensionToken number", [](etest::IActions &a) {
+        DimensionToken t{1.5, "em"};
+        a.expect(!t.is_integer());
+        a.expect(t.is_number());
         a.expect_eq("DimensionToken 1.5em", to_string(t));
     });
 

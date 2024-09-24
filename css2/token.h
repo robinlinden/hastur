@@ -60,28 +60,29 @@ struct DelimToken {
     [[nodiscard]] bool operator==(DelimToken const &) const = default;
 };
 
-enum class NumericType : std::uint8_t {
-    Integer,
-    Number,
-};
-
 struct NumberToken {
-    NumericType type{NumericType::Integer};
     std::variant<int, double> data;
     [[nodiscard]] bool operator==(NumberToken const &) const = default;
+
+    [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }
+    [[nodiscard]] constexpr bool is_number() const { return !is_integer(); }
 };
 
 struct PercentageToken {
-    NumericType type{NumericType::Integer};
     std::variant<int, double> data{};
     [[nodiscard]] bool operator==(PercentageToken const &) const = default;
+
+    [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }
+    [[nodiscard]] constexpr bool is_number() const { return !is_integer(); }
 };
 
 struct DimensionToken {
-    NumericType type{NumericType::Integer};
     std::variant<int, double> data{};
     std::string unit{};
     [[nodiscard]] bool operator==(DimensionToken const &) const = default;
+
+    [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }
+    [[nodiscard]] constexpr bool is_number() const { return !is_integer(); }
 };
 
 struct WhitespaceToken {

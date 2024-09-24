@@ -73,7 +73,7 @@ void Tokenizer::run() {
                         // TODO(robinlinden): This only handles integers.
                         if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
                             auto number = consume_number(*c);
-                            emit(NumberToken{number.second, number.first});
+                            emit(NumberToken{number});
                         } else {
                             emit(DelimToken{'+'});
                         }
@@ -86,7 +86,7 @@ void Tokenizer::run() {
                         // TODO(robinlinden): This only handles integers.
                         if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
                             auto number = consume_number(*c);
-                            emit(NumberToken{number.second, number.first});
+                            emit(NumberToken{number});
                             continue;
                         }
 
@@ -134,7 +134,7 @@ void Tokenizer::run() {
                     case '9': {
                         // TODO(robinlinden): https://www.w3.org/TR/css-syntax-3/#consume-a-numeric-token
                         auto number = consume_number(*c);
-                        emit(NumberToken{number.second, number.first});
+                        emit(NumberToken{number});
                         continue;
                     }
                     default:
@@ -364,8 +364,7 @@ void Tokenizer::reconsume_in(State state) {
 }
 
 // https://www.w3.org/TR/css-syntax-3/#consume-a-number
-std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char first_byte) {
-    NumericType type{NumericType::Integer};
+std::variant<int, double> Tokenizer::consume_number(char first_byte) {
     std::variant<int, double> result{};
     std::string repr{};
 
@@ -385,7 +384,6 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
         assert(v.has_value());
         repr += '.';
         repr += *v;
-        type = NumericType::Number;
         result = 0.;
 
         for (auto next_input = peek_input(0); next_input && util::is_digit(*next_input); next_input = peek_input(0)) {
@@ -397,8 +395,8 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
     // TODO(robinlinden): Step 5
 
     // The tokenizer will verify that this is a number before calling consume_number.
-    if (type == NumericType::Integer) {
-        [[maybe_unused]] auto fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), std::get<int>(result));
+    if (auto *int_res = std::get_if<int>(&result); int_res != nullptr) {
+        [[maybe_unused]] auto fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
         assert(fc_res.ec == std::errc{});
     } else {
         [[maybe_unused]] auto fc_res =
@@ -406,7 +404,7 @@ std::pair<std::variant<int, double>, NumericType> Tokenizer::consume_number(char
         assert(fc_res.ec == std::errc{});
     }
 
-    return {result, type};
+    return result;
 }
 
 // https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point

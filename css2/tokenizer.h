@@ -67,7 +67,7 @@ private:
     bool is_eof() const;
     void reconsume_in(State);
 
-    std::pair<std::variant<int, double>, NumericType> consume_number(char first_byte);
+    std::variant<int, double> consume_number(char first_byte);
     std::string consume_an_escaped_code_point();
 };
 
