@@ -7,8 +7,8 @@ load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 # https://github.com/bazelbuild/apple_support
 http_archive(
     name = "build_bazel_apple_support",
-    integrity = "sha256-xLsrc2fEhDgjAK7nW+WYuS+EeJb7MbvSLzojRq32aoA=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/1.15.1/apple_support.1.15.1.tar.gz",
+    integrity = "sha256-AvdFbliUcdz8c/G5yn8sLqXKSuqZlnSr6prr6BhwC24=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.17.0/apple_support.1.17.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/platforms
@@ -21,9 +21,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_cc
 http_archive(
     name = "rules_cc",  # Apache-2.0
-    sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
-    strip_prefix = "rules_cc-0.0.9",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz",
+    integrity = "sha256-ZbZ7gcbaN48TbMfn4U7gjVuTdZc0J+zrjHc6T2n6fkk=",
+    strip_prefix = "rules_cc-0.0.10",
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.10/rules_cc-0.0.10.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
@@ -48,8 +48,8 @@ http_archive(
 # https://github.com/uber/hermetic_cc_toolchain
 http_archive(
     name = "hermetic_cc_toolchain",
-    integrity = "sha256-3wka/CXXOwlI7TcdPWG+7ylEf2kFCOArwk5wAczBLTg=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.1.0/hermetic_cc_toolchain-v3.1.0.tar.gz",
+    integrity = "sha256-kHdFv5FVX3foI0wLlTNx5srFunFdHPEv9kFJbdG86dE=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.1.1/hermetic_cc_toolchain-v3.1.1.tar.gz",
 )
 
 # Misc tools
@@ -181,17 +181,13 @@ http_file(
     url = "https://www.unicode.org/Public/idna/15.1.0/IdnaMappingTable.txt",
 )
 
-# 1.91.0 doesn't build w/ clang-cl:
-# external/imgui/imgui_widgets.cpp(5196,62): error: invalid bitwise operation
-# between different enumeration types ('ImGuiItemFlagsPrivate_' and
-# 'ImGuiItemFlags_')
 # https://github.com/ocornut/imgui
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-BJQ5GXIeh0rHWi9F5utsAiQ5UDRme/UIkjOIr9paUL8=",
-    strip_prefix = "imgui-1.90.9",
-    url = "https://github.com/ocornut/imgui/archive/v1.90.9.tar.gz",
+    integrity = "sha256-o8T9hXoKSPbtrT4l3mj6HpbSQ38WZQOXFNHemtV5uNA=",
+    strip_prefix = "imgui-1.91.2",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.2.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -222,9 +218,9 @@ http_archive(
 http_archive(
     name = "libpng",  # Libpng
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-/syVtGzwXo4/yKQUdQ4LparQDYnp/fF16U/wQcrxoDo=",
-    strip_prefix = "libpng-1.6.43",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.43.tar.gz",
+    integrity = "sha256-DvW2M9DGX3gMT87Sf/gymY5xR4wTtF37bpTyOoL2T3w=",
+    strip_prefix = "libpng-1.6.44",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.44.tar.gz",
 )
 
 # https://github.com/SFML/SFML
@@ -387,6 +383,10 @@ http_archive(
 load("@build_bazel_apple_support//lib:repositories.bzl", "apple_support_dependencies")
 
 apple_support_dependencies()
+
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
+
+bazel_features_deps()
 
 # rules_python
 load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
