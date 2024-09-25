@@ -5,7 +5,10 @@ load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 compile_pip_requirements(
     name = "requirements",
     timeout = "moderate",
-    requirements_in = "requirements.in",
+    src = "requirements.in",
+    extra_args = [
+        "--strip-extras",
+    ],
     requirements_txt = "requirements.txt",
     tags = [
         "no-cross",
