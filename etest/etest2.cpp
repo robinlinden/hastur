@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iterator>
 #include <optional>
+#include <random>
 #include <source_location>
 #include <sstream>
 #include <string_view>
@@ -85,6 +86,20 @@ int Suite::run(RunOptions const &opts) {
     if (tests_to_run.empty()) {
         return 1;
     }
+
+    unsigned const seed = [&] {
+        if (opts.rng_seed) {
+            return *opts.rng_seed;
+        }
+
+        return std::random_device{}();
+    }();
+    std::mt19937 rng{seed};
+
+    // Shuffle tests to avoid dependencies between them.
+    std::ranges::shuffle(tests_to_run, rng);
+
+    std::cout << "Running " << tests_to_run.size() << " tests with the seed " << seed << ".\n";
 
     auto const longest_name = std::ranges::max_element(
             tests_to_run, [](auto const &a, auto const &b) { return a.size() < b.size(); }, &Test::name);

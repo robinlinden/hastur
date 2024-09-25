@@ -27,6 +27,7 @@ concept Printable = requires(std::ostream &os, T t) {
 
 struct RunOptions {
     bool run_disabled_tests{false};
+    std::optional<unsigned> rng_seed;
 };
 
 class IActions {
