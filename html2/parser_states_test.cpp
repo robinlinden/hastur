@@ -472,6 +472,12 @@ void in_body_tests() {
                         },
                 });
     });
+
+    etest::test("InBody: <hr>", [] {
+        auto res = parse("<body><p><hr>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body, dom::Element{"body", {}, {dom::Element{"p"}, dom::Element{"hr"}}});
+    });
 }
 
 void in_frameset_tests() {

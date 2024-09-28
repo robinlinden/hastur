@@ -755,6 +755,20 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
+    if (start != nullptr && start->tag_name == "hr") {
+        if (a.has_element_in_button_scope("p")) {
+            close_a_p_element();
+        }
+
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+        a.set_frameset_ok(false);
+        return {};
+    }
+
+    // TODO(robinlinden): Most things.
+
     if (start != nullptr && ((start->tag_name == "noembed") || (start->tag_name == "noscript" && a.scripting()))) {
         return generic_raw_text_parse(a, *start);
     }
