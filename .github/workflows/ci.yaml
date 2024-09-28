@@ -256,7 +256,7 @@ jobs:
 
   pre-commit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Install pre-commit
@@ -266,7 +266,7 @@ jobs:
 
   clang-format:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-18
@@ -299,7 +299,7 @@ jobs:
 
   buildifier:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Install
@@ -311,7 +311,7 @@ jobs:
 
   prettier:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: npm install --global prettier@3.3.3
@@ -322,7 +322,7 @@ jobs:
 
   shfmt:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.9.0/shfmt_v3.9.0_linux_amd64 && chmod +x shfmt
@@ -331,14 +331,14 @@ jobs:
 
   link-liveness:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider --no-verbose
 
   gitlint:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -349,7 +349,7 @@ jobs:
   # https://github.com/astral-sh/ruff
   ruff:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: pipx install ruff==0.6.3
@@ -359,7 +359,7 @@ jobs:
   # https://github.com/python/mypy
   mypy:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: pipx install mypy==1.9.0
