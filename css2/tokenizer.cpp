@@ -70,7 +70,6 @@ void Tokenizer::run() {
                         emit(CloseParenToken{});
                         continue;
                     case '+': {
-                        // TODO(robinlinden): This only handles integers.
                         if (inputs_starts_number(*c)) {
                             auto number = consume_number(*c);
                             emit(NumberToken{number});
@@ -83,7 +82,6 @@ void Tokenizer::run() {
                         emit(CommaToken{});
                         continue;
                     case '-': {
-                        // TODO(robinlinden): This only handles integers.
                         if (inputs_starts_number(*c)) {
                             auto number = consume_number(*c);
                             emit(NumberToken{number});
@@ -367,11 +365,21 @@ bool Tokenizer::inputs_starts_ident_sequence(char first_character) const {
 bool Tokenizer::inputs_starts_number(char first_character) const {
     assert(first_character == '-' || first_character == '+');
 
-    if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+    auto next_input = peek_input(0);
+    if (!next_input) {
+        return false;
+    }
+
+    if (util::is_digit(*next_input)) {
         return true;
     }
 
-    return false;
+    auto next_next_input = peek_input(1);
+    if (!next_next_input) {
+        return false;
+    }
+
+    return next_input == '.' && util::is_digit(*next_next_input);
 }
 
 bool Tokenizer::is_eof() const {
