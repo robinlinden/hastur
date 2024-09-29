@@ -436,5 +436,22 @@ int main() {
         expect_token(output, NumberToken{13.25});
     });
 
+    s.add_test("number: no digits before decimal point", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, ".25");
+        expect_token(output, NumberToken{.25});
+    });
+
+    s.add_test("full stop", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, ".");
+        expect_token(output, DelimToken{'.'});
+    });
+
+    s.add_test("full stop: extra junk", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "(.)");
+        expect_token(output, OpenParenToken{});
+        expect_token(output, DelimToken{'.'});
+        expect_token(output, CloseParenToken{});
+    });
+
     return s.run();
 }

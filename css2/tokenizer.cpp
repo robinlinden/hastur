@@ -104,6 +104,16 @@ void Tokenizer::run() {
                         emit(DelimToken{'-'});
                         continue;
                     }
+                    case '.': {
+                        if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+                            auto number = consume_number(*c);
+                            emit(NumberToken{number});
+                            continue;
+                        }
+
+                        emit(DelimToken{'.'});
+                        continue;
+                    }
                     case ':':
                         emit(ColonToken{});
                         continue;
@@ -378,8 +388,12 @@ std::variant<int, double> Tokenizer::consume_number(char first_byte) {
     std::variant<int, double> result{};
     std::string repr{};
 
-    assert(util::is_digit(first_byte) || first_byte == '-' || first_byte == '+');
-    if (first_byte != '+') {
+    assert(util::is_digit(first_byte) || first_byte == '-' || first_byte == '+' || first_byte == '.');
+
+    if (first_byte == '.') {
+        repr += "0.";
+        result = 0.;
+    } else if (first_byte != '+') {
         repr += first_byte;
     }
 
