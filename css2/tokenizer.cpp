@@ -71,7 +71,7 @@ void Tokenizer::run() {
                         continue;
                     case '+': {
                         // TODO(robinlinden): This only handles integers.
-                        if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+                        if (inputs_starts_number(*c)) {
                             auto number = consume_number(*c);
                             emit(NumberToken{number});
                         } else {
@@ -84,7 +84,7 @@ void Tokenizer::run() {
                         continue;
                     case '-': {
                         // TODO(robinlinden): This only handles integers.
-                        if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+                        if (inputs_starts_number(*c)) {
                             auto number = consume_number(*c);
                             emit(NumberToken{number});
                             continue;
@@ -352,6 +352,16 @@ bool Tokenizer::inputs_starts_ident_sequence(char first_character) const {
     }
     // TODO(mkiael): Handle escape sequence
     return result;
+}
+
+bool Tokenizer::inputs_starts_number(char first_character) const {
+    assert(first_character == '-' || first_character == '+');
+
+    if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+        return true;
+    }
+
+    return false;
 }
 
 bool Tokenizer::is_eof() const {
