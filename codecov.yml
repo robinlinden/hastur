@@ -7,3 +7,17 @@ codecov:
 
 # https://docs.codecov.com/docs/pull-request-comments#disable-comment
 comment: false
+
+# TODO(robinlinden): We don't want to manually have to check that tests cover new code.
+#
+# The coverage CI status check is only informational for now due to Bazel 7
+# switching to branch coverage with gcc and gcc appearing to not generate
+# reliable coverage reports when run in branch-coverage mode.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
