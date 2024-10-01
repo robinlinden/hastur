@@ -12,6 +12,7 @@
 #include "html/parser_actions.h"
 
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -477,6 +478,10 @@ void in_body_tests() {
         auto res = parse("<body><p><hr>", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         expect_eq(body, dom::Element{"body", {}, {dom::Element{"p"}, dom::Element{"hr"}}});
+    });
+
+    etest::test("InBody: <template> doesn't crash", [] {
+        std::ignore = parse("<body><template>", {}); //
     });
 }
 
