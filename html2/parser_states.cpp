@@ -428,65 +428,72 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
-        auto const &name = start->tag_name;
-        if (name == "html") {
-            return InBody{}.process(a, token);
-        }
+    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    if (start != nullptr && start->tag_name == "html") {
+        return InBody{}.process(a, token);
+    }
 
-        if (name == "base" || name == "basefont" || name == "bgsound" || name == "link") {
-            a.insert_element_for(*start);
-            a.pop_current_node();
-            // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
-            return {};
-        }
+    if (start != nullptr
+            && (start->tag_name == "base" || start->tag_name == "basefont" || start->tag_name == "bgsound"
+                    || start->tag_name == "link")) {
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+        return {};
+    }
 
-        if (name == "meta") {
-            a.insert_element_for(*start);
-            a.pop_current_node();
-            // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
-            // TODO(robinlinden): Active speculative HTML parser nonsense.
-            return {};
-        }
+    if (start != nullptr && start->tag_name == "meta") {
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+        // TODO(robinlinden): Active speculative HTML parser nonsense.
+        return {};
+    }
 
-        if (name == "title") {
-            return generic_rcdata_parse(a, *start);
-        }
+    if (start != nullptr && start->tag_name == "title") {
+        return generic_rcdata_parse(a, *start);
+    }
 
-        if ((name == "noscript" && a.scripting()) || name == "noframes" || name == "style") {
-            return generic_raw_text_parse(a, *start);
-        }
+    if (start != nullptr
+            && ((start->tag_name == "noscript" && a.scripting()) || start->tag_name == "noframes"
+                    || start->tag_name == "style")) {
+        return generic_raw_text_parse(a, *start);
+    }
 
-        if (name == "noscript" && !a.scripting()) {
-            a.insert_element_for(*start);
-            return InHeadNoscript{};
-        }
+    if (start != nullptr && start->tag_name == "noscript" && !a.scripting()) {
+        a.insert_element_for(*start);
+        return InHeadNoscript{};
+    }
 
-        if (name == "script") {
-            // TODO(robinlinden): A lot of things. See spec.
-            a.insert_element_for(*start);
-            a.set_tokenizer_state(html2::State::ScriptData);
-            a.store_original_insertion_mode(a.current_insertion_mode());
-            return Text{};
-        }
+    if (start != nullptr && start->tag_name == "script") {
+        // TODO(robinlinden): A lot of things. See spec.
+        a.insert_element_for(*start);
+        a.set_tokenizer_state(html2::State::ScriptData);
+        a.store_original_insertion_mode(a.current_insertion_mode());
+        return Text{};
+    }
 
-        if (name == "template") {
-            // TODO(robinlinden): Template nonsense.
-            return {};
-        }
-    } else if (auto const *end = std::get_if<html2::EndTagToken>(&token)) {
-        if (end->tag_name == "head") {
-            assert(a.current_node_name() == "head");
-            a.pop_current_node();
-            return AfterHead{};
-        }
+    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "head") {
+        assert(a.current_node_name() == "head");
+        a.pop_current_node();
+        return AfterHead{};
+    }
 
-        if (end->tag_name == "body" || end->tag_name == "html" || end->tag_name == "br") {
-            // Fall through to "anything else."
-        } else {
-            // Parse error.
-            return {};
-        }
+    bool end_tag_as_anything_else = false;
+    if (end != nullptr && (end->tag_name == "body" || end->tag_name == "html" || end->tag_name == "br")) {
+        // Fall through to "anything else."
+        end_tag_as_anything_else = true;
+    }
+
+    if (start != nullptr && start->tag_name == "template") {
+        // TODO(robinlinden): Template nonsense.
+        return {};
+    }
+
+    if (end != nullptr && !end_tag_as_anything_else) {
+        // Parse error.
+        return {};
     }
 
     assert(a.current_node_name() == "head");
