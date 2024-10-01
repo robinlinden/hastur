@@ -43,7 +43,6 @@
 # -readability-uppercase-literal-suffix
 # -bugprone-suspicious-stringview-data-usage
 # -modernize-use-designated-initializers
-# -modernize-use-ranges
 # -readability-math-missing-parentheses
 Checks: >
   bugprone-*,
@@ -88,7 +87,6 @@ Checks: >
   -readability-uppercase-literal-suffix,
   -bugprone-suspicious-stringview-data-usage,
   -modernize-use-designated-initializers,
-  -modernize-use-ranges,
   -readability-math-missing-parentheses
 
 WarningsAsErrors: "*"

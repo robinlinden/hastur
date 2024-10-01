@@ -41,10 +41,9 @@ std::optional<std::string> find_path_to_font(std::string_view font_filename) {
     for (auto const &path : os::font_paths()) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             auto name = entry.path().filename().string();
-            // TODO(robinlinden): std::ranges once Clang supports it. Last tested w/ 15.
-            if (std::search(begin(name), end(name), begin(font_filename), end(font_filename), [](char a, char b) {
+            if (!std::ranges::search(name, font_filename, [](char a, char b) {
                     return util::lowercased(a) == util::lowercased(b);
-                }) != end(name)) {
+                }).empty()) {
                 return std::make_optional(entry.path().string());
             }
         }
