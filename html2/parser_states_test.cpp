@@ -270,6 +270,16 @@ void in_head_tests() {
         auto res = parse("</head>", {});
         expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
+
+    etest::test("InHead: headhead", [] {
+        auto res = parse("<head><head>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
+    });
+
+    etest::test("InHead: </template>", [] {
+        auto res = parse("<head></template>", {});
+        expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
+    });
 }
 
 void in_head_noscript_tests() {

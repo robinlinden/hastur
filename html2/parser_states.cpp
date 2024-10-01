@@ -409,7 +409,6 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
-// Incomplete.
 // NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
@@ -491,7 +490,12 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    if (end != nullptr && !end_tag_as_anything_else) {
+    if (end != nullptr && end->tag_name == "template") {
+        // TODO(robinlinden): Template nonsense.
+        return {};
+    }
+
+    if ((start != nullptr && start->tag_name == "head") || (end != nullptr && !end_tag_as_anything_else)) {
         // Parse error.
         return {};
     }
