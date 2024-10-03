@@ -290,6 +290,12 @@ bool is_implicity_closed(std::string_view node_name) {
     return is_in_array<kImplicityClosed>(node_name);
 }
 
+void generate_implied_end_tags(IActions &a, std::optional<std::string_view> exception) {
+    while (is_implicity_closed(a.current_node_name()) && a.current_node_name() != exception) {
+        a.pop_current_node();
+    }
+}
+
 } // namespace
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
@@ -630,10 +636,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 // NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
     auto close_a_p_element = [&] {
-        while (a.current_node_name() != "p" && is_implicity_closed(a.current_node_name())) {
-            a.pop_current_node();
-        }
-
+        generate_implied_end_tags(a, "p");
         if (a.current_node_name() != "p") {
             // Parse error.
         }
@@ -804,11 +807,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     if (end != nullptr) {
         for (auto const name : a.names_of_open_elements()) {
             if (name == end->tag_name) {
-                // Generate implied end tags.
-                while (a.current_node_name() != end->tag_name && is_implicity_closed(a.current_node_name())) {
-                    a.pop_current_node();
-                }
-
+                generate_implied_end_tags(a, end->tag_name);
                 if (a.current_node_name() != end->tag_name) {
                     // Parse error.
                 }
