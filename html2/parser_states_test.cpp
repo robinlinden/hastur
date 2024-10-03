@@ -11,6 +11,7 @@
 #include "etest/etest.h"
 #include "html/parser_actions.h"
 
+#include <cstddef>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -492,6 +493,41 @@ void in_body_tests() {
 
     etest::test("InBody: <template> doesn't crash", [] {
         std::ignore = parse("<body><template>", {}); //
+    });
+
+    etest::test("InBody: <li>", [] {
+        auto res = parse("<body><ul><li><p>hello<li>world", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body.children.size(), std::size_t{1});
+        auto const &ul = std::get<dom::Element>(body.children.at(0));
+
+        expect_eq(ul,
+                dom::Element{
+                        "ul",
+                        {},
+                        {
+                                dom::Element{"li", {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}},
+                                dom::Element{"li", {}, {dom::Text{"world"}}},
+                        },
+                });
+    });
+
+    etest::test("InBody: <li>, weird specials", [] {
+        auto res = parse("<body><section><p><li>hello<a><li>world", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body.children.size(), std::size_t{1});
+        auto const &section = std::get<dom::Element>(body.children.at(0));
+
+        expect_eq(section,
+                dom::Element{
+                        "section",
+                        {},
+                        {
+                                dom::Element{"p"},
+                                dom::Element{"li", {}, {dom::Text{"hello"}, dom::Element{"a"}}},
+                                dom::Element{"li", {}, {dom::Text{"world"}}},
+                        },
+                });
     });
 }
 

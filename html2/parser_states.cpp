@@ -754,6 +754,41 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
+    if (start != nullptr && start->tag_name == "li") {
+        a.set_frameset_ok(false);
+
+        auto open_elements = a.names_of_open_elements();
+        assert(!open_elements.empty());
+        for (auto node : open_elements) {
+            if (node == "li") {
+                generate_implied_end_tags(a, "li");
+                if (a.current_node_name() != "li") {
+                    // Parse error.
+                }
+
+                while (a.current_node_name() != "li") {
+                    a.pop_current_node();
+                }
+
+                a.pop_current_node();
+                break;
+            }
+
+            if (is_special(node) && node != "address" && node != "div" && node != "p") {
+                break;
+            }
+        }
+
+        if (a.has_element_in_button_scope("p")) {
+            close_a_p_element();
+        }
+
+        a.insert_element_for(*start);
+        return {};
+    }
+
+    // TODO(robinlinden): Most things.
+
     static constexpr auto kImmediatelyPoppedElements = std::to_array<std::string_view>({
             "area",
             "br",
