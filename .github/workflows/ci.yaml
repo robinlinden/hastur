@@ -199,6 +199,7 @@ jobs:
         include:
           - os: macos-13
           - os: macos-14
+          - os: macos-15
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
