@@ -49,10 +49,6 @@ private:
     Responses responses_;
 };
 
-bool contains(std::vector<css::Rule> const &stylesheet, css::Rule const &rule) {
-    return std::ranges::find(stylesheet, rule) != end(stylesheet);
-}
-
 } // namespace
 
 int main() {
@@ -176,9 +172,10 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        expect(contains(
-                page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
-        expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+        expect(std::ranges::contains(page->stylesheet.rules,
+                css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        expect(std::ranges::contains(
+                page->stylesheet.rules, css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
 
     etest::test("stylesheet link, unsupported Content-Encoding", [] {
@@ -194,8 +191,8 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        expect(!contains(
-                page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        expect(!std::ranges::contains(page->stylesheet.rules,
+                css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
     });
 
     // p { font-size: 123em; }, gzipped.
@@ -452,7 +449,8 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+        expect(std::ranges::contains(
+                page->stylesheet.rules, css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
 
     etest::test("redirect loop", [] {
