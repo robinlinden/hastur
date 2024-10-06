@@ -4,8 +4,7 @@
 
 #include "html2/token.h"
 
-#include <fmt/format.h>
-
+#include <format>
 #include <string>
 #include <variant>
 
@@ -17,15 +16,15 @@ public:
     static std::string to_string(Token const &token) { return std::visit(TokenStringifier{}, token); }
 
     std::string operator()(DoctypeToken const &t) {
-        return fmt::format("Doctype {} {} {}",
+        return std::format("Doctype {} {} {}",
                 t.name.value_or(R"("")"),
                 t.public_identifier.value_or(R"("")"),
                 t.system_identifier.value_or(R"("")"));
     }
-    std::string operator()(StartTagToken const &t) { return fmt::format("StartTag {} {}", t.tag_name, t.self_closing); }
-    std::string operator()(EndTagToken const &t) { return fmt::format("EndTag {}", t.tag_name); }
-    std::string operator()(CommentToken const &t) { return fmt::format("Comment {}", t.data); }
-    std::string operator()(CharacterToken const &t) { return fmt::format("Character {}", t.data); }
+    std::string operator()(StartTagToken const &t) { return std::format("StartTag {} {}", t.tag_name, t.self_closing); }
+    std::string operator()(EndTagToken const &t) { return std::format("EndTag {}", t.tag_name); }
+    std::string operator()(CommentToken const &t) { return std::format("Comment {}", t.data); }
+    std::string operator()(CharacterToken const &t) { return std::format("Character {}", t.data); }
     std::string operator()(EndOfFileToken const &) { return "EndOfFile"; }
 };
 

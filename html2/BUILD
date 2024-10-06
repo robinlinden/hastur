@@ -14,7 +14,6 @@ cc_library(
     deps = [
         "//unicode:util",
         "//util:string",
-        "@fmt",
     ],
 )
 
@@ -34,7 +33,6 @@ extra_deps = {
     deps = [
         ":html2",
         "//etest",
-        "@fmt",
     ] + extra_deps.get(
         src[:-9],
         [],

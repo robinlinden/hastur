@@ -8,9 +8,8 @@
 
 #include "etest/etest.h"
 
-#include <fmt/format.h>
-
 #include <array>
+#include <format>
 #include <iterator>
 #include <optional>
 #include <source_location>
@@ -1378,50 +1377,50 @@ int main() {
     for (char quote : std::array{'\'', '"'}) {
         auto type = quote == '"' ? "double"sv : "single"sv;
 
-        etest::test(fmt::format("doctype, {}-quoted public identifier", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC {0}great{0}>", quote));
+        etest::test(std::format("doctype, {}-quoted public identifier", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}great{0}>", quote));
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted public identifier, missing whitespace", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC{0}great{0}>", quote));
+        etest::test(std::format("doctype, {}-quoted public identifier, missing whitespace", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC{0}great{0}>", quote));
             expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypePublicKeyword);
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted public identifier, eof", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC {0}great", quote));
+        etest::test(std::format("doctype, {}-quoted public identifier, eof", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}great", quote));
             expect_error(tokens, ParseError::EofInDoctype);
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted public identifier, abrupt end", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC {0}great>", quote));
+        etest::test(std::format("doctype, {}-quoted public identifier, abrupt end", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}great>", quote));
             expect_error(tokens, ParseError::AbruptDoctypePublicIdentifier);
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted public identifier, null", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC {0}gre\0t{0}>"sv, quote));
+        etest::test(std::format("doctype, {}-quoted public identifier, null", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}gre\0t{0}>"sv, quote));
             expect_error(tokens, ParseError::UnexpectedNullCharacter);
             expect_token(
                     tokens, DoctypeToken{.name = "html", .public_identifier = "gre"s + kReplacementCharacter + "t"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted system identifier", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}hello{0}>", quote));
+        etest::test(std::format("doctype, {}-quoted system identifier", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hello{0}>", quote));
             expect_token(
                     tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted system identifier, unexpected null", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}n\0{0}>"sv, quote));
+        etest::test(std::format("doctype, {}-quoted system identifier, unexpected null", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}n\0{0}>"sv, quote));
             expect_error(tokens, ParseError::UnexpectedNullCharacter);
             expect_token(tokens,
                     DoctypeToken{.name = "html",
@@ -1430,16 +1429,16 @@ int main() {
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted system identifier, missing whitespace", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great'{0}hello{0}>", quote));
+        etest::test(std::format("doctype, {}-quoted system identifier, missing whitespace", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great'{0}hello{0}>", quote));
             expect_error(tokens, ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers);
             expect_token(
                     tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted system identifier, eof", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell", quote));
+        etest::test(std::format("doctype, {}-quoted system identifier, eof", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell", quote));
             expect_error(tokens, ParseError::EofInDoctype);
             expect_token(tokens,
                     DoctypeToken{.name = "html",
@@ -1449,8 +1448,8 @@ int main() {
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(fmt::format("doctype, {}-quoted system identifier, abrupt end", type), [=] {
-            auto tokens = run_tokenizer(fmt::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell>", quote));
+        etest::test(std::format("doctype, {}-quoted system identifier, abrupt end", type), [=] {
+            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell>", quote));
             expect_error(tokens, ParseError::AbruptDoctypeSystemIdentifier);
             expect_token(tokens,
                     DoctypeToken{.name = "html",
