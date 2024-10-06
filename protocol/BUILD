@@ -16,7 +16,6 @@ cc_library(
         "//uri",
         "//util:string",
         "@expected",
-        "@fmt",
     ],
 )
 
@@ -44,7 +43,6 @@ cc_library(
         "//net:test",
         "//uri",
         "@expected",
-        "@fmt",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

@@ -10,9 +10,8 @@
 #include "uri/uri.h"
 #include "util/string.h"
 
-#include <fmt/format.h>
-
 #include <charconv>
+#include <format>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -43,7 +42,7 @@ bool Http::use_port(uri::Uri const &uri) {
 
 std::string Http::create_get_request(uri::Uri const &uri, std::optional<std::string_view> user_agent) {
     std::stringstream ss;
-    ss << fmt::format("GET {}", uri.path);
+    ss << std::format("GET {}", uri.path);
     if (!uri.query.empty()) {
         ss << '?' << uri.query;
     }
@@ -51,14 +50,14 @@ std::string Http::create_get_request(uri::Uri const &uri, std::optional<std::str
     ss << " HTTP/1.1\r\n";
 
     if (Http::use_port(uri)) {
-        ss << fmt::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
+        ss << std::format("Host: {}:{}\r\n", uri.authority.host, uri.authority.port);
     } else {
-        ss << fmt::format("Host: {}\r\n", uri.authority.host);
+        ss << std::format("Host: {}\r\n", uri.authority.host);
     }
     ss << "Accept: text/html\r\n";
     ss << "Connection: close\r\n";
     if (user_agent) {
-        ss << fmt::format("User-Agent: {}\r\n", *user_agent);
+        ss << std::format("User-Agent: {}\r\n", *user_agent);
     }
 
     ss << "\r\n";
