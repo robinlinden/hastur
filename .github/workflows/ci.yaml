@@ -17,17 +17,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: gcc-12
-            os: ubuntu-24.04
-            compiler: gcc
-            version: 12
-            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
-            apt: g++-12 valgrind
-
           - name: gcc-14
             os: ubuntu-24.04
             compiler: gcc
             version: 14
+            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
+            apt: valgrind
 
           - name: clang-18-tsan
             os: ubuntu-24.04
@@ -44,13 +39,6 @@ jobs:
             bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
             apt: libclang-rt-18-dev llvm-18
             fuzz: true
-
-          - name: clang-16-libc++
-            os: ubuntu-24.04
-            compiler: clang
-            version: 16
-            bazel: --config libc++
-            apt: libc++abi-16-dev libc++-16-dev
 
           - name: clang-17-libc++
             os: ubuntu-24.04
@@ -197,7 +185,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
           - os: macos-14
           - os: macos-15
     runs-on: ${{ matrix.os }}
