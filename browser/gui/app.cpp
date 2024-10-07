@@ -29,7 +29,6 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
-#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
@@ -44,6 +43,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <format>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -82,7 +82,7 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 void ensure_has_scheme(std::string &url) {
     if (!url.contains("://")) {
         spdlog::info("Url missing scheme, assuming https");
-        url = fmt::format("https://{}", url);
+        url = std::format("https://{}", url);
     }
 }
 
@@ -356,7 +356,7 @@ void App::step() {
             auto document_position = to_document_position(std::move(window_position));
             auto const *hovered = get_hovered_node(document_position);
             nav_widget_extra_info_ =
-                    fmt::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
+                    std::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
 
             // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
             if (ImGui::GetIO().WantCaptureMouse) {
@@ -497,22 +497,22 @@ void App::reload() {
 void App::on_navigation_failure(protocol::ErrorCode err) {
     switch (err) {
         case protocol::ErrorCode::Unresolved: {
-            nav_widget_extra_info_ = fmt::format("Unable to resolve endpoint for '{}'", url_buf_);
+            nav_widget_extra_info_ = std::format("Unable to resolve endpoint for '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
         case protocol::ErrorCode::Unhandled: {
-            nav_widget_extra_info_ = fmt::format("Unhandled protocol for '{}'", url_buf_);
+            nav_widget_extra_info_ = std::format("Unhandled protocol for '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
         case protocol::ErrorCode::InvalidResponse: {
-            nav_widget_extra_info_ = fmt::format("Invalid response from '{}'", url_buf_);
+            nav_widget_extra_info_ = std::format("Invalid response from '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
         case protocol::ErrorCode::RedirectLimit: {
-            nav_widget_extra_info_ = fmt::format("Redirect limit hit while loading '{}'", url_buf_);
+            nav_widget_extra_info_ = std::format("Redirect limit hit while loading '{}'", url_buf_);
             spdlog::error(nav_widget_extra_info_);
             break;
         }
@@ -521,7 +521,7 @@ void App::on_navigation_failure(protocol::ErrorCode err) {
 
 void App::on_page_loaded() {
     if (auto page_title = try_get_text_content(page().dom, "/html/head/title"sv)) {
-        auto title = fmt::format("{} - {}", *page_title, browser_title_);
+        auto title = std::format("{} - {}", *page_title, browser_title_);
         window_.setTitle(sf::String::fromUtf8(title.begin(), title.end()));
     } else {
         window_.setTitle(browser_title_);
@@ -662,7 +662,7 @@ void App::run_debug_widget() const {
         }();
 
         std::cout << "\nStatus line:\n"
-                  << fmt::format("{} {} {}", status.version, status.status_code, status.reason) << '\n';
+                  << std::format("{} {} {}", status.version, status.status_code, status.reason) << '\n';
     }
 
     if (ImGui::Button("Response headers")) {

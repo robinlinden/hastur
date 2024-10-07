@@ -12,7 +12,6 @@
 
 #include "util/string.h"
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -22,6 +21,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <format>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -665,34 +665,34 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
         switch (tokenizer.size()) {
             case 1: {
                 auto v_radius{unchecked_get(tokenizer)};
-                top_left += fmt::format(" / {}", v_radius);
-                top_right += fmt::format(" / {}", v_radius);
-                bottom_right += fmt::format(" / {}", v_radius);
-                bottom_left += fmt::format(" / {}", v_radius);
+                top_left += std::format(" / {}", v_radius);
+                top_right += std::format(" / {}", v_radius);
+                bottom_right += std::format(" / {}", v_radius);
+                bottom_left += std::format(" / {}", v_radius);
                 break;
             }
             case 2: {
                 auto v1_radius{unchecked_get(tokenizer)};
-                top_left += fmt::format(" / {}", v1_radius);
-                bottom_right += fmt::format(" / {}", v1_radius);
+                top_left += std::format(" / {}", v1_radius);
+                bottom_right += std::format(" / {}", v1_radius);
                 auto v2_radius{unchecked_get(tokenizer.next())};
-                top_right += fmt::format(" / {}", v2_radius);
-                bottom_left += fmt::format(" / {}", v2_radius);
+                top_right += std::format(" / {}", v2_radius);
+                bottom_left += std::format(" / {}", v2_radius);
                 break;
             }
             case 3: {
-                top_left += fmt::format(" / {}", unchecked_get(tokenizer));
+                top_left += std::format(" / {}", unchecked_get(tokenizer));
                 auto v_radius = unchecked_get(tokenizer.next());
-                top_right += fmt::format(" / {}", v_radius);
-                bottom_left += fmt::format(" / {}", v_radius);
-                bottom_right += fmt::format(" / {}", unchecked_get(tokenizer.next()));
+                top_right += std::format(" / {}", v_radius);
+                bottom_left += std::format(" / {}", v_radius);
+                bottom_right += std::format(" / {}", unchecked_get(tokenizer.next()));
                 break;
             }
             case 4: {
-                top_left += fmt::format(" / {}", unchecked_get(tokenizer));
-                top_right += fmt::format(" / {}", unchecked_get(tokenizer.next()));
-                bottom_right += fmt::format(" / {}", unchecked_get(tokenizer.next()));
-                bottom_left += fmt::format(" / {}", unchecked_get(tokenizer.next()));
+                top_left += std::format(" / {}", unchecked_get(tokenizer));
+                top_right += std::format(" / {}", unchecked_get(tokenizer.next()));
+                bottom_right += std::format(" / {}", unchecked_get(tokenizer.next()));
+                bottom_left += std::format(" / {}", unchecked_get(tokenizer.next()));
                 break;
             }
             default:
@@ -853,10 +853,10 @@ void Parser::expand_edge_values(Declarations &declarations, std::string_view pro
         post_fix = "-color";
     }
 
-    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-top{}", property, post_fix)), top);
-    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)), bottom);
-    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-left{}", property, post_fix)), left);
-    declarations.insert_or_assign(property_id_from_string(fmt::format("{}-right{}", property, post_fix)), right);
+    declarations.insert_or_assign(property_id_from_string(std::format("{}-top{}", property, post_fix)), top);
+    declarations.insert_or_assign(property_id_from_string(std::format("{}-bottom{}", property, post_fix)), bottom);
+    declarations.insert_or_assign(property_id_from_string(std::format("{}-left{}", property, post_fix)), left);
+    declarations.insert_or_assign(property_id_from_string(std::format("{}-right{}", property, post_fix)), right);
 }
 
 void Parser::expand_font(Declarations &declarations, std::string_view value) {

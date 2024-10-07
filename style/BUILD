@@ -31,6 +31,5 @@ cc_library(
         "//dom",
         "//etest",
         "//gfx",
-        "@fmt",
     ],
 ) for src in glob(["*_test.cpp"])]

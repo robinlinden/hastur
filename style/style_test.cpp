@@ -12,10 +12,9 @@
 #include "dom/dom.h"
 #include "etest/etest.h"
 
-#include <fmt/format.h>
-
 #include <algorithm>
 #include <array>
+#include <format>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -133,21 +132,21 @@ int main() {
 
     // These are 100% identical right now as we treat all links as unvisited links.
     for (auto const *pc : std::array{"link", "any-link"}) {
-        etest::test(fmt::format("is_match: psuedo-class, {}", pc), [pc] {
-            expect(is_match(dom::Element{"a", {{"href", ""}}}, fmt::format(":{}", pc)));
+        etest::test(std::format("is_match: psuedo-class, {}", pc), [pc] {
+            expect(is_match(dom::Element{"a", {{"href", ""}}}, std::format(":{}", pc)));
 
-            expect(is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("a:{}", pc)));
-            expect(is_match(dom::Element{"area", {{"href", ""}}}, fmt::format("area:{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}}}, std::format("a:{}", pc)));
+            expect(is_match(dom::Element{"area", {{"href", ""}}}, std::format("area:{}", pc)));
 
-            expect(is_match(dom::Element{"a", {{"href", ""}, {"class", "hi"}}}, fmt::format(".hi:{}", pc)));
-            expect(is_match(dom::Element{"a", {{"href", ""}, {"id", "hi"}}}, fmt::format("#hi:{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}, {"class", "hi"}}}, std::format(".hi:{}", pc)));
+            expect(is_match(dom::Element{"a", {{"href", ""}, {"id", "hi"}}}, std::format("#hi:{}", pc)));
 
-            expect(!is_match(dom::Element{"b"}, fmt::format(":{}", pc)));
-            expect(!is_match(dom::Element{"a"}, fmt::format("a:{}", pc)));
-            expect(!is_match(dom::Element{"a", {{"href", ""}}}, fmt::format("b:{}", pc)));
-            expect(!is_match(dom::Element{"b", {{"href", ""}}}, fmt::format("b:{}", pc)));
-            expect(!is_match(dom::Element{"a", {{"href", ""}, {"class", "hi2"}}}, fmt::format(".hi:{}", pc)));
-            expect(!is_match(dom::Element{"a", {{"href", ""}, {"id", "hi2"}}}, fmt::format("#hi:{}", pc)));
+            expect(!is_match(dom::Element{"b"}, std::format(":{}", pc)));
+            expect(!is_match(dom::Element{"a"}, std::format("a:{}", pc)));
+            expect(!is_match(dom::Element{"a", {{"href", ""}}}, std::format("b:{}", pc)));
+            expect(!is_match(dom::Element{"b", {{"href", ""}}}, std::format("b:{}", pc)));
+            expect(!is_match(dom::Element{"a", {{"href", ""}, {"class", "hi2"}}}, std::format(".hi:{}", pc)));
+            expect(!is_match(dom::Element{"a", {{"href", ""}, {"id", "hi2"}}}, std::format("#hi:{}", pc)));
         });
     }
 

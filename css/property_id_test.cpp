@@ -6,8 +6,7 @@
 
 #include "etest/etest2.h"
 
-#include <fmt/format.h>
-
+#include <format>
 #include <string_view>
 
 using namespace std::literals;
@@ -30,7 +29,7 @@ int main() {
         // Requires a manual update every time we add something last in the enum.
         while (id <= static_cast<int>(css::PropertyId::WordSpacing)) {
             a.expect(css::to_string(static_cast<css::PropertyId>(id)) != "unknown"sv,
-                    fmt::format("Property {} is missing a string mapping", id));
+                    std::format("Property {} is missing a string mapping", id));
             id += 1;
         }
     });

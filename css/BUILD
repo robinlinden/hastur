@@ -21,7 +21,6 @@ cc_library(
     deps = [
         "//util:from_chars",
         "//util:string",
-        "@fmt",
         "@spdlog",
     ],
 )
@@ -43,7 +42,6 @@ cc_fuzz_test(
     deps = [
         ":css",
         "//etest",
-        "@fmt",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

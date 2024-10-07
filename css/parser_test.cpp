@@ -11,11 +11,10 @@
 
 #include "etest/etest2.h"
 
-#include <fmt/format.h>
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <format>
 #include <iterator>
 #include <map>
 #include <source_location>
@@ -445,7 +444,7 @@ int main() {
 
     auto box_shorthand_one_value = [](std::string property, std::string value, std::string post_fix = "") {
         return [=](etest::IActions &a) mutable {
-            auto rules = css::parse(fmt::format("p {{ {}: {}; }}"sv, property, value)).rules;
+            auto rules = css::parse(std::format("p {{ {}: {}; }}"sv, property, value)).rules;
             a.require(rules.size() == 1);
 
             if (property == "border-style" || property == "border-color" || property == "border-width") {
@@ -454,13 +453,13 @@ int main() {
 
             auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-top{}", property, post_fix)))
                     == value);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-bottom{}", property, post_fix)))
                     == value);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-left{}", property, post_fix)))
                     == value);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-right{}", property, post_fix)))
                     == value);
         };
     };
@@ -485,7 +484,7 @@ int main() {
                                             std::array<std::string, 2> values,
                                             std::string post_fix = "") {
         return [=](etest::IActions &a) mutable {
-            auto rules = css::parse(fmt::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1])).rules;
+            auto rules = css::parse(std::format("p {{ {}: {} {}; }}"sv, property, values[0], values[1])).rules;
             a.require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -494,13 +493,13 @@ int main() {
 
             auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-top{}", property, post_fix)))
                     == values[0]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-bottom{}", property, post_fix)))
                     == values[0]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-left{}", property, post_fix)))
                     == values[1]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-right{}", property, post_fix)))
                     == values[1]);
         };
     };
@@ -520,7 +519,7 @@ int main() {
                                               std::string post_fix = "") {
         return [=](etest::IActions &a) mutable {
             auto rules =
-                    css::parse(fmt::format("p {{ {}: {} {} {}; }}"sv, property, values[0], values[1], values[2])).rules;
+                    css::parse(std::format("p {{ {}: {} {} {}; }}"sv, property, values[0], values[1], values[2])).rules;
             a.require(rules.size() == 1);
 
             if (property == "border-style") {
@@ -529,13 +528,13 @@ int main() {
 
             auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-top{}", property, post_fix)))
                     == values[0]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-bottom{}", property, post_fix)))
                     == values[2]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-left{}", property, post_fix)))
                     == values[1]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-right{}", property, post_fix)))
                     == values[1]);
         };
     };
@@ -555,7 +554,7 @@ int main() {
                                              std::string post_fix = "") {
         return [=](etest::IActions &a) mutable {
             auto rules = css::parse(
-                    fmt::format("p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]))
+                    std::format("p {{ {}: {} {} {} {}; }}"sv, property, values[0], values[1], values[2], values[3]))
                                  .rules;
             a.require(rules.size() == 1);
 
@@ -565,13 +564,13 @@ int main() {
 
             auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-top{}", property, post_fix)))
                     == values[0]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-bottom{}", property, post_fix)))
                     == values[2]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-left{}", property, post_fix)))
                     == values[3]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-right{}", property, post_fix)))
                     == values[1]);
         };
     };
@@ -597,7 +596,7 @@ int main() {
                                             std::string post_fix = "") {
         return [=](etest::IActions &a) mutable {
             std::string workaround_for_border_style = property == "border-style" ? "border" : property;
-            auto rules = css::parse(fmt::format(R"(
+            auto rules = css::parse(std::format(R"(
                             p {{
                                {0}: {2};
                                {5}-top{1}: {3};
@@ -618,13 +617,13 @@ int main() {
 
             auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
-            a.expect_eq(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix))),
+            a.expect_eq(body.declarations.at(css::property_id_from_string(std::format("{}-top{}", property, post_fix))),
                     values[1]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-bottom{}", property, post_fix)))
                     == values[0]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-left{}", property, post_fix)))
                     == values[2]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-right{}", property, post_fix)))
                     == values[0]);
         };
     };
@@ -644,7 +643,7 @@ int main() {
                                                std::string post_fix = "") {
         return [=](etest::IActions &a) mutable {
             std::string workaround_for_border_style = property == "border-style" ? "border" : property;
-            auto rules = css::parse(fmt::format(R"(
+            auto rules = css::parse(std::format(R"(
                             p {{
                                {6}-bottom{1}: {2};
                                {6}-left{1}: {3};
@@ -666,13 +665,13 @@ int main() {
 
             auto const &body = rules[0];
             a.expect(body.declarations.size() == 4);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-top{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-top{}", property, post_fix)))
                     == values[2]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-bottom{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-bottom{}", property, post_fix)))
                     == values[2]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-left{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-left{}", property, post_fix)))
                     == values[3]);
-            a.expect(body.declarations.at(css::property_id_from_string(fmt::format("{}-right{}", property, post_fix)))
+            a.expect(body.declarations.at(css::property_id_from_string(std::format("{}-right{}", property, post_fix)))
                     == values[3]);
         };
     };

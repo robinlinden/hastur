@@ -9,7 +9,6 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
-#include <fmt/format.h>
 #include <spdlog/cfg/env.h>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/dup_filter_sink.h>
@@ -17,6 +16,7 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <format>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -30,7 +30,7 @@ constexpr char const *kDefaultUri = "http://www.example.com";
 void ensure_has_scheme(std::string &url) {
     if (!url.contains("://")) {
         spdlog::info("Url missing scheme, assuming https");
-        url = fmt::format("https://{}", url);
+        url = std::format("https://{}", url);
     }
 }
 } // namespace
