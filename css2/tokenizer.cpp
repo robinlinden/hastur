@@ -362,7 +362,7 @@ bool Tokenizer::inputs_starts_ident_sequence(char first_character) const {
     return result;
 }
 
-bool Tokenizer::inputs_starts_number(char first_character) const {
+bool Tokenizer::inputs_starts_number([[maybe_unused]] char first_character) const {
     assert(first_character == '-' || first_character == '+');
 
     auto next_input = peek_input(0);
