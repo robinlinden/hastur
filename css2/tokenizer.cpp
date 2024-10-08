@@ -410,7 +410,8 @@ std::variant<int, double> Tokenizer::consume_number(char first_byte) {
         consume_next_input_character();
     }
 
-    if (peek_input(0) == '.' && util::is_digit(peek_input(1).value_or('Q'))) {
+    if (!std::holds_alternative<double>(result) && peek_input(0) == '.'
+            && util::is_digit(peek_input(1).value_or('Q'))) {
         std::ignore = consume_next_input_character(); // '.'
         auto v = consume_next_input_character();
         assert(v.has_value());
