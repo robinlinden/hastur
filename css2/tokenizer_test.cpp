@@ -457,6 +457,13 @@ int main() {
         expect_token(output, NumberToken{.25});
     });
 
+    // TODO(robinlinden): Look into what this is meant to parse as.
+    s.add_test("number: dots and digits shouldn't crash", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, ".25.25");
+        expect_token(output, NumberToken{.25});
+        expect_token(output, NumberToken{.25});
+    });
+
     s.add_test("full stop", [](etest::IActions &a) {
         auto output = run_tokenizer(a, ".");
         expect_token(output, DelimToken{'.'});
