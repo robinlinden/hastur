@@ -9,6 +9,8 @@
 
 #include "etest/etest2.h"
 
+#include <cstdint>
+#include <limits>
 #include <source_location>
 #include <string>
 #include <string_view>
@@ -377,6 +379,16 @@ int main() {
         expect_token(output, CloseParenToken{});
     });
 
+    s.add_test("integer: large", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "12147483647");
+        expect_token(output, NumberToken{std::numeric_limits<std::int32_t>::max()});
+    });
+
+    s.add_test("integer: large negative", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "-12147483648");
+        expect_token(output, NumberToken{std::numeric_limits<std::int32_t>::min()});
+    });
+
     s.add_test("integer: leading 0", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "00000001");
         expect_token(output, NumberToken{.data = 1});
@@ -450,6 +462,16 @@ int main() {
         auto output = run_tokenizer(a, "-.");
         expect_token(output, DelimToken{'-'});
         expect_token(output, DelimToken{'.'});
+    });
+
+    s.add_test("number: large", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "12147483647.0");
+        expect_token(output, NumberToken{static_cast<double>(std::numeric_limits<std::int32_t>::max())});
+    });
+
+    s.add_test("number: large negative", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "-12147483648.0");
+        expect_token(output, NumberToken{static_cast<double>(std::numeric_limits<std::int32_t>::min())});
     });
 
     s.add_test("number: no digits before decimal point", [](etest::IActions &a) {
