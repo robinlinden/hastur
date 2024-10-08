@@ -165,8 +165,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v24.0.0
-      WASMTIME_NAME: wasmtime-v24.0.0-x86_64-linux
+      WASMTIME_VERSION: v25.0.1
+      WASMTIME_NAME: wasmtime-v25.0.1-x86_64-linux
     steps:
       - uses: actions/checkout@v4
       - name: Set up wasmtime
@@ -247,10 +247,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Install pre-commit
-        run: pipx install pre-commit==3.8.0
-      - name: Run pre-commit
-        run: pre-commit run --all-files
+      - run: pipx install pre-commit==4.0.1
+      - run: pre-commit run --all-files
 
   clang-format:
     runs-on: ubuntu-24.04
@@ -340,7 +338,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: pipx install ruff==0.6.3
+      - run: pipx install ruff==0.6.9
       - run: ruff check --output-format=github
       - run: ruff format --diff
 
