@@ -11,9 +11,11 @@
 #include "util/from_chars.h"
 #include "util/string.h"
 
+#include <algorithm>
 #include <cassert>
 #include <charconv>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <string>
 #include <system_error>
@@ -392,8 +394,8 @@ void Tokenizer::reconsume_in(State state) {
 }
 
 // https://www.w3.org/TR/css-syntax-3/#consume-a-number
-std::variant<int, double> Tokenizer::consume_number(char first_byte) {
-    std::variant<int, double> result{};
+std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
+    std::variant<std::int32_t, double> result{};
     std::string repr{};
 
     assert(util::is_digit(first_byte) || first_byte == '-' || first_byte == '+' || first_byte == '.');
@@ -428,14 +430,28 @@ std::variant<int, double> Tokenizer::consume_number(char first_byte) {
     // TODO(robinlinden): Step 5
 
     // The tokenizer will verify that this is a number before calling consume_number.
+    //
+    // The spec doesn't mention precision of this, so let's clamp it to the
+    // int32_t range for now.
     [[maybe_unused]] util::from_chars_result fc_res{};
-    if (auto *int_res = std::get_if<int>(&result); int_res != nullptr) {
+    if (auto *int_res = std::get_if<std::int32_t>(&result); int_res != nullptr) {
         fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
+        *int_res = std::clamp(
+                *int_res, std::numeric_limits<std::int32_t>::min(), std::numeric_limits<std::int32_t>::max());
     } else {
-        fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), std::get<double>(result));
+        auto &dbl_res = std::get<double>(result);
+        fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), dbl_res);
+        dbl_res = std::clamp(dbl_res,
+                static_cast<double>(std::numeric_limits<std::int32_t>::min()),
+                static_cast<double>(std::numeric_limits<std::int32_t>::max()));
     }
 
-    assert(fc_res.ec == std::errc{} && fc_res.ptr == repr.data() + repr.size());
+    if (fc_res.ec == std::errc::result_out_of_range) {
+        result = repr[0] == '-' ? std::numeric_limits<std::int32_t>::min() : std::numeric_limits<std::int32_t>::max();
+    } else {
+        assert(fc_res.ec == std::errc{} && fc_res.ptr == repr.data() + repr.size());
+    }
+
     return result;
 }
 

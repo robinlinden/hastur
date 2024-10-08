@@ -61,7 +61,7 @@ struct DelimToken {
 };
 
 struct NumberToken {
-    std::variant<int, double> data;
+    std::variant<std::int32_t, double> data;
     [[nodiscard]] bool operator==(NumberToken const &) const = default;
 
     [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }
