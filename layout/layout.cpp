@@ -16,7 +16,6 @@
 #include "type/type.h"
 #include "util/string.h"
 
-#include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -313,7 +312,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
         if (font) {
             box.dimensions.content.width = (*font)->measure(*text, type::Px{font_size}, weight).width;
         } else {
-            spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
+            spdlog::warn("No font found for font-families: {}", util::join(font_families, ", "));
             box.dimensions.content.width = type::NaiveFont{}.measure(*text, type::Px{font_size}, weight).width;
         }
     }
@@ -360,7 +359,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
     auto maybe_font = find_font(font_families);
     if (!maybe_font) {
-        spdlog::warn("No font found for font-families: {}", fmt::join(font_families, ", "));
+        spdlog::warn("No font found for font-families: {}", util::join(font_families, ", "));
         maybe_font = std::make_shared<type::NaiveFont>();
     }
     auto font = *maybe_font;
