@@ -7,8 +7,8 @@ load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 # https://github.com/bazelbuild/apple_support
 http_archive(
     name = "build_bazel_apple_support",
-    integrity = "sha256-AvdFbliUcdz8c/G5yn8sLqXKSuqZlnSr6prr6BhwC24=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/1.17.0/apple_support.1.17.0.tar.gz",
+    integrity = "sha256-tT9kkedCVJ8ThmYo3f/MddHzstaYfcTxShayQhE8iQs=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.17.1/apple_support.1.17.1.tar.gz",
 )
 
 # https://github.com/bazelbuild/platforms
@@ -21,9 +21,9 @@ http_archive(
 # https://github.com/bazelbuild/rules_cc
 http_archive(
     name = "rules_cc",  # Apache-2.0
-    integrity = "sha256-ZbZ7gcbaN48TbMfn4U7gjVuTdZc0J+zrjHc6T2n6fkk=",
-    strip_prefix = "rules_cc-0.0.10",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.10/rules_cc-0.0.10.tar.gz",
+    integrity = "sha256-smFouaE/CUeUmCuDKXXq9TzvxdztWzvn32uLeU3CdEs=",
+    strip_prefix = "rules_cc-0.0.12",
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.12/rules_cc-0.0.12.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
@@ -185,9 +185,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-o8T9hXoKSPbtrT4l3mj6HpbSQ38WZQOXFNHemtV5uNA=",
-    strip_prefix = "imgui-1.91.2",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.2.tar.gz",
+    integrity = "sha256-KZSdezAMMFZfvNZjmBACNbY6o3Os/uC3aFOnrqzRvig=",
+    strip_prefix = "imgui-1.91.3",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.3.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -273,13 +273,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.3.295"
+VULKAN_TAG = "1.3.297"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-tFaLmEvkuKMXNDzBTYVGaeJYcFB5oWyr7z+5IwL1VWE=",
+    integrity = "sha256-HWeeLtxDy3rYGLgd6pYON08dbdCCMl65tMYRPnYmPAI=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -288,7 +288,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-VWpBt6IX+Qp7zL6BMJPu9HhOI5gu+rO6zCUyDSvsWMI=",
+    integrity = "sha256-B0lw2PsPXl8/3EfxXf2pyIBf95w87NGEDOIYrrRSZII=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
