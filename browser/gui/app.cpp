@@ -22,6 +22,7 @@
 #include "type/sfml.h"
 #include "type/type.h"
 #include "uri/uri.h"
+#include "util/string.h"
 
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Cursor.hpp>
@@ -29,7 +30,6 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
-#include <fmt/ranges.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -179,8 +179,9 @@ std::unique_ptr<type::IType> create_font_system() {
             }
         }
 
-        spdlog::warn(
-                "Unable to find a font for '{}', looked for [{}], good luck", name, fmt::join(file_name_options, ", "));
+        spdlog::warn("Unable to find a font for '{}', looked for [{}], good luck",
+                name,
+                util::join(file_name_options, ", "));
     };
 
     static constexpr auto kMonospaceFontFileNames = std::to_array<std::string_view>({
