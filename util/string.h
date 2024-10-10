@@ -154,6 +154,20 @@ constexpr std::string_view trim(std::string_view s) {
     return trim(s, is_whitespace);
 }
 
+constexpr std::string join(std::span<std::string_view const> strings, std::string_view separator) {
+    std::string out;
+
+    for (std::size_t i = 0; i < strings.size(); i++) {
+        out += strings[i];
+
+        if (i != strings.size() - 1) {
+            out += separator;
+        }
+    }
+
+    return out;
+}
+
 // https://url.spec.whatwg.org/#concept-ipv4-serializer
 constexpr std::string ipv4_serialize(std::uint32_t addr) {
     std::string out;
