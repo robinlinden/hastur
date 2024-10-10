@@ -278,6 +278,21 @@ int main() {
         a.expect_eq(trim_end(" Ö "sv), " Ö"sv);
     });
 
+    es.add_test("join: empty", [](etest::IActions &a) {
+        std::vector<std::string_view> strings;
+        a.expect_eq(join(strings, ","sv), ""sv);
+    });
+
+    es.add_test("join: 1 item", [](etest::IActions &a) {
+        std::vector<std::string_view> strings{"a"};
+        a.expect_eq(join(strings, ","sv), "a"sv);
+    });
+
+    es.add_test("join: 2 items", [](etest::IActions &a) {
+        std::vector<std::string_view> strings{"a", "b"};
+        a.expect_eq(join(strings, ","sv), "a,b"sv);
+    });
+
     es.add_test("IPv4 serialization", [](etest::IActions &a) {
         std::uint32_t loopback = 2130706433;
         std::uint32_t global = 134744072;

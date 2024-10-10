@@ -19,7 +19,6 @@ cc_library(
         "//type:naive",
         "//util:from_chars",
         "//util:string",
-        "@fmt",
         "@spdlog",
     ],
 )
