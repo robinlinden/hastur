@@ -12,6 +12,7 @@
 #include <cassert>
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -86,6 +87,7 @@ constexpr std::string to_string(MemArg const &ma, std::optional<std::uint32_t> n
 }
 
 std::string to_string(Instruction const &);
+std::string to_string(std::span<Instruction const>);
 
 } // namespace wasm::instructions
 
