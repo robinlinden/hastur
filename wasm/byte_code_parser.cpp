@@ -661,10 +661,12 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
     return module;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_instructions(std::istream &is) {
     using namespace instructions;
     std::vector<Instruction> instructions{};
+
+    // If an End-opcode is encountered when nesting == 0, we're done.
+    int nesting = 0;
 
     while (true) {
         std::uint8_t opcode{};
@@ -679,12 +681,8 @@ std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_inst
                     return std::nullopt;
                 }
 
-                auto block_instructions = parse_instructions(is);
-                if (!block_instructions) {
-                    return std::nullopt;
-                }
-
-                instructions.emplace_back(Block{*std::move(type), *std::move(block_instructions)});
+                instructions.emplace_back(Block{*std::move(type)});
+                ++nesting;
                 break;
             }
             case Loop::kOpcode: {
@@ -693,12 +691,8 @@ std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_inst
                     return std::nullopt;
                 }
 
-                auto block_instructions = parse_instructions(is);
-                if (!block_instructions) {
-                    return std::nullopt;
-                }
-
-                instructions.emplace_back(Loop{*std::move(type), *std::move(block_instructions)});
+                instructions.emplace_back(Loop{*std::move(type)});
+                ++nesting;
                 break;
             }
             case Branch::kOpcode: {
@@ -721,7 +715,13 @@ std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_inst
                 instructions.emplace_back(Return{});
                 break;
             case End::kOpcode:
-                return instructions;
+                instructions.emplace_back(End{});
+                if (nesting == 0) {
+                    return instructions;
+                }
+
+                --nesting;
+                break;
             case I32Const::kOpcode: {
                 auto value = wasm::Leb128<std::int32_t>::decode_from(is);
                 if (!value) {

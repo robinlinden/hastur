@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <string_view>
 #include <variant>
-#include <vector>
 
 namespace wasm::instructions {
 
@@ -140,16 +139,14 @@ struct Block {
     static constexpr std::uint8_t kOpcode = 0x02;
     static constexpr std::string_view kMnemonic = "block";
     BlockType type{};
-    std::vector<Instruction> instructions;
-    [[nodiscard]] bool operator==(Block const &) const;
+    [[nodiscard]] bool operator==(Block const &) const = default;
 };
 
 struct Loop {
     static constexpr std::uint8_t kOpcode = 0x03;
     static constexpr std::string_view kMnemonic = "loop";
     BlockType type{};
-    std::vector<Instruction> instructions;
-    [[nodiscard]] bool operator==(Loop const &) const;
+    [[nodiscard]] bool operator==(Loop const &) const = default;
 };
 
 struct Branch {

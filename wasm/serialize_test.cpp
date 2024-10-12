@@ -1,43 +1,59 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "wasm/instructions.h"
 #include "wasm/serialize.h"
+
+#include "wasm/instructions.h"
 #include "wasm/types.h"
 
 #include "etest/etest2.h"
+
+#include <vector>
 
 int main() {
     etest::Suite s{"wasm module serialization"};
 
     using namespace wasm::instructions;
+    using Insns = std::vector<Instruction>;
 
     s.add_test("block", [](etest::IActions &a) {
-        a.expect_eq(to_string(Block{.type{wasm::ValueType::Int32}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
-                "block (result i32) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
-        a.expect_eq(to_string(Block{.type{wasm::TypeIdx{7}}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
-                "block (type 7) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
-        a.expect_eq(to_string(Block{.type{wasm::ValueType::Int32},
-                            .instructions{Block{.type{wasm::ValueType::Int32}, .instructions{I32Const{8}}},
-                                    I32Const{2},
-                                    I32Const{2},
-                                    I32Add{}}}),
-                "block (result i32) \n\tblock (result i32) \n\t\ti32.const 8\n\tend\n\ti32.const 2\n\ti32.const "
+        a.expect_eq(to_string(Insns{Block{.type{wasm::ValueType::Int32}}, I32Const{2}, I32Const{2}, I32Add{}, End{}}),
+                "block (result i32)\n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
+
+        a.expect_eq(to_string(Insns{Block{.type{wasm::TypeIdx{7}}}, I32Const{2}, I32Const{2}, I32Add{}, End{}}),
+                "block (type 7)\n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
+
+        a.expect_eq(to_string(Insns{Block{.type{wasm::ValueType::Int32}},
+                            Block{.type{wasm::ValueType::Int32}},
+                            I32Const{8},
+                            End{},
+                            I32Const{2},
+                            I32Const{2},
+                            I32Add{},
+                            End{}}),
+
+                "block (result i32)\n\tblock (result i32)\n\t\ti32.const 8\n\tend\n\ti32.const 2\n\ti32.const "
                 "2\n\ti32.add\nend");
     });
 
     s.add_test("loop", [](etest::IActions &a) {
-        a.expect_eq(to_string(Loop{.type{wasm::ValueType::Int32}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
-                "loop (result i32) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
-        a.expect_eq(to_string(Loop{.type{wasm::TypeIdx{7}}, .instructions{I32Const{2}, I32Const{2}, I32Add{}}}),
-                "loop (type 7) \n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
-        a.expect_eq(to_string(Loop{.type{wasm::ValueType::Int32},
-                            .instructions{Loop{.type{wasm::ValueType::Int32}, .instructions{I32Const{8}}},
-                                    I32Const{2},
-                                    I32Const{2},
-                                    I32Add{}}}),
-                "loop (result i32) \n\tloop (result i32) \n\t\ti32.const 8\n\tend\n\ti32.const 2\n\ti32.const "
+        a.expect_eq(to_string(Insns{Loop{.type{wasm::ValueType::Int32}}, I32Const{2}, I32Const{2}, I32Add{}, End{}}),
+                "loop (result i32)\n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
+
+        a.expect_eq(to_string(Insns{Loop{.type{wasm::TypeIdx{7}}}, I32Const{2}, I32Const{2}, I32Add{}, End{}}),
+                "loop (type 7)\n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");
+
+        a.expect_eq(to_string(Insns{Loop{.type{wasm::ValueType::Int32}},
+                            Loop{.type{wasm::ValueType::Int32}},
+                            I32Const{8},
+                            End{},
+                            I32Const{2},
+                            I32Const{2},
+                            I32Add{},
+                            End{}}),
+                "loop (result i32)\n\tloop (result i32)\n\t\ti32.const 8\n\tend\n\ti32.const 2\n\ti32.const "
                 "2\n\ti32.add\nend");
     });
 

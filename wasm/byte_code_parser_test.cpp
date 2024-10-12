@@ -411,7 +411,7 @@ void global_section_tests(etest::Suite &s) {
         a.expect_eq(module.global_section,
                 wasm::GlobalSection{.globals{{
                         .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Const},
-                        .init{wasm::instructions::I32Const{42}},
+                        .init{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
                 }}});
     });
 
@@ -421,7 +421,7 @@ void global_section_tests(etest::Suite &s) {
         a.expect_eq(module.global_section,
                 wasm::GlobalSection{.globals{{
                         .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Var},
-                        .init{wasm::instructions::I32Const{42}},
+                        .init{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
                 }}});
     });
 
@@ -433,11 +433,11 @@ void global_section_tests(etest::Suite &s) {
                 wasm::GlobalSection{.globals{
                         {
                                 .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Var},
-                                .init{wasm::instructions::I32Const{42}},
+                                .init{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
                         },
                         {
                                 .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Const},
-                                .init{wasm::instructions::I32Const{42}},
+                                .init{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
                         },
                 }});
     });
@@ -633,7 +633,9 @@ void code_section_tests(etest::Suite &s) {
 
         wasm::CodeSection expected{.entries{
                 wasm::CodeEntry{
-                        .code{wasm::instructions::I32Const{0b11}, wasm::instructions::I32PopulationCount{}},
+                        .code{wasm::instructions::I32Const{0b11},
+                                wasm::instructions::I32PopulationCount{},
+                                wasm::instructions::End{}},
                         .locals{{1, wasm::ValueType::Int32}},
                 },
         }};
@@ -647,11 +649,11 @@ void code_section_tests(etest::Suite &s) {
 
         wasm::CodeSection expected{.entries{
                 wasm::CodeEntry{
-                        .code{wasm::instructions::I32Const{42}},
+                        .code{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
                         .locals{{1, wasm::ValueType::Int32}},
                 },
                 wasm::CodeEntry{
-                        .code{},
+                        .code{wasm::instructions::End{}},
                         .locals{{5, wasm::ValueType::Int64}, {6, wasm::ValueType::Float32}},
                 },
         }};

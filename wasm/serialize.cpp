@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <span>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -29,6 +30,7 @@ struct InstructionStringifyVisitor {
     void operator()(Branch const &t);
     void operator()(BranchIf const &t);
     void operator()(Return const &);
+    void operator()(End const &);
     void operator()(I32Const const &t);
     void operator()(LocalGet const &t);
     void operator()(LocalSet const &t);
@@ -47,39 +49,13 @@ void InstructionStringifyVisitor::apply_indent() {
 }
 
 void InstructionStringifyVisitor::operator()(Block const &t) {
-    out << Block::kMnemonic << " " << to_string(t.type) << " ";
-
+    out << Block::kMnemonic << " " << to_string(t.type);
     indent++;
-
-    for (Instruction const &i : t.instructions) {
-        out << "\n";
-        apply_indent();
-        std::visit(*this, i);
-    }
-
-    indent--;
-
-    out << "\n";
-    apply_indent();
-    out << "end";
 }
 
 void InstructionStringifyVisitor::operator()(Loop const &t) {
-    out << Loop::kMnemonic << " " << to_string(t.type) << " ";
-
+    out << Loop::kMnemonic << " " << to_string(t.type);
     indent++;
-
-    for (Instruction const &i : t.instructions) {
-        out << "\n";
-        apply_indent();
-        std::visit(*this, i);
-    }
-
-    indent--;
-
-    out << "\n";
-    apply_indent();
-    out << "end";
 }
 
 void InstructionStringifyVisitor::operator()(Branch const &t) {
@@ -92,6 +68,10 @@ void InstructionStringifyVisitor::operator()(BranchIf const &t) {
 
 void InstructionStringifyVisitor::operator()(Return const &) {
     out << Return::kMnemonic;
+}
+
+void InstructionStringifyVisitor::operator()(End const &) {
+    out << End::kMnemonic;
 }
 
 void InstructionStringifyVisitor::operator()(I32Const const &t) {
@@ -131,6 +111,26 @@ void InstructionStringifyVisitor::operator()(I32Load const &t) {
 std::string to_string(Instruction const &inst) {
     InstructionStringifyVisitor v;
     std::visit(v, inst);
+    return std::move(v.out).str();
+}
+
+// TODO(robinlinden): Nicer handling of indentation. End should dedent and
+// block/loop should indent.
+std::string to_string(std::span<Instruction const> insns) {
+    InstructionStringifyVisitor v;
+    for (std::size_t i = 0; i < insns.size(); ++i) {
+        auto const &insn = insns[i];
+        if (std::holds_alternative<End>(insn)) {
+            v.indent--;
+        }
+
+        v.apply_indent();
+        std::visit(v, insn);
+
+        if (i != insns.size() - 1) {
+            v.out << '\n';
+        }
+    }
     return std::move(v.out).str();
 }
 
