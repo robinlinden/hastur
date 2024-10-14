@@ -49,4 +49,8 @@ std::optional<ExecutableMemory> ExecutableMemory::allocate_containing(std::span<
     return ExecutableMemory{memory, data.size()};
 }
 
+void *ExecutableMemory::ptr() {
+    return memory_;
+}
+
 } // namespace os

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,7 +32,7 @@ public:
         return *this;
     }
 
-    void *ptr() { return memory_; }
+    void *ptr();
 
 private:
     ExecutableMemory(void *memory, std::size_t size) : memory_{memory}, size_{size} {}
