@@ -36,7 +36,7 @@ bool Http::use_port(uri::Uri const &uri) {
         return !uri.authority.port.empty() && uri.authority.port != "443";
     }
 
-    return false;
+    return true;
 }
 
 std::string Http::create_get_request(uri::Uri const &uri, std::optional<std::string_view> user_agent) {

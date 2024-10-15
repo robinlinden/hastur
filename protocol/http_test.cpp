@@ -313,6 +313,12 @@ int main() {
         etest::expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
     });
 
+    etest::test("unknown schemes don't have their ports dropped", [] {
+        FakeSocket socket{};
+        std::ignore = protocol::Http::get(socket, create_uri("ftp://example.com:80"), std::nullopt);
+        etest::expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
+    });
+
     etest::test("user agent is included", [] {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri(), "test-agent");
