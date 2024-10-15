@@ -29,14 +29,13 @@ constexpr bool is_valid_header(std::pair<std::string_view, std::string_view> con
 
 bool Http::use_port(uri::Uri const &uri) {
     if (uri.scheme == "http"sv) {
-        if (!uri.authority.port.empty() && uri.authority.port != "80") {
-            return true;
-        }
-    } else if (uri.scheme == "https"sv) {
-        if (!uri.authority.port.empty() && uri.authority.port != "443") {
-            return true;
-        }
+        return !uri.authority.port.empty() && uri.authority.port != "80";
     }
+
+    if (uri.scheme == "https"sv) {
+        return !uri.authority.port.empty() && uri.authority.port != "443";
+    }
+
     return false;
 }
 
