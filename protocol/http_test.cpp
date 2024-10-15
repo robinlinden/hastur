@@ -328,5 +328,17 @@ int main() {
         a.expect(socket.write_data.find("User-Agent: test-agent\r\n") == std::string::npos);
     });
 
+    s.add_test("truncated status line", [](etest::IActions &a) {
+        FakeSocket socket{.read_data = "HTTP/1.1 200\r\n"};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
+        a.expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
+    });
+
+    s.add_test("status line w/ invalid status code", [](etest::IActions &a) {
+        FakeSocket socket{.read_data = "HTTP/1.1 asdf OK\r\n"};
+        auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
+        a.expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
+    });
+
     return s.run();
 }
