@@ -6,7 +6,7 @@
 
 #include "protocol/response.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 #include "uri/uri.h"
 
 #include <cerrno>
@@ -19,8 +19,6 @@
 #include <utility>
 
 namespace fs = std::filesystem;
-using etest::expect_eq;
-using etest::require;
 
 namespace {
 
@@ -59,32 +57,34 @@ private:
 } // namespace
 
 int main() {
-    etest::test("uri pointing to non-existent file", [] {
+    etest::Suite s;
+
+    s.add_test("uri pointing to non-existent file", [](etest::IActions &a) {
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse("file:///this/file/does/definitely/not/exist.hastur").value());
-        expect_eq(res.error(), protocol::Error{protocol::ErrorCode::Unresolved});
+        a.expect_eq(res.error(), protocol::Error{protocol::ErrorCode::Unresolved});
     });
 
-    etest::test("uri pointing to a folder", [] {
+    s.add_test("uri pointing to a folder", [](etest::IActions &a) {
         auto tmp_dir = fs::temp_directory_path();
 
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_dir.generic_string())).value());
-        expect_eq(res.error(), protocol::Error{protocol::ErrorCode::InvalidResponse});
+        a.expect_eq(res.error(), protocol::Error{protocol::ErrorCode::InvalidResponse});
     });
 
-    etest::test("uri pointing to a regular file", [] {
+    s.add_test("uri pointing to a regular file", [](etest::IActions &a) {
         std::random_device rng;
         auto tmp_dst = fs::temp_directory_path() / std::format("hastur-uri-pointing-to-a-regular-file-test.{}", rng());
 
         auto tmp_file = TmpFile::create(std::move(tmp_dst));
-        require(tmp_file.has_value());
-        require(bool{tmp_file->fstream() << "hello!" << std::flush});
+        a.require(tmp_file.has_value());
+        a.require(bool{tmp_file->fstream() << "hello!" << std::flush});
 
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_file->path().generic_string())).value());
-        expect_eq(res, protocol::Response{{}, {}, "hello!"});
+        a.expect_eq(res, protocol::Response{{}, {}, "hello!"});
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }

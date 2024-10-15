@@ -7,7 +7,7 @@
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 #include "uri/uri.h"
 
 #include <tl/expected.hpp>
@@ -15,7 +15,6 @@
 #include <memory>
 #include <utility>
 
-using etest::expect_eq;
 using protocol::MultiProtocolHandler;
 
 namespace {
@@ -34,14 +33,16 @@ private:
 } // namespace
 
 int main() {
-    etest::test("added protocols are handled", [] {
+    etest::Suite s;
+
+    s.add_test("added protocols are handled", [](etest::IActions &a) {
         MultiProtocolHandler handler;
-        expect_eq(handler.handle(uri::Uri{.scheme = "hax"}),
+        a.expect_eq(handler.handle(uri::Uri{.scheme = "hax"}),
                 tl::unexpected{protocol::Error{protocol::ErrorCode::Unhandled}});
 
         handler.add("hax", std::make_unique<FakeProtocolHandler>(protocol::Response{}));
-        expect_eq(handler.handle(uri::Uri{.scheme = "hax"}), protocol::Response{});
+        a.expect_eq(handler.handle(uri::Uri{.scheme = "hax"}), protocol::Response{});
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }

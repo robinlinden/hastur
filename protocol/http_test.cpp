@@ -5,7 +5,7 @@
 
 #include "protocol/http.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 #include "net/test/fake_socket.h"
 #include "protocol/response.h"
 #include "uri/uri.h"
@@ -18,9 +18,6 @@
 #include <utility>
 
 using namespace std::string_view_literals;
-
-using etest::expect_eq;
-using etest::require;
 using net::FakeSocket;
 
 namespace {
@@ -43,7 +40,9 @@ FakeSocket create_chunked_socket(std::string const &body) {
 } // namespace
 
 int main() {
-    etest::test("200 response", [] {
+    etest::Suite s{};
+
+    s.add_test("200 response", [](etest::IActions &a) {
         FakeSocket socket;
         socket.read_data =
                 "HTTP/1.1 200 OK\r\n"
@@ -70,26 +69,26 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
-        require(response.headers.size() == 13);
-        expect_eq(socket.host, "example.com");
-        expect_eq(socket.service, "http");
-        expect_eq(response.status_line.version, "HTTP/1.1");
-        expect_eq(response.status_line.status_code, 200);
-        expect_eq(response.status_line.reason, "OK");
-        expect_eq(response.headers.get("Content-Encoding"sv).value(), "gzip");
-        expect_eq(response.headers.get("Accept-Ranges"sv).value(), "bytes");
-        expect_eq(response.headers.get("Age"sv).value(), "367849");
-        expect_eq(response.headers.get("Cache-Control"sv).value(), "max-age=604800");
-        expect_eq(response.headers.get("Content-Type"sv).value(), "text/html; charset=UTF-8");
-        expect_eq(response.headers.get("Date"sv).value(), "Mon, 25 Oct 2021 19:48:04 GMT");
-        expect_eq(response.headers.get("Etag"sv).value(), R"("3147526947")");
-        expect_eq(response.headers.get("Expires"sv).value(), "Mon, 01 Nov 2021 19:48:04 GMT");
-        expect_eq(response.headers.get("Last-Modified"sv).value(), "Thu, 17 Oct 2019 07:18:26 GMT");
-        expect_eq(response.headers.get("Server"sv).value(), "ECS (nyb/1D2A)");
-        expect_eq(response.headers.get("Vary"sv).value(), "Accept-Encoding");
-        expect_eq(response.headers.get("X-Cache"sv).value(), "HIT");
-        expect_eq(response.headers.get("Content-Length"sv).value(), "123");
-        expect_eq(response.body,
+        a.require(response.headers.size() == 13);
+        a.expect_eq(socket.host, "example.com");
+        a.expect_eq(socket.service, "http");
+        a.expect_eq(response.status_line.version, "HTTP/1.1");
+        a.expect_eq(response.status_line.status_code, 200);
+        a.expect_eq(response.status_line.reason, "OK");
+        a.expect_eq(response.headers.get("Content-Encoding"sv).value(), "gzip");
+        a.expect_eq(response.headers.get("Accept-Ranges"sv).value(), "bytes");
+        a.expect_eq(response.headers.get("Age"sv).value(), "367849");
+        a.expect_eq(response.headers.get("Cache-Control"sv).value(), "max-age=604800");
+        a.expect_eq(response.headers.get("Content-Type"sv).value(), "text/html; charset=UTF-8");
+        a.expect_eq(response.headers.get("Date"sv).value(), "Mon, 25 Oct 2021 19:48:04 GMT");
+        a.expect_eq(response.headers.get("Etag"sv).value(), R"("3147526947")");
+        a.expect_eq(response.headers.get("Expires"sv).value(), "Mon, 01 Nov 2021 19:48:04 GMT");
+        a.expect_eq(response.headers.get("Last-Modified"sv).value(), "Thu, 17 Oct 2019 07:18:26 GMT");
+        a.expect_eq(response.headers.get("Server"sv).value(), "ECS (nyb/1D2A)");
+        a.expect_eq(response.headers.get("Vary"sv).value(), "Accept-Encoding");
+        a.expect_eq(response.headers.get("X-Cache"sv).value(), "HIT");
+        a.expect_eq(response.headers.get("Content-Length"sv).value(), "123");
+        a.expect_eq(response.body,
                 "<!doctype html>\n"
                 "<html>\n"
                 "<head>\n"
@@ -98,7 +97,7 @@ int main() {
                 "</html>\n");
     });
 
-    etest::test("google 301", [] {
+    s.add_test("google 301", [](etest::IActions &a) {
         FakeSocket socket;
         socket.read_data =
                 "HTTP/1.1 301 Moved Permanently\r\n"
@@ -119,15 +118,15 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri("http://google.com"), std::nullopt).value();
 
-        require(response.headers.size() == 7);
-        expect_eq(socket.host, "google.com");
-        expect_eq(socket.service, "http");
-        expect_eq(response.status_line.version, "HTTP/1.1");
-        expect_eq(response.status_line.status_code, 301);
-        expect_eq(response.status_line.reason, "Moved Permanently");
+        a.require(response.headers.size() == 7);
+        a.expect_eq(socket.host, "google.com");
+        a.expect_eq(socket.service, "http");
+        a.expect_eq(response.status_line.version, "HTTP/1.1");
+        a.expect_eq(response.status_line.status_code, 301);
+        a.expect_eq(response.status_line.reason, "Moved Permanently");
     });
 
-    etest::test("transfer-encoding chunked, real body", [] {
+    s.add_test("transfer-encoding chunked, real body", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "7f\r\n"
                 "<!DOCTYPE html>\r\n"
@@ -151,7 +150,7 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
-        expect_eq(response.body,
+        a.expect_eq(response.body,
                 "<!DOCTYPE html>\r\n"
                 "<html lang=en>\r\n"
                 "<head>\r\n"
@@ -163,112 +162,112 @@ int main() {
                 "chunks are sent to a client.</h5></body></html>"sv);
     });
 
-    etest::test("transfer-encoding chunked, space before size", [] {
+    s.add_test("transfer-encoding chunked, space before size", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "  5\r\nhello\r\n"
                 " 0\r\n\r\n");
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
-        expect_eq(response.body, "hello");
+        a.expect_eq(response.body, "hello");
     });
 
-    etest::test("transfer-encoding chunked, space after size", [] {
+    s.add_test("transfer-encoding chunked, space after size", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "5  \r\nhello\r\n"
                 "0  \r\n\r\n");
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
-        expect_eq(response.body, "hello");
+        a.expect_eq(response.body, "hello");
     });
 
-    etest::test("transfer-encoding chunked, invalid size", [] {
+    s.add_test("transfer-encoding chunked, invalid size", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "8684838388283847263674\r\nhello\r\n"
                 "0\r\n\r\n");
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
-        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
+        a.expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
-    etest::test("transfer-encoding chunked, no separator between chunk", [] {
+    s.add_test("transfer-encoding chunked, no separator between chunk", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "5\r\nhello"
                 "0\r\n\r\n");
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
-        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
+        a.expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
-    etest::test("transfer-encoding chunked, chunk too short", [] {
+    s.add_test("transfer-encoding chunked, chunk too short", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "6\r\nhello\r\n"
                 "0\r\n\r\n");
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
-        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
+        a.expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
-    etest::test("transfer-encoding chunked, chunk too long", [] {
+    s.add_test("transfer-encoding chunked, chunk too long", [](etest::IActions &a) {
         auto socket = create_chunked_socket(
                 "3\r\nhello\r\n"
                 "0\r\n\r\n");
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
-        expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
+        a.expect_eq(response.err, protocol::ErrorCode::InvalidResponse);
     });
 
-    etest::test("404 no headers no body", [] {
+    s.add_test("404 no headers no body", [](etest::IActions &a) {
         FakeSocket socket;
         socket.read_data = "HTTP/1.1 404 Not Found\r\n\r\n";
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
 
-        expect_eq(response.status_line->version, "HTTP/1.1"sv);
-        expect_eq(response.status_line->status_code, 404);
-        expect_eq(response.status_line->reason, "Not Found");
+        a.expect_eq(response.status_line->version, "HTTP/1.1"sv);
+        a.expect_eq(response.status_line->status_code, 404);
+        a.expect_eq(response.status_line->reason, "Not Found");
     });
 
-    etest::test("connect failure", [] {
+    s.add_test("connect failure", [](etest::IActions &a) {
         FakeSocket socket{.connect_result = false};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
-        expect_eq(response, protocol::Error{.err = protocol::ErrorCode::Unresolved});
+        a.expect_eq(response, protocol::Error{.err = protocol::ErrorCode::Unresolved});
     });
 
-    etest::test("empty response", [] {
+    s.add_test("empty response", [](etest::IActions &a) {
         FakeSocket socket{};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
-        expect_eq(response, protocol::Error{.err = protocol::ErrorCode::InvalidResponse});
+        a.expect_eq(response, protocol::Error{.err = protocol::ErrorCode::InvalidResponse});
     });
 
-    etest::test("empty status line", [] {
+    s.add_test("empty status line", [](etest::IActions &a) {
         FakeSocket socket{.read_data = "\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
-        expect_eq(response, protocol::Error{.err = protocol::ErrorCode::InvalidResponse});
+        a.expect_eq(response, protocol::Error{.err = protocol::ErrorCode::InvalidResponse});
     });
 
-    etest::test("no headers", [] {
+    s.add_test("no headers", [](etest::IActions &a) {
         FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\n \r\n\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).error();
-        expect_eq(response,
+        a.expect_eq(response,
                 protocol::Error{protocol::ErrorCode::InvalidResponse, protocol::StatusLine{"HTTP/1.1", 200, "OK"}});
     });
 
-    etest::test("mixed valid and invalid headers", [] {
+    s.add_test("mixed valid and invalid headers", [](etest::IActions &a) {
         FakeSocket socket{.read_data = "HTTP/1.1 200 OK\r\none: 1\r\nBAD\r\ntwo:2 \r\n\r\n"};
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt);
-        expect_eq(response,
+        a.expect_eq(response,
                 protocol::Response{
                         .status_line{"HTTP/1.1", 200, "OK"},
                         .headers{{"one", "1"}, {"two", "2"}},
                 });
     });
 
-    etest::test("query parameters are included", [] {
+    s.add_test("query parameters are included", [](etest::IActions &a) {
         FakeSocket socket{};
         auto uri = uri::Uri{
                 .uri = {"http://example.com/hello?target=world"},
@@ -279,23 +278,23 @@ int main() {
         };
         std::ignore = protocol::Http::get(socket, uri, std::nullopt);
         auto first_request_line = socket.write_data.substr(0, socket.write_data.find("\r\n"));
-        expect_eq(first_request_line, "GET /hello?target=world HTTP/1.1");
+        a.expect_eq(first_request_line, "GET /hello?target=world HTTP/1.1");
     });
 
-    etest::test("port is removed for standard ports", [] {
+    s.add_test("port is removed for standard ports", [](etest::IActions &a) {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri("http://example.com:80"), std::nullopt);
-        etest::expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("http://example.com:79"), std::nullopt);
-        etest::expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
-        etest::expect(socket.write_data.find("Host: example.com:79\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com:79\r\n") != std::string::npos);
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("http://example.com:443"), std::nullopt);
-        etest::expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
-        etest::expect(socket.write_data.find("Host: example.com:443\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com:443\r\n") != std::string::npos);
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("https://example.com"), std::nullopt);
@@ -304,30 +303,30 @@ int main() {
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("https://example.com:443"), std::nullopt);
-        etest::expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
-        etest::expect(socket.write_data.find("Host: example.com:443\r\n") == std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com:443\r\n") == std::string::npos);
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("https://example.com:80"), std::nullopt);
-        etest::expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
-        etest::expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
     });
 
-    etest::test("unknown schemes don't have their ports dropped", [] {
+    s.add_test("unknown schemes don't have their ports dropped", [](etest::IActions &a) {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri("ftp://example.com:80"), std::nullopt);
-        etest::expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
     });
 
-    etest::test("user agent is included", [] {
+    s.add_test("user agent is included", [](etest::IActions &a) {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri(), "test-agent");
-        etest::expect(socket.write_data.find("User-Agent: test-agent\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("User-Agent: test-agent\r\n") != std::string::npos);
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri(), std::nullopt);
-        etest::expect(socket.write_data.find("User-Agent: test-agent\r\n") == std::string::npos);
+        a.expect(socket.write_data.find("User-Agent: test-agent\r\n") == std::string::npos);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }

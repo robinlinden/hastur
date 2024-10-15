@@ -5,7 +5,7 @@
 
 #include "protocol/response.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <cstddef>
 #include <string_view>
@@ -13,39 +13,38 @@
 
 using namespace std::string_view_literals;
 
-using etest::expect;
-using etest::expect_eq;
-
 int main() {
-    etest::test("headers", [] {
+    etest::Suite s;
+
+    s.add_test("headers", [](etest::IActions &a) {
         protocol::Headers headers;
 
         headers.add({"Transfer-Encoding", "chunked"});
         headers.add({"Content-Type", "text/html"});
 
-        expect(!headers.get("foo"sv));
-        expect_eq(headers.get("Transfer-Encoding"sv).value(), "chunked");
-        expect_eq(headers.get("transfer-encoding"sv).value(), "chunked");
-        expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
-        expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
+        a.expect(!headers.get("foo"sv));
+        a.expect_eq(headers.get("Transfer-Encoding"sv).value(), "chunked");
+        a.expect_eq(headers.get("transfer-encoding"sv).value(), "chunked");
+        a.expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
+        a.expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
     });
 
-    etest::test("headers, init-list", [] {
+    s.add_test("headers, init-list", [](etest::IActions &a) {
         protocol::Headers headers{{"Content-Type", "text/html"}};
-        expect_eq(headers.size(), std::size_t{1});
-        expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
-        expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
+        a.expect_eq(headers.size(), std::size_t{1});
+        a.expect_eq(headers.get("CONTENT-TYPE"sv).value(), "text/html");
+        a.expect_eq(headers.get("cOnTeNt-TyPe"sv).value(), "text/html");
     });
 
-    etest::test("ErrorCode, to_string", [] {
+    s.add_test("ErrorCode, to_string", [](etest::IActions &a) {
         using protocol::ErrorCode;
-        expect_eq(to_string(ErrorCode::Unresolved), "Unresolved"sv);
-        expect_eq(to_string(ErrorCode::Unhandled), "Unhandled"sv);
-        expect_eq(to_string(ErrorCode::InvalidResponse), "InvalidResponse"sv);
-        expect_eq(to_string(ErrorCode::RedirectLimit), "RedirectLimit"sv);
+        a.expect_eq(to_string(ErrorCode::Unresolved), "Unresolved"sv);
+        a.expect_eq(to_string(ErrorCode::Unhandled), "Unhandled"sv);
+        a.expect_eq(to_string(ErrorCode::InvalidResponse), "InvalidResponse"sv);
+        a.expect_eq(to_string(ErrorCode::RedirectLimit), "RedirectLimit"sv);
         // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
-        expect_eq(to_string(static_cast<ErrorCode>(std::underlying_type_t<ErrorCode>{20})), "Unknown"sv);
+        a.expect_eq(to_string(static_cast<ErrorCode>(std::underlying_type_t<ErrorCode>{20})), "Unknown"sv);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
