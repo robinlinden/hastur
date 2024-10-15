@@ -282,5 +282,36 @@ int main() {
         expect_eq(first_request_line, "GET /hello?target=world HTTP/1.1");
     });
 
+    etest::test("port is removed for standard ports", [] {
+        FakeSocket socket{};
+        std::ignore = protocol::Http::get(socket, create_uri("http://example.com:80"), std::nullopt);
+        etest::expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
+
+        socket = FakeSocket{};
+        std::ignore = protocol::Http::get(socket, create_uri("http://example.com:79"), std::nullopt);
+        etest::expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
+        etest::expect(socket.write_data.find("Host: example.com:79\r\n") != std::string::npos);
+
+        socket = FakeSocket{};
+        std::ignore = protocol::Http::get(socket, create_uri("http://example.com:443"), std::nullopt);
+        etest::expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
+        etest::expect(socket.write_data.find("Host: example.com:443\r\n") != std::string::npos);
+
+        socket = FakeSocket{};
+        std::ignore = protocol::Http::get(socket, create_uri("https://example.com"), std::nullopt);
+        a.expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
+        a.expect(socket.write_data.find("Host: example.com:443\r\n") == std::string::npos);
+
+        socket = FakeSocket{};
+        std::ignore = protocol::Http::get(socket, create_uri("https://example.com:443"), std::nullopt);
+        etest::expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
+        etest::expect(socket.write_data.find("Host: example.com:443\r\n") == std::string::npos);
+
+        socket = FakeSocket{};
+        std::ignore = protocol::Http::get(socket, create_uri("https://example.com:80"), std::nullopt);
+        etest::expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
+        etest::expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
+    });
+
     return etest::run_all_tests();
 }
