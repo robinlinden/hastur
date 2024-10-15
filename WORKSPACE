@@ -35,6 +35,7 @@ http_archive(
 )
 
 # https://github.com/bazelbuild/rules_python
+# TODO(robinlinden): Work out how to get glad2 working w/ newer rules_python.
 http_archive(
     name = "rules_python",  # Apache-2.0
     integrity = "sha256-4/HMegTZsJY1r7MTBzHtgrX1jq3IIz1O+1mUTZL/wG8=",

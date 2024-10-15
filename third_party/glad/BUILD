@@ -6,6 +6,15 @@ alias(
     actual = entry_point("glad2", "glad"),
 )
 
+# TODO(robinlinden): Update to newer @rules_python.
+# Need to work out why v doesn't work: `ModuleNotFoundError: No module named 'glad.__main__'`
+# load("@rules_python//python/entry_points:py_console_script_binary.bzl", "py_console_script_binary")
+# py_console_script_binary(
+#     name = "run_glad",
+#     pkg = "@pypi//glad2",
+#     script = "glad",
+# )
+
 # gl:core=3.1 is the last core profile that supports deprecated functions like
 # glMatrixMode, glColor4ub, and glRecti that we still use.
 # TODO(robinlinden): Modernize our GL setup.
