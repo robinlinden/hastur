@@ -313,5 +313,15 @@ int main() {
         etest::expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
     });
 
+    etest::test("user agent is included", [] {
+        FakeSocket socket{};
+        std::ignore = protocol::Http::get(socket, create_uri(), "test-agent");
+        etest::expect(socket.write_data.find("User-Agent: test-agent\r\n") != std::string::npos);
+
+        socket = FakeSocket{};
+        std::ignore = protocol::Http::get(socket, create_uri(), std::nullopt);
+        etest::expect(socket.write_data.find("User-Agent: test-agent\r\n") == std::string::npos);
+    });
+
     return etest::run_all_tests();
 }
