@@ -21,9 +21,15 @@ http_archive(
 # https://github.com/bazelbuild/rules_cc
 http_archive(
     name = "rules_cc",  # Apache-2.0
-    integrity = "sha256-smFouaE/CUeUmCuDKXXq9TzvxdztWzvn32uLeU3CdEs=",
-    strip_prefix = "rules_cc-0.0.12",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.12/rules_cc-0.0.12.tar.gz",
+    integrity = "sha256-2b3T7Ga2hxRW7JyWWAn0OgkB5pLXVIheiSk4B3YtPYA=",
+    patch_cmds = [
+        # rules_cc depends on protobuf as of 0.0.13, and adding that for rules_cc is silly.
+        # https://github.com/bazelbuild/rules_cc/commit/013a08285803532d9c5de010da51dd45b4cd2722
+        "sed -i'' -e /protobuf/d cc/defs.bzl",
+        "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/' cc/defs.bzl",
+    ],
+    strip_prefix = "rules_cc-0.0.13",
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.13/rules_cc-0.0.13.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
@@ -32,6 +38,13 @@ http_archive(
     integrity = "sha256-5rwhm/rJ4fg7Mn3QkPcoqflz7pm5tdjloYSicy7whiM=",
     strip_prefix = "rules_fuzzing-0.5.2",
     url = "https://github.com/bazelbuild/rules_fuzzing/releases/download/v0.5.2/rules_fuzzing-0.5.2.zip",
+)
+
+# https://github.com/bazelbuild/rules_license
+http_archive(
+    name = "rules_license",  # Apache-2.0
+    sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
+    url = "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_python
@@ -81,18 +94,18 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-dVvX+FpLJpxnrg6iVJB8B41AjM6OGjUq0u1mTSM3gOg=",
-    strip_prefix = "asio-asio-1-30-2",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-30-2.tar.gz",
+    integrity = "sha256-UwVA+XNJjC0pd3GvG8hS9psnUJu7Vrx6wzCckoNzKG8=",
+    strip_prefix = "asio-asio-1-31-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-31-0.tar.gz",
 )
 
-# HEAD as of 2024-09-03.
+# HEAD as of 2024-10-16.
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-RMoVjHrCg7TgQdwAVQQAwyAEGYByPNeB10KbIn2cxOA=",
-    strip_prefix = "boringssl-d4ae47e5884c815c90579fa548ac600f7b9ba12a",
-    url = "https://github.com/google/boringssl/archive/d4ae47e5884c815c90579fa548ac600f7b9ba12a.tar.gz",
+    # integrity = "sha256-RMoVjHrCg7TgQdwAVQQAwyAEGYByPNeB10KbIn2cxOA=",
+    strip_prefix = "boringssl-2587c4974dbe9872451151c8e975f58567a1ce0d",
+    url = "https://github.com/google/boringssl/archive/2587c4974dbe9872451151c8e975f58567a1ce0d.tar.gz",
 )
 
 # https://github.com/google/brotli
@@ -192,18 +205,19 @@ http_archive(
 )
 
 # https://github.com/SFML/imgui-sfml
+# HEAD as of 2024-10-16.
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    integrity = "sha256-BJfOzt904nj4IFAJF1VJvEZyOmODSBpOujTBzD+ORhY=",
+    integrity = "sha256-IQXHW+Dsnuc8+6RgdKfEMAZ1mfaMXOQj0SEcmZ2VldM=",
     patch_cmds = [
         # Use glad for OpenGL instead of the system OpenGL headers.
         "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
         "sed -i'' -e '4i\\\n#include <glad/gl.h>\\\n' imgui-SFML.cpp",
-        "sed -i'' -e '226i\\\n\\\tif (gladLoaderLoadGL() == 0) std::abort();\\\n' imgui-SFML.cpp",
+        "sed -i'' -e '240i\\\n\\\tif (gladLoaderLoadGL() == 0) std::abort();\\\n' imgui-SFML.cpp",
     ],
-    strip_prefix = "imgui-sfml-2a4dc2d33a4891148bb1ab150cfcfd0cb33c2b8c",
-    url = "https://github.com/SFML/imgui-sfml/archive/2a4dc2d33a4891148bb1ab150cfcfd0cb33c2b8c.tar.gz",
+    strip_prefix = "imgui-sfml-560baa9ae707bd6866ac91da04b514519234494a",
+    url = "https://github.com/SFML/imgui-sfml/archive/560baa9ae707bd6866ac91da04b514519234494a.tar.gz",
 )
 
 # https://github.com/simdjson/simdjson
