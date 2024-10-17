@@ -748,6 +748,43 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         return AfterBody{};
     }
 
+    if (end != nullptr && end->tag_name == "html") {
+        if (!a.has_element_in_scope("body")) {
+            // Parse error.
+            return {};
+        }
+
+        auto open_elements = a.names_of_open_elements();
+        if (std::ranges::find_if_not(open_elements, [](auto const &name) {
+                static constexpr auto kAllowedElements = std::to_array<std::string_view>({
+                        "dd",
+                        "dt",
+                        "li",
+                        "optgroup",
+                        "option",
+                        "p",
+                        "rb",
+                        "rp",
+                        "rt",
+                        "rtc",
+                        "tbody",
+                        "td",
+                        "tfoot",
+                        "th",
+                        "thead",
+                        "tr",
+                        "body",
+                        "html",
+                });
+                return is_in_array<kAllowedElements>(name);
+            }) != std::cend(open_elements)) {
+            // Parse error.
+        }
+
+        auto mode_override = current_insertion_mode_override(a, AfterBody{});
+        return AfterBody{}.process(mode_override, token);
+    }
+
     // TODO(robinlinden): Most things.
 
     static constexpr auto kClosesPElements = std::to_array<std::string_view>({
@@ -868,11 +905,6 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    // TODO(robinlinden): Non-spec-compliant hack, remove.
-    if (end != nullptr && end->tag_name == "html") {
-        return {};
-    }
-
     if (end != nullptr) {
         for (auto const name : a.names_of_open_elements()) {
             if (name == end->tag_name) {
@@ -928,7 +960,13 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
 // Incomplete.
-std::optional<InsertionMode> AfterBody::process(IActions &, html2::Token const &) {
+std::optional<InsertionMode> AfterBody::process(IActions &, html2::Token const &token) {
+    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "html") {
+        // TODO(robinlinden): Fragment-parsing stuff.
+        return AfterAfterBody{};
+    }
+
     return {};
 }
 
@@ -996,6 +1034,17 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const
 // Incomplete.
 std::optional<InsertionMode> AfterFrameset::process(IActions &, html2::Token const &) {
     return {};
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-body-insertion-mode
+// Incomplete.
+std::optional<InsertionMode> AfterAfterBody::process(IActions &a, html2::Token const &token) {
+    if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+        return {};
+    }
+
+    auto mode_override = current_insertion_mode_override(a, InBody{});
+    return InBody{}.process(mode_override, token).value_or(InBody{});
 }
 
 } // namespace html2

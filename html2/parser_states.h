@@ -58,8 +58,8 @@ using InsertionMode = std::variant<Initial,
         // InTemplate,
         AfterBody,
         InFrameset,
-        AfterFrameset
-        // AfterAfterBody,
+        AfterFrameset,
+        AfterAfterBody
         // AfterAfterFrameset
         >;
 
@@ -73,7 +73,6 @@ struct InCell {};
 struct InSelect {};
 struct InSelectInTable {};
 struct InTemplate {};
-struct AfterAfterBody {};
 struct AfterAfterFrameset {};
 
 struct Initial {
@@ -117,6 +116,10 @@ struct InFrameset {
 };
 
 struct AfterFrameset {
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+};
+
+struct AfterAfterBody {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 

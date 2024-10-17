@@ -541,6 +541,18 @@ void in_body_tests() {
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         expect_eq(body, dom::Element{"body", {}, {dom::Element{"marquee"}}});
     });
+
+    etest::test("InBody: html end tag, disallowed element", [] {
+        auto res = parse("<body><foo></html>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body, dom::Element{"body", {}, {dom::Element{"foo"}}});
+    });
+
+    etest::test("InBody: html end tag, body not in scope", [] {
+        auto res = parse("<body><marquee></html>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        expect_eq(body, dom::Element{"body", {}, {dom::Element{"marquee"}}});
+    });
 }
 
 void in_frameset_tests() {
