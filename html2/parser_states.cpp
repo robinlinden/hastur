@@ -712,9 +712,43 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
-    // If the stack of open elements has a p element in button scope, then close a p element.
+    if (end != nullptr && end->tag_name == "body") {
+        if (!a.has_element_in_scope("body")) {
+            // Parse error.
+            return {};
+        }
 
-    // Insert an HTML element for the token.
+        auto open_elements = a.names_of_open_elements();
+        if (std::ranges::find_if_not(open_elements, [](auto const &name) {
+                static constexpr auto kAllowedElements = std::to_array<std::string_view>({
+                        "dd",
+                        "dt",
+                        "li",
+                        "optgroup",
+                        "option",
+                        "p",
+                        "rb",
+                        "rp",
+                        "rt",
+                        "rtc",
+                        "tbody",
+                        "td",
+                        "tfoot",
+                        "th",
+                        "thead",
+                        "tr",
+                        "body",
+                        "html",
+                });
+                return is_in_array<kAllowedElements>(name);
+            }) != std::cend(open_elements)) {
+            // Parse error.
+        }
+
+        return AfterBody{};
+    }
+
+    // TODO(robinlinden): Most things.
 
     static constexpr auto kClosesPElements = std::to_array<std::string_view>({
             "address",
@@ -835,7 +869,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     }
 
     // TODO(robinlinden): Non-spec-compliant hack, remove.
-    if (end != nullptr && (end->tag_name == "body" || end->tag_name == "html")) {
+    if (end != nullptr && end->tag_name == "html") {
         return {};
     }
 
@@ -889,6 +923,12 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
         return a.original_insertion_mode();
     }
 
+    return {};
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
+// Incomplete.
+std::optional<InsertionMode> AfterBody::process(IActions &, html2::Token const &) {
     return {};
 }
 

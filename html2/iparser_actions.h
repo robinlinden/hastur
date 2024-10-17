@@ -9,6 +9,8 @@
 #include "html2/token.h"
 #include "html2/tokenizer.h"
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -47,6 +49,34 @@ public:
     virtual std::vector<std::string_view> names_of_open_elements() const = 0;
 
     virtual InsertionMode current_insertion_mode() const = 0;
+
+    template<auto const &array>
+    static constexpr bool is_in_array(std::string_view str) {
+        return std::ranges::find(array, str) != std::cend(array);
+    }
+
+    // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
+    bool has_element_in_scope(std::string_view element_name) const {
+        static constexpr auto kScopeElements = std::to_array<std::string_view>({
+                "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+                // TODO(robinlinden): Add MathML and SVG elements.
+                // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
+                // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
+                // title,
+        });
+
+        for (auto const element : names_of_open_elements()) {
+            if (is_in_array<kScopeElements>(element)) {
+                return false;
+            }
+
+            if (element == element_name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
     bool has_element_in_button_scope(std::string_view element_name) const {
