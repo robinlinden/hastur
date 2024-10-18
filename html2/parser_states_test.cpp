@@ -446,6 +446,30 @@ void in_body_tests() {
         expect_eq(actual_body, dom::Element{"body", {}, {dom::Element{"title", {}, {dom::Text{"<html>&"}}}}});
     });
 
+    etest::test("InBody: <p> shielded by <button>", [] {
+        auto res = parse("<p><button><address>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto expected = dom::Element{
+                "body",
+                {},
+                {dom::Element{"p", {}, {dom::Element{"button", {}, {dom::Element{"address"}}}}}},
+        };
+
+        expect_eq(body, expected);
+    });
+
+    etest::test("InBody: <p> shielded by <marquee>", [] {
+        auto res = parse("<p><marquee><address>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto expected = dom::Element{
+                "body",
+                {},
+                {dom::Element{"p", {}, {dom::Element{"marquee", {}, {dom::Element{"address"}}}}}},
+        };
+
+        expect_eq(body, expected);
+    });
+
     etest::test("InBody: template end tag", [] {
         auto res = parse("<body></template>", {});
         auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
