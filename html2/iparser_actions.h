@@ -80,8 +80,16 @@ public:
 
     // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
     bool has_element_in_button_scope(std::string_view element_name) const {
+        static constexpr auto kScopeElements = std::to_array<std::string_view>({
+                "button", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+                // TODO(robinlinden): Add MathML and SVG elements.
+                // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
+                // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
+                // title,
+        });
+
         for (auto const element : names_of_open_elements()) {
-            if (element == "button") {
+            if (is_in_array<kScopeElements>(element)) {
                 return false;
             }
 
