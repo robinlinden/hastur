@@ -142,6 +142,9 @@ public:
     Value operator()(WhileStatement const &v) {
         while (execute(v.test).as_bool()) {
             execute(*v.body);
+            if (returning) {
+                break;
+            }
         }
 
         return Value{};
