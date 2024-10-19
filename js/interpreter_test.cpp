@@ -158,6 +158,28 @@ int main() {
         expect_eq(e.execute(call), Value{});
     });
 
+    etest::test("return, function execution is ended even in while", [] {
+        auto declaration = FunctionDeclaration{
+                .id = Identifier{"func"},
+                .function = std::make_shared<Function>(Function{
+                        .params{},
+                        .body{{
+                                WhileStatement{
+                                        .test = NumericLiteral{1},
+                                        .body = std::make_shared<Statement>(ReturnStatement{NumericLiteral{37.}}),
+                                },
+                                ReturnStatement{NumericLiteral{42.}},
+                        }},
+                }),
+        };
+
+        auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
+
+        Interpreter e;
+        expect_eq(e.execute(declaration), Value{});
+        expect_eq(e.execute(call), Value{37.});
+    });
+
     etest::test("expression statement", [] {
         Interpreter e;
         expect_eq(e.execute(ExpressionStatement{StringLiteral{"hi"}}), Value{"hi"});
