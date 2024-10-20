@@ -99,8 +99,8 @@ jobs:
           - compiler: gcc
             version: 13
           - compiler: clang
-            version: 18
-            bazel: --config=clang18-coverage
+            version: 19
+            bazel: --config=clang19-coverage
     steps:
       - uses: actions/checkout@v4
         with:
@@ -120,15 +120,18 @@ jobs:
       - name: Setup (clang)
         if: startsWith(matrix.compiler, 'clang')
         run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
           sudo apt-get update
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
-          echo "CC=clang-18" >> $GITHUB_ENV
-          echo "CXX=clang++-18" >> $GITHUB_ENV
+          echo "CC=clang-19" >> $GITHUB_ENV
+          echo "CXX=clang++-19" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
-      - name: Summary
-        run: lcov --summary bazel-out/_coverage/_coverage_report.dat
+      # clang 19 coverage has a lot of problems w/ boringssl:
+      # lcov: ERROR: "external/boringssl/crypto/conf/internal.h":30:  function conf.c:lh_CONF_VALUE_insert found on line but no corresponding 'line' coverage data point.  Cannot derive function end line.
+      - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
