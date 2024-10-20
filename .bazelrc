@@ -107,10 +107,6 @@ build:clang-coverage
 build:clang-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
 build:clang-coverage --experimental_generate_llvm_lcov
 
-build:clang16-coverage --config=clang-coverage
-build:clang16-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-16
-build:clang16-coverage --action_env=GCOV=llvm-profdata-16
-
 build:clang18-coverage --config=clang-coverage
 build:clang18-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-18
 build:clang18-coverage --action_env=GCOV=llvm-profdata-18
