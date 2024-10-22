@@ -103,7 +103,7 @@ http_archive(
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    # integrity = "sha256-RMoVjHrCg7TgQdwAVQQAwyAEGYByPNeB10KbIn2cxOA=",
+    integrity = "sha256-Bck9fFokVgIe25wHZHQrnkTTRYMSfjhKiLjff5jGNeA=",
     strip_prefix = "boringssl-2587c4974dbe9872451151c8e975f58567a1ce0d",
     url = "https://github.com/google/boringssl/archive/2587c4974dbe9872451151c8e975f58567a1ce0d.tar.gz",
 )
