@@ -155,6 +155,23 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
         return it != element.attributes.end() && it->second == selector_;
     }
 
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors
+    if (selector_.starts_with('[') && selector_.contains(']')) {
+        selector_.remove_prefix(1);
+        auto [attr, rest] = util::split_once(selector_, "]");
+        if (!rest.empty() && !is_match(node, rest)) {
+            return false;
+        }
+
+        auto [key, value] = util::split_once(attr, "=");
+        if (value.empty()) {
+            return element.attributes.contains(key);
+        }
+
+        auto it = element.attributes.find(key);
+        return it != element.attributes.end() && it->second == value;
+    }
+
     return false;
 }
 

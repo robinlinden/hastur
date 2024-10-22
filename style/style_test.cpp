@@ -86,6 +86,24 @@ void important_declarations_tests(etest::Suite &s) {
                 });
     });
 }
+
+void attribute_selector_matching(etest::Suite &s) {
+    s.add_test("is_match: attribute selector", [](etest::IActions &a) {
+        a.expect(is_match(dom::Element{"p", {{"a", "b"}}}, "[a]"sv));
+        a.expect(!is_match(dom::Element{"p", {{"a", "b"}}}, "[a"sv));
+        a.expect(!is_match(dom::Element{"p"}, "[a]"sv));
+
+        a.expect(is_match(dom::Element{"p", {{"a", "b"}}}, "[a=b]"sv));
+        a.expect(!is_match(dom::Element{"p", {{"a", "b"}}}, "[a=c]"sv));
+
+        a.expect(is_match(dom::Element{"p", {{"a", "b"}, {"c", "d"}}}, "[a=b][c=d]"sv));
+        a.expect(is_match(dom::Element{"p", {{"a", "b"}, {"c", "d"}}}, "[a=b][c]"sv));
+        a.expect(is_match(dom::Element{"p", {{"a", "b"}, {"c", "d"}}}, "[a][c]"sv));
+        a.expect(!is_match(dom::Element{"p", {{"a", "b"}, {"c", "d"}}}, "[a=b][c=g]"sv));
+        a.expect(!is_match(dom::Element{"p", {{"a", "b"}, {"c", "d"}}}, "[a=b][d]"sv));
+        a.expect(!is_match(dom::Element{"p", {{"a", "b"}}}, "[a][c]"sv));
+    });
+}
 } // namespace
 
 int main() {
@@ -335,6 +353,7 @@ int main() {
 
     inline_css_tests(s);
     important_declarations_tests(s);
+    attribute_selector_matching(s);
 
     return s.run();
 }
