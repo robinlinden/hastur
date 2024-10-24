@@ -94,9 +94,9 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-UwVA+XNJjC0pd3GvG8hS9psnUJu7Vrx6wzCckoNzKG8=",
-    strip_prefix = "asio-asio-1-31-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-31-0.tar.gz",
+    integrity = "sha256-8blLgO6wC7Y6PIzvUEfU5AnfTYo/5QIwWXaWWCfZVnI=",
+    strip_prefix = "asio-asio-1-32-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz",
 )
 
 # HEAD as of 2024-10-16.
@@ -199,9 +199,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-KZSdezAMMFZfvNZjmBACNbY6o3Os/uC3aFOnrqzRvig=",
-    strip_prefix = "imgui-1.91.3",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.3.tar.gz",
+    integrity = "sha256-pFXCjZh8eN31aquYzg/w/aeRojouyIreRt0Qa4N/CSM=",
+    strip_prefix = "imgui-1.91.4",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.4.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -266,9 +266,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-vGzPCL7Aj+qO9CPHEX3KBtL2LSsnxUhfaGVYS1M/p/o=",
-    strip_prefix = "stb-f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31",
-    url = "https://github.com/nothings/stb/archive/f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31.tar.gz",
+    integrity = "sha256-TcL/psbI2Kgw6S/NuX+JgXAcIpZV331g5vwP9Oa0v2Y=",
+    strip_prefix = "stb-2e2bef463a5b53ddf8bb788e25da6b8506314c08",
+    url = "https://github.com/nothings/stb/archive/2e2bef463a5b53ddf8bb788e25da6b8506314c08.tar.gz",
 )
 
 # https://www.unicode.org/Public/
@@ -288,13 +288,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.3.297"
+VULKAN_TAG = "1.3.299"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-HWeeLtxDy3rYGLgd6pYON08dbdCCMl65tMYRPnYmPAI=",
+    integrity = "sha256-lbuP5zFGm54b5TK507TX0z4o3b2ZqSbafw7KgqE0uS8=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -303,7 +303,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-B0lw2PsPXl8/3EfxXf2pyIBf95w87NGEDOIYrrRSZII=",
+    integrity = "sha256-2UwpBJrOLbZg3+hpDA2mKce4JumlTliByNN0tqJQu6s=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -321,17 +321,13 @@ http_archive(
     url = "https://github.com/web-platform-tests/wpt/archive/13861f4a19afa26daa9e2a4ca2dcce82fc2e1236.tar.gz",
 )
 
-# The freedesktop GitLab goes down too often to be trusted.
 # https://gitlab.freedesktop.org/xorg/lib/libxcursor
 http_archive(
     name = "xcursor",  # MIT
     build_file = "//third_party:xcursor.BUILD",
     integrity = "sha256-m3DxifDxfAHudBII/B6zXbFqAb/u9iR7+XBUF5m0yVo=",
     strip_prefix = "libxcursor-libXcursor-1.2.2",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.2/libxcursor-libXcursor-1.2.2.tar.gz",
-        # TODO(robinlinden): Mirror.
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.2/libxcursor-libXcursor-1.2.2.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxext
@@ -340,10 +336,7 @@ http_archive(
     build_file = "//third_party:xext.BUILD",
     integrity = "sha256-TkjqJxtfU8M4YBim4CY0VP5YKkE/zgJzreYB+/6eDHI=",
     strip_prefix = "libxext-libXext-1.3.6",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.6/libxext-libXext-1.3.6.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxext/archive/refs/tags/libXext-1.3.6.tar.gz",
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.6/libxext-libXext-1.3.6.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxrandr
@@ -352,10 +345,7 @@ http_archive(
     build_file = "//third_party:xrandr.BUILD",
     sha256 = "a1909cbe9ded94187b6420ae8c347153f8278955265cb80a64cdae5501433396",
     strip_prefix = "libxrandr-libXrandr-1.5.4",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.4/libxrandr-libXrandr-1.5.4.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxrandr/archive/libXrandr-1.5.4.tar.gz",
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.4/libxrandr-libXrandr-1.5.4.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxrender
@@ -364,10 +354,7 @@ http_archive(
     build_file = "//third_party:xrender.BUILD",
     sha256 = "4cd5aca5b948a80bb7c3d5060eb97b8a8199234c0c19fe34d35c5c838923230b",
     strip_prefix = "libxrender-libXrender-0.9.11",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxrender/archive/refs/tags/libXrender-0.9.11.tar.gz",
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
 )
 
 # https://github.com/madler/zlib
@@ -446,8 +433,3 @@ fuzzing_py_deps_install_deps()
 load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
 
 zig_toolchains()
-
-# hedron_compile_commands
-load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
-
-hedron_compile_commands_setup()
