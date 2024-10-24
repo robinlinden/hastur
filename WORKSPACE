@@ -94,9 +94,9 @@ http_archive(
 http_archive(
     name = "asio",  # BSL-1.0
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-UwVA+XNJjC0pd3GvG8hS9psnUJu7Vrx6wzCckoNzKG8=",
-    strip_prefix = "asio-asio-1-31-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-31-0.tar.gz",
+    integrity = "sha256-8blLgO6wC7Y6PIzvUEfU5AnfTYo/5QIwWXaWWCfZVnI=",
+    strip_prefix = "asio-asio-1-32-0",
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz",
 )
 
 # HEAD as of 2024-10-16.
@@ -199,9 +199,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-KZSdezAMMFZfvNZjmBACNbY6o3Os/uC3aFOnrqzRvig=",
-    strip_prefix = "imgui-1.91.3",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.3.tar.gz",
+    integrity = "sha256-pFXCjZh8eN31aquYzg/w/aeRojouyIreRt0Qa4N/CSM=",
+    strip_prefix = "imgui-1.91.4",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.4.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -266,9 +266,9 @@ http_archive(
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-vGzPCL7Aj+qO9CPHEX3KBtL2LSsnxUhfaGVYS1M/p/o=",
-    strip_prefix = "stb-f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31",
-    url = "https://github.com/nothings/stb/archive/f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31.tar.gz",
+    integrity = "sha256-TcL/psbI2Kgw6S/NuX+JgXAcIpZV331g5vwP9Oa0v2Y=",
+    strip_prefix = "stb-2e2bef463a5b53ddf8bb788e25da6b8506314c08",
+    url = "https://github.com/nothings/stb/archive/2e2bef463a5b53ddf8bb788e25da6b8506314c08.tar.gz",
 )
 
 # https://www.unicode.org/Public/
@@ -288,13 +288,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.3.297"
+VULKAN_TAG = "1.3.299"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-HWeeLtxDy3rYGLgd6pYON08dbdCCMl65tMYRPnYmPAI=",
+    integrity = "sha256-lbuP5zFGm54b5TK507TX0z4o3b2ZqSbafw7KgqE0uS8=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -303,7 +303,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-B0lw2PsPXl8/3EfxXf2pyIBf95w87NGEDOIYrrRSZII=",
+    integrity = "sha256-2UwpBJrOLbZg3+hpDA2mKce4JumlTliByNN0tqJQu6s=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
