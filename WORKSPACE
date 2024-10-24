@@ -433,8 +433,3 @@ fuzzing_py_deps_install_deps()
 load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
 
 zig_toolchains()
-
-# hedron_compile_commands
-load("@hedron_compile_commands//:workspace_setup.bzl", "hedron_compile_commands_setup")
-
-hedron_compile_commands_setup()
