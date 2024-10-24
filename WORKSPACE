@@ -321,17 +321,13 @@ http_archive(
     url = "https://github.com/web-platform-tests/wpt/archive/13861f4a19afa26daa9e2a4ca2dcce82fc2e1236.tar.gz",
 )
 
-# The freedesktop GitLab goes down too often to be trusted.
 # https://gitlab.freedesktop.org/xorg/lib/libxcursor
 http_archive(
     name = "xcursor",  # MIT
     build_file = "//third_party:xcursor.BUILD",
     integrity = "sha256-m3DxifDxfAHudBII/B6zXbFqAb/u9iR7+XBUF5m0yVo=",
     strip_prefix = "libxcursor-libXcursor-1.2.2",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.2/libxcursor-libXcursor-1.2.2.tar.gz",
-        # TODO(robinlinden): Mirror.
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.2/libxcursor-libXcursor-1.2.2.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxext
@@ -340,10 +336,7 @@ http_archive(
     build_file = "//third_party:xext.BUILD",
     integrity = "sha256-TkjqJxtfU8M4YBim4CY0VP5YKkE/zgJzreYB+/6eDHI=",
     strip_prefix = "libxext-libXext-1.3.6",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.6/libxext-libXext-1.3.6.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxext/archive/refs/tags/libXext-1.3.6.tar.gz",
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.6/libxext-libXext-1.3.6.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxrandr
@@ -352,10 +345,7 @@ http_archive(
     build_file = "//third_party:xrandr.BUILD",
     sha256 = "a1909cbe9ded94187b6420ae8c347153f8278955265cb80a64cdae5501433396",
     strip_prefix = "libxrandr-libXrandr-1.5.4",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.4/libxrandr-libXrandr-1.5.4.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxrandr/archive/libXrandr-1.5.4.tar.gz",
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrandr/-/archive/libXrandr-1.5.4/libxrandr-libXrandr-1.5.4.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxrender
@@ -364,10 +354,7 @@ http_archive(
     build_file = "//third_party:xrender.BUILD",
     sha256 = "4cd5aca5b948a80bb7c3d5060eb97b8a8199234c0c19fe34d35c5c838923230b",
     strip_prefix = "libxrender-libXrender-0.9.11",
-    urls = [
-        "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
-        "https://github.com/gitlab-freedesktop-mirrors/libxrender/archive/refs/tags/libXrender-0.9.11.tar.gz",
-    ],
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
 )
 
 # https://github.com/madler/zlib
