@@ -1,10 +1,10 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
-py_binary(
+cc_binary(
     name = "idna_data_processor",
-    srcs = ["idna_data_processor.py"],
+    srcs = ["idna_data_processor.cpp"],
+    deps = ["//util:string"],
 )
 
 genrule(
@@ -17,10 +17,7 @@ genrule(
 
 cc_library(
     name = "idna",
-    srcs = glob(
-        include = ["*.cpp"],
-        exclude = ["*_test.cpp"],
-    ),
+    srcs = ["uts46.cpp"],
     hdrs = glob(["*.h"]) + [
         ":generate_idna_data",
     ],
