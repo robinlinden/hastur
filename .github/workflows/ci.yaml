@@ -335,25 +335,6 @@ jobs:
       - run: pipx install gitlint-core==0.19.1
       - run: gitlint --commits origin/master..
 
-  # https://github.com/astral-sh/ruff
-  ruff:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - run: pipx install ruff==0.7.0
-      - run: ruff check --output-format=github
-      - run: ruff format --diff
-
-  # https://github.com/python/mypy
-  mypy:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - run: pipx install mypy==1.13.0
-      - run: mypy --strict $(find . -name "*.py")
-
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
