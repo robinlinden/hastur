@@ -18,6 +18,7 @@
 #include <array>
 #include <cassert>
 #include <charconv>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -246,8 +247,7 @@ std::optional<std::string_view> try_parse_font_stretch(Tokenizer &tokenizer) {
 
 // Not in header order, but must be defined before Parser::parse_rules() that
 // uses this.
-template<Predicate T>
-constexpr std::optional<std::string_view> Parser::consume_while(T const &pred) {
+constexpr std::optional<std::string_view> Parser::consume_while(std::predicate<char> auto const &pred) {
     std::size_t start = pos_;
     while (!is_eof() && pred(input_[pos_])) {
         ++pos_;

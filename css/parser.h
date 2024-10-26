@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -20,9 +20,6 @@
 
 namespace css {
 
-template<typename T>
-concept Predicate = std::predicate<T, char>;
-
 class Parser {
 public:
     explicit Parser(std::string_view input) : input_{input} {}
@@ -42,8 +39,7 @@ private:
     constexpr void skip_if_neq(char);
     constexpr std::optional<char> consume_char();
 
-    template<Predicate T>
-    constexpr std::optional<std::string_view> consume_while(T const &pred);
+    constexpr std::optional<std::string_view> consume_while(std::predicate<char> auto const &);
 
     constexpr void skip_whitespace();
 
