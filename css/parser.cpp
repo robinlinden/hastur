@@ -434,7 +434,7 @@ std::optional<css::Rule> Parser::parse_rule() {
 
     while (peek() != '}') {
         // TODO(robinlinden): This doesn't get along with nested rules like
-        // `foo // { bar:baz { font-size: 3em; } }`
+        // `foo { bar:baz { font-size: 3em; } }`
         // due to the assumption that "ascii:" always is a CSS property name.
         auto nested_rule_or_declaration_name = consume_while([](char c) { return c != ':' && c != '{'; });
         if (!nested_rule_or_declaration_name || nested_rule_or_declaration_name->empty()) {
