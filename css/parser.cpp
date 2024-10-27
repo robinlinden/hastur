@@ -441,7 +441,10 @@ std::optional<css::Rule> Parser::parse_rule() {
             return std::nullopt;
         }
 
-        if (peek() == '{') {
+        // If a name starts w/ any of these, it's likely a nested rule w/ : as
+        // part of the selector, e.g. &:hover { ... }. This isn't great, but
+        // we're dropping this parser in favour of the css2 one soon(tm).
+        if (peek() == '{' || std::string_view{".#>&[|+~:"}.contains(nested_rule_or_declaration_name->front())) {
             // TODO(robinlinden): Nested rule. Skip over it for now.
             pos_ -= nested_rule_or_declaration_name->size();
             if (auto nested_rule = parse_rule()) {

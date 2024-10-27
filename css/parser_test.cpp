@@ -1238,6 +1238,19 @@ int main() {
                 });
     });
 
+    s.add_test("parser: nested rule, : in name", [](etest::IActions &a) {
+        a.expect_eq(css::parse("p { color: green; &:hover { font-size: 3px; } font-size: 5px; }").rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{"p"}},
+                                .declarations{
+                                        {css::PropertyId::Color, "green"},
+                                        {css::PropertyId::FontSize, "5px"},
+                                },
+                        },
+                });
+    });
+
     s.add_test("parser: eof in nested rule", [](etest::IActions &a) {
         a.expect(css::parse("p { color: green; a { font-size: 3px; ").rules.empty()); //
     });
