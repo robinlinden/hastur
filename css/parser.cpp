@@ -463,6 +463,8 @@ std::optional<css::Rule> Parser::parse_rule() {
         auto [name, value] = *decl;
         if (name.starts_with("--")) {
             rule.custom_properties.insert_or_assign(std::string{name}, value);
+        } else if (!util::is_alpha(name.front())) {
+            spdlog::warn("Ignoring unknown property: '{}'", name);
         } else if (value.ends_with("!important")) {
             value.remove_suffix(std::strlen("!important"));
             add_declaration(rule.important_declarations, name, util::trim(value));

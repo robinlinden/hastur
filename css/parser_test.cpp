@@ -1243,8 +1243,7 @@ int main() {
     });
 
     s.add_test("parser: -webkit-lol", [](etest::IActions &a) {
-        a.expect_eq(css::parse("p { -webkit-font-size: 3px; }").rules.at(0).declarations,
-                std::map<css::PropertyId, std::string>{{css::PropertyId::Unknown, "3px"}});
+        a.expect(css::parse("p { -webkit-font-size: 3px; }").rules.at(0).declarations.empty()); //
     });
 
     s.add_test("parser: @charset", [](etest::IActions &a) {
