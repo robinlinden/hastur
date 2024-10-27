@@ -1260,5 +1260,14 @@ int main() {
                 css::Rule{{"p"}, {{css::PropertyId::FontSize, "3px"}}});
     });
 
+    s.add_test("parser: IE hacks don't break things", [](etest::IActions &a) {
+        auto rules = css::parse("p { font-size: 3px; *font-size: 5px; } a { color: green; }").rules;
+        a.expect_eq(rules,
+                std::vector{
+                        css::Rule{{"p"}, {{css::PropertyId::FontSize, "3px"}}},
+                        css::Rule{{"a"}, {{css::PropertyId::Color, "green"}}},
+                });
+    });
+
     return s.run();
 }

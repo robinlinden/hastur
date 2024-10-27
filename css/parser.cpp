@@ -441,9 +441,7 @@ std::optional<css::Rule> Parser::parse_rule() {
             return std::nullopt;
         }
 
-        if (peek() == '{'
-                || (!util::is_alpha(nested_rule_or_declaration_name->front())
-                        && nested_rule_or_declaration_name->front() != '-')) {
+        if (peek() == '{') {
             // TODO(robinlinden): Nested rule. Skip over it for now.
             pos_ -= nested_rule_or_declaration_name->size();
             if (auto nested_rule = parse_rule()) {
