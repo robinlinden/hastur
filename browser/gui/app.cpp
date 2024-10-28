@@ -290,6 +290,13 @@ void App::step() {
             }
 
             switch (key_pressed->code) {
+                case sf::Keyboard::Key::D: {
+                    if (!key_pressed->control) {
+                        break;
+                    }
+                    scroll(-static_cast<int>(window_.getSize().y) / 2);
+                    break;
+                }
                 case sf::Keyboard::Key::J: {
                     scroll(key_pressed->shift ? -20 : -5);
                     break;
@@ -303,6 +310,13 @@ void App::step() {
                         break;
                     }
                     focus_url_input();
+                    break;
+                }
+                case sf::Keyboard::Key::U: {
+                    if (!key_pressed->control) {
+                        break;
+                    }
+                    scroll(static_cast<int>(window_.getSize().y) / 2);
                     break;
                 }
                 case sf::Keyboard::Key::F1: {
