@@ -49,7 +49,7 @@ The following assumes that you either have Bazel or Bazelisk under the name
 
 #### Generate json compilation database
 
-`bazel run refresh_compile_commands`
+`bazel run refresh_compile_commands --@rules_python//python/config_settings:bootstrap_impl=system_python`
 
 ### Misc
 
