@@ -13,13 +13,17 @@
 #include <cstdint>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <utility>
 #include <variant>
 
 namespace css {
+
+class MediaQuery;
 
 enum class ColorScheme : std::uint8_t {
     Light,
@@ -40,6 +44,14 @@ struct Context {
     ColorScheme color_scheme{ColorScheme::Light};
     MediaType media_type{MediaType::Screen};
 };
+
+struct And;
+struct False;
+struct PrefersColorScheme;
+struct True;
+struct Type;
+struct Width;
+using Query = std::variant<And, False, PrefersColorScheme, True, Type, Width>;
 
 struct False {
     [[nodiscard]] bool operator==(False const &) const = default;
@@ -75,10 +87,21 @@ struct Width {
     constexpr bool evaluate(Context const &ctx) const { return min <= ctx.window_width && ctx.window_width <= max; }
 };
 
+struct And {
+    // TODO(robinlinden): shared_ptr here is sad, but we stick this in
+    // std::vector, so it needs to be copyable for now.
+    std::shared_ptr<MediaQuery> lhs{};
+    std::shared_ptr<MediaQuery> rhs{};
+    [[nodiscard]] inline bool operator==(And const &other) const;
+
+    inline bool evaluate(Context const &) const;
+};
+
 } // namespace detail
 
 class MediaQuery {
 public:
+    using And = detail::And;
     using Context = detail::Context;
     using False = detail::False;
     using PrefersColorScheme = detail::PrefersColorScheme;
@@ -86,12 +109,30 @@ public:
     using Type = detail::Type;
     using Width = detail::Width;
 
-    using Query = std::variant<False, PrefersColorScheme, True, Type, Width>;
+    using Query = detail::Query;
     Query query{};
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
     // https://drafts.csswg.org/mediaqueries/#mq-syntax
-    static constexpr std::optional<MediaQuery> parse(std::string_view s) {
+    // NOLINTNEXTLINE(misc-no-recursion)
+    static std::optional<MediaQuery> parse(std::string_view s) {
+        if (auto and_pos = s.find(" and "); and_pos != std::string_view::npos) {
+            auto lhs = parse(s.substr(0, and_pos));
+            if (!lhs) {
+                return std::nullopt;
+            }
+
+            auto rhs = parse(s.substr(and_pos + 5));
+            if (!rhs) {
+                return std::nullopt;
+            }
+
+            return MediaQuery{And{
+                    .lhs = std::make_shared<MediaQuery>(std::move(*lhs)),
+                    .rhs = std::make_shared<MediaQuery>(std::move(*rhs)),
+            }};
+        }
+
         if (s == "all" || s == "only all") {
             return MediaQuery{True{}};
         }
@@ -180,6 +221,16 @@ private:
     }
 };
 
+inline bool detail::And::operator==(And const &other) const {
+    assert(lhs && rhs);
+    return *lhs == *other.lhs && *rhs == *other.rhs;
+}
+
+inline bool detail::And::evaluate(Context const &ctx) const {
+    assert(lhs && rhs);
+    return lhs->evaluate(ctx) && rhs->evaluate(ctx);
+}
+
 inline std::string to_string(MediaQuery::Width const &width) {
     return std::to_string(width.min) + " <= width <= " + std::to_string(width.max);
 }
@@ -200,8 +251,14 @@ constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {
     return q.color_scheme == ColorScheme::Light ? "prefers-color-scheme: light" : "prefers-color-scheme: dark";
 }
 
+constexpr std::string to_string(MediaQuery::And const &);
+
 constexpr std::string to_string(MediaQuery const &query) {
     return std::visit([](auto const &q) { return to_string(q); }, query.query);
+}
+
+constexpr std::string to_string(MediaQuery::And const &q) {
+    return to_string(*q.lhs) + " and " + to_string(*q.rhs);
 }
 
 } // namespace css
