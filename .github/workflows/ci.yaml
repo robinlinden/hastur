@@ -188,7 +188,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14
           - os: macos-15
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
