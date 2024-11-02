@@ -92,15 +92,15 @@ public:
 
     // https://drafts.csswg.org/mediaqueries/#mq-syntax
     static constexpr std::optional<MediaQuery> parse(std::string_view s) {
-        if (s == "all") {
+        if (s == "all" || s == "only all") {
             return MediaQuery{True{}};
         }
 
-        if (s == "print") {
+        if (s == "print" || s == "only print") {
             return MediaQuery{Type{.type = MediaType::Print}};
         }
 
-        if (s == "screen") {
+        if (s == "screen" || s == "only screen") {
             return MediaQuery{Type{.type = MediaType::Screen}};
         }
 

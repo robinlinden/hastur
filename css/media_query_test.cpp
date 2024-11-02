@@ -119,6 +119,14 @@ void type_tests(etest::Suite &s) {
         a.expect_eq(css::MediaQuery::parse("screen"),
                 css::MediaQuery{css::MediaQuery::Type{.type = css::MediaType::Screen}} //
         );
+        a.expect_eq(css::MediaQuery::parse("only all"), css::MediaQuery{css::MediaQuery::True{}});
+
+        a.expect_eq(css::MediaQuery::parse("only print"),
+                css::MediaQuery{css::MediaQuery::Type{.type = css::MediaType::Print}} //
+        );
+        a.expect_eq(css::MediaQuery::parse("only screen"),
+                css::MediaQuery{css::MediaQuery::Type{.type = css::MediaType::Screen}} //
+        );
 
         a.expect_eq(css::MediaQuery::parse("asdf"), std::nullopt);
 
