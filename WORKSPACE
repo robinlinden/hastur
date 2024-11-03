@@ -177,15 +177,23 @@ http_archive(
 http_archive(
     name = "icu",  # Unicode-DFS-2016
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-kl5rS4z4hW4KwhT2804w3uY7e7elBGCrRgOVDv9I+J4=",
+    integrity = "sha256-osRDQE8ACY6ekKzyncMY4EnS3HjZrl9G77Jhk0pzDOI=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
         "rm source/tools/toolutil/BUILD.bazel",
         "rm source/i18n/BUILD.bazel",
+
+        # icu 76.1's https://github.com/unicode-org/icu/commit/66ba09973a4231711b6de0de042f4e532b1873e5
+        # causes pkgdata to segfault due to faulty-looking platform detection.
+        # WINDOWS_WITH_MSVC is defined by icu, meaning that
+        # pkg_createOptMatchArch never sets the arch to anything, and the
+        # nullptr arch is later used like strcmp(nullptr, "x64") in
+        # getArchitecture, so let's hack out their fixes.
+        "sed -i'' -e 's/if defined(__clang__)/if 0/' source/tools/toolutil/pkg_genc.cpp",
     ],
-    strip_prefix = "icu-release-75-1/icu4c",
-    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-75-1.tar.gz",
+    strip_prefix = "icu-release-76-1/icu4c",
+    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-76-1.tar.gz",
 )
 
 # https://www.unicode.org/Public/idna/
