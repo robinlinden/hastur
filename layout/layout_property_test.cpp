@@ -34,7 +34,7 @@ void expect_property_eq(etest::IActions &a,
     };
 
     if (value) {
-        styled_node.properties.push_back({IdT, *std::move(value)});
+        styled_node.properties.emplace_back(IdT, *std::move(value));
     }
 
     auto layout = layout::create_layout(styled_node, 123);

@@ -424,7 +424,7 @@ std::optional<css::Rule> Parser::parse_rule() {
             return std::nullopt;
         }
 
-        rule.selectors.push_back(std::string{util::trim(*selector)});
+        rule.selectors.emplace_back(util::trim(*selector));
         skip_if_neq('{'); // ' ' or ','
         skip_whitespace_and_comments();
     }

@@ -18,7 +18,7 @@ namespace {
 void expect_tokens(std::string_view input,
         std::vector<Token> tokens,
         std::source_location const &loc = std::source_location::current()) {
-    tokens.push_back(Eof{});
+    tokens.emplace_back(Eof{});
     etest::expect_eq(tokenize(input), tokens, std::nullopt, loc);
 }
 

@@ -13,9 +13,6 @@
 #
 # -misc-const-correctness: Consts some things that can't be const, and very very noisy.
 #
-# -modernize-use-emplace: Clang doesn't implement p0960 yet, and we're not
-# adding c-tors to all our structs.
-#
 # -modernize-use-nodiscard: Very noisy, and probably more meaningful if we only
 # add it where it matters.
 #
@@ -71,7 +68,6 @@ Checks: >
   -cppcoreguidelines-special-member-functions,
   -google-build-using-namespace,
   -misc-const-correctness,
-  -modernize-use-emplace,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -readability-container-data-pointer,

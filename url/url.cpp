@@ -1042,7 +1042,7 @@ void UrlParser::state_path_start() {
             back(1);
         }
     } else if (state_override_.has_value() && !url_.host.has_value()) {
-        std::get<1>(url_.path).push_back("");
+        std::get<1>(url_.path).emplace_back("");
     }
 }
 
@@ -1059,11 +1059,11 @@ void UrlParser::state_path() {
             shorten_url_path(url_);
 
             if (c != '/' && !(special_schemes.contains(url_.scheme) && c == '\\')) {
-                std::get<1>(url_.path).push_back("");
+                std::get<1>(url_.path).emplace_back("");
             }
         } else if ((buffer_ == "." || util::lowercased(buffer_) == "%2e")
                 && (c != '/' && !(special_schemes.contains(url_.scheme) && c == '\\'))) {
-            std::get<1>(url_.path).push_back("");
+            std::get<1>(url_.path).emplace_back("");
         } else if (buffer_ != "." && util::lowercased(buffer_) != "%2e") {
             if (url_.scheme == "file" && std::get<1>(url_.path).empty() && is_windows_drive_letter(buffer_)) {
                 buffer_[1] = ':';

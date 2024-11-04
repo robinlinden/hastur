@@ -1934,7 +1934,7 @@ int main() {
         expect_eq(layout.dimensions.border_box().width, 1000);
         expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
 
-        style.properties.push_back({css::PropertyId::MaxWidth, "asdf"});
+        style.properties.emplace_back(css::PropertyId::MaxWidth, "asdf");
         layout = layout::create_layout(style, 1000).value();
         expect_eq(layout.dimensions.border_box().width, 1000);
         expect_eq(layout.children.at(0).dimensions.border_box().width, 100);

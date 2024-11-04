@@ -177,7 +177,7 @@ int main() {
         expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
 
         // "color: currentcolor" should be treated as inherit.
-        child.properties.push_back({css::PropertyId::Color, "currentcolor"s});
+        child.properties.emplace_back(css::PropertyId::Color, "currentcolor"s);
         expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
     });
 

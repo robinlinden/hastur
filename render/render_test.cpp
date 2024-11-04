@@ -335,7 +335,7 @@ int main() {
                 });
 
         styled.properties[0].second = "underline";
-        styled.properties.push_back({css::PropertyId::FontStyle, "italic"});
+        styled.properties.emplace_back(css::PropertyId::FontStyle, "italic");
 
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
@@ -367,7 +367,7 @@ int main() {
                         },
                 });
 
-        styled.properties.push_back({css::PropertyId::FontWeight, "bold"});
+        styled.properties.emplace_back(css::PropertyId::FontWeight, "bold");
 
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
@@ -531,7 +531,7 @@ int main() {
         expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
 
         // Body background.
-        styled.children[0].properties.push_back({css::PropertyId::BackgroundColor, "#abc"});
+        styled.children[0].properties.emplace_back(css::PropertyId::BackgroundColor, "#abc");
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
                 CanvasCommands{
@@ -540,7 +540,7 @@ int main() {
                 });
 
         // Html background.
-        styled.properties.push_back({css::PropertyId::BackgroundColor, "#123"});
+        styled.properties.emplace_back(css::PropertyId::BackgroundColor, "#123");
         render::render_layout(saver, layout);
         expect_eq(saver.take_commands(),
                 CanvasCommands{

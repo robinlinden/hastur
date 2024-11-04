@@ -170,7 +170,7 @@ void InstValidator::push_vals(std::vector<ValueType> const &vals) {
     value_stack.reserve(value_stack.size() + vals.size());
 
     for (ValueType const &val : vals) {
-        value_stack.push_back(val);
+        value_stack.emplace_back(val);
     }
 }
 
