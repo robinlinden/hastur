@@ -250,8 +250,7 @@ void style_tree_impl(StyledNode &current,
 
 std::unique_ptr<StyledNode> style_tree(
         dom::Node const &root, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
-    // TODO(robinlinden): std::make_unique once Clang supports it (C++20/p0960). Not supported as of Clang 14.
-    auto tree_root = std::unique_ptr<StyledNode>(new StyledNode{root});
+    auto tree_root = std::make_unique<StyledNode>(root);
     style_tree_impl(*tree_root, root, stylesheet, ctx);
     return tree_root;
 }
