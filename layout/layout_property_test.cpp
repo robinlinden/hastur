@@ -22,8 +22,10 @@ using namespace std::literals;
 namespace {
 template<css::PropertyId IdT>
 void expect_property_eq(etest::IActions &a,
+        // NOLINTNEXTLINE(performance-unnecessary-value-param): Clang is wrong, this is moved below.
         std::optional<std::string> value,
         auto expected,
+        // NOLINTNEXTLINE(performance-unnecessary-value-param): Clang is wrong, this is moved below.
         std::vector<std::pair<css::PropertyId, std::string>> extra_properties = {},
         std::source_location const &loc = std::source_location::current()) {
     dom::Node dom_node = dom::Element{"dummy"s};
