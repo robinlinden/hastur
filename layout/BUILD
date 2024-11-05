@@ -37,6 +37,7 @@ cc_library(
         "//gfx",
         "//style",
         "//type",
+        "//type:naive",
         "//util:string",
     ],
 ) for src in glob(["*_test.cpp"])]

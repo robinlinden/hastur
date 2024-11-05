@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <functional>
 #include <iterator>
 #include <list>
 #include <memory>
@@ -70,7 +71,8 @@ bool last_node_was_anonymous(LayoutBox const &box) {
 
 // https://www.w3.org/TR/CSS2/visuren.html#box-gen
 // NOLINTNEXTLINE(misc-no-recursion)
-std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
+std::optional<LayoutBox> create_tree(
+        style::StyledNode const &node, std::function<bool(std::string_view)> const &resource_exists) {
     if (auto const *text = std::get_if<dom::Text>(&node.node)) {
         return LayoutBox{.node = &node, .layout_text = std::string_view{text->text}};
     }
@@ -82,15 +84,18 @@ std::optional<LayoutBox> create_tree(style::StyledNode const &node) {
     }
 
     if (auto const &element = std::get<dom::Element>(node.node); element.name == "img"sv) {
-        if (auto alt = element.attributes.find("alt"sv); alt != element.attributes.end()) {
-            return LayoutBox{.node = &node, .layout_text = std::string_view{alt->second}};
+        auto src = element.attributes.find("src"sv);
+        if (src == element.attributes.end() || !resource_exists(src->second)) {
+            if (auto alt = element.attributes.find("alt"sv); alt != element.attributes.end()) {
+                return LayoutBox{.node = &node, .layout_text = std::string_view{alt->second}};
+            }
         }
     }
 
     LayoutBox box{&node};
 
     for (auto const &child : node.children) {
-        auto child_box = create_tree(child);
+        auto child_box = create_tree(child, resource_exists);
         if (!child_box) {
             continue;
         }
@@ -567,8 +572,15 @@ std::optional<std::shared_ptr<type::IFont const>> Layouter::find_font(
 
 } // namespace
 
-std::optional<LayoutBox> create_layout(style::StyledNode const &node, int width, type::IType const &type) {
-    auto tree = create_tree(node);
+std::optional<LayoutBox> create_layout(style::StyledNode const &node,
+        int width,
+        type::IType const &type,
+        std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url) {
+    auto resource_exists = [&get_intrensic_size_for_resource_at_url](std::string_view url) {
+        return get_intrensic_size_for_resource_at_url(url).has_value();
+    };
+
+    auto tree = create_tree(node, resource_exists);
     if (!tree) {
         return {};
     }

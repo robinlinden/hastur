@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,11 +11,24 @@
 #include "type/naive.h"
 #include "type/type.h"
 
+#include <functional>
 #include <optional>
+#include <string_view>
 
 namespace layout {
 
-std::optional<LayoutBox> create_layout(style::StyledNode const &, int width, type::IType const & = type::NaiveType{});
+struct Size {
+    int width{};
+    int height{};
+    [[nodiscard]] bool operator==(Size const &) const = default;
+};
+
+std::optional<LayoutBox> create_layout(
+        style::StyledNode const &,
+        int width,
+        type::IType const & = type::NaiveType{},
+        std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url =
+                [](std::string_view) { return std::nullopt; });
 
 } // namespace layout
 

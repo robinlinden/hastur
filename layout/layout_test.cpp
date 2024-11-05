@@ -12,6 +12,7 @@
 #include "etest/etest.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
+#include "type/naive.h"
 #include "type/type.h"
 #include "util/string.h"
 
@@ -654,6 +655,37 @@ void img_tests() {
         auto layout_root = layout::create_layout(style, 100);
         expect_eq(expected_layout, layout_root);
         expect_eq(expected_layout.children.at(0).text(), "hello");
+    });
+
+    // TODO(robinlinden): This test should break when we implement more of image layouting.
+    etest::test("img, alt, src", [] {
+        dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"alt", "asdf"}, {"src", "hallo"}}}}};
+        auto const &body = std::get<dom::Element>(dom);
+        auto style = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        {body.children.at(0), {{css::PropertyId::Display, "block"}}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style,
+                .dimensions{{0, 0, 100, 0}},
+                .children{{
+                        &style.children[0], {{0, 0, 100, 0}}, {},
+                        // TODO(robinlinden)
+                        // {{0, 0, 37, 87}},
+                }},
+        };
+
+        auto layout_root =
+                layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
+        expect_eq(expected_layout, layout_root);
     });
 }
 
