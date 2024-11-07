@@ -19,17 +19,22 @@ http_archive(
 )
 
 # https://github.com/bazelbuild/rules_cc
+# 0.1.0 isn't compatible w/ Bazel 7.4.0:
+# ERROR: Traceback (most recent call last):
+#   File "<...>/external/remote_java_tools/BUILD", line 7, column 60, in <toplevel>
+#     load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library")
+# Error: file '@rules_cc//cc:defs.bzl' does not contain symbol 'cc_proto_library'
 http_archive(
     name = "rules_cc",  # Apache-2.0
-    integrity = "sha256-2b3T7Ga2hxRW7JyWWAn0OgkB5pLXVIheiSk4B3YtPYA=",
+    integrity = "sha256-9Krdg4fzgQM6mtBQBEOlKgzqX4rR7eQ2nTxhTreyaC4=",
     patch_cmds = [
         # rules_cc depends on protobuf as of 0.0.13, and adding that for rules_cc is silly.
         # https://github.com/bazelbuild/rules_cc/commit/013a08285803532d9c5de010da51dd45b4cd2722
-        "sed -i'' -e /protobuf/d cc/defs.bzl",
-        "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/' cc/defs.bzl",
+        "sed -i'' -e /@com_google_protobuf/d cc/defs.bzl",
+        "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/g' cc/defs.bzl",
     ],
-    strip_prefix = "rules_cc-0.0.13",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.13/rules_cc-0.0.13.tar.gz",
+    strip_prefix = "rules_cc-0.0.15",
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.15/rules_cc-0.0.15.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
@@ -99,13 +104,13 @@ http_archive(
     url = "https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz",
 )
 
-# HEAD as of 2024-10-16.
+# HEAD as of 2024-11-07.
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-Bck9fFokVgIe25wHZHQrnkTTRYMSfjhKiLjff5jGNeA=",
-    strip_prefix = "boringssl-2587c4974dbe9872451151c8e975f58567a1ce0d",
-    url = "https://github.com/google/boringssl/archive/2587c4974dbe9872451151c8e975f58567a1ce0d.tar.gz",
+    integrity = "sha256-fsRzsD2NDeHXdOQe0YqpzHfA6aIZV8ShItGj5whZrB8=",
+    strip_prefix = "boringssl-52a2c003d9622a78d6b791c10ea456eabaf6f52a",
+    url = "https://github.com/google/boringssl/archive/52a2c003d9622a78d6b791c10ea456eabaf6f52a.tar.gz",
 )
 
 # https://github.com/google/brotli
@@ -204,6 +209,7 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
+# 1.91.5 isn't supported by any version of imgui-sfml yet.
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
@@ -296,13 +302,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.3.299"
+VULKAN_TAG = "1.3.301"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-lbuP5zFGm54b5TK507TX0z4o3b2ZqSbafw7KgqE0uS8=",
+    integrity = "sha256-bAKUm+1/OYTh0SJjvc5SocmeVKGrza6Q0AUnwokMHMU=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -311,7 +317,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-2UwpBJrOLbZg3+hpDA2mKce4JumlTliByNN0tqJQu6s=",
+    integrity = "sha256-dHkZudRLdi40Y9/2kZ/1VK3Xv8Ss8e+9Vi/S+/KjPjA=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
