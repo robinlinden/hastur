@@ -104,7 +104,7 @@ int Suite::run(RunOptions const &opts) {
     auto const longest_name = std::ranges::max_element(
             tests_to_run, [](auto const &a, auto const &b) { return a.size() < b.size(); }, &Test::name);
 
-    bool failure = false;
+    std::vector<Test const *> failed_tests;
     for (auto const &test : tests_to_run) {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": " << std::flush;
 
@@ -128,15 +128,15 @@ int Suite::run(RunOptions const &opts) {
         if (a.assertion_failures == 0) {
             std::cout << "\u001b[32mPASSED\u001b[0m\n";
         } else {
-            failure = true;
             std::cout << "\u001b[31;1mFAILED\u001b[0m\n";
             std::cout << std::move(a.test_log).str();
+            failed_tests.push_back(&test);
         }
 
         std::cout << std::flush;
     }
 
-    return failure ? 1 : 0;
+    return failed_tests.empty() ? 0 : 1;
 }
 
 } // namespace etest
