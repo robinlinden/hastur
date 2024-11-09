@@ -136,6 +136,14 @@ int Suite::run(RunOptions const &opts) {
         std::cout << std::flush;
     }
 
+    if (!failed_tests.empty()) {
+        std::cout << '\n' << tests_to_run.size() - failed_tests.size() << " passing test(s)\n";
+        std::cout << "\u001b[31;1m" << failed_tests.size() << " failing test(s):\u001b[0m\n";
+        for (auto const *test : failed_tests) {
+            std::cout << "  " << test->name << '\n';
+        }
+    }
+
     return failed_tests.empty() ? 0 : 1;
 }
 
