@@ -85,7 +85,7 @@ Size SfmlFont::measure(std::string_view text, Px font_size, Weight weight) const
 }
 
 std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name) const {
-    if (auto font = font_cache_.find(name); font != font_cache_.end() && font->second.has_value()) {
+    if (auto font = font_cache_.find(name); font != font_cache_.end()) {
         return font->second;
     }
 
