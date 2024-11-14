@@ -18,8 +18,6 @@
 #include <vector>
 
 namespace etest {
-// NOLINTBEGIN(google-default-arguments): Some things like log messages and
-// source locations are optional.
 
 template<typename T>
 concept Printable = requires(std::ostream &os, T t) {
@@ -35,15 +33,32 @@ class IActions {
 public:
     virtual ~IActions() = default;
 
+    [[noreturn]] virtual void requirement_failure(
+            std::optional<std::string_view> log_message, std::source_location const &) = 0;
+    virtual void expectation_failure(
+            std::optional<std::string_view> log_message, std::source_location const &) noexcept = 0;
+
     // Weak test requirement. Allows the test to continue even if the check fails.
-    virtual void expect(bool,
+    void expect(bool expectation,
             std::optional<std::string_view> log_message = std::nullopt,
-            std::source_location const &loc = std::source_location::current()) noexcept = 0;
+            std::source_location const &loc = std::source_location::current()) noexcept {
+        if (expectation) {
+            return;
+        }
+
+        expectation_failure(std::move(log_message), loc);
+    }
 
     // Hard test requirement. Stops the test (using an exception) if the check fails.
-    virtual void require(bool,
+    void require(bool requirement,
             std::optional<std::string_view> log_message = std::nullopt,
-            std::source_location const &loc = std::source_location::current()) = 0;
+            std::source_location const &loc = std::source_location::current()) {
+        if (requirement) {
+            return;
+        }
+
+        requirement_failure(std::move(log_message), loc);
+    }
 
     // Weak test requirement. Prints the types compared on failure (if printable).
     template<Printable T, Printable U>
@@ -109,16 +124,13 @@ public:
     constexpr void constexpr_test(std::string name, auto test) {
         static_assert([test] {
             struct ConstexprActions : IActions {
-                void expect(bool b, std::optional<std::string_view>, std::source_location const &) noexcept override {
-                    if (!b) {
-                        std::terminate();
-                    }
+                void expectation_failure(
+                        std::optional<std::string_view>, std::source_location const &) noexcept override {
+                    std::terminate();
                 }
 
-                void require(bool b, std::optional<std::string_view>, std::source_location const &) override {
-                    if (!b) {
-                        std::terminate();
-                    }
+                void requirement_failure(std::optional<std::string_view>, std::source_location const &) override {
+                    std::terminate();
                 }
             };
             ConstexprActions a;
@@ -141,7 +153,6 @@ private:
     std::vector<Test> disabled_tests_{};
 };
 
-// NOLINTEND(google-default-arguments)
 } // namespace etest
 
 #endif

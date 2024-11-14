@@ -30,27 +30,8 @@ namespace {
 struct TestFailure : public std::exception {};
 
 struct Actions : public IActions {
-    // Weak test requirement. Allows the test to continue even if the check fails.
-    void expect(
-            bool b, std::optional<std::string_view> log_message, std::source_location const &loc) noexcept override {
-        if (b) {
-            return;
-        }
-
-        ++assertion_failures;
-        test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
-
-        if (log_message) {
-            test_log << *log_message << "\n\n";
-        }
-    }
-
-    // Hard test requirement. Stops the test (using an exception) if the check fails.
-    void require(bool b, std::optional<std::string_view> log_message, std::source_location const &loc) override {
-        if (b) {
-            return;
-        }
-
+    [[noreturn]] void requirement_failure(
+            std::optional<std::string_view> log_message, std::source_location const &loc) override {
         test_log << "  requirement failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
 
         if (log_message) {
@@ -62,6 +43,16 @@ struct Actions : public IActions {
 #else
         std::abort();
 #endif
+    }
+
+    void expectation_failure(
+            std::optional<std::string_view> log_message, std::source_location const &loc) noexcept override {
+        ++assertion_failures;
+        test_log << "  expectation failure at " << loc.file_name() << "(" << loc.line() << ":" << loc.column() << ")\n";
+
+        if (log_message) {
+            test_log << *log_message << "\n\n";
+        }
     }
 
     std::stringstream test_log;
