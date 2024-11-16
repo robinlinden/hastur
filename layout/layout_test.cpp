@@ -1972,6 +1972,43 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
     });
 
+    etest::test("the height property is ignored for inline elements", [] {
+        dom::Node dom = dom::Element{"html", {}, {dom::Element{"span"}}};
+        auto &span = std::get<dom::Element>(dom).children[0];
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::FontSize, "10px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        style::StyledNode{
+                                .node{span},
+                                .properties{{css::PropertyId::Height, "100px"}, {css::PropertyId::Display, "inline"}},
+                        },
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        // 0 due to height being ignored and there being no content.
+        auto layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.dimensions.border_box().height, 0);
+        expect_eq(layout.children.at(0).dimensions.border_box().height, 0);
+
+        auto &span_elem = std::get<dom::Element>(span);
+        span_elem.children.emplace_back(dom::Text{"hello"});
+        style.children.at(0).children.emplace_back(style::StyledNode{.node{span_elem.children[0]}});
+        set_up_parent_ptrs(style);
+
+        // 10px due to the text content being 10px tall.
+        layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.dimensions.border_box().height, 10);
+        expect_eq(layout.children.at(0).dimensions.border_box().height, 10);
+
+        // And blocks don't have the height ignored, so 100px.
+        style.children.at(0).properties.at(1).second = "block";
+        layout = layout::create_layout(style, 1000).value();
+        expect_eq(layout.dimensions.border_box().height, 100);
+        expect_eq(layout.children.at(0).dimensions.border_box().height, 100);
+    });
+
     whitespace_collapsing_tests();
     text_transform_tests();
     img_tests();

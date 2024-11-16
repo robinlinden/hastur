@@ -59,7 +59,8 @@ private:
             style::UnresolvedValue margin_right,
             int font_size) const;
     void calculate_width_and_margin(LayoutBox &, geom::Rect const &parent, int font_size) const;
-    void calculate_height(LayoutBox &, int font_size) const;
+    void calculate_inline_height(LayoutBox &, int font_size) const;
+    void calculate_non_inline_height(LayoutBox &, int font_size) const;
     void calculate_padding(LayoutBox &, int font_size) const;
     void calculate_border(LayoutBox &, int font_size) const;
     std::optional<std::shared_ptr<type::IFont const>> find_font(std::span<std::string_view const> font_families) const;
@@ -335,7 +336,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
         box.dimensions.content.height = std::max(box.dimensions.content.height, child.dimensions.margin_box().height);
         box.dimensions.content.width += child.dimensions.margin_box().width;
     }
-    calculate_height(box, font_size);
+    calculate_inline_height(box, font_size);
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -350,7 +351,7 @@ void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds) const {
         layout(child, box.dimensions.content);
         box.dimensions.content.height += child.dimensions.margin_box().height;
     }
-    calculate_height(box, font_size);
+    calculate_non_inline_height(box, font_size);
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -508,10 +509,19 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
     }
 }
 
-void Layouter::calculate_height(LayoutBox &box, int const font_size) const {
+void Layouter::calculate_inline_height(LayoutBox &box, int const font_size) const {
+    assert(box.node != nullptr);
+    if (auto text = box.text()) {
+        int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
+        box.dimensions.content.height = lines * font_size;
+    }
+}
+
+void Layouter::calculate_non_inline_height(LayoutBox &box, int const font_size) const {
     assert(box.node != nullptr);
     auto &content = box.dimensions.content;
 
+    // TODO(robinlinden): Handling text here might not be required.
     if (auto text = box.text()) {
         int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
         content.height = lines * font_size;
