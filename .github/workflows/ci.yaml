@@ -317,13 +317,6 @@ jobs:
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
 
-  link-liveness:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - run: grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider --no-verbose
-
   gitlint:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

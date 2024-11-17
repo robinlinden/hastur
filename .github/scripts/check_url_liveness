@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude-dir=.github --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider --no-verbose
