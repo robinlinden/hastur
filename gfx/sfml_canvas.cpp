@@ -75,14 +75,7 @@ sf::Font load_fallback_font() {
 std::shared_ptr<type::SfmlFont const> find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
     for (auto const &family : font_families) {
         if (auto font = type.font(family.font)) {
-            auto sf_font = std::static_pointer_cast<type::SfmlFont const>(*font);
-            if (!sf_font->sf_font().hasGlyph('A')) {
-                spdlog::warn("Font '{}' does not have an 'A' glyph", family.font);
-                type.set_font(std::string{family.font}, std::nullopt);
-                continue;
-            }
-
-            return sf_font;
+            return std::static_pointer_cast<type::SfmlFont const>(*font);
         }
     }
 

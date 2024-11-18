@@ -13,6 +13,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/String.hpp>
+#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <cstdint>
@@ -91,6 +92,12 @@ std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name
 
     sf::Font font;
     if (auto path = find_path_to_font(name); !path || !font.openFromFile(*path)) {
+        font_cache_.insert(std::pair{std::string{name}, std::nullopt});
+        return std::nullopt;
+    }
+
+    if (!font.hasGlyph('A')) {
+        spdlog::warn("Font '{}' does not have an 'A' glyph", name);
         font_cache_.insert(std::pair{std::string{name}, std::nullopt});
         return std::nullopt;
     }

@@ -48,5 +48,6 @@ cc_library(
         "//util:string",
         "@sfml//:graphics",
         "@sfml//:system",
+        "@spdlog",
     ],
 )
