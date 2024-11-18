@@ -11,8 +11,8 @@ cc_library(
     includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": [
-            "-lGL",
-            "-lX11",
+            # "-lGL",
+            # "-lX11",
         ],
         "@platforms//os:windows": ["-DEFAULTLIB:opengl32"],
     }),

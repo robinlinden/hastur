@@ -178,6 +178,7 @@ http_archive(
     url = "https://github.com/html5lib/html5lib-tests/archive/a9f44960a9fedf265093d22b2aa3c7ca123727b9.tar.gz",
 )
 
+# https://github.com/nigels-com/glew
 http_archive(
     name = "glew",  # BSD-3-Clause
     build_file = "//third_party:glew.BUILD",
