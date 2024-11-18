@@ -97,7 +97,7 @@ std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name
     }
 
     if (!font.hasGlyph('A')) {
-        spdlog::warn("Font '{}' does not have an 'A' glyph", name);
+        spdlog::warn("Font '{}' ({}) does not have an 'A' glyph", font.getInfo().family, name);
         font_cache_.insert(std::pair{std::string{name}, std::nullopt});
         return std::nullopt;
     }
