@@ -487,8 +487,10 @@ int main() {
         expect_eq(styled_node.get_property<css::PropertyId::Color>(), //
                 gfx::Color{0xaa, 0xbb, 0xcc});
 
+        // Unresolved variables return the initial value.
+        expect_eq(css::initial_value(css::PropertyId::FontWeight), "normal");
         expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
-                std::nullopt);
+                style::FontWeight::normal());
 
         styled_node.custom_properties = {{"--weight", "bold"}};
         expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //

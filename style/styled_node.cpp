@@ -280,7 +280,7 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
             }
 
             spdlog::warn("Unable to resolve '{}'", var_name);
-            return it->second;
+            return css::initial_value(property);
         }
 
         return *prop;
