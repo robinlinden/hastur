@@ -202,7 +202,7 @@ jobs:
 
   windows-msvc:
     runs-on: windows-2022
-    timeout-minutes: 40
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -224,7 +224,7 @@ jobs:
 
   windows-clang-cl:
     runs-on: windows-2022
-    timeout-minutes: 45
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -265,7 +265,7 @@ jobs:
 
   clang-tidy:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
