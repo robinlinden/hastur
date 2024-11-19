@@ -22,6 +22,7 @@
 #include <cstring>
 #include <iterator>
 #include <optional>
+#include <set>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -266,9 +267,9 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     }
 
     // If this is a var() we can easily expand here, do so.
-    if (it->second.starts_with("var(") && (it->second.find(')') != std::string::npos)) {
-        auto value = std::string_view{it->second};
-
+    auto value = std::string_view{it->second};
+    std::set<std::string_view> seen_variables{};
+    while (value.starts_with("var(") && (value.find(')') != std::string::npos)) {
         // Remove "var(" from the start and ")" from the end. 5 characters in total.
         auto var = value.substr(4, value.size() - 5);
         auto [var_name, fallback] = util::split_once(var, ",");
@@ -283,10 +284,20 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
             return css::initial_value(property);
         }
 
-        return *prop;
+        if (!prop->starts_with("var(")) {
+            return *prop;
+        }
+
+        seen_variables.insert(value);
+        if (seen_variables.contains(*prop)) {
+            spdlog::warn("Circular variable reference '{}'", *prop);
+            return css::initial_value(property);
+        }
+
+        value = *prop;
     }
 
-    return it->second;
+    return value;
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)

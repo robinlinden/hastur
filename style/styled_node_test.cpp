@@ -508,11 +508,16 @@ int main() {
                 },
         };
 
-        // TODO(robinlinden)
-        // expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
-        //         style::FontWeight::bold());
         expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
-                std::nullopt);
+                style::FontWeight::bold());
+
+        // Circular references are bad.
+        styled_node.custom_properties = {
+                {"--a", "var(--b)"},
+                {"--b", "var(--a)"},
+        };
+        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+                style::FontWeight::normal());
     });
 
     etest::test("var() with fallback, var exists", [] {
