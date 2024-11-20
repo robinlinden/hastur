@@ -26,15 +26,15 @@ http_archive(
 # Error: file '@rules_cc//cc:defs.bzl' does not contain symbol 'cc_proto_library'
 http_archive(
     name = "rules_cc",  # Apache-2.0
-    integrity = "sha256-9Krdg4fzgQM6mtBQBEOlKgzqX4rR7eQ2nTxhTreyaC4=",
+    integrity = "sha256-q8YF3YUPgTuzcAS3fbIBBqGTEalrLaHJK3idpSnSj+E=",
     patch_cmds = [
         # rules_cc depends on protobuf as of 0.0.13, and adding that for rules_cc is silly.
         # https://github.com/bazelbuild/rules_cc/commit/013a08285803532d9c5de010da51dd45b4cd2722
         "sed -i'' -e /@com_google_protobuf/d cc/defs.bzl",
         "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/g' cc/defs.bzl",
     ],
-    strip_prefix = "rules_cc-0.0.15",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.15/rules_cc-0.0.15.tar.gz",
+    strip_prefix = "rules_cc-0.0.17",
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_fuzzing
@@ -104,13 +104,13 @@ http_archive(
     url = "https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz",
 )
 
-# HEAD as of 2024-11-07.
+# HEAD as of 2024-11-20.
 # https://github.com/google/boringssl
 http_archive(
     name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-fsRzsD2NDeHXdOQe0YqpzHfA6aIZV8ShItGj5whZrB8=",
-    strip_prefix = "boringssl-52a2c003d9622a78d6b791c10ea456eabaf6f52a",
-    url = "https://github.com/google/boringssl/archive/52a2c003d9622a78d6b791c10ea456eabaf6f52a.tar.gz",
+    integrity = "sha256-7nkLWRFiyWfdIt/DNwuvYLWWaYyVAnFHSH6ihZwgRss=",
+    strip_prefix = "boringssl-264f4f7a958af6c4ccb04662e302a99dfa7c5b85",
+    url = "https://github.com/google/boringssl/archive/264f4f7a958af6c4ccb04662e302a99dfa7c5b85.tar.gz",
 )
 
 # https://github.com/google/brotli
@@ -271,18 +271,19 @@ http_archive(
 http_archive(
     name = "spdlog",  # MIT
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-FYZQgCmn0GcN/LLZdXXc3CQtOGiiWXQrafEAgBq04Ws=",
-    strip_prefix = "spdlog-1.14.1",
-    url = "https://github.com/gabime/spdlog/archive/v1.14.1.tar.gz",
+    integrity = "sha256-mWJkjJtPGnu8dv2NkXJVW60Ycf2xT/T4Qu+HlJaCyqU=",
+    strip_prefix = "spdlog-1.15.0",
+    url = "https://github.com/gabime/spdlog/archive/v1.15.0.tar.gz",
 )
 
+# HEAD as of 2024-11-20.
 # https://github.com/nothings/stb
 http_archive(
     name = "stb",  # MIT/Unlicense
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-TcL/psbI2Kgw6S/NuX+JgXAcIpZV331g5vwP9Oa0v2Y=",
-    strip_prefix = "stb-2e2bef463a5b53ddf8bb788e25da6b8506314c08",
-    url = "https://github.com/nothings/stb/archive/2e2bef463a5b53ddf8bb788e25da6b8506314c08.tar.gz",
+    integrity = "sha256-z+q5+ACWGILW0i3fNullUjszAC9Pk33ggyEwTJunKvM=",
+    strip_prefix = "stb-5c205738c191bcb0abc65c4febfa9bd25ff35234",
+    url = "https://github.com/nothings/stb/archive/5c205738c191bcb0abc65c4febfa9bd25ff35234.tar.gz",
 )
 
 # https://www.unicode.org/Public/
@@ -339,9 +340,9 @@ http_archive(
 http_archive(
     name = "xcursor",  # MIT
     build_file = "//third_party:xcursor.BUILD",
-    integrity = "sha256-m3DxifDxfAHudBII/B6zXbFqAb/u9iR7+XBUF5m0yVo=",
-    strip_prefix = "libxcursor-libXcursor-1.2.2",
-    url = "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.2/libxcursor-libXcursor-1.2.2.tar.gz",
+    integrity = "sha256-hAKS5c366Ni3lboAvL5iCg3gr2rhhH4ULfCd7IanDtw=",
+    strip_prefix = "libxcursor-libXcursor-1.2.3",
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxcursor/-/archive/libXcursor-1.2.3/libxcursor-libXcursor-1.2.3.tar.gz",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxext
