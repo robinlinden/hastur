@@ -8,18 +8,20 @@
 #include "util/from_chars.h"
 #include "util/string.h"
 
+#include <algorithm>
 #include <cassert>
 #include <charconv>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <limits>
-#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace css {
 
@@ -88,11 +90,8 @@ struct Width {
 };
 
 struct And {
-    // TODO(robinlinden): shared_ptr here is sad, but we stick this in
-    // std::vector, so it needs to be copyable for now.
-    std::shared_ptr<MediaQuery> lhs{};
-    std::shared_ptr<MediaQuery> rhs{};
-    [[nodiscard]] inline bool operator==(And const &other) const;
+    std::vector<MediaQuery> queries;
+    [[nodiscard]] bool operator==(And const &other) const = default;
 
     inline bool evaluate(Context const &) const;
 };
@@ -114,25 +113,20 @@ public:
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
     // https://drafts.csswg.org/mediaqueries/#mq-syntax
-    // NOLINTNEXTLINE(misc-no-recursion)
     static std::optional<MediaQuery> parse(std::string_view s) {
-        if (auto and_pos = s.find(" and "); and_pos != std::string_view::npos) {
-            auto lhs = parse(s.substr(0, and_pos));
-            if (!lhs) {
-                return std::nullopt;
-            }
-
-            auto rhs = parse(s.substr(and_pos + 5));
-            if (!rhs) {
-                return std::nullopt;
-            }
-
-            return MediaQuery{And{
-                    .lhs = std::make_shared<MediaQuery>(std::move(*lhs)),
-                    .rhs = std::make_shared<MediaQuery>(std::move(*rhs)),
-            }};
+        if (s.contains(" and ")) {
+            return parse_and(s);
         }
 
+        return parse_impl(s);
+    }
+
+    constexpr bool evaluate(Context const &ctx) const {
+        return std::visit([&](auto const &q) { return q.evaluate(ctx); }, query);
+    }
+
+private:
+    static std::optional<MediaQuery> parse_impl(std::string_view s) {
         if (s == "all" || s == "only all") {
             return MediaQuery{True{}};
         }
@@ -186,11 +180,24 @@ public:
         return std::nullopt;
     }
 
-    constexpr bool evaluate(Context const &ctx) const {
-        return std::visit([&](auto const &q) { return q.evaluate(ctx); }, query);
+    static std::optional<MediaQuery> parse_and(std::string_view s) {
+        auto query_parts = util::split(s, " and ");
+        assert(query_parts.size() >= 2);
+
+        std::vector<MediaQuery> queries;
+        queries.reserve(query_parts.size());
+        for (auto const &part : query_parts) {
+            auto query = parse_impl(part);
+            if (!query) {
+                return std::nullopt;
+            }
+
+            queries.push_back(std::move(*query));
+        }
+
+        return MediaQuery{And{.queries = std::move(queries)}};
     }
 
-private:
     static std::optional<MediaQuery> parse_width(std::string_view feature_name, std::string_view value_str) {
         float value{};
         auto value_parse_res = util::from_chars(value_str.data(), value_str.data() + value_str.size(), value);
@@ -221,14 +228,8 @@ private:
     }
 };
 
-inline bool detail::And::operator==(And const &other) const {
-    assert(lhs && rhs);
-    return *lhs == *other.lhs && *rhs == *other.rhs;
-}
-
 inline bool detail::And::evaluate(Context const &ctx) const {
-    assert(lhs && rhs);
-    return lhs->evaluate(ctx) && rhs->evaluate(ctx);
+    return std::ranges::all_of(queries, [&](auto const &q) { return q.evaluate(ctx); });
 }
 
 inline std::string to_string(MediaQuery::Width const &width) {
@@ -258,7 +259,14 @@ constexpr std::string to_string(MediaQuery const &query) {
 }
 
 constexpr std::string to_string(MediaQuery::And const &q) {
-    return to_string(*q.lhs) + " and " + to_string(*q.rhs);
+    assert(!q.queries.empty());
+    std::string res;
+    for (std::size_t i = 0; i < q.queries.size() - 1; ++i) {
+        res += to_string(q.queries[i]) + " and ";
+    }
+    res += to_string(q.queries.back());
+
+    return res;
 }
 
 } // namespace css

@@ -6,8 +6,9 @@
 
 #include "etest/etest2.h"
 
-#include <memory>
+#include <cstring>
 #include <optional>
+#include <string>
 
 namespace {
 void parser_tests(etest::Suite &s) {
@@ -79,10 +80,10 @@ void and_tests(etest::Suite &s) {
         auto query = css::MediaQuery::parse("(min-width: 300px) and (max-width: 400px)").value();
 
         a.expect_eq(query,
-                css::MediaQuery{css::MediaQuery::And{
-                        .lhs = std::make_shared<css::MediaQuery>(css::MediaQuery::Width{.min = 300}),
-                        .rhs = std::make_shared<css::MediaQuery>(css::MediaQuery::Width{.max = 400}),
-                }});
+                css::MediaQuery{css::MediaQuery::And{{
+                        css::MediaQuery{css::MediaQuery::Width{.min = 300}},
+                        css::MediaQuery{css::MediaQuery::Width{.max = 400}},
+                }}});
 
         a.expect(!query.evaluate({.window_width = 299}));
         a.expect(query.evaluate({.window_width = 300}));
@@ -92,17 +93,17 @@ void and_tests(etest::Suite &s) {
     });
 
     s.add_test("and: false", [](etest::IActions &a) {
-        auto query = css::MediaQuery::And{
-                .lhs = std::make_shared<css::MediaQuery>(css::MediaQuery::False{}),
-                .rhs = std::make_shared<css::MediaQuery>(css::MediaQuery::Width{.max = 400}),
-        };
+        auto query = css::MediaQuery::And{{
+                css::MediaQuery{css::MediaQuery::False{}},
+                css::MediaQuery{css::MediaQuery::Width{.max = 400}},
+        }};
 
         a.expect(!query.evaluate({}));
 
-        query = css::MediaQuery::And{
-                .lhs = std::make_shared<css::MediaQuery>(css::MediaQuery::Width{.max = 400}),
-                .rhs = std::make_shared<css::MediaQuery>(css::MediaQuery::False{}),
-        };
+        query = css::MediaQuery::And{{
+                css::MediaQuery{css::MediaQuery::Width{.max = 400}},
+                css::MediaQuery{css::MediaQuery::False{}},
+        }};
         a.expect(!query.evaluate({}));
     });
 
@@ -112,12 +113,25 @@ void and_tests(etest::Suite &s) {
     });
 
     s.add_test("and: to_string", [](etest::IActions &a) {
-        auto query = css::MediaQuery::And{
-                .lhs = std::make_shared<css::MediaQuery>(css::MediaQuery::PrefersColorScheme{css::ColorScheme::Light}),
-                .rhs = std::make_shared<css::MediaQuery>(css::MediaQuery::Width{.max = 400}),
-        };
+        auto query = css::MediaQuery::And{{
+                css::MediaQuery{css::MediaQuery::PrefersColorScheme{css::ColorScheme::Light}},
+                css::MediaQuery{css::MediaQuery::Width{.max = 400}},
+        }};
 
         a.expect_eq(css::to_string(css::MediaQuery{query}), "prefers-color-scheme: light and 0 <= width <= 400");
+    });
+
+    // In e.g. an MSVC debug build, this would consume all the stack after
+    // trying to parse 599 ands, so let's parse 1000 of them.
+    s.add_test("and: lots of ands", [](etest::IActions &a) {
+        std::string query_str = "(width: 300px)";
+        query_str.reserve(query_str.size() + std::strlen(" and (width: 300px)") * 1000);
+        for (int i = 0; i < 1000; ++i) {
+            query_str += " and (width: 300px)";
+        }
+
+        auto query = css::MediaQuery::parse(query_str).value();
+        a.expect_eq(query.evaluate({.window_width = 300}), true);
     });
 }
 
