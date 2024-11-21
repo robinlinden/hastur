@@ -5,16 +5,17 @@
 #include "css/property_id.h"
 
 #include <algorithm>
+#include <array>
 #include <map>
 #include <string_view>
+#include <utility>
 
 using namespace std::literals;
 
 namespace css {
 namespace {
 
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, PropertyId> const known_properties{
+constexpr auto kKnownProperties = std::to_array<std::pair<std::string_view, PropertyId>>({
         {"azimuth"sv, PropertyId::Azimuth},
         {"background-attachment"sv, PropertyId::BackgroundAttachment},
         {"background-clip"sv, PropertyId::BackgroundClip},
@@ -121,11 +122,10 @@ std::map<std::string_view, PropertyId> const known_properties{
         {"widows"sv, PropertyId::Widows},
         {"width"sv, PropertyId::Width},
         {"word-spacing"sv, PropertyId::WordSpacing},
-};
+});
 
 // https://www.w3.org/TR/css-cascade/#initial-values
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<css::PropertyId, std::string_view> const initial_values{
+constexpr auto kInitialValues = std::to_array<std::pair<css::PropertyId, std::string_view>>({
         // https://developer.mozilla.org/en-US/docs/Web/CSS/background-color#formal_definition
         {css::PropertyId::BackgroundColor, "transparent"sv},
 
@@ -225,12 +225,14 @@ std::map<css::PropertyId, std::string_view> const initial_values{
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/white-space
         {css::PropertyId::WhiteSpace, "normal"sv},
-};
+});
 
 } // namespace
 
 PropertyId property_id_from_string(std::string_view id) {
-    if (auto it = known_properties.find(id); it != end(known_properties)) {
+    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
+    if (auto it = std::ranges::find(kKnownProperties, id, &decltype(kKnownProperties)::value_type::first);
+            it != end(kKnownProperties)) {
         return it->second;
     }
 
@@ -238,8 +240,9 @@ PropertyId property_id_from_string(std::string_view id) {
 }
 
 std::string_view to_string(PropertyId id) {
-    auto it = std::ranges::find_if(known_properties, [id](auto const &entry) { return entry.second == id; });
-    if (it != end(known_properties)) {
+    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
+    auto it = std::ranges::find_if(kKnownProperties, [id](auto const &entry) { return entry.second == id; });
+    if (it != end(kKnownProperties)) {
         return it->first;
     }
 
@@ -247,7 +250,7 @@ std::string_view to_string(PropertyId id) {
 }
 
 std::string_view initial_value(PropertyId id) {
-    return initial_values.at(id);
+    return std::ranges::find(kInitialValues, id, &decltype(kInitialValues)::value_type::first)->second;
 }
 
 } // namespace css

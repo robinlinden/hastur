@@ -21,32 +21,34 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 using namespace std::literals;
 
 namespace {
 
-// NOLINTNEXTLINE(cert-err58-cpp)
-auto const initial_background_values =
-        std::map<css::PropertyId, std::string>{{css::PropertyId::BackgroundImage, "none"},
-                {css::PropertyId::BackgroundPosition, "0% 0%"},
-                {css::PropertyId::BackgroundSize, "auto auto"},
-                {css::PropertyId::BackgroundRepeat, "repeat"},
-                {css::PropertyId::BackgroundOrigin, "padding-box"},
-                {css::PropertyId::BackgroundClip, "border-box"},
-                {css::PropertyId::BackgroundAttachment, "scroll"},
-                {css::PropertyId::BackgroundColor, "transparent"}};
+constexpr auto kInitialBackgroundValues = std::to_array<std::pair<css::PropertyId, std::string_view>>({
+        {css::PropertyId::BackgroundImage, "none"},
+        {css::PropertyId::BackgroundPosition, "0% 0%"},
+        {css::PropertyId::BackgroundSize, "auto auto"},
+        {css::PropertyId::BackgroundRepeat, "repeat"},
+        {css::PropertyId::BackgroundOrigin, "padding-box"},
+        {css::PropertyId::BackgroundClip, "border-box"},
+        {css::PropertyId::BackgroundAttachment, "scroll"},
+        {css::PropertyId::BackgroundColor, "transparent"},
+});
 
 bool check_initial_background_values(std::map<css::PropertyId, std::string> const &declarations) {
     return std::ranges::all_of(declarations, [](auto const &decl) {
-        auto it = initial_background_values.find(decl.first);
-        return it != cend(initial_background_values) && it->second == decl.second;
+        auto it = std::ranges::find(
+                kInitialBackgroundValues, decl.first, &decltype(kInitialBackgroundValues)::value_type::first);
+        return it != cend(kInitialBackgroundValues) && it->second == decl.second;
     });
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
-auto const initial_font_values = std::map<css::PropertyId, std::string>{{css::PropertyId::FontStretch, "normal"},
+constexpr auto kInitialFontValues = std::to_array<std::pair<css::PropertyId, std::string_view>>({
+        {css::PropertyId::FontStretch, "normal"},
         {css::PropertyId::FontVariant, "normal"},
         {css::PropertyId::FontWeight, "normal"},
         {css::PropertyId::LineHeight, "normal"},
@@ -63,12 +65,13 @@ auto const initial_font_values = std::map<css::PropertyId, std::string>{{css::Pr
         {css::PropertyId::FontVariantLigatures, "normal"},
         {css::PropertyId::FontVariantNumeric, "normal"},
         {css::PropertyId::FontVariantPosition, "normal"},
-        {css::PropertyId::FontVariantEastAsian, "normal"}};
+        {css::PropertyId::FontVariantEastAsian, "normal"},
+});
 
 bool check_initial_font_values(std::map<css::PropertyId, std::string> const &declarations) {
     return std::ranges::all_of(declarations, [](auto const &decl) {
-        auto it = initial_font_values.find(decl.first);
-        return it != cend(initial_font_values) && it->second == decl.second;
+        auto it = std::ranges::find(kInitialFontValues, decl.first, &decltype(kInitialFontValues)::value_type::first);
+        return it != cend(kInitialFontValues) && it->second == decl.second;
     });
 }
 
