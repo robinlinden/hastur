@@ -79,6 +79,11 @@ http_archive(
 http_archive(
     name = "hedron_compile_commands",
     integrity = "sha256-ZYEiz7HyW+duohKwD16wR9jirci8+SO5GEYfKx43zfI=",
+    patch_cmds = [
+        # .h can also appear as a c_source_extension with the new syntax-checking Bazel does.
+        # See: https://github.com/hedronvision/bazel-compile-commands-extractor/pull/219
+        """sed -i'' -e "s/('.c', '.i')/('.c', '.i', '.h')/" refresh.template.py""",
+    ],
     strip_prefix = "bazel-compile-commands-extractor-4f28899228fb3ad0126897876f147ca15026151e",
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
 )
