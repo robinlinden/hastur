@@ -24,6 +24,7 @@
 #include <string_view>
 #include <system_error>
 #include <utility>
+#include <vector>
 
 namespace type {
 namespace {
@@ -38,19 +39,20 @@ std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesys
 }
 
 // TODO(robinlinden): We should be looking at font names rather than filenames.
-std::optional<std::string> find_path_to_font(std::string_view font_filename) {
+std::vector<std::string> find_path_to_font(std::string_view font_filename) {
+    std::vector<std::string> paths;
     for (auto const &path : os::font_paths()) {
         for (auto const &entry : get_font_dir_iterator(path)) {
             auto name = entry.path().filename().string();
             if (!std::ranges::search(name, font_filename, [](char a, char b) {
                     return util::lowercased(a) == util::lowercased(b);
                 }).empty()) {
-                return std::make_optional(entry.path().string());
+                paths.push_back(entry.path().string());
             }
         }
     }
 
-    return std::nullopt;
+    return paths;
 }
 
 } // namespace
@@ -90,19 +92,26 @@ std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name
         return font->second;
     }
 
-    sf::Font font;
-    if (auto path = find_path_to_font(name); !path || !font.openFromFile(*path)) {
-        font_cache_.insert(std::pair{std::string{name}, std::nullopt});
-        return std::nullopt;
+    auto candidates = find_path_to_font(name);
+    for (auto const &path : candidates) {
+        sf::Font font;
+        if (!font.openFromFile(path)) {
+            spdlog::warn("Failed to load font '{}'", path);
+            continue;
+        }
+
+        if (!font.hasGlyph('A')) {
+            spdlog::warn("Font '{}' ({}) does not have an 'A' glyph", font.getInfo().family, name);
+            font_cache_.insert(std::pair{std::string{name}, std::nullopt});
+            continue;
+        }
+
+        spdlog::info("Loaded font '{}' as '{}", path, name);
+        return font_cache_.insert(std::pair{std::string{name}, std::make_shared<SfmlFont>(font)}).first->second;
     }
 
-    if (!font.hasGlyph('A')) {
-        spdlog::warn("Font '{}' ({}) does not have an 'A' glyph", font.getInfo().family, name);
-        font_cache_.insert(std::pair{std::string{name}, std::nullopt});
-        return std::nullopt;
-    }
-
-    return font_cache_.insert(std::pair{std::string{name}, std::make_shared<SfmlFont>(font)}).first->second;
+    font_cache_.insert(std::pair{std::string{name}, std::nullopt});
+    return std::nullopt;
 }
 
 } // namespace type
