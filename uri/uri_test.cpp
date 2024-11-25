@@ -219,5 +219,17 @@ int main() {
         a.expect_eq(completed, uri::Uri::parse("hax://example.com#bar").value());
     });
 
+    s.add_test("fragment completion, path-relative", [](etest::IActions &a) {
+        auto const base = uri::Uri::parse("hax://example.com#foo").value();
+        auto completed = uri::Uri::parse("foo", base).value();
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/foo").value());
+
+        completed = uri::Uri::parse("#bar", completed).value();
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/foo#bar").value());
+
+        completed = uri::Uri::parse("baz", completed).value();
+        a.expect_eq(completed, uri::Uri::parse("hax://example.com/baz").value());
+    });
+
     return s.run();
 }

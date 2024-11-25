@@ -98,7 +98,9 @@ std::optional<Uri> parse_uri(std::string uristr) {
     } else if (uri.authority.host.empty() && !uri.path.empty()) {
         // https://url.spec.whatwg.org/#path-relative-url-string
         if (base.path == "/") {
-            completed = parse_uri(std::format("{}/{}", base.uri, uri.uri));
+            // Strip the fragment if needed
+            auto start_of_fragment = base.uri.find('#');
+            completed = parse_uri(std::format("{}/{}", base.uri.substr(0, start_of_fragment), uri.uri));
         } else {
             auto end_of_last_path_segment = base.uri.find_last_of('/');
             completed = parse_uri(std::format("{}/{}", base.uri.substr(0, end_of_last_path_segment), uri.uri));
