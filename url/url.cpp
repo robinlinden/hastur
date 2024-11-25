@@ -28,7 +28,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -46,16 +45,29 @@ namespace url {
 // NOLINTBEGIN(bugprone-unchecked-optional-access)
 
 namespace {
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, std::uint16_t> const special_schemes = {{"ftp", std::uint16_t{21}},
+
+constexpr auto kSpecialSchemes = std::to_array<std::pair<std::string_view, std::uint16_t>>({
+        {"ftp", std::uint16_t{21}},
         {"file", std::uint16_t{0}},
         {"http", std::uint16_t{80}},
         {"https", std::uint16_t{443}},
         {"ws", std::uint16_t{80}},
-        {"wss", std::uint16_t{443}}};
+        {"wss", std::uint16_t{443}},
+});
 
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<ValidationError, std::string_view> const validation_error_str = {
+constexpr bool is_special_scheme(std::string_view scheme) {
+    return std::ranges::find(kSpecialSchemes, scheme, &decltype(kSpecialSchemes)::value_type::first)
+            != end(kSpecialSchemes);
+}
+
+constexpr std::uint16_t special_scheme_port(std::string_view scheme) {
+    // NOLINTNEXTLINE(readability-qualified-auto): Ptr-ish in libc++, but not MSVC.
+    auto it = std::ranges::find(kSpecialSchemes, scheme, &decltype(kSpecialSchemes)::value_type::first);
+    assert(it != end(kSpecialSchemes));
+    return it->second;
+}
+
+constexpr auto kValidationErrorStr = std::to_array<std::pair<ValidationError, std::string_view>>({
         {ValidationError::DomainToAscii, "Unicode ToASCII records an error or returns the empty string"},
         {ValidationError::DomainToUnicode, "Unicode ToUnicode records an error"},
         {ValidationError::DomainInvalidCodePoint, "The input's host contains a forbidden domain code point"},
@@ -98,7 +110,8 @@ std::map<ValidationError, std::string_view> const validation_error_str = {
         {ValidationError::FileInvalidWindowsDriveLetter,
                 "The input is a relative-URL string that starts with a Windows drive letter and the base URL's "
                 "scheme is \"file\""},
-        {ValidationError::FileInvalidWindowsDriveLetterHost, "A file: URL's host is a Windows drive letter"}};
+        {ValidationError::FileInvalidWindowsDriveLetterHost, "A file: URL's host is a Windows drive letter"},
+});
 
 struct PercentEncodeSet {
     static constexpr bool c0_control(char c) {
@@ -320,7 +333,10 @@ void UrlParser::validation_error(ValidationError err) const {
 }
 
 std::string_view description(ValidationError e) {
-    return validation_error_str.at(e);
+    // NOLINTNEXTLINE(readability-qualified-auto): Ptr-ish in libc++, but not MSVC.
+    auto it = std::ranges::find(kValidationErrorStr, e, &decltype(kValidationErrorStr)::value_type::first);
+    assert(it != end(kValidationErrorStr));
+    return it->second;
 }
 
 // https://url.spec.whatwg.org/#concept-url-parser
@@ -493,12 +509,12 @@ void UrlParser::state_scheme() {
         buffer_ += util::lowercased(*c);
     } else if (c == ':') {
         if (state_override_.has_value()) {
-            if (special_schemes.contains(url_.scheme) && !special_schemes.contains(buffer_)) {
+            if (is_special_scheme(url_.scheme) && !is_special_scheme(buffer_)) {
                 state_ = ParserState::Terminate;
 
                 return;
             }
-            if (!special_schemes.contains(url_.scheme) && special_schemes.contains(buffer_)) {
+            if (!is_special_scheme(url_.scheme) && is_special_scheme(buffer_)) {
                 state_ = ParserState::Terminate;
 
                 return;
@@ -518,7 +534,7 @@ void UrlParser::state_scheme() {
         url_.scheme = buffer_;
 
         if (state_override_.has_value()) {
-            if (special_schemes.contains(url_.scheme) && url_.port == special_schemes.at(url_.scheme)) {
+            if (is_special_scheme(url_.scheme) && url_.port == special_scheme_port(url_.scheme)) {
                 url_.port.reset();
             }
 
@@ -535,11 +551,11 @@ void UrlParser::state_scheme() {
             }
 
             state_ = ParserState::File;
-        } else if (special_schemes.contains(url_.scheme) && base_.has_value() && base_->scheme == url_.scheme) {
-            assert(special_schemes.contains(base_->scheme));
+        } else if (is_special_scheme(url_.scheme) && base_.has_value() && base_->scheme == url_.scheme) {
+            assert(is_special_scheme(base_->scheme));
 
             state_ = ParserState::SpecialRelativeOrAuthority;
-        } else if (special_schemes.contains(url_.scheme)) {
+        } else if (is_special_scheme(url_.scheme)) {
             state_ = ParserState::SpecialAuthoritySlashes;
         } else if (remaining_from(1).starts_with('/')) {
             state_ = ParserState::PathOrAuthority;
@@ -630,7 +646,7 @@ void UrlParser::state_relative() {
 
     if (auto c = peek(); c == '/') {
         state_ = ParserState::RelativeSlash;
-    } else if (special_schemes.contains(url_.scheme) && c == '\\') {
+    } else if (is_special_scheme(url_.scheme) && c == '\\') {
         validation_error(ValidationError::InvalidReverseSolidus);
 
         state_ = ParserState::RelativeSlash;
@@ -664,7 +680,7 @@ void UrlParser::state_relative() {
 
 // https://url.spec.whatwg.org/#relative-slash-state
 void UrlParser::state_relative_slash() {
-    if (auto c = peek(); special_schemes.contains(url_.scheme) && (c == '/' || c == '\\')) {
+    if (auto c = peek(); is_special_scheme(url_.scheme) && (c == '/' || c == '\\')) {
         if (c == '\\') {
             validation_error(ValidationError::InvalidReverseSolidus);
         }
@@ -739,7 +755,7 @@ void UrlParser::state_authority() {
         }
 
         buffer_.clear();
-    } else if (is_eof() || c == '/' || c == '?' || c == '#' || (special_schemes.contains(url_.scheme) && c == '\\')) {
+    } else if (is_eof() || c == '/' || c == '?' || c == '#' || (is_special_scheme(url_.scheme) && c == '\\')) {
         if (at_sign_seen_ && buffer_.empty()) {
             validation_error(ValidationError::HostMissing);
 
@@ -784,7 +800,7 @@ void UrlParser::state_host() {
             return;
         }
 
-        std::optional<Host> host = parse_host(buffer_, !special_schemes.contains(url_.scheme));
+        std::optional<Host> host = parse_host(buffer_, !is_special_scheme(url_.scheme));
 
         if (!host.has_value()) {
             state_ = ParserState::Failure;
@@ -797,10 +813,10 @@ void UrlParser::state_host() {
         buffer_.clear();
 
         state_ = ParserState::Port;
-    } else if ((is_eof() || c == '/' || c == '?' || c == '#') || (special_schemes.contains(url_.scheme) && c == '\\')) {
+    } else if ((is_eof() || c == '/' || c == '?' || c == '#') || (is_special_scheme(url_.scheme) && c == '\\')) {
         back(1);
 
-        if (special_schemes.contains(url_.scheme) && buffer_.empty()) {
+        if (is_special_scheme(url_.scheme) && buffer_.empty()) {
             validation_error(ValidationError::HostMissing);
 
             state_ = ParserState::Failure;
@@ -814,7 +830,7 @@ void UrlParser::state_host() {
             return;
         }
 
-        std::optional<Host> host = parse_host(buffer_, !special_schemes.contains(url_.scheme));
+        std::optional<Host> host = parse_host(buffer_, !is_special_scheme(url_.scheme));
 
         if (!host.has_value()) {
             state_ = ParserState::Failure;
@@ -849,7 +865,7 @@ void UrlParser::state_host() {
 void UrlParser::state_port() {
     if (auto c = peek(); c.has_value() && util::is_digit(*c)) {
         buffer_ += *c;
-    } else if ((is_eof() || c == '/' || c == '?' || c == '#') || (special_schemes.contains(url_.scheme) && c == '\\')
+    } else if ((is_eof() || c == '/' || c == '?' || c == '#') || (is_special_scheme(url_.scheme) && c == '\\')
             || state_override_.has_value()) {
         if (!buffer_.empty()) {
             std::uint32_t port{};
@@ -870,7 +886,7 @@ void UrlParser::state_port() {
                 return;
             }
 
-            if (special_schemes.contains(url_.scheme) && port == special_schemes.at(url_.scheme)) {
+            if (is_special_scheme(url_.scheme) && port == special_scheme_port(url_.scheme)) {
                 url_.port = std::nullopt;
             } else {
                 url_.port = static_cast<std::uint16_t>(port);
@@ -986,7 +1002,7 @@ void UrlParser::state_file_host() {
 
             state_ = ParserState::PathStart;
         } else {
-            std::optional<Host> host = parse_host(buffer_, !special_schemes.contains(url_.scheme));
+            std::optional<Host> host = parse_host(buffer_, !is_special_scheme(url_.scheme));
 
             if (!host.has_value()) {
                 state_ = ParserState::Failure;
@@ -1017,7 +1033,7 @@ void UrlParser::state_file_host() {
 
 // https://url.spec.whatwg.org/#path-start-state
 void UrlParser::state_path_start() {
-    if (auto c = peek(); special_schemes.contains(url_.scheme)) {
+    if (auto c = peek(); is_special_scheme(url_.scheme)) {
         if (c == '\\') {
             validation_error(ValidationError::InvalidReverseSolidus);
         }
@@ -1048,9 +1064,9 @@ void UrlParser::state_path_start() {
 
 // https://url.spec.whatwg.org/#path-state
 void UrlParser::state_path() {
-    if (auto c = peek(); is_eof() || c == '/' || (special_schemes.contains(url_.scheme) && c == '\\')
+    if (auto c = peek(); is_eof() || c == '/' || (is_special_scheme(url_.scheme) && c == '\\')
             || (!state_override_.has_value() && (c == '?' || c == '#'))) {
-        if (special_schemes.contains(url_.scheme) && c == '\\') {
+        if (is_special_scheme(url_.scheme) && c == '\\') {
             validation_error(ValidationError::InvalidReverseSolidus);
         }
 
@@ -1058,11 +1074,11 @@ void UrlParser::state_path() {
                 || util::lowercased(buffer_) == "%2e%2e") {
             shorten_url_path(url_);
 
-            if (c != '/' && !(special_schemes.contains(url_.scheme) && c == '\\')) {
+            if (c != '/' && !(is_special_scheme(url_.scheme) && c == '\\')) {
                 std::get<1>(url_.path).emplace_back("");
             }
         } else if ((buffer_ == "." || util::lowercased(buffer_) == "%2e")
-                && (c != '/' && !(special_schemes.contains(url_.scheme) && c == '\\'))) {
+                && (c != '/' && !(is_special_scheme(url_.scheme) && c == '\\'))) {
             std::get<1>(url_.path).emplace_back("");
         } else if (buffer_ != "." && util::lowercased(buffer_) != "%2e") {
             if (url_.scheme == "file" && std::get<1>(url_.path).empty() && is_windows_drive_letter(buffer_)) {
@@ -1130,7 +1146,7 @@ void UrlParser::state_opaque_path() {
 // https://url.spec.whatwg.org/#query-state
 void UrlParser::state_query() {
     if (auto c = peek(); (!state_override_.has_value() && c == '#') || is_eof()) {
-        if (special_schemes.contains(url_.scheme)) {
+        if (is_special_scheme(url_.scheme)) {
             url_.query.value() += util::percent_encode(buffer_, PercentEncodeSet::special_query);
         } else {
             url_.query.value() += util::percent_encode(buffer_, PercentEncodeSet::query);
