@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -8,24 +8,16 @@
 #include "util/string.h"
 
 #include <algorithm>
-#include <map>
+#include <array>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 namespace gfx {
 namespace {
 
-struct CaseInsensitiveLess {
-    using is_transparent = void;
-    bool operator()(std::string_view s1, std::string_view s2) const {
-        return std::ranges::lexicographical_compare(
-                s1, s2, [](char c1, char c2) { return util::lowercased(c1) < util::lowercased(c2); });
-    }
-};
-
 // https://developer.mozilla.org/en-US/docs/Web/CSS/named-color#list_of_all_color_keywords
-// NOLINTNEXTLINE(cert-err58-cpp)
-std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
+constexpr auto kNamedColors = std::to_array<std::pair<std::string_view, gfx::Color>>({
         // System colors.
         // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#system_colors
         // TODO(robinlinden): Move these elsewhere and actually grab them from the system.
@@ -190,13 +182,19 @@ std::map<std::string_view, gfx::Color, CaseInsensitiveLess> const named_colors{
         {"yellowgreen", gfx::Color::from_rgb(0x9a'cd'32)},
         // CSS Level 4.
         {"rebeccapurple", gfx::Color::from_rgb(0x66'33'99)},
-};
+});
 
 } // namespace
 
 std::optional<Color> Color::from_css_name(std::string_view name) {
-    if (auto it = named_colors.find(name); it != end(named_colors)) {
-        return it->second;
+    auto constexpr kEquals = [](char lhs, char rhs) {
+        return util::lowercased(lhs) == util::lowercased(rhs);
+    };
+
+    for (auto const &[named_color, color] : kNamedColors) {
+        if (std::ranges::equal(named_color, name, kEquals)) {
+            return color;
+        }
     }
 
     return std::nullopt;
