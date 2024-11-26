@@ -9,7 +9,7 @@
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "dom/xpath.h"
-#include "etest/etest.h"
+#include "etest/etest2.h"
 #include "gfx/color.h"
 
 #include <optional>
@@ -21,13 +21,13 @@
 #include <vector>
 
 using namespace std::literals;
-using etest::expect;
-using etest::expect_eq;
 
 namespace {
 template<css::PropertyId IdT>
-void expect_property_eq(
-        std::string value, auto const &expected, std::source_location const &loc = std::source_location::current()) {
+void expect_property_eq(etest::IActions &a,
+        std::string value,
+        auto const &expected,
+        std::source_location const &loc = std::source_location::current()) {
     dom::Node dom_node = dom::Element{"dummy"s};
     style::StyledNode styled_node{
             .node = dom_node,
@@ -35,11 +35,12 @@ void expect_property_eq(
             .children = {},
     };
 
-    etest::expect_eq(styled_node.get_property<IdT>(), expected, std::nullopt, loc);
+    a.expect_eq(styled_node.get_property<IdT>(), expected, std::nullopt, loc);
 };
 
 template<css::PropertyId IdT>
-void expect_relative_property_eq(std::string value,
+void expect_relative_property_eq(etest::IActions &a,
+        std::string value,
         std::string parent_value,
         auto expected,
         std::source_location const &loc = std::source_location::current()) {
@@ -51,16 +52,18 @@ void expect_relative_property_eq(std::string value,
     };
     styled_node.children.at(0).parent = &styled_node;
 
-    etest::expect_eq(styled_node.children.at(0).get_property<IdT>(), expected, std::nullopt, loc);
+    a.expect_eq(styled_node.children.at(0).get_property<IdT>(), expected, std::nullopt, loc);
 };
 } // namespace
 
 int main() {
-    etest::test("get_property", [] {
-        expect_property_eq<css::PropertyId::Width>("15px", style::UnresolvedValue{"15px"}); //
+    etest::Suite s;
+
+    s.add_test("get_property", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::Width>(a, "15px", style::UnresolvedValue{"15px"}); //
     });
 
-    etest::test("property inheritance", [] {
+    s.add_test("property inheritance", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
@@ -71,13 +74,13 @@ int main() {
         auto &child = root.children.emplace_back(style::StyledNode{dom_node, {}, {}, &root});
 
         // Not inherited, returns the initial value.
-        expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
+        a.expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
 
         // Inherited, returns the parent's value.
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 15);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 15);
     });
 
-    etest::test("initial css keyword", [] {
+    s.add_test("initial css keyword", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
@@ -93,10 +96,10 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("canvastext"));
+        a.expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("canvastext"));
     });
 
-    etest::test("inherit css keyword", [] {
+    s.add_test("inherit css keyword", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
@@ -116,17 +119,17 @@ int main() {
         child.parent = &root;
 
         // inherit, but not in parent, so receives initial value for property.
-        expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
+        a.expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
 
         // inherit, value in parent.
-        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
+        a.expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
 
         // inherit, no parent node.
         child.parent = nullptr;
-        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
+        a.expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("transparent"));
     });
 
-    etest::test("unset css keyword", [] {
+    s.add_test("unset css keyword", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
@@ -146,17 +149,17 @@ int main() {
         child.parent = &root;
 
         // unset, not inherited, so receives initial value for property.
-        expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
+        a.expect_eq(child.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
 
         // unset, inherited, value in parent.
-        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
+        a.expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
 
         // unset, inherited, no parent node.
         child.parent = nullptr;
-        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("canvastext"));
+        a.expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("canvastext"));
     });
 
-    etest::test("currentcolor css keyword", [] {
+    s.add_test("currentcolor css keyword", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
@@ -174,30 +177,30 @@ int main() {
         auto &child = root.children[0];
         child.parent = &root;
 
-        expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
+        a.expect_eq(child.get_property<css::PropertyId::BackgroundColor>(), gfx::Color::from_css_name("blue"));
 
         // "color: currentcolor" should be treated as inherit.
         child.properties.emplace_back(css::PropertyId::Color, "currentcolor"s);
-        expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
+        a.expect_eq(child.get_property<css::PropertyId::Color>(), gfx::Color::from_css_name("blue"));
     });
 
-    etest::test("get_font_style_property", [] {
-        expect_property_eq<css::PropertyId::FontStyle>("oblique", style::FontStyle::Oblique);
+    s.add_test("get_font_style_property", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::FontStyle>(a, "oblique", style::FontStyle::Oblique);
 
         // Unhandled properties don't break things.
-        expect_property_eq<css::PropertyId::FontStyle>("???", style::FontStyle::Normal);
+        expect_property_eq<css::PropertyId::FontStyle>(a, "???", style::FontStyle::Normal);
     });
 
-    etest::test("get_font_family_property", [] {
+    s.add_test("get_font_family_property", [](etest::IActions &a) {
         using FontFamilies = std::vector<std::string_view>;
-        expect_property_eq<css::PropertyId::FontFamily>("abc, def", FontFamilies{"abc", "def"});
-        expect_property_eq<css::PropertyId::FontFamily>(R"('abc', "def")", FontFamilies{"abc", "def"});
-        expect_property_eq<css::PropertyId::FontFamily>("arial", FontFamilies{"arial"});
-        expect_property_eq<css::PropertyId::FontFamily>("'arial'", FontFamilies{"arial"});
-        expect_property_eq<css::PropertyId::FontFamily>(R"("arial")", FontFamilies{"arial"});
+        expect_property_eq<css::PropertyId::FontFamily>(a, "abc, def", FontFamilies{"abc", "def"});
+        expect_property_eq<css::PropertyId::FontFamily>(a, R"('abc', "def")", FontFamilies{"abc", "def"});
+        expect_property_eq<css::PropertyId::FontFamily>(a, "arial", FontFamilies{"arial"});
+        expect_property_eq<css::PropertyId::FontFamily>(a, "'arial'", FontFamilies{"arial"});
+        expect_property_eq<css::PropertyId::FontFamily>(a, R"("arial")", FontFamilies{"arial"});
     });
 
-    etest::test("get_font_size_property", [] {
+    s.add_test("get_font_size_property", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,
@@ -215,62 +218,62 @@ int main() {
         child.parent = &root;
 
         // px
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 10);
-        expect_eq(root.get_property<css::PropertyId::FontSize>(), 50);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 10);
+        a.expect_eq(root.get_property<css::PropertyId::FontSize>(), 50);
 
         // inherit, unset
         child.properties[0] = {css::PropertyId::FontSize, "unset"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
         child.properties[0] = {css::PropertyId::FontSize, "inherit"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
 
         // %
         child.properties[0] = {css::PropertyId::FontSize, "100%"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 50);
         child.properties[0] = {css::PropertyId::FontSize, "50%"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
 
         child.properties[0] = {css::PropertyId::FontSize, "larger"};
-        expect(child.get_property<css::PropertyId::FontSize>() > 50);
+        a.expect(child.get_property<css::PropertyId::FontSize>() > 50);
         child.properties[0] = {css::PropertyId::FontSize, "smaller"};
-        expect(child.get_property<css::PropertyId::FontSize>() < 50);
+        a.expect(child.get_property<css::PropertyId::FontSize>() < 50);
 
         // ex
         child.properties[0] = {css::PropertyId::FontSize, "1ex"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
 
         // ch
         child.properties[0] = {css::PropertyId::FontSize, "1ch"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 25);
 
         // rem
         auto &child2 = child.children.emplace_back(
                 style::StyledNode{.node{dom_node}, .properties{{css::PropertyId::FontSize, "2rem"}}, .parent = &child});
-        expect_eq(child2.get_property<css::PropertyId::FontSize>(), 50 * 2);
+        a.expect_eq(child2.get_property<css::PropertyId::FontSize>(), 50 * 2);
         child2.properties[0] = {css::PropertyId::FontSize, "0.5rem"};
-        expect_eq(child2.get_property<css::PropertyId::FontSize>(), 25);
+        a.expect_eq(child2.get_property<css::PropertyId::FontSize>(), 25);
 
         // em
         child.properties[0] = {css::PropertyId::FontSize, "2em"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 50 * 2);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 50 * 2);
         root.properties[0] = {css::PropertyId::FontSize, "25px"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 25 * 2);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 25 * 2);
         root.properties[0] = {css::PropertyId::FontSize, "2em"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2 * 2);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2 * 2);
         root.properties.clear();
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), default_font_size * 2);
 
         // unhandled units
         child.properties[0] = {css::PropertyId::FontSize, "1asdf"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 0);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 0);
 
         // 0
         child.properties[0] = {css::PropertyId::FontSize, "0"};
-        expect_eq(child.get_property<css::PropertyId::FontSize>(), 0);
+        a.expect_eq(child.get_property<css::PropertyId::FontSize>(), 0);
 
         // pt
-        expect_property_eq<css::PropertyId::FontSize>("12pt", 16);
-        expect_property_eq<css::PropertyId::FontSize>("24pt", 32);
+        expect_property_eq<css::PropertyId::FontSize>(a, "12pt", 16);
+        expect_property_eq<css::PropertyId::FontSize>(a, "24pt", 32);
 
         // Invalid, shouldn't crash.
         // TODO(robinlinden): Make this do whatever other browsers do.
@@ -278,7 +281,7 @@ int main() {
         std::ignore = child.get_property<css::PropertyId::FontSize>();
     });
 
-    etest::test("xpath", [] {
+    s.add_test("xpath", [](etest::IActions &a) {
         dom::Node html_node = dom::Element{"html"s};
         dom::Node div_node = dom::Element{"div"s};
         dom::Node text_node = dom::Text{"hello!"s};
@@ -291,15 +294,15 @@ int main() {
         };
 
         using NodeVec = std::vector<style::StyledNode const *>;
-        expect_eq(dom::nodes_by_xpath(styled_node, "/html"), NodeVec{&styled_node});
-        expect_eq(dom::nodes_by_xpath(styled_node, "/html/div"), NodeVec{&styled_node.children[1]});
-        expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/"), NodeVec{});
-        expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/p"), NodeVec{});
-        expect_eq(dom::nodes_by_xpath(styled_node, "/htm/div"), NodeVec{});
-        expect_eq(dom::nodes_by_xpath(styled_node, "//div"), NodeVec{&styled_node.children[1]});
+        a.expect_eq(dom::nodes_by_xpath(styled_node, "/html"), NodeVec{&styled_node});
+        a.expect_eq(dom::nodes_by_xpath(styled_node, "/html/div"), NodeVec{&styled_node.children[1]});
+        a.expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/"), NodeVec{});
+        a.expect_eq(dom::nodes_by_xpath(styled_node, "/html/div/p"), NodeVec{});
+        a.expect_eq(dom::nodes_by_xpath(styled_node, "/htm/div"), NodeVec{});
+        a.expect_eq(dom::nodes_by_xpath(styled_node, "//div"), NodeVec{&styled_node.children[1]});
     });
 
-    etest::test("get_property, last property gets priority", [] {
+    s.add_test("get_property, last property gets priority", [](etest::IActions &a) {
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode styled_node{
                 .node = dom_node,
@@ -307,13 +310,13 @@ int main() {
                 .children = {},
         };
 
-        expect_eq(styled_node.get_property<css::PropertyId::Display>(), std::nullopt);
+        a.expect_eq(styled_node.get_property<css::PropertyId::Display>(), std::nullopt);
     });
 
-    etest::test("get_property, display", [] {
+    s.add_test("get_property, display", [](etest::IActions &a) {
         using style::Display;
-        expect_property_eq<css::PropertyId::Display>("inline", Display::inline_flow());
-        expect_property_eq<css::PropertyId::Display>("i cant believe this", Display::block_flow());
+        expect_property_eq<css::PropertyId::Display>(a, "inline", Display::inline_flow());
+        expect_property_eq<css::PropertyId::Display>(a, "i cant believe this", Display::block_flow());
 
         // Weird float interactions.
         dom::Node dom_node = dom::Element{"dummy"s};
@@ -326,104 +329,105 @@ int main() {
         };
 
         styled.properties[0] = {css::PropertyId::Display, "inline"s};
-        expect_eq(styled.get_property<css::PropertyId::Display>(), Display::block_flow());
+        a.expect_eq(styled.get_property<css::PropertyId::Display>(), Display::block_flow());
     });
 
-    etest::test("get_property, border-style", [] {
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("none", style::BorderStyle::None);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("hidden", style::BorderStyle::Hidden);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("dotted", style::BorderStyle::Dotted);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("dashed", style::BorderStyle::Dashed);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("solid", style::BorderStyle::Solid);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("double", style::BorderStyle::Double);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("groove", style::BorderStyle::Groove);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("ridge", style::BorderStyle::Ridge);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("inset", style::BorderStyle::Inset);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("outset", style::BorderStyle::Outset);
-        expect_property_eq<css::PropertyId::BorderBottomStyle>("???", style::BorderStyle::None);
+    s.add_test("get_property, border-style", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "none", style::BorderStyle::None);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "hidden", style::BorderStyle::Hidden);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "dotted", style::BorderStyle::Dotted);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "dashed", style::BorderStyle::Dashed);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "solid", style::BorderStyle::Solid);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "double", style::BorderStyle::Double);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "groove", style::BorderStyle::Groove);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "inset", style::BorderStyle::Inset);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "outset", style::BorderStyle::Outset);
+        expect_property_eq<css::PropertyId::BorderBottomStyle>(a, "???", style::BorderStyle::None);
 
-        expect_property_eq<css::PropertyId::BorderLeftStyle>("ridge", style::BorderStyle::Ridge);
-        expect_property_eq<css::PropertyId::BorderRightStyle>("ridge", style::BorderStyle::Ridge);
-        expect_property_eq<css::PropertyId::BorderTopStyle>("ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderLeftStyle>(a, "ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderRightStyle>(a, "ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::BorderTopStyle>(a, "ridge", style::BorderStyle::Ridge);
     });
 
-    etest::test("get_property, outline-style", [] {
-        expect_property_eq<css::PropertyId::OutlineStyle>("none", style::BorderStyle::None);
-        expect_property_eq<css::PropertyId::OutlineStyle>("hidden", style::BorderStyle::Hidden);
-        expect_property_eq<css::PropertyId::OutlineStyle>("dotted", style::BorderStyle::Dotted);
-        expect_property_eq<css::PropertyId::OutlineStyle>("dashed", style::BorderStyle::Dashed);
-        expect_property_eq<css::PropertyId::OutlineStyle>("solid", style::BorderStyle::Solid);
-        expect_property_eq<css::PropertyId::OutlineStyle>("double", style::BorderStyle::Double);
-        expect_property_eq<css::PropertyId::OutlineStyle>("groove", style::BorderStyle::Groove);
-        expect_property_eq<css::PropertyId::OutlineStyle>("ridge", style::BorderStyle::Ridge);
-        expect_property_eq<css::PropertyId::OutlineStyle>("inset", style::BorderStyle::Inset);
-        expect_property_eq<css::PropertyId::OutlineStyle>("outset", style::BorderStyle::Outset);
-        expect_property_eq<css::PropertyId::OutlineStyle>("???", style::BorderStyle::None);
+    s.add_test("get_property, outline-style", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "none", style::BorderStyle::None);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "hidden", style::BorderStyle::Hidden);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "dotted", style::BorderStyle::Dotted);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "dashed", style::BorderStyle::Dashed);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "solid", style::BorderStyle::Solid);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "double", style::BorderStyle::Double);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "groove", style::BorderStyle::Groove);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "ridge", style::BorderStyle::Ridge);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "inset", style::BorderStyle::Inset);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "outset", style::BorderStyle::Outset);
+        expect_property_eq<css::PropertyId::OutlineStyle>(a, "???", style::BorderStyle::None);
     });
 
-    etest::test("get_property, outline-color", [] {
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3)", gfx::Color{1, 2, 3});
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / -0.5)", gfx::Color{1, 2, 3, 0});
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / 1.5)", gfx::Color{1, 2, 3, 0xFF});
+    s.add_test("get_property, outline-color", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3)", gfx::Color{1, 2, 3});
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3 / -0.5)", gfx::Color{1, 2, 3, 0});
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3 / 1.5)", gfx::Color{1, 2, 3, 0xFF});
     });
 
-    etest::test("get_property, color", [] {
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3)", gfx::Color{1, 2, 3});
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / -0.5)", gfx::Color{1, 2, 3, 0});
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2 3 / 1.5)", gfx::Color{1, 2, 3, 0xFF});
+    s.add_test("get_property, color", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3)", gfx::Color{1, 2, 3});
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3 / .5)", gfx::Color{1, 2, 3, 127});
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3 / -0.5)", gfx::Color{1, 2, 3, 0});
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2 3 / 1.5)", gfx::Color{1, 2, 3, 0xFF});
 
         // Invalid syntax.
         constexpr gfx::Color kErrorColor{0xFF, 0, 0};
-        expect_property_eq<css::PropertyId::Color>("rgba(1 2)", kErrorColor);
+        expect_property_eq<css::PropertyId::Color>(a, "rgba(1 2)", kErrorColor);
     });
 
-    etest::test("get_property, float", [] {
-        expect_property_eq<css::PropertyId::Float>("none", style::Float::None);
-        expect_property_eq<css::PropertyId::Float>("left", style::Float::Left);
-        expect_property_eq<css::PropertyId::Float>("right", style::Float::Right);
-        expect_property_eq<css::PropertyId::Float>("inline-start", style::Float::InlineStart);
-        expect_property_eq<css::PropertyId::Float>("inline-end", style::Float::InlineEnd);
-        expect_property_eq<css::PropertyId::Float>("???", std::nullopt);
+    s.add_test("get_property, float", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::Float>(a, "none", style::Float::None);
+        expect_property_eq<css::PropertyId::Float>(a, "left", style::Float::Left);
+        expect_property_eq<css::PropertyId::Float>(a, "right", style::Float::Right);
+        expect_property_eq<css::PropertyId::Float>(a, "inline-start", style::Float::InlineStart);
+        expect_property_eq<css::PropertyId::Float>(a, "inline-end", style::Float::InlineEnd);
+        expect_property_eq<css::PropertyId::Float>(a, "???", std::nullopt);
     });
 
-    etest::test("get_property, text-decoration-line", [] {
+    s.add_test("get_property, text-decoration-line", [](etest::IActions &a) {
         using enum style::TextDecorationLine;
-        expect_property_eq<css::PropertyId::TextDecorationLine>("none", std::vector{None});
-        expect_property_eq<css::PropertyId::TextDecorationLine>("underline", std::vector{Underline});
-        expect_property_eq<css::PropertyId::TextDecorationLine>("overline", std::vector{Overline});
-        expect_property_eq<css::PropertyId::TextDecorationLine>("line-through", std::vector{LineThrough});
-        expect_property_eq<css::PropertyId::TextDecorationLine>("blink", std::vector{Blink});
-        expect_property_eq<css::PropertyId::TextDecorationLine>("underline blink", std::vector{Underline, Blink});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "none", std::vector{None});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "underline", std::vector{Underline});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "overline", std::vector{Overline});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "line-through", std::vector{LineThrough});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "blink", std::vector{Blink});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "underline blink", std::vector{Underline, Blink});
 
-        expect_property_eq<css::PropertyId::TextDecorationLine>("unhandled!", std::vector<style::TextDecorationLine>{});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(
+                a, "unhandled!", std::vector<style::TextDecorationLine>{});
     });
 
-    etest::test("get_property, text-transform", [] {
+    s.add_test("get_property, text-transform", [](etest::IActions &a) {
         using enum style::TextTransform;
-        expect_property_eq<css::PropertyId::TextTransform>("none", None);
-        expect_property_eq<css::PropertyId::TextTransform>("capitalize", Capitalize);
-        expect_property_eq<css::PropertyId::TextTransform>("uppercase", Uppercase);
-        expect_property_eq<css::PropertyId::TextTransform>("lowercase", Lowercase);
-        expect_property_eq<css::PropertyId::TextTransform>("full-width", FullWidth);
-        expect_property_eq<css::PropertyId::TextTransform>("full-size-kana", FullSizeKana);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "none", None);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "capitalize", Capitalize);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "uppercase", Uppercase);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "lowercase", Lowercase);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "full-width", FullWidth);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "full-size-kana", FullSizeKana);
 
-        expect_property_eq<css::PropertyId::TextTransform>("unhandled!", std::nullopt);
+        expect_property_eq<css::PropertyId::TextTransform>(a, "unhandled!", std::nullopt);
     });
 
-    etest::test("get_property, white-space", [] {
-        expect_property_eq<css::PropertyId::WhiteSpace>("normal", style::WhiteSpace::Normal);
-        expect_property_eq<css::PropertyId::WhiteSpace>("pre", style::WhiteSpace::Pre);
-        expect_property_eq<css::PropertyId::WhiteSpace>("nowrap", style::WhiteSpace::Nowrap);
-        expect_property_eq<css::PropertyId::WhiteSpace>("pre-wrap", style::WhiteSpace::PreWrap);
-        expect_property_eq<css::PropertyId::WhiteSpace>("break-spaces", style::WhiteSpace::BreakSpaces);
-        expect_property_eq<css::PropertyId::WhiteSpace>("pre-line", style::WhiteSpace::PreLine);
+    s.add_test("get_property, white-space", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "normal", style::WhiteSpace::Normal);
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "pre", style::WhiteSpace::Pre);
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "nowrap", style::WhiteSpace::Nowrap);
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "pre-wrap", style::WhiteSpace::PreWrap);
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "break-spaces", style::WhiteSpace::BreakSpaces);
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "pre-line", style::WhiteSpace::PreLine);
 
-        expect_property_eq<css::PropertyId::WhiteSpace>("unhandled!", std::nullopt);
+        expect_property_eq<css::PropertyId::WhiteSpace>(a, "unhandled!", std::nullopt);
     });
 
-    etest::test("get_property, non-inherited property for a text node", [] {
+    s.add_test("get_property, non-inherited property for a text node", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"hello"};
         dom::Node text = dom::Text{"world"};
         style::StyledNode styled_node{
@@ -435,45 +439,45 @@ int main() {
         };
         auto const &child = styled_node.children.emplace_back(style::StyledNode{.node = text, .parent = &styled_node});
 
-        expect(!css::is_inherited(css::PropertyId::TextDecorationLine));
-        expect_eq(child.get_property<css::PropertyId::TextDecorationLine>(),
+        a.expect(!css::is_inherited(css::PropertyId::TextDecorationLine));
+        a.expect_eq(child.get_property<css::PropertyId::TextDecorationLine>(),
                 std::vector{style::TextDecorationLine::Blink});
 
         // Text is always "display: inline".
-        expect_eq(child.get_property<css::PropertyId::Display>(), style::Display::inline_flow());
+        a.expect_eq(child.get_property<css::PropertyId::Display>(), style::Display::inline_flow());
     });
 
-    etest::test("get_property, font-weight", [] {
-        expect_property_eq<css::PropertyId::FontWeight>("normal", style::FontWeight::normal());
-        expect_property_eq<css::PropertyId::FontWeight>("bold", style::FontWeight::bold());
+    s.add_test("get_property, font-weight", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::FontWeight>(a, "normal", style::FontWeight::normal());
+        expect_property_eq<css::PropertyId::FontWeight>(a, "bold", style::FontWeight::bold());
 
-        expect_property_eq<css::PropertyId::FontWeight>("123", style::FontWeight{123});
+        expect_property_eq<css::PropertyId::FontWeight>(a, "123", style::FontWeight{123});
 
-        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "50", style::FontWeight::normal());
-        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "normal", style::FontWeight::bold());
-        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "bold", style::FontWeight{900});
-        expect_relative_property_eq<css::PropertyId::FontWeight>("bolder", "999", style::FontWeight{999});
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "bolder", "50", style::FontWeight::normal());
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "bolder", "normal", style::FontWeight::bold());
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "bolder", "bold", style::FontWeight{900});
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "bolder", "999", style::FontWeight{999});
 
-        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "50", style::FontWeight{50});
-        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "normal", style::FontWeight{100});
-        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "bold", style::FontWeight::normal());
-        expect_relative_property_eq<css::PropertyId::FontWeight>("lighter", "999", style::FontWeight::bold());
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "lighter", "50", style::FontWeight{50});
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "lighter", "normal", style::FontWeight{100});
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "lighter", "bold", style::FontWeight::normal());
+        expect_relative_property_eq<css::PropertyId::FontWeight>(a, "lighter", "999", style::FontWeight::bold());
 
         // Invalid values.
-        expect_property_eq<css::PropertyId::FontWeight>("???", std::nullopt);
-        expect_property_eq<css::PropertyId::FontWeight>("0", std::nullopt);
-        expect_property_eq<css::PropertyId::FontWeight>("1001", std::nullopt);
-        expect_property_eq<css::PropertyId::FontWeight>("500px", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>(a, "???", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>(a, "0", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>(a, "1001", std::nullopt);
+        expect_property_eq<css::PropertyId::FontWeight>(a, "500px", std::nullopt);
 
         // Relative, no parent
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{.node = dom, .properties = {{css::PropertyId::FontWeight, "bolder"s}}};
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight::bold());
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight::bold());
         styled_node.properties[0] = {css::PropertyId::FontWeight, "lighter"s};
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight{100});
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), style::FontWeight{100});
     });
 
-    etest::test("var", [] {
+    s.add_test("var", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{
                 .node = dom,
@@ -484,20 +488,20 @@ int main() {
                 .custom_properties = {{"--color", "#abc"s}},
         };
 
-        expect_eq(styled_node.get_property<css::PropertyId::Color>(), //
+        a.expect_eq(styled_node.get_property<css::PropertyId::Color>(), //
                 gfx::Color{0xaa, 0xbb, 0xcc});
 
         // Unresolved variables return the initial value.
-        expect_eq(css::initial_value(css::PropertyId::FontWeight), "normal");
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+        a.expect_eq(css::initial_value(css::PropertyId::FontWeight), "normal");
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
                 style::FontWeight::normal());
 
         styled_node.custom_properties = {{"--weight", "bold"}};
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
                 style::FontWeight::bold());
     });
 
-    etest::test("var(var)", [] {
+    s.add_test("var(var)", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{
                 .node = dom,
@@ -508,7 +512,7 @@ int main() {
                 },
         };
 
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
                 style::FontWeight::bold());
 
         // Circular references are bad.
@@ -516,11 +520,11 @@ int main() {
                 {"--a", "var(--b)"},
                 {"--b", "var(--a)"},
         };
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>(), //
                 style::FontWeight::normal());
     });
 
-    etest::test("var() with fallback, var exists", [] {
+    s.add_test("var() with fallback, var exists", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{
                 .node = dom,
@@ -528,20 +532,20 @@ int main() {
                 .custom_properties{{"--a", "123"}},
         };
 
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 123);
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 123);
     });
 
-    etest::test("var() with fallback, no var exists", [] {
+    s.add_test("var() with fallback, no var exists", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{
                 .node = dom,
                 .properties{{css::PropertyId::FontWeight, "var(--a, 789)"}},
         };
 
-        expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 789);
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 789);
     });
 
-    etest::test("var, inherited custom property", [] {
+    s.add_test("var, inherited custom property", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{
                 .node = dom,
@@ -557,11 +561,11 @@ int main() {
         auto &child = styled_node.children[0];
         child.parent = &styled_node;
 
-        expect_eq(child.get_property<css::PropertyId::FontWeight>(), //
+        a.expect_eq(child.get_property<css::PropertyId::FontWeight>(), //
                 style::FontWeight::bold());
     });
 
-    etest::test("==, custom properties", [] {
+    s.add_test("==, custom properties", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
 
         style::StyledNode with{
@@ -571,11 +575,11 @@ int main() {
 
         style::StyledNode without{.node = dom};
 
-        expect(with != without);
+        a.expect(with != without);
 
         without.custom_properties = {{"--a", "bold"}};
-        expect_eq(with, without);
+        a.expect_eq(with, without);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
