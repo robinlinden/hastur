@@ -11,7 +11,9 @@
 #include "etest/etest.h"
 #include "html/parser_actions.h"
 
+#include <array>
 #include <cstddef>
+#include <format>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -519,40 +521,41 @@ void in_body_tests() {
         std::ignore = parse("<body><template>", {}); //
     });
 
-    etest::test("InBody: <li>", [] {
-        auto res = parse("<body><ul><li><p>hello<li>world", {});
-        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
-        expect_eq(body.children.size(), std::size_t{1});
-        auto const &ul = std::get<dom::Element>(body.children.at(0));
+    for (auto tag : std::to_array<std::string_view>({"li", "dt", "dd"})) {
+        etest::test(std::format("InBody: <{}>", tag), [tag] {
+            auto html = std::format("<body><{}><p>hello<{}>world", tag, tag);
+            auto res = parse(html, {});
+            auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
 
-        expect_eq(ul,
-                dom::Element{
-                        "ul",
-                        {},
-                        {
-                                dom::Element{"li", {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}},
-                                dom::Element{"li", {}, {dom::Text{"world"}}},
-                        },
-                });
-    });
+            expect_eq(body,
+                    dom::Element{
+                            "body",
+                            {},
+                            {
+                                    dom::Element{std::string{tag}, {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}},
+                                    dom::Element{std::string{tag}, {}, {dom::Text{"world"}}},
+                            },
+                    });
+        });
 
-    etest::test("InBody: <li>, weird specials", [] {
-        auto res = parse("<body><section><p><li>hello<a><li>world", {});
-        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
-        expect_eq(body.children.size(), std::size_t{1});
-        auto const &section = std::get<dom::Element>(body.children.at(0));
+        etest::test(std::format("InBody: <{}>, weird specials", tag), [tag] {
+            auto res = parse(std::format("<body><section><p><{}>hello<a><{}>world", tag, tag), {});
+            auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+            expect_eq(body.children.size(), std::size_t{1});
+            auto const &section = std::get<dom::Element>(body.children.at(0));
 
-        expect_eq(section,
-                dom::Element{
-                        "section",
-                        {},
-                        {
-                                dom::Element{"p"},
-                                dom::Element{"li", {}, {dom::Text{"hello"}, dom::Element{"a"}}},
-                                dom::Element{"li", {}, {dom::Text{"world"}}},
-                        },
-                });
-    });
+            expect_eq(section,
+                    dom::Element{
+                            "section",
+                            {},
+                            {
+                                    dom::Element{"p"},
+                                    dom::Element{std::string{tag}, {}, {dom::Text{"hello"}, dom::Element{"a"}}},
+                                    dom::Element{std::string{tag}, {}, {dom::Text{"world"}}},
+                            },
+                    });
+        });
+    }
 
     etest::test("InBody: body end tag, disallowed element", [] {
         auto res = parse("<body><foo></body>", {});
