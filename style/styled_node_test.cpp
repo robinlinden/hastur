@@ -25,13 +25,18 @@ using namespace std::literals;
 namespace {
 template<css::PropertyId IdT>
 void expect_property_eq(etest::IActions &a,
-        std::string value,
+        std::optional<std::string> value,
         auto const &expected,
+        std::vector<std::pair<css::PropertyId, std::string>> extra_properties = {},
         std::source_location const &loc = std::source_location::current()) {
+    if (value) {
+        extra_properties.emplace_back(IdT, std::move(*value));
+    }
+
     dom::Node dom_node = dom::Element{"dummy"s};
     style::StyledNode styled_node{
             .node = dom_node,
-            .properties = {{IdT, std::move(value)}},
+            .properties = std::move(extra_properties),
             .children = {},
     };
 
@@ -57,6 +62,7 @@ void expect_relative_property_eq(etest::IActions &a,
 } // namespace
 
 int main() {
+    using enum css::PropertyId;
     etest::Suite s;
 
     s.add_test("get_property", [](etest::IActions &a) {
@@ -579,6 +585,24 @@ int main() {
 
         without.custom_properties = {{"--a", "bold"}};
         a.expect_eq(with, without);
+    });
+
+    s.add_test("border radius", [](etest::IActions &a) {
+        expect_property_eq<BorderTopLeftRadius>(a, "2em", std::pair{60, 60}, {{FontSize, "30px"}});
+        expect_property_eq<BorderTopRightRadius>(a, std::nullopt, std::pair{0, 0});
+        expect_property_eq<BorderBottomLeftRadius>(a, std::nullopt, std::pair{0, 0});
+        expect_property_eq<BorderBottomRightRadius>(a, "10px/3em", std::pair{10, 90}, {{FontSize, "30px"}});
+    });
+
+    s.add_test("width", [](etest::IActions &a) {
+        expect_property_eq<MinWidth>(a, "13px", style::UnresolvedValue{"13px"});
+        expect_property_eq<MinWidth>(a, "auto", style::UnresolvedValue{"auto"});
+
+        expect_property_eq<Width>(a, "42px", style::UnresolvedValue{"42px"});
+        expect_property_eq<Width>(a, "auto", style::UnresolvedValue{"auto"});
+
+        expect_property_eq<MaxWidth>(a, "420px", style::UnresolvedValue{"420px"});
+        expect_property_eq<MaxWidth>(a, "none", style::UnresolvedValue{"none"});
     });
 
     return s.run();
