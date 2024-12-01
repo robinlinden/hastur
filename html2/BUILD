@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
@@ -46,8 +46,9 @@ extra_deps = {
     ],
 )]
 
-cc_test(
+cc_binary(
     name = "html5lib_test_runner",
+    testonly = True,
     srcs = ["html5lib_test.cpp"],
     copts = HASTUR_COPTS + select({
         # simdjson leaks a bunch of warnings into our code.
@@ -57,10 +58,7 @@ cc_test(
         ],
         "//conditions:default": [],
     }),
-    tags = [
-        "manual",
-        "no-cross",
-    ],
+    tags = ["no-cross"],
     # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
     # tests.
     deps = [
