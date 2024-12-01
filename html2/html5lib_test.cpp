@@ -83,6 +83,7 @@ std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
     return {std::move(tokens), std::move(errors)};
 }
 
+// NOLINTBEGIN(clang-analyzer-unix.Errno): Problem in simdjson that probably doesn't affect us.
 // NOLINTBEGIN(misc-include-cleaner): What you're meant to include from
 // simdjson depends on things like the architecture you're compiling for.
 // This is handled automagically with detection macros inside simdjson.
@@ -104,7 +105,7 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
             auto system_id = kGetOptionalStr((*++it).value());
             // The json has "correctness" instead of "force quirks", so we negate it.
             auto force_quirks = !(*++it).value().get_bool().value();
-            result.push_back(html2::DoctypeToken{
+            result.emplace_back(html2::DoctypeToken{
                     std::move(name),
                     std::move(public_id),
                     std::move(system_id),
@@ -114,7 +115,7 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
         }
 
         if (kind == "Comment") {
-            result.push_back(html2::CommentToken{std::string{(*++it).value().get_string().value()}});
+            result.emplace_back(html2::CommentToken{std::string{(*++it).value().get_string().value()}});
             continue;
         }
 
@@ -132,19 +133,19 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
                 start.self_closing = (*it).value().get_bool().value();
             }
 
-            result.push_back(std::move(start));
+            result.emplace_back(std::move(start));
             continue;
         }
 
         if (kind == "EndTag") {
-            result.push_back(html2::EndTagToken{std::string{(*++it).value().get_string().value()}});
+            result.emplace_back(html2::EndTagToken{std::string{(*++it).value().get_string().value()}});
             continue;
         }
 
         if (kind == "Character") {
             auto characters = (*++it).value().get_string().value();
             for (auto c : characters) {
-                result.push_back(html2::CharacterToken{c});
+                result.emplace_back(html2::CharacterToken{c});
             }
             continue;
         }
@@ -377,11 +378,12 @@ std::optional<Error> to_error(simdjson::ondemand::value error) {
         return std::nullopt;
     }
 
-    auto parse_error = to_parse_error(code).value();
+    auto parse_error = to_parse_error(code);
+    assert(parse_error.has_value());
     auto line = error["line"].get_uint64().value();
     auto col = error["col"].get_uint64().value();
     return Error{
-            parse_error,
+            parse_error.value(),
             {static_cast<int>(line), static_cast<int>(col)},
     };
 }
@@ -481,3 +483,4 @@ int main(int argc, char **argv) {
     return s.run();
 }
 // NOLINTEND(misc-include-cleaner)
+// NOLINTEND(clang-analyzer-unix.Errno)
