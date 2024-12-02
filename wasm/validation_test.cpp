@@ -44,76 +44,75 @@ int main() {
 
     s.add_test("Function: block with valid body", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Block{.type = {ValueType::Int32}, .instructions = {I32Const{42}, I32Const{42}, I32Add{}}}};
+                Block{.type = {ValueType::Int32}}, I32Const{42}, I32Const{42}, I32Add{}, End{}};
 
         a.expect(validate(m).has_value());
     });
 
     s.add_test("Function: loop with valid body", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Loop{.type = {ValueType::Int32}, .instructions = {I32Const{42}, I32Const{42}, I32Add{}}}};
+                Loop{.type = {ValueType::Int32}}, I32Const{42}, I32Const{42}, I32Add{}, End{}};
 
         a.expect(validate(m).has_value());
     });
 
     s.add_test("Function: block with invalid body", [=](etest::IActions &a) mutable {
-        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}, .instructions = {I32Const{42}, I32Add{}}}};
+        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, I32Const{42}, I32Add{}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: block returning with unclean stack", [=](etest::IActions &a) mutable {
-        m.code_section->entries[0].code = {Block{
-                .type = {ValueType::Int32}, .instructions = {I32Const{42}, I32Const{42}, I32Const{42}, I32Add{}}}};
+        m.code_section->entries[0].code = {
+                Block{.type = {ValueType::Int32}}, I32Const{42}, I32Const{42}, I32Const{42}, I32Add{}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackHeightMismatch});
     });
 
     s.add_test("Function: block with valid body and invalid return value", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Block{.type = {ValueType::Int64}, .instructions = {I32Const{42}, I32Const{42}, I32Add{}}}};
+                Block{.type = {ValueType::Int64}}, I32Const{42}, I32Const{42}, I32Add{}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnexpected});
     });
 
     s.add_test("Function: block ending with branch", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Block{.type = {ValueType::Int32}, .instructions = {I32Const{42}, Branch{.label_idx = 0}}}};
+                Block{.type = {ValueType::Int32}}, I32Const{42}, Branch{.label_idx = 0}, End{}};
 
         a.expect(validate(m).has_value());
     });
 
     s.add_test("Function: loop with conditional branch", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Loop{.type = {BlockType::Empty{}}, .instructions = {I32Const{1}, BranchIf{.label_idx = 0}}},
-                I32Const{1}};
+                Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 0}, End{}, I32Const{1}, End{}};
 
         a.expect(validate(m).has_value());
     });
 
     s.add_test("Function: loop with conditional branch, invalid label", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Loop{.type = {BlockType::Empty{}}, .instructions = {I32Const{1}, BranchIf{.label_idx = 4}}}};
+                Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 4}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::LabelInvalid});
     });
 
     s.add_test("Function: block with branch, dead code", [=](etest::IActions &a) mutable {
-        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32},
-                .instructions = {I32Const{42}, I32Const{42}, Branch{.label_idx = 0}, I32Add{}}}};
+        m.code_section->entries[0].code = {
+                Block{.type = {ValueType::Int32}}, I32Const{42}, I32Const{42}, Branch{.label_idx = 0}, I32Add{}, End{}};
 
         a.expect(validate(m).has_value());
     });
 
     s.add_test("Function: block with branch, incorrect return value", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Block{.type = {ValueType::Int64}, .instructions = {I32Const{42}, Branch{.label_idx = 0}}}};
+                Block{.type = {ValueType::Int64}}, I32Const{42}, Branch{.label_idx = 0}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnexpected});
     });
 
     s.add_test("Function: block with branch, invalid label", [=](etest::IActions &a) mutable {
-        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}, .instructions = {Branch{.label_idx = 4}}}};
+        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, Branch{.label_idx = 4}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::LabelInvalid});
     });
@@ -125,27 +124,27 @@ int main() {
     });
 
     s.add_test("Function: getting undefined local", [=](etest::IActions &a) mutable {
-        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}, .instructions = {LocalGet{0}}}};
+        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, LocalGet{0}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::LocalUndefined});
     });
 
     s.add_test("Function: valid return", [=](etest::IActions &a) mutable {
-        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}, .instructions = {I32Const{42}, Return{}}}};
+        m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, I32Const{42}, Return{}, End{}};
 
         a.expect(validate(m).has_value());
     });
 
     s.add_test("Function: invalid return, implicit", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Loop{.type = {BlockType::Empty{}}, .instructions = {I32Const{1}, BranchIf{.label_idx = 0}}}};
+                Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 0}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: invalid return, explicit", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
-                Loop{.type = {BlockType::Empty{}}, .instructions = {I32Const{1}, BranchIf{.label_idx = 0}}}, Return{}};
+                Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 0}, End{}, Return{}, End{}};
 
         a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
     });
