@@ -417,7 +417,6 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
                     child = &box.children[i];
                     child->layout_text = std::string{text.substr(0, best_split_point)};
                 } else {
-                    child->dimensions.content.width = font->measure(text, font_size, weight).width;
                     last_child_end += child->dimensions.margin_box().width;
                 }
             }
