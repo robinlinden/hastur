@@ -65,7 +65,7 @@ int main() {
                 .children{{
                         &style_root.children[0],
                         {{0, 0, 100, 10}},
-                        {{nullptr, {{0, 0, 60, 10}}, {std::move(layout_children)}}},
+                        {{nullptr, {{0, 0, 100, 10}}, {std::move(layout_children)}}},
                 }}};
 
         auto layout_root = layout::create_layout(style_root, 100);
@@ -178,7 +178,7 @@ int main() {
                 "  block {0,0,50,30} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,0,50,25} {0,0,0,0} {0,0,0,0}\n"
-                "      ablock {0,0,35,10} {0,0,0,0} {0,0,0,0}\n"
+                "      ablock {0,0,50,10} {0,0,0,0} {0,0,0,0}\n"
                 "        !!! !!!\n"
                 "        inline {0,0,35,10} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"

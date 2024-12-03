@@ -88,7 +88,7 @@ void whitespace_collapsing_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .dimensions{{0, 0, 1234, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
@@ -155,7 +155,7 @@ void whitespace_collapsing_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, kFirstWidth + kSecondWidth, 10}},
+                        .dimensions{{0, 0, 1234, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
@@ -222,7 +222,7 @@ void whitespace_collapsing_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, first_width + second_width, 10}},
+                        .dimensions{{0, 0, 1234, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
@@ -290,7 +290,7 @@ void whitespace_collapsing_tests() {
                 .children{
                         layout::LayoutBox{
                                 .node = nullptr,
-                                .dimensions{{0, 0, kFirstWidth, 10}},
+                                .dimensions{{0, 0, 1234, 10}},
                                 .children{std::move(first_layout)},
                         },
                         layout::LayoutBox{
@@ -299,7 +299,7 @@ void whitespace_collapsing_tests() {
                         },
                         layout::LayoutBox{
                                 .node = nullptr,
-                                .dimensions{{0, 10, kSecondWidth, 10}},
+                                .dimensions{{0, 10, 1234, 10}},
                                 .children{std::move(second_layout)},
                         },
                 },
@@ -371,7 +371,7 @@ void whitespace_collapsing_tests() {
                 .children{
                         layout::LayoutBox{
                                 .node = nullptr,
-                                .dimensions{{0, 0, kFirstWidth + kSpaceWidth + kSecondWidth, 10}},
+                                .dimensions{{0, 0, 1234, 10}},
                                 .children{
                                         std::move(first_layout),
                                         std::move(space_layout),
@@ -422,7 +422,7 @@ void whitespace_collapsing_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{
                         layout::LayoutBox{
-                                .dimensions{{0, 0, kFirstWidth, 10}},
+                                .dimensions{{0, 0, 1234, 10}},
                                 .children{
                                         layout::LayoutBox{
                                                 .node = &style.children.at(0).children.at(0),
@@ -438,7 +438,7 @@ void whitespace_collapsing_tests() {
                 .dimensions{{0, 10, 1234, 10}},
                 .children{
                         layout::LayoutBox{
-                                .dimensions{{0, 10, kSecondWidth, 10}},
+                                .dimensions{{0, 10, 1234, 10}},
                                 .children{
                                         layout::LayoutBox{
                                                 .node = &style.children.at(2).children.at(0),
@@ -499,7 +499,7 @@ void text_transform_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .dimensions{{0, 0, 1234, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
@@ -543,7 +543,7 @@ void text_transform_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .dimensions{{0, 0, 1234, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
@@ -587,7 +587,7 @@ void text_transform_tests() {
                 .dimensions{{0, 0, 1234, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, kTextWidth, 10}},
+                        .dimensions{{0, 0, 1234, 10}},
                         .children{std::move(p_layout)},
                 }},
         };
@@ -852,7 +852,7 @@ int main() {
             .dimensions = {{0, 0, 100, 10}},
             .children = {
                 {&style_root.children[0], {{0, 0, 100, 10}}, {
-                    {nullptr, {{0, 0, 60, 10}}, {
+                    {nullptr, {{0, 0, 100, 10}}, {
                         {&style_root.children[0].children[0], {{0, 0, 25, 10}}, {}, "hello"sv},
                         {&style_root.children[0].children[1], {{25, 0, 35, 10}}, {}, "goodbye"sv},
                     }},
@@ -1699,7 +1699,7 @@ int main() {
                 .dimensions{{0, 0, 30, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, 25, 10}},
+                        .dimensions{{0, 0, 30, 10}},
                         .children{layout::LayoutBox{
                                 .node = &style.children[0],
                                 .dimensions{{0, 0, 25, 10}},
@@ -1759,7 +1759,7 @@ int main() {
                 .dimensions{{0, 0, 30, 20}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, 25, 20}},
+                        .dimensions{{0, 0, 30, 20}},
                         .children{
                                 layout::LayoutBox{
                                         .node = &style.children[0],
@@ -1793,7 +1793,7 @@ int main() {
                 .dimensions{{0, 0, 30, 20}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, 25, 20}},
+                        .dimensions{{0, 0, 30, 20}},
                         .children{
                                 layout::LayoutBox{
                                         .node = &style.children[0],
@@ -1827,7 +1827,7 @@ int main() {
                 .dimensions{{0, 0, 15, 10}},
                 .children{layout::LayoutBox{
                         .node = nullptr,
-                        .dimensions{{0, 0, 25, 10}},
+                        .dimensions{{0, 0, 15, 10}},
                         .children{layout::LayoutBox{
                                 .node = &style.children[0],
                                 .dimensions{{0, 0, 25, 10}},

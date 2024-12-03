@@ -357,6 +357,7 @@ void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds) const {
 // NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) const {
     calculate_position(box, bounds);
+    box.dimensions.content.width = bounds.width;
     int last_child_end{};
     int current_line{};
     auto font_size = type::Px{!box.children.empty() ? box.children[0].get_property<css::PropertyId::FontSize>() : 0};
@@ -425,8 +426,6 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
         }
         box.dimensions.content.height =
                 std::max(box.dimensions.content.height, child->dimensions.margin_box().height * (current_line + 1));
-        box.dimensions.content.width =
-                std::max({box.dimensions.content.width, last_child_end, child->dimensions.content.width});
     }
 }
 
