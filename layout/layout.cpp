@@ -423,9 +423,11 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
         } else {
             last_child_end += child->dimensions.margin_box().width;
         }
-        box.dimensions.content.height =
-                std::max(box.dimensions.content.height, child->dimensions.margin_box().height * (current_line + 1));
     }
+
+    assert(!box.children.empty());
+    auto last_size = box.children.back().dimensions.margin_box();
+    box.dimensions.content.height = last_size.y - box.dimensions.margin_box().y + last_size.height;
 }
 
 void Layouter::calculate_left_and_right_margin(LayoutBox &box,
