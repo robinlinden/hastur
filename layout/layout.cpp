@@ -396,6 +396,15 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
         // TODO(robinlinden): Handle cases where the text isn't a direct child of the anonymous block.
         if (last_child_end + child->dimensions.margin_box().width > bounds.width) {
+            // Is the entire box out-of-bounds?
+            if (child->dimensions.margin_box().x - box.dimensions.margin_box().x > bounds.width) {
+                last_child_end = 0;
+                current_line += 1;
+                layout(*child, box.dimensions.content.translated(0, current_line * font_size.v));
+                continue;
+            }
+
+            // Does the box contain splittable text?
             auto maybe_text = child->text();
             if (maybe_text.has_value()) {
                 std::string_view text = *maybe_text;

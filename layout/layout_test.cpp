@@ -1813,6 +1813,124 @@ int main() {
         expect_eq(l, expected);
     });
 
+    etest::test("unsplittable text too long for its container, short text after", [] {
+        dom::Node dom = dom::Element{
+                .name{"html"},
+                .children{
+                        dom::Text{"123456"},
+                        dom::Element{"a"},
+                        dom::Text{"12"},
+                },
+        };
+
+        auto const &html = std::get<dom::Element>(dom);
+        style::StyledNode style{
+                .node{dom},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        style::StyledNode{.node{html.children[0]}},
+                        style::StyledNode{
+                                .node{html.children[1]},
+                                .properties{{css::PropertyId::Display, "inline"}},
+                        },
+                        style::StyledNode{.node{html.children[2]}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .dimensions{{0, 0, 20, 20}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .dimensions{{0, 0, 20, 20}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .dimensions{{0, 0, 30, 10}},
+                                        .layout_text = "123456"sv,
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[1],
+                                        .dimensions{{0, 10, 0, 0}},
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[2],
+                                        .dimensions{{0, 10, 10, 10}},
+                                        .layout_text = "12"sv,
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 20).value();
+        expect_eq(l, expected);
+    });
+
+    etest::test("unsplittable text too long for its container, short element after", [] {
+        dom::Node dom = dom::Element{
+                .name{"html"},
+                .children{
+                        dom::Text{"123456"},
+                        dom::Element{"a", {}, {dom::Text{"12"}}},
+                },
+        };
+
+        auto const &html = std::get<dom::Element>(dom);
+        auto const &a = std::get<dom::Element>(html.children[1]);
+        style::StyledNode style{
+                .node{dom},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        style::StyledNode{.node{html.children[0]}},
+                        style::StyledNode{
+                                .node{html.children[1]},
+                                .properties{{css::PropertyId::Display, "inline"}},
+                                .children{
+                                        style::StyledNode{.node{a.children[0]}},
+                                },
+                        },
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .dimensions{{0, 0, 20, 20}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .dimensions{{0, 0, 20, 20}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .dimensions{{0, 0, 30, 10}},
+                                        .layout_text = "123456"sv,
+                                },
+                                layout::LayoutBox{
+                                        .node = &style.children[1],
+                                        .dimensions{{0, 10, 10, 10}},
+                                        .children{
+                                                layout::LayoutBox{
+                                                        .node = &style.children[1].children[0],
+                                                        .dimensions{{0, 10, 10, 10}},
+                                                        .layout_text = "12"sv,
+                                                },
+                                        },
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 20).value();
+        expect_eq(l, expected);
+    });
+
     etest::test("text too long for its container, but no split point available", [] {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
         style::StyledNode style{
