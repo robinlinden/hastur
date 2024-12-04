@@ -312,6 +312,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     calculate_border(box, font_size);
 
     if (auto text = box.text()) {
+        assert(box.children.empty());
         auto font_families = box.get_property<css::PropertyId::FontFamily>();
         auto weight = to_type(box.get_property<css::PropertyId::FontWeight>());
         auto font = find_font(font_families);
@@ -327,6 +328,12 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
         auto const &d = box.dimensions;
         box.dimensions.content.x = bounds.x + d.padding.left + d.border.left + d.margin.left;
         box.dimensions.content.y = bounds.y + d.border.top + d.padding.top + d.margin.top;
+    }
+
+    // When attempting to wrap inline content, we sometimes try multiple layout
+    // candidates, so width += <...> without resetting it between runs is bad.
+    if (!box.text()) {
+        box.dimensions.content.width = 0;
     }
 
     int last_child_end{};
