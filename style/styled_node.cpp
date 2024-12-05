@@ -466,7 +466,8 @@ std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() 
         }
 
         if (v == "blink") {
-            return TextDecorationLine::Blink;
+            spdlog::warn("Deprecated text-decoration-line value '{}'", v);
+            return std::nullopt;
         }
 
         spdlog::warn("Unhandled text-decoration-line value '{}'", v);

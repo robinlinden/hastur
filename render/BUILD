@@ -14,7 +14,6 @@ cc_library(
         "//gfx",
         "//layout",
         "//style",
-        "@spdlog",
     ],
 )
 

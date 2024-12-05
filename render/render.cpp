@@ -14,14 +14,11 @@
 #include "layout/layout_box.h"
 #include "style/styled_node.h"
 
-#include <spdlog/spdlog.h>
-
 #include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <optional>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 namespace render {
@@ -59,9 +56,6 @@ gfx::FontStyle to_gfx(style::FontStyle style,
                 break;
             case style::TextDecorationLine::Overline:
                 gfx.overlined = true;
-                break;
-            default:
-                spdlog::warn("Unhandled text decoration line '{}'", std::to_underlying(decoration));
                 break;
         }
     }

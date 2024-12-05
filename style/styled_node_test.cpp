@@ -403,9 +403,10 @@ int main() {
         expect_property_eq<css::PropertyId::TextDecorationLine>(a, "underline", std::vector{Underline});
         expect_property_eq<css::PropertyId::TextDecorationLine>(a, "overline", std::vector{Overline});
         expect_property_eq<css::PropertyId::TextDecorationLine>(a, "line-through", std::vector{LineThrough});
-        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "blink", std::vector{Blink});
-        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "underline blink", std::vector{Underline, Blink});
+        expect_property_eq<css::PropertyId::TextDecorationLine>(
+                a, "underline overline", std::vector{Underline, Overline});
 
+        expect_property_eq<css::PropertyId::TextDecorationLine>(a, "blink", std::vector<style::TextDecorationLine>{});
         expect_property_eq<css::PropertyId::TextDecorationLine>(
                 a, "unhandled!", std::vector<style::TextDecorationLine>{});
     });
@@ -439,7 +440,7 @@ int main() {
         style::StyledNode styled_node{
                 .node = dom,
                 .properties{
-                        {css::PropertyId::TextDecorationLine, "blink"s},
+                        {css::PropertyId::TextDecorationLine, "overline"s},
                         {css::PropertyId::Display, "block"s},
                 },
         };
@@ -447,7 +448,7 @@ int main() {
 
         a.expect(!css::is_inherited(css::PropertyId::TextDecorationLine));
         a.expect_eq(child.get_property<css::PropertyId::TextDecorationLine>(),
-                std::vector{style::TextDecorationLine::Blink});
+                std::vector{style::TextDecorationLine::Overline});
 
         // Text is always "display: inline".
         a.expect_eq(child.get_property<css::PropertyId::Display>(), style::Display::inline_flow());

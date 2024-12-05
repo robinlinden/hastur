@@ -84,7 +84,6 @@ enum class TextDecorationLine : std::uint8_t {
     Underline,
     Overline,
     LineThrough,
-    Blink,
 };
 
 enum class TextTransform : std::uint8_t {
