@@ -17,6 +17,7 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <optional>
 #include <string_view>
@@ -120,11 +121,7 @@ void do_render(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
 }
 
 bool should_render(layout::LayoutBox const &layout) {
-    if (layout.is_anonymous_block()) {
-        return false;
-    }
-
-    return layout.get_property<css::PropertyId::Display>().has_value();
+    return !layout.is_anonymous_block();
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -134,6 +131,8 @@ void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, 
     }
 
     if (should_render(layout)) {
+        // display: none'd elements aren't part of the layout tree, so they won't appear here.
+        assert(layout.get_property<css::PropertyId::Display>().has_value());
         do_render(painter, layout);
     }
 
