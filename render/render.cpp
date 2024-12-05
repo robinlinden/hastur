@@ -57,6 +57,9 @@ gfx::FontStyle to_gfx(style::FontStyle style,
             case style::TextDecorationLine::LineThrough:
                 gfx.strikethrough = true;
                 break;
+            case style::TextDecorationLine::Overline:
+                gfx.overlined = true;
+                break;
             default:
                 spdlog::warn("Unhandled text decoration line '{}'", std::to_underlying(decoration));
                 break;

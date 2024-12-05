@@ -367,6 +367,22 @@ int main() {
                         },
                 });
 
+        styled.properties[0].second = "overline";
+
+        render::render_layout(saver, layout);
+        expect_eq(saver.take_commands(),
+                CanvasCommands{
+                        gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
+                        gfx::DrawTextWithFontOptionsCmd{
+                                {0, 0},
+                                "hello",
+                                {"arial"},
+                                16,
+                                {.italic = true, .overlined = true},
+                                gfx::Color::from_css_name("canvastext").value(),
+                        },
+                });
+
         styled.properties.emplace_back(css::PropertyId::FontWeight, "bold");
 
         render::render_layout(saver, layout);
@@ -378,7 +394,7 @@ int main() {
                                 "hello",
                                 {"arial"},
                                 16,
-                                {.bold = true, .italic = true},
+                                {.bold = true, .italic = true, .overlined = true},
                                 gfx::Color::from_css_name("canvastext").value(),
                         },
                 });

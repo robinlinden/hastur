@@ -22,6 +22,7 @@ struct FontStyle {
     bool italic{false};
     bool strikethrough{false};
     bool underlined{false};
+    bool overlined{false};
 
     [[nodiscard]] constexpr bool operator==(FontStyle const &) const = default;
 };
