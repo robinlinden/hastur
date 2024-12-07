@@ -13,7 +13,7 @@ cc_library(
 )
 
 [cc_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,

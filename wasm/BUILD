@@ -21,7 +21,7 @@ cc_library(
 )
 
 [cc_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
@@ -36,13 +36,13 @@ cc_library(
 )]
 
 [cc_fuzz_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
     corpus = glob(
-        include = [src[:-4] + "_corpus/*"],
+        include = [src.removesuffix(".cpp") + "_corpus/*"],
         allow_empty = True,
     ),
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,

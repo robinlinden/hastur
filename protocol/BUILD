@@ -20,7 +20,7 @@ cc_library(
 )
 
 [cc_fuzz_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     testonly = True,
     srcs = [src],
@@ -33,7 +33,7 @@ cc_library(
 ) for src in glob(["*_fuzz_test.cpp"])]
 
 [cc_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,

@@ -9,7 +9,7 @@ cc_library(
 )
 
 [cc_test(
-    name = src[:-4].replace("/", "_"),
+    name = src.removesuffix(".cpp").replace("/", "_"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,

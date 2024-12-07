@@ -47,12 +47,12 @@ alias(
 )
 
 [cc_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
-        ":%s" % src[:-9],
+        ":%s" % src.removesuffix("_test.cpp"),
         "//etest",
         "@expected",
     ],
@@ -62,11 +62,11 @@ alias(
 )]
 
 [cc_fuzz_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
-    deps = [":%s" % src[:-14]],
+    deps = [":%s" % src.removesuffix("_fuzz_test.cpp")],
 ) for src in glob(["*_fuzz_test.cpp"])]

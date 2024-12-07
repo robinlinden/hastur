@@ -27,7 +27,7 @@ extra_deps = {
 }
 
 [cc_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
@@ -35,7 +35,7 @@ extra_deps = {
         ":html2",
         "//etest",
     ] + extra_deps.get(
-        src[:-9],
+        src.removesuffix("_test.cpp"),
         [],
     ),
 ) for src in glob(
@@ -83,7 +83,7 @@ genrule(
 
 # TODO(robinlinden): Look into the remaining tests.
 [sh_test(
-    name = "html5lib_{}".format(test.rpartition("/")[-1][:-5]),
+    name = "html5lib_{}".format(test.rpartition("/")[-1].removesuffix(".test")),
     size = "small",
     srcs = [":test_with_arg"],
     args = [
@@ -114,7 +114,7 @@ genrule(
 ]]
 
 [cc_fuzz_test(
-    name = src[:-4],
+    name = src.removesuffix(".cpp"),
     size = "small",
     testonly = True,
     srcs = [src],
