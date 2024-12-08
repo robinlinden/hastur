@@ -4,44 +4,46 @@
 
 #include "html2/token.h"
 
-#include "etest/etest.h"
-
-using etest::expect_eq;
+#include "etest/etest2.h"
 
 using namespace html2;
 
 int main() {
-    etest::test("to_string(Doctype)", [] {
-        expect_eq(to_string(DoctypeToken{.name = "test"}), R"(Doctype test "" "")");
-        expect_eq(to_string(DoctypeToken{
-                          .name = "html",
-                          .public_identifier = "a",
-                          .system_identifier = "b",
-                  }),
+    etest::Suite s;
+
+    s.add_test("to_string(Doctype)", [](etest::IActions &a) {
+        a.expect_eq(to_string(DoctypeToken{.name = "test"}), R"(Doctype test "" "")");
+        a.expect_eq(to_string(DoctypeToken{
+                            .name = "html",
+                            .public_identifier = "a",
+                            .system_identifier = "b",
+                    }),
                 "Doctype html a b");
     });
 
-    etest::test("to_string(StartTag)", [] {
-        expect_eq(to_string(StartTagToken{.tag_name = "p", .self_closing = false}), "StartTag p false");
-        expect_eq(to_string(StartTagToken{.tag_name = "img", .self_closing = true}), "StartTag img true");
+    s.add_test("to_string(StartTag)", [](etest::IActions &a) {
+        a.expect_eq(to_string(StartTagToken{.tag_name = "p", .self_closing = false}), "StartTag p false");
+        a.expect_eq(to_string(StartTagToken{.tag_name = "img", .self_closing = true}), "StartTag img true");
     });
 
-    etest::test("to_string(EndTag)", [] {
-        expect_eq(to_string(EndTagToken{.tag_name = "p"}), "EndTag p");
-        expect_eq(to_string(EndTagToken{.tag_name = "img"}), "EndTag img");
+    s.add_test("to_string(EndTag)", [](etest::IActions &a) {
+        a.expect_eq(to_string(EndTagToken{.tag_name = "p"}), "EndTag p");
+        a.expect_eq(to_string(EndTagToken{.tag_name = "img"}), "EndTag img");
     });
 
-    etest::test("to_string(Comment)", [] {
-        expect_eq(to_string(CommentToken{"hello?"}), "Comment hello?");
-        expect_eq(to_string(CommentToken{"!!!"}), "Comment !!!");
+    s.add_test("to_string(Comment)", [](etest::IActions &a) {
+        a.expect_eq(to_string(CommentToken{"hello?"}), "Comment hello?");
+        a.expect_eq(to_string(CommentToken{"!!!"}), "Comment !!!");
     });
 
-    etest::test("to_string(Character)", [] {
-        expect_eq(to_string(CharacterToken{'a'}), "Character a");
-        expect_eq(to_string(CharacterToken{'?'}), "Character ?");
+    s.add_test("to_string(Character)", [](etest::IActions &a) {
+        a.expect_eq(to_string(CharacterToken{'a'}), "Character a");
+        a.expect_eq(to_string(CharacterToken{'?'}), "Character ?");
     });
 
-    etest::test("to_string(EndOfFile)", [] { expect_eq(to_string(EndOfFileToken{}), "EndOfFile"); });
+    s.add_test("to_string(EndOfFile)", [](etest::IActions &a) {
+        a.expect_eq(to_string(EndOfFileToken{}), "EndOfFile"); //
+    });
 
-    return etest::run_all_tests();
+    return s.run();
 }
