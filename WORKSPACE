@@ -222,38 +222,37 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-# 1.91.5 isn't supported by any version of imgui-sfml yet.
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-pFXCjZh8eN31aquYzg/w/aeRojouyIreRt0Qa4N/CSM=",
-    strip_prefix = "imgui-1.91.4",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.4.tar.gz",
+    integrity = "sha256-KqLRacVpNoQ55dVmfgeW0JylzGQyllzgguUWk319slQ=",
+    strip_prefix = "imgui-1.91.5",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.5.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
-# HEAD as of 2024-10-16.
+# HEAD as of 2024-12-08.
 http_archive(
     name = "imgui-sfml",  # MIT
     build_file = "//third_party:imgui-sfml.BUILD",
-    integrity = "sha256-IQXHW+Dsnuc8+6RgdKfEMAZ1mfaMXOQj0SEcmZ2VldM=",
+    integrity = "sha256-PE2zV+KVEmzowgzhZ8nxJFNWROR5fJ7v802CyinLhVY=",
     patch_cmds = [
         # Use glad for OpenGL instead of the system OpenGL headers.
         "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
         "sed -i'' -e '4i\\\n#include <glad/gl.h>\\\n' imgui-SFML.cpp",
-        "sed -i'' -e '240i\\\n\\\tif (gladLoaderLoadGL() == 0) std::abort();\\\n' imgui-SFML.cpp",
+        "sed -i'' -e '297i\\\n\\\tif (gladLoaderLoadGL() == 0) std::abort();\\\n' imgui-SFML.cpp",
     ],
-    strip_prefix = "imgui-sfml-560baa9ae707bd6866ac91da04b514519234494a",
-    url = "https://github.com/SFML/imgui-sfml/archive/560baa9ae707bd6866ac91da04b514519234494a.tar.gz",
+    strip_prefix = "imgui-sfml-4fec0d0f35f10f58b327cf5b4d12852ed1a77fbb",
+    url = "https://github.com/SFML/imgui-sfml/archive/4fec0d0f35f10f58b327cf5b4d12852ed1a77fbb.tar.gz",
 )
 
 # https://github.com/simdjson/simdjson
 http_archive(
     name = "simdjson",  # Apache-2.0
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-Ho+IHLLA9ibFbNNmWDLx6XudT/xkitnhBnwTSGK7oGA=",
-    strip_prefix = "simdjson-3.10.1",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.10.1.tar.gz",
+    integrity = "sha256-GPff0me5DRd4UWI3R1mORfvk2R/EhfK1f/DjrhsP3eM=",
+    strip_prefix = "simdjson-3.11.1",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.11.1.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -316,13 +315,13 @@ http_archive(
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.3.301"
+VULKAN_TAG = "1.4.303"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 http_archive(
     name = "vulkan",  # Apache-2.0
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-bAKUm+1/OYTh0SJjvc5SocmeVKGrza6Q0AUnwokMHMU=",
+    integrity = "sha256-/fDi4FNWtFUTf/l/g3yWibolPsfSD4etgVdbm9vn/dQ=",
     strip_prefix = "Vulkan-Headers-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
@@ -331,7 +330,7 @@ http_archive(
 http_archive(
     name = "vulkan_hpp",  # Apache-2.0
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-dHkZudRLdi40Y9/2kZ/1VK3Xv8Ss8e+9Vi/S+/KjPjA=",
+    integrity = "sha256-8RF+1PT+w3ILDtlh5fJLszS0UPj5DgO7UxR5id65z+c=",
     strip_prefix = "Vulkan-Hpp-%s" % VULKAN_TAG,
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
