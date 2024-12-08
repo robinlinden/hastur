@@ -6,7 +6,7 @@
 
 #include "html2/token.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <array>
 #include <format>
@@ -20,10 +20,6 @@
 #include <vector>
 
 using namespace std::literals;
-
-using etest::expect;
-using etest::expect_eq;
-using etest::require;
 
 using namespace html2;
 
@@ -40,10 +36,11 @@ struct ParseErrorWithLocation {
 class TokenizerOutput {
 public:
     ~TokenizerOutput() {
-        expect(tokens.empty(), "Not all tokens were handled", loc);
-        expect(errors.empty(), "Not all errors were handled", loc);
+        a.expect(tokens.empty(), "Not all tokens were handled", loc);
+        a.expect(errors.empty(), "Not all errors were handled", loc);
     }
 
+    etest::IActions &a;
     std::vector<Token> tokens;
     std::vector<ParseErrorWithLocation> errors;
     std::source_location loc;
@@ -54,7 +51,8 @@ struct Options {
     std::optional<html2::State> state_override{};
 };
 
-TokenizerOutput run_tokenizer(std::string_view input,
+TokenizerOutput run_tokenizer(etest::IActions &a,
+        std::string_view input,
         Options const &opts = Options{},
         std::source_location loc = std::source_location::current()) {
     std::vector<Token> tokens;
@@ -81,13 +79,14 @@ TokenizerOutput run_tokenizer(std::string_view input,
     tokenizer.set_adjusted_current_node_in_html_namespace(opts.in_html_namespace);
     tokenizer.run();
 
-    return {std::move(tokens), std::move(errors), std::move(loc)};
+    return {a, std::move(tokens), std::move(errors), std::move(loc)};
 }
 
 void expect_token(
         TokenizerOutput &output, Token const &t, std::source_location const &loc = std::source_location::current()) {
-    require(!output.tokens.empty(), "Unexpected end of token list", loc);
-    expect_eq(output.tokens.front(), t, {}, loc);
+    auto &a = output.a;
+    a.require(!output.tokens.empty(), "Unexpected end of token list", loc);
+    a.expect_eq(output.tokens.front(), t, {}, loc);
     output.tokens.erase(begin(output.tokens));
 }
 
@@ -101,22 +100,24 @@ void expect_text(TokenizerOutput &output,
 
 void expect_error(
         TokenizerOutput &output, ParseError e, std::source_location const &loc = std::source_location::current()) {
-    require(!output.errors.empty(), "Unexpected end of error list", loc);
-    expect_eq(output.errors.front().error, e, {}, loc);
+    auto &a = output.a;
+    a.require(!output.errors.empty(), "Unexpected end of error list", loc);
+    a.expect_eq(output.errors.front().error, e, {}, loc);
     output.errors.erase(begin(output.errors));
 }
 
 void expect_error(TokenizerOutput &output,
         ParseErrorWithLocation const &e,
         std::source_location const &loc = std::source_location::current()) {
-    require(!output.errors.empty(), "Unexpected end of error list", loc);
-    expect_eq(output.errors.front(), e, {}, loc);
+    auto &a = output.a;
+    a.require(!output.errors.empty(), "Unexpected end of error list", loc);
+    a.expect_eq(output.errors.front(), e, {}, loc);
     output.errors.erase(begin(output.errors));
 }
 
-void data_tests() {
-    etest::test("data, unexpected null", [] {
-        auto tokens = run_tokenizer("<p>nullp\0"sv);
+void data_tests(etest::Suite &s) {
+    s.add_test("data, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p>nullp\0"sv);
         expect_token(tokens, StartTagToken{.tag_name = "p"});
         expect_text(tokens, "nullp\0"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
@@ -124,109 +125,109 @@ void data_tests() {
     });
 }
 
-void cdata_tests() {
-    etest::test("cdata, currently in html", [] {
-        auto tokens = run_tokenizer("<![CDATA["sv);
+void cdata_tests(etest::Suite &s) {
+    s.add_test("cdata, currently in html", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<![CDATA["sv);
         expect_error(tokens, ParseError::CdataInHtmlContent);
         expect_token(tokens, CommentToken{.data = "[CDATA["});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("cdata, eof", [] {
-        auto tokens = run_tokenizer("<![CDATA["sv, Options{.in_html_namespace = false});
+    s.add_test("cdata, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<![CDATA["sv, Options{.in_html_namespace = false});
         expect_error(tokens, html2::ParseError::EofInCdata);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("cdata, bracket", [] {
-        auto tokens = run_tokenizer("<![CDATA[]hello"sv, Options{.in_html_namespace = false});
+    s.add_test("cdata, bracket", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<![CDATA[]hello"sv, Options{.in_html_namespace = false});
         expect_error(tokens, html2::ParseError::EofInCdata);
         expect_text(tokens, "]hello");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("cdata, end", [] {
-        auto tokens = run_tokenizer("<![CDATA[]]>"sv, Options{.in_html_namespace = false});
+    s.add_test("cdata, end", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<![CDATA[]]>"sv, Options{.in_html_namespace = false});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("cdata, end, extra bracket", [] {
-        auto tokens = run_tokenizer("<![CDATA[]]]>"sv, Options{.in_html_namespace = false});
+    s.add_test("cdata, end, extra bracket", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<![CDATA[]]]>"sv, Options{.in_html_namespace = false});
         expect_token(tokens, CharacterToken{']'});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("cdata, end, extra text", [] {
-        auto tokens = run_tokenizer("<![CDATA[]]a]]>"sv, Options{.in_html_namespace = false});
+    s.add_test("cdata, end, extra text", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<![CDATA[]]a]]>"sv, Options{.in_html_namespace = false});
         expect_text(tokens, "]]a");
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void doctype_system_keyword_tests() {
-    etest::test("doctype system keyword, single-quoted system identifier, missing space", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML SYSTEM'great'>");
+void doctype_system_keyword_tests(etest::Suite &s) {
+    s.add_test("doctype system keyword, single-quoted system identifier, missing space", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML SYSTEM'great'>");
         expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
         expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype system keyword, double-quoted system identifier, missing space", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM"great">)");
+    s.add_test("doctype system keyword, double-quoted system identifier, missing space", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM"great">)");
         expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypeSystemKeyword);
         expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype system keyword, missing identifier", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM>)");
+    s.add_test("doctype system keyword, missing identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM>)");
         expect_error(tokens, ParseError::MissingDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype system keyword, missing quote before identifier", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEMgreat>)");
+    s.add_test("doctype system keyword, missing quote before identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEMgreat>)");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype system keyword, eof in doctype", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM)");
+    s.add_test("doctype system keyword, eof in doctype", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM)");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype before system identifier, single-quoted system identifier", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML SYSTEM 'great'>");
+    s.add_test("doctype before system identifier, single-quoted system identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML SYSTEM 'great'>");
         expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype before system identifier, double-quoted system identifier", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM "great">)");
+    s.add_test("doctype before system identifier, double-quoted system identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM "great">)");
         expect_token(tokens, DoctypeToken{.name = "html", .system_identifier = "great"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype before system identifier, more eof in doctype", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM   )");
+    s.add_test("doctype before system identifier, more eof in doctype", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM   )");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype before system identifier, missing identifier", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM >)");
+    s.add_test("doctype before system identifier, missing identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM >)");
         expect_error(tokens, ParseError::MissingDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype before system identifier, missing quote before identifier", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML SYSTEM great>)");
+    s.add_test("doctype before system identifier, missing quote before identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML SYSTEM great>)");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
@@ -235,36 +236,36 @@ void doctype_system_keyword_tests() {
 
 // These tests set the initial state as normally that would be done from the
 // tree-builder wrapping the tokenizer, e.g. when encountering a <style> tag.
-void rawtext_tests() {
-    etest::test("rawtext", [] {
-        auto tokens = run_tokenizer("<these><aren't><tags!>", Options{.state_override = State::Rawtext});
+void rawtext_tests(etest::Suite &s) {
+    s.add_test("rawtext", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<these><aren't><tags!>", Options{.state_override = State::Rawtext});
         expect_text(tokens, "<these><aren't><tags!>");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rawtext, unexpected null", [] {
-        auto tokens = run_tokenizer("\0"sv, Options{.state_override = State::Rawtext});
+    s.add_test("rawtext, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "\0"sv, Options{.state_override = State::Rawtext});
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_text(tokens, kReplacementCharacter);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rawtext inappropriate end tag", [] {
-        auto tokens = run_tokenizer("<hello></div>", Options{.state_override = State::Rawtext});
+    s.add_test("rawtext inappropriate end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello></div>", Options{.state_override = State::Rawtext});
         expect_text(tokens, "<hello></div>");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rawtext in style, with attribute", [] {
-        auto tokens = run_tokenizer("<style>sometext</style>");
+    s.add_test("rawtext in style, with attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<style>sometext</style>");
         expect_token(tokens, StartTagToken{.tag_name = "style"});
         expect_text(tokens, "sometext");
         expect_token(tokens, EndTagToken{.tag_name = "style"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rawtext in style, with attribute", [] {
-        auto tokens = run_tokenizer("<style><div></style hello='1'>");
+    s.add_test("rawtext in style, with attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<style><div></style hello='1'>");
         expect_token(tokens, StartTagToken{.tag_name = "style"});
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "style"});
@@ -272,8 +273,8 @@ void rawtext_tests() {
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
-    etest::test("rawtext in style, self-closing end tag", [] {
-        auto tokens = run_tokenizer("<style><div></style/>");
+    s.add_test("rawtext in style, self-closing end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<style><div></style/>");
         expect_token(tokens, StartTagToken{.tag_name = "style"});
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "style"});
@@ -281,20 +282,20 @@ void rawtext_tests() {
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
-    etest::test("rawtext, end tag open, eof", [] {
-        auto tokens = run_tokenizer("<hello></", Options{.state_override = State::Rawtext});
+    s.add_test("rawtext, end tag open, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello></", Options{.state_override = State::Rawtext});
         expect_text(tokens, "<hello></");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rawtext, end tag name, eof", [] {
-        auto tokens = run_tokenizer("<hello></a </b/ </c! </g", Options{.state_override = State::Rawtext});
+    s.add_test("rawtext, end tag name, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello></a </b/ </c! </g", Options{.state_override = State::Rawtext});
         expect_text(tokens, "<hello></a </b/ </c! </g");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rawtext in style, character reference", [] {
-        auto tokens = run_tokenizer("<style>&lt;div&gt;</style>");
+    s.add_test("rawtext in style, character reference", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<style>&lt;div&gt;</style>");
         expect_token(tokens, StartTagToken{.tag_name = "style"});
         expect_text(tokens, "&lt;div&gt;");
         expect_token(tokens, EndTagToken{.tag_name = "style"});
@@ -302,36 +303,36 @@ void rawtext_tests() {
     });
 }
 
-void rcdata_tests() {
-    etest::test("rcdata", [] {
-        auto tokens = run_tokenizer("<these><aren't><tags!>", Options{.state_override = State::Rcdata});
+void rcdata_tests(etest::Suite &s) {
+    s.add_test("rcdata", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<these><aren't><tags!>", Options{.state_override = State::Rcdata});
         expect_text(tokens, "<these><aren't><tags!>");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rcdata, unexpected null", [] {
-        auto tokens = run_tokenizer("\0"sv, Options{.state_override = State::Rcdata});
+    s.add_test("rcdata, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "\0"sv, Options{.state_override = State::Rcdata});
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_text(tokens, kReplacementCharacter);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rcdata inappropriate end tag", [] {
-        auto tokens = run_tokenizer("<hello></div>", Options{.state_override = State::Rcdata});
+    s.add_test("rcdata inappropriate end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello></div>", Options{.state_override = State::Rcdata});
         expect_text(tokens, "<hello></div>");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rcdata in title, with attribute", [] {
-        auto tokens = run_tokenizer("<title>sometext</title>");
+    s.add_test("rcdata in title, with attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<title>sometext</title>");
         expect_token(tokens, StartTagToken{.tag_name = "title"});
         expect_text(tokens, "sometext");
         expect_token(tokens, EndTagToken{.tag_name = "title"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rcdata in title, with attribute", [] {
-        auto tokens = run_tokenizer("<title><div></title hello='1'>");
+    s.add_test("rcdata in title, with attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<title><div></title hello='1'>");
         expect_token(tokens, StartTagToken{.tag_name = "title"});
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "title"});
@@ -339,8 +340,8 @@ void rcdata_tests() {
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
-    etest::test("rcdata in title, self-closing end tag", [] {
-        auto tokens = run_tokenizer("<title><div></title/>");
+    s.add_test("rcdata in title, self-closing end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<title><div></title/>");
         expect_token(tokens, StartTagToken{.tag_name = "title"});
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "title"});
@@ -348,20 +349,20 @@ void rcdata_tests() {
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
-    etest::test("rcdata, end tag open, eof", [] {
-        auto tokens = run_tokenizer("<hello></", Options{.state_override = State::Rcdata});
+    s.add_test("rcdata, end tag open, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello></", Options{.state_override = State::Rcdata});
         expect_text(tokens, "<hello></");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rcdata, end tag name, eof", [] {
-        auto tokens = run_tokenizer("<hello></a </b/ </c! </g", Options{.state_override = State::Rcdata});
+    s.add_test("rcdata, end tag name, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello></a </b/ </c! </g", Options{.state_override = State::Rcdata});
         expect_text(tokens, "<hello></a </b/ </c! </g");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("rcdata in title, character reference", [] {
-        auto tokens = run_tokenizer("<title>&lt;div&gt;</title>");
+    s.add_test("rcdata in title, character reference", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<title>&lt;div&gt;</title>");
         expect_token(tokens, StartTagToken{.tag_name = "title"});
         expect_text(tokens, "<div>");
         expect_token(tokens, EndTagToken{.tag_name = "title"});
@@ -373,94 +374,94 @@ void rcdata_tests() {
 // Once a start tag with the tag name "plaintext" has been seen, that will be
 // the last token ever seen other than character tokens (and the end-of-file
 // token), because there is no way to switch out of the PLAINTEXT state.
-void plaintext_tests() {
-    etest::test("plaintext", [] {
-        auto tokens = run_tokenizer("</plaintext>", Options{.state_override = State::Plaintext});
+void plaintext_tests(etest::Suite &s) {
+    s.add_test("plaintext", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "</plaintext>", Options{.state_override = State::Plaintext});
         expect_text(tokens, "</plaintext>");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("plaintext, null character", [] {
-        auto tokens = run_tokenizer("\0"sv, Options{.state_override = State::Plaintext});
+    s.add_test("plaintext, null character", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "\0"sv, Options{.state_override = State::Plaintext});
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_text(tokens, kReplacementCharacter);
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void source_location_tests() {
-    etest::test("src loc: doctype eof", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HtMl");
+void source_location_tests(etest::Suite &s) {
+    s.add_test("src loc: doctype eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HtMl");
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_error(tokens, {ParseError::EofInDoctype, {1, 15}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("src loc: doctype missing whitespace after public + eof", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE a PUBLIC'\n\n\n\n");
+    s.add_test("src loc: doctype missing whitespace after public + eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE a PUBLIC'\n\n\n\n");
         expect_token(tokens, DoctypeToken{.name = "a", .public_identifier = "\n\n\n\n", .force_quirks = true});
         expect_error(tokens, {ParseError::MissingWhitespaceAfterDoctypePublicKeyword, {1, 19}});
         expect_error(tokens, {ParseError::EofInDoctype, {5, 1}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("src loc: cdata eof", [] {
-        auto tokens = run_tokenizer("\n", {.state_override = State::CdataSection});
+    s.add_test("src loc: cdata eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "\n", {.state_override = State::CdataSection});
         expect_token(tokens, CharacterToken{'\n'});
         expect_error(tokens, {ParseError::EofInCdata, {2, 1}});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void tag_open_tests() {
-    etest::test("tag open: eof", [] {
-        auto tokens = run_tokenizer("<");
+void tag_open_tests(etest::Suite &s) {
+    s.add_test("tag open: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<");
         expect_error(tokens, ParseError::EofBeforeTagName);
         expect_token(tokens, CharacterToken{'<'});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("tag open: question mark is a bogus comment", [] {
-        auto tokens = run_tokenizer("<?hello");
+    s.add_test("tag open: question mark is a bogus comment", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<?hello");
         expect_error(tokens, ParseError::UnexpectedQuestionMarkInsteadOfTagName);
         expect_token(tokens, CommentToken{"?hello"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("tag open: invalid first character", [] {
-        auto tokens = run_tokenizer("<#bogus");
+    s.add_test("tag open: invalid first character", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<#bogus");
         expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
         expect_text(tokens, "<#bogus");
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void end_tag_open_tests() {
-    etest::test("end tag open: eof", [] {
-        auto tokens = run_tokenizer("</");
+void end_tag_open_tests(etest::Suite &s) {
+    s.add_test("end tag open: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "</");
         expect_error(tokens, ParseError::EofBeforeTagName);
         expect_text(tokens, "</");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("end tag open: missing tag name", [] {
-        auto tokens = run_tokenizer("</>");
+    s.add_test("end tag open: missing tag name", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "</>");
         expect_error(tokens, ParseError::MissingEndTagName);
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void tag_name_tests() {
-    etest::test("tag name: eof", [] {
-        auto tokens = run_tokenizer("<imtrappedinabrowserfactorypleasesendhel");
+void tag_name_tests(etest::Suite &s) {
+    s.add_test("tag name: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<imtrappedinabrowserfactorypleasesendhel");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void script_data_escaped_tests() {
-    etest::test("script data escaped: eof", [] {
-        auto tokens = run_tokenizer("<script><!-- foo");
+void script_data_escaped_tests(etest::Suite &s) {
+    s.add_test("script data escaped: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- foo");
         expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
         expect_token(tokens, StartTagToken{"script"});
         expect_text(tokens, "<!-- foo"sv);
@@ -468,9 +469,9 @@ void script_data_escaped_tests() {
     });
 }
 
-void script_data_escaped_dash_tests() {
-    etest::test("script data escaped: eof", [] {
-        auto tokens = run_tokenizer("<script><!-- foo-");
+void script_data_escaped_dash_tests(etest::Suite &s) {
+    s.add_test("script data escaped: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- foo-");
         expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
         expect_token(tokens, StartTagToken{"script"});
         expect_text(tokens, "<!-- foo-"sv);
@@ -478,9 +479,9 @@ void script_data_escaped_dash_tests() {
     });
 }
 
-void script_data_escaped_dash_dash_tests() {
-    etest::test("script data escaped: eof", [] {
-        auto tokens = run_tokenizer("<script><!-- foo--");
+void script_data_escaped_dash_dash_tests(etest::Suite &s) {
+    s.add_test("script data escaped: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- foo--");
         expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
         expect_token(tokens, StartTagToken{"script"});
         expect_text(tokens, "<!-- foo--"sv);
@@ -488,9 +489,9 @@ void script_data_escaped_dash_dash_tests() {
     });
 }
 
-void script_data_double_escaped_tests() {
-    etest::test("script data double escaped: eof", [] {
-        auto tokens = run_tokenizer("<script><!--<script>"sv);
+void script_data_double_escaped_tests(etest::Suite &s) {
+    s.add_test("script data double escaped: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>"sv);
         expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script>");
@@ -498,9 +499,9 @@ void script_data_double_escaped_tests() {
     });
 }
 
-void script_data_double_escaped_dash_tests() {
-    etest::test("script data double escaped dash: eof", [] {
-        auto tokens = run_tokenizer("<script><!--<script>-"sv);
+void script_data_double_escaped_dash_tests(etest::Suite &s) {
+    s.add_test("script data double escaped dash: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>-"sv);
         expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script>-");
@@ -508,9 +509,9 @@ void script_data_double_escaped_dash_tests() {
     });
 }
 
-void script_data_double_escaped_dash_dash_tests() {
-    etest::test("script data double escaped dash dash: eof", [] {
-        auto tokens = run_tokenizer("<script><!--<script>--"sv);
+void script_data_double_escaped_dash_dash_tests(etest::Suite &s) {
+    s.add_test("script data double escaped dash dash: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>--"sv);
         expect_error(tokens, ParseError::EofInScriptHtmlCommentLikeText);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script>--");
@@ -518,32 +519,32 @@ void script_data_double_escaped_dash_dash_tests() {
     });
 }
 
-void before_attribute_name_tests() {
-    etest::test("before attribute name: =", [] {
-        auto tokens = run_tokenizer("<p =hello=13>");
+void before_attribute_name_tests(etest::Suite &s) {
+    s.add_test("before attribute name: =", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p =hello=13>");
         expect_error(tokens, ParseError::UnexpectedEqualsSignBeforeAttributeName);
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"=hello", "13"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void attribute_name_tests() {
-    etest::test("attribute name: unexpected character", [] {
-        auto tokens = run_tokenizer("<p a<b=true>");
+void attribute_name_tests(etest::Suite &s) {
+    s.add_test("attribute name: unexpected character", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p a<b=true>");
         expect_error(tokens, ParseError::UnexpectedCharacterInAttributeName);
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a<b", "true"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute name: duplicate attribute", [] {
-        auto tokens = run_tokenizer("<p a=1 a=2>");
+    s.add_test("attribute name: duplicate attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p a=1 a=2>");
         expect_error(tokens, ParseError::DuplicateAttribute);
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a", "1"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute name: many duplicate attributes", [] {
-        auto tokens = run_tokenizer("<p a=1 a=2 a=3>");
+    s.add_test("attribute name: many duplicate attributes", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p a=1 a=2 a=3>");
         expect_error(tokens, ParseError::DuplicateAttribute);
         expect_error(tokens, ParseError::DuplicateAttribute);
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a", "1"}}});
@@ -551,99 +552,99 @@ void attribute_name_tests() {
     });
 }
 
-void after_attribute_name_tests() {
-    etest::test("after attribute name: eof", [] {
-        auto tokens = run_tokenizer("<p a ");
+void after_attribute_name_tests(etest::Suite &s) {
+    s.add_test("after attribute name: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p a ");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void before_attribute_value_tests() {
-    etest::test("before attribute name: missing value", [] {
-        auto tokens = run_tokenizer("<p a=>");
+void before_attribute_value_tests(etest::Suite &s) {
+    s.add_test("before attribute name: missing value", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p a=>");
         expect_error(tokens, ParseError::MissingAttributeValue);
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"a", ""}}});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void attribute_value_double_quoted_tests() {
-    etest::test("attribute value double quoted: eof", [] {
-        auto tokens = run_tokenizer(R"(<p a=">)");
+void attribute_value_double_quoted_tests(etest::Suite &s) {
+    s.add_test("attribute value double quoted: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<p a=">)");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void attribute_value_single_quoted_tests() {
-    etest::test("attribute value single quoted: eof", [] {
-        auto tokens = run_tokenizer("<p a='>");
+void attribute_value_single_quoted_tests(etest::Suite &s) {
+    s.add_test("attribute value single quoted: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p a='>");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void after_attribute_value_quoted_tests() {
-    etest::test("after attribute value quoted: eof", [] {
-        auto tokens = run_tokenizer("<p foo='1'");
+void after_attribute_value_quoted_tests(etest::Suite &s) {
+    s.add_test("after attribute value quoted: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p foo='1'");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("after attribute value quoted: missing whitespace", [] {
-        auto tokens = run_tokenizer("<p foo='1'bar='2'>");
+    s.add_test("after attribute value quoted: missing whitespace", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p foo='1'bar='2'>");
         expect_error(tokens, ParseError::MissingWhitespaceBetweenAttributes);
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes{{"foo", "1"}, {"bar", "2"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void self_closing_start_tag_tests() {
-    etest::test("self-closing start tag: eof", [] {
-        auto tokens = run_tokenizer("<p/");
+void self_closing_start_tag_tests(etest::Suite &s) {
+    s.add_test("self-closing start tag: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p/");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("self-closing start tag: unexpected solidus", [] {
-        auto tokens = run_tokenizer("<p/ >");
+    s.add_test("self-closing start tag: unexpected solidus", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p/ >");
         expect_error(tokens, ParseError::UnexpectedSolidusInTag);
         expect_token(tokens, StartTagToken{"p"});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void comment_start_dash_tests() {
-    etest::test("comment start dash: eof", [] {
-        auto tokens = run_tokenizer("<!---");
+void comment_start_dash_tests(etest::Suite &s) {
+    s.add_test("comment start dash: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!---");
         expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void comment_end_dash_tests() {
-    etest::test("comment end dash: eof", [] {
-        auto tokens = run_tokenizer("<!-- -");
+void comment_end_dash_tests(etest::Suite &s) {
+    s.add_test("comment end dash: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!-- -");
         expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{" "});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void comment_end_tests() {
-    etest::test("comment end: eof", [] {
-        auto tokens = run_tokenizer("<!-- --");
+void comment_end_tests(etest::Suite &s) {
+    s.add_test("comment end: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!-- --");
         expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{" "});
         expect_token(tokens, EndOfFileToken{});
     });
 }
 
-void comment_end_bang_tests() {
-    etest::test("comment end bang: eof", [] {
-        auto tokens = run_tokenizer("<!-- --!");
+void comment_end_bang_tests(etest::Suite &s) {
+    s.add_test("comment end bang: eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!-- --!");
         expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{" "});
         expect_token(tokens, EndOfFileToken{});
@@ -653,53 +654,54 @@ void comment_end_bang_tests() {
 } // namespace
 
 int main() {
-    data_tests();
-    cdata_tests();
-    doctype_system_keyword_tests();
-    rawtext_tests();
-    rcdata_tests();
-    plaintext_tests();
-    source_location_tests();
-    tag_open_tests();
-    end_tag_open_tests();
-    tag_name_tests();
-    script_data_escaped_tests();
-    script_data_escaped_dash_tests();
-    script_data_escaped_dash_dash_tests();
-    script_data_double_escaped_tests();
-    script_data_double_escaped_dash_tests();
-    script_data_double_escaped_dash_dash_tests();
-    before_attribute_name_tests();
-    attribute_name_tests();
-    after_attribute_name_tests();
-    before_attribute_value_tests();
-    attribute_value_double_quoted_tests();
-    attribute_value_single_quoted_tests();
-    after_attribute_value_quoted_tests();
-    self_closing_start_tag_tests();
-    comment_start_dash_tests();
-    comment_end_dash_tests();
-    comment_end_tests();
-    comment_end_bang_tests();
+    etest::Suite s;
+    data_tests(s);
+    cdata_tests(s);
+    doctype_system_keyword_tests(s);
+    rawtext_tests(s);
+    rcdata_tests(s);
+    plaintext_tests(s);
+    source_location_tests(s);
+    tag_open_tests(s);
+    end_tag_open_tests(s);
+    tag_name_tests(s);
+    script_data_escaped_tests(s);
+    script_data_escaped_dash_tests(s);
+    script_data_escaped_dash_dash_tests(s);
+    script_data_double_escaped_tests(s);
+    script_data_double_escaped_dash_tests(s);
+    script_data_double_escaped_dash_dash_tests(s);
+    before_attribute_name_tests(s);
+    attribute_name_tests(s);
+    after_attribute_name_tests(s);
+    before_attribute_value_tests(s);
+    attribute_value_double_quoted_tests(s);
+    attribute_value_single_quoted_tests(s);
+    after_attribute_value_quoted_tests(s);
+    self_closing_start_tag_tests(s);
+    comment_start_dash_tests(s);
+    comment_end_dash_tests(s);
+    comment_end_tests(s);
+    comment_end_bang_tests(s);
 
-    etest::test("script, empty", [] {
-        auto tokens = run_tokenizer("<script></script>");
-
-        expect_token(tokens, StartTagToken{.tag_name = "script"});
-        expect_token(tokens, EndTagToken{.tag_name = "script"});
-        expect_token(tokens, EndOfFileToken{});
-    });
-
-    etest::test("script, upper case tag", [] {
-        auto tokens = run_tokenizer("<SCRIPT></SCRIPT>");
+    s.add_test("script, empty", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, with code", [] {
-        auto tokens = run_tokenizer("<script>code</script>");
+    s.add_test("script, upper case tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<SCRIPT></SCRIPT>");
+
+        expect_token(tokens, StartTagToken{.tag_name = "script"});
+        expect_token(tokens, EndTagToken{.tag_name = "script"});
+        expect_token(tokens, EndOfFileToken{});
+    });
+
+    s.add_test("script, with code", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script>code</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "code"sv);
@@ -707,8 +709,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, unexpected null", [] {
-        auto tokens = run_tokenizer("<script>\0</script>"sv);
+    s.add_test("script, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script>\0</script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -717,16 +719,16 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, with source file attribute", [] {
-        auto tokens = run_tokenizer(R"(<script src="/foo.js"></script>)");
+    s.add_test("script, with source file attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<script src="/foo.js"></script>)");
 
         expect_token(tokens, StartTagToken{.tag_name = "script", .attributes = {{"src", "/foo.js"}}});
         expect_token(tokens, EndTagToken{.tag_name = "script"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, end tag as text", [] {
-        auto tokens = run_tokenizer("<script></</script>");
+    s.add_test("script, end tag as text", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script></</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "</"sv);
@@ -734,16 +736,16 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, misspelled end tag", [] {
-        auto tokens = run_tokenizer("<script></scropt>");
+    s.add_test("script, misspelled end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script></scropt>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "</scropt>"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, almost escaped", [] {
-        auto tokens = run_tokenizer("<script><!</script>");
+    s.add_test("script, almost escaped", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!"sv);
@@ -751,8 +753,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, almost escaped dash", [] {
-        auto tokens = run_tokenizer("<script><!-<</script>");
+    s.add_test("script, almost escaped dash", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-<</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!-<"sv);
@@ -760,8 +762,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped", [] {
-        auto tokens = run_tokenizer("<script><!-- </script> --></script>");
+    s.add_test("script, escaped", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- </script> --></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!-- "sv);
@@ -771,8 +773,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped null", [] {
-        auto tokens = run_tokenizer("<script><!-- \0 --></script>"sv);
+    s.add_test("script, escaped null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- \0 --></script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -781,8 +783,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped one dash", [] {
-        auto tokens = run_tokenizer("<script><!-- -<</script>");
+    s.add_test("script, escaped one dash", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- -<</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!-- -<"sv);
@@ -790,8 +792,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped dash null", [] {
-        auto tokens = run_tokenizer("<script><!-- -\0</script>"sv);
+    s.add_test("script, escaped dash null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- -\0</script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -800,8 +802,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped dash dash null", [] {
-        auto tokens = run_tokenizer("<script><!-- --\0</script>"sv);
+    s.add_test("script, escaped dash dash null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- --\0</script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -810,8 +812,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped one dash and back to escaped", [] {
-        auto tokens = run_tokenizer("<script><!-- -x</script>");
+    s.add_test("script, escaped one dash and back to escaped", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- -x</script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!-- -x"sv);
@@ -819,8 +821,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped upper case", [] {
-        auto tokens = run_tokenizer("<script><!--- </SCRIPT> ---></script>");
+    s.add_test("script, escaped upper case", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--- </SCRIPT> ---></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--- "sv);
@@ -830,8 +832,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped dummy tags", [] {
-        auto tokens = run_tokenizer("<script><!-- <</xyz>> --></script>");
+    s.add_test("script, escaped dummy tags", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!-- <</xyz>> --></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!-- <</xyz>> -->"sv);
@@ -839,8 +841,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped", [] {
-        auto tokens = run_tokenizer("<script><!--<script>code</script>--></script>");
+    s.add_test("script, double escaped", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>code</script>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script>code</script>-->"sv);
@@ -848,8 +850,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped null", [] {
-        auto tokens = run_tokenizer("<script><!--<script>\0</script>--></script>"sv);
+    s.add_test("script, double escaped null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>\0</script>--></script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -858,8 +860,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped dash", [] {
-        auto tokens = run_tokenizer("<script><!--<script>---</script>--></script>");
+    s.add_test("script, double escaped dash", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>---</script>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script>---</script>-->"sv);
@@ -867,8 +869,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped dash null", [] {
-        auto tokens = run_tokenizer("<script><!--<script>-\0</script>--></script>"sv);
+    s.add_test("script, double escaped dash null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>-\0</script>--></script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -877,8 +879,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped dash dash null", [] {
-        auto tokens = run_tokenizer("<script><!--<script>--\0</script>--></script>"sv);
+    s.add_test("script, double escaped dash dash null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script>--\0</script>--></script>"sv);
 
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "script"});
@@ -887,8 +889,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped less than", [] {
-        auto tokens = run_tokenizer("<script><!--<script><</xyz>></script>--></script>");
+    s.add_test("script, double escaped less than", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--<script><</xyz>></script>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<script><</xyz>></script>-->"sv);
@@ -896,8 +898,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped dash less than", [] {
-        auto tokens = run_tokenizer("<SCRIPT><!--<SCRIPT>-<</SCRIPT>--></SCRIPT>");
+    s.add_test("script, double escaped dash less than", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<SCRIPT><!--<SCRIPT>-<</SCRIPT>--></SCRIPT>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<SCRIPT>-<</SCRIPT>-->"sv);
@@ -905,8 +907,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, double escaped dash less than", [] {
-        auto tokens = run_tokenizer("<SCRIPT><!--<SCRIPT>-->--></SCRIPT>");
+    s.add_test("script, double escaped dash less than", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<SCRIPT><!--<SCRIPT>-->--></SCRIPT>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--<SCRIPT>-->-->"sv);
@@ -914,8 +916,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, end tag with attribute", [] {
-        auto tokens = run_tokenizer(R"(<script></script src="/foo.js">)");
+    s.add_test("script, end tag with attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<script></script src="/foo.js">)");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_token(tokens, EndTagToken{.tag_name = "script"});
@@ -923,16 +925,16 @@ int main() {
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
-    etest::test("script, misspelled end tag with attribute", [] {
-        auto tokens = run_tokenizer(R"(<script></scropt src="/foo.js">)");
+    s.add_test("script, misspelled end tag with attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<script></scropt src="/foo.js">)");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, R"(</scropt src="/foo.js">)"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, self closing end tag", [] {
-        auto tokens = run_tokenizer("<script></script/>");
+    s.add_test("script, self closing end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script></script/>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_token(tokens, EndTagToken{.tag_name = "script"});
@@ -940,16 +942,16 @@ int main() {
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
-    etest::test("script, misspelled self closing end tag", [] {
-        auto tokens = run_tokenizer("<script></scropt/>");
+    s.add_test("script, misspelled self closing end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script></scropt/>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "</scropt/>"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped end tag open", [] {
-        auto tokens = run_tokenizer("<script><!--</>--></script>");
+    s.add_test("script, escaped end tag open", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--</>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--</>-->"sv);
@@ -957,8 +959,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped end tag with attributes", [] {
-        auto tokens = run_tokenizer(R"(<script><!--</script src="/bar.js">--></script>)");
+    s.add_test("script, escaped end tag with attributes", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<script><!--</script src="/bar.js">--></script>)");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--"sv);
@@ -969,8 +971,8 @@ int main() {
         expect_error(tokens, ParseError::EndTagWithAttributes);
     });
 
-    etest::test("script, misspelled escaped end tag with attributes", [] {
-        auto tokens = run_tokenizer(R"(<script><!--</scropt src="/bar.js">--></script>)");
+    s.add_test("script, misspelled escaped end tag with attributes", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<script><!--</scropt src="/bar.js">--></script>)");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, R"(<!--</scropt src="/bar.js">-->)"sv);
@@ -978,8 +980,8 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, escaped self closing end tag", [] {
-        auto tokens = run_tokenizer("<script><!--</script/>--></script>");
+    s.add_test("script, escaped self closing end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--</script/>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--"sv);
@@ -990,8 +992,8 @@ int main() {
         expect_error(tokens, ParseError::EndTagWithTrailingSolidus);
     });
 
-    etest::test("script, misspelled escaped self closing end tag", [] {
-        auto tokens = run_tokenizer("<script><!--</scropt/>--></script>");
+    s.add_test("script, misspelled escaped self closing end tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><!--</scropt/>--></script>");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<!--</scropt/>-->"sv);
@@ -999,55 +1001,55 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, eof in less than sign", [] {
-        auto tokens = run_tokenizer("<script><");
+    s.add_test("script, eof in less than sign", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script><");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "<"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("script, eof in end tag open", [] {
-        auto tokens = run_tokenizer("<script></scr");
+    s.add_test("script, eof in end tag open", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<script></scr");
 
         expect_token(tokens, StartTagToken{.tag_name = "script"});
         expect_text(tokens, "</scr"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, simple", [] {
-        auto tokens = run_tokenizer("<!-- Hello -->");
+    s.add_test("comment, simple", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!-- Hello -->");
         expect_token(tokens, CommentToken{.data = " Hello "});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, bogus open", [] {
-        auto tokens = run_tokenizer("<!Hello");
+    s.add_test("comment, bogus open", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!Hello");
         expect_error(tokens, ParseError::IncorrectlyOpenedComment);
         expect_token(tokens, CommentToken{.data = "Hello"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, empty", [] {
-        auto tokens = run_tokenizer("<!---->");
+    s.add_test("comment, empty", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!---->");
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, with dashes and bang", [] {
-        auto tokens = run_tokenizer("<!--!-->");
+    s.add_test("comment, with dashes and bang", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--!-->");
         expect_token(tokens, CommentToken{.data = "!"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, with new lines", [] {
-        auto tokens = run_tokenizer("<!--\nOne\nTwo\n-->");
+    s.add_test("comment, with new lines", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--\nOne\nTwo\n-->");
         expect_token(tokens, CommentToken{.data = "\nOne\nTwo\n"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, multiple with new lines", [] {
-        auto tokens = run_tokenizer("<!--a-->\n<!--b-->\n<!--c-->");
+    s.add_test("comment, multiple with new lines", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--a-->\n<!--b-->\n<!--c-->");
         expect_token(tokens, CommentToken{.data = "a"});
         expect_token(tokens, CharacterToken{'\n'});
         expect_token(tokens, CommentToken{.data = "b"});
@@ -1056,318 +1058,318 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, allowed to end with <!", [] {
-        auto tokens = run_tokenizer("<!--My favorite operators are > and <!-->");
+    s.add_test("comment, allowed to end with <!", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--My favorite operators are > and <!-->");
         expect_token(tokens, CommentToken{.data = "My favorite operators are > and <!"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, nested comment", [] {
-        auto tokens = run_tokenizer("<!--<!---->");
+    s.add_test("comment, nested comment", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--<!---->");
         expect_error(tokens, ParseError::NestedComment);
         expect_token(tokens, CommentToken{.data = "<!--"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, nested comment closed", [] {
-        auto tokens = run_tokenizer("<!-- <!-- nested --> -->");
+    s.add_test("comment, nested comment closed", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!-- <!-- nested --> -->");
         expect_error(tokens, ParseError::NestedComment);
         expect_token(tokens, CommentToken{.data = " <!-- nested "});
         expect_text(tokens, " -->");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, abrupt closing in comment start", [] {
-        auto tokens = run_tokenizer("<!-->");
+    s.add_test("comment, abrupt closing in comment start", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!-->");
         expect_error(tokens, ParseError::AbruptClosingOfEmptyComment);
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, abrupt closing in comment start dash", [] {
-        auto tokens = run_tokenizer("<!--->");
+    s.add_test("comment, abrupt closing in comment start dash", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--->");
         expect_error(tokens, ParseError::AbruptClosingOfEmptyComment);
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, incorrectly closed comment", [] {
-        auto tokens = run_tokenizer("<!--abc--!>");
+    s.add_test("comment, incorrectly closed comment", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--abc--!>");
         expect_error(tokens, ParseError::IncorrectlyClosedComment);
         expect_token(tokens, CommentToken{.data = "abc"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, end before comment", [] {
-        auto tokens = run_tokenizer("<!--");
+    s.add_test("comment, end before comment", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--");
         expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{.data = ""});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("comment, eof before comment is closed", [] {
-        auto tokens = run_tokenizer("<!--abc");
+    s.add_test("comment, eof before comment is closed", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--abc");
         expect_error(tokens, ParseError::EofInComment);
         expect_token(tokens, CommentToken{.data = "abc"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("character entity reference, simple", [] {
-        auto tokens = run_tokenizer("&lt;");
+    s.add_test("character entity reference, simple", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&lt;");
         expect_token(tokens, CharacterToken{'<'});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("character entity reference, only &", [] {
-        auto tokens = run_tokenizer("&");
+    s.add_test("character entity reference, only &", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&");
         expect_token(tokens, CharacterToken{'&'});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("character entity reference, not ascii alphanumeric", [] {
-        auto tokens = run_tokenizer("&@");
+    s.add_test("character entity reference, not ascii alphanumeric", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&@");
         expect_text(tokens, "&@");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("character entity reference, reference to non-ascii glyph", [] {
-        auto tokens = run_tokenizer("&div;");
+    s.add_test("character entity reference, reference to non-ascii glyph", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&div;");
         expect_text(tokens, "\xc3\xb7"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("character entity reference, two unicode code points required", [] {
-        auto tokens = run_tokenizer("&acE;");
+    s.add_test("character entity reference, two unicode code points required", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&acE;");
         expect_text(tokens, "\xe2\x88\xbe\xcc\xb3"sv);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("ambiguous ampersand", [] {
-        auto tokens = run_tokenizer("&blah;");
+    s.add_test("ambiguous ampersand", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&blah;");
         expect_text(tokens, "&blah;");
         expect_error(tokens, ParseError::UnknownNamedCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("ambiguous ampersand in attribute", [] {
-        auto tokens = run_tokenizer("<p attr='&blah;'>");
+    s.add_test("ambiguous ampersand in attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<p attr='&blah;'>");
         expect_token(tokens, StartTagToken{.tag_name = "p", .attributes = {{"attr", "&blah;"}}});
         expect_error(tokens, ParseError::UnknownNamedCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, one attribute single quoted", [] {
-        auto tokens = run_tokenizer("<tag a='b'>");
+    s.add_test("attribute, one attribute single quoted", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a='b'>");
 
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, one attribute double quoted", [] {
-        auto tokens = run_tokenizer(R"(<tag a="b">)");
+    s.add_test("attribute, one attribute double quoted", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<tag a="b">)");
 
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, one uppercase attribute", [] {
-        auto tokens = run_tokenizer(R"(<tag ATTRIB="ABC123">)");
+    s.add_test("attribute, one uppercase attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<tag ATTRIB="ABC123">)");
 
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"attrib", "ABC123"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, multiple attributes", [] {
-        auto tokens = run_tokenizer(R"(<tag  foo="bar" A='B'  value='321'>)");
+    s.add_test("attribute, multiple attributes", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<tag  foo="bar" A='B'  value='321'>)");
 
         expect_token(
                 tokens, StartTagToken{.tag_name = "tag", .attributes = {{"foo", "bar"}, {"a", "B"}, {"value", "321"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, one attribute unquoted", [] {
-        auto tokens = run_tokenizer("<tag a=b>");
+    s.add_test("attribute, one attribute unquoted", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=b>");
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, multiple attributes unquoted", [] {
-        auto tokens = run_tokenizer("<tag a=b c=d>");
+    s.add_test("attribute, multiple attributes unquoted", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=b c=d>");
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}, {"c", "d"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, multiple attributes unquoted", [] {
-        auto tokens = run_tokenizer("<tag a=b c=d>");
+    s.add_test("attribute, multiple attributes unquoted", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=b c=d>");
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b"}, {"c", "d"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, unexpected-character-in-unquoted-attribute", [] {
-        auto tokens = run_tokenizer("<tag a=b=c>");
+    s.add_test("attribute, unexpected-character-in-unquoted-attribute", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=b=c>");
         expect_error(tokens, ParseError::UnexpectedCharacterInUnquotedAttributeValue);
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "b=c"}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, unquoted, eof-in-tag", [] {
-        auto tokens = run_tokenizer("<tag a=b");
+    s.add_test("attribute, unquoted, eof-in-tag", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=b");
         expect_error(tokens, ParseError::EofInTag);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, unquoted, with character reference", [] {
-        auto tokens = run_tokenizer("<tag a=&amp>");
+    s.add_test("attribute, unquoted, with character reference", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=&amp>");
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", "&"}}});
         expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute, unquoted, unexpected-null-character", [] {
-        auto tokens = run_tokenizer("<tag a=\0>"sv);
+    s.add_test("attribute, unquoted, unexpected-null-character", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<tag a=\0>"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name = "tag", .attributes = {{"a", kReplacementCharacter}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference", [] {
-        auto tokens = run_tokenizer("&#9731;"); // U+2603: SNOWMAN
+    s.add_test("numeric character reference", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#9731;"); // U+2603: SNOWMAN
         expect_text(tokens, "\xe2\x98\x83");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, control with replacement", [] {
-        auto tokens = run_tokenizer("&#x8A;");
+    s.add_test("numeric character reference, control with replacement", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x8A;");
         expect_text(tokens, "\xc5\xa0"); // U+0160: LATIN CAPITAL LETTER S WITH CARON
         expect_error(tokens, ParseError::ControlCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, no digits", [] {
-        auto tokens = run_tokenizer("&#b;");
+    s.add_test("numeric character reference, no digits", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#b;");
         expect_text(tokens, "&#b;");
         expect_error(tokens, ParseError::AbsenceOfDigitsInNumericCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, eof", [] {
-        auto tokens = run_tokenizer("&#9731"); // U+2603: SNOWMAN
+    s.add_test("numeric character reference, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#9731"); // U+2603: SNOWMAN
         expect_text(tokens, "\xe2\x98\x83");
         expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, missing semicolon", [] {
-        auto tokens = run_tokenizer("&#9731b"); // U+2603: SNOWMAN
+    s.add_test("numeric character reference, missing semicolon", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#9731b"); // U+2603: SNOWMAN
         expect_text(tokens, "\xe2\x98\x83");
         expect_text(tokens, "b");
         expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, null", [] {
-        auto tokens = run_tokenizer("&#0;");
+    s.add_test("numeric character reference, null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#0;");
         expect_text(tokens, kReplacementCharacter);
         expect_error(tokens, ParseError::NullCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, outside unicode range", [] {
-        auto tokens = run_tokenizer("&#x11ffff;");
+    s.add_test("numeric character reference, outside unicode range", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x11ffff;");
         expect_text(tokens, kReplacementCharacter);
         expect_error(tokens, ParseError::CharacterReferenceOutsideUnicodeRange);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, very outside unicode range", [] {
-        auto tokens = run_tokenizer("&#x10000000000000041;");
+    s.add_test("numeric character reference, very outside unicode range", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x10000000000000041;");
         expect_text(tokens, kReplacementCharacter);
         expect_error(tokens, ParseError::CharacterReferenceOutsideUnicodeRange);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, surrogate", [] {
-        auto tokens = run_tokenizer("&#xd900;");
+    s.add_test("numeric character reference, surrogate", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#xd900;");
         expect_text(tokens, kReplacementCharacter);
         expect_error(tokens, ParseError::SurrogateCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("numeric character reference, noncharacter", [] {
-        auto tokens = run_tokenizer("&#xffff;");
+    s.add_test("numeric character reference, noncharacter", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#xffff;");
         expect_text(tokens, "\xef\xbf\xbf");
         expect_error(tokens, ParseError::NoncharacterCharacterReference);
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("hexadecimal character reference", [] {
-        auto tokens = run_tokenizer("&#x2721;"); // U+2721
+    s.add_test("hexadecimal character reference", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x2721;"); // U+2721
         expect_text(tokens, "\xe2\x9c\xa1");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("hexadecimal character reference, upper hex digits", [] {
-        auto tokens = run_tokenizer("&#x27FF;"); // U+27FF
+    s.add_test("hexadecimal character reference, upper hex digits", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x27FF;"); // U+27FF
         expect_text(tokens, "\xe2\x9f\xbf");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("hexadecimal character reference, lower hex digits", [] {
-        auto tokens = run_tokenizer("&#x27ff;"); // U+27FF
+    s.add_test("hexadecimal character reference, lower hex digits", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x27ff;"); // U+27FF
         expect_text(tokens, "\xe2\x9f\xbf");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("hexadecimal character reference, no semicolon", [] {
-        auto tokens = run_tokenizer("&#x27ff "); // U+27FF
+    s.add_test("hexadecimal character reference, no semicolon", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x27ff "); // U+27FF
         expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
         expect_text(tokens, "\xe2\x9f\xbf "); // Note the bonus space.
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("hexadecimal character reference, abrupt end", [] {
-        auto tokens = run_tokenizer("&#x27ff"); // U+27FF
+    s.add_test("hexadecimal character reference, abrupt end", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x27ff"); // U+27FF
         expect_error(tokens, ParseError::MissingSemicolonAfterCharacterReference);
         expect_text(tokens, "\xe2\x9f\xbf");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("hexadecimal character reference, no digits", [] {
-        auto tokens = run_tokenizer("&#xG;");
+    s.add_test("hexadecimal character reference, no digits", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#xG;");
         expect_error(tokens, ParseError::AbsenceOfDigitsInNumericCharacterReference);
         expect_text(tokens, "&#xG;");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("character reference, c0 control character", [] {
-        auto tokens = run_tokenizer("&#x01;");
+    s.add_test("character reference, c0 control character", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "&#x01;");
         expect_error(tokens, ParseError::ControlCharacterReference);
         expect_text(tokens, "\x01");
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, eof after name", [] {
-        auto tokens = run_tokenizer("<!doctype html ");
+    s.add_test("doctype, eof after name", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype html ");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, closing tag after whitespace", [] {
-        auto tokens = run_tokenizer("<!doctype html  >");
+    s.add_test("doctype, closing tag after whitespace", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype html  >");
         expect_token(tokens, DoctypeToken{.name = "html"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, bogus doctype", [] {
-        auto tokens = run_tokenizer("<!doctype html bogus>");
+    s.add_test("doctype, bogus doctype", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype html bogus>");
         expect_error(tokens, ParseError::InvalidCharacterSequenceAfterDoctypeName);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, bogus doctype, null character and eof", [] {
-        auto tokens = run_tokenizer("<!doctype html b\0gus"sv);
+    s.add_test("doctype, bogus doctype, null character and eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype html b\0gus"sv);
         expect_error(tokens, ParseError::InvalidCharacterSequenceAfterDoctypeName);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
@@ -1377,50 +1379,51 @@ int main() {
     for (char quote : std::array{'\'', '"'}) {
         auto type = quote == '"' ? "double"sv : "single"sv;
 
-        etest::test(std::format("doctype, {}-quoted public identifier", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}great{0}>", quote));
+        s.add_test(std::format("doctype, {}-quoted public identifier", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC {0}great{0}>", quote));
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted public identifier, missing whitespace", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC{0}great{0}>", quote));
-            expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypePublicKeyword);
-            expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great"});
-            expect_token(tokens, EndOfFileToken{});
-        });
+        s.add_test(
+                std::format("doctype, {}-quoted public identifier, missing whitespace", type), [=](etest::IActions &a) {
+                    auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC{0}great{0}>", quote));
+                    expect_error(tokens, ParseError::MissingWhitespaceAfterDoctypePublicKeyword);
+                    expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great"});
+                    expect_token(tokens, EndOfFileToken{});
+                });
 
-        etest::test(std::format("doctype, {}-quoted public identifier, eof", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}great", quote));
+        s.add_test(std::format("doctype, {}-quoted public identifier, eof", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC {0}great", quote));
             expect_error(tokens, ParseError::EofInDoctype);
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted public identifier, abrupt end", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}great>", quote));
+        s.add_test(std::format("doctype, {}-quoted public identifier, abrupt end", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC {0}great>", quote));
             expect_error(tokens, ParseError::AbruptDoctypePublicIdentifier);
             expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted public identifier, null", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC {0}gre\0t{0}>"sv, quote));
+        s.add_test(std::format("doctype, {}-quoted public identifier, null", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC {0}gre\0t{0}>"sv, quote));
             expect_error(tokens, ParseError::UnexpectedNullCharacter);
             expect_token(
                     tokens, DoctypeToken{.name = "html", .public_identifier = "gre"s + kReplacementCharacter + "t"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted system identifier", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hello{0}>", quote));
+        s.add_test(std::format("doctype, {}-quoted system identifier", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hello{0}>", quote));
             expect_token(
                     tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted system identifier, unexpected null", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}n\0{0}>"sv, quote));
+        s.add_test(std::format("doctype, {}-quoted system identifier, unexpected null", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC 'great' {0}n\0{0}>"sv, quote));
             expect_error(tokens, ParseError::UnexpectedNullCharacter);
             expect_token(tokens,
                     DoctypeToken{.name = "html",
@@ -1429,16 +1432,17 @@ int main() {
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted system identifier, missing whitespace", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great'{0}hello{0}>", quote));
-            expect_error(tokens, ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers);
-            expect_token(
-                    tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
-            expect_token(tokens, EndOfFileToken{});
-        });
+        s.add_test(
+                std::format("doctype, {}-quoted system identifier, missing whitespace", type), [=](etest::IActions &a) {
+                    auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC 'great'{0}hello{0}>", quote));
+                    expect_error(tokens, ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers);
+                    expect_token(tokens,
+                            DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
+                    expect_token(tokens, EndOfFileToken{});
+                });
 
-        etest::test(std::format("doctype, {}-quoted system identifier, eof", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell", quote));
+        s.add_test(std::format("doctype, {}-quoted system identifier, eof", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell", quote));
             expect_error(tokens, ParseError::EofInDoctype);
             expect_token(tokens,
                     DoctypeToken{.name = "html",
@@ -1448,8 +1452,8 @@ int main() {
             expect_token(tokens, EndOfFileToken{});
         });
 
-        etest::test(std::format("doctype, {}-quoted system identifier, abrupt end", type), [=] {
-            auto tokens = run_tokenizer(std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell>", quote));
+        s.add_test(std::format("doctype, {}-quoted system identifier, abrupt end", type), [=](etest::IActions &a) {
+            auto tokens = run_tokenizer(a, std::format("<!DOCTYPE HTML PUBLIC 'great' {0}hell>", quote));
             expect_error(tokens, ParseError::AbruptDoctypeSystemIdentifier);
             expect_token(tokens,
                     DoctypeToken{.name = "html",
@@ -1460,15 +1464,15 @@ int main() {
         });
     }
 
-    etest::test("doctype, system identifier, missing quote", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" hello>)");
+    s.add_test("doctype, system identifier, missing quote", [=](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great" hello>)");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, after system identifier, eof", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" "hello" )");
+    s.add_test("doctype, after system identifier, eof", [=](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great" "hello" )");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens,
                 DoctypeToken{.name = "html",
@@ -1478,190 +1482,190 @@ int main() {
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, after system identifier, unexpected character", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" "hello" ohno>)");
+    s.add_test("doctype, after system identifier, unexpected character", [=](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great" "hello" ohno>)");
         expect_error(tokens, ParseError::UnexpectedCharacterAfterDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .system_identifier = "hello"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, between public and system identifiers, eof", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great"  )");
+    s.add_test("doctype, between public and system identifiers, eof", [=](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great"  )");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, between public and system identifiers", [=] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great" >)");
+    s.add_test("doctype, between public and system identifiers", [=](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great" >)");
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, public identifier, missing quotes", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLIC great>");
+    s.add_test("doctype, public identifier, missing quotes", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML PUBLIC great>");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypePublicIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, public identifier, no space", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLICgreat>");
+    s.add_test("doctype, public identifier, no space", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML PUBLICgreat>");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypePublicIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, public identifier, no space", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great"bad>)");
+    s.add_test("doctype, public identifier, no space", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great"bad>)");
         expect_error(tokens, ParseError::MissingQuoteBeforeDoctypeSystemIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, public keyword, eof", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLIC");
+    s.add_test("doctype, public keyword, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML PUBLIC");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, public keyword, missing identifier", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLIC>");
+    s.add_test("doctype, public keyword, missing identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML PUBLIC>");
         expect_error(tokens, ParseError::MissingDoctypePublicIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, after public keyword, eof", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLIC  ");
+    s.add_test("doctype, after public keyword, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML PUBLIC  ");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, public keyword but no identifier", [] {
-        auto tokens = run_tokenizer("<!DOCTYPE HTML PUBLIC >");
+    s.add_test("doctype, public keyword but no identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!DOCTYPE HTML PUBLIC >");
         expect_error(tokens, ParseError::MissingDoctypePublicIdentifier);
         expect_token(tokens, DoctypeToken{.name = "html", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, eof after public identifier", [] {
-        auto tokens = run_tokenizer(R"(<!DOCTYPE HTML PUBLIC "great")");
+    s.add_test("doctype, eof after public identifier", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, R"(<!DOCTYPE HTML PUBLIC "great")");
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "html", .public_identifier = "great", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("tag closed after attribute name", [] {
-        auto tokens = run_tokenizer("<one a><two b>");
+    s.add_test("tag closed after attribute name", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<one a><two b>");
         expect_token(tokens, StartTagToken{.tag_name = "one", .attributes = {{"a", ""}}});
         expect_token(tokens, StartTagToken{.tag_name = "two", .attributes = {{"b", ""}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("pages served as xml don't break everything", [] {
-        auto tokens = run_tokenizer("<?xml?><!DOCTYPE HTML>");
+    s.add_test("pages served as xml don't break everything", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<?xml?><!DOCTYPE HTML>");
         expect_error(tokens, ParseError::UnexpectedQuestionMarkInsteadOfTagName);
         expect_token(tokens, CommentToken{"?xml?"});
         expect_token(tokens, DoctypeToken{.name = "html"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("invalid end tag open, eof", [] {
-        auto tokens = run_tokenizer("</!bogus");
+    s.add_test("invalid end tag open, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "</!bogus");
         expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
         expect_token(tokens, CommentToken{.data = "!bogus"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("invalid end tag open, unexpected null", [] {
-        auto tokens = run_tokenizer("</!bogu\0>"sv);
+    s.add_test("invalid end tag open, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "</!bogu\0>"sv);
         expect_error(tokens, ParseError::InvalidFirstCharacterOfTagName);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, CommentToken{.data = "!bogu"s + kReplacementCharacter});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("tag name, unexpected null", [] {
-        auto tokens = run_tokenizer("<hell\0>"sv);
+    s.add_test("tag name, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hell\0>"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name{"hell"s + kReplacementCharacter}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute name, unexpected null", [] {
-        auto tokens = run_tokenizer("<hello a\0>"sv);
+    s.add_test("attribute name, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<hello a\0>"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, StartTagToken{.tag_name{"hello"s}, .attributes{{"a"s + kReplacementCharacter, ""}}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("attribute value, unexpected null", [] {
+    s.add_test("attribute value, unexpected null", [](etest::IActions &a) {
         for (auto html : {"<a b=\"\0\">"sv, "<a b='\0'>"sv}) {
-            auto tokens = run_tokenizer(html);
+            auto tokens = run_tokenizer(a, html);
             expect_error(tokens, ParseError::UnexpectedNullCharacter);
             expect_token(tokens, StartTagToken{.tag_name{"a"s}, .attributes{{"b"s, kReplacementCharacter}}});
             expect_token(tokens, EndOfFileToken{});
         }
     });
 
-    etest::test("comment, unexpected null", [] {
-        auto tokens = run_tokenizer("<!--\0-->"sv);
+    s.add_test("comment, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!--\0-->"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, CommentToken{.data{kReplacementCharacter}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("before doctype name, unexpected null", [] {
-        auto tokens = run_tokenizer("<!doctype \0hi>"sv);
+    s.add_test("before doctype name, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype \0hi>"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, DoctypeToken{.name{kReplacementCharacter + "hi"s}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype name, unexpected null", [] {
-        auto tokens = run_tokenizer("<!doctype hi\0>"sv);
+    s.add_test("doctype name, unexpected null", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype hi\0>"sv);
         expect_error(tokens, ParseError::UnexpectedNullCharacter);
         expect_token(tokens, DoctypeToken{.name{"hi"s + kReplacementCharacter}});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, eof", [] {
-        auto tokens = run_tokenizer("<!doctype"sv);
+    s.add_test("doctype, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype"sv);
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, missing doctype name", [] {
-        auto tokens = run_tokenizer("<!doctype>"sv);
+    s.add_test("doctype, missing doctype name", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype>"sv);
         expect_error(tokens, ParseError::MissingDoctypeName);
         expect_token(tokens, DoctypeToken{.force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype, missing whitespace before doctype name", [] {
-        auto tokens = run_tokenizer("<!doctypelol>"sv);
+    s.add_test("doctype, missing whitespace before doctype name", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctypelol>"sv);
         expect_error(tokens, ParseError::MissingWhitespaceBeforeDoctypeName);
         expect_token(tokens, DoctypeToken{.name = "lol"});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("before doctype name, eof", [] {
-        auto tokens = run_tokenizer("<!doctype "sv);
+    s.add_test("before doctype name, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype "sv);
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    etest::test("doctype name, eof", [] {
-        auto tokens = run_tokenizer("<!doctype hi"sv);
+    s.add_test("doctype name, eof", [](etest::IActions &a) {
+        auto tokens = run_tokenizer(a, "<!doctype hi"sv);
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "hi", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
