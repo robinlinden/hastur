@@ -1,0 +1,74 @@
+""" This comment is required for Buildifier to be happy. """
+
+# Bazel
+# =========================================================
+
+# https://github.com/bazelbuild/apple_support
+bazel_dep(name = "apple_support", version = "1.17.1", repo_name = "build_bazel_apple_support")
+
+archive_override(
+    module_name = "apple_support",
+    integrity = "sha256-tT9kkedCVJ8ThmYo3f/MddHzstaYfcTxShayQhE8iQs=",
+    urls = ["https://github.com/bazelbuild/apple_support/releases/download/1.17.1/apple_support.1.17.1.tar.gz"],
+)
+
+# https://github.com/bazelbuild/platforms
+bazel_dep(name = "platforms", version = "0.0.10")
+
+archive_override(
+    module_name = "platforms",  # Apache-2.0
+    integrity = "sha256-IY7+juc20mo1cmY7N0olPAErcW2K8MB+hC6C8jigp+4=",
+    urls = ["https://github.com/bazelbuild/platforms/releases/download/0.0.10/platforms-0.0.10.tar.gz"],
+)
+
+# https://github.com/bazelbuild/rules_cc
+# 0.1.0 isn't compatible w/ Bazel 7.4.0:
+# ERROR: Traceback (most recent call last):
+#   File "<...>/external/remote_java_tools/BUILD", line 7, column 60, in <toplevel>
+#     load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library")
+# Error: file '@rules_cc//cc:defs.bzl' does not contain symbol 'cc_proto_library'
+bazel_dep(name = "rules_cc", version = "0.0.17")
+
+archive_override(
+    module_name = "rules_cc",  # Apache-2.0
+    integrity = "sha256-q8YF3YUPgTuzcAS3fbIBBqGTEalrLaHJK3idpSnSj+E=",
+    patch_cmds = [
+        # rules_cc depends on protobuf as of 0.0.13, and adding that for rules_cc is silly.
+        # https://github.com/bazelbuild/rules_cc/commit/013a08285803532d9c5de010da51dd45b4cd2722
+        "sed -i'' -e /@com_google_protobuf/d cc/defs.bzl",
+        "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/g' cc/defs.bzl",
+    ],
+    strip_prefix = "rules_cc-0.0.17",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz"],
+)
+
+# https://github.com/bazelbuild/rules_license
+bazel_dep(name = "rules_license", version = "1.0.0")
+
+archive_override(
+    module_name = "rules_license",  # Apache-2.0
+    integrity = "sha256-JtQCH2iY4juC75UweDid1JrCtWGKxWSt5O+HzO0Uezg=",
+    urls = ["https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz"],
+)
+
+# https://github.com/bazelbuild/rules_python
+# TODO(robinlinden): Work out how to get glad2 working w/ newer rules_python.
+bazel_dep(name = "rules_python", version = "0.33.2")
+
+archive_override(
+    module_name = "rules_python",  # Apache-2.0
+    integrity = "sha256-4/HMegTZsJY1r7MTBzHtgrX1jq3IIz1O+1mUTZL/wG8=",
+    strip_prefix = "rules_python-0.33.2",
+    urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.33.2/rules_python-0.33.2.tar.gz"],
+)
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(python_version = "3.12.3", is_default = True)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.12.3",
+    requirements_lock = "//third_party:requirements.txt",
+)
+use_repo(pip, "pypi")

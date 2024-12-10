@@ -1,8 +1,7 @@
 # Bazel configuration
 # =========================================================
 
-# https://github.com/bazelbuild/bazel/issues/18958
-common --noenable_bzlmod
+common --lockfile_mode=off
 
 build --enable_platform_specific_config
 coverage --combined_report=lcov
