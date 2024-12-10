@@ -1,76 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 
-# Bazel
-# =========================================================
-
-# https://github.com/bazelbuild/apple_support
-http_archive(
-    name = "build_bazel_apple_support",
-    integrity = "sha256-tT9kkedCVJ8ThmYo3f/MddHzstaYfcTxShayQhE8iQs=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/1.17.1/apple_support.1.17.1.tar.gz",
-)
-
-# https://github.com/bazelbuild/platforms
-http_archive(
-    name = "platforms",  # Apache-2.0
-    integrity = "sha256-IY7+juc20mo1cmY7N0olPAErcW2K8MB+hC6C8jigp+4=",
-    url = "https://github.com/bazelbuild/platforms/releases/download/0.0.10/platforms-0.0.10.tar.gz",
-)
-
-# https://github.com/bazelbuild/rules_cc
-# 0.1.0 isn't compatible w/ Bazel 7.4.0:
-# ERROR: Traceback (most recent call last):
-#   File "<...>/external/remote_java_tools/BUILD", line 7, column 60, in <toplevel>
-#     load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library")
-# Error: file '@rules_cc//cc:defs.bzl' does not contain symbol 'cc_proto_library'
-http_archive(
-    name = "rules_cc",  # Apache-2.0
-    integrity = "sha256-q8YF3YUPgTuzcAS3fbIBBqGTEalrLaHJK3idpSnSj+E=",
-    patch_cmds = [
-        # rules_cc depends on protobuf as of 0.0.13, and adding that for rules_cc is silly.
-        # https://github.com/bazelbuild/rules_cc/commit/013a08285803532d9c5de010da51dd45b4cd2722
-        "sed -i'' -e /@com_google_protobuf/d cc/defs.bzl",
-        "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/g' cc/defs.bzl",
-    ],
-    strip_prefix = "rules_cc-0.0.17",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz",
-)
-
-# https://github.com/bazelbuild/rules_fuzzing
-http_archive(
-    name = "rules_fuzzing",
-    integrity = "sha256-5rwhm/rJ4fg7Mn3QkPcoqflz7pm5tdjloYSicy7whiM=",
-    strip_prefix = "rules_fuzzing-0.5.2",
-    url = "https://github.com/bazelbuild/rules_fuzzing/releases/download/v0.5.2/rules_fuzzing-0.5.2.zip",
-)
-
-# https://github.com/bazelbuild/rules_license
-http_archive(
-    name = "rules_license",  # Apache-2.0
-    sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
-    url = "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
-)
-
-# https://github.com/bazelbuild/rules_python
-# 0.40.0 instead of 1.0.0 as 1.0.0 has changed up the hermetic toolchain <-> pip
-# integration, and we'll deal with that kind of changes when migrating to bzlmod
-# anyway.
-http_archive(
-    name = "rules_python",  # Apache-2.0
-    integrity = "sha256-aQ4BQXJKu1aCZ+ADx7bZpUkl30DCdahwpNk0Fh3J3VM=",
-    strip_prefix = "rules_python-0.40.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.40.0/rules_python-0.40.0.tar.gz",
-)
-
-# https://github.com/bazelbuild/rules_shell
-http_archive(
-    name = "rules_shell",  # Apache-2.0
-    sha256 = "d8cd4a3a91fc1dc68d4c7d6b655f09def109f7186437e3f50a9b60ab436a0c53",
-    strip_prefix = "rules_shell-0.3.0",
-    url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz",
-)
-
 # Third-party Bazel
 # =========================================================
 
@@ -388,15 +318,6 @@ http_archive(
     url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
 )
 
-# https://github.com/madler/zlib
-http_archive(
-    name = "zlib",  # Zlib
-    build_file = "//third_party:zlib.BUILD",
-    integrity = "sha256-F+iIY/NgBnKrSRgvIXKBtvxNPHYr3jYZNeQ2qVIU0Fw=",
-    strip_prefix = "zlib-1.3.1",
-    url = "https://github.com/madler/zlib/archive/v1.3.1.tar.gz",
-)
-
 # https://github.com/facebook/zstd
 http_archive(
     name = "zstd",  # BSD-3-Clause
@@ -412,61 +333,7 @@ http_archive(
 # This needs to go last so that we can override any dependencies these calls may
 # pull in.
 
-# build_bazel_apple_support
-load("@build_bazel_apple_support//lib:repositories.bzl", "apple_support_dependencies")
-
-apple_support_dependencies()
-
-load("@bazel_features//:deps.bzl", "bazel_features_deps")
-
-bazel_features_deps()
-
-# rules_python
-load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
-
-py_repositories()
-
-python_register_toolchains(
-    name = "python_3_12",
-    # Running the build as root works, but leads to cache-misses for .pyc files.
-    ignore_root_user_error = True,
-    python_version = "3.12.3",
-)
-
-load("@python_3_12//:defs.bzl", "interpreter")
-load("@rules_python//python:pip.bzl", "pip_parse")
-
-pip_parse(
-    name = "pypi",
-    python_interpreter_target = interpreter,
-    requirements_lock = "//third_party:requirements.txt",
-)
-
-load("@pypi//:requirements.bzl", pypi_install_deps = "install_deps")
-
-pypi_install_deps()
-
-# rules_fuzzing
-# Must be after rules_python due to not calling py_repositories when it should.
-load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
-
-rules_fuzzing_dependencies()
-
-load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
-
-rules_fuzzing_init()
-
-load("@fuzzing_py_deps//:requirements.bzl", fuzzing_py_deps_install_deps = "install_deps")
-
-fuzzing_py_deps_install_deps()
-
 # hermetic_cc_toolchain
 load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
 
 zig_toolchains()
-
-load("@rules_shell//shell:repositories.bzl", "rules_shell_dependencies", "rules_shell_toolchains")
-
-rules_shell_dependencies()
-
-rules_shell_toolchains()

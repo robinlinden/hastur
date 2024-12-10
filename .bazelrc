@@ -1,9 +1,12 @@
 # Bazel configuration
 # =========================================================
 
-# https://github.com/bazelbuild/bazel/issues/18958
 common --enable_workspace
-common --noenable_bzlmod
+
+# We handle hermeticity by explicitly specifying dependencies instead of using
+# the lockfile system.
+common --lockfile_mode=off
+common --registry=file://this/does/not/exist
 
 build --enable_platform_specific_config
 coverage --combined_report=lcov
