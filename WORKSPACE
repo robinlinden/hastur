@@ -53,12 +53,14 @@ http_archive(
 )
 
 # https://github.com/bazelbuild/rules_python
-# TODO(robinlinden): Work out how to get glad2 working w/ newer rules_python.
+# 0.40.0 instead of 1.0.0 as 1.0.0 has changed up the hermetic toolchain <-> pip
+# integration, and we'll deal with that kind of changes when migrating to bzlmod
+# anyway.
 http_archive(
     name = "rules_python",  # Apache-2.0
-    integrity = "sha256-4/HMegTZsJY1r7MTBzHtgrX1jq3IIz1O+1mUTZL/wG8=",
-    strip_prefix = "rules_python-0.33.2",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.33.2/rules_python-0.33.2.tar.gz",
+    integrity = "sha256-aQ4BQXJKu1aCZ+ADx7bZpUkl30DCdahwpNk0Fh3J3VM=",
+    strip_prefix = "rules_python-0.40.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.40.0/rules_python-0.40.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_shell
