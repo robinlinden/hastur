@@ -177,8 +177,10 @@ http_archive(
 
 # https://github.com/Dav1dde/glad/
 local_repository(
-    name = "glad",  # MIT
-    path = "third_party/glad",
+    # This can't called glad as that will cause rules_python to generate folder
+    # structures that conflict with imports with glad in the path.
+    name = "glad2",  # MIT
+    path = "third_party/glad2",
 )
 
 # HEAD as of 2024-05-01.

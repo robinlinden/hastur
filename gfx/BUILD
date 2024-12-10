@@ -49,7 +49,7 @@ cc_library(
     deps = [
         ":gfx",
         "//geom",
-        "@glad",
+        "@glad2",
     ],
 )
 

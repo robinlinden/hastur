@@ -8,7 +8,7 @@ cc_library(
     includes = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "@glad",
+        "@glad2",
         "@imgui",
         "@sfml//:graphics",
         "@sfml//:system",
