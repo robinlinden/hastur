@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Starlark rules for creating xfail tests."""
 
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 def cc_xfail_test(
         name,
@@ -17,7 +18,7 @@ def cc_xfail_test(
         **kwargs
     )
 
-    native.sh_test(
+    sh_test(
         name = name,
         size = size,
         srcs = ["//bzl:xfail_test_runner"],
