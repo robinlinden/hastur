@@ -27,6 +27,7 @@ namespace engine {
 struct Options {
     // Default chosen by rolling 1d600.
     int layout_width{600};
+    int viewport_height{800};
     bool dark_mode{false};
 };
 
@@ -38,6 +39,7 @@ struct PageState {
     std::unique_ptr<style::StyledNode> styled{};
     std::optional<layout::LayoutBox> layout{};
     int layout_width{};
+    int viewport_height{};
 };
 
 struct NavigationError {

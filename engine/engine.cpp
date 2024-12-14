@@ -175,16 +175,18 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
 
     spdlog::info("Styling dom w/ {} rules", state->stylesheet.rules.size());
     state->layout_width = opts.layout_width;
+    state->viewport_height = opts.viewport_height;
     state->styled = style::style_tree(state->dom.html_node, state->stylesheet, to_media_context(opts));
-    state->layout = layout::create_layout(*state->styled, state->layout_width, *type_);
+    state->layout = layout::create_layout(*state->styled, {state->layout_width, state->viewport_height}, *type_);
 
     return state;
 }
 
 void Engine::relayout(PageState &state, Options opts) {
     state.layout_width = opts.layout_width;
+    state.viewport_height = opts.viewport_height;
     state.styled = style::style_tree(state.dom.html_node, state.stylesheet, to_media_context(opts));
-    state.layout = layout::create_layout(*state.styled, state.layout_width, *type_);
+    state.layout = layout::create_layout(*state.styled, {state.layout_width, state.viewport_height}, *type_);
 }
 
 Engine::LoadResult Engine::load(uri::Uri uri) {

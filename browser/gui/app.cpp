@@ -755,6 +755,7 @@ void App::switch_canvas() {
 engine::Options App::make_options() const {
     return {
             .layout_width = static_cast<int>(window_.getSize().x / scale_),
+            .viewport_height = static_cast<int>(window_.getSize().y / scale_),
             .dark_mode = os::is_dark_mode(),
     };
 }

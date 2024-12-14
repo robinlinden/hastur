@@ -544,7 +544,11 @@ void Layouter::calculate_non_inline_height(LayoutBox &box, int const font_size) 
     }
 
     if (auto height = box.get_property<css::PropertyId::Height>(); !height.is_auto()) {
-        content.height = height.resolve(font_size, resolution_context_);
+        if (box.node->parent == nullptr) {
+            content.height = height.resolve(font_size, resolution_context_, resolution_context_.viewport_height);
+        } else {
+            content.height = height.resolve(font_size, resolution_context_);
+        }
     }
 
     if (auto min = box.get_property<css::PropertyId::MinHeight>(); !min.is_auto()) {
@@ -599,7 +603,7 @@ std::optional<std::shared_ptr<type::IFont const>> Layouter::find_font(
 } // namespace
 
 std::optional<LayoutBox> create_layout(style::StyledNode const &node,
-        int width,
+        LayoutInfo const &info,
         type::IType const &type,
         std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url) {
     auto resource_exists = [&get_intrensic_size_for_resource_at_url](std::string_view url) {
@@ -618,10 +622,11 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node,
 
     style::ResolutionInfo resolution_context{
             .root_font_size = node.get_property<css::PropertyId::FontSize>(),
-            .viewport_width = width,
+            .viewport_width = info.viewport_width,
+            .viewport_height = info.viewport_height,
     };
 
-    Layouter{resolution_context, type}.layout(*tree, {0, 0, width, 0});
+    Layouter{resolution_context, type}.layout(*tree, {0, 0, info.viewport_width, 0});
     return tree;
 }
 

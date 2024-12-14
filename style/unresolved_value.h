@@ -14,6 +14,7 @@ namespace style {
 struct ResolutionInfo {
     int root_font_size{};
     int viewport_width{};
+    int viewport_height{};
 };
 
 struct UnresolvedValue {

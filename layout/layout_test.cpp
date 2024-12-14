@@ -2127,6 +2127,17 @@ int main() {
         expect_eq(layout.children.at(0).dimensions.border_box().height, 100);
     });
 
+    etest::test("%-height on the root node", [] {
+        dom::Node dom = dom::Element{"html"};
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Height, "50%"}, {css::PropertyId::Display, "block"}},
+        };
+
+        auto layout = layout::create_layout(style, {.viewport_height = 1000}).value();
+        expect_eq(layout.dimensions.border_box().height, 500);
+    });
+
     whitespace_collapsing_tests();
     text_transform_tests();
     img_tests();
