@@ -219,6 +219,7 @@ jobs:
         run: |
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           python3 -m http.server --bind localhost 12345 &
+          sleep 5 # Sometimes the server isn't ready by the time the tui starts.
           bazel run browser:tui -c dbg http://localhost:12345/example.html
       - run: bazel run browser -c dbg -- --exit-after-load http://localhost:12345/example.html
 
@@ -241,6 +242,7 @@ jobs:
         run: |
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           python3 -m http.server --bind localhost 12345 &
+          sleep 5 # Sometimes the server isn't ready by the time the tui starts.
           bazel run browser:tui http://localhost:12345/example.html
       - run: bazel run browser -- --exit-after-load http://localhost:12345/example.html
 
