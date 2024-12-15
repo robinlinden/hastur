@@ -66,7 +66,7 @@ int main() {
     });
 
     s.add_test("unit/vw", [](etest::IActions &a) {
-        // Based on the first argument, the current element's font-size.
+        // Based on the viewport width.
         auto const uv = UnresolvedValue{.raw = "25vw"};
         a.expect_eq(uv.resolve(100, {.viewport_width = 100}), 25);
         a.expect_eq(uv.resolve(123, {.viewport_width = 200}), 50);
