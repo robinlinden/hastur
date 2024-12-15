@@ -73,6 +73,14 @@ int main() {
         a.expect_eq(uv.resolve(0, {.viewport_width = 0}), 0);
     });
 
+    s.add_test("unit/vh", [](etest::IActions &a) {
+        // Based on the viewport height.
+        auto const uv = UnresolvedValue{.raw = "25vh"};
+        a.expect_eq(uv.resolve(100, {.viewport_height = 100}), 25);
+        a.expect_eq(uv.resolve(123, {.viewport_height = 200}), 50);
+        a.expect_eq(uv.resolve(0, {.viewport_height = 0}), 0);
+    });
+
     s.add_test("try_resolve", [](etest::IActions &a) {
         // %, no parent provided.
         auto const percent = UnresolvedValue{.raw = "50%"};

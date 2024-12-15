@@ -88,6 +88,12 @@ std::optional<int> UnresolvedValue::try_resolve(int font_size,
         return static_cast<int>(res);
     }
 
+    // https://www.w3.org/TR/css3-values/#vh
+    if (unit == "vh") {
+        res *= static_cast<float>(context.viewport_height) / 100;
+        return static_cast<int>(res);
+    }
+
     spdlog::warn("{}({}:{}): Bad property '{}' w/ unit '{}' in to_px",
             caller.file_name(),
             caller.line(),
