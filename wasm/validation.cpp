@@ -197,10 +197,7 @@ void InstValidator::push_ctrl(Instruction i, std::vector<ValueType> params, std:
         push_vals(params);
     }
 
-    control_stack.push_back(
-            ControlFrame{std::move(i), std::move(params), std::move(results), value_stack.size(), false});
-    // TODO(dzero): Replace above call with below call when clang >= 16 supported in macos
-    // control_stack.emplace_back(std::move(i), std::move(params), std::move(results), value_stack.size(), false);
+    control_stack.emplace_back(std::move(i), std::move(params), std::move(results), value_stack.size(), false);
 }
 
 tl::expected<ControlFrame, ValidationError> InstValidator::pop_ctrl() {
