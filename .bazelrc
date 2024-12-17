@@ -121,6 +121,9 @@ build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_ti
 build:clang-tidy --output_groups=report
 build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
 
+build:buildbuddy-bes --bes_results_url=https://app.buildbuddy.io/invocation/
+build:buildbuddy-bes --bes_backend=grpcs://remote.buildbuddy.io
+
 # Cross-compilation
 # =========================================================
 
