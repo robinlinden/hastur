@@ -300,19 +300,18 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     return value;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<std::string_view> StyledNode::resolve_variable(std::string_view name) const {
-    auto prop = std::ranges::find(custom_properties, name, &std::pair<std::string, std::string>::first);
-    if (prop == end(custom_properties)) {
-        if (parent != nullptr) {
-            return parent->resolve_variable(name);
+    for (auto const *current = this; current != nullptr; current = current->parent) {
+        auto prop = std::ranges::find(current->custom_properties, name, &std::pair<std::string, std::string>::first);
+        if (prop == end(current->custom_properties)) {
+            continue;
         }
 
-        spdlog::info("No matching variable for custom property '{}'", name);
-        return std::nullopt;
+        return prop->second;
     }
 
-    return prop->second;
+    spdlog::info("No matching variable for custom property '{}'", name);
+    return std::nullopt;
 }
 
 BorderStyle StyledNode::get_border_style_property(css::PropertyId property) const {
