@@ -74,6 +74,7 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
+      - run: echo "build --config=buildbuddy-bes" >.bazelrc.local
       - name: Test
         run: bazel test //... ${{ matrix.bazel }}
       - name: Run
@@ -127,6 +128,7 @@ jobs:
           echo "CC=clang-19" >> $GITHUB_ENV
           echo "CXX=clang++-19" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
+      - run: echo "build --config=buildbuddy-bes" >.bazelrc.local
       - name: Coverage
         run: bazel coverage ... ${{ matrix.bazel }}
       # clang 19 coverage has a lot of problems w/ boringssl:
@@ -157,6 +159,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
       - run: sudo update-binfmts --enable qemu-aarch64
       - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
+      - run: echo "build --config=buildbuddy-bes" >>.bazelrc.local
       - run: bazel test ...
       - name: Run tui
         run: |
@@ -181,6 +184,7 @@ jobs:
       # Register wasmtime as the wasm binary format handler.
       - run: echo -n ":wasm32-wasi:M::\x00asm:\xff\xff\xff\xff:$(pwd)/${WASMTIME_NAME}/wasmtime:" | sudo tee /proc/sys/fs/binfmt_misc/register
       - run: echo "build --config=wasi-wasm" >.bazelrc.local
+      - run: echo "build --config=buildbuddy-bes" >>.bazelrc.local
       - run: bazel test ...
 
   macos:
@@ -193,6 +197,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - run: echo "build --config=buildbuddy-bes" >.bazelrc.local
       - run: bazelisk test //...
       - name: Run tui
         run: |
@@ -213,6 +218,7 @@ jobs:
           path: ~/.cache/bazel
           key: windows_msvc-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
+      - run: echo "build --config=buildbuddy-bes" >>.bazelrc.local
       - name: Test
         run: bazel test ... -c dbg
       - name: Run tui
@@ -237,6 +243,7 @@ jobs:
           key: windows_clang_cl-${{ hashFiles('.bazelversion', 'WORKSPACE', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
       - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
+      - run: echo "build --config=buildbuddy-bes" >>.bazelrc.local
       - run: bazel test ...
       - name: Run tui
         run: |
@@ -285,7 +292,7 @@ jobs:
           sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-19
           update-alternatives --query clang-tidy
           clang-tidy --version
-      - run: bazel build ... --config libc++ --config clang-tidy --keep_going
+      - run: bazel build ... --config libc++ --config clang-tidy --config buildbuddy-bes --keep_going
 
   buildifier:
     runs-on: ubuntu-24.04
