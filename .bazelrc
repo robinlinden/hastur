@@ -123,6 +123,17 @@ build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
 
 build:buildbuddy-bes --bes_results_url=https://app.buildbuddy.io/invocation/
 build:buildbuddy-bes --bes_backend=grpcs://remote.buildbuddy.io
+build:buildbuddy-cache-common --config=buildbuddy-bes
+build:buildbuddy-cache-common --remote_cache=grpcs://remote.buildbuddy.io
+build:buildbuddy-cache-common --remote_timeout=3600
+build:buildbuddy-cache-common --remote_cache_compression
+build:buildbuddy-cache-common --noslim_profile
+build:buildbuddy-cache-common --experimental_profile_include_target_label
+build:buildbuddy-cache-common --experimental_profile_include_primary_output
+build:buildbuddy-cache --config=buildbuddy-cache-common
+build:buildbuddy-cache --noremote_upload_local_results
+build:buildbuddy-cache-upload --config=buildbuddy-cache-common
+build:buildbuddy-cache-upload --remote_upload_local_results
 
 # Cross-compilation
 # =========================================================
