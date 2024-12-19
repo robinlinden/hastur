@@ -22,23 +22,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-# 0.1.0 isn't compatible w/ Bazel 7.4.0:
-# ERROR: Traceback (most recent call last):
-#   File "<...>/external/remote_java_tools/BUILD", line 7, column 60, in <toplevel>
-#     load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_proto_library")
-# Error: file '@rules_cc//cc:defs.bzl' does not contain symbol 'cc_proto_library'
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-q8YF3YUPgTuzcAS3fbIBBqGTEalrLaHJK3idpSnSj+E=",
-    patch_cmds = [
-        # rules_cc depends on protobuf as of 0.0.13, and adding that for rules_cc is silly.
-        # https://github.com/bazelbuild/rules_cc/commit/013a08285803532d9c5de010da51dd45b4cd2722
-        "sed -i'' -e /@com_google_protobuf/d cc/defs.bzl",
-        "sed -i'' -e 's/_cc_proto_library/native.cc_proto_library/g' cc/defs.bzl",
-    ],
-    strip_prefix = "rules_cc-0.0.17",
-    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz"],
+    integrity = "sha256-SxIUmgQd37gwao/Q6QTjnWc1Us6C5ClulvrJy/B4Dlk=",
+    strip_prefix = "rules_cc-0.1.0",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.1.0/rules_cc-0.1.0.tar.gz"],
 )
 
 # https://github.com/bazelbuild/rules_java
@@ -56,9 +45,8 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-# 0.40.0 instead of 1.0.0 as 1.0.0 has changed up the hermetic toolchain <-> pip
-# integration, and we'll deal with that kind of changes when migrating to bzlmod
-# anyway.
+# 0.40.0 instead of 1.0.0 as 1.0.0 breaks things like rules_fuzzing with
+# `@rules_python//python/config_settings:bootstrap_impl=script` set.
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
@@ -275,14 +263,13 @@ archive_override(
 # Third-party
 # =========================================================
 
-# HEAD as of 2024-11-20.
 # https://github.com/google/boringssl
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-7nkLWRFiyWfdIt/DNwuvYLWWaYyVAnFHSH6ihZwgRss=",
-    strip_prefix = "boringssl-264f4f7a958af6c4ccb04662e302a99dfa7c5b85",
-    url = "https://github.com/google/boringssl/archive/264f4f7a958af6c4ccb04662e302a99dfa7c5b85.tar.gz",
+    integrity = "sha256-JDpPv6TnSf7Mc+WPYvJasuQe3MTzT6I7S2r+Dgursq0=",
+    strip_prefix = "boringssl-0.20241209.0",
+    url = "https://github.com/google/boringssl/releases/download/0.20241209.0/boringssl-0.20241209.0.tar.gz",
 )
 
 # https://github.com/madler/zlib

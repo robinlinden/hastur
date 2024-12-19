@@ -150,9 +150,9 @@ http_file(
 http_archive(
     name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-KqLRacVpNoQ55dVmfgeW0JylzGQyllzgguUWk319slQ=",
-    strip_prefix = "imgui-1.91.5",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.5.tar.gz",
+    integrity = "sha256-xfvF3KsdRgZAAcO4TXqIgSmFzefg6c7QP1Z3vsG6UCo=",
+    strip_prefix = "imgui-1.91.6",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.6.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -193,15 +193,15 @@ http_archive(
 http_archive(
     name = "sfml",  # Zlib
     build_file = "//third_party:sfml.BUILD",
-    integrity = "sha256-aA2n9DmKV2Z4fqnKad0cmkhxzzxINN362SJCXG95Lcg=",
+    integrity = "sha256-0hL4wIYiyFpm+NW0qlrRuQXYUDQsPemBLJkXPmmw500=",
     patch_cmds = [
         # SFML uses a non-standard include path to vulkan.h
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Unix/VulkanImplX11.cpp",
     ],
-    strip_prefix = "SFML-3.0.0-rc.1",
-    url = "https://github.com/SFML/SFML/archive/3.0.0-rc.1.tar.gz",
+    strip_prefix = "SFML-3.0.0-rc.2",
+    url = "https://github.com/SFML/SFML/archive/3.0.0-rc.2.tar.gz",
 )
 
 # https://github.com/gabime/spdlog
