@@ -49,15 +49,6 @@ http_archive(
     url = "https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz",
 )
 
-# HEAD as of 2024-11-20.
-# https://github.com/google/boringssl
-http_archive(
-    name = "boringssl",  # OpenSSL + ISC
-    integrity = "sha256-7nkLWRFiyWfdIt/DNwuvYLWWaYyVAnFHSH6ihZwgRss=",
-    strip_prefix = "boringssl-264f4f7a958af6c4ccb04662e302a99dfa7c5b85",
-    url = "https://github.com/google/boringssl/archive/264f4f7a958af6c4ccb04662e302a99dfa7c5b85.tar.gz",
-)
-
 # https://github.com/google/brotli
 http_archive(
     name = "brotli",  # MIT
