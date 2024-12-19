@@ -49,9 +49,6 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_license
-# Not actually a direct dependency, so the bazel_dep will be removed once
-# boringssl is moved here from the WORKSPACE.
-bazel_dep(name = "rules_license")  # Apache-2.0
 archive_override(
     module_name = "rules_license",
     integrity = "sha256-JtQCH2iY4juC75UweDid1JrCtWGKxWSt5O+HzO0Uezg=",
@@ -277,6 +274,16 @@ archive_override(
 
 # Third-party
 # =========================================================
+
+# HEAD as of 2024-11-20.
+# https://github.com/google/boringssl
+bazel_dep(name = "boringssl")  # OpenSSL + ISC
+archive_override(
+    module_name = "boringssl",
+    integrity = "sha256-7nkLWRFiyWfdIt/DNwuvYLWWaYyVAnFHSH6ihZwgRss=",
+    strip_prefix = "boringssl-264f4f7a958af6c4ccb04662e302a99dfa7c5b85",
+    url = "https://github.com/google/boringssl/archive/264f4f7a958af6c4ccb04662e302a99dfa7c5b85.tar.gz",
+)
 
 # https://github.com/madler/zlib
 bazel_dep(name = "zlib")  # Zlib
