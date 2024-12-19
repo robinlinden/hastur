@@ -85,9 +85,9 @@ archive_override(
 # https://github.com/bazelbuild/rules_proto
 archive_override(
     module_name = "rules_proto",
-    strip_prefix = "rules_proto-7.0.2",
-    urls = ["https://github.com/bazelbuild/rules_proto/releases/download/7.0.2/rules_proto-7.0.2.tar.gz"],
-    integrity = "sha256-DlxkolmabibGoD1hYiQtIx7MDeIZU0w4y0QCFx3vIeg=",
+    strip_prefix = "rules_proto-7.1.0",
+    urls = ["https://github.com/bazelbuild/rules_proto/releases/download/7.1.0/rules_proto-7.1.0.tar.gz"],
+    integrity = "sha256-FKIlhwq06RhpZSz9ae8gKCd/wdxJENZdNTti1uCuIfQ=",
 )
 
 # https://github.com/bazelbuild/rules_shell
@@ -148,9 +148,9 @@ archive_override(
 # https://github.com/bazel-contrib/bazel_features
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-nH+aTJl8vw65NXK2iw/wu5giAEYzEBoW2JSZ6BQZAyM=",
-    strip_prefix = "bazel_features-1.22.0",
-    urls = ["https://github.com/bazel-contrib/bazel_features/releases/download/v1.22.0/bazel_features-v1.22.0.tar.gz"],
+    integrity = "sha256-ixybdVhJgAD1reu8WEt78VtrK/GBRIpm9rL8W0yEIxw=",
+    strip_prefix = "bazel_features-1.23.0",
+    urls = ["https://github.com/bazel-contrib/bazel_features/releases/download/v1.23.0/bazel_features-v1.23.0.tar.gz"],
 )
 
 # https://github.com/bazel-contrib/bazel-gazelle
@@ -163,8 +163,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-9KkxRRjKas+hbMSrQ7C4zh5OpkuBw42KN3KIPxUzRrg=",
-    urls = ["https://github.com/bazelbuild/rules_go/releases/download/v0.50.1/rules_go-v0.50.1.zip"],
+    integrity = "sha256-CTbJvDxDIe43LLj2bdly02jLlA7QGpup/X3rzwCT8Js=",
+    urls = ["https://github.com/bazelbuild/rules_go/releases/download/v0.51.0/rules_go-v0.51.0.zip"],
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
@@ -205,9 +205,9 @@ archive_override(
 # https://github.com/protocolbuffers/protobuf
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-PTKUDpdcStm4umlkDnj1UnB1uuM8ookCdb8muFPAliw=",
-    strip_prefix = "protobuf-29.1",
-    urls = ["https://github.com/protocolbuffers/protobuf/releases/download/v29.1/protobuf-29.1.tar.gz"],
+    integrity = "sha256-YxUKuiP3qQ/X2HvfUU5FndX+cCP93gG1asUzNd9k1L0=",
+    strip_prefix = "protobuf-29.2",
+    urls = ["https://github.com/protocolbuffers/protobuf/releases/download/v29.2/protobuf-29.2.tar.gz"],
 )
 
 # https://github.com/abseil/abseil-cpp
