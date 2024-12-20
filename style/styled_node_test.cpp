@@ -508,6 +508,25 @@ int main() {
                 style::FontWeight::bold());
     });
 
+    s.add_test("font-size: var", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{{css::PropertyId::FontSize, "var(--size)"}},
+                .custom_properties = {{"--size", "37px"}},
+        };
+
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontSize>(), 37);
+
+        styled_node.custom_properties = {};
+        auto const font_size_on_resolution_failure = styled_node.get_property<css::PropertyId::FontSize>();
+        a.expect(font_size_on_resolution_failure != 37);
+
+        // Unresolved variables return the initial value.
+        style::StyledNode b{.node = dom};
+        a.expect_eq(b.get_property<css::PropertyId::FontSize>(), font_size_on_resolution_failure);
+    });
+
     s.add_test("var(var)", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{

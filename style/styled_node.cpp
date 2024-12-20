@@ -560,7 +560,16 @@ int StyledNode::get_font_size_property() const {
     if (!closest) {
         return kDefaultFontSize;
     }
+
     auto raw_value = closest->first;
+    if (is_var(raw_value)) {
+        auto resolved = resolve_variable(raw_value);
+        if (!resolved) {
+            return kDefaultFontSize;
+        }
+
+        raw_value = *resolved;
+    }
 
     // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
     if (auto it = std::ranges::find(
