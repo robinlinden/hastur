@@ -257,14 +257,8 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
 
     v.push_ctrl(Block{}, func_type.parameters, func_type.results);
 
-    std::vector<Instruction> code = func_code.code;
-
-    for (std::size_t i = 0; i < code.size(); i++) {
+    for (auto inst : func_code.code) {
         assert(!v.control_stack.empty());
-
-        // This can't be a reference, because we modify 'code' as we iterate
-        // over it. This is also why we're not using a range-based for loop.
-        Instruction const inst = code[i];
 
         // https://webassembly.github.io/spec/core/valid/instructions.html#numeric-instructions
         // constant
@@ -403,12 +397,6 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
                 return tl::unexpected{ValidationError::BlockTypeInvalid};
             }
 
-            std::vector<Instruction> block_code = block->instructions;
-
-            block_code.emplace_back(End{});
-
-            code.insert(code.begin() + i + 1, block_code.begin(), block_code.end());
-
             std::vector<ValueType> params;
             std::vector<ValueType> results;
 
@@ -426,12 +414,6 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             if (!is_valid(loop->type, m)) {
                 return tl::unexpected{ValidationError::BlockTypeInvalid};
             }
-
-            std::vector<Instruction> loop_code = loop->instructions;
-
-            loop_code.emplace_back(End{});
-
-            code.insert(code.begin() + i + 1, loop_code.begin(), loop_code.end());
 
             std::vector<ValueType> params;
             std::vector<ValueType> results;
@@ -502,13 +484,13 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
     // Check function return values, but only if we didn't just execute a
     // return. This only happens if a "return" was the last instruction in the
     // sequence.
-    if (!std::holds_alternative<Return>(func_code.code.back())) {
-        tl::expected maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
+    // if (!std::holds_alternative<Return>(func_code.code.back())) {
+    //     tl::expected maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
-        if (!maybe_vals.has_value()) {
-            return tl::unexpected{maybe_vals.error()};
-        }
-    }
+    //     if (!maybe_vals.has_value()) {
+    //         return tl::unexpected{maybe_vals.error()};
+    //     }
+    // }
 
     return {};
 }
