@@ -34,6 +34,10 @@
 namespace style {
 namespace {
 
+bool is_var(std::string_view value) {
+    return value.starts_with("var(") && value.ends_with(')');
+}
+
 int get_root_font_size(style::StyledNode const &node) {
     auto const *n = &node;
     while (n->parent != nullptr) {
@@ -266,51 +270,56 @@ std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
         return get_raw_property(css::PropertyId::Color);
     }
 
-    // If this is a var() we can easily expand here, do so.
-    auto value = std::string_view{it->second};
+    if (is_var(it->second)) {
+        return resolve_variable(it->second).value_or(css::initial_value(property));
+    }
+
+    return it->second;
+}
+
+std::optional<std::string_view> StyledNode::resolve_variable(std::string_view value) const {
     std::set<std::string_view> seen_variables{};
-    while (value.starts_with("var(") && (value.find(')') != std::string::npos)) {
+    while (is_var(value)) {
         // Remove "var(" from the start and ")" from the end. 5 characters in total.
         auto var = value.substr(4, value.size() - 5);
         auto [var_name, fallback] = util::split_once(var, ",");
-        auto prop = resolve_variable(var_name);
+
+        std::optional<std::string_view> prop;
+        for (auto const *current = this; current != nullptr; current = current->parent) {
+            auto p = std::ranges::find(
+                    current->custom_properties, var_name, &std::pair<std::string, std::string>::first);
+            if (p == end(current->custom_properties)) {
+                continue;
+            }
+
+            prop = p->second;
+            break;
+        }
+
         if (!prop) {
+            spdlog::info("No matching variable for custom property '{}'", var_name);
             fallback = util::trim(fallback);
             if (!fallback.empty()) {
                 return fallback;
             }
 
-            spdlog::warn("Unable to resolve '{}'", var_name);
-            return css::initial_value(property);
+            break;
         }
 
         if (!prop->starts_with("var(")) {
-            return *prop;
+            return prop;
         }
 
         seen_variables.insert(value);
         if (seen_variables.contains(*prop)) {
             spdlog::warn("Circular variable reference '{}'", *prop);
-            return css::initial_value(property);
+            break;
         }
 
         value = *prop;
     }
 
-    return value;
-}
-
-std::optional<std::string_view> StyledNode::resolve_variable(std::string_view name) const {
-    for (auto const *current = this; current != nullptr; current = current->parent) {
-        auto prop = std::ranges::find(current->custom_properties, name, &std::pair<std::string, std::string>::first);
-        if (prop == end(current->custom_properties)) {
-            continue;
-        }
-
-        return prop->second;
-    }
-
-    spdlog::info("No matching variable for custom property '{}'", name);
+    spdlog::warn("Unable to resolve '{}'", value);
     return std::nullopt;
 }
 
