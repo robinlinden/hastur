@@ -433,7 +433,7 @@ std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
     //
     // The spec doesn't mention precision of this, so let's clamp it to the
     // int32_t range for now.
-    [[maybe_unused]] util::from_chars_result fc_res{};
+    util::from_chars_result fc_res{};
     if (auto *int_res = std::get_if<std::int32_t>(&result); int_res != nullptr) {
         fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
         *int_res = std::clamp(
