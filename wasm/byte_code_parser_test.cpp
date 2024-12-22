@@ -8,7 +8,7 @@
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <tl/expected.hpp>
 
@@ -25,7 +25,6 @@
 
 using namespace std::literals;
 
-using etest::expect_eq;
 using wasm::ByteCodeParser;
 
 namespace {
@@ -57,52 +56,52 @@ std::stringstream make_module_bytes(SectionId id, std::vector<std::uint8_t> cons
     return wasm_bytes;
 }
 
-void parse_error_to_string_tests() {
+void parse_error_to_string_tests(etest::Suite &s) {
     using wasm::ModuleParseError;
-    etest::test("to_string(ModuleParseError)", [] {
-        expect_eq(wasm::to_string(ModuleParseError::UnexpectedEof), "Unexpected end of file");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidMagic), "Invalid magic number");
-        expect_eq(wasm::to_string(ModuleParseError::UnsupportedVersion), "Unsupported version");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidSectionId), "Invalid section id");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidSize), "Invalid section size");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidCustomSection), "Invalid custom section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidTypeSection), "Invalid type section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidImportSection), "Invalid import section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidFunctionSection), "Invalid function section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidTableSection), "Invalid table section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidMemorySection), "Invalid memory section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidGlobalSection), "Invalid global section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidExportSection), "Invalid export section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidStartSection), "Invalid start section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidCodeSection), "Invalid code section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidDataSection), "Invalid data section");
-        expect_eq(wasm::to_string(ModuleParseError::InvalidDataCountSection), "Invalid data count section");
-        expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
+    s.add_test("to_string(ModuleParseError)", [](etest::IActions &a) {
+        a.expect_eq(wasm::to_string(ModuleParseError::UnexpectedEof), "Unexpected end of file");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidMagic), "Invalid magic number");
+        a.expect_eq(wasm::to_string(ModuleParseError::UnsupportedVersion), "Unsupported version");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidSectionId), "Invalid section id");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidSize), "Invalid section size");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidCustomSection), "Invalid custom section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidTypeSection), "Invalid type section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidImportSection), "Invalid import section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidFunctionSection), "Invalid function section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidTableSection), "Invalid table section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidMemorySection), "Invalid memory section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidGlobalSection), "Invalid global section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidExportSection), "Invalid export section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidStartSection), "Invalid start section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidCodeSection), "Invalid code section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidDataSection), "Invalid data section");
+        a.expect_eq(wasm::to_string(ModuleParseError::InvalidDataCountSection), "Invalid data count section");
+        a.expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
 
         auto last_error_value = static_cast<int>(ModuleParseError::UnhandledSection);
         // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
-        expect_eq(wasm::to_string(static_cast<ModuleParseError>(last_error_value + 1)), "Unknown error");
+        a.expect_eq(wasm::to_string(static_cast<ModuleParseError>(last_error_value + 1)), "Unknown error");
     });
 }
 
-void custom_section_tests() {
-    etest::test("custom section", [] {
+void custom_section_tests(etest::Suite &s) {
+    s.add_test("custom section", [](etest::IActions &a) {
         std::vector<std::uint8_t> content{2, 'h', 'i', 1, 2, 3};
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Custom, content)).value();
-        expect_eq(module.custom_sections.at(0),
+        a.expect_eq(module.custom_sections.at(0),
                 wasm::CustomSection{
                         .name = "hi",
                         .data = {1, 2, 3},
                 });
     });
 
-    etest::test("custom section, eof in name", [] {
+    s.add_test("custom section, eof in name", [](etest::IActions &a) {
         std::vector<std::uint8_t> content{2, 'h'};
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Custom, content));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
     });
 
-    etest::test("custom section, eof in data", [] {
+    s.add_test("custom section, eof in data", [](etest::IActions &a) {
         std::stringstream wasm_bytes;
         wasm_bytes << "\0asm\1\0\0\0"sv;
         wasm_bytes << static_cast<std::uint8_t>(SectionId::Custom);
@@ -110,57 +109,57 @@ void custom_section_tests() {
         wasm_bytes << "\2hi";
         wasm_bytes << "123";
         auto module = ByteCodeParser::parse_module(wasm_bytes);
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
     });
 
-    etest::test("custom section, bad size (negative after name)", [] {
+    s.add_test("custom section, bad size (negative after name)", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\0\0\0\0"s};
-        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+        a.expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
                 tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
     });
 
-    etest::test("custom section, bad size (too large after name)", [] {
+    s.add_test("custom section, bad size (too large after name)", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\xe5\x85\x26\0\0\0\0"s};
-        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+        a.expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
                 tl::unexpected{wasm::ModuleParseError::InvalidCustomSection});
     });
 }
 
-void export_section_tests() {
-    etest::test("export section, missing export count", [] {
+void export_section_tests(etest::Suite &s) {
+    s.add_test("export section, missing export count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 
-    etest::test("export section, missing export after count", [] {
+    s.add_test("export section, missing export after count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 
-    etest::test("export section, empty", [] {
+    s.add_test("export section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {0})).value();
-        expect_eq(module.export_section, wasm::ExportSection{});
+        a.expect_eq(module.export_section, wasm::ExportSection{});
     });
 
-    etest::test("export section, too (624485) many exports", [] {
+    s.add_test("export section, too (624485) many exports", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {0xe5, 0x8e, 0x26}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 
-    etest::test("export section, name too (624485 byte) long", [] {
+    s.add_test("export section, name too (624485 byte) long", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1, 0xe5, 0x8e, 0x26}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 
-    etest::test("export section, one", [] {
+    s.add_test("export section, one", [](etest::IActions &a) {
         std::vector<std::uint8_t> content{1, 2, 'h', 'i', static_cast<std::uint8_t>(wasm::Export::Type::Function), 5};
 
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, content)).value();
-        expect_eq(module.export_section,
+        a.expect_eq(module.export_section,
                 wasm::ExportSection{.exports{wasm::Export{"hi", wasm::Export::Type::Function, 5}}});
     });
 
-    etest::test("export section, two", [] {
+    s.add_test("export section, two", [](etest::IActions &a) {
         std::vector<std::uint8_t> content{
                 2,
                 2,
@@ -177,115 +176,115 @@ void export_section_tests() {
         };
 
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, content)).value();
-        expect_eq(module.export_section,
+        a.expect_eq(module.export_section,
                 wasm::ExportSection{.exports{
                         wasm::Export{"hi", wasm::Export::Type::Function, 5},
                         wasm::Export{"lol", wasm::Export::Type::Global, 2},
                 }});
     });
 
-    etest::test("export section, extreme string", [] {
+    s.add_test("export section, extreme string", [](etest::IActions &a) {
         std::vector<std::uint8_t> content{1, 2, '~', '\0', static_cast<std::uint8_t>(wasm::Export::Type::Function), 5};
 
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, content)).value();
-        expect_eq(module.export_section,
+        a.expect_eq(module.export_section,
                 wasm::ExportSection{.exports{wasm::Export{"~\0"s, wasm::Export::Type::Function, 5}}});
     });
 
-    etest::test("export section, missing name", [] {
+    s.add_test("export section, missing name", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1, 2}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 
-    etest::test("export section, missing type", [] {
+    s.add_test("export section, missing type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1, 1, 'a'}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 
-    etest::test("export section, missing index", [] {
+    s.add_test("export section, missing index", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Export, {1, 1, 'a', 1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidExportSection});
     });
 }
 
-void start_section_tests() {
-    etest::test("start section, missing start", [] {
+void start_section_tests(etest::Suite &s) {
+    s.add_test("start section, missing start", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Start, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidStartSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidStartSection});
     });
 
-    etest::test("start section, excellent", [] {
+    s.add_test("start section, excellent", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Start, {42})).value();
-        expect_eq(module.start_section, wasm::StartSection{.start = 42});
+        a.expect_eq(module.start_section, wasm::StartSection{.start = 42});
     });
 }
 
-void function_section_tests() {
-    etest::test("function section, missing data", [] {
+void function_section_tests(etest::Suite &s) {
+    s.add_test("function section, missing data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Function, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidFunctionSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidFunctionSection});
     });
 
-    etest::test("function section, empty", [] {
+    s.add_test("function section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Function, {0})).value();
-        expect_eq(module.function_section, wasm::FunctionSection{});
+        a.expect_eq(module.function_section, wasm::FunctionSection{});
     });
 
-    etest::test("function section, missing type indices after count", [] {
+    s.add_test("function section, missing type indices after count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Function, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidFunctionSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidFunctionSection});
     });
 
-    etest::test("function section, good one", [] {
+    s.add_test("function section, good one", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Function, {2, 9, 13})).value();
-        expect_eq(module.function_section, wasm::FunctionSection{.type_indices{9, 13}});
+        a.expect_eq(module.function_section, wasm::FunctionSection{.type_indices{9, 13}});
     });
 }
 
-void table_section_tests() {
-    etest::test("table section, missing data", [] {
+void table_section_tests(etest::Suite &s) {
+    s.add_test("table section, missing data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
-    etest::test("table section, empty", [] {
+    s.add_test("table section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {0})).value();
-        expect_eq(module.table_section, wasm::TableSection{});
+        a.expect_eq(module.table_section, wasm::TableSection{});
     });
 
-    etest::test("table section, no element type", [] {
+    s.add_test("table section, no element type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
-    etest::test("table section, invalid element type", [] {
+    s.add_test("table section, invalid element type", [](etest::IActions &a) {
         constexpr std::uint8_t kInt32Type = 0x7f;
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kInt32Type}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
     static constexpr std::uint8_t kFuncRefType = 0x70;
     static constexpr std::uint8_t kExtRefType = 0x6f;
 
-    etest::test("table section, missing limits", [] {
+    s.add_test("table section, missing limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kFuncRefType}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
-    etest::test("table section, invalid has_max in limits", [] {
+    s.add_test("table section, invalid has_max in limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kFuncRefType, 4}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
-    etest::test("table section, missing min in limits", [] {
+    s.add_test("table section, missing min in limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kFuncRefType, 0}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
-    etest::test("table section, only min", [] {
+    s.add_test("table section, only min", [](etest::IActions &a) {
         auto module =
                 ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kFuncRefType, 0, 42})).value();
-        expect_eq(module.table_section,
+        a.expect_eq(module.table_section,
                 wasm::TableSection{.tables{
                         wasm::TableType{
                                 wasm::ValueType::FunctionReference,
@@ -294,15 +293,15 @@ void table_section_tests() {
                 }});
     });
 
-    etest::test("table section, missing max in limits", [] {
+    s.add_test("table section, missing max in limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kExtRefType, 1, 42}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTableSection});
     });
 
-    etest::test("table section, min and max", [] {
+    s.add_test("table section, min and max", [](etest::IActions &a) {
         auto module =
                 ByteCodeParser::parse_module(make_module_bytes(SectionId::Table, {1, kExtRefType, 1, 42, 42})).value();
-        expect_eq(module.table_section,
+        a.expect_eq(module.table_section,
                 wasm::TableSection{.tables{
                         wasm::TableType{
                                 wasm::ValueType::ExternReference,
@@ -312,57 +311,57 @@ void table_section_tests() {
     });
 }
 
-void memory_section_tests() {
-    etest::test("memory section, missing data", [] {
+void memory_section_tests(etest::Suite &s) {
+    s.add_test("memory section, missing data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
     });
 
-    etest::test("memory section, empty", [] {
+    s.add_test("memory section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {0})).value();
-        expect_eq(module.memory_section, wasm::MemorySection{});
+        a.expect_eq(module.memory_section, wasm::MemorySection{});
     });
 
-    etest::test("memory section, missing limits", [] {
+    s.add_test("memory section, missing limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
     });
 
-    etest::test("memory section, invalid has_max in limits", [] {
+    s.add_test("memory section, invalid has_max in limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {1, 4}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
     });
 
-    etest::test("memory section, missing min in limits", [] {
+    s.add_test("memory section, missing min in limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {1, 0}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
     });
 
-    etest::test("memory section, only min", [] {
+    s.add_test("memory section, only min", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {1, 0, 42})).value();
-        expect_eq(module.memory_section,
+        a.expect_eq(module.memory_section,
                 wasm::MemorySection{.memories{
                         wasm::MemType{.min = 42},
                 }});
     });
 
-    etest::test("memory section, missing max in limits", [] {
+    s.add_test("memory section, missing max in limits", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {1, 1, 42}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidMemorySection});
     });
 
-    etest::test("memory section, min and max", [] {
+    s.add_test("memory section, min and max", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {1, 1, 42, 42})).value();
-        expect_eq(module.memory_section,
+        a.expect_eq(module.memory_section,
                 wasm::MemorySection{.memories{
                         wasm::Limits{.min = 42, .max = 42},
                 }});
     });
 
-    etest::test("memory section, two memories", [] {
+    s.add_test("memory section, two memories", [](etest::IActions &a) {
         auto module =
                 ByteCodeParser::parse_module(make_module_bytes(SectionId::Memory, {2, 1, 4, 51, 1, 19, 84})).value();
-        expect_eq(module.memory_section,
+        a.expect_eq(module.memory_section,
                 wasm::MemorySection{.memories{
                         wasm::Limits{.min = 4, .max = 51},
                         wasm::Limits{.min = 19, .max = 84},
@@ -370,67 +369,67 @@ void memory_section_tests() {
     });
 }
 
-void global_section_tests() {
-    etest::test("global section, missing data", [] {
+void global_section_tests(etest::Suite &s) {
+    s.add_test("global section, missing data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
     });
 
-    etest::test("global section, empty", [] {
+    s.add_test("global section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {0})).value();
-        expect_eq(module.global_section, wasm::GlobalSection{});
+        a.expect_eq(module.global_section, wasm::GlobalSection{});
     });
 
-    etest::test("global section, missing global after count", [] {
+    s.add_test("global section, missing global after count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
     });
 
-    etest::test("global section, missing globaltype valuetype", [] {
+    s.add_test("global section, missing globaltype valuetype", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
     });
 
-    etest::test("global section, missing globaltype mutability", [] {
+    s.add_test("global section, missing globaltype mutability", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
     });
 
-    etest::test("global section, invalid globaltype mutability", [] {
+    s.add_test("global section, invalid globaltype mutability", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 2}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
     });
 
-    etest::test("global section, missing init", [] {
+    s.add_test("global section, missing init", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 0}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidGlobalSection});
     });
 
-    etest::test("global section, const i32 42", [] {
+    s.add_test("global section, const i32 42", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 0, 0x41, 42, 0x0b}))
                               .value();
-        expect_eq(module.global_section,
+        a.expect_eq(module.global_section,
                 wasm::GlobalSection{.globals{{
                         .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Const},
                         .init{wasm::instructions::I32Const{42}},
                 }}});
     });
 
-    etest::test("global section, var i32 42", [] {
+    s.add_test("global section, var i32 42", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Global, {1, 0x7f, 1, 0x41, 42, 0x0b}))
                               .value();
-        expect_eq(module.global_section,
+        a.expect_eq(module.global_section,
                 wasm::GlobalSection{.globals{{
                         .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Var},
                         .init{wasm::instructions::I32Const{42}},
                 }}});
     });
 
-    etest::test("global section, multiple globals", [] {
+    s.add_test("global section, multiple globals", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(
                 make_module_bytes(SectionId::Global, {2, 0x7f, 1, 0x41, 42, 0x0b, 0x7f, 0, 0x41, 42, 0x0b}))
                               .value();
-        expect_eq(module.global_section,
+        a.expect_eq(module.global_section,
                 wasm::GlobalSection{.globals{
                         {
                                 .type{wasm::ValueType::Int32, wasm::GlobalType::Mutability::Var},
@@ -444,43 +443,43 @@ void global_section_tests() {
     });
 }
 
-void type_section_tests() {
-    etest::test("type section, missing type data", [] {
+void type_section_tests(etest::Suite &s) {
+    s.add_test("type section, missing type data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
     });
 
-    etest::test("type section, empty", [] {
+    s.add_test("type section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {0})).value();
-        expect_eq(module.type_section, wasm::TypeSection{});
+        a.expect_eq(module.type_section, wasm::TypeSection{});
     });
 
-    etest::test("type section, missing type after count", [] {
+    s.add_test("type section, missing type after count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
     });
 
-    etest::test("type section, bad magic in function type", [] {
+    s.add_test("type section, bad magic in function type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {1, 0x59}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
     });
 
-    etest::test("type section, one type with no parameters and no results", [] {
+    s.add_test("type section, one type with no parameters and no results", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {1, 0x60, 0, 0})).value();
-        expect_eq(module.type_section, wasm::TypeSection{.types{wasm::FunctionType{}}});
+        a.expect_eq(module.type_section, wasm::TypeSection{.types{wasm::FunctionType{}}});
     });
 
-    etest::test("type section, eof in parameter parsing", [] {
+    s.add_test("type section, eof in parameter parsing", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {1, 0x60, 1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
     });
 
-    etest::test("type section, eof in result parsing", [] {
+    s.add_test("type section, eof in result parsing", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {1, 0x60, 0, 1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
     });
 
-    etest::test("type section, two types", [] {
+    s.add_test("type section, two types", [](etest::IActions &a) {
         constexpr std::uint8_t kInt32Byte = 0x7f;
         constexpr std::uint8_t kFloat64Byte = 0x7c;
         auto module = ByteCodeParser::parse_module(
@@ -488,7 +487,7 @@ void type_section_tests() {
                         SectionId::Type, {2, 0x60, 0, 1, kInt32Byte, 0x60, 2, kInt32Byte, kInt32Byte, 1, kFloat64Byte}))
                               .value();
 
-        expect_eq(module.type_section,
+        a.expect_eq(module.type_section,
                 wasm::TypeSection{
                         .types{
                                 wasm::FunctionType{.results{wasm::ValueType::Int32}},
@@ -500,12 +499,12 @@ void type_section_tests() {
                 });
     });
 
-    etest::test("type section, all types", [] {
+    s.add_test("type section, all types", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(
                 make_module_bytes(SectionId::Type, {1, 0x60, 7, 0x7f, 0x7e, 0x7d, 0x7c, 0x7b, 0x70, 0x6f, 0}))
                               .value();
 
-        expect_eq(module.type_section,
+        a.expect_eq(module.type_section,
                 wasm::TypeSection{
                         .types{
                                 wasm::FunctionType{
@@ -523,71 +522,71 @@ void type_section_tests() {
                 });
     });
 
-    etest::test("type section, invalid value type", [] {
+    s.add_test("type section, invalid value type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Type, {1, 0x60, 0, 1, 0x10}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidTypeSection});
     });
 }
 
-void import_section_tests() {
-    etest::test("import section, missing import count", [] {
+void import_section_tests(etest::Suite &s) {
+    s.add_test("import section, missing import count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
     });
 
-    etest::test("import section, empty", [] {
+    s.add_test("import section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {0})).value();
-        expect_eq(module.import_section, wasm::ImportSection{});
+        a.expect_eq(module.import_section, wasm::ImportSection{});
     });
 
-    etest::test("import section, missing module name", [] {
+    s.add_test("import section, missing module name", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
     });
 
-    etest::test("import section, missing field name", [] {
+    s.add_test("import section, missing field name", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a'}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
     });
 
-    etest::test("import section, missing import type", [] {
+    s.add_test("import section, missing import type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b'}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
     });
 
-    etest::test("import section, invalid import type", [] {
+    s.add_test("import section, invalid import type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 5}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidImportSection});
     });
 
-    etest::test("import section, func", [] {
+    s.add_test("import section, func", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 0, 42}));
-        expect_eq(module.value().import_section,
+        a.expect_eq(module.value().import_section,
                 wasm::ImportSection{.imports{wasm::Import{"a", "b", wasm::TypeIdx{42}}}});
     });
 
-    etest::test("import section, table", [] {
+    s.add_test("import section, table", [](etest::IActions &a) {
         auto module =
                 ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 1, 0x70, 0, 42}));
-        expect_eq(module.value().import_section,
+        a.expect_eq(module.value().import_section,
                 wasm::ImportSection{.imports{
                         wasm::Import{"a", "b", wasm::TableType{wasm::ValueType::FunctionReference, {42}}},
                 }});
     });
 
-    etest::test("import section, mem", [] {
+    s.add_test("import section, mem", [](etest::IActions &a) {
         auto module =
                 ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 2, 1, 12, 13}));
-        expect_eq(module.value().import_section,
+        a.expect_eq(module.value().import_section,
                 wasm::ImportSection{.imports{
                         wasm::Import{"a", "b", wasm::MemType{.min = 12, .max = 13}},
                 }});
     });
 
-    etest::test("import section, global", [] {
+    s.add_test("import section, global", [](etest::IActions &a) {
         auto module =
                 ByteCodeParser::parse_module(make_module_bytes(SectionId::Import, {1, 1, 'a', 1, 'b', 3, 0x7f, 0}));
-        expect_eq(module.value().import_section,
+        a.expect_eq(module.value().import_section,
                 wasm::ImportSection{.imports{wasm::Import{
                         "a",
                         "b",
@@ -596,38 +595,38 @@ void import_section_tests() {
     });
 }
 
-void code_section_tests() {
-    etest::test("code section, missing type data", [] {
+void code_section_tests(etest::Suite &s) {
+    s.add_test("code section, missing type data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 
-    etest::test("code section, empty", [] {
+    s.add_test("code section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {0})).value();
-        expect_eq(module.code_section, wasm::CodeSection{});
+        a.expect_eq(module.code_section, wasm::CodeSection{});
     });
 
-    etest::test("code section, missing data after count", [] {
+    s.add_test("code section, missing data after count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 
-    etest::test("code section, missing local count", [] {
+    s.add_test("code section, missing local count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1, 1, 1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 
-    etest::test("code section, missing local type", [] {
+    s.add_test("code section, missing local type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1, 1, 1, 1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 
-    etest::test("code section, not enough data", [] {
+    s.add_test("code section, not enough data", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1, 6, 1, 1, 0x7f, 4, 4}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 
-    etest::test("code section, one entry", [] {
+    s.add_test("code section, one entry", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(
                 make_module_bytes(SectionId::Code, {1, 6, 1, 1, 0x7f, 0x41, 0b11, 0x69, 0x0b}))
                               .value();
@@ -638,10 +637,10 @@ void code_section_tests() {
                         .locals{{1, wasm::ValueType::Int32}},
                 },
         }};
-        expect_eq(module.code_section, expected);
+        a.expect_eq(module.code_section, expected);
     });
 
-    etest::test("code section, two entries", [] {
+    s.add_test("code section, two entries", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(
                 make_module_bytes(SectionId::Code, {2, 6, 1, 1, 0x7f, 0x41, 42, 0x0b, 9, 2, 5, 0x7e, 6, 0x7d, 0x0b}))
                               .value();
@@ -656,120 +655,123 @@ void code_section_tests() {
                         .locals{{5, wasm::ValueType::Int64}, {6, wasm::ValueType::Float32}},
                 },
         }};
-        expect_eq(module.code_section, expected);
+        a.expect_eq(module.code_section, expected);
     });
 
-    etest::test("code section, unhandled opcode", [] {
+    s.add_test("code section, unhandled opcode", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Code, {1, 6, 1, 1, 0x7f, 0xff, 0x0b}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidCodeSection});
     });
 }
 
-void data_tests() {
+void data_tests(etest::Suite &s) {
     using wasm::DataSection;
 
-    etest::test("data section, passive data, everything's fine", [] {
+    s.add_test("data section, passive data, everything's fine", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1, 1, 3, 1, 2, 3})).value();
-        expect_eq(module.data_section,
+        a.expect_eq(module.data_section,
                 DataSection{.data{DataSection::PassiveData{{std::byte{1}, std::byte{2}, std::byte{3}}}}});
     });
 
-    etest::test("data section, passive data, 2 datas", [] {
+    s.add_test("data section, passive data, 2 datas", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {2, 1, 1, 37, 1, 1, 42})).value();
-        expect_eq(module.data_section,
+        a.expect_eq(module.data_section,
                 DataSection{
                         .data{DataSection::PassiveData{{std::byte{37}}}, DataSection::PassiveData{{std::byte{42}}}}});
     });
 
-    etest::test("data section, passive data, eof", [] {
+    s.add_test("data section, passive data, eof", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1, 1, 3, 1, 2}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
     });
 
-    etest::test("data section, unhandled type", [] {
+    s.add_test("data section, unhandled type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1, 5}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
     });
 
-    etest::test("data section, missing type", [] {
+    s.add_test("data section, missing type", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {1}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
     });
 
-    etest::test("data section, empty", [] {
+    s.add_test("data section, empty", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, {0})).value();
-        expect_eq(module.data_section, DataSection{});
+        a.expect_eq(module.data_section, DataSection{});
     });
 }
 
-void data_count_tests() {
-    etest::test("data count section, 42", [] {
+void data_count_tests(etest::Suite &s) {
+    s.add_test("data count section, 42", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {42})).value();
-        expect_eq(module.data_count_section, wasm::DataCountSection{.count = 42});
+        a.expect_eq(module.data_count_section, wasm::DataCountSection{.count = 42});
     });
 
-    etest::test("data count section, bad count", [] {
+    s.add_test("data count section, bad count", [](etest::IActions &a) {
         auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::DataCount, {0x80}));
-        expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataCountSection});
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataCountSection});
     });
 }
 
 } // namespace
 
 int main() {
-    etest::test("invalid magic", [] {
+    etest::Suite s{};
+
+    s.add_test("invalid magic", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"hello"};
-        expect_eq(ByteCodeParser::parse_module(wasm_bytes), tl::unexpected{wasm::ModuleParseError::InvalidMagic});
+        a.expect_eq(ByteCodeParser::parse_module(wasm_bytes), tl::unexpected{wasm::ModuleParseError::InvalidMagic});
     });
 
-    etest::test("unsupported version", [] {
+    s.add_test("unsupported version", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\2\0\0\0"s};
-        expect_eq(ByteCodeParser::parse_module(wasm_bytes), tl::unexpected{wasm::ModuleParseError::UnsupportedVersion});
+        a.expect_eq(
+                ByteCodeParser::parse_module(wasm_bytes), tl::unexpected{wasm::ModuleParseError::UnsupportedVersion});
     });
 
     // https://webassembly.github.io/spec/core/syntax/modules.html
     // Each of the vectors – and thus the entire module – may be empty
-    etest::test("empty module", [] {
+    s.add_test("empty module", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0"s};
-        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)), wasm::Module{});
+        a.expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)), wasm::Module{});
     });
 
-    etest::test("invalid section id", [] {
+    s.add_test("invalid section id", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\x0d"s};
-        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+        a.expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
                 tl::unexpected{wasm::ModuleParseError::InvalidSectionId});
     });
 
-    etest::test("missing size", [] {
+    s.add_test("missing size", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0"s};
-        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+        a.expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
                 tl::unexpected{wasm::ModuleParseError::UnexpectedEof});
     });
 
-    etest::test("invalid size", [] {
+    s.add_test("invalid size", [](etest::IActions &a) {
         auto wasm_bytes = std::stringstream{"\0asm\1\0\0\0\0\x80\x80\x80\x80\x80\x80"s};
-        expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
+        a.expect_eq(ByteCodeParser::parse_module(std::move(wasm_bytes)),
                 tl::unexpected{wasm::ModuleParseError::InvalidSize});
     });
 
-    etest::test("unhandled section", [] {
-        expect_eq(ByteCodeParser::parse_module(make_module_bytes(SectionId::Element, {})),
+    s.add_test("unhandled section", [](etest::IActions &a) {
+        a.expect_eq(ByteCodeParser::parse_module(make_module_bytes(SectionId::Element, {})),
                 tl::unexpected{wasm::ModuleParseError::UnhandledSection});
     });
 
-    parse_error_to_string_tests();
-    custom_section_tests();
-    type_section_tests();
-    import_section_tests();
-    function_section_tests();
-    table_section_tests();
-    memory_section_tests();
-    global_section_tests();
-    export_section_tests();
-    start_section_tests();
-    code_section_tests();
-    data_tests();
-    data_count_tests();
+    parse_error_to_string_tests(s);
+    custom_section_tests(s);
+    type_section_tests(s);
+    import_section_tests(s);
+    function_section_tests(s);
+    table_section_tests(s);
+    memory_section_tests(s);
+    global_section_tests(s);
+    export_section_tests(s);
+    start_section_tests(s);
+    code_section_tests(s);
+    data_tests(s);
+    data_count_tests(s);
 
-    return etest::run_all_tests();
+    return s.run();
 }
