@@ -6,7 +6,7 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
-#include "etest/etest.h"
+#include "etest/etest2.h"
 #include "geom/geom.h"
 #include "gfx/canvas_command_saver.h"
 #include "gfx/color.h"
@@ -18,8 +18,6 @@
 #include <utility>
 #include <vector>
 
-using etest::expect_eq;
-
 using CanvasCommands = std::vector<gfx::CanvasCommand>;
 
 using namespace std::literals;
@@ -27,7 +25,9 @@ using namespace std::literals;
 constexpr auto kInvalidColor = gfx::Color{0xFF, 0, 0};
 
 int main() {
-    etest::test("text, font-family provided", [] {
+    etest::Suite s{};
+
+    s.add_test("text, font-family provided", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"span", {}, {dom::Text{"hello"}}};
 
         auto const &children = std::get<dom::Element>(dom).children;
@@ -51,12 +51,12 @@ int main() {
         gfx::CanvasCommandSaver saver;
         render::render_layout(saver, layout);
 
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{{0, 0}, "hello", {"comic sans"}, 10, {.italic = true}}});
     });
 
-    etest::test("render block with background-color", [] {
+    s.add_test("render block with background-color", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -74,11 +74,11 @@ int main() {
         geom::Rect expected_rect{10, 20, 100, 100};
         gfx::Color expected_color{0xA, 0xB, 0xC};
 
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, gfx::DrawRectCmd{expected_rect, expected_color, {}}});
     });
 
-    etest::test("debug-render block", [] {
+    s.add_test("debug-render block", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div"};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -98,14 +98,14 @@ int main() {
         render::debug::render_layout_depth(saver, layout);
 
         gfx::Color c{0xFF, 0xFF, 0xFF, 0x30};
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{},
                         gfx::FillRectCmd{{10, 20, 100, 100}, c},
                         gfx::FillRectCmd{{10, 20, 10, 10}, c},
                         gfx::FillRectCmd{{10, 30, 10, 10}, c}});
     });
 
-    etest::test("render block with transparent background-color", [] {
+    s.add_test("render block with transparent background-color", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -120,10 +120,10 @@ int main() {
         gfx::CanvasCommandSaver saver;
         render::render_layout(saver, layout);
 
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
     });
 
-    etest::test("render block with borders, default color", [] {
+    s.add_test("render block with borders, default color", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -142,12 +142,12 @@ int main() {
         gfx::Color expected_color{0xA, 0xB, 0xC};
         gfx::Borders expected_borders{{{}, 10}, {{}, 10}, {{}, 10}, {{}, 10}};
 
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
     });
 
-    etest::test("render block with borders, custom color", [] {
+    s.add_test("render block with borders, custom color", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div", {}, {dom::Element{"first"}}};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -170,12 +170,12 @@ int main() {
         gfx::Color expected_color{0, 0, 0, 0};
         gfx::Borders expected_borders{{{1, 1, 1}, 2}, {{2, 2, 2}, 4}, {{3, 3, 3}, 6}, {{4, 4, 4}, 8}};
 
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
     });
 
-    etest::test("currentcolor", [] {
+    s.add_test("currentcolor", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"span", {}, {dom::Element{"span"}}};
         auto const &children = std::get<dom::Element>(dom).children;
 
@@ -199,10 +199,10 @@ int main() {
                 .rect{0, 0, 20, 20},
                 .color{gfx::Color{0xaa, 0xbb, 0xcc}},
         };
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
     });
 
-    etest::test("hex colors", [] {
+    s.add_test("hex colors", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div"};
         auto styled = style::StyledNode{.node = dom};
         auto layout = layout::LayoutBox{
@@ -216,28 +216,28 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "#abcd"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc, 0xdd}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // #rrggbbaa
         styled.properties = {{css::PropertyId::BackgroundColor, "#12345678"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56, 0x78}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // #rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "#abc"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // #rrggbb
         styled.properties = {{css::PropertyId::BackgroundColor, "#123456"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
     });
 
-    etest::test("rgba colors", [] {
+    s.add_test("rgba colors", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"div"};
         auto styled = style::StyledNode{.node = dom};
         auto layout = layout::LayoutBox{
@@ -251,64 +251,64 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3)"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, rgba should be an alias of rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "rgba(100, 200, 255)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{100, 200, 255}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.5)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 127}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 51}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, alpha out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 0xFF}}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, garbage values in alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, blergh)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, missing closing paren
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, value out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(-1, 2, 3)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, wrong number of arguments
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
 
         // rgb, garbage value
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(a, 2, 3)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
     });
 
-    etest::test("text style", [] {
+    s.add_test("text style", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"dummy"};
         auto styled = style::StyledNode{.node = dom,
                 .properties = {
@@ -321,7 +321,7 @@ int main() {
         gfx::CanvasCommandSaver saver;
         render::render_layout(saver, layout);
 
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{
@@ -338,7 +338,7 @@ int main() {
         styled.properties.emplace_back(css::PropertyId::FontStyle, "italic");
 
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{
@@ -354,7 +354,7 @@ int main() {
         styled.properties[0].second = "blink";
 
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{
@@ -370,7 +370,7 @@ int main() {
         styled.properties[0].second = "overline";
 
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{
@@ -386,7 +386,7 @@ int main() {
         styled.properties.emplace_back(css::PropertyId::FontWeight, "bold");
 
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawTextWithFontOptionsCmd{
@@ -400,7 +400,7 @@ int main() {
                 });
     });
 
-    etest::test("culling", [] {
+    s.add_test("culling", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"dummy"};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -418,36 +418,36 @@ int main() {
         CanvasCommands expected{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, gfx::DrawRectCmd{{0, 0, 20, 40}, color}};
         // No cull rect.
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
 
         // Intersecting cull rects.
         render::render_layout(saver, layout, geom::Rect{0, 0, 20, 40});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{10, 10, 5, 5});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{-1, -1, 100, 100});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{0, 0, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{19, 39, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{19, 0, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{0, 39, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
 
         // Non-intersecting cull rects.
         render::render_layout(saver, layout, geom::Rect{0, 40, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{20, 40, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{20, 0, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{-1, 0, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
     });
 
-    etest::test("culling w/ element border", [] {
+    s.add_test("culling w/ element border", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"dummy"};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -492,38 +492,38 @@ int main() {
         };
         // No cull rect.
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
 
         // Intersecting cull rects.
         render::render_layout(saver, layout, geom::Rect{-1, -1, 22, 42});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{10, 10, 5, 5});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{-2, -2, 100, 100});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
 
         // Only intersecting because of the border.
         render::render_layout(saver, layout, geom::Rect{-1, -1, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{20, 40, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{20, 0, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
         render::render_layout(saver, layout, geom::Rect{0, 40, 1, 1});
-        expect_eq(saver.take_commands(), expected);
+        a.expect_eq(saver.take_commands(), expected);
 
         // Non-intersecting cull rects.
         render::render_layout(saver, layout, geom::Rect{0, 41, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{21, 41, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{21, -1, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
         render::render_layout(saver, layout, geom::Rect{-2, -2, 1, 1});
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
     });
 
-    etest::test("special backgrounds", [] {
+    s.add_test("special backgrounds", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Element{"body"}}};
         auto styled = style::StyledNode{
                 .node = dom,
@@ -544,12 +544,12 @@ int main() {
 
         // No special backgrounds.
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
 
         // Body background.
         styled.children[0].properties.emplace_back(css::PropertyId::BackgroundColor, "#abc");
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0xAA, 0xBB, 0xCC}},
                         gfx::DrawRectCmd{{0, 0, 10, 10}, {0xAA, 0xBB, 0xCC}},
@@ -558,7 +558,7 @@ int main() {
         // Html background.
         styled.properties.emplace_back(css::PropertyId::BackgroundColor, "#123");
         render::render_layout(saver, layout);
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{
                         gfx::ClearCmd{{0x11, 0x22, 0x33}},
                         gfx::DrawRectCmd{{0, 0, 20, 40}, {0x11, 0x22, 0x33}},
@@ -566,5 +566,5 @@ int main() {
                 });
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
