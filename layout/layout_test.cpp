@@ -9,7 +9,7 @@
 
 #include "css/property_id.h"
 #include "dom/dom.h"
-#include "etest/etest.h"
+#include "etest/etest2.h"
 #include "geom/geom.h"
 #include "style/styled_node.h"
 #include "type/naive.h"
@@ -25,10 +25,6 @@
 #include <vector>
 
 using namespace std::literals;
-using etest::expect;
-using etest::expect_eq;
-using etest::require;
-using etest::require_eq;
 
 namespace {
 
@@ -52,8 +48,8 @@ dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::ve
     return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
 }
 
-void whitespace_collapsing_tests() {
-    etest::test("whitespace collapsing: simple", [] {
+void whitespace_collapsing_tests(etest::Suite &s) {
+    s.add_test("whitespace collapsing: simple", [](etest::IActions &a) {
         constexpr auto kText = "   hello   "sv;
         constexpr auto kCollapsedText = util::trim(kText);
         constexpr auto kTextWidth = kCollapsedText.length() * 5;
@@ -94,10 +90,10 @@ void whitespace_collapsing_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("whitespace collapsing: text split across multiple inline elements", [] {
+    s.add_test("whitespace collapsing: text split across multiple inline elements", [](etest::IActions &a) {
         constexpr auto kFirstText = "   cr     "sv;
         constexpr auto kSecondText = " lf   "sv;
         constexpr auto kCollapsedFirst = "cr "sv;
@@ -105,8 +101,8 @@ void whitespace_collapsing_tests() {
         constexpr auto kCollapsedSecond = "lf"sv;
         constexpr auto kSecondWidth = kCollapsedSecond.length() * 5;
 
-        dom::Element a{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};
-        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kFirstText}}, std::move(a)}};
+        dom::Element a_dom{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kFirstText}}, std::move(a_dom)}};
         dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
         auto const &html_element = std::get<dom::Element>(html);
         auto const &p_element = std::get<dom::Element>(html_element.children.at(0));
@@ -161,10 +157,10 @@ void whitespace_collapsing_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("whitespace collapsing: allocating collapsing", [] {
+    s.add_test("whitespace collapsing: allocating collapsing", [](etest::IActions &a) {
         constexpr auto kFirstText = "c  r"sv;
         constexpr auto kSecondText = "l\nf"sv;
         auto const collapsed_first = "c r"s;
@@ -172,8 +168,8 @@ void whitespace_collapsing_tests() {
         auto const collapsed_second = "l f"s;
         auto const second_width = static_cast<int>(collapsed_second.length() * 5);
 
-        dom::Element a{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};
-        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kFirstText}}, std::move(a)}};
+        dom::Element a_dom{.name{"a"}, .children{dom::Text{std::string{kSecondText}}}};
+        dom::Element p{.name{"p"}, .children{dom::Text{std::string{kFirstText}}, std::move(a_dom)}};
         dom::Node html = dom::Element{.name{"html"}, .children{std::move(p)}};
         auto const &html_element = std::get<dom::Element>(html);
         auto const &p_element = std::get<dom::Element>(html_element.children.at(0));
@@ -228,10 +224,10 @@ void whitespace_collapsing_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("whitespace collapsing: text separated by a block element", [] {
+    s.add_test("whitespace collapsing: text separated by a block element", [](etest::IActions &a) {
         constexpr auto kFirstText = "  a  "sv;
         constexpr auto kSecondText = "  b  "sv;
         constexpr auto kCollapsedFirst = util::trim(kFirstText);
@@ -306,10 +302,10 @@ void whitespace_collapsing_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("whitespace collapsing: <span>hello</span>   <span>world</span>", [] {
+    s.add_test("whitespace collapsing: <span>hello</span>   <span>world</span>", [](etest::IActions &a) {
         constexpr auto kFirstText = "hello"sv;
         constexpr auto kSecondText = "world"sv;
         constexpr auto kFirstWidth = kFirstText.length() * 5;
@@ -382,10 +378,10 @@ void whitespace_collapsing_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("whitespace collapsing: <p>hello</p>   <p>world</p>", [] {
+    s.add_test("whitespace collapsing: <p>hello</p>   <p>world</p>", [](etest::IActions &a) {
         constexpr auto kFirstText = "hello"sv;
         constexpr auto kSecondText = "world"sv;
         constexpr auto kFirstWidth = kFirstText.length() * 5;
@@ -459,12 +455,12 @@ void whitespace_collapsing_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 }
 
-void text_transform_tests() {
-    etest::test("text-transform: uppercase", [] {
+void text_transform_tests(etest::Suite &s) {
+    s.add_test("text-transform: uppercase", [](etest::IActions &a) {
         constexpr auto kText = "hello   goodbye"sv;
         constexpr auto kExpectedText = "HELLO GOODBYE"sv;
         constexpr auto kTextWidth = kExpectedText.length() * 5;
@@ -505,10 +501,10 @@ void text_transform_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("text-transform: lowercase", [] {
+    s.add_test("text-transform: lowercase", [](etest::IActions &a) {
         constexpr auto kText = "HELLO   GOODBYE"sv;
         constexpr auto kExpectedText = "hello goodbye"sv;
         constexpr auto kTextWidth = kExpectedText.length() * 5;
@@ -549,10 +545,10 @@ void text_transform_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 
-    etest::test("text-transform: capitalize", [] {
+    s.add_test("text-transform: capitalize", [](etest::IActions &a) {
         constexpr auto kText = "HE?LO   GOODBYE!"sv;
         constexpr auto kExpectedText = "He?Lo Goodbye!"sv;
         constexpr auto kTextWidth = kExpectedText.length() * 5;
@@ -593,12 +589,12 @@ void text_transform_tests() {
         };
 
         auto actual = layout::create_layout(style, 1234);
-        expect_eq(actual, expected_layout);
+        a.expect_eq(actual, expected_layout);
     });
 }
 
-void img_tests() {
-    etest::test("img, no alt or src", [] {
+void img_tests(etest::Suite &s) {
+    s.add_test("img, no alt or src", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"body", {}, {dom::Element{"img"}}};
         auto const &body = std::get<dom::Element>(dom);
         auto style = style::StyledNode{
@@ -623,10 +619,10 @@ void img_tests() {
         };
 
         auto layout_root = layout::create_layout(style, 100);
-        expect_eq(expected_layout, layout_root);
+        a.expect_eq(expected_layout, layout_root);
     });
 
-    etest::test("img, alt, no src", [] {
+    s.add_test("img, alt, no src", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"alt", "hello"}}}}};
         auto const &body = std::get<dom::Element>(dom);
         auto style = style::StyledNode{
@@ -653,12 +649,12 @@ void img_tests() {
         };
 
         auto layout_root = layout::create_layout(style, 100);
-        expect_eq(expected_layout, layout_root);
-        expect_eq(expected_layout.children.at(0).text(), "hello");
+        a.expect_eq(expected_layout, layout_root);
+        a.expect_eq(expected_layout.children.at(0).text(), "hello");
     });
 
     // TODO(robinlinden): This test should break when we implement more of image layouting.
-    etest::test("img, alt, src", [] {
+    s.add_test("img, alt, src", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"alt", "asdf"}, {"src", "hallo"}}}}};
         auto const &body = std::get<dom::Element>(dom);
         auto style = style::StyledNode{
@@ -685,7 +681,7 @@ void img_tests() {
 
         auto layout_root =
                 layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
-        expect_eq(expected_layout, layout_root);
+        a.expect_eq(expected_layout, layout_root);
     });
 }
 
@@ -697,7 +693,9 @@ void img_tests() {
 // clang-format off
 
 int main() {
-    etest::test("simple tree", [] {
+    etest::Suite s{};
+
+    s.add_test("simple tree", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("head", {}, {}),
             create_element_node("body", {}, {
@@ -729,10 +727,10 @@ int main() {
         };
 
         auto layout_root = layout::create_layout(style_root, 0);
-        expect(expected_layout == layout_root);
+        a.expect(expected_layout == layout_root);
     });
 
-    etest::test("layouting removes display:none nodes", [] {
+    s.add_test("layouting removes display:none nodes", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("head", {}, {}),
             create_element_node("body", {}, {
@@ -764,10 +762,10 @@ int main() {
         };
 
         auto layout_root = layout::create_layout(style_root, 0);
-        expect(expected_layout == layout_root);
+        a.expect(expected_layout == layout_root);
     });
 
-    etest::test("inline nodes get wrapped in anonymous blocks", [] {
+    s.add_test("inline nodes get wrapped in anonymous blocks", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("head", {}, {}),
             create_element_node("body", {}, {
@@ -801,11 +799,11 @@ int main() {
         };
 
         auto layout_root = layout::create_layout(style_root, 0);
-        expect(expected_layout == layout_root);
+        a.expect(expected_layout == layout_root);
     });
 
     // clang-format on
-    etest::test("inline in inline don't get wrapped in anon-blocks", [] {
+    s.add_test("inline in inline don't get wrapped in anon-blocks", [](etest::IActions &a) {
         auto dom_root = create_element_node("span", {}, {create_element_node("span", {}, {})});
 
         auto const &children = std::get<dom::Element>(dom_root).children;
@@ -822,11 +820,11 @@ int main() {
         };
 
         auto layout_root = layout::create_layout(style_root, 0);
-        expect(expected_layout == layout_root);
+        a.expect(expected_layout == layout_root);
     });
     // clang-format off
 
-    etest::test("text", [] {
+    s.add_test("text", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 dom::Text{"hello"},
@@ -861,13 +859,13 @@ int main() {
         };
 
         auto layout_root = layout::create_layout(style_root, 100);
-        expect(expected_layout == layout_root);
+        a.expect(expected_layout == layout_root);
 
-        expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
-        expect_eq(expected_layout.children.at(0).children.at(0).children.at(1).text(), "goodbye");
+        a.expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
+        a.expect_eq(expected_layout.children.at(0).children.at(0).children.at(1).text(), "goodbye");
     });
 
-    etest::test("simple width", [] {
+    s.add_test("simple width", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -895,10 +893,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
-    etest::test("min-width", [] {
+    s.add_test("min-width", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -926,10 +924,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 20) == expected_layout);
+        a.expect(layout::create_layout(style_root, 20) == expected_layout);
     });
 
-    etest::test("max-width", [] {
+    s.add_test("max-width", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -957,10 +955,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
-    etest::test("less simple width", [] {
+    s.add_test("less simple width", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -988,10 +986,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
-    etest::test("auto width expands to fill parent", [] {
+    s.add_test("auto width expands to fill parent", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1019,10 +1017,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
-    etest::test("height doesn't affect children", [] {
+    s.add_test("height doesn't affect children", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1050,10 +1048,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root, 0) == expected_layout);
     });
 
-    etest::test("height affects siblings and parents", [] {
+    s.add_test("height affects siblings and parents", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1084,10 +1082,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root, 0) == expected_layout);
     });
 
-    etest::test("min-height is respected", [] {
+    s.add_test("min-height is respected", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1118,10 +1116,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root, 0) == expected_layout);
     });
 
-    etest::test("max-height is respected", [] {
+    s.add_test("max-height is respected", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1152,10 +1150,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root, 0) == expected_layout);
     });
 
-    etest::test("padding is taken into account", [] {
+    s.add_test("padding is taken into account", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1195,10 +1193,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root, 100) == expected_layout);
     });
 
-    etest::test("border is taken into account", [] {
+    s.add_test("border is taken into account", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1242,10 +1240,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root, 100) == expected_layout);
     });
 
-    etest::test("border is not added if border style is none", [] {
+    s.add_test("border is not added if border style is none", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1282,10 +1280,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root, 100) == expected_layout);
     });
 
-    etest::test("margin is taken into account", [] {
+    s.add_test("margin is taken into account", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1324,10 +1322,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root, 100) == expected_layout);
     });
 
-    etest::test("auto margin is handled", [] {
+    s.add_test("auto margin is handled", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1362,10 +1360,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 200) == expected_layout);
+        a.expect(layout::create_layout(style_root, 200) == expected_layout);
     });
 
-    etest::test("auto left margin and fixed right margin is handled", [] {
+    s.add_test("auto left margin and fixed right margin is handled", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1400,10 +1398,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 200) == expected_layout);
+        a.expect(layout::create_layout(style_root, 200) == expected_layout);
     });
 
-    etest::test("fixed left margin and auto right margin is handled", [] {
+    s.add_test("fixed left margin and auto right margin is handled", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {
             create_element_node("body", {}, {
                 create_element_node("p", {}, {}),
@@ -1438,10 +1436,10 @@ int main() {
             }
         };
 
-        expect(layout::create_layout(style_root, 200) == expected_layout);
+        a.expect(layout::create_layout(style_root, 200) == expected_layout);
     });
 
-    etest::test("em sizes depend on the font-size", [] {
+    s.add_test("em sizes depend on the font-size", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {});
         {
             auto style_root = style::StyledNode{
@@ -1461,7 +1459,7 @@ int main() {
                 .children = {}
             };
 
-            expect(layout::create_layout(style_root, 1000) == expected_layout);
+            a.expect(layout::create_layout(style_root, 1000) == expected_layout);
         }
 
         // Doubling the font-size should double the width/height.
@@ -1482,10 +1480,10 @@ int main() {
             .children = {}
         };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
-    etest::test("px sizes don't depend on the font-size", [] {
+    s.add_test("px sizes don't depend on the font-size", [](etest::IActions &a) {
         auto dom_root = create_element_node("html", {}, {});
         {
             auto style_root = style::StyledNode{
@@ -1505,7 +1503,7 @@ int main() {
                 .children = {}
             };
 
-            expect(layout::create_layout(style_root, 1000) == expected_layout);
+            a.expect(layout::create_layout(style_root, 1000) == expected_layout);
         }
 
         // Doubling the font-size shouldn't change the width/height.
@@ -1526,11 +1524,11 @@ int main() {
             .children = {}
         };
 
-        expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
     });
 
     // clang-format on
-    etest::test("max-width: none", [] {
+    s.add_test("max-width: none", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
@@ -1541,10 +1539,10 @@ int main() {
         layout::LayoutBox expected_layout{.node = &style, .dimensions{{0, 0, 100, 0}}};
 
         auto layout = layout::create_layout(style, 0);
-        expect_eq(layout, expected_layout);
+        a.expect_eq(layout, expected_layout);
     });
 
-    etest::test("max-height: none", [] {
+    s.add_test("max-height: none", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
@@ -1555,10 +1553,10 @@ int main() {
         layout::LayoutBox expected_layout{.node = &style, .dimensions{{0, 0, 0, 100}}};
 
         auto layout = layout::create_layout(style, 0);
-        expect_eq(layout, expected_layout);
+        a.expect_eq(layout, expected_layout);
     });
 
-    etest::test("height: auto", [] {
+    s.add_test("height: auto", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Element{.name{"p"}}}};
         style::StyledNode style{
                 .node{dom},
@@ -1580,10 +1578,10 @@ int main() {
         };
 
         auto layout = layout::create_layout(style, 0);
-        expect_eq(layout, expected_layout);
+        a.expect_eq(layout, expected_layout);
     });
 
-    etest::test("font-size absolute value keywords", [] {
+    s.add_test("font-size absolute value keywords", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1598,22 +1596,22 @@ int main() {
         style.properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "xxx-large"}};
         auto xxxlarge_layout = layout::create_layout(style, 1000).value();
 
-        auto get_text_width = [](layout::LayoutBox const &layout) {
-            require_eq(layout.children.size(), std::size_t{1});
-            require_eq(layout.children[0].children.size(), std::size_t{1});
+        auto get_text_width = [&](layout::LayoutBox const &layout) {
+            a.require_eq(layout.children.size(), std::size_t{1});
+            a.require_eq(layout.children[0].children.size(), std::size_t{1});
             return layout.children[0].children[0].dimensions.content.width;
         };
 
         auto medium_layout_width = get_text_width(medium_layout);
         auto xxxlarge_layout_width = get_text_width(xxxlarge_layout);
-        expect(medium_layout_width > 0);
+        a.expect(medium_layout_width > 0);
 
         // font-size: xxx-large should be 3x font-size: medium.
         // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
-        expect_eq(medium_layout_width * 3, xxxlarge_layout_width);
+        a.expect_eq(medium_layout_width * 3, xxxlarge_layout_width);
     });
 
-    etest::test("invalid size", [] {
+    s.add_test("invalid size", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
@@ -1626,10 +1624,10 @@ int main() {
         };
 
         auto layout = layout::create_layout(style, 0);
-        expect_eq(layout, expected_layout);
+        a.expect_eq(layout, expected_layout);
     });
 
-    etest::test("unhandled unit", [] {
+    s.add_test("unhandled unit", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
@@ -1642,10 +1640,10 @@ int main() {
         };
 
         auto layout = layout::create_layout(style, 0);
-        expect_eq(layout, expected_layout);
+        a.expect_eq(layout, expected_layout);
     });
 
-    etest::test("border-width keywords", [] {
+    s.add_test("border-width keywords", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
@@ -1655,10 +1653,10 @@ int main() {
         };
 
         auto layout = layout::create_layout(style, 0).value();
-        expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
+        a.expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
     });
 
-    etest::test("text, bold", [] {
+    s.add_test("text, bold", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1682,10 +1680,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 30, NoType{}).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("text, no font available", [] {
+    s.add_test("text, no font available", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1709,10 +1707,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 30, NoType{}).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("text with newlines in", [] {
+    s.add_test("text with newlines in", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1721,28 +1719,28 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto get_text_dimensions = [](layout::LayoutBox const &layout) {
-            require_eq(layout.children.size(), std::size_t{1});
-            require_eq(layout.children[0].children.size(), std::size_t{1});
+        auto get_text_dimensions = [&](layout::LayoutBox const &layout) {
+            a.require_eq(layout.children.size(), std::size_t{1});
+            a.require_eq(layout.children[0].children.size(), std::size_t{1});
             auto const &content_dims = layout.children[0].children[0].dimensions.content;
             return std::pair{content_dims.width, content_dims.height};
         };
 
         auto single_line_layout = layout::create_layout(style, 1000).value();
         auto single_line_layout_dims = get_text_dimensions(single_line_layout);
-        require(single_line_layout_dims.second > 0);
+        a.require(single_line_layout_dims.second > 0);
 
         // This will get collapsed to a single line.
         std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nhi"s;
         auto two_line_layout = layout::create_layout(style, 1000).value();
         auto two_line_layout_dims = get_text_dimensions(two_line_layout);
-        expect_eq(std::get<std::string>(two_line_layout.children.at(0).children.at(0).layout_text), "hi hi"sv);
+        a.expect_eq(std::get<std::string>(two_line_layout.children.at(0).children.at(0).layout_text), "hi hi"sv);
 
-        expect_eq(two_line_layout_dims.second, single_line_layout_dims.second);
-        expect(two_line_layout_dims.first >= 2 * single_line_layout_dims.first);
+        a.expect_eq(two_line_layout_dims.second, single_line_layout_dims.second);
+        a.expect(two_line_layout_dims.first >= 2 * single_line_layout_dims.first);
     });
 
-    etest::test("text too long for its container", [] {
+    s.add_test("text too long for its container", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi hello"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1776,10 +1774,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 30).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("text too long for its container, better split point later", [] {
+    s.add_test("text too long for its container, better split point later", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"oh no !! !"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1810,10 +1808,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 30).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("unsplittable text too long for its container, short text after", [] {
+    s.add_test("unsplittable text too long for its container, short text after", [](etest::IActions &a) {
         dom::Node dom = dom::Element{
                 .name{"html"},
                 .children{
@@ -1867,10 +1865,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 20).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("unsplittable text too long for its container, short element after", [] {
+    s.add_test("unsplittable text too long for its container, short element after", [](etest::IActions &a) {
         dom::Node dom = dom::Element{
                 .name{"html"},
                 .children{
@@ -1880,7 +1878,7 @@ int main() {
         };
 
         auto const &html = std::get<dom::Element>(dom);
-        auto const &a = std::get<dom::Element>(html.children[1]);
+        auto const &child = std::get<dom::Element>(html.children[1]);
         style::StyledNode style{
                 .node{dom},
                 .properties{
@@ -1893,7 +1891,7 @@ int main() {
                                 .node{html.children[1]},
                                 .properties{{css::PropertyId::Display, "inline"}},
                                 .children{
-                                        style::StyledNode{.node{a.children[0]}},
+                                        style::StyledNode{.node{child.children[0]}},
                                 },
                         },
                 },
@@ -1928,10 +1926,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 20).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("text too long for its container, but no split point available", [] {
+    s.add_test("text too long for its container, but no split point available", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
         style::StyledNode style{
                 .node{dom},
@@ -1955,10 +1953,10 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 15).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("br", [] {
+    s.add_test("br", [](etest::IActions &a) {
         dom::Node dom = dom::Element{
                 .name{"html"},
                 .children{
@@ -2006,20 +2004,20 @@ int main() {
         };
 
         auto l = layout::create_layout(style, 25).value();
-        expect_eq(l, expected);
+        a.expect_eq(l, expected);
     });
 
-    etest::test("display:none on root node", [] {
+    s.add_test("display:none on root node", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
                 .node{dom},
                 .properties{{css::PropertyId::Display, "none"}},
         };
 
-        expect_eq(layout::create_layout(style, 0), std::nullopt);
+        a.expect_eq(layout::create_layout(style, 0), std::nullopt);
     });
 
-    etest::test("rem units", [] {
+    s.add_test("rem units", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
         auto const &div = std::get<dom::Element>(dom).children[0];
         style::StyledNode style{
@@ -2035,14 +2033,14 @@ int main() {
         set_up_parent_ptrs(style);
 
         auto layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.children.at(0).dimensions.border_box().width, 20);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().width, 20);
 
         style.properties.at(0).second = "16px";
         layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
     });
 
-    etest::test("% units", [] {
+    s.add_test("% units", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
         auto const &div = std::get<dom::Element>(dom).children[0];
         style::StyledNode style{
@@ -2058,14 +2056,14 @@ int main() {
         set_up_parent_ptrs(style);
 
         auto layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.children.at(0).dimensions.border_box().width, 250);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().width, 250);
 
         style.properties.at(0).second = "10%";
         layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.children.at(0).dimensions.border_box().width, 50);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().width, 50);
     });
 
-    etest::test("invalid width properties", [] {
+    s.add_test("invalid width properties", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"html", {}, {dom::Element{"div"}}};
         auto const &div = std::get<dom::Element>(dom).children[0];
         style::StyledNode style{
@@ -2081,16 +2079,16 @@ int main() {
         set_up_parent_ptrs(style);
 
         auto layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.dimensions.border_box().width, 1000);
-        expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
+        a.expect_eq(layout.dimensions.border_box().width, 1000);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
 
         style.properties.emplace_back(css::PropertyId::MaxWidth, "asdf");
         layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.dimensions.border_box().width, 1000);
-        expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
+        a.expect_eq(layout.dimensions.border_box().width, 1000);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
     });
 
-    etest::test("the height property is ignored for inline elements", [] {
+    s.add_test("the height property is ignored for inline elements", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"html", {}, {dom::Element{"span"}}};
         auto &span = std::get<dom::Element>(dom).children[0];
         style::StyledNode style{
@@ -2107,8 +2105,8 @@ int main() {
 
         // 0 due to height being ignored and there being no content.
         auto layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.dimensions.border_box().height, 0);
-        expect_eq(layout.children.at(0).dimensions.border_box().height, 0);
+        a.expect_eq(layout.dimensions.border_box().height, 0);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().height, 0);
 
         auto &span_elem = std::get<dom::Element>(span);
         span_elem.children.emplace_back(dom::Text{"hello"});
@@ -2117,17 +2115,17 @@ int main() {
 
         // 10px due to the text content being 10px tall.
         layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.dimensions.border_box().height, 10);
-        expect_eq(layout.children.at(0).dimensions.border_box().height, 10);
+        a.expect_eq(layout.dimensions.border_box().height, 10);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().height, 10);
 
         // And blocks don't have the height ignored, so 100px.
         style.children.at(0).properties.at(1).second = "block";
         layout = layout::create_layout(style, 1000).value();
-        expect_eq(layout.dimensions.border_box().height, 100);
-        expect_eq(layout.children.at(0).dimensions.border_box().height, 100);
+        a.expect_eq(layout.dimensions.border_box().height, 100);
+        a.expect_eq(layout.children.at(0).dimensions.border_box().height, 100);
     });
 
-    etest::test("%-height on the root node", [] {
+    s.add_test("%-height on the root node", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"html"};
         style::StyledNode style{
                 .node{dom},
@@ -2135,12 +2133,12 @@ int main() {
         };
 
         auto layout = layout::create_layout(style, {.viewport_height = 1000}).value();
-        expect_eq(layout.dimensions.border_box().height, 500);
+        a.expect_eq(layout.dimensions.border_box().height, 500);
     });
 
-    whitespace_collapsing_tests();
-    text_transform_tests();
-    img_tests();
+    whitespace_collapsing_tests(s);
+    text_transform_tests(s);
+    img_tests(s);
 
-    return etest::run_all_tests();
+    return s.run();
 }
