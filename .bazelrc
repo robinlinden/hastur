@@ -14,6 +14,8 @@ coverage --instrumentation_filter=-'_fuzz_test'
 test --test_output=errors
 test --test_summary=terse
 test --test_verbose_timeout_warnings
+# tag w/ "requires-network" for opt-in network access.
+build --sandbox_default_allow_network=false
 
 # Bazel deprecations
 # =========================================================
