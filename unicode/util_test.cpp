@@ -104,9 +104,9 @@ int main() {
     });
 
     s.add_test("CodePointView", [](etest::IActions &a) {
-        auto into_code_points = [](std::string_view s) {
+        auto into_code_points = [](std::string_view sv) {
             std::vector<std::uint32_t> code_points{};
-            for (auto cp : CodePointView{s}) {
+            for (auto cp : CodePointView{sv}) {
                 code_points.push_back(cp);
             }
             return code_points;
