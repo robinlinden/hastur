@@ -5,7 +5,7 @@
 
 #include "url/url.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <simdjson.h> // IWYU pragma: keep
 
@@ -39,6 +39,8 @@ ParseResult parse_url(std::string input, std::optional<url::Url> base = std::nul
 } // namespace
 
 int main() {
+    etest::Suite s{};
+
     url::Url const base{"https",
             "",
             "",
@@ -46,7 +48,7 @@ int main() {
             std::uint16_t{8080},
             std::vector<std::string>{"test", "index.php"}};
 
-    etest::test("blob URL generation", [] {
+    s.add_test("blob URL generation", [](etest::IActions &a) {
         std::string regex_uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
         url::Host h = {url::HostType::DnsDomain, "example.com"};
@@ -55,7 +57,7 @@ int main() {
         std::string blob = url::blob_url_create(o);
         std::cout << "\nGenerated Blob URL: " << blob << '\n';
 
-        etest::expect(std::regex_match(blob, std::regex("blob:https://example.com:8080/" + regex_uuid)));
+        a.expect(std::regex_match(blob, std::regex("blob:https://example.com:8080/" + regex_uuid)));
 
         h = url::Host{url::HostType::Ip4Addr, std::uint32_t{134744072}};
         o = {"https", h, std::uint16_t{8080}, std::nullopt, false};
@@ -63,7 +65,7 @@ int main() {
         blob = url::blob_url_create(o);
         std::cout << "Generated Blob URL: " << blob << '\n';
 
-        etest::expect(std::regex_match(blob, std::regex("blob:https://8.8.8.8:8080/" + regex_uuid)));
+        a.expect(std::regex_match(blob, std::regex("blob:https://8.8.8.8:8080/" + regex_uuid)));
 
         std::array<std::uint16_t, 8> v6 = {0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
         h = url::Host{url::HostType::Ip6Addr, v6};
@@ -72,163 +74,162 @@ int main() {
         blob = url::blob_url_create(o);
         std::cout << "Generated Blob URL: " << blob << '\n';
 
-        etest::expect(std::regex_match(
+        a.expect(std::regex_match(
                 blob, std::regex("blob:https://\\[2001:db8:85a3::8a2e:370:7334\\]:8080/" + regex_uuid)));
     });
 
-    etest::test("Validation error: description", [] {
-        etest::expect(!description(url::ValidationError::DomainInvalidCodePoint).empty()); //
+    s.add_test("Validation error: description", [](etest::IActions &a) {
+        a.expect(!description(url::ValidationError::DomainInvalidCodePoint).empty()); //
     });
 
-    etest::test("URL parsing: port and path", [] {
+    s.add_test("URL parsing: port and path", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("https://example.com:8080/index.html");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "example.com");
-        etest::expect_eq(url->port.value(), 8080);
-        etest::expect_eq(std::get<1>(url->path)[0], "index.html");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "example.com");
+        a.expect_eq(url->port.value(), 8080);
+        a.expect_eq(std::get<1>(url->path)[0], "index.html");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://example.com:8080/index.html");
+        a.expect_eq(url->serialize(), "https://example.com:8080/index.html");
     });
 
-    etest::test("URL parsing: 1 unicode char", [] {
+    s.add_test("URL parsing: 1 unicode char", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("http://bücher.de");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "http");
-        etest::expect_eq(std::get<0>(url->host->data), "xn--bcher-kva.de");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "http");
+        a.expect_eq(std::get<0>(url->host->data), "xn--bcher-kva.de");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "http://xn--bcher-kva.de/");
+        a.expect_eq(url->serialize(), "http://xn--bcher-kva.de/");
     });
 
-    etest::test("URL parsing: 1 unicode char with path", [] {
+    s.add_test("URL parsing: 1 unicode char with path", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("https://√.com/i/itunes.gif");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "xn--19g.com");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "i");
-        etest::expect_eq(std::get<1>(url->path)[1], "itunes.gif");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "xn--19g.com");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "i");
+        a.expect_eq(std::get<1>(url->path)[1], "itunes.gif");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://xn--19g.com/i/itunes.gif");
+        a.expect_eq(url->serialize(), "https://xn--19g.com/i/itunes.gif");
     });
 
-    etest::test("URL parsing: unicode path", [] {
+    s.add_test("URL parsing: unicode path", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("https://ar.wikipedia.org/wiki/نجيب_محفوظ");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "ar.wikipedia.org");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "wiki");
-        etest::expect_eq(std::get<1>(url->path)[1], "%D9%86%D8%AC%D9%8A%D8%A8_%D9%85%D8%AD%D9%81%D9%88%D8%B8");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "ar.wikipedia.org");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "wiki");
+        a.expect_eq(std::get<1>(url->path)[1], "%D9%86%D8%AC%D9%8A%D8%A8_%D9%85%D8%AD%D9%81%D9%88%D8%B8");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(),
+        a.expect_eq(url->serialize(),
                 "https://ar.wikipedia.org/wiki/%D9%86%D8%AC%D9%8A%D8%A8_%D9%85%D8%AD%D9%81%D9%88%D8%B8");
     });
 
-    etest::test("URL parsing: tel URI", [] {
+    s.add_test("URL parsing: tel URI", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("tel:+1-555-555-5555");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "tel");
-        etest::expect(!url->host.has_value());
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<0>(url->path), "+1-555-555-5555");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "tel");
+        a.expect(!url->host.has_value());
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<0>(url->path), "+1-555-555-5555");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "tel:+1-555-555-5555");
+        a.expect_eq(url->serialize(), "tel:+1-555-555-5555");
     });
 
-    etest::test("URL parsing: username and passwd in authority", [] {
+    s.add_test("URL parsing: username and passwd in authority", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("https://zero-one:testpass123@example.com/login.php");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(url->user, "zero-one");
-        etest::expect_eq(url->passwd, "testpass123");
-        etest::expect_eq(std::get<0>(url->host->data), "example.com");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "login.php");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(url->user, "zero-one");
+        a.expect_eq(url->passwd, "testpass123");
+        a.expect_eq(std::get<0>(url->host->data), "example.com");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "login.php");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://zero-one:testpass123@example.com/login.php");
+        a.expect_eq(url->serialize(), "https://zero-one:testpass123@example.com/login.php");
     });
 
-    etest::test("URL parsing: query", [] {
+    s.add_test("URL parsing: query", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url =
                 p.parse("https://www.youtube.com/watch?v=2g5xkLqIElUlist=PLHwvDXmNUa92NlFPooY1P5tfDo4T85ORzindex=3");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "www.youtube.com");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "watch");
-        etest::expect_eq(url->query, "v=2g5xkLqIElUlist=PLHwvDXmNUa92NlFPooY1P5tfDo4T85ORzindex=3");
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "www.youtube.com");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "watch");
+        a.expect_eq(url->query, "v=2g5xkLqIElUlist=PLHwvDXmNUa92NlFPooY1P5tfDo4T85ORzindex=3");
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(),
+        a.expect_eq(url->serialize(),
                 "https://www.youtube.com/watch?v=2g5xkLqIElUlist=PLHwvDXmNUa92NlFPooY1P5tfDo4T85ORzindex=3");
     });
 
-    etest::test("URL parsing: Welsh", [] {
+    s.add_test("URL parsing: Welsh", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse(
                 "https://llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk/images/platformticket.gif");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(
-                std::get<0>(url->host->data), "llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "images");
-        etest::expect_eq(std::get<1>(url->path)[1], "platformticket.gif");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "images");
+        a.expect_eq(std::get<1>(url->path)[1], "platformticket.gif");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(),
+        a.expect_eq(url->serialize(),
                 "https://llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk/images/platformticket.gif");
     });
 
     // This domain exceeds the maximum length of both a domain component/label and a FQDN
-    etest::test("URL parsing: extreme Welsh", [] {
+    s.add_test("URL parsing: extreme Welsh", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url =
@@ -238,20 +239,20 @@ int main() {
                         "llgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochanfairpwllgwyngyllgogerychgoge"
                         "rychwyrndrobwllllantysiliogogogochobwllllantysiliogogogoch.co.uk");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data),
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data),
                 "llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochanfairpwllgwyngyllgo"
                 "gerychgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochllanfairpwllgwyngyllgogerychwyrndr"
                 "obwllllantysiliogogogochobwllllantysiliogogogochanfairpwllgwyngyllgogerychgogerychwyrndrobwllllantysil"
                 "iogogogochobwllllantysiliogogogoch.co.uk");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(),
+        a.expect_eq(url->serialize(),
                 "https://"
                 "llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochanfairpwllgw"
                 "yngyllgogerychgogerychwyrndrobwllllantysiliogogogochobwllllantysiliogogogochllanfairpwllgwyngy"
@@ -259,272 +260,272 @@ int main() {
                 "rychwyrndrobwllllantysiliogogogochobwllllantysiliogogogoch.co.uk/");
     });
 
-    etest::test("URL parsing: path, query, and fragment", [] {
+    s.add_test("URL parsing: path, query, and fragment", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse(
                 "https://github.com/robinlinden/hastur/actions/runs/4441133331/jobs/7795829478?pr=476#step:7:31");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "github.com");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "robinlinden");
-        etest::expect_eq(std::get<1>(url->path)[1], "hastur");
-        etest::expect_eq(std::get<1>(url->path)[2], "actions");
-        etest::expect_eq(std::get<1>(url->path)[3], "runs");
-        etest::expect_eq(std::get<1>(url->path)[4], "4441133331");
-        etest::expect_eq(std::get<1>(url->path)[5], "jobs");
-        etest::expect_eq(std::get<1>(url->path)[6], "7795829478");
-        etest::expect_eq(url->query, "pr=476");
-        etest::expect_eq(url->fragment, "step:7:31");
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "github.com");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "robinlinden");
+        a.expect_eq(std::get<1>(url->path)[1], "hastur");
+        a.expect_eq(std::get<1>(url->path)[2], "actions");
+        a.expect_eq(std::get<1>(url->path)[3], "runs");
+        a.expect_eq(std::get<1>(url->path)[4], "4441133331");
+        a.expect_eq(std::get<1>(url->path)[5], "jobs");
+        a.expect_eq(std::get<1>(url->path)[6], "7795829478");
+        a.expect_eq(url->query, "pr=476");
+        a.expect_eq(url->fragment, "step:7:31");
 
-        etest::expect_eq(url->serialize(),
+        a.expect_eq(url->serialize(),
                 "https://github.com/robinlinden/hastur/actions/runs/4441133331/jobs/7795829478?pr=476#step:7:31");
     });
 
-    etest::test("URL parsing: ipv4 and port", [] {
+    s.add_test("URL parsing: ipv4 and port", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("https://127.0.0.1:631");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<1>(url->host->data), 2130706433ul);
-        etest::expect_eq(url->port, 631);
-        etest::expect_eq(std::get<1>(url->path)[0], "");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<1>(url->host->data), 2130706433ul);
+        a.expect_eq(url->port, 631);
+        a.expect_eq(std::get<1>(url->path)[0], "");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://127.0.0.1:631/");
+        a.expect_eq(url->serialize(), "https://127.0.0.1:631/");
     });
 
-    etest::test("URL parsing: ipv6 and port", [] {
+    s.add_test("URL parsing: ipv6 and port", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::array<std::uint16_t, 8> const addr{0x2001, 0xdb8, 0x85a3, 0, 0, 0x8a2e, 0x370, 0x7334};
 
         std::optional<url::Url> url = p.parse("https://[2001:db8:85a3::8a2e:370:7334]:631");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<2>(url->host->data), addr);
-        etest::expect_eq(url->port, 631);
-        etest::expect_eq(std::get<1>(url->path)[0], "");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<2>(url->host->data), addr);
+        a.expect_eq(url->port, 631);
+        a.expect_eq(std::get<1>(url->path)[0], "");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://[2001:db8:85a3::8a2e:370:7334]:631/");
+        a.expect_eq(url->serialize(), "https://[2001:db8:85a3::8a2e:370:7334]:631/");
     });
 
-    etest::test("URL parsing: ipv6 v4-mapped with port", [] {
+    s.add_test("URL parsing: ipv6 v4-mapped with port", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::array<std::uint16_t, 8> const addr{0, 0, 0, 0, 0, 0xffff, 0x4ccb, 0x8c22};
 
         std::optional<url::Url> url = p.parse("https://[0000:0000:0000:0000:0000:ffff:4ccb:8c22]:631");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<2>(url->host->data), addr);
-        etest::expect_eq(url->port, 631);
-        etest::expect_eq(std::get<1>(url->path)[0], "");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<2>(url->host->data), addr);
+        a.expect_eq(url->port, 631);
+        a.expect_eq(std::get<1>(url->path)[0], "");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://[::ffff:4ccb:8c22]:631/");
+        a.expect_eq(url->serialize(), "https://[::ffff:4ccb:8c22]:631/");
     });
 
-    etest::test("URL parsing: ipv6 v4-mapped compressed with dot-decimal", [] {
+    s.add_test("URL parsing: ipv6 v4-mapped compressed with dot-decimal", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::array<std::uint16_t, 8> const addr{0, 0, 0, 0, 0, 0xffff, 0x4ccb, 0x8c22};
 
         std::optional<url::Url> url = p.parse("https://[::ffff:76.203.140.34]:631");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<2>(url->host->data), addr);
-        etest::expect_eq(url->port, 631);
-        etest::expect_eq(std::get<1>(url->path)[0], "");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<2>(url->host->data), addr);
+        a.expect_eq(url->port, 631);
+        a.expect_eq(std::get<1>(url->path)[0], "");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://[::ffff:4ccb:8c22]:631/");
+        a.expect_eq(url->serialize(), "https://[::ffff:4ccb:8c22]:631/");
     });
 
-    etest::test("URL parsing: empty input", [] {
+    s.add_test("URL parsing: empty input", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("");
 
-        etest::expect(!url.has_value());
+        a.expect(!url.has_value());
     });
 
-    etest::test("URL parsing: empty input with base URL", [&base] {
+    s.add_test("URL parsing: empty input with base URL", [&base](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("", base);
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "example.com");
-        etest::expect_eq(url->port, 8080);
-        etest::expect_eq(std::get<1>(url->path)[0], "test");
-        etest::expect_eq(std::get<1>(url->path)[1], "index.php");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "example.com");
+        a.expect_eq(url->port, 8080);
+        a.expect_eq(std::get<1>(url->path)[0], "test");
+        a.expect_eq(std::get<1>(url->path)[1], "index.php");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://example.com:8080/test/index.php");
+        a.expect_eq(url->serialize(), "https://example.com:8080/test/index.php");
     });
 
-    etest::test("URL parsing: query input with base URL", [&base] {
+    s.add_test("URL parsing: query input with base URL", [&base](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("?view=table", base);
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "https");
-        etest::expect_eq(std::get<0>(url->host->data), "example.com");
-        etest::expect_eq(url->port, 8080);
-        etest::expect_eq(std::get<1>(url->path)[0], "test");
-        etest::expect_eq(std::get<1>(url->path)[1], "index.php");
-        etest::expect_eq(url->query, "view=table");
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "https");
+        a.expect_eq(std::get<0>(url->host->data), "example.com");
+        a.expect_eq(url->port, 8080);
+        a.expect_eq(std::get<1>(url->path)[0], "test");
+        a.expect_eq(std::get<1>(url->path)[1], "index.php");
+        a.expect_eq(url->query, "view=table");
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "https://example.com:8080/test/index.php?view=table");
+        a.expect_eq(url->serialize(), "https://example.com:8080/test/index.php?view=table");
     });
 
-    etest::test("URL parsing: file URL", [] {
+    s.add_test("URL parsing: file URL", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("file:///home/zero-one/repos/hastur/README.md");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(std::get<0>(url->host->data), "");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "home");
-        etest::expect_eq(std::get<1>(url->path)[1], "zero-one");
-        etest::expect_eq(std::get<1>(url->path)[2], "repos");
-        etest::expect_eq(std::get<1>(url->path)[3], "hastur");
-        etest::expect_eq(std::get<1>(url->path)[4], "README.md");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(std::get<0>(url->host->data), "");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "home");
+        a.expect_eq(std::get<1>(url->path)[1], "zero-one");
+        a.expect_eq(std::get<1>(url->path)[2], "repos");
+        a.expect_eq(std::get<1>(url->path)[3], "hastur");
+        a.expect_eq(std::get<1>(url->path)[4], "README.md");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "file:///home/zero-one/repos/hastur/README.md");
+        a.expect_eq(url->serialize(), "file:///home/zero-one/repos/hastur/README.md");
     });
 
-    etest::test("URL parsing: file URL with double-dot", [] {
+    s.add_test("URL parsing: file URL with double-dot", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("file:///home/zero-one/repos/../hastur/README.md");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(std::get<0>(url->host->data), "");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "home");
-        etest::expect_eq(std::get<1>(url->path)[1], "zero-one");
-        etest::expect_eq(std::get<1>(url->path)[2], "hastur");
-        etest::expect_eq(std::get<1>(url->path)[3], "README.md");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(std::get<0>(url->host->data), "");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "home");
+        a.expect_eq(std::get<1>(url->path)[1], "zero-one");
+        a.expect_eq(std::get<1>(url->path)[2], "hastur");
+        a.expect_eq(std::get<1>(url->path)[3], "README.md");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "file:///home/zero-one/hastur/README.md");
+        a.expect_eq(url->serialize(), "file:///home/zero-one/hastur/README.md");
     });
 
-    etest::test("URL parsing: file URL with double-dot 2", [] {
+    s.add_test("URL parsing: file URL with double-dot 2", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("file:///home/zero-one/repos/../hastur/../README.md");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(std::get<0>(url->host->data), "");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "home");
-        etest::expect_eq(std::get<1>(url->path)[1], "zero-one");
-        etest::expect_eq(std::get<1>(url->path)[2], "README.md");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(std::get<0>(url->host->data), "");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "home");
+        a.expect_eq(std::get<1>(url->path)[1], "zero-one");
+        a.expect_eq(std::get<1>(url->path)[2], "README.md");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "file:///home/zero-one/README.md");
+        a.expect_eq(url->serialize(), "file:///home/zero-one/README.md");
     });
 
-    etest::test("URL parsing: file URL with double-dot 3", [] {
+    s.add_test("URL parsing: file URL with double-dot 3", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("file:///../home/zero-one/repos/");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(std::get<0>(url->host->data), "");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "home");
-        etest::expect_eq(std::get<1>(url->path)[1], "zero-one");
-        etest::expect_eq(std::get<1>(url->path)[2], "repos");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(std::get<0>(url->host->data), "");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "home");
+        a.expect_eq(std::get<1>(url->path)[1], "zero-one");
+        a.expect_eq(std::get<1>(url->path)[2], "repos");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "file:///home/zero-one/repos/");
+        a.expect_eq(url->serialize(), "file:///home/zero-one/repos/");
     });
 
-    etest::test("URL parsing: file URL with single-dot", [] {
+    s.add_test("URL parsing: file URL with single-dot", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("file:///home/zero-one/repos/./hastur/README.md");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(std::get<0>(url->host->data), "");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "home");
-        etest::expect_eq(std::get<1>(url->path)[1], "zero-one");
-        etest::expect_eq(std::get<1>(url->path)[2], "repos");
-        etest::expect_eq(std::get<1>(url->path)[3], "hastur");
-        etest::expect_eq(std::get<1>(url->path)[4], "README.md");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(std::get<0>(url->host->data), "");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "home");
+        a.expect_eq(std::get<1>(url->path)[1], "zero-one");
+        a.expect_eq(std::get<1>(url->path)[2], "repos");
+        a.expect_eq(std::get<1>(url->path)[3], "hastur");
+        a.expect_eq(std::get<1>(url->path)[4], "README.md");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), "file:///home/zero-one/repos/hastur/README.md");
+        a.expect_eq(url->serialize(), "file:///home/zero-one/repos/hastur/README.md");
     });
 
-    etest::test("URL parsing: file URL with windows path", [] {
+    s.add_test("URL parsing: file URL with windows path", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse(R"(file://C:\Users\zero-one\repos\hastur\README.md)");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(std::get<0>(url->host->data), "");
-        etest::expect(!url->port.has_value());
-        etest::expect_eq(std::get<1>(url->path)[0], "C:");
-        etest::expect_eq(std::get<1>(url->path)[1], "Users");
-        etest::expect_eq(std::get<1>(url->path)[2], "zero-one");
-        etest::expect_eq(std::get<1>(url->path)[3], "repos");
-        etest::expect_eq(std::get<1>(url->path)[4], "hastur");
-        etest::expect_eq(std::get<1>(url->path)[5], "README.md");
-        etest::expect(!url->query.has_value());
-        etest::expect(!url->fragment.has_value());
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(std::get<0>(url->host->data), "");
+        a.expect(!url->port.has_value());
+        a.expect_eq(std::get<1>(url->path)[0], "C:");
+        a.expect_eq(std::get<1>(url->path)[1], "Users");
+        a.expect_eq(std::get<1>(url->path)[2], "zero-one");
+        a.expect_eq(std::get<1>(url->path)[3], "repos");
+        a.expect_eq(std::get<1>(url->path)[4], "hastur");
+        a.expect_eq(std::get<1>(url->path)[5], "README.md");
+        a.expect(!url->query.has_value());
+        a.expect(!url->fragment.has_value());
 
-        etest::expect_eq(url->serialize(), R"(file:///C:/Users/zero-one/repos/hastur/README.md)");
+        a.expect_eq(url->serialize(), R"(file:///C:/Users/zero-one/repos/hastur/README.md)");
     });
 
-    etest::test("URL origin", [] {
+    s.add_test("URL origin", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("https://example.com:8080/index.html");
@@ -532,10 +533,10 @@ int main() {
         std::optional<url::Url> url3 = p.parse("http://example.com:8080/index.html");
         std::optional<url::Url> url4 = p.parse("https://example.com:8080/index.php?foo=bar");
 
-        etest::require(url.has_value());
-        etest::require(url2.has_value());
-        etest::require(url3.has_value());
-        etest::require(url4.has_value());
+        a.require(url.has_value());
+        a.require(url2.has_value());
+        a.require(url3.has_value());
+        a.require(url4.has_value());
 
         url::Origin o = url->origin();
         url::Origin o2 = url2->origin();
@@ -543,234 +544,234 @@ int main() {
         url::Origin o4 = url4->origin();
         url::Origin o5{"https", {url::HostType::DnsDomain, "example.com"}, std::uint16_t{8080}, "example.com"};
 
-        etest::require(o.port.has_value());
-        etest::require(o2.port.has_value());
-        etest::require(o3.port.has_value());
-        etest::require(o4.port.has_value());
+        a.require(o.port.has_value());
+        a.require(o2.port.has_value());
+        a.require(o3.port.has_value());
+        a.require(o4.port.has_value());
 
-        etest::expect(!o.domain.has_value());
-        etest::expect(!o2.domain.has_value());
-        etest::expect(!o3.domain.has_value());
-        etest::expect(!o4.domain.has_value());
+        a.expect(!o.domain.has_value());
+        a.expect(!o2.domain.has_value());
+        a.expect(!o3.domain.has_value());
+        a.expect(!o4.domain.has_value());
 
-        etest::expect_eq(o.scheme, "https");
-        etest::expect_eq(o2.scheme, "https");
-        etest::expect_eq(o3.scheme, "http");
-        etest::expect_eq(o4.scheme, "https");
+        a.expect_eq(o.scheme, "https");
+        a.expect_eq(o2.scheme, "https");
+        a.expect_eq(o3.scheme, "http");
+        a.expect_eq(o4.scheme, "https");
 
-        etest::expect_eq(o.host.serialize(), "example.com");
-        etest::expect_eq(o2.host.serialize(), "example.com");
-        etest::expect_eq(o3.host.serialize(), "example.com");
-        etest::expect_eq(o4.host.serialize(), "example.com");
+        a.expect_eq(o.host.serialize(), "example.com");
+        a.expect_eq(o2.host.serialize(), "example.com");
+        a.expect_eq(o3.host.serialize(), "example.com");
+        a.expect_eq(o4.host.serialize(), "example.com");
 
-        etest::expect_eq(*o.port, 8080);
-        etest::expect_eq(*o2.port, 9999);
-        etest::expect_eq(*o3.port, 8080);
-        etest::expect_eq(*o4.port, 8080);
+        a.expect_eq(*o.port, 8080);
+        a.expect_eq(*o2.port, 9999);
+        a.expect_eq(*o3.port, 8080);
+        a.expect_eq(*o4.port, 8080);
 
-        etest::expect(!o.opaque);
-        etest::expect(!o2.opaque);
-        etest::expect(!o3.opaque);
-        etest::expect(!o4.opaque);
+        a.expect(!o.opaque);
+        a.expect(!o2.opaque);
+        a.expect(!o3.opaque);
+        a.expect(!o4.opaque);
 
-        etest::expect_eq(o.serialize(), "https://example.com:8080");
-        etest::expect_eq(o2.serialize(), "https://example.com:9999");
-        etest::expect_eq(o3.serialize(), "http://example.com:8080");
-        etest::expect_eq(o4.serialize(), "https://example.com:8080");
+        a.expect_eq(o.serialize(), "https://example.com:8080");
+        a.expect_eq(o2.serialize(), "https://example.com:9999");
+        a.expect_eq(o3.serialize(), "http://example.com:8080");
+        a.expect_eq(o4.serialize(), "https://example.com:8080");
 
-        etest::expect(o != o2);
-        etest::expect(o != o3);
-        etest::expect(o == o4);
-        etest::expect(o == o5);
+        a.expect(o != o2);
+        a.expect(o != o3);
+        a.expect(o == o4);
+        a.expect(o == o5);
 
-        etest::expect(!o.is_same_origin_domain(o2));
-        etest::expect(!o.is_same_origin_domain(o3));
-        etest::expect(o.is_same_origin_domain(o4));
-        etest::expect(!o.is_same_origin_domain(o5));
+        a.expect(!o.is_same_origin_domain(o2));
+        a.expect(!o.is_same_origin_domain(o3));
+        a.expect(o.is_same_origin_domain(o4));
+        a.expect(!o.is_same_origin_domain(o5));
 
-        etest::expect(std::holds_alternative<url::Host>(o.effective_domain()));
-        etest::expect(std::holds_alternative<url::Host>(o2.effective_domain()));
-        etest::expect(std::holds_alternative<url::Host>(o3.effective_domain()));
-        etest::expect(std::holds_alternative<url::Host>(o4.effective_domain()));
-        etest::expect(std::holds_alternative<std::string>(o5.effective_domain()));
+        a.expect(std::holds_alternative<url::Host>(o.effective_domain()));
+        a.expect(std::holds_alternative<url::Host>(o2.effective_domain()));
+        a.expect(std::holds_alternative<url::Host>(o3.effective_domain()));
+        a.expect(std::holds_alternative<url::Host>(o4.effective_domain()));
+        a.expect(std::holds_alternative<std::string>(o5.effective_domain()));
 
-        etest::expect_eq(std::get<std::string>(o5.effective_domain()), "example.com");
+        a.expect_eq(std::get<std::string>(o5.effective_domain()), "example.com");
     });
 
-    etest::test("URL origin: opaque origin", [] {
+    s.add_test("URL origin: opaque origin", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("file:///usr/local/bin/foo");
         std::optional<url::Url> url2 = p.parse("file:///etc/passwd");
         std::optional<url::Url> url3 = p.parse("http://example.com");
 
-        etest::require(url.has_value());
-        etest::require(url2.has_value());
-        etest::require(url3.has_value());
+        a.require(url.has_value());
+        a.require(url2.has_value());
+        a.require(url3.has_value());
 
         url::Origin o = url->origin();
         url::Origin o2 = url2->origin();
         url::Origin o3 = url3->origin();
 
-        etest::expect(o.opaque);
-        etest::expect(o2.opaque);
-        etest::expect(!o3.opaque);
+        a.expect(o.opaque);
+        a.expect(o2.opaque);
+        a.expect(!o3.opaque);
 
-        etest::expect_eq(o.serialize(), "null");
-        etest::expect_eq(o2.serialize(), "null");
+        a.expect_eq(o.serialize(), "null");
+        a.expect_eq(o2.serialize(), "null");
 
-        etest::expect(std::holds_alternative<std::monostate>(o.effective_domain()));
-        etest::expect(std::holds_alternative<std::monostate>(o2.effective_domain()));
+        a.expect(std::holds_alternative<std::monostate>(o.effective_domain()));
+        a.expect(std::holds_alternative<std::monostate>(o2.effective_domain()));
 
-        etest::expect(o == o2);
-        etest::expect(o != o3);
+        a.expect(o == o2);
+        a.expect(o != o3);
 
-        etest::expect(o.is_same_origin_domain(o2));
-        etest::expect(!o.is_same_origin_domain(o3));
+        a.expect(o.is_same_origin_domain(o2));
+        a.expect(!o.is_same_origin_domain(o3));
     });
 
-    etest::test("URL origin: blob URL", [] {
+    s.add_test("URL origin: blob URL", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("blob:https://whatwg.org/d0360e2f-caee-469f-9a2f-87d5b0456f6f");
         std::optional<url::Url> url2 = p.parse("blob:ws://whatwg.org/d0360e2f-caee-469f-9a2f-87d5b0456f6f");
 
-        etest::require(url.has_value());
-        etest::require(url2.has_value());
+        a.require(url.has_value());
+        a.require(url2.has_value());
 
         url::Origin o = url->origin();
         url::Origin o2 = url2->origin();
 
-        etest::expect(!o.opaque);
-        etest::expect(o2.opaque);
+        a.expect(!o.opaque);
+        a.expect(o2.opaque);
 
-        etest::expect(!o.port.has_value());
-        etest::expect(!o.domain.has_value());
+        a.expect(!o.port.has_value());
+        a.expect(!o.domain.has_value());
 
-        etest::expect_eq(o.scheme, "https");
-        etest::expect_eq(o.host.serialize(), "whatwg.org");
+        a.expect_eq(o.scheme, "https");
+        a.expect_eq(o.host.serialize(), "whatwg.org");
 
-        etest::expect_eq(o.serialize(), "https://whatwg.org");
-        etest::expect_eq(o2.serialize(), "null");
+        a.expect_eq(o.serialize(), "https://whatwg.org");
+        a.expect_eq(o2.serialize(), "null");
     });
 
-    etest::test("URL parsing: parse_host w/ empty input", [] {
+    s.add_test("URL parsing: parse_host w/ empty input", [](etest::IActions &a) {
         url::UrlParser p;
         auto url = p.parse("a://");
 
-        etest::require(url.has_value());
-        etest::expect_eq(*url, url::Url{.scheme = "a", .host = url::Host{.type = url::HostType::Opaque}});
+        a.require(url.has_value());
+        a.expect_eq(*url, url::Url{.scheme = "a", .host = url::Host{.type = url::HostType::Opaque}});
     });
 
-    etest::test("URL parsing: invalid utf-8", [] {
+    s.add_test("URL parsing: invalid utf-8", [](etest::IActions &) {
         url::UrlParser p;
         std::ignore = p.parse("\x6f\x3a\x2f\x2f\x26\xe1\xd2\x2e\x3b\xf5\x26\xe1\xd2\x0b\x0a\x26\xe1\xd2\xc9");
     });
 
-    etest::test("URL parsing: file url with base", [] {
+    s.add_test("URL parsing: file url with base", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> file_base = p.parse("file:///usr/bin/vim");
 
-        etest::require(file_base.has_value());
+        a.require(file_base.has_value());
 
         std::optional<url::Url> url = p.parse("file:usr/bin/emacs", file_base);
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(url->serialize(), "file:///usr/bin/usr/bin/emacs");
-        etest::expect_eq(url->host->serialize(), "");
-        etest::expect_eq(url->serialize_path(), "/usr/bin/usr/bin/emacs");
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(url->serialize(), "file:///usr/bin/usr/bin/emacs");
+        a.expect_eq(url->host->serialize(), "");
+        a.expect_eq(url->serialize_path(), "/usr/bin/usr/bin/emacs");
     });
 
-    etest::test("URL parsing: file url backslash with base", [] {
+    s.add_test("URL parsing: file url backslash with base", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> file_base = p.parse("file:///usr/bin/vim");
 
-        etest::require(file_base.has_value());
+        a.require(file_base.has_value());
 
         std::optional<url::Url> url = p.parse("file:\\usr/bin/emacs", file_base);
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->scheme, "file");
-        etest::expect_eq(url->serialize(), "file:///usr/bin/emacs");
-        etest::expect_eq(url->host->serialize(), "");
-        etest::expect_eq(url->serialize_path(), "/usr/bin/emacs");
+        a.expect_eq(url->scheme, "file");
+        a.expect_eq(url->serialize(), "file:///usr/bin/emacs");
+        a.expect_eq(url->host->serialize(), "");
+        a.expect_eq(url->serialize_path(), "/usr/bin/emacs");
     });
 
-    etest::test("URL parsing: non-relative url w/o scheme", [] {
+    s.add_test("URL parsing: non-relative url w/o scheme", [](etest::IActions &a) {
         auto [url, errors] = parse_url("//example.com");
-        etest::expect_eq(url, std::nullopt);
-        etest::expect_eq(errors, std::vector{url::ValidationError::MissingSchemeNonRelativeUrl});
+        a.expect_eq(url, std::nullopt);
+        a.expect_eq(errors, std::vector{url::ValidationError::MissingSchemeNonRelativeUrl});
     });
 
-    etest::test("URL normalization: uppercasing percent-encoded triplets", [] {
+    s.add_test("URL normalization: uppercasing percent-encoded triplets", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("http://example.com/foo%2a");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->serialize(false, true), "http://example.com/foo%2A");
+        a.expect_eq(url->serialize(false, true), "http://example.com/foo%2A");
     });
 
-    etest::test("URL normalization: lowercasing scheme and host", [] {
+    s.add_test("URL normalization: lowercasing scheme and host", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("HTTP://User@Example.COM/Foo");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->serialize(), "http://User@example.com/Foo");
+        a.expect_eq(url->serialize(), "http://User@example.com/Foo");
     });
 
-    etest::test("URL normalization: decoding percent-encoded triplets of unreserved characters", [] {
+    s.add_test("URL normalization: decoding percent-encoded triplets of unreserved characters", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("http://example.com/%7Efoo");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->serialize(false, true), "http://example.com/~foo");
+        a.expect_eq(url->serialize(false, true), "http://example.com/~foo");
     });
 
-    etest::test("URL normalization: removing dot-segments", [] {
+    s.add_test("URL normalization: removing dot-segments", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("http://example.com/foo/./bar/baz/../qux");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->serialize(), "http://example.com/foo/bar/qux");
+        a.expect_eq(url->serialize(), "http://example.com/foo/bar/qux");
     });
 
-    etest::test("URL normalization: converting empty path to '/'", [] {
+    s.add_test("URL normalization: converting empty path to '/'", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("http://example.com");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->serialize(), "http://example.com/");
+        a.expect_eq(url->serialize(), "http://example.com/");
     });
 
-    etest::test("URL normalization: removing default port", [] {
+    s.add_test("URL normalization: removing default port", [](etest::IActions &a) {
         url::UrlParser p;
 
         std::optional<url::Url> url = p.parse("http://example.com:80/");
 
-        etest::require(url.has_value());
+        a.require(url.has_value());
 
-        etest::expect_eq(url->serialize(), "http://example.com/");
+        a.expect_eq(url->serialize(), "http://example.com/");
     });
 
     // NOLINTBEGIN(misc-include-cleaner): What you're meant to include from
     // simdjson depends on things like the architecture you're compiling for.
     // This is handled automagically with detection macros inside simdjson.
-    etest::test("Web Platform Tests", [] {
+    s.add_test("Web Platform Tests", [](etest::IActions &a) {
         url::UrlParser p;
 
         simdjson::ondemand::parser parser;
@@ -807,7 +808,7 @@ int main() {
                 base_test = p.parse(std::string{base_str});
 
                 if (!should_fail) {
-                    etest::expect(base_test.has_value(), "Parsing base URL:(" + std::string{base_str} + ") failed");
+                    a.expect(base_test.has_value(), "Parsing base URL:(" + std::string{base_str} + ") failed");
 
                     continue;
                 }
@@ -817,13 +818,13 @@ int main() {
             std::optional<url::Url> url = p.parse(std::string{input}, base_test);
 
             if (!should_fail) {
-                etest::expect(url.has_value(), "Parsing input URL:(" + std::string{input} + ") failed");
+                a.expect(url.has_value(), "Parsing input URL:(" + std::string{input} + ") failed");
 
                 if (!url.has_value()) {
                     continue;
                 }
             } else {
-                etest::require(!url.has_value(),
+                a.require(!url.has_value(),
                         "Parsing input URL:(" + std::string{input} + ") succeeded when it was supposed to fail");
 
                 // If this test was an expected failure, test ends here
@@ -833,50 +834,48 @@ int main() {
             // Check URL fields against test
 
             std::string_view href = obj["href"];
-            etest::expect_eq(url->serialize(), href);
+            a.expect_eq(url->serialize(), href);
 
             if (obj.find_field("failure").error() != simdjson::error_code::NO_SUCH_FIELD) {
                 std::string_view origin = obj["origin"];
 
-                etest::expect_eq(url->origin().serialize(), origin);
+                a.expect_eq(url->origin().serialize(), origin);
             }
 
             std::string_view protocol = obj["protocol"];
-            etest::expect_eq(url->scheme + ":", protocol);
+            a.expect_eq(url->scheme + ":", protocol);
 
             std::string_view username = obj["username"];
-            etest::expect_eq(url->user, username);
+            a.expect_eq(url->user, username);
 
             std::string_view password = obj["password"];
-            etest::expect_eq(url->passwd, password);
+            a.expect_eq(url->passwd, password);
 
             std::string_view hostname = obj["hostname"];
-            etest::expect_eq(url->host.has_value() ? url->host->serialize() : "", hostname);
+            a.expect_eq(url->host.has_value() ? url->host->serialize() : "", hostname);
 
             std::string_view host = obj["host"];
             std::string host_serialized = url->host.has_value() ? url->host->serialize() : "";
             std::string host_port = url->port.has_value() ? std::string{":"} + std::to_string(*url->port) : "";
-            etest::expect_eq(host_serialized + host_port, host);
+            a.expect_eq(host_serialized + host_port, host);
 
             std::string_view port = obj["port"];
-            etest::expect_eq(url->port.has_value() ? std::to_string(*url->port) : "", port);
+            a.expect_eq(url->port.has_value() ? std::to_string(*url->port) : "", port);
 
             std::string_view pathname = obj["pathname"];
-            etest::expect_eq(url->serialize_path(), pathname);
+            a.expect_eq(url->serialize_path(), pathname);
 
             std::string_view search = obj["search"];
-            etest::expect_eq(
-                    url->query.has_value() && !url->query->empty() ? std::string{"?"} + *url->query : "", search);
+            a.expect_eq(url->query.has_value() && !url->query->empty() ? std::string{"?"} + *url->query : "", search);
 
             std::string_view hash = obj["hash"];
-            etest::expect_eq(
-                    url->fragment.has_value() && !url->fragment->empty() ? std::string{"#"} + *url->fragment : "",
+            a.expect_eq(url->fragment.has_value() && !url->fragment->empty() ? std::string{"#"} + *url->fragment : "",
                     hash);
         }
     });
     // NOLINTEND(misc-include-cleaner)
 
-    int ret = etest::run_all_tests();
+    int ret = s.run();
 
     url::icu_cleanup();
 

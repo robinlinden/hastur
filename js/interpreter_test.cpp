@@ -6,7 +6,7 @@
 
 #include "js/ast.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <cstddef>
 #include <memory>
@@ -15,18 +15,17 @@
 #include <utility>
 
 using namespace js::ast;
-using etest::expect;
-using etest::expect_eq;
-using etest::require_eq;
 
 int main() {
-    etest::test("literals", [] {
+    etest::Suite s{};
+
+    s.add_test("literals", [](etest::IActions &a) {
         Interpreter e;
-        expect_eq(e.execute(NumericLiteral{5.}), Value{5.});
-        expect_eq(e.execute(StringLiteral{"hello"}), Value{"hello"});
+        a.expect_eq(e.execute(NumericLiteral{5.}), Value{5.});
+        a.expect_eq(e.execute(StringLiteral{"hello"}), Value{"hello"});
     });
 
-    etest::test("binary expression, plus", [] {
+    s.add_test("binary expression, plus", [](etest::IActions &a) {
         auto plus_expr = BinaryExpression{
                 .op = BinaryOperator::Plus,
                 .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
@@ -34,10 +33,10 @@ int main() {
         };
 
         Interpreter e;
-        expect_eq(e.execute(plus_expr), Value{42.});
+        a.expect_eq(e.execute(plus_expr), Value{42.});
     });
 
-    etest::test("binary expression, identifiers", [] {
+    s.add_test("binary expression, identifiers", [](etest::IActions &a) {
         auto plus_expr = BinaryExpression{
                 .op = BinaryOperator::Plus,
                 .lhs = std::make_shared<Expression>(Identifier{"eleven"}),
@@ -47,10 +46,10 @@ int main() {
         Interpreter e;
         e.variables["eleven"] = Value{11.};
         e.variables["thirtyone"] = Value{31.};
-        expect_eq(e.execute(plus_expr), Value{42.});
+        a.expect_eq(e.execute(plus_expr), Value{42.});
     });
 
-    etest::test("binary expression, minus", [] {
+    s.add_test("binary expression, minus", [](etest::IActions &a) {
         auto minus_expr = BinaryExpression{
                 .op = BinaryOperator::Minus,
                 .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
@@ -58,16 +57,16 @@ int main() {
         };
 
         Interpreter e;
-        expect_eq(e.execute(minus_expr), Value{-20.});
+        a.expect_eq(e.execute(minus_expr), Value{-20.});
     });
 
-    etest::test("the ast is copyable", [] {
+    s.add_test("the ast is copyable", [](etest::IActions &) {
         Program p1;
         auto p2 = p1; // NOLINT(performance-unnecessary-copy-initialization)
         std::ignore = p2;
     });
 
-    etest::test("variable declaration", [] {
+    s.add_test("variable declaration", [](etest::IActions &a) {
         auto declaration = VariableDeclaration{{
                 VariableDeclarator{
                         .id = Identifier{"a"},
@@ -76,11 +75,11 @@ int main() {
         }};
 
         Interpreter e;
-        expect_eq(e.execute(declaration), Value{});
-        expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
+        a.expect_eq(e.execute(declaration), Value{});
+        a.expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
     });
 
-    etest::test("function call, arguments", [] {
+    s.add_test("function call, arguments", [](etest::IActions &a) {
         auto function_body = ReturnStatement{BinaryExpression{
                 .op = BinaryOperator::Plus,
                 .lhs = std::make_shared<Expression>(Identifier{"one"}),
@@ -104,14 +103,14 @@ int main() {
         };
 
         Interpreter e;
-        expect_eq(e.execute(declaration), Value{});
-        expect_eq(e.execute(call), Value{13. + 4.});
+        a.expect_eq(e.execute(declaration), Value{});
+        a.expect_eq(e.execute(call), Value{13. + 4.});
 
         // The only variable in scope should be the function we declared.
-        expect_eq(e.variables.size(), std::size_t{1});
+        a.expect_eq(e.variables.size(), std::size_t{1});
     });
 
-    etest::test("member expression", [] {
+    s.add_test("member expression", [](etest::IActions &a) {
         Interpreter e;
         e.variables["obj"] = Value{Object{{"hello", Value{5.}}}};
 
@@ -120,10 +119,10 @@ int main() {
                 .property = Identifier{"hello"},
         };
 
-        expect_eq(e.execute(member_expr), Value{5.});
+        a.expect_eq(e.execute(member_expr), Value{5.});
     });
 
-    etest::test("return, values are returned", [] {
+    s.add_test("return, values are returned", [](etest::IActions &a) {
         auto declaration = FunctionDeclaration{
                 .id = Identifier{"func"},
                 .function = std::make_shared<Function>(Function{
@@ -135,11 +134,11 @@ int main() {
         auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
 
         Interpreter e;
-        expect_eq(e.execute(declaration), Value{});
-        expect_eq(e.execute(call), Value{42.});
+        a.expect_eq(e.execute(declaration), Value{});
+        a.expect_eq(e.execute(call), Value{42.});
     });
 
-    etest::test("return, function execution is ended", [] {
+    s.add_test("return, function execution is ended", [](etest::IActions &a) {
         auto declaration = FunctionDeclaration{
                 .id = Identifier{"func"},
                 .function = std::make_shared<Function>(Function{
@@ -154,11 +153,11 @@ int main() {
         auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
 
         Interpreter e;
-        expect_eq(e.execute(declaration), Value{});
-        expect_eq(e.execute(call), Value{});
+        a.expect_eq(e.execute(declaration), Value{});
+        a.expect_eq(e.execute(call), Value{});
     });
 
-    etest::test("return, function execution is ended even in while", [] {
+    s.add_test("return, function execution is ended even in while", [](etest::IActions &a) {
         auto declaration = FunctionDeclaration{
                 .id = Identifier{"func"},
                 .function = std::make_shared<Function>(Function{
@@ -176,30 +175,30 @@ int main() {
         auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
 
         Interpreter e;
-        expect_eq(e.execute(declaration), Value{});
-        expect_eq(e.execute(call), Value{37.});
+        a.expect_eq(e.execute(declaration), Value{});
+        a.expect_eq(e.execute(call), Value{37.});
     });
 
-    etest::test("expression statement", [] {
+    s.add_test("expression statement", [](etest::IActions &a) {
         Interpreter e;
-        expect_eq(e.execute(ExpressionStatement{StringLiteral{"hi"}}), Value{"hi"});
-        expect_eq(e.execute(ExpressionStatement{NumericLiteral{1213}}), Value{1213});
+        a.expect_eq(e.execute(ExpressionStatement{StringLiteral{"hi"}}), Value{"hi"});
+        a.expect_eq(e.execute(ExpressionStatement{NumericLiteral{1213}}), Value{1213});
     });
 
-    etest::test("if", [] {
+    s.add_test("if", [](etest::IActions &a) {
         auto if_stmt = IfStatement{
                 .test = NumericLiteral{1},
                 .if_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"true!"}}),
         };
 
         Interpreter e;
-        expect_eq(e.execute(if_stmt), Value{"true!"});
+        a.expect_eq(e.execute(if_stmt), Value{"true!"});
 
         if_stmt.test = NumericLiteral{0};
-        expect_eq(e.execute(if_stmt), Value{});
+        a.expect_eq(e.execute(if_stmt), Value{});
     });
 
-    etest::test("if-else", [] {
+    s.add_test("if-else", [](etest::IActions &a) {
         auto if_stmt = IfStatement{
                 .test = NumericLiteral{1},
                 .if_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"true!"}}),
@@ -207,18 +206,18 @@ int main() {
         };
 
         Interpreter e;
-        expect_eq(e.execute(if_stmt), Value{"true!"});
+        a.expect_eq(e.execute(if_stmt), Value{"true!"});
 
         if_stmt.test = NumericLiteral{0};
-        expect_eq(e.execute(if_stmt), Value{"false!"});
+        a.expect_eq(e.execute(if_stmt), Value{"false!"});
     });
 
-    etest::test("native function", [] {
+    s.add_test("native function", [](etest::IActions &a) {
         Interpreter e;
 
         std::string argument{};
         e.variables["set_string_and_get_42"] = Value{NativeFunction{[&](auto args) {
-            require_eq(args.size(), std::size_t{1});
+            a.require_eq(args.size(), std::size_t{1});
             argument = args[0].as_string();
             return Value{42};
         }}};
@@ -228,22 +227,22 @@ int main() {
                 .arguments{std::make_shared<Expression>(StringLiteral{"did it!"})},
         };
 
-        expect_eq(e.execute(call), Value{42});
-        expect_eq(argument, "did it!");
+        a.expect_eq(e.execute(call), Value{42});
+        a.expect_eq(argument, "did it!");
     });
 
-    etest::test("empty statement", [] {
+    s.add_test("empty statement", [](etest::IActions &a) {
         Interpreter e;
-        expect_eq(e.execute(EmptyStatement{}), Value{});
-        expect(e.variables.empty());
+        a.expect_eq(e.execute(EmptyStatement{}), Value{});
+        a.expect(e.variables.empty());
     });
 
-    etest::test("while statement", [] {
+    s.add_test("while statement", [](etest::IActions &a) {
         Interpreter e;
 
         int loop_count{};
         e.variables["should_continue"] = Value{NativeFunction{[&](auto const &args) {
-            expect_eq(args.size(), std::size_t{0});
+            a.expect_eq(args.size(), std::size_t{0});
             // TODO(robinlinden): We don't have bool values yet.
             return Value{++loop_count < 3 ? 1. : 0.};
         }}};
@@ -253,9 +252,9 @@ int main() {
                 .body = std::make_shared<Statement>(EmptyStatement{}),
         };
 
-        expect_eq(e.execute(while_loop), Value{});
-        expect_eq(loop_count, 3);
+        a.expect_eq(e.execute(while_loop), Value{});
+        a.expect_eq(loop_count, 3);
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
