@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021-2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 int main() {
-    etest::test("this should fail", [] { etest::expect_eq(1, 2); });
-    return etest::run_all_tests();
+    etest::Suite s{};
+    s.add_test("this should fail", [](etest::IActions &a) { a.expect_eq(1, 2); });
+    return s.run();
 }

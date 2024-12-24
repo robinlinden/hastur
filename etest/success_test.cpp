@@ -1,13 +1,14 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 int main() {
-    etest::test("expect", [] { etest::expect(true); });
-    etest::test("expect_eq", [] { etest::expect_eq(1, 1); });
-    etest::test("require", [] { etest::require(true); });
-    etest::test("require_eq", [] { etest::require_eq(1, 1); });
-    return etest::run_all_tests();
+    etest::Suite s{};
+    s.add_test("expect", [](etest::IActions &a) { a.expect(true); });
+    s.add_test("expect_eq", [](etest::IActions &a) { a.expect_eq(1, 1); });
+    s.add_test("require", [](etest::IActions &a) { a.require(true); });
+    s.add_test("require_eq", [](etest::IActions &a) { a.require_eq(1, 1); });
+    return s.run();
 }

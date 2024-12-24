@@ -8,7 +8,7 @@
 #include "gfx/font.h"
 #include "gfx/icanvas.h"
 
-#include "etest/etest.h"
+#include "etest/etest2.h"
 
 #include <string>
 #include <string_view>
@@ -17,56 +17,56 @@
 using namespace gfx;
 using namespace std::literals;
 
-using etest::expect_eq;
-
 using CanvasCommands = std::vector<CanvasCommand>;
 
 int main() {
-    etest::test("CanvasCommandSaver::take_commands", [] {
+    etest::Suite s{};
+
+    s.add_test("CanvasCommandSaver::take_commands", [](etest::IActions &a) {
         CanvasCommandSaver saver;
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        a.expect_eq(saver.take_commands(), CanvasCommands{});
 
         saver.set_scale(1);
-        expect_eq(saver.take_commands(), CanvasCommands{SetScaleCmd{1}});
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        a.expect_eq(saver.take_commands(), CanvasCommands{SetScaleCmd{1}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{});
 
         saver.set_scale(1);
         saver.set_scale(1);
-        expect_eq(saver.take_commands(), CanvasCommands{SetScaleCmd{1}, SetScaleCmd{1}});
-        expect_eq(saver.take_commands(), CanvasCommands{});
+        a.expect_eq(saver.take_commands(), CanvasCommands{SetScaleCmd{1}, SetScaleCmd{1}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{});
     });
 
-    etest::test("CanvasCommandSaver::set_viewport_size", [] {
+    s.add_test("CanvasCommandSaver::set_viewport_size", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.set_viewport_size(5, 15);
-        expect_eq(saver.take_commands(), CanvasCommands{SetViewportSizeCmd{5, 15}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{SetViewportSizeCmd{5, 15}});
     });
 
-    etest::test("CanvasCommandSaver::set_scale", [] {
+    s.add_test("CanvasCommandSaver::set_scale", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.set_scale(1000);
-        expect_eq(saver.take_commands(), CanvasCommands{SetScaleCmd{1000}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{SetScaleCmd{1000}});
     });
 
-    etest::test("CanvasCommandSaver::add_translation", [] {
+    s.add_test("CanvasCommandSaver::add_translation", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.add_translation(-10, 10);
-        expect_eq(saver.take_commands(), CanvasCommands{AddTranslationCmd{-10, 10}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{AddTranslationCmd{-10, 10}});
     });
 
-    etest::test("CanvasCommandSaver::clear", [] {
+    s.add_test("CanvasCommandSaver::clear", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.clear({0xab, 0xcd, 0xef});
-        expect_eq(saver.take_commands(), CanvasCommands{ClearCmd{{0xab, 0xcd, 0xef}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{ClearCmd{{0xab, 0xcd, 0xef}}});
     });
 
-    etest::test("CanvasCommandSaver::fill_rect", [] {
+    s.add_test("CanvasCommandSaver::fill_rect", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.fill_rect({1, 2, 3, 4}, {0xab, 0xcd, 0xef});
-        expect_eq(saver.take_commands(), CanvasCommands{FillRectCmd{{1, 2, 3, 4}, {0xab, 0xcd, 0xef}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{FillRectCmd{{1, 2, 3, 4}, {0xab, 0xcd, 0xef}}});
     });
 
-    etest::test("CanvasCommandSaver::draw_border", [] {
+    s.add_test("CanvasCommandSaver::draw_border", [](etest::IActions &a) {
         CanvasCommandSaver saver;
 
         Borders borders;
@@ -86,28 +86,28 @@ int main() {
         corners.bottom_right = {7, 8};
 
         saver.draw_rect({1, 2, 3, 4}, {0xFF, 0xAA, 0xFF}, borders, corners);
-        expect_eq(
+        a.expect_eq(
                 saver.take_commands(), CanvasCommands{DrawRectCmd{{1, 2, 3, 4}, {0xFF, 0xAA, 0xFF}, borders, corners}});
     });
 
-    etest::test("CanvasCommandSaver::draw_text", [] {
+    s.add_test("CanvasCommandSaver::draw_text", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.draw_text({1, 2}, "hello!"sv, {"comic sans"}, {11}, {}, {1, 2, 3});
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{DrawTextCmd{{1, 2}, "hello!"s, {"comic sans"}, 11, {}, {1, 2, 3}}});
 
         saver.draw_text({1, 2}, "hello!"sv, std::vector<gfx::Font>{{"comic sans"}}, {11}, {}, {1, 2, 3});
-        expect_eq(saver.take_commands(),
+        a.expect_eq(saver.take_commands(),
                 CanvasCommands{DrawTextWithFontOptionsCmd{{1, 2}, "hello!"s, {{"comic sans"}}, 11, {}, {1, 2, 3}}});
     });
 
-    etest::test("CanvasCommandSaver::draw_pixels", [] {
+    s.add_test("CanvasCommandSaver::draw_pixels", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.draw_pixels({1, 2, 3, 4}, {{0x12, 0x34, 0x56, 0x78}});
-        expect_eq(saver.take_commands(), CanvasCommands{DrawPixelsCmd{{1, 2, 3, 4}, {0x12, 0x34, 0x56, 0x78}}});
+        a.expect_eq(saver.take_commands(), CanvasCommands{DrawPixelsCmd{{1, 2, 3, 4}, {0x12, 0x34, 0x56, 0x78}}});
     });
 
-    etest::test("replay_commands", [] {
+    s.add_test("replay_commands", [](etest::IActions &a) {
         CanvasCommandSaver saver;
         saver.clear(gfx::Color{});
         saver.set_scale(10);
@@ -126,8 +126,8 @@ int main() {
         CanvasCommandSaver replayed;
         replay_commands(replayed, cmds);
 
-        expect_eq(cmds, replayed.take_commands());
+        a.expect_eq(cmds, replayed.take_commands());
     });
 
-    return etest::run_all_tests();
+    return s.run();
 }
