@@ -320,7 +320,7 @@ jobs:
           wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v7.3.1/buildifier-linux-amd64
           sudo chmod +x buildifier
       - name: Check
-        run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl")
+        run: ./buildifier --lint=warn --warnings=all -mode diff WORKSPACE $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl" -or -iname "*.bazel")
 
   prettier:
     runs-on: ubuntu-24.04

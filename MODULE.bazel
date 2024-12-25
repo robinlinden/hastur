@@ -56,7 +56,10 @@ archive_override(
 )
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(python_version = "3.12.3", is_default = True)
+python.toolchain(
+    is_default = True,
+    python_version = "3.12.3",
+)
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
@@ -78,16 +81,16 @@ archive_override(
 # https://github.com/bazelbuild/rules_pkg
 archive_override(
     module_name = "rules_pkg",
-    urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/1.0.1/rules_pkg-1.0.1.tar.gz"],
     integrity = "sha256-0gyVGWDtd8t7NBwqWUiFNOSU1a0dMMSBjHNtV3cqn+8=",
+    urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/1.0.1/rules_pkg-1.0.1.tar.gz"],
 )
 
 # https://github.com/bazelbuild/rules_proto
 archive_override(
     module_name = "rules_proto",
+    integrity = "sha256-FKIlhwq06RhpZSz9ae8gKCd/wdxJENZdNTti1uCuIfQ=",
     strip_prefix = "rules_proto-7.1.0",
     urls = ["https://github.com/bazelbuild/rules_proto/releases/download/7.1.0/rules_proto-7.1.0.tar.gz"],
-    integrity = "sha256-FKIlhwq06RhpZSz9ae8gKCd/wdxJENZdNTti1uCuIfQ=",
 )
 
 # https://github.com/bazelbuild/rules_shell
@@ -109,37 +112,38 @@ archive_override(
 # https://github.com/bazelbuild/rules_android
 archive_override(
     module_name = "rules_android",
+    integrity = "sha256-r4S2mrPRbdGkEFYobmUR8UepTM6plWA+E+k0yRXBYxw=",
     strip_prefix = "rules_android-0.6.0",
     urls = ["https://github.com/bazelbuild/rules_android/releases/download/v0.6.0/rules_android-v0.6.0.tar.gz"],
-    integrity = "sha256-r4S2mrPRbdGkEFYobmUR8UepTM6plWA+E+k0yRXBYxw=",
 )
 
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.9.6/rules_kotlin-v1.9.6.tar.gz"],
     integrity = "sha256-O3cpdv7Hvc2h2EudObF2WJQkwEfrIXW+0JqsYw5Qr0M=",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.9.6/rules_kotlin-v1.9.6.tar.gz"],
 )
 
 # https://github.com/bazelbuild/stardoc
 archive_override(
     module_name = "stardoc",
-    urls = ["https://github.com/bazelbuild/stardoc/releases/download/0.7.2/stardoc-0.7.2.tar.gz"],
     integrity = "sha256-Dh7UqY8m5xh3a9ZNBT0CuzTZhXLM0D1ro1URKhIFcGs=",
+    urls = ["https://github.com/bazelbuild/stardoc/releases/download/0.7.2/stardoc-0.7.2.tar.gz"],
 )
 
 # https://github.com/bazelbuild/bazel-worker-api
 archive_override(
     module_name = "bazel_worker_api",
+    integrity = "sha256-ebMLzauMsNzhUjso/3mAZ0GXFfVUCopEa7zPOT5et5w=",
     strip_prefix = "bazel-worker-api-0.0.4/proto",
     urls = ["https://github.com/bazelbuild/bazel-worker-api/releases/download/v0.0.4/bazel-worker-api-v0.0.4.tar.gz"],
-    integrity = "sha256-ebMLzauMsNzhUjso/3mAZ0GXFfVUCopEa7zPOT5et5w=",
 )
+
 archive_override(
     module_name = "bazel_worker_java",
+    integrity = "sha256-ebMLzauMsNzhUjso/3mAZ0GXFfVUCopEa7zPOT5et5w=",
     strip_prefix = "bazel-worker-api-0.0.4/java",
     urls = ["https://github.com/bazelbuild/bazel-worker-api/releases/download/v0.0.4/bazel-worker-api-v0.0.4.tar.gz"],
-    integrity = "sha256-ebMLzauMsNzhUjso/3mAZ0GXFfVUCopEa7zPOT5et5w=",
 )
 
 # Bazel contrib
@@ -170,9 +174,9 @@ archive_override(
 # https://github.com/bazel-contrib/rules_jvm_external
 archive_override(
     module_name = "rules_jvm_external",
+    integrity = "sha256-Ov5RlQab03k3NSiJnAOjBy9WjTO9lv4De9Q7H1kFNec=",
     strip_prefix = "rules_jvm_external-6.6",
     urls = ["https://github.com/bazel-contrib/rules_jvm_external/releases/download/6.6/rules_jvm_external-6.6.tar.gz"],
-    integrity = "sha256-Ov5RlQab03k3NSiJnAOjBy9WjTO9lv4De9Q7H1kFNec=",
 )
 
 # Other Bazel-required dependencies
@@ -181,9 +185,9 @@ archive_override(
 # https://github.com/robolectric/robolectric-bazel
 archive_override(
     module_name = "rules_robolectric",
+    integrity = "sha256-stIWS66A/PvdB46y8JNboGVXQCuMgUko2eO+xzWOK3s=",
     strip_prefix = "robolectric-bazel-4.14.1.2",
     urls = ["https://github.com/robolectric/robolectric-bazel/releases/download/4.14.1.2/robolectric-bazel-4.14.1.2.tar.gz"],
-    integrity = "sha256-stIWS66A/PvdB46y8JNboGVXQCuMgUko2eO+xzWOK3s=",
 )
 
 # https://github.com/fmeum/buildozer
@@ -197,9 +201,9 @@ archive_override(
 # https://github.com/google/googletest
 archive_override(
     module_name = "googletest",
-    urls = ["https://github.com/google/googletest/releases/download/v1.15.2/googletest-1.15.2.tar.gz"],
-    strip_prefix = "googletest-1.15.2",
     integrity = "sha256-e0K01u1IgQxTYsJloX+uvpDcI3PIheUhZDnTeSfwKSY=",
+    strip_prefix = "googletest-1.15.2",
+    urls = ["https://github.com/google/googletest/releases/download/v1.15.2/googletest-1.15.2.tar.gz"],
 )
 
 # https://github.com/protocolbuffers/protobuf
@@ -221,43 +225,43 @@ archive_override(
 # https://github.com/abseil/abseil-py
 archive_override(
     module_name = "abseil-py",
-    strip_prefix = "abseil-py-2.1.0",
-    urls = ["https://github.com/abseil/abseil-py/archive/v2.1.0.tar.gz"],
     integrity = "sha256-ij0IMOTrT2bE+pB8Bu32zhxxnO2BGhLibZ0xYvhHF1g=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "abseil-py")
 EOF""",
     ],
+    strip_prefix = "abseil-py-2.1.0",
+    urls = ["https://github.com/abseil/abseil-py/archive/v2.1.0.tar.gz"],
 )
 
 # https://github.com/open-source-parsers/jsoncpp
 archive_override(
     module_name = "jsoncpp",
-    strip_prefix = "jsoncpp-1.9.6",
-    urls = ["https://github.com/open-source-parsers/jsoncpp/archive/1.9.6.tar.gz"],
     integrity = "sha256-+Ttt1855axPQLBCLyfeYEiRaguV3WBxMmqvlcHXJDqI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "jsoncpp")
 EOF""",
     ],
+    strip_prefix = "jsoncpp-1.9.6",
+    urls = ["https://github.com/open-source-parsers/jsoncpp/archive/1.9.6.tar.gz"],
 )
 
 # https://github.com/google/re2
 archive_override(
     module_name = "re2",
+    integrity = "sha256-6y34B8eBYBwUomClB6W7RQm+HuYmAky0WsvVfLnUAys=",
     strip_prefix = "re2-2024-07-02",
     urls = ["https://github.com/google/re2/releases/download/2024-07-02/re2-2024-07-02.tar.gz"],
-    integrity = "sha256-6y34B8eBYBwUomClB6W7RQm+HuYmAky0WsvVfLnUAys=",
 )
 
 # https://github.com/pybind/pybind11_bazel
 archive_override(
     module_name = "pybind11_bazel",
+    integrity = "sha256-yuaAZwv6boJwPAPyo8mVQIzcv0NhbXvdGY70XTwydzE=",
     strip_prefix = "pybind11_bazel-2.13.6",
     urls = ["https://github.com/pybind/pybind11_bazel/releases/download/v2.13.6/pybind11_bazel-2.13.6.tar.gz"],
-    integrity = "sha256-yuaAZwv6boJwPAPyo8mVQIzcv0NhbXvdGY70XTwydzE=",
 )
 
 # Third-party
@@ -278,8 +282,6 @@ archive_override(
     module_name = "zlib",
     build_file = "//third_party:zlib.BUILD",
     integrity = "sha256-F+iIY/NgBnKrSRgvIXKBtvxNPHYr3jYZNeQ2qVIU0Fw=",
-    strip_prefix = "zlib-1.3.1",
-    urls = ["https://github.com/madler/zlib/archive/v1.3.1.tar.gz"],
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "zlib")
@@ -287,4 +289,6 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "platforms")
 EOF""",
     ],
+    strip_prefix = "zlib-1.3.1",
+    urls = ["https://github.com/madler/zlib/archive/v1.3.1.tar.gz"],
 )
