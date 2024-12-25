@@ -49,7 +49,8 @@ cc_library(
         "include/SFML/*",
         "include/SFML/System/*",
     ]),
-    copts = ["-Iexternal/sfml/src/"],
+    # TODO(robinlinden): Make nicer.
+    copts = ["-Iexternal/sfml+/src/"],
     defines = SFML_DEFINES,
     linkopts = select({
         "@platforms//os:linux": [
@@ -100,7 +101,8 @@ cc_library(
         ]),
     }),
     hdrs = glob(["include/SFML/Window/*"]),
-    copts = ["-Iexternal/sfml/src/"],
+    # TODO(robinlinden): Make nicer.
+    copts = ["-Iexternal/sfml+/src/"],
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
     linkopts = select({
@@ -153,8 +155,9 @@ objc_library(
         ],
     ),
     hdrs = glob(["include/SFML/Window/*"]),
+    # TODO(robinlinden): Make nicer.
     copts = [
-        "-Iexternal/sfml/src/",
+        "-Iexternal/sfml+/src/",
         "-frtti",
     ],
     defines = SFML_DEFINES,
@@ -189,7 +192,8 @@ cc_library(
         ],
     ),
     hdrs = glob(["include/SFML/Graphics/*"]),
-    copts = ["-Iexternal/sfml/src/"],
+    # TODO(robinlinden): Make nicer.
+    copts = ["-Iexternal/sfml+/src/"],
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
     includes = ["include/"],

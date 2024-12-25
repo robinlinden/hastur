@@ -119,7 +119,7 @@ filegroup(
     name = "run_sprep_" + input.replace(".txt", "").rpartition("/")[2],
     srcs = [input],
     outs = [input.replace("txt", "spp").rpartition("/")[2]],
-    cmd = "./$(location gensprep) --destdir $(RULEDIR) --bundle-name " + input.replace(".txt", "").rpartition("/")[2] + " --norm-correction external/icu/source/data/unidata/ --unicode 15.1.0 $<",
+    cmd = "./$(location gensprep) --destdir $(RULEDIR) --bundle-name " + input.replace(".txt", "").rpartition("/")[2] + " --norm-correction external/icu+/source/data/unidata/ --unicode 15.1.0 $<",
     tools = [
         ":gensprep",
         ":normalizations",

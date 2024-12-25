@@ -5,6 +5,7 @@ py_console_script_binary(
     name = "run_glad",
     pkg = "@pypi//glad2",
     script = "glad",
+    tags = ["no-cross"],
 )
 
 # gl:core=3.1 is the last core profile that supports deprecated functions like
@@ -23,6 +24,7 @@ genrule(
     name = "generate_glad",
     outs = GLAD_HDRS + GLAD_SRCS,
     cmd = GLAD_CMD + "mv $(RULEDIR)/include/* $(RULEDIR)",
+    tags = ["no-cross"],
     tools = [":run_glad"],
 )
 
@@ -31,6 +33,7 @@ cc_library(
     srcs = GLAD_SRCS,
     hdrs = GLAD_HDRS,
     includes = ["."],
+    tags = ["no-cross"],
     target_compatible_with = select({
         "@platforms//os:wasi": ["@platforms//:incompatible"],
         "//conditions:default": [],

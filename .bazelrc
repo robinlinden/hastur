@@ -1,8 +1,6 @@
 # Bazel configuration
 # =========================================================
 
-common --enable_workspace
-
 # We handle hermeticity by explicitly specifying dependencies instead of using
 # the lockfile system.
 common --lockfile_mode=off

@@ -1,0 +1,10 @@
+""" This comment is required for Buildifier to be happy. """
+
+module(name = "glad2")
+
+bazel_dep(name = "platforms")
+bazel_dep(name = "rules_cc")
+bazel_dep(name = "rules_python")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+use_repo(pip, "pypi")
