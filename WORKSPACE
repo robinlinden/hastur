@@ -1,32 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 
-# Misc tools
-# =========================================================
-
-# HEAD as of 2024-10-28.
-# https://github.com/hedronvision/bazel-compile-commands-extractor
-http_archive(
-    name = "hedron_compile_commands",
-    integrity = "sha256-ZYEiz7HyW+duohKwD16wR9jirci8+SO5GEYfKx43zfI=",
-    patch_cmds = [
-        # .h can also appear as a c_source_extension with the new syntax-checking Bazel does.
-        # See: https://github.com/hedronvision/bazel-compile-commands-extractor/pull/219
-        """sed -i'' -e "s/('.c', '.i')/('.c', '.i', '.h')/" refresh.template.py""",
-    ],
-    strip_prefix = "bazel-compile-commands-extractor-4f28899228fb3ad0126897876f147ca15026151e",
-    url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
-)
-
-# HEAD as of 2024-12-25.
-# https://github.com/erenon/bazel_clang_tidy
-http_archive(
-    name = "bazel_clang_tidy",
-    integrity = "sha256-J3mLoU+AFG6hAR48KPcWGF2z7eb9js3PEBm4sF8AoXY=",
-    strip_prefix = "bazel_clang_tidy-f23d924918c581c68cd5cda5f12b4f8198ac0c35",
-    url = "https://github.com/erenon/bazel_clang_tidy/archive/f23d924918c581c68cd5cda5f12b4f8198ac0c35.tar.gz",
-)
-
 # Third-party
 # =========================================================
 
