@@ -36,6 +36,20 @@ cc_test(
     name = "url_test",
     size = "small",
     srcs = ["url_test.cpp"],
+    copts = HASTUR_COPTS,
+    tags = ["no-cross"],
+    deps = [
+        ":url",
+        "//etest",
+        "@icu//:common",
+    ],
+)
+
+cc_test(
+    name = "wpt_test",
+    size = "small",
+    srcs = ["wpt_test.cpp"],
+    args = ["$(location @wpt//:url/resources/urltestdata.json)"],
     copts = HASTUR_COPTS + select({
         "@platforms//os:windows": [
             "/wd4100",
