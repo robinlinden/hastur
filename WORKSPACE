@@ -1,16 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 
-# Third-party Bazel
-# =========================================================
-
-# https://github.com/uber/hermetic_cc_toolchain
-http_archive(
-    name = "hermetic_cc_toolchain",
-    integrity = "sha256-kHdFv5FVX3foI0wLlTNx5srFunFdHPEv9kFJbdG86dE=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.1.1/hermetic_cc_toolchain-v3.1.1.tar.gz",
-)
-
 # Misc tools
 # =========================================================
 
@@ -317,14 +307,3 @@ http_archive(
     strip_prefix = "zstd-1.5.6",
     url = "https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz",
 )
-
-# Third-party setup
-# =========================================================
-
-# This needs to go last so that we can override any dependencies these calls may
-# pull in.
-
-# hermetic_cc_toolchain
-load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
-
-zig_toolchains()
