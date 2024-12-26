@@ -36,6 +36,10 @@ constexpr bool is_ident_code_point(char c) {
     return is_ident_start_code_point(c) || util::is_digit(c) || c == '-';
 }
 
+constexpr bool is_digit(std::optional<char> c) {
+    return c && util::is_digit(*c);
+}
+
 } // namespace
 
 void Tokenizer::run() {
@@ -105,7 +109,7 @@ void Tokenizer::run() {
                         continue;
                     }
                     case '.': {
-                        if (auto next_input = peek_input(0); next_input && util::is_digit(*next_input)) {
+                        if (auto next_input = peek_input(0); is_digit(next_input)) {
                             auto number = consume_number(*c);
                             emit(NumberToken{number});
                             continue;
@@ -407,13 +411,13 @@ std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
         repr += first_byte;
     }
 
-    for (auto next_input = peek_input(0); next_input && util::is_digit(*next_input); next_input = peek_input(0)) {
+    for (auto next_input = peek_input(0); is_digit(next_input); next_input = peek_input(0)) {
+        assert(next_input); // Guaranteed by is_digit.
         repr += *next_input;
         consume_next_input_character();
     }
 
-    if (!std::holds_alternative<double>(result) && peek_input(0) == '.'
-            && util::is_digit(peek_input(1).value_or('Q'))) {
+    if (!std::holds_alternative<double>(result) && peek_input(0) == '.' && is_digit(peek_input(1))) {
         std::ignore = consume_next_input_character(); // '.'
         auto v = consume_next_input_character();
         assert(v.has_value());
@@ -421,7 +425,8 @@ std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
         repr += *v;
         result = 0.;
 
-        for (auto next_input = peek_input(0); next_input && util::is_digit(*next_input); next_input = peek_input(0)) {
+        for (auto next_input = peek_input(0); is_digit(next_input); next_input = peek_input(0)) {
+            assert(next_input); // Guaranteed by is_digit.
             repr += *next_input;
             consume_next_input_character();
         }
