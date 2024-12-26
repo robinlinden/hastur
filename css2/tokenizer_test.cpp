@@ -479,6 +479,29 @@ int main() {
         expect_token(output, NumberToken{.25});
     });
 
+    s.add_test("number: e notation", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "1e3 1e+3 1e-3 1.0e3 1.0e+3 1.0e-3 5e0 -5e0 -3e2 -3e-2");
+        expect_token(output, NumberToken{1000.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{1000.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{.001});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{1000.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{1000.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{.001});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{5.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{-5.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{-300.});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, NumberToken{-.03});
+    });
+
     // TODO(robinlinden): Look into what this is meant to parse as.
     s.add_test("number: dots and digits shouldn't crash", [](etest::IActions &a) {
         auto output = run_tokenizer(a, ".25.25");

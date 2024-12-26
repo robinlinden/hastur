@@ -432,7 +432,33 @@ std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
         }
     }
 
-    // TODO(robinlinden): Step 5
+    bool const has_e_notation = [&] {
+        if (auto c = peek_input(0); c != 'e' && c != 'E') {
+            return false;
+        }
+
+        if (auto c = peek_input(1); c == '+' || c == '-') {
+            return is_digit(peek_input(2));
+        }
+
+        return is_digit(peek_input(1));
+    }();
+
+    if (has_e_notation) {
+        std::ignore = consume_next_input_character(); // 'e' or 'E'
+        repr += 'e';
+        auto c = consume_next_input_character(); // '+', '-', or a number.
+        assert(c.has_value()); // Guaranteed by has_e_notation.
+        repr += *c;
+
+        result = 0.;
+
+        for (auto next_input = peek_input(0); is_digit(next_input); next_input = peek_input(0)) {
+            assert(next_input); // Guaranteed by is_digit.
+            repr += *next_input;
+            consume_next_input_character();
+        }
+    }
 
     // The tokenizer will verify that this is a number before calling consume_number.
     //
