@@ -19,9 +19,11 @@
 #include <tl/expected.hpp>
 
 #include <cstdint>
+#include <future>
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace browser::gui {
 
@@ -67,6 +69,7 @@ private:
     int process_iterations_{10};
 
     util::History<uri::Uri> browse_history_;
+    std::vector<std::future<engine::Engine::LoadResult>> pending_loads_;
 
     engine::PageState &page() { return *maybe_page_.value(); }
     engine::PageState const &page() const { return *maybe_page_.value(); }
@@ -98,6 +101,7 @@ private:
     void show_render_surface();
 
     void switch_canvas();
+    void start_loading_images();
 
     engine::Options make_options() const;
 };

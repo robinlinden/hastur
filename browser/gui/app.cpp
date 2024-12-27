@@ -44,6 +44,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <format>
+#include <future>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -54,6 +55,7 @@
 #include <thread>
 #include <utility>
 #include <variant>
+#include <vector>
 
 using namespace std::literals;
 
@@ -216,6 +218,38 @@ std::unique_ptr<type::IType> create_font_system() {
     set_up_font("serif", kSerifFontFileNames);
 
     return type;
+}
+
+std::vector<std::string_view> collect_image_urls(
+        layout::LayoutBox const &root, std::span<std::string_view const> file_endings) {
+    std::vector<std::string_view> image_urls;
+
+    std::vector<layout::LayoutBox const *> to_check{&root};
+    while (!to_check.empty()) {
+        auto const *current = to_check.back();
+        to_check.pop_back();
+
+        for (auto const &child : current->children) {
+            to_check.push_back(&child);
+        }
+
+        if (current->is_anonymous_block()) {
+            continue;
+        }
+
+        if (auto const *element = std::get_if<dom::Element>(&current->node->node);
+                element != nullptr && element->name == "img"sv) {
+            if (auto it = element->attributes.find("src"); it != end(element->attributes)) {
+                std::string_view src = it->second;
+                if (std::ranges::any_of(
+                            file_endings, [src](std::string_view ending) { return src.ends_with(ending); })) {
+                    image_urls.push_back(src);
+                }
+            }
+        }
+    }
+
+    return image_urls;
 }
 
 } // namespace
@@ -467,6 +501,7 @@ void App::navigate() {
 
     spdlog::info("Navigating to '{}'", uri->uri);
     browse_history_.push(*uri);
+    pending_loads_.clear();
     maybe_page_ = engine_.navigate(*std::move(uri), make_options());
 
     // Make sure the displayed url is still correct if we followed any redirects.
@@ -577,6 +612,8 @@ void App::on_page_loaded() {
         window_.setIcon({favicon.getSize().x, favicon.getSize().y}, favicon.getPixelsPtr());
         break;
     }
+
+    start_loading_images();
 
     on_layout_updated();
 }
@@ -750,6 +787,30 @@ void App::switch_canvas() {
     canvas_->set_scale(scale_);
     auto [width, height] = window_.getSize();
     canvas_->set_viewport_size(width, height);
+}
+
+void App::start_loading_images() {
+    if (auto const &layout = page().layout; layout.has_value()) {
+        constexpr static auto kSupportedImageTypes = std::to_array<std::string_view>({".png"sv});
+        auto image_urls = collect_image_urls(*layout, kSupportedImageTypes);
+        for (auto const &url : image_urls) {
+            auto uri = uri::Uri::parse(std::string{url}, page().uri);
+            if (!uri) {
+                spdlog::warn("Unable to parse image uri '{}'", url);
+                continue;
+            }
+
+            pending_loads_.push_back(std::async(std::launch::async, [this, uri = std::move(*uri)] {
+                spdlog::info("Loading image from '{}'", uri.uri);
+                auto start_time = std::chrono::steady_clock::now();
+                auto res = engine_.load(uri);
+                auto end_time = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+                spdlog::info("Loaded image from '{}' in {}ms", uri.uri, duration.count());
+                return res;
+            }));
+        }
+    }
 }
 
 engine::Options App::make_options() const {
