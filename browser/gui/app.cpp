@@ -363,6 +363,16 @@ void App::step() {
                     spdlog::info("Switched canvas to {}", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML");
                     break;
                 }
+                case sf::Keyboard::Key::F3: {
+                    load_images_ = !load_images_;
+                    if (load_images_ && maybe_page_) {
+                        start_loading_images();
+                    } else {
+                        pending_loads_.clear();
+                    }
+                    spdlog::info("Load images: {}", load_images_);
+                    break;
+                }
                 case sf::Keyboard::Key::F4: {
                     display_debug_gui_ = !display_debug_gui_;
                     spdlog::info("Display debug gui: {}", display_debug_gui_);
@@ -613,7 +623,9 @@ void App::on_page_loaded() {
         break;
     }
 
-    start_loading_images();
+    if (load_images_) {
+        start_loading_images();
+    }
 
     on_layout_updated();
 }

@@ -62,6 +62,7 @@ private:
 
     bool render_debug_{};
     bool display_debug_gui_{};
+    bool load_images_{};
 
     unsigned scale_{1};
 
