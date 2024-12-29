@@ -27,6 +27,11 @@
 
 namespace browser::gui {
 
+struct ResourceResult {
+    std::string resource_id;
+    engine::Engine::LoadResult result;
+};
+
 class App final {
 public:
     App(std::string browser_title, std::string start_page_hint, bool load_start_page);
@@ -70,7 +75,7 @@ private:
     int process_iterations_{10};
 
     util::History<uri::Uri> browse_history_;
-    std::vector<std::future<engine::Engine::LoadResult>> pending_loads_;
+    std::vector<std::future<ResourceResult>> pending_loads_;
 
     engine::PageState &page() { return *maybe_page_.value(); }
     engine::PageState const &page() const { return *maybe_page_.value(); }

@@ -812,15 +812,16 @@ void App::start_loading_images() {
                 continue;
             }
 
-            pending_loads_.push_back(std::async(std::launch::async, [this, uri = std::move(*uri)] {
-                spdlog::info("Loading image from '{}'", uri.uri);
-                auto start_time = std::chrono::steady_clock::now();
-                auto res = engine_.load(uri);
-                auto end_time = std::chrono::steady_clock::now();
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-                spdlog::info("Loaded image from '{}' in {}ms", uri.uri, duration.count());
-                return res;
-            }));
+            pending_loads_.push_back(std::async(
+                    std::launch::async, [this, uri = std::move(*uri), resource_id = std::string{url}]() mutable {
+                        spdlog::info("Loading image from '{}'", uri.uri);
+                        auto start_time = std::chrono::steady_clock::now();
+                        auto res = engine_.load(uri);
+                        auto end_time = std::chrono::steady_clock::now();
+                        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+                        spdlog::info("Loaded image from '{}' in {}ms", uri.uri, duration.count());
+                        return ResourceResult{std::move(resource_id), std::move(res)};
+                    }));
         }
     }
 }
