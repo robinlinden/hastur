@@ -14,6 +14,7 @@
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
 #include "img/png.h"
+#include "layout/layout.h"
 #include "layout/layout_box.h"
 #include "os/system_info.h"
 #include "protocol/handler_factory.h"
@@ -259,7 +260,15 @@ std::vector<std::string_view> collect_image_urls(
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
     : engine_{std::make_unique<protocol::InMemoryCache>(protocol::HandlerFactory::create(
                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0")),
-              create_font_system()},
+              create_font_system(),
+              [this](std::string_view url) -> std::optional<layout::Size> {
+                  auto it = images_.find(url);
+                  if (it == end(images_)) {
+                      return std::nullopt;
+                  }
+
+                  return layout::Size{static_cast<int>(it->second.width), static_cast<int>(it->second.height)};
+              }},
       browser_title_{std::move(browser_title)},
       window_{sf::VideoMode({kDefaultResolutionX, kDefaultResolutionY}), browser_title_},
       url_buf_{std::move(start_page_hint)},
@@ -371,6 +380,10 @@ void App::step() {
                     } else {
                         pending_loads_.clear();
                         images_.clear();
+                        if (maybe_page_) {
+                            engine_.relayout(page(), make_options());
+                            on_layout_updated();
+                        }
                     }
                     spdlog::info("Load images: {}", load_images_);
                     break;
@@ -464,6 +477,7 @@ void App::step() {
         }
     }
 
+    bool should_relayout{};
     for (auto it = begin(pending_loads_); it != end(pending_loads_);) {
         auto &load = *it;
         if (load.wait_for(std::chrono::seconds{0}) != std::future_status::ready) {
@@ -494,6 +508,14 @@ void App::step() {
         image.height = png->height;
         image.rgba_bytes = std::move(png->bytes);
         spdlog::info("Parsed image (w={},h={}) '{}'", image.width, image.height, result.result.uri_after_redirects.uri);
+        should_relayout = true;
+    }
+
+    if (should_relayout) {
+        assert(maybe_page_);
+        engine_.relayout(page(), make_options());
+        on_layout_updated();
+        process_iterations_ = 5;
     }
 
     if (process_iterations_ == 0) {
