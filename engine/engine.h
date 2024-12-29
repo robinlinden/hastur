@@ -8,6 +8,7 @@
 
 #include "css/style_sheet.h"
 #include "dom/dom.h"
+#include "layout/layout.h"
 #include "layout/layout_box.h"
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
@@ -18,8 +19,10 @@
 
 #include <tl/expected.hpp>
 
+#include <functional>
 #include <memory>
 #include <optional>
+#include <string_view>
 #include <utility>
 
 namespace engine {
@@ -49,9 +52,13 @@ struct NavigationError {
 
 class Engine {
 public:
-    explicit Engine(std::unique_ptr<protocol::IProtocolHandler> protocol_handler,
-            std::unique_ptr<type::IType> type = std::make_unique<type::NaiveType>())
-        : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)} {}
+    explicit Engine(
+            std::unique_ptr<protocol::IProtocolHandler> protocol_handler,
+            std::unique_ptr<type::IType> type = std::make_unique<type::NaiveType>(),
+            std::function<std::optional<layout::Size>(std::string_view)> get_intrensic_size_for_resource_at_url =
+                    [](std::string_view) { return std::nullopt; })
+        : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)},
+          get_intrensic_size_for_resource_at_url_(std::move(get_intrensic_size_for_resource_at_url)) {}
 
     [[nodiscard]] tl::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
 
@@ -68,6 +75,7 @@ public:
 private:
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
     std::unique_ptr<type::IType> type_{};
+    std::function<std::optional<layout::Size>(std::string_view)> get_intrensic_size_for_resource_at_url_{};
 };
 
 } // namespace engine
