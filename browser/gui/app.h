@@ -19,7 +19,9 @@
 #include <tl/expected.hpp>
 
 #include <cstdint>
+#include <functional>
 #include <future>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -30,6 +32,12 @@ namespace browser::gui {
 struct ResourceResult {
     std::string resource_id;
     engine::Engine::LoadResult result;
+};
+
+struct Image {
+    std::uint32_t width{};
+    std::uint32_t height{};
+    std::vector<unsigned char> rgba_bytes{};
 };
 
 class App final {
@@ -76,6 +84,7 @@ private:
 
     util::History<uri::Uri> browse_history_;
     std::vector<std::future<ResourceResult>> pending_loads_;
+    std::map<std::string, Image, std::less<>> images_;
 
     engine::PageState &page() { return *maybe_page_.value(); }
     engine::PageState const &page() const { return *maybe_page_.value(); }

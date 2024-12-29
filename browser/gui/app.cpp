@@ -13,6 +13,7 @@
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
+#include "img/png.h"
 #include "layout/layout_box.h"
 #include "os/system_info.h"
 #include "protocol/handler_factory.h"
@@ -369,6 +370,7 @@ void App::step() {
                         start_loading_images();
                     } else {
                         pending_loads_.clear();
+                        images_.clear();
                     }
                     spdlog::info("Load images: {}", load_images_);
                     break;
@@ -462,6 +464,38 @@ void App::step() {
         }
     }
 
+    for (auto it = begin(pending_loads_); it != end(pending_loads_);) {
+        auto &load = *it;
+        if (load.wait_for(std::chrono::seconds{0}) != std::future_status::ready) {
+            ++it;
+            continue;
+        }
+
+        auto result = load.get();
+        it = pending_loads_.erase(it);
+        if (!result.result.response.has_value()) {
+            auto const &err = result.result.response.error();
+            spdlog::warn("Error {} downloading '{}': {}",
+                    static_cast<int>(err.err),
+                    result.result.uri_after_redirects.uri,
+                    to_string(err.err));
+            continue;
+        }
+
+        auto ss = std::istringstream{std::move(result.result.response->body)};
+        auto png = img::Png::from(ss);
+        if (!png.has_value()) {
+            spdlog::warn("Error parsing png from '{}'", result.result.uri_after_redirects.uri);
+            continue;
+        }
+
+        auto &image = images_[std::move(result.resource_id)];
+        image.width = png->width;
+        image.height = png->height;
+        image.rgba_bytes = std::move(png->bytes);
+        spdlog::info("Parsed image (w={},h={}) '{}'", image.width, image.height, result.result.uri_after_redirects.uri);
+    }
+
     if (process_iterations_ == 0) {
         // The sleep duration was picked at random.
         std::this_thread::sleep_for(std::chrono::milliseconds{5});
@@ -512,6 +546,7 @@ void App::navigate() {
     spdlog::info("Navigating to '{}'", uri->uri);
     browse_history_.push(*uri);
     pending_loads_.clear();
+    images_.clear();
     maybe_page_ = engine_.navigate(*std::move(uri), make_options());
 
     // Make sure the displayed url is still correct if we followed any redirects.
