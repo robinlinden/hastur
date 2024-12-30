@@ -177,8 +177,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v27.0.0
-      WASMTIME_NAME: wasmtime-v27.0.0-x86_64-linux
+      WASMTIME_VERSION: v28.0.0
+      WASMTIME_NAME: wasmtime-v28.0.0-x86_64-linux
     steps:
       - uses: actions/checkout@v4
       - name: Set up wasmtime
