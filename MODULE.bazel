@@ -38,8 +38,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-pkqwRhbnakSMLC2BZdg28NL7CQYgDQt8c3b0bdYuWcw=",
-    urls = ["https://github.com/bazelbuild/rules_java/releases/download/8.6.2/rules_java-8.6.2.tar.gz"],
+    integrity = "sha256-bYxtXNhv7QMe5IQk8jj6NfM6vJkh/ZfdSuERmin8gH8=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/8.6.3/rules_java-8.6.3.tar.gz",
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -125,8 +125,8 @@ archive_override(
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    integrity = "sha256-O3cpdv7Hvc2h2EudObF2WJQkwEfrIXW+0JqsYw5Qr0M=",
-    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v1.9.6/rules_kotlin-v1.9.6.tar.gz"],
+    integrity = "sha256-3TLxnnPHDzLMuaFmxhXAykrtjifnLEpjMMNSPq+hqlU=",
+    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v2.1.0/rules_kotlin-v2.1.0.tar.gz",
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -372,11 +372,11 @@ EOF""",
 )
 
 # https://github.com/fmtlib/fmt
-bazel_dep(name = "fmt")
+bazel_dep(name = "fmt")  # MIT
 archive_override(
-    module_name = "fmt",  # MIT
+    module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-bLHm03vct1bbvlm+Q4eQ20Cc20hoxm6IjV358T98An8=",
+    integrity = "sha256-SC7tnvvJg4jbruXLXzaL5eykiTRWuzWMGLf/cfg1rkM=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -384,8 +384,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "fmt-11.0.2",
-    url = "https://github.com/fmtlib/fmt/archive/11.0.2.tar.gz",
+    strip_prefix = "fmt-11.1.1",
+    url = "https://github.com/fmtlib/fmt/archive/11.1.1.tar.gz",
 )
 
 # https://github.com/freetype/freetype
@@ -561,11 +561,11 @@ EOF""",
 )
 
 # https://github.com/SFML/SFML
-bazel_dep(name = "sfml")
+bazel_dep(name = "sfml")  # Zlib
 archive_override(
-    module_name = "sfml",  # Zlib
+    module_name = "sfml",
     build_file = "//third_party:sfml.BUILD",
-    integrity = "sha256-0hL4wIYiyFpm+NW0qlrRuQXYUDQsPemBLJkXPmmw500=",
+    integrity = "sha256-N1Bvr71hix+OFTu8qIEeYiA6cLMqEYMnn7lhL9BQHSs=",
     patch_cmds = [
         # SFML uses a non-standard include path to vulkan.h
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
@@ -583,16 +583,17 @@ bazel_dep(name = "xcursor")
 bazel_dep(name = "xrandr")
 EOF""",
     ],
-    strip_prefix = "SFML-3.0.0-rc.2",
-    url = "https://github.com/SFML/SFML/archive/3.0.0-rc.2.tar.gz",
+    strip_prefix = "SFML-3.0.0",
+    url = "https://github.com/SFML/SFML/archive/3.0.0.tar.gz",
 )
 
 # https://github.com/gabime/spdlog
-bazel_dep(name = "spdlog")
+# v1.15.0 + compatibility w/ fmt 11.1.
+bazel_dep(name = "spdlog")  # MIT
 archive_override(
-    module_name = "spdlog",  # MIT
+    module_name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-mWJkjJtPGnu8dv2NkXJVW60Ycf2xT/T4Qu+HlJaCyqU=",
+    integrity = "sha256-6liG3I9xacEVu4bA7SzPIt7ajHcnEgen4zN3Rcl8AIA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
@@ -601,8 +602,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "spdlog-1.15.0",
-    url = "https://github.com/gabime/spdlog/archive/v1.15.0.tar.gz",
+    strip_prefix = "spdlog-276ee5f5c0eb13626bd367b006ace5eae9526d8a",
+    url = "https://github.com/gabime/spdlog/archive/276ee5f5c0eb13626bd367b006ace5eae9526d8a.tar.gz",
 )
 
 # HEAD as of 2024-11-20.
