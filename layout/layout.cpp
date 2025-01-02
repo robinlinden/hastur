@@ -41,13 +41,18 @@ namespace {
 
 class Layouter {
 public:
-    Layouter(style::ResolutionInfo context, type::IType const &type) : resolution_context_{context}, type_{type} {}
+    Layouter(style::ResolutionInfo context,
+            type::IType const &type,
+            std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url)
+        : resolution_context_{context}, type_{type},
+          get_intrensic_size_for_resource_at_url_{get_intrensic_size_for_resource_at_url} {}
 
     void layout(LayoutBox &, geom::Rect const &bounds) const;
 
 private:
     style::ResolutionInfo resolution_context_;
     type::IType const &type_;
+    std::function<std::optional<Size>(std::string_view)> get_intrensic_size_for_resource_at_url_;
 
     void layout_inline(LayoutBox &, geom::Rect const &bounds) const;
     void layout_block(LayoutBox &, geom::Rect const &bounds) const;
@@ -304,6 +309,21 @@ type::Weight to_type(std::optional<style::FontWeight> const &weight) {
     return type::Weight::Bold;
 }
 
+std::string_view try_get_src(LayoutBox const &box) {
+    assert(!box.is_anonymous_block());
+    auto const *img = std::get_if<dom::Element>(&box.node->node);
+    if (img == nullptr || img->name != "img"sv) {
+        return {};
+    }
+
+    auto src = img->attributes.find("src"sv);
+    if (src == img->attributes.end()) {
+        return {};
+    }
+
+    return src->second;
+}
+
 // NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
     assert(box.node);
@@ -322,18 +342,24 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
             spdlog::warn("No font found for font-families: {}", util::join(font_families, ", "));
             box.dimensions.content.width = type::NaiveFont{}.measure(*text, type::Px{font_size}, weight).width;
         }
+    } else if (auto src = try_get_src(box); !src.empty()) {
+        // https://www.w3.org/TR/CSS22/visudet.html#inline-replaced-width
+        // TODO(robinlinden): Apply things like max-{width,height}.
+        assert(box.children.empty()); // <img> is a void element.
+        if (auto maybe_size = get_intrensic_size_for_resource_at_url_(src); maybe_size.has_value()) {
+            box.dimensions.content.width = maybe_size->width;
+            box.dimensions.content.height = maybe_size->height;
+        }
+    } else {
+        // When attempting to wrap inline content, we sometimes try multiple layout
+        // candidates, so width += <...> without resetting it between runs is bad.
+        box.dimensions.content.width = 0;
     }
 
     if (box.node->parent != nullptr) {
         auto const &d = box.dimensions;
         box.dimensions.content.x = bounds.x + d.padding.left + d.border.left + d.margin.left;
         box.dimensions.content.y = bounds.y + d.border.top + d.padding.top + d.margin.top;
-    }
-
-    // When attempting to wrap inline content, we sometimes try multiple layout
-    // candidates, so width += <...> without resetting it between runs is bad.
-    if (!box.text()) {
-        box.dimensions.content.width = 0;
     }
 
     int last_child_end{};
@@ -626,7 +652,8 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node,
             .viewport_height = info.viewport_height,
     };
 
-    Layouter{resolution_context, type}.layout(*tree, {0, 0, info.viewport_width, 0});
+    Layouter{resolution_context, type, get_intrensic_size_for_resource_at_url}.layout(
+            *tree, {0, 0, info.viewport_width, 0});
     return tree;
 }
 

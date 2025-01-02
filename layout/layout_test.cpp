@@ -683,6 +683,70 @@ void img_tests(etest::Suite &s) {
                 layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
         a.expect_eq(expected_layout, layout_root);
     });
+
+    s.add_test("inline img, src", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"src", "hallo"}}}}};
+        auto const &body = std::get<dom::Element>(dom);
+        auto style = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        {body.children.at(0), {{css::PropertyId::Display, "inline"}}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style,
+                .dimensions{{0, 0, 100, 87}},
+                .children = {{
+                        .node = nullptr,
+                        .dimensions{{0, 0, 100, 87}},
+                        .children{{&style.children[0], {{0, 0, 37, 87}}, {}}},
+                }},
+        };
+
+        auto layout_root =
+                layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
+        a.expect_eq(expected_layout, layout_root);
+    });
+
+    s.add_test("inline img, not found, no alt", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"src", "hallo"}}}}};
+        auto &body = std::get<dom::Element>(dom);
+        auto style = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        {body.children.at(0), {{css::PropertyId::Display, "inline"}}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style,
+                .dimensions{{0, 0, 100, 0}},
+                .children = {{
+                        .node = nullptr,
+                        .dimensions{{0, 0, 100, 0}},
+                        .children{{&style.children[0], {{0, 0, 0, 0}}, {}}},
+                }},
+        };
+
+        auto layout_root = layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return std::nullopt; });
+        a.expect_eq(expected_layout, layout_root);
+
+        // and an image not being found should be the same as src missing.
+        std::get<dom::Element>(body.children[0]).attributes.clear();
+        layout_root = layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return std::nullopt; });
+        a.expect_eq(expected_layout, layout_root);
+    });
 }
 
 } // namespace
