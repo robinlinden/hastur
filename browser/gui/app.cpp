@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -832,7 +832,15 @@ void App::render_layout() {
                 std::optional{geom::Rect{0,
                         -scroll_offset_y_,
                         static_cast<int>(window_.getSize().x),
-                        static_cast<int>(window_.getSize().y)}});
+                        static_cast<int>(window_.getSize().y)}},
+                [this](std::string_view id) -> std::optional<render::ImageView> {
+                    auto it = images_.find(id);
+                    if (it == end(images_)) {
+                        return std::nullopt;
+                    }
+
+                    return render::ImageView{it->second.width, it->second.height, it->second.rgba_bytes};
+                });
     }
 }
 
