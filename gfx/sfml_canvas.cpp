@@ -213,6 +213,10 @@ void SfmlCanvas::draw_text(
 
 void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) {
     assert(rgba_data.size() == static_cast<std::size_t>(rect.width * rect.height * 4));
+
+    auto translated = rect.translated(tx_, ty_);
+    auto scaled = translated.scaled(scale_);
+
     sf::Image img;
     // Textures need to be kept around while they're displayed. This will be
     // cleared when the canvas is cleared.
@@ -224,7 +228,8 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t cons
 
     texture.update(rgba_data.data());
     sf::Sprite sprite{texture};
-    sprite.setPosition({static_cast<float>(rect.x), static_cast<float>(rect.y)});
+    sprite.setPosition({static_cast<float>(scaled.x), static_cast<float>(scaled.y)});
+    sprite.setScale({static_cast<float>(scale_), static_cast<float>(scale_)});
     target_.draw(sprite);
 }
 
