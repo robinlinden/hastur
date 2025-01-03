@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -14,7 +14,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Glsl.hpp>
-#include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -36,8 +35,6 @@
 #include <string_view>
 #include <system_error>
 #include <tuple>
-
-using namespace std::literals;
 
 namespace gfx {
 namespace {
@@ -213,7 +210,10 @@ void SfmlCanvas::draw_text(
 
 void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) {
     assert(rgba_data.size() == static_cast<std::size_t>(rect.width * rect.height * 4));
-    sf::Image img;
+
+    auto translated = rect.translated(tx_, ty_);
+    auto scaled = translated.scaled(scale_);
+
     // Textures need to be kept around while they're displayed. This will be
     // cleared when the canvas is cleared.
     sf::Texture &texture = textures_.emplace_back();
@@ -224,11 +224,9 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t cons
 
     texture.update(rgba_data.data());
     sf::Sprite sprite{texture};
-    sprite.setPosition({static_cast<float>(rect.x), static_cast<float>(rect.y)});
+    sprite.setPosition({static_cast<float>(scaled.x), static_cast<float>(scaled.y)});
+    sprite.setScale({static_cast<float>(scale_), static_cast<float>(scale_)});
     target_.draw(sprite);
-    sf::RectangleShape shape{{static_cast<float>(rect.width), static_cast<float>(rect.height)}};
-    shape.setTexture(&texture);
-    target_.draw(shape);
 }
 
 } // namespace gfx
