@@ -14,7 +14,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Glsl.hpp>
-#include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -36,8 +35,6 @@
 #include <string_view>
 #include <system_error>
 #include <tuple>
-
-using namespace std::literals;
 
 namespace gfx {
 namespace {
@@ -217,7 +214,6 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t cons
     auto translated = rect.translated(tx_, ty_);
     auto scaled = translated.scaled(scale_);
 
-    sf::Image img;
     // Textures need to be kept around while they're displayed. This will be
     // cleared when the canvas is cleared.
     sf::Texture &texture = textures_.emplace_back();
