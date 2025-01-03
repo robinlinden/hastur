@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -6,6 +6,7 @@
 #include "render/render.h"
 
 #include "css/property_id.h"
+#include "dom/dom.h"
 #include "dom/xpath.h"
 #include "geom/geom.h"
 #include "gfx/color.h"
@@ -19,6 +20,7 @@
 #include <iterator>
 #include <optional>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace render {
@@ -109,9 +111,33 @@ void render_element(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
     }
 }
 
-void do_render(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
+void render_image(gfx::ICanvas &painter, layout::LayoutBox const &layout, ImageView const &image) {
+    // TODO(robinlinden): Handle image scaling. image.{width,height} are unused
+    // right now, but should be used to scale the image to work with the content
+    // size.
+    painter.draw_pixels(layout.dimensions.content, image.rgba_data);
+}
+
+std::optional<std::string_view> get_image_id(layout::LayoutBox const &layout) {
+    assert(!layout.is_anonymous_block());
+    auto const *img = std::get_if<dom::Element>(&layout.node->node);
+    if (img == nullptr || img->name != "img") {
+        return {};
+    }
+
+    auto src = img->attributes.find("src");
+    if (src == img->attributes.end()) {
+        return {};
+    }
+
+    return src->second;
+}
+
+void do_render(gfx::ICanvas &painter, layout::LayoutBox const &layout, ImageLookupFn const &image_lookup) {
     if (auto text = layout.text()) {
         render_text(painter, layout, *text);
+    } else if (auto img = get_image_id(layout).and_then(image_lookup); img.has_value()) {
+        render_image(painter, layout, *img);
     } else {
         render_element(painter, layout);
     }
@@ -122,7 +148,10 @@ bool should_render(layout::LayoutBox const &layout) {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
+void render_layout_impl(gfx::ICanvas &painter,
+        layout::LayoutBox const &layout,
+        std::optional<geom::Rect> const &clip,
+        ImageLookupFn const &image_lookup) {
     if (clip && clip->intersected(layout.dimensions.border_box()).empty()) {
         return;
     }
@@ -130,17 +159,20 @@ void render_layout_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout, 
     if (should_render(layout)) {
         // display: none'd elements aren't part of the layout tree, so they won't appear here.
         assert(layout.get_property<css::PropertyId::Display>().has_value());
-        do_render(painter, layout);
+        do_render(painter, layout, image_lookup);
     }
 
     for (auto const &child : layout.children) {
-        render_layout_impl(painter, child, clip);
+        render_layout_impl(painter, child, clip, image_lookup);
     }
 }
 
 } // namespace
 
-void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::optional<geom::Rect> const &clip) {
+void render_layout(gfx::ICanvas &painter,
+        layout::LayoutBox const &layout,
+        std::optional<geom::Rect> const &clip,
+        ImageLookupFn const &image_lookup) {
     static constexpr auto kGetBg = [](std::string_view xpath, layout::LayoutBox const &l) -> std::optional<gfx::Color> {
         auto d = dom::nodes_by_xpath(l, xpath);
         if (d.empty()) {
@@ -161,7 +193,7 @@ void render_layout(gfx::ICanvas &painter, layout::LayoutBox const &layout, std::
         painter.clear(gfx::Color{255, 255, 255});
     }
 
-    render_layout_impl(painter, layout, clip);
+    render_layout_impl(painter, layout, clip, image_lookup);
 }
 
 namespace debug {

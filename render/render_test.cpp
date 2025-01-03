@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +14,8 @@
 #include "layout/layout_box.h"
 #include "style/styled_node.h"
 
+#include <cstdint>
+#include <optional>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -173,6 +175,44 @@ int main() {
         a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}},
                         gfx::DrawRectCmd{expected_rect, expected_color, expected_borders}});
+    });
+
+    s.add_test("render img", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"img", {{"src", "meep.png"}}};
+        auto styled = style::StyledNode{.node = dom};
+        auto layout = layout::LayoutBox{
+                .node = &styled,
+                .dimensions = {{0, 0, 1, 3}},
+        };
+
+        std::vector<std::uint8_t> img{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        auto get_img_success = [&](auto) -> render::ImageView {
+            return {1, 3, img};
+        };
+        auto get_img_failure = [&](auto) -> std::optional<render::ImageView> {
+            return std::nullopt;
+        };
+
+        gfx::CanvasCommandSaver saver;
+        render::render_layout(saver, layout, {}, get_img_success);
+
+        // Success!
+        a.expect_eq(saver.take_commands(),
+                CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, gfx::DrawPixelsCmd{{0, 0, 1, 3}, img}});
+
+        // Failure: image not found
+        render::render_layout(saver, layout, {}, get_img_failure);
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+
+        // // Failure: missing src
+        dom = dom::Element{"img"};
+        render::render_layout(saver, layout, {}, get_img_success);
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+
+        // // Failure: not an img
+        dom = dom::Element{"div", {{"src", "meep.png"}}};
+        render::render_layout(saver, layout, {}, get_img_success);
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
     });
 
     s.add_test("currentcolor", [](etest::IActions &a) {
