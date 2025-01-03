@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -226,9 +226,6 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t cons
     sf::Sprite sprite{texture};
     sprite.setPosition({static_cast<float>(rect.x), static_cast<float>(rect.y)});
     target_.draw(sprite);
-    sf::RectangleShape shape{{static_cast<float>(rect.width), static_cast<float>(rect.height)}};
-    shape.setTexture(&texture);
-    target_.draw(shape);
 }
 
 } // namespace gfx
