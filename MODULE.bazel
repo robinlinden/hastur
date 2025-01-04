@@ -526,6 +526,25 @@ EOF""",
     url = "https://github.com/SFML/imgui-sfml/archive/4fec0d0f35f10f58b327cf5b4d12852ed1a77fbb.tar.gz",
 )
 
+# https://github.com/martinus/nanobench
+bazel_dep(name = "nanobench")  # MIT
+archive_override(
+    module_name = "nanobench",
+    build_file = "//third_party:nanobench.BUILD",
+    integrity = "sha256-U6WpE/ppXCNUZmG/LNIrKZ4Qo+mU2e2X2vibXK2g2nA=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "nanobench")
+bazel_dep(name = "rules_cc")
+EOF""",
+        # nanobench's use of std::locale segfaults w/ -fno-rtti in combination w/ libstdc++.
+        # See: https://github.com/martinus/nanobench/issues/122
+        "sed -i'' -e /std::locale\\(/d src/include/nanobench.h",
+    ],
+    strip_prefix = "nanobench-4.3.11",
+    url = "https://github.com/martinus/nanobench/archive/refs/tags/v4.3.11.tar.gz",
+)
+
 # https://github.com/simdjson/simdjson
 bazel_dep(name = "simdjson")
 archive_override(
