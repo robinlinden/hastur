@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -34,8 +35,13 @@ bool has_class(dom::Element const &element, std::string_view needle_class) {
         return false;
     }
 
-    auto classes = util::split(it->second, " ");
-    return std::ranges::any_of(classes, [&](auto const &c) { return c == needle_class; });
+    for (auto cls : std::string_view{it->second} | std::views::split(' ')) {
+        if (std::string_view{cls} == needle_class) {
+            return true;
+        }
+    }
+
+    return false;
 }
 } // namespace
 
@@ -145,8 +151,13 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
         }
 
         class_string.remove_prefix(1);
-        auto classes = util::split(class_string, ".");
-        return std::ranges::all_of(classes, [&](auto const &c) { return has_class(element, c); });
+        for (auto cls : class_string | std::views::split('.')) {
+            if (!has_class(element, std::string_view{cls})) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     if (selector_.starts_with('#')) {
