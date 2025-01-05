@@ -29,13 +29,8 @@ using namespace std::literals;
 
 namespace style {
 namespace {
-bool has_class(dom::Element const &element, std::string_view needle_class) {
-    auto it = element.attributes.find("class");
-    if (it == element.attributes.end()) {
-        return false;
-    }
-
-    for (auto cls : std::string_view{it->second} | std::views::split(' ')) {
+bool contains_class(std::string_view classes, std::string_view needle_class) {
+    for (auto cls : classes | std::views::split(' ')) {
         if (std::string_view{cls} == needle_class) {
             return true;
         }
@@ -145,6 +140,11 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
 
     auto class_position = selector_.find('.');
     if (class_position != std::string_view::npos) {
+        auto class_attr = element.attributes.find("class");
+        if (class_attr == element.attributes.end()) {
+            return false;
+        }
+
         auto class_string = selector_.substr(class_position);
         if (class_position != 0 && selector_.substr(0, class_position) != element.name) {
             return false;
@@ -152,7 +152,7 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
 
         class_string.remove_prefix(1);
         for (auto cls : class_string | std::views::split('.')) {
-            if (!has_class(element, std::string_view{cls})) {
+            if (!contains_class(class_attr->second, std::string_view{cls})) {
                 return false;
             }
         }
