@@ -11,6 +11,23 @@
 
 #include <nanobench.h>
 
+#include <vector>
+
+namespace {
+void set_up_parent_ptrs(style::StyledNode &root) {
+    std::vector<style::StyledNode *> stack{&root};
+    while (!stack.empty()) {
+        auto *current = stack.back();
+        stack.pop_back();
+
+        for (auto &child : current->children) {
+            child.parent = current;
+            stack.push_back(&child);
+        }
+    }
+}
+} // namespace
+
 int main() {
     etest::Suite s;
 
@@ -40,6 +57,63 @@ int main() {
         bench.run("no match, many classes", [&] {
             style::is_match(many_classes, ".eight.two.seve.ten"); //
         });
+    });
+
+    s.add_test("is_match: descendant", [](etest::IActions &a) {
+        ankerl::nanobench::Bench bench;
+        bench.title("is_match: descendant");
+
+        dom::Node shallow_dom = dom::Element{"div", {}, {dom::Element{"span"}}};
+        auto shallow = style::StyledNode{
+                .node = shallow_dom,
+                .children = {{std::get<dom::Element>(shallow_dom).children.back()}},
+        };
+        set_up_parent_ptrs(shallow);
+
+        bench.run("match, shallow", [&] {
+            a.expect_eq(style::is_match(shallow.children.back(), "div span"), true); //
+        });
+
+        bench.run("no match, shallow", [&] {
+            a.expect_eq(style::is_match(shallow.children.back(), "div span div"), false); //
+        });
+
+        dom::Node deep_dom = dom::Element{"div"};
+        style::StyledNode deep{.node = deep_dom};
+        {
+            // Since StyledNode only holds a reference to the dom node, we can
+            // reuse this one node and just make the style tree very deep.
+            auto *current = &deep;
+            for (int i = 0; i < 16; ++i) {
+                current = &current->children.emplace_back(deep_dom);
+            }
+            set_up_parent_ptrs(deep);
+        }
+
+        bench.run("no match, 4 selectors, shallowest", [&] {
+            a.expect_eq(style::is_match(deep, "div div div div"), false); //
+        });
+
+        {
+            auto const *deepest_node = &deep;
+            while (!deepest_node->children.empty()) {
+                deepest_node = &deepest_node->children.back();
+            }
+
+            bench.run("match, 4 selectors, deepest", [&] {
+                a.expect_eq(style::is_match(*deepest_node, "div div div div"), true); //
+            });
+
+            bench.run("match, 8 selectors, deepest", [&] {
+                auto match = style::is_match(*deepest_node, "div div div div div div div div");
+                a.expect_eq(match, true);
+            });
+
+            bench.run("no match, 8 selectors, deepest", [&] {
+                auto match = style::is_match(*deepest_node, "p div div div div div div div");
+                a.expect_eq(match, false);
+            });
+        }
     });
 
     return s.run();
