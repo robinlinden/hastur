@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -64,6 +64,7 @@ inline std::vector<Element const *> dom_children(Element const &e) {
 }
 
 std::string to_string(Document const &);
+std::string to_string(Node const &);
 
 } // namespace dom
 

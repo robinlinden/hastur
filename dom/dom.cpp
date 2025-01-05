@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -36,6 +36,12 @@ std::string to_string(Document const &document) {
     std::stringstream ss;
     ss << "doctype: " << document.doctype << '\n';
     print_node(document.html_node, ss);
+    return std::move(ss).str();
+}
+
+std::string to_string(Node const &element) {
+    std::stringstream ss;
+    print_node(element, ss);
     return std::move(ss).str();
 }
 
