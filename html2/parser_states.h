@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -46,7 +46,7 @@ using InsertionMode = std::variant<Initial,
         AfterHead,
         InBody,
         Text,
-        // InTable,
+        InTable,
         // InTableText,
         // InCaption,
         // InColumnGroup,
@@ -63,7 +63,6 @@ using InsertionMode = std::variant<Initial,
         // AfterAfterFrameset
         >;
 
-struct InTable {};
 struct InTableText {};
 struct InCaption {};
 struct InColumnGroup {};
@@ -104,6 +103,10 @@ struct InBody {
 };
 
 struct Text {
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+};
+
+struct InTable {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
 };
 

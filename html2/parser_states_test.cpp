@@ -532,6 +532,24 @@ void in_body_tests(etest::Suite &s) {
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"br"}}});
     });
 
+    s.add_test("InBody: <table>", [](etest::IActions &a) {
+        auto res = parse("<body><table>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
+    });
+
+    s.add_test("InBody: <p><table>", [](etest::IActions &a) {
+        auto res = parse("<body><p><table>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p"}, dom::Element{"table"}}});
+    });
+
+    s.add_test("InBody: <p><table>, but quirky!", [](etest::IActions &a) {
+        auto res = parse("<!DOCTYPE><body><p><table>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Element{"table"}}}}});
+    });
+
     s.add_test("InBody: <template> doesn't crash", [](etest::IActions &) {
         std::ignore = parse("<body><template>", {}); //
     });
@@ -594,6 +612,39 @@ void in_body_tests(etest::Suite &s) {
         auto res = parse("<body><marquee></html>", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"marquee"}}});
+    });
+}
+
+void in_table_tests(etest::Suite &s) {
+    s.add_test("InTable: comment", [](etest::IActions &a) {
+        auto res = parse("<table><!-- comment -->", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
+    });
+
+    s.add_test("InTable: doctype", [](etest::IActions &a) {
+        auto res = parse("<table><!doctype html>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
+    });
+
+    s.add_test("InTable: </body>", [](etest::IActions &a) {
+        // This will break once we implement more table parsing.
+        auto res = parse("<table></html><tbody>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
+    });
+
+    s.add_test("InTable: <style>", [](etest::IActions &a) {
+        auto res = parse("<table><style>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table", {}, {dom::Element{"style"}}}}});
+    });
+
+    s.add_test("InTable: </table>", [](etest::IActions &a) {
+        auto res = parse("<table></table>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
     });
 }
 
@@ -705,6 +756,7 @@ int main() {
     in_head_noscript_tests(s);
     after_head_tests(s);
     in_body_tests(s);
+    in_table_tests(s);
     in_frameset_tests(s);
     return s.run();
 }

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -47,6 +47,18 @@ public:
             }
             return dom::Document::Mode::LimitedQuirks;
         }();
+    }
+
+    html2::QuirksMode quirks_mode() const override {
+        switch (document_.mode) {
+            case dom::Document::Mode::NoQuirks:
+                return html2::QuirksMode::NoQuirks;
+            case dom::Document::Mode::Quirks:
+                return html2::QuirksMode::Quirks;
+            case dom::Document::Mode::LimitedQuirks:
+                return html2::QuirksMode::LimitedQuirks;
+        }
+        return html2::QuirksMode::LimitedQuirks;
     }
 
     bool scripting() const override { return scripting_; }

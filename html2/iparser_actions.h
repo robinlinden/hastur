@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -31,6 +31,7 @@ public:
 
     virtual void set_doctype_name(std::string) = 0;
     virtual void set_quirks_mode(QuirksMode) = 0;
+    virtual QuirksMode quirks_mode() const = 0;
     virtual bool scripting() const = 0;
     virtual void insert_element_for(html2::StartTagToken const &) = 0;
     virtual void pop_current_node() = 0;
@@ -59,12 +60,12 @@ private:
     template<auto const &scope_elements>
     bool has_element_in_scope_impl(std::string_view element_name) const {
         for (auto const element : names_of_open_elements()) {
-            if (is_in_array<scope_elements>(element)) {
-                return false;
-            }
-
             if (element == element_name) {
                 return true;
+            }
+
+            if (is_in_array<scope_elements>(element)) {
+                return false;
             }
         }
 
@@ -95,6 +96,11 @@ public:
                 // title,
         });
 
+        return has_element_in_scope_impl<kScopeElements>(element_name);
+    }
+
+    bool has_element_in_table_scope(std::string_view element_name) const {
+        static constexpr auto kScopeElements = std::to_array<std::string_view>({"html", "table", "template"});
         return has_element_in_scope_impl<kScopeElements>(element_name);
     }
 };

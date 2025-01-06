@@ -34,6 +34,7 @@ public:
 
     void set_doctype_name(std::string name) override { wrapped_.set_doctype_name(std::move(name)); }
     void set_quirks_mode(QuirksMode quirks) override { wrapped_.set_quirks_mode(quirks); }
+    QuirksMode quirks_mode() const override { return wrapped_.quirks_mode(); }
     bool scripting() const override { return wrapped_.scripting(); }
     void insert_element_for(html2::StartTagToken const &token) override { wrapped_.insert_element_for(token); }
     void pop_current_node() override { wrapped_.pop_current_node(); }
@@ -296,6 +297,37 @@ void generate_implied_end_tags(IActions &a, std::optional<std::string_view> exce
     }
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
+InsertionMode appropriate_insertion_mode(IActions &a) {
+    auto open_elements = a.names_of_open_elements();
+    for (auto node : open_elements) {
+        // TODO(robinlinden): Lots of table nonsense.
+        if (node == "table") {
+            return InTable{};
+        }
+
+        // TODO(robinlinden): Template nonsense. :(
+
+        if (node == "head") {
+            return InHead{};
+        }
+
+        if (node == "body") {
+            return InBody{};
+        }
+
+        if (node == "frameset") {
+            return InFrameset{};
+        }
+
+        if (node == "html") {
+            // TODO(robinlinden): head element pointer.
+            return AfterHead{};
+        }
+    }
+
+    return InBody{};
+}
 } // namespace
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
@@ -893,6 +925,16 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
+    if (start != nullptr && start->tag_name == "table") {
+        if (a.quirks_mode() != QuirksMode::Quirks && a.has_element_in_button_scope("p")) {
+            close_a_p_element();
+        }
+
+        a.insert_element_for(*start);
+        a.set_frameset_ok(false);
+        return InTable{};
+    }
+
     static constexpr auto kImmediatelyPoppedElements = std::to_array<std::string_view>({
             "area",
             "br",
@@ -995,6 +1037,58 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
         a.pop_current_node();
         return a.original_insertion_mode();
     }
+
+    return {};
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
+// Incomplete.
+std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &token) {
+    // TODO(robinlinden): CharacterToken.
+
+    if (std::holds_alternative<html2::CommentToken>(token)) {
+        // TODO(robinlinden): Insert.
+        return {};
+    }
+
+    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
+    // TODO(robinlinden): Everything.
+
+    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "table") {
+        if (!a.has_element_in_table_scope("table")) {
+            // Parse error.
+            return {};
+        }
+
+        while (a.current_node_name() != "table") {
+            a.pop_current_node();
+        }
+
+        a.pop_current_node();
+        return appropriate_insertion_mode(a);
+    }
+
+    static constexpr auto kBadEndTags = std::to_array<std::string_view>(
+            {"body", "caption", "col", "colgroup", "html", "tbody", "td", "tfoot", "th", "thead", "tr"});
+    if (end != nullptr && is_in_array<kBadEndTags>(end->tag_name)) {
+        // Parse error.
+        return {};
+    }
+
+    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    static constexpr auto kInHeadStartTags = std::to_array<std::string_view>({"style", "script", "template"});
+    if ((start != nullptr && is_in_array<kInHeadStartTags>(start->tag_name))
+            || (end != nullptr && end->tag_name == "template")) {
+        auto mode_override = current_insertion_mode_override(a, InTable{});
+        return InHead{}.process(mode_override, token);
+    }
+
+    // TODO(robinlinden): Everything.
 
     return {};
 }
