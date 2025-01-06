@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -901,9 +901,17 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "keygen",
             "wbr",
     });
-    if (start != nullptr && is_in_array<kImmediatelyPoppedElements>(start->tag_name)) {
-        a.reconstruct_active_formatting_elements();
-        a.insert_element_for(*start);
+    auto is_bad_br_end_tag = end != nullptr && end->tag_name == "br";
+    if ((start != nullptr && is_in_array<kImmediatelyPoppedElements>(start->tag_name)) || (is_bad_br_end_tag)) {
+        if (is_bad_br_end_tag) {
+            // Parse error.
+            a.reconstruct_active_formatting_elements();
+            a.insert_element_for(html2::StartTagToken{.tag_name = "br"});
+        } else {
+            a.reconstruct_active_formatting_elements();
+            a.insert_element_for(*start);
+        }
+
         a.pop_current_node();
         // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
         a.set_frameset_ok(false);

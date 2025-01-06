@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -314,9 +314,15 @@ void in_head_noscript_tests(etest::Suite &s) {
 
     s.add_test("InHeadNoScript: br", [](etest::IActions &a) {
         auto res = parse("<noscript></br>", {});
-        auto noscript = dom::Element{"noscript"};
         a.expect_eq(res.document.html(),
-                dom::Element{"html", {}, {dom::Element{"head", {}, {std::move(noscript)}}, dom::Element{"body"}}});
+                dom::Element{
+                        "html",
+                        {},
+                        {
+                                dom::Element{"head", {}, {dom::Element{"noscript"}}},
+                                dom::Element{"body", {}, {dom::Element{"br"}}},
+                        },
+                });
     });
 
     s.add_test("InHeadNoScript: noscript", [](etest::IActions &a) {
@@ -388,7 +394,12 @@ void after_head_tests(etest::Suite &s) {
 
     s.add_test("AfterHead: </br>", [](etest::IActions &a) {
         auto res = parse("<head></head></br>", {});
-        a.expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
+        a.expect_eq(res.document.html(),
+                dom::Element{
+                        "html",
+                        {},
+                        {dom::Element{"head"}, dom::Element{"body", {}, {dom::Element{"br"}}}},
+                });
     });
 
     s.add_test("AfterHead: </error>", [](etest::IActions &a) {
@@ -513,6 +524,12 @@ void in_body_tests(etest::Suite &s) {
         auto res = parse("<body><p><hr>", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p"}, dom::Element{"hr"}}});
+    });
+
+    s.add_test("InBody: </br>", [](etest::IActions &a) {
+        auto res = parse("<body></br>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"br"}}});
     });
 
     s.add_test("InBody: <template> doesn't crash", [](etest::IActions &) {
