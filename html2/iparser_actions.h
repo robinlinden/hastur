@@ -55,6 +55,23 @@ public:
         return std::ranges::find(array, str) != std::cend(array);
     }
 
+private:
+    template<auto const &scope_elements>
+    bool has_element_in_scope_impl(std::string_view element_name) const {
+        for (auto const element : names_of_open_elements()) {
+            if (is_in_array<scope_elements>(element)) {
+                return false;
+            }
+
+            if (element == element_name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+public:
     // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
     bool has_element_in_scope(std::string_view element_name) const {
         static constexpr auto kScopeElements = std::to_array<std::string_view>({
@@ -65,17 +82,7 @@ public:
                 // title,
         });
 
-        for (auto const element : names_of_open_elements()) {
-            if (is_in_array<kScopeElements>(element)) {
-                return false;
-            }
-
-            if (element == element_name) {
-                return true;
-            }
-        }
-
-        return false;
+        return has_element_in_scope_impl<kScopeElements>(element_name);
     }
 
     // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
@@ -88,17 +95,7 @@ public:
                 // title,
         });
 
-        for (auto const element : names_of_open_elements()) {
-            if (is_in_array<kScopeElements>(element)) {
-                return false;
-            }
-
-            if (element == element_name) {
-                return true;
-            }
-        }
-
-        return false;
+        return has_element_in_scope_impl<kScopeElements>(element_name);
     }
 };
 
