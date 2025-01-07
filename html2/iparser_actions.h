@@ -99,6 +99,16 @@ public:
         return has_element_in_scope_impl<kScopeElements>(element_name);
     }
 
+    // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-list-item-scope
+    bool has_element_in_list_item_scope(std::string_view element_name) const {
+        static constexpr auto kScopeElements = std::to_array<std::string_view>({
+                "ol", "ul", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+                // TODO(robinlinden): Add MathML and SVG elements.
+        });
+
+        return has_element_in_scope_impl<kScopeElements>(element_name);
+    }
+
     bool has_element_in_table_scope(std::string_view element_name) const {
         static constexpr auto kScopeElements = std::to_array<std::string_view>({"html", "table", "template"});
         return has_element_in_scope_impl<kScopeElements>(element_name);

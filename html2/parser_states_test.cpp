@@ -532,6 +532,18 @@ void in_body_tests(etest::Suite &s) {
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"br"}}});
     });
 
+    s.add_test("InBody: </li>, no <li>", [](etest::IActions &a) {
+        auto res = parse("<body></li>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body"});
+    });
+
+    s.add_test("InBody: </li>, non-implicitly-closed node on stack", [](etest::IActions &a) {
+        auto res = parse("<body><li><a></li>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"li", {}, {dom::Element{"a"}}}}});
+    });
+
     s.add_test("InBody: <table>", [](etest::IActions &a) {
         auto res = parse("<body><table>", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));

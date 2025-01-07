@@ -925,6 +925,26 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
+    if (end != nullptr && end->tag_name == "li") {
+        if (!a.has_element_in_list_item_scope("li")) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, "li");
+        if (a.current_node_name() != "li") {
+            // Parse error.
+        }
+
+        while (a.current_node_name() != "li") {
+            a.pop_current_node();
+        }
+
+        a.pop_current_node();
+    }
+
+    // TODO(robinlinden): Most things.
+
     if (start != nullptr && start->tag_name == "table") {
         if (a.quirks_mode() != QuirksMode::Quirks && a.has_element_in_button_scope("p")) {
             close_a_p_element();
