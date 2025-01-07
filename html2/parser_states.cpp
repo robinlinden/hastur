@@ -328,6 +328,62 @@ InsertionMode appropriate_insertion_mode(IActions &a) {
 
     return InBody{};
 }
+
+template<auto const &scope_elements>
+bool has_element_in_scope_impl(IActions const &a, std::string_view element_name) {
+    for (auto const element : a.names_of_open_elements()) {
+        if (element == element_name) {
+            return true;
+        }
+
+        if (is_in_array<scope_elements>(element)) {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
+bool has_element_in_scope(IActions const &a, std::string_view element_name) {
+    static constexpr auto kScopeElements = std::to_array<std::string_view>({
+            "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+            // TODO(robinlinden): Add MathML and SVG elements.
+            // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
+            // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
+            // title,
+    });
+
+    return has_element_in_scope_impl<kScopeElements>(a, element_name);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
+bool has_element_in_button_scope(IActions const &a, std::string_view element_name) {
+    static constexpr auto kScopeElements = std::to_array<std::string_view>({
+            "button", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+            // TODO(robinlinden): Add MathML and SVG elements.
+            // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
+            // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
+            // title,
+    });
+
+    return has_element_in_scope_impl<kScopeElements>(a, element_name);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-list-item-scope
+bool has_element_in_list_item_scope(IActions const &a, std::string_view element_name) {
+    static constexpr auto kScopeElements = std::to_array<std::string_view>({
+            "ol", "ul", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+            // TODO(robinlinden): Add MathML and SVG elements.
+    });
+
+    return has_element_in_scope_impl<kScopeElements>(a, element_name);
+}
+
+bool has_element_in_table_scope(IActions const &a, std::string_view element_name) {
+    static constexpr auto kScopeElements = std::to_array<std::string_view>({"html", "table", "template"});
+    return has_element_in_scope_impl<kScopeElements>(a, element_name);
+}
 } // namespace
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
@@ -745,7 +801,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     // TODO(robinlinden): Most things.
 
     if (end != nullptr && end->tag_name == "body") {
-        if (!a.has_element_in_scope("body")) {
+        if (!has_element_in_scope(a, "body")) {
             // Parse error.
             return {};
         }
@@ -781,7 +837,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     }
 
     if (end != nullptr && end->tag_name == "html") {
-        if (!a.has_element_in_scope("body")) {
+        if (!has_element_in_scope(a, "body")) {
             // Parse error.
             return {};
         }
@@ -847,7 +903,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "ul",
     });
     if (start != nullptr && is_in_array<kClosesPElements>(start->tag_name)) {
-        if (a.has_element_in_button_scope("p")) {
+        if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
         }
 
@@ -882,7 +938,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             }
         }
 
-        if (a.has_element_in_button_scope("p")) {
+        if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
         }
 
@@ -915,7 +971,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             }
         }
 
-        if (a.has_element_in_button_scope("p")) {
+        if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
         }
 
@@ -926,7 +982,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     // TODO(robinlinden): Most things.
 
     if (end != nullptr && end->tag_name == "li") {
-        if (!a.has_element_in_list_item_scope("li")) {
+        if (!has_element_in_list_item_scope(a, "li")) {
             // Parse error.
             return {};
         }
@@ -946,7 +1002,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     // TODO(robinlinden): Most things.
 
     if (start != nullptr && start->tag_name == "table") {
-        if (a.quirks_mode() != QuirksMode::Quirks && a.has_element_in_button_scope("p")) {
+        if (a.quirks_mode() != QuirksMode::Quirks && has_element_in_button_scope(a, "p")) {
             close_a_p_element();
         }
 
@@ -983,7 +1039,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
     // TODO(robinlinden): Most things.
 
     if (start != nullptr && start->tag_name == "hr") {
-        if (a.has_element_in_button_scope("p")) {
+        if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
         }
 
@@ -1080,7 +1136,7 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
 
     auto const *end = std::get_if<html2::EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "table") {
-        if (!a.has_element_in_table_scope("table")) {
+        if (!has_element_in_table_scope(a, "table")) {
             // Parse error.
             return {};
         }

@@ -9,8 +9,6 @@
 #include "html2/token.h"
 #include "html2/tokenizer.h"
 
-#include <algorithm>
-#include <array>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -50,69 +48,6 @@ public:
     virtual std::vector<std::string_view> names_of_open_elements() const = 0;
 
     virtual InsertionMode current_insertion_mode() const = 0;
-
-    template<auto const &array>
-    static constexpr bool is_in_array(std::string_view str) {
-        return std::ranges::find(array, str) != std::cend(array);
-    }
-
-private:
-    template<auto const &scope_elements>
-    bool has_element_in_scope_impl(std::string_view element_name) const {
-        for (auto const element : names_of_open_elements()) {
-            if (element == element_name) {
-                return true;
-            }
-
-            if (is_in_array<scope_elements>(element)) {
-                return false;
-            }
-        }
-
-        return false;
-    }
-
-public:
-    // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
-    bool has_element_in_scope(std::string_view element_name) const {
-        static constexpr auto kScopeElements = std::to_array<std::string_view>({
-                "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
-                // TODO(robinlinden): Add MathML and SVG elements.
-                // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
-                // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
-                // title,
-        });
-
-        return has_element_in_scope_impl<kScopeElements>(element_name);
-    }
-
-    // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
-    bool has_element_in_button_scope(std::string_view element_name) const {
-        static constexpr auto kScopeElements = std::to_array<std::string_view>({
-                "button", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
-                // TODO(robinlinden): Add MathML and SVG elements.
-                // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
-                // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
-                // title,
-        });
-
-        return has_element_in_scope_impl<kScopeElements>(element_name);
-    }
-
-    // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-list-item-scope
-    bool has_element_in_list_item_scope(std::string_view element_name) const {
-        static constexpr auto kScopeElements = std::to_array<std::string_view>({
-                "ol", "ul", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
-                // TODO(robinlinden): Add MathML and SVG elements.
-        });
-
-        return has_element_in_scope_impl<kScopeElements>(element_name);
-    }
-
-    bool has_element_in_table_scope(std::string_view element_name) const {
-        static constexpr auto kScopeElements = std::to_array<std::string_view>({"html", "table", "template"});
-        return has_element_in_scope_impl<kScopeElements>(element_name);
-    }
 };
 
 } // namespace html2
