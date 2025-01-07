@@ -165,8 +165,8 @@ archive_override(
 # https://github.com/bazel-contrib/bazel-gazelle
 archive_override(
     module_name = "gazelle",
-    integrity = "sha256-qAiTKSrh146u7dUNHKuY8kKhfj1XQbG5+1i1/Z0tV7w=",
-    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.40.0/bazel-gazelle-v0.40.0.tar.gz"],
+    integrity = "sha256-rvvy/Hx2Fsntc6o9UcdxAHJNWzzmbPoWQG6ME+h8i1I=",
+    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.41.0/bazel-gazelle-v0.41.0.tar.gz",
 )
 
 # https://github.com/bazel-contrib/rules_go
@@ -503,12 +503,11 @@ EOF""",
 )
 
 # https://github.com/SFML/imgui-sfml
-# HEAD as of 2024-12-08.
-bazel_dep(name = "imgui-sfml")
+bazel_dep(name = "imgui-sfml")  # MIT
 archive_override(
-    module_name = "imgui-sfml",  # MIT
+    module_name = "imgui-sfml",
     build_file = "//third_party:imgui-sfml.BUILD",
-    integrity = "sha256-PE2zV+KVEmzowgzhZ8nxJFNWROR5fJ7v802CyinLhVY=",
+    integrity = "sha256-VhoEQH3MkTuPHCWhZK1JB4UrUftPEZB9GrnbY1GvkRs=",
     patch_cmds = [
         # Use glad for OpenGL instead of the system OpenGL headers.
         "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
@@ -522,8 +521,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "sfml")
 EOF""",
     ],
-    strip_prefix = "imgui-sfml-4fec0d0f35f10f58b327cf5b4d12852ed1a77fbb",
-    url = "https://github.com/SFML/imgui-sfml/archive/4fec0d0f35f10f58b327cf5b4d12852ed1a77fbb.tar.gz",
+    strip_prefix = "imgui-sfml-3.0",
+    url = "https://github.com/SFML/imgui-sfml/archive/v3.0.tar.gz",
 )
 
 # https://github.com/martinus/nanobench
@@ -546,27 +545,27 @@ EOF""",
 )
 
 # https://github.com/simdjson/simdjson
-bazel_dep(name = "simdjson")
+bazel_dep(name = "simdjson")  # Apache-2.0
 archive_override(
-    module_name = "simdjson",  # Apache-2.0
+    module_name = "simdjson",
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-GPff0me5DRd4UWI3R1mORfvk2R/EhfK1f/DjrhsP3eM=",
+    integrity = "sha256-ECmv9rzKeBH7e21UIcXJAkuOdOhM0mhoAmVyP0LiPPI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "simdjson")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "simdjson-3.11.1",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.11.1.tar.gz",
+    strip_prefix = "simdjson-3.11.4",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.11.4.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
-bazel_dep(name = "libpng")
+bazel_dep(name = "libpng")  # Libpng
 archive_override(
-    module_name = "libpng",  # Libpng
+    module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-DvW2M9DGX3gMT87Sf/gymY5xR4wTtF37bpTyOoL2T3w=",
+    integrity = "sha256-f/aJhSBkVxbdw9g4HZe24Ck3sD2pLm/Q18+dfSsNp4A=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -575,8 +574,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "zlib")
 EOF""",
     ],
-    strip_prefix = "libpng-1.6.44",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.44.tar.gz",
+    strip_prefix = "libpng-1.6.45",
+    url = "https://github.com/glennrp/libpng/archive/v1.6.45.tar.gz",
 )
 
 # https://github.com/SFML/SFML
@@ -780,19 +779,19 @@ EOF""",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxrender
-bazel_dep(name = "xrender")
+bazel_dep(name = "xrender")  # MIT
 archive_override(
-    module_name = "xrender",  # MIT
+    module_name = "xrender",
     build_file = "//third_party:xrender.BUILD",
+    integrity = "sha256-RwVZ354OTbyB1YVdPTZKF+EiY2AKCCFyMvix9u883b8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "xrender")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    sha256 = "4cd5aca5b948a80bb7c3d5060eb97b8a8199234c0c19fe34d35c5c838923230b",
-    strip_prefix = "libxrender-libXrender-0.9.11",
-    url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.11/libxrender-libXrender-0.9.11.tar.gz",
+    strip_prefix = "libxrender-libXrender-0.9.12",
+    url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.12/libxrender-libXrender-0.9.12.tar.gz",
 )
 
 # https://github.com/madler/zlib
