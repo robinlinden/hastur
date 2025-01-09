@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -86,6 +86,7 @@ css::MediaQuery::Context to_media_context(Options opts) {
 
 // NOLINTNEXTLINE(performance-unnecessary-value-param): Clang is wrong, the uri is moved below.
 tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri, Options opts) {
+    spdlog::info("Navigating to {}", uri.uri);
     auto result = load(std::move(uri));
 
     if (!result.response.has_value()) {
@@ -108,9 +109,11 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     auto state = std::make_unique<PageState>();
     state->uri = std::move(result.uri_after_redirects);
     state->response = std::move(result.response.value());
+    spdlog::info("Parsing HTML");
     state->dom = html::parse(state->response.body);
-    state->stylesheet = css::default_style();
 
+    spdlog::info("Parsing inline styles");
+    state->stylesheet = css::default_style();
     for (auto const &style : dom::nodes_by_xpath(state->dom.html(), "/html/head/style"sv)) {
         if (style->children.empty()) {
             continue;
@@ -177,11 +180,13 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     state->layout_width = opts.layout_width;
     state->viewport_height = opts.viewport_height;
     state->styled = style::style_tree(state->dom.html_node, state->stylesheet, to_media_context(opts));
+    spdlog::info("Building layout");
     state->layout = layout::create_layout(*state->styled,
             {state->layout_width, state->viewport_height},
             *type_,
             get_intrensic_size_for_resource_at_url_);
 
+    spdlog::info("Done navigating to {}", state->uri.uri);
     return state;
 }
 
