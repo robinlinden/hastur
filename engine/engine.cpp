@@ -124,7 +124,9 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
         state->stylesheet.splice(css::parse(style_content.text));
     }
 
-    auto head_links = dom::nodes_by_xpath(state->dom.html(), "/html/head/link");
+    // Stylesheets can appear a bit everywhere:
+    // https://html.spec.whatwg.org/multipage/semantics.html#allowed-in-the-body
+    auto head_links = dom::nodes_by_xpath(state->dom.html(), "//link");
     std::erase_if(head_links, [](auto const *link) {
         return !link->attributes.contains("rel")
                 || (link->attributes.contains("rel") && link->attributes.at("rel") != "stylesheet")

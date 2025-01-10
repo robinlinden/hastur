@@ -163,7 +163,9 @@ int main() {
                 .body{"<html><head>"
                       "<link rel=stylesheet href=one.css />"
                       "<link rel=stylesheet href=two.css />"
-                      "</head></html>"},
+                      "</head><body>"
+                      "<link rel=stylesheet href=sad.css />"
+                      "</body></html>"},
         };
         responses["hax://example.com/one.css"s] = Response{
                 .status_line = {.status_code = 200},
@@ -173,11 +175,16 @@ int main() {
                 .status_line = {.status_code = 200},
                 .body{"p { color: green; }"},
         };
+        responses["hax://example.com/sad.css"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"a { color: red; }"},
+        };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         a.expect(contains(
                 page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
         a.expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+        a.expect(contains(page->stylesheet.rules, {.selectors{"a"}, .declarations{{css::PropertyId::Color, "red"}}}));
     });
 
     s.add_test("stylesheet link, unsupported Content-Encoding", [](etest::IActions &a) {
