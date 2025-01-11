@@ -157,8 +157,6 @@ void render_layout_impl(gfx::ICanvas &painter,
     }
 
     if (should_render(layout)) {
-        // display: none'd elements aren't part of the layout tree, so they won't appear here.
-        assert(layout.get_property<css::PropertyId::Display>().has_value());
         do_render(painter, layout, image_lookup);
     }
 
