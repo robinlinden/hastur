@@ -187,7 +187,7 @@ void render_layout(gfx::ICanvas &painter,
     if (auto html_bg = kGetBg("/html", layout); html_bg && html_bg != gfx::Color::from_css_name("transparent")) {
         painter.clear(*html_bg);
     } else if (auto body_bg = kGetBg("/html/body", layout);
-               body_bg && body_bg != gfx::Color::from_css_name("transparent")) {
+            body_bg && body_bg != gfx::Color::from_css_name("transparent")) {
         painter.clear(*body_bg);
     } else {
         painter.clear(gfx::Color{255, 255, 255});
