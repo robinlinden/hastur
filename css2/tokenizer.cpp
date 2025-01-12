@@ -93,8 +93,7 @@ void Tokenizer::run() {
                         continue;
                     case '+': {
                         if (inputs_starts_number(*c)) {
-                            auto number = consume_number(*c);
-                            emit(NumberToken{number});
+                            emit(consume_a_numeric_token(*c));
                         } else {
                             emit(DelimToken{'+'});
                         }
@@ -105,8 +104,7 @@ void Tokenizer::run() {
                         continue;
                     case '-': {
                         if (inputs_starts_number(*c)) {
-                            auto number = consume_number(*c);
-                            emit(NumberToken{number});
+                            emit(consume_a_numeric_token(*c));
                             continue;
                         }
 
@@ -126,8 +124,7 @@ void Tokenizer::run() {
                     }
                     case '.': {
                         if (auto next_input = peek_input(0); is_digit(next_input)) {
-                            auto number = consume_number(*c);
-                            emit(NumberToken{number});
+                            emit(consume_a_numeric_token(*c));
                             continue;
                         }
 
@@ -162,9 +159,7 @@ void Tokenizer::run() {
                     case '7':
                     case '8':
                     case '9': {
-                        // TODO(robinlinden): https://www.w3.org/TR/css-syntax-3/#consume-a-numeric-token
-                        auto number = consume_number(*c);
-                        emit(NumberToken{number});
+                        emit(consume_a_numeric_token(*c));
                         continue;
                     }
                     default:
@@ -541,6 +536,17 @@ std::string Tokenizer::consume_an_escaped_code_point() {
     }
 
     return std::string{*c};
+}
+
+Token Tokenizer::consume_a_numeric_token(char first_byte) {
+    // TODO(robinlinden): https://www.w3.org/TR/css-syntax-3/#consume-a-numeric-token
+    auto number = consume_number(first_byte);
+    if (peek_input(0) == '%') {
+        std::ignore = consume_next_input_character();
+        return PercentageToken{number};
+    }
+
+    return NumberToken{number};
 }
 
 } // namespace css2

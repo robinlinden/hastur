@@ -439,6 +439,26 @@ int main() {
         expect_token(output, NumberToken{.data = 1});
     });
 
+    s.add_test("percentage: integer", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "13%");
+        expect_token(output, PercentageToken{.data = 13});
+    });
+
+    s.add_test("percentage: large", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "12147483647%");
+        expect_token(output, PercentageToken{std::numeric_limits<std::int32_t>::max()});
+    });
+
+    s.add_test("percentage: large negative", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "-12147483648%");
+        expect_token(output, PercentageToken{std::numeric_limits<std::int32_t>::min()});
+    });
+
+    s.add_test("percentage: number", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "13.25%");
+        expect_token(output, PercentageToken{.data = 13.25});
+    });
+
     s.add_test("plus: delim", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "+hello");
         expect_token(output, DelimToken{'+'});

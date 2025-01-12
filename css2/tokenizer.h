@@ -72,6 +72,7 @@ private:
 
     std::variant<std::int32_t, double> consume_number(char first_byte);
     std::string consume_an_escaped_code_point();
+    Token consume_a_numeric_token(char first_byte);
 };
 
 } // namespace css2

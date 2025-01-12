@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -69,7 +69,7 @@ struct NumberToken {
 };
 
 struct PercentageToken {
-    std::variant<int, double> data{};
+    std::variant<std::int32_t, double> data{};
     [[nodiscard]] bool operator==(PercentageToken const &) const = default;
 
     [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }
