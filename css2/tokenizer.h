@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -38,6 +38,8 @@ enum class ParseError : std::uint8_t {
     EofInString,
     NewlineInString,
 };
+
+std::string_view to_string(ParseError);
 
 class Tokenizer {
 public:

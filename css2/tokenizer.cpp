@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -18,6 +18,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <tuple>
 #include <utility>
@@ -41,6 +42,21 @@ constexpr bool is_digit(std::optional<char> c) {
 }
 
 } // namespace
+
+std::string_view to_string(ParseError e) {
+    switch (e) {
+        case ParseError::EofInComment:
+            return "EofInComment";
+        case ParseError::EofInEscapeSequence:
+            return "EofInEscapeSequence";
+        case ParseError::EofInString:
+            return "EofInString";
+        case ParseError::NewlineInString:
+            return "NewlineInString";
+    }
+
+    return "Unknown parse error";
+}
 
 void Tokenizer::run() {
     while (true) {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -68,6 +68,23 @@ void expect_error(
 
 int main() {
     etest::Suite s{};
+
+    s.add_test("to_string(ParseError)", [](etest::IActions &a) {
+        static constexpr auto kFirstError = ParseError::EofInComment;
+        static constexpr auto kLastError = ParseError::NewlineInString;
+
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<ParseError>(error)) != "Unknown parse error",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<ParseError>(error + 1)), "Unknown parse error");
+    });
+
     s.add_test("delimiter", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "?");
 
