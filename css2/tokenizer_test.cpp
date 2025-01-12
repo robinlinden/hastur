@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <limits>
 #include <source_location>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -27,8 +28,25 @@ constexpr char const *kReplacementCharacter = "\xef\xbf\xbd";
 class TokenizerOutput {
 public:
     ~TokenizerOutput() {
-        a.expect(tokens.empty(), "Not all tokens were handled", loc);
-        a.expect(errors.empty(), "Not all errors were handled", loc);
+        if (!tokens.empty()) {
+            std::stringstream ss;
+            ss << "Not all tokens were handled. Unhandled:\n";
+            for (auto const &t : tokens) {
+                ss << "* " << to_string(t) << '\n';
+            }
+
+            a.expectation_failure(ss.view(), loc);
+        }
+
+        if (!errors.empty()) {
+            std::stringstream ss;
+            ss << "Not all errors were handled. Unhandled:\n";
+            for (auto e : errors) {
+                ss << "* " << to_string(e) << '\n';
+            }
+
+            a.expectation_failure(ss.view(), loc);
+        }
     }
 
     etest::IActions &a;
