@@ -116,9 +116,52 @@ public:
         switch (*c) {
             case '"':
                 return parse_string();
+            case 't':
+                return parse_true();
+            case 'f':
+                return parse_false();
+            case 'n':
+                return parse_null();
             default:
                 return std::nullopt;
         }
+    }
+
+    std::optional<Value> parse_true() {
+        std::ignore = consume(); // 't'
+        auto r = consume();
+        auto u = consume();
+        auto e = consume();
+        if (r != 'r' || u != 'u' || e != 'e') {
+            return std::nullopt;
+        }
+
+        return Value{true};
+    }
+
+    std::optional<Value> parse_false() {
+        std::ignore = consume(); // 'f'
+        auto a = consume();
+        auto l = consume();
+        auto s = consume();
+        auto e = consume();
+        if (a != 'a' || l != 'l' || s != 's' || e != 'e') {
+            return std::nullopt;
+        }
+
+        return Value{false};
+    }
+
+    std::optional<Value> parse_null() {
+        std::ignore = consume(); // 'n'
+        auto u = consume();
+        auto l1 = consume();
+        auto l2 = consume();
+        if (u != 'u' || l1 != 'l' || l2 != 'l') {
+            return std::nullopt;
+        }
+
+        return Value{Null{}};
     }
 
     std::optional<Value> parse_string() {

@@ -50,5 +50,30 @@ int main() {
         a.expect_eq(json::parse(R"("\uDE00")"), std::nullopt);
     });
 
+    s.add_test("true", [](etest::IActions &a) {
+        a.expect_eq(json::parse("true"), json::Value{true});
+        a.expect_eq(json::parse("tru0"), std::nullopt);
+        a.expect_eq(json::parse("tr00"), std::nullopt);
+        a.expect_eq(json::parse("t000"), std::nullopt);
+        a.expect_eq(json::parse("true!"), std::nullopt);
+    });
+
+    s.add_test("false", [](etest::IActions &a) {
+        a.expect_eq(json::parse("false"), json::Value{false});
+        a.expect_eq(json::parse("fals0"), std::nullopt);
+        a.expect_eq(json::parse("fal00"), std::nullopt);
+        a.expect_eq(json::parse("fa000"), std::nullopt);
+        a.expect_eq(json::parse("f0000"), std::nullopt);
+        a.expect_eq(json::parse("false!"), std::nullopt);
+    });
+
+    s.add_test("null", [](etest::IActions &a) {
+        a.expect_eq(json::parse("null"), json::Value{json::Null{}});
+        a.expect_eq(json::parse("nul0"), std::nullopt);
+        a.expect_eq(json::parse("nu00"), std::nullopt);
+        a.expect_eq(json::parse("n000"), std::nullopt);
+        a.expect_eq(json::parse("null!"), std::nullopt);
+    });
+
     return s.run();
 }
