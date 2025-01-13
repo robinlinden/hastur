@@ -18,6 +18,7 @@
 #include <string_view>
 #include <system_error>
 #include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -106,6 +107,7 @@ public:
         return v;
     }
 
+    // NOLINTNEXTLINE(misc-no-recursion)
     std::optional<Value> parse_value() {
         skip_whitespace();
         auto c = peek();
@@ -122,8 +124,49 @@ public:
                 return parse_false();
             case 'n':
                 return parse_null();
+            case '[':
+                return parse_array();
             default:
                 return std::nullopt;
+        }
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
+    std::optional<Value> parse_array() {
+        std::ignore = consume(); // '['
+        skip_whitespace();
+
+        if (peek() == ']') {
+            std::ignore = consume();
+            return Array{};
+        }
+
+        Array array;
+        while (true) {
+            auto v = parse_value();
+            if (!v) {
+                return std::nullopt;
+            }
+
+            array.values.push_back(*std::move(v));
+            skip_whitespace();
+
+            auto c = peek();
+            if (!c) {
+                return std::nullopt;
+            }
+
+            if (*c == ',') {
+                std::ignore = consume();
+                continue;
+            }
+
+            if (*c == ']') {
+                std::ignore = consume();
+                return array;
+            }
+
+            return std::nullopt;
         }
     }
 

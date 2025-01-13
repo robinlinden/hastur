@@ -9,6 +9,7 @@
 #include <optional>
 
 int main() {
+    using json::Value;
     etest::Suite s{};
 
     s.add_test("bad input", [](etest::IActions &a) {
@@ -73,6 +74,21 @@ int main() {
         a.expect_eq(json::parse("nu00"), std::nullopt);
         a.expect_eq(json::parse("n000"), std::nullopt);
         a.expect_eq(json::parse("null!"), std::nullopt);
+    });
+
+    s.add_test("array", [](etest::IActions &a) {
+        a.expect_eq(json::parse("[]"), Value{json::Array{}});
+        a.expect_eq(json::parse("[ ]"), Value{json::Array{}});
+        a.expect_eq(json::parse(R"(["1"])"), Value{json::Array{{Value{"1"}}}});
+        a.expect_eq(json::parse(R"([null, true, "hello", false, []])"),
+                Value{json::Array{
+                        {Value{json::Null{}}, Value{true}, Value{"hello"}, Value{false}, Value{json::Array{}}},
+                }});
+
+        a.expect_eq(json::parse("["), std::nullopt);
+        a.expect_eq(json::parse("[blah"), std::nullopt);
+        a.expect_eq(json::parse("[null"), std::nullopt);
+        a.expect_eq(json::parse("[null,"), std::nullopt);
     });
 
     return s.run();
