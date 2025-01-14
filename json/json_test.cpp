@@ -6,6 +6,7 @@
 
 #include "etest/etest2.h"
 
+#include <algorithm>
 #include <optional>
 
 int main() {
@@ -112,6 +113,15 @@ int main() {
         a.expect_eq(json::parse(R"({"key":true)"), std::nullopt);
         a.expect_eq(json::parse(R"({"key":true,)"), std::nullopt);
         a.expect_eq(json::parse(R"({"key":true})"), Value{json::Object{{{"key", Value{true}}}}});
+    });
+
+    s.add_test("object helpers", [](etest::IActions &a) {
+        json::Object o{{{"key", Value{"value"}}}};
+
+        a.expect(o.contains("key"));
+        a.expect_eq(o.at("key"), Value{"value"});
+        a.expect_eq(o.find("key"), std::ranges::find(o.values, "key", &decltype(o.values)::value_type::first));
+        a.expect_eq(o.find("blah"), std::ranges::find(o.values, "end", &decltype(o.values)::value_type::first));
     });
 
     s.add_test("numbers", [](etest::IActions &a) {

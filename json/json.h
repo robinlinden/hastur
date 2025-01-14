@@ -41,6 +41,18 @@ struct Array {
 struct Object {
     std::vector<std::pair<std::string, Value>> values;
     inline bool operator==(Object const &) const;
+
+    [[nodiscard]] constexpr Value const &at(std::string_view key) const {
+        auto it = std::ranges::find(values, key, &decltype(values)::value_type::first);
+        assert(it != values.end());
+        return it->second;
+    }
+
+    [[nodiscard]] constexpr decltype(values)::const_iterator find(std::string_view key) const {
+        return std::ranges::find(values, key, &decltype(values)::value_type::first);
+    }
+
+    [[nodiscard]] constexpr bool contains(std::string_view key) const { return find(key) != values.end(); }
 };
 
 // TODO(robinlinden): Clang 17 and 18 crash if these are = default. Clang 19 is fine.
