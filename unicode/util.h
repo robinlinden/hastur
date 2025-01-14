@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -65,9 +65,33 @@ constexpr std::string to_utf8(std::uint32_t code_point) {
     }
 }
 
+constexpr bool is_high_surrogate(std::uint32_t code_point) {
+    return code_point >= 0xD800 && code_point <= 0xDBFF;
+}
+
+constexpr bool is_low_surrogate(std::uint32_t code_point) {
+    return code_point >= 0xDC00 && code_point <= 0xDFFF;
+}
+
 // https://infra.spec.whatwg.org/#surrogate
 constexpr bool is_surrogate(std::uint32_t code_point) {
-    return code_point >= 0xD800 && code_point <= 0xDFFF;
+    return is_high_surrogate(code_point) || is_low_surrogate(code_point);
+}
+
+constexpr std::optional<std::uint32_t> utf16_surrogate_pair_to_code_point(std::uint16_t high, std::uint16_t low) {
+    if (!is_high_surrogate(high) || !is_low_surrogate(low)) {
+        return std::nullopt;
+    }
+
+    return 0x10000 + ((high & 0x3FF) << 10) + (low & 0x3FF);
+}
+
+constexpr std::optional<std::string> utf16_to_utf8(std::uint16_t code_unit) {
+    if (is_surrogate(code_unit)) {
+        return std::nullopt;
+    }
+
+    return to_utf8(code_unit);
 }
 
 // https://infra.spec.whatwg.org/#noncharacter

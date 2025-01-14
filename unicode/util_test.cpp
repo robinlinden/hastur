@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -53,10 +53,26 @@ int main() {
 
     s.add_test("is_surrogate", [](etest::IActions &a) {
         a.expect(!is_surrogate(0xD799));
+        a.expect(!is_high_surrogate(0xD799));
+        a.expect(!is_low_surrogate(0xD799));
+
         a.expect(is_surrogate(0xD800)); // First leading surrogate.
         a.expect(is_surrogate(0xDBFF)); // Last leading surrogate.
+        a.expect(is_high_surrogate(0xD800));
+        a.expect(is_high_surrogate(0xDBFF));
+
+        a.expect(!is_low_surrogate(0xD800));
+        a.expect(!is_low_surrogate(0xDBFF));
+
         a.expect(is_surrogate(0xDC00)); // First trailing surrogate.
         a.expect(is_surrogate(0xDFFF)); // Last trailing surrogate.
+        a.expect(is_low_surrogate(0xDC00));
+        a.expect(is_low_surrogate(0xDFFF));
+
+        a.expect(!is_high_surrogate(0xDC00));
+        a.expect(!is_high_surrogate(0xDFFF));
+        a.expect(!is_high_surrogate(0xE000));
+        a.expect(!is_low_surrogate(0xE000));
         a.expect(!is_surrogate(0xE000));
     });
 
@@ -126,6 +142,42 @@ int main() {
 
         // BUGINESE END OF SECTION
         a.expect_eq(into_code_points("\xe1\xa8\x9f"sv), std::vector<std::uint32_t>{0x1a1f});
+    });
+
+    s.add_test("utf16_surrogate_pair_to_code_point", [](etest::IActions &a) {
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xD800, 0xDC00), 0x10000U);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xDBFF, 0xDFFF), 0x10FFFFU);
+
+        // Invalid pairs.
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xD800, 0xDBFF), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xDBFF, 0xDBFF), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xDC00, 0xD800), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xDFFF, 0xDBFF), std::nullopt);
+
+        // Non-surrogate pairs.
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0x0000, 0x0000), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0x0000, 0xFFFF), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xFFFF, 0x0000), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0xFFFF, 0xFFFF), std::nullopt);
+        a.expect_eq(utf16_surrogate_pair_to_code_point(0x42, 0x42), std::nullopt);
+    });
+
+    s.add_test("utf16_to_utf8", [](etest::IActions &a) {
+        a.expect_eq(utf16_to_utf8(0x002f), "/"sv);
+
+        a.expect_eq(utf16_to_utf8(0x00a3), "£"sv);
+        a.expect_eq(utf16_to_utf8(0x07f9), "߹"sv);
+
+        a.expect_eq(utf16_to_utf8(0x0939), "ह"sv);
+        a.expect_eq(utf16_to_utf8(0x20ac), "€"sv);
+        a.expect_eq(utf16_to_utf8(0xd55c), "한"sv);
+        a.expect_eq(utf16_to_utf8(0xfffd), "�"sv);
+
+        // Lone surrogates.
+        a.expect_eq(utf16_to_utf8(0xD800), std::nullopt);
+        a.expect_eq(utf16_to_utf8(0xDBFF), std::nullopt);
+        a.expect_eq(utf16_to_utf8(0xDC00), std::nullopt);
+        a.expect_eq(utf16_to_utf8(0xDFFF), std::nullopt);
     });
 
     return s.run();
