@@ -126,8 +126,61 @@ public:
                 return parse_null();
             case '[':
                 return parse_array();
+            case '{':
+                return parse_object();
             default:
                 return std::nullopt;
+        }
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
+    std::optional<Value> parse_object() {
+        std::ignore = consume(); // '{'
+        skip_whitespace();
+
+        if (peek() == '}') {
+            std::ignore = consume();
+            return Object{};
+        }
+
+        Object object;
+        while (true) {
+            skip_whitespace();
+
+            auto key = parse_string();
+            if (!key) {
+                return std::nullopt;
+            }
+
+            skip_whitespace();
+            if (consume() != ':') {
+                return std::nullopt;
+            }
+
+            auto value = parse_value();
+            if (!value) {
+                return std::nullopt;
+            }
+
+            object.values[std::get<std::string>(*std::move(key))] = *std::move(value);
+            skip_whitespace();
+
+            auto c = peek();
+            if (!c) {
+                return std::nullopt;
+            }
+
+            if (*c == ',') {
+                std::ignore = consume();
+                continue;
+            }
+
+            if (*c == '}') {
+                std::ignore = consume();
+                return object;
+            }
+
+            return std::nullopt;
         }
     }
 
@@ -209,7 +262,10 @@ public:
 
     std::optional<Value> parse_string() {
         std::string value;
-        std::ignore = consume(); // '"'
+        if (consume() != '"') {
+            return std::nullopt;
+        }
+
         while (auto c = consume()) {
             if (*c == '"') {
                 return value;

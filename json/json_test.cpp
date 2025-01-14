@@ -91,5 +91,28 @@ int main() {
         a.expect_eq(json::parse("[null,"), std::nullopt);
     });
 
+    s.add_test("object", [](etest::IActions &a) {
+        a.expect_eq(json::parse("{}"), Value{json::Object{}});
+        a.expect_eq(json::parse("{ }"), Value{json::Object{}});
+        a.expect_eq(json::parse(R"({"key": "value"})"), Value{json::Object{{{"key", Value{"value"}}}}});
+        a.expect_eq(json::parse(R"({"key": "value", "key2": "value2"})"),
+                Value{json::Object{{{"key", Value{"value"}}, {"key2", Value{"value2"}}}}});
+        a.expect_eq(json::parse(R"({"key": true, "key2": "value2", "key3": false})"),
+                Value{json::Object{{{"key", Value{true}}, {"key2", Value{"value2"}}, {"key3", Value{false}}}}});
+
+        a.expect_eq(json::parse(R"({"key": {"key": "value"}})"),
+                Value{json::Object{{{"key", Value{json::Object{{{"key", Value{"value"}}}}}}}}});
+
+        a.expect_eq(json::parse("{"), std::nullopt);
+        a.expect_eq(json::parse("{blah"), std::nullopt);
+        a.expect_eq(json::parse("{null"), std::nullopt);
+        a.expect_eq(json::parse(R"({"key")"), std::nullopt);
+        a.expect_eq(json::parse(R"({"key":)"), std::nullopt);
+        a.expect_eq(json::parse(R"({"key":asdf)"), std::nullopt);
+        a.expect_eq(json::parse(R"({"key":true)"), std::nullopt);
+        a.expect_eq(json::parse(R"({"key":true,)"), std::nullopt);
+        a.expect_eq(json::parse(R"({"key":true})"), Value{json::Object{{{"key", Value{true}}}}});
+    });
+
     return s.run();
 }
