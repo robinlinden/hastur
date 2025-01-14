@@ -8,12 +8,11 @@
 #include "unicode/util.h"
 #include "util/from_chars.h"
 
+#include <algorithm>
 #include <cassert>
 #include <charconv>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
-#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -40,7 +39,7 @@ struct Array {
 };
 
 struct Object {
-    std::map<std::string, Value, std::less<>> values;
+    std::vector<std::pair<std::string, Value>> values;
     inline bool operator==(Object const &) const;
 };
 
@@ -263,7 +262,7 @@ public:
                 return std::nullopt;
             }
 
-            object.values[std::get<std::string>(*std::move(key))] = *std::move(value);
+            object.values.emplace_back(std::get<std::string>(*std::move(key)), *std::move(value));
             skip_whitespace();
 
             auto c = peek();
