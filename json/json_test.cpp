@@ -114,5 +114,23 @@ int main() {
         a.expect_eq(json::parse(R"({"key":true})"), Value{json::Object{{{"key", Value{true}}}}});
     });
 
+    s.add_test("numbers", [](etest::IActions &a) {
+        a.expect_eq(json::parse("0"), Value{0});
+        a.expect_eq(json::parse("1"), Value{1});
+        a.expect_eq(json::parse("123"), Value{123});
+        a.expect_eq(json::parse("123.456"), Value{123.456});
+        a.expect_eq(json::parse("-0"), Value{-0});
+        a.expect_eq(json::parse("-1"), Value{-1});
+        a.expect_eq(json::parse("-123"), Value{-123});
+        a.expect_eq(json::parse("-123.456"), Value{-123.456});
+        a.expect_eq(json::parse("0.123"), Value{0.123});
+        a.expect_eq(json::parse("0.123e4"), Value{0.123e4});
+        a.expect_eq(json::parse("0.123e-4"), Value{0.123e-4});
+        a.expect_eq(json::parse("0.123e+4"), Value{0.123e+4});
+
+        a.expect_eq(json::parse("0.123e456"), std::nullopt); // out-of-range
+        a.expect_eq(json::parse("123."), std::nullopt);
+    });
+
     return s.run();
 }

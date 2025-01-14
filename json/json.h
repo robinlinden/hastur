@@ -6,6 +6,7 @@
 #define JSON_JSON_H_
 
 #include "unicode/util.h"
+#include "util/from_chars.h"
 
 #include <cassert>
 #include <charconv>
@@ -115,6 +116,10 @@ public:
             return std::nullopt;
         }
 
+        if (*c == '-' || (*c >= '0' && *c <= '9')) {
+            return parse_number();
+        }
+
         switch (*c) {
             case '"':
                 return parse_string();
@@ -131,6 +136,102 @@ public:
             default:
                 return std::nullopt;
         }
+    }
+
+    std::optional<Value> parse_number() {
+        std::string number;
+        if (auto c = peek(); c == '-') {
+            number.push_back('-');
+            std::ignore = consume();
+        }
+
+        if (auto c = peek(); c == '0') {
+            number.push_back('0');
+            std::ignore = consume();
+        } else if (c >= '1' && c <= '9') {
+            assert(c.has_value()); // clang-tidy 19 needs some help here.
+            number.push_back(*c);
+            std::ignore = consume();
+
+            for (c = peek(); c >= '0' && c <= '9'; c = peek()) {
+                assert(c.has_value()); // clang-tidy 19 needs some help here.
+                number.push_back(*c);
+                std::ignore = consume();
+            }
+        } else {
+            return std::nullopt;
+        }
+
+        bool is_floating_point = false;
+        if (peek() == '.') {
+            number.push_back('.');
+            std::ignore = consume();
+            is_floating_point = true;
+
+            auto c = peek();
+            if (!c || *c < '0' || *c > '9') {
+                return std::nullopt;
+            }
+
+            number.push_back(*c);
+            std::ignore = consume();
+
+            while ((c = peek())) {
+                if (*c >= '0' && *c <= '9') {
+                    number.push_back(*c);
+                    std::ignore = consume();
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        if (auto c = peek(); c == 'e' || c == 'E') {
+            number.push_back(*c);
+            std::ignore = consume();
+            is_floating_point = true;
+
+            if (c = peek(); c == '+' || c == '-') {
+                number.push_back(*c);
+                std::ignore = consume();
+            }
+
+            if (c = peek(); !c || *c < '0' || *c > '9') {
+                return std::nullopt;
+            }
+
+            number.push_back(*c);
+            std::ignore = consume();
+
+            while ((c = peek())) {
+                if (*c >= '0' && *c <= '9') {
+                    number.push_back(*c);
+                    std::ignore = consume();
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        if (!is_floating_point) {
+            std::int64_t value{};
+            if (auto [p, ec] = std::from_chars(number.data(), number.data() + number.size(), value);
+                    ec != std::errc{} || p != number.data() + number.size()) {
+                return std::nullopt;
+            }
+
+            return Value{value};
+        }
+
+        double value{};
+        if (auto [p, ec] = util::from_chars(number.data(), number.data() + number.size(), value);
+                ec != std::errc{} || p != number.data() + number.size()) {
+            return std::nullopt;
+        }
+
+        return Value{value};
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)

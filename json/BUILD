@@ -8,6 +8,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//unicode:util",
+        "//util:from_chars",
     ],
 )
 
