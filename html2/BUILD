@@ -58,13 +58,10 @@ cc_binary(
         ],
         "//conditions:default": [],
     }),
-    tags = ["no-cross"],
-    # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
-    # tests.
     deps = [
         ":html2",
         "//etest",
-        "@simdjson",
+        "//json",
     ],
 )
 
@@ -92,9 +89,12 @@ genrule(
         ":html5lib_test_runner",
         test,
     ],
-    # simdjson seems to blow up qemu when we run our aarch64 crosscompiled
-    # tests.
-    tags = ["no-cross"],
+    target_compatible_with = select({
+        # TODO(robinlinden): Investigate why we fail to open the test files when
+        # running as a wasi binary.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
 ) for test in [
     "@html5lib-tests//:tokenizer/contentModelFlags.test",
     "@html5lib-tests//:tokenizer/domjs.test",

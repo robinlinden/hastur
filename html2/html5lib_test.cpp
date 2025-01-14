@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,12 +6,14 @@
 #include "html2/tokenizer.h"
 
 #include "etest/etest2.h"
-
-#include <simdjson.h> // IWYU pragma: keep
+#include "json/json.h"
 
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -83,28 +85,26 @@ std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
     return {std::move(tokens), std::move(errors)};
 }
 
-// NOLINTBEGIN(clang-analyzer-unix.Errno): Problem in simdjson that probably doesn't affect us.
-// NOLINTBEGIN(misc-include-cleaner): What you're meant to include from
-// simdjson depends on things like the architecture you're compiling for.
-// This is handled automagically with detection macros inside simdjson.
-std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
-    constexpr auto kGetOptionalStr = [](simdjson::ondemand::value v) -> std::optional<std::string> {
-        if (v.is_null()) {
-            return std::nullopt;
+std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
+    constexpr auto kGetOptionalStr = [](json::Value const &v) -> std::optional<std::string> {
+        if (auto const *str = std::get_if<std::string>(&v)) {
+            return *str;
         }
-        return std::string{v.get_string().value()};
+        return std::nullopt;
     };
 
     std::vector<html2::Token> result;
-    for (auto token : tokens) {
-        auto it = token.begin().value();
-        auto kind = (*it).get_string().value();
+    for (auto const &token : tokens.values) {
+        assert(std::holds_alternative<json::Array>(token));
+        auto const &t = std::get<json::Array>(token);
+        auto it = t.values.begin();
+        auto const &kind = std::get<std::string>((*it));
         if (kind == "DOCTYPE") {
-            auto name = kGetOptionalStr((*++it).value());
-            auto public_id = kGetOptionalStr((*++it).value());
-            auto system_id = kGetOptionalStr((*++it).value());
+            auto name = kGetOptionalStr((*++it));
+            auto public_id = kGetOptionalStr((*++it));
+            auto system_id = kGetOptionalStr((*++it));
             // The json has "correctness" instead of "force quirks", so we negate it.
-            auto force_quirks = !(*++it).value().get_bool().value();
+            auto force_quirks = !(std::get<bool>(*++it));
             result.emplace_back(html2::DoctypeToken{
                     std::move(name),
                     std::move(public_id),
@@ -115,22 +115,22 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
         }
 
         if (kind == "Comment") {
-            result.emplace_back(html2::CommentToken{std::string{(*++it).value().get_string().value()}});
+            result.emplace_back(html2::CommentToken{std::get<std::string>(*++it)});
             continue;
         }
 
         if (kind == "StartTag") {
-            html2::StartTagToken start{std::string{(*++it).value().get_string().value()}};
-            auto attrs = (*++it).value().get_object().value();
-            for (auto attr : attrs) {
+            html2::StartTagToken start{std::get<std::string>(*++it)};
+            auto attrs = std::get<json::Object>(*++it);
+            for (auto const &attr : attrs.values) {
                 start.attributes.push_back({
-                        std::string{attr.unescaped_key().value()},
-                        std::string{attr.value().get_string().value()},
+                        std::string{attr.first},
+                        std::string{std::get<std::string>(attr.second)},
                 });
             }
 
-            if (++it != simdjson::ondemand::array_iterator{}) {
-                start.self_closing = (*it).value().get_bool().value();
+            if (++it != t.values.end()) {
+                start.self_closing = std::get<bool>(*it);
             }
 
             result.emplace_back(std::move(start));
@@ -138,12 +138,12 @@ std::vector<html2::Token> to_html2_tokens(simdjson::ondemand::array tokens) {
         }
 
         if (kind == "EndTag") {
-            result.emplace_back(html2::EndTagToken{std::string{(*++it).value().get_string().value()}});
+            result.emplace_back(html2::EndTagToken{std::get<std::string>(*++it)});
             continue;
         }
 
         if (kind == "Character") {
-            auto characters = (*++it).value().get_string().value();
+            auto const &characters = std::get<std::string>(*++it);
             for (auto c : characters) {
                 result.emplace_back(html2::CharacterToken{c});
             }
@@ -370,8 +370,8 @@ std::optional<html2::ParseError> to_parse_error(std::string_view error_name) {
     return std::nullopt;
 }
 
-std::optional<Error> to_error(simdjson::ondemand::value error) {
-    auto code = error["code"].get_string().value();
+std::optional<Error> to_error(json::Object const &error) {
+    auto code = std::get<std::string>(error.at("code"));
     if (code == "control-character-in-input-stream" || code == "noncharacter-in-input-stream") {
         // TODO(robinlinden): Handle.
         std::cerr << "Unhandled error: " << code << '\n';
@@ -380,18 +380,18 @@ std::optional<Error> to_error(simdjson::ondemand::value error) {
 
     auto parse_error = to_parse_error(code);
     assert(parse_error.has_value());
-    auto line = error["line"].get_uint64().value();
-    auto col = error["col"].get_uint64().value();
+    auto line = std::get<std::int64_t>(error.at("line"));
+    auto col = std::get<std::int64_t>(error.at("col"));
     return Error{
             parse_error.value(),
             {static_cast<int>(line), static_cast<int>(col)},
     };
 }
 
-std::optional<std::vector<Error>> to_errors(simdjson::ondemand::array errors) {
+std::optional<std::vector<Error>> to_errors(json::Array const &errors) {
     std::vector<Error> result;
-    for (auto error : errors) {
-        auto maybe_error = to_error(error.value());
+    for (auto const &error : errors.values) {
+        auto maybe_error = to_error(std::get<json::Object>(error));
         if (!maybe_error.has_value()) {
             return std::nullopt;
         }
@@ -410,35 +410,43 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    auto json = simdjson::padded_string::load(argv[1]);
-    if (json.error() != simdjson::SUCCESS) {
-        std::cerr << "Error loading test file: " << json.error() << '\n';
+    std::ifstream test_file{argv[1], std::fstream::in | std::fstream::binary};
+    if (!test_file) {
+        std::cerr << "Failed to open test file '" << argv[1] << "'\n";
+        return 1;
+    }
+
+    std::string test_bytes{std::istreambuf_iterator<char>(test_file), std::istreambuf_iterator<char>()};
+
+    auto json = json::parse(test_bytes);
+    if (!json) {
+        std::cerr << "Error loading test file.\n";
         return 1;
     }
 
     etest::Suite s;
 
-    simdjson::ondemand::parser parser;
-    simdjson::ondemand::document doc = parser.iterate(json);
-    auto tests = doc.find_field("tests").get_array().value();
-    for (auto test : tests) {
-        auto name = test["description"].get_string().value();
+    auto const &doc = std::get<json::Object>(*json);
+    auto const &tests = std::get<json::Array>(doc.at("tests"));
+    for (auto const &v : tests.values) {
+        auto const &test = std::get<json::Object>(v);
+        auto name = std::get<std::string>(test.at("description"));
 
         // TOOD(robinlinden): Don't skip these.
-        if (test["doubleEscaped"].error() == simdjson::SUCCESS) {
+        if (test.contains("doubleEscaped")) {
             continue;
         }
 
         std::vector<html2::State> initial_states{html2::State::Data};
 
-        if (test["initialStates"].error() == simdjson::SUCCESS) {
+        if (auto it = test.find("initialStates"); it != test.values.end()) {
             initial_states.clear();
 
-            auto state_names = test["initialStates"].get_array().value();
-            for (auto state_name : state_names) {
-                auto state = to_state(state_name.get_string().value());
+            auto state_names = std::get<json::Array>(it->second);
+            for (auto const &state_name : state_names.values) {
+                auto state = to_state(std::get<std::string>(state_name));
                 if (!state.has_value()) {
-                    std::cerr << "Unhandled state: " << state_name.get_string().value() << '\n';
+                    std::cerr << "Unhandled state: " << std::get<std::string>(state_name) << '\n';
                     return 1;
                 }
 
@@ -447,22 +455,22 @@ int main(int argc, char **argv) {
         }
 
         std::optional<std::string> last_start_tag;
-        if (test["lastStartTag"].error() == simdjson::SUCCESS) {
-            last_start_tag = test["lastStartTag"].get_string().value();
+        if (auto it = test.find("lastStartTag"); it != test.values.end()) {
+            last_start_tag = std::get<std::string>(it->second);
         }
 
-        auto in = test["input"].get_string().value();
+        auto in = std::get<std::string>(test.at("input"));
         // TOOD(robinlinden): Don't skip these.
         // See: https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
         if (in.contains('\r')) {
             continue;
         }
 
-        auto out_tokens = to_html2_tokens(test["output"].get_array().value());
+        auto out_tokens = to_html2_tokens(std::get<json::Array>(test.at("output")));
         std::vector<Error> out_errors;
 
-        if (test["errors"].error() == simdjson::SUCCESS) {
-            auto maybe_errors = to_errors(test["errors"].get_array().value());
+        if (auto it = test.find("errors"); it != test.values.end()) {
+            auto maybe_errors = to_errors(std::get<json::Array>(it->second));
             if (!maybe_errors.has_value()) {
                 continue;
             }
@@ -482,5 +490,3 @@ int main(int argc, char **argv) {
 
     return s.run();
 }
-// NOLINTEND(misc-include-cleaner)
-// NOLINTEND(clang-analyzer-unix.Errno)
