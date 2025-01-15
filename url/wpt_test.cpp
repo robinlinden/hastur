@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
             std::string_view href = obj["href"];
             a.expect_eq(url->serialize(), href);
 
-            if (obj.find_field("failure").error() != simdjson::error_code::NO_SUCH_FIELD) {
+            if (obj.find_field("origin").error() != simdjson::error_code::NO_SUCH_FIELD) {
                 std::string_view origin = obj["origin"];
 
                 a.expect_eq(url->origin().serialize(), origin);
