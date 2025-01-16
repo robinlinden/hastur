@@ -38,8 +38,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-bYxtXNhv7QMe5IQk8jj6NfM6vJkh/ZfdSuERmin8gH8=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/8.6.3/rules_java-8.6.3.tar.gz",
+    integrity = "sha256-VEntNtYSaVed2fSw5TLNExhA8oWzibN5Wui01xc4fdg=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.7.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -172,8 +172,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-CTbJvDxDIe43LLj2bdly02jLlA7QGpup/X3rzwCT8Js=",
-    urls = ["https://github.com/bazelbuild/rules_go/releases/download/v0.51.0/rules_go-v0.51.0.zip"],
+    integrity = "sha256-kP6PtALe6VejdfPrhRFFW9c4x+1WJpX03RF6x9LYM7E=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.52.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
@@ -198,9 +198,9 @@ archive_override(
 # https://github.com/fmeum/buildozer
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-/HfDfwjmdFCKV5jYSRiuUrO5UQGZ4KwBESo3iWfaQVg=",
-    strip_prefix = "buildozer-7.1.2",
-    urls = ["https://github.com/fmeum/buildozer/releases/download/v7.1.2/buildozer-v7.1.2.tar.gz"],
+    integrity = "sha256-yDRPDwOeuPX1cz8JkXHyzUTkSlSPRZ85r/cJN6qPjlI=",
+    strip_prefix = "buildozer-7.3.1",
+    url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format("7.3.1"),
 )
 
 # https://github.com/google/googletest
@@ -214,9 +214,9 @@ archive_override(
 # https://github.com/protocolbuffers/protobuf
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-YxUKuiP3qQ/X2HvfUU5FndX+cCP93gG1asUzNd9k1L0=",
-    strip_prefix = "protobuf-29.2",
-    urls = ["https://github.com/protocolbuffers/protobuf/releases/download/v29.2/protobuf-29.2.tar.gz"],
+    integrity = "sha256-AIoRzFb5uWZ5tMKF/QX0bTF9aFvjq1JLKjEL4PutmH4=",
+    strip_prefix = "protobuf-29.3",
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format("29.3"),
 )
 
 # https://github.com/abseil/abseil-cpp
