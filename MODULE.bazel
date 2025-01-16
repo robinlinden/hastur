@@ -19,8 +19,8 @@ archive_override(
 bazel_dep(name = "platforms")  # Apache-2.0
 archive_override(
     module_name = "platforms",
-    integrity = "sha256-IY7+juc20mo1cmY7N0olPAErcW2K8MB+hC6C8jigp+4=",
-    urls = ["https://github.com/bazelbuild/platforms/releases/download/0.0.10/platforms-0.0.10.tar.gz"],
+    integrity = "sha256-KXQuhydYCbXlmNwvBNhpYMx6VbMGfZciHJq7yZJr/w8=",
+    url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("0.0.11"),
 )
 
 # https://github.com/bazelbuild/rules_cc
@@ -335,9 +335,9 @@ EOF""",
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-JDpPv6TnSf7Mc+WPYvJasuQe3MTzT6I7S2r+Dgursq0=",
-    strip_prefix = "boringssl-0.20241209.0",
-    url = "https://github.com/google/boringssl/releases/download/0.20241209.0/boringssl-0.20241209.0.tar.gz",
+    integrity = "sha256-uK9hYU+E5aONR8oNhMxnKPZSUQsrroHGX1KOQmu1wuo=",
+    strip_prefix = "boringssl-0.20250114.0",
+    url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format("0.20250114.0"),
 )
 
 # https://github.com/google/brotli
@@ -376,7 +376,7 @@ bazel_dep(name = "fmt")  # MIT
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-SC7tnvvJg4jbruXLXzaL5eykiTRWuzWMGLf/cfg1rkM=",
+    integrity = "sha256-71TfHUuihRnjG/F59qT7WFHWhMMoygUc5dobUr+LFkE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -384,8 +384,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "fmt-11.1.1",
-    url = "https://github.com/fmtlib/fmt/archive/11.1.1.tar.gz",
+    strip_prefix = "fmt-11.1.2",
+    url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format("11.1.2"),
 )
 
 # https://github.com/freetype/freetype
@@ -491,15 +491,15 @@ bazel_dep(name = "imgui")
 archive_override(
     module_name = "imgui",  # MIT
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-xfvF3KsdRgZAAcO4TXqIgSmFzefg6c7QP1Z3vsG6UCo=",
+    integrity = "sha256-IAHatL3X0XjYJ307F8QKof8eduLMrF56uMba+XVjEsI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "imgui-1.91.6",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.6.tar.gz",
+    strip_prefix = "imgui-1.91.7",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.7.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -549,15 +549,15 @@ bazel_dep(name = "simdjson")  # Apache-2.0
 archive_override(
     module_name = "simdjson",
     build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-ECmv9rzKeBH7e21UIcXJAkuOdOhM0mhoAmVyP0LiPPI=",
+    integrity = "sha256-cXai/rmOGza2ufpW1kFRBohl9QWgziQgPz3bs/mFEDs=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "simdjson")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "simdjson-3.11.4",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.11.4.tar.gz",
+    strip_prefix = "simdjson-3.11.6",
+    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.11.6.tar.gz",
 )
 
 # https://github.com/glennrp/libpng
@@ -672,14 +672,14 @@ EOF""",
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.4.303"
+VULKAN_TAG = "1.4.304"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
-bazel_dep(name = "vulkan")
+bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
-    module_name = "vulkan",  # Apache-2.0
+    module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-/fDi4FNWtFUTf/l/g3yWibolPsfSD4etgVdbm9vn/dQ=",
+    integrity = "sha256-XhoGs/J+dYG1XR3qF2/ZfuCi8plAbbL0N8HS8pfOuls=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -692,11 +692,11 @@ EOF""",
 )
 
 # https://github.com/KhronosGroup/Vulkan-Hpp
-bazel_dep(name = "vulkan_hpp")
+bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
-    module_name = "vulkan_hpp",  # Apache-2.0
+    module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-8RF+1PT+w3ILDtlh5fJLszS0UPj5DgO7UxR5id65z+c=",
+    integrity = "sha256-Vne1DOIgbv9glfV2rVcbvpEJLHTJY9TnphR5+66O1ng=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
