@@ -68,11 +68,13 @@ private:
     bool inputs_starts_ident_sequence(char first_character) const;
     bool inputs_starts_number(char first_character) const;
     bool is_eof() const;
+    void reconsume();
     void reconsume_in(State);
 
     std::variant<std::int32_t, double> consume_number(char first_byte);
     std::string consume_an_escaped_code_point();
     Token consume_a_numeric_token(char first_byte);
+    [[nodiscard]] std::string consume_an_ident_sequence(char first_byte);
 };
 
 } // namespace css2

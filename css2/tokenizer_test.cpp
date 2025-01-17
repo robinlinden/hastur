@@ -459,6 +459,16 @@ int main() {
         expect_token(output, PercentageToken{.data = 13.25});
     });
 
+    s.add_test("dimension", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "100lol@ 1.25em 5e\\23 ");
+        expect_token(output, DimensionToken{.data = 100, .unit = "lol"});
+        expect_token(output, DelimToken{'@'});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, DimensionToken{.data = 1.25, .unit = "em"});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, DimensionToken{.data = 5, .unit = "e#"});
+    });
+
     s.add_test("plus: delim", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "+hello");
         expect_token(output, DelimToken{'+'});

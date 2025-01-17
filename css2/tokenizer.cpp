@@ -403,6 +403,10 @@ bool Tokenizer::is_eof() const {
     return pos_ >= input_.size();
 }
 
+void Tokenizer::reconsume() {
+    reconsume_in(state_);
+}
+
 void Tokenizer::reconsume_in(State state) {
     --pos_;
     state_ = state;
@@ -538,15 +542,46 @@ std::string Tokenizer::consume_an_escaped_code_point() {
     return std::string{*c};
 }
 
+// https://www.w3.org/TR/css-syntax-3/#consume-a-numeric-token
 Token Tokenizer::consume_a_numeric_token(char first_byte) {
-    // TODO(robinlinden): https://www.w3.org/TR/css-syntax-3/#consume-a-numeric-token
     auto number = consume_number(first_byte);
-    if (peek_input(0) == '%') {
-        std::ignore = consume_next_input_character();
+    auto next_input = consume_next_input_character();
+    if (!next_input) {
+        return NumberToken{number};
+    }
+
+    if (inputs_starts_ident_sequence(*next_input)) {
+        return DimensionToken{.data = number, .unit = consume_an_ident_sequence(*next_input)};
+    }
+
+    if (*next_input == '%') {
         return PercentageToken{number};
     }
 
+    reconsume();
     return NumberToken{number};
+}
+
+// https://www.w3.org/TR/css-syntax-3/#consume-name
+std::string Tokenizer::consume_an_ident_sequence(char first_byte) {
+    std::string result{first_byte};
+    while (auto c = peek_input(0)) {
+        if (is_ident_code_point(*c)) {
+            std::ignore = consume_next_input_character();
+            result += *c;
+            continue;
+        }
+
+        if (*c == '\\') {
+            std::ignore = consume_next_input_character();
+            result += consume_an_escaped_code_point();
+            continue;
+        }
+
+        break;
+    }
+
+    return result;
 }
 
 } // namespace css2
