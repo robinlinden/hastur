@@ -26,7 +26,6 @@ enum class State : std::uint8_t {
     Comment,
     CommentEnd,
     CommercialAt,
-    CommercialAtIdent,
     IdentLike,
     String,
     Whitespace,
@@ -55,8 +54,6 @@ private:
     Token current_token_{};
 
     char string_ending_{};
-
-    std::string temporary_buffer_{};
 
     std::function<void(Token &&)> on_emit_;
     std::function<void(ParseError)> on_error_;

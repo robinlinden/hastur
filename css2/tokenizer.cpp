@@ -167,8 +167,7 @@ void Tokenizer::run() {
                 }
 
                 if (inputs_starts_ident_sequence(*c)) {
-                    temporary_buffer_ = *c;
-                    state_ = State::IdentLike;
+                    reconsume_in(State::IdentLike);
                     continue;
                 }
 
@@ -231,8 +230,8 @@ void Tokenizer::run() {
                 }
 
                 if (inputs_starts_ident_sequence(*c)) {
-                    temporary_buffer_ = *c;
-                    state_ = State::CommercialAtIdent;
+                    emit(AtKeywordToken{consume_an_ident_sequence(*c)});
+                    state_ = State::Main;
                     continue;
                 }
 
@@ -241,49 +240,15 @@ void Tokenizer::run() {
                 continue;
             }
 
-            case State::CommercialAtIdent: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(AtKeywordToken{temporary_buffer_});
-                    return;
-                }
-
-                if (is_ident_code_point(*c)) {
-                    temporary_buffer_ += *c;
-                    continue;
-                }
-
-                if (*c == '\\') {
-                    temporary_buffer_ += consume_an_escaped_code_point();
-                    continue;
-                }
-
-                emit(AtKeywordToken{temporary_buffer_});
-                reconsume_in(State::Main);
-                continue;
-            }
-
             case State::IdentLike: {
                 auto c = consume_next_input_character();
-                if (!c) {
-                    emit(IdentToken{temporary_buffer_});
-                    return;
-                }
-
-                if (is_ident_code_point(*c)) {
-                    temporary_buffer_ += *c;
-                    continue;
-                }
-
-                if (*c == '\\') {
-                    temporary_buffer_ += consume_an_escaped_code_point();
-                    continue;
-                }
+                assert(c); // Guaranteed by the caller.
+                auto ident = consume_an_ident_sequence(*c);
 
                 // TODO(mkiael): Handle url and function token
 
-                emit(IdentToken{temporary_buffer_});
-                reconsume_in(State::Main);
+                emit(IdentToken{std::move(ident)});
+                state_ = State::Main;
                 continue;
             }
 
