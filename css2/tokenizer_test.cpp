@@ -303,6 +303,23 @@ int main() {
         expect_token(output, AtKeywordToken{"foo#"});
     });
 
+    s.add_test("at keyword starting w/ an escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "@\\23 bc");
+        expect_token(output, AtKeywordToken{"#bc"});
+    });
+
+    s.add_test("at keyword starting w/ - + escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "@-\\23 bc");
+        expect_token(output, AtKeywordToken{"-#bc"});
+    });
+
+    s.add_test("at keyword start, but with bad escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "@\\\n");
+        expect_token(output, DelimToken{'@'});
+        expect_token(output, DelimToken{'\\'});
+        expect_token(output, WhitespaceToken{});
+    });
+
     s.add_test("at keyword token with digit", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "@b4z");
 

@@ -41,6 +41,11 @@ constexpr bool is_digit(std::optional<char> c) {
     return c && util::is_digit(*c);
 }
 
+// https://www.w3.org/TR/css-syntax-3/#check-if-two-code-points-are-a-valid-escape
+constexpr bool is_valid_escape_sequence(char first_byte, std::optional<char> second_byte) {
+    return first_byte == '\\' && second_byte != '\n';
+}
+
 } // namespace
 
 std::string_view to_string(ParseError e) {
@@ -330,18 +335,25 @@ std::optional<char> Tokenizer::peek_input(int index) const {
 
 // https://www.w3.org/TR/css-syntax-3/#would-start-an-identifier
 bool Tokenizer::inputs_starts_ident_sequence(char first_character) const {
-    bool result{false};
     if (first_character == '-') {
-        if (auto second_character = peek_input(0)) {
-            if (is_ident_start_code_point(*second_character) || *second_character == '-') {
-                result = true;
-            }
+        auto second_character = peek_input(0);
+        if (!second_character) {
+            return false;
         }
-    } else if (is_ident_start_code_point(first_character)) {
-        result = true;
+
+        if (is_ident_start_code_point(*second_character) || *second_character == '-') {
+            return true;
+        }
+
+        auto third_character = peek_input(1);
+        return is_valid_escape_sequence(*second_character, third_character);
     }
-    // TODO(mkiael): Handle escape sequence
-    return result;
+
+    if (is_ident_start_code_point(first_character)) {
+        return true;
+    }
+
+    return is_valid_escape_sequence(first_character, peek_input(0));
 }
 
 bool Tokenizer::inputs_starts_number([[maybe_unused]] char first_character) const {
@@ -529,20 +541,19 @@ Token Tokenizer::consume_a_numeric_token(char first_byte) {
 
 // https://www.w3.org/TR/css-syntax-3/#consume-name
 std::string Tokenizer::consume_an_ident_sequence(char first_byte) {
-    std::string result{first_byte};
-    while (auto c = peek_input(0)) {
+    std::string result{};
+    for (std::optional<char> c = first_byte; c.has_value(); c = consume_next_input_character()) {
         if (is_ident_code_point(*c)) {
-            std::ignore = consume_next_input_character();
             result += *c;
             continue;
         }
 
         if (*c == '\\') {
-            std::ignore = consume_next_input_character();
             result += consume_an_escaped_code_point();
             continue;
         }
 
+        reconsume();
         break;
     }
 
