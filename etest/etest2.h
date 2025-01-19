@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -20,9 +20,34 @@
 namespace etest {
 
 template<typename T>
-concept Printable = requires(std::ostream &os, T t) {
+concept Ostreamable = requires(std::ostream &os, T t) {
     { os << t } -> std::same_as<std::ostream &>;
 };
+
+template<typename T>
+concept HasToString = requires(T t) {
+    { to_string(t) } -> std::convertible_to<std::string_view>;
+};
+
+template<typename T>
+concept Printable = Ostreamable<T> || HasToString<T>;
+
+template<Printable T, Printable U>
+void print_to(std::ostream &os, std::string_view actual_op, T const &a, U const &b) {
+    if constexpr (Ostreamable<T>) {
+        os << a;
+    } else {
+        os << to_string(a);
+    }
+
+    os << ' ' << actual_op << '\n';
+
+    if constexpr (Ostreamable<U>) {
+        os << b;
+    } else {
+        os << to_string(b);
+    }
+}
 
 struct RunOptions {
     bool run_disabled_tests{false};
@@ -71,7 +96,7 @@ public:
         }
 
         std::stringstream ss;
-        ss << a << " !=\n" << b;
+        print_to(ss, "!=", a, b);
         expect(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
     }
 
@@ -94,7 +119,7 @@ public:
         }
 
         std::stringstream ss;
-        ss << a << " !=\n" << b;
+        print_to(ss, "!=", a, b);
         require(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
     }
 
