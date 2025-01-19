@@ -32,6 +32,9 @@ concept HasToString = requires(T t) {
 template<typename T>
 concept Printable = Ostreamable<T> || HasToString<T>;
 
+template<typename T, typename U>
+void print_to(std::ostream &, std::string_view, T const &, U const &) {}
+
 template<Printable T, Printable U>
 void print_to(std::ostream &os, std::string_view actual_op, T const &a, U const &b) {
     if constexpr (Ostreamable<T>) {
@@ -86,9 +89,8 @@ public:
     }
 
     // Weak test requirement. Prints the types compared on failure (if printable).
-    template<Printable T, Printable U>
-    constexpr void expect_eq(T const &a,
-            U const &b,
+    constexpr void expect_eq(auto const &a,
+            auto const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) noexcept {
         if (a == b) {
@@ -97,21 +99,12 @@ public:
 
         std::stringstream ss;
         print_to(ss, "!=", a, b);
-        expect(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
-    }
-
-    template<typename T, typename U>
-    constexpr void expect_eq(T const &a,
-            U const &b,
-            std::optional<std::string_view> log_message = std::nullopt,
-            std::source_location const &loc = std::source_location::current()) noexcept {
-        expect(a == b, std::move(log_message), loc);
+        expect(false, log_message || ss.view().empty() ? std::move(log_message) : std::move(ss).str(), loc);
     }
 
     // Hard test requirement. Prints the types compared on failure (if printable).
-    template<Printable T, Printable U>
-    constexpr void require_eq(T const &a,
-            U const &b,
+    constexpr void require_eq(auto const &a,
+            auto const &b,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) {
         if (a == b) {
@@ -120,15 +113,7 @@ public:
 
         std::stringstream ss;
         print_to(ss, "!=", a, b);
-        require(false, log_message ? std::move(log_message) : std::move(ss).str(), loc);
-    }
-
-    template<typename T, typename U>
-    constexpr void require_eq(T const &a,
-            U const &b,
-            std::optional<std::string_view> log_message = std::nullopt,
-            std::source_location const &loc = std::source_location::current()) {
-        require(a == b, std::move(log_message), loc);
+        require(false, log_message || ss.view().empty() ? std::move(log_message) : std::move(ss).str(), loc);
     }
 };
 
