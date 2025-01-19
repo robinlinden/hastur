@@ -603,5 +603,32 @@ int main() {
         expect_token(output, CloseParenToken{});
     });
 
+    s.add_test("hash token: ez", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "#");
+        expect_token(output, DelimToken{'#'});
+    });
+
+    s.add_test("hash token: ident sequence", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "#foo");
+        expect_token(output, HashToken{.type = HashToken::Type::Id, .data = "foo"});
+    });
+
+    s.add_test("hash token: non-ident sequence", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "#123");
+        expect_token(output, HashToken{.type = HashToken::Type::Unrestricted, .data = "123"});
+    });
+
+    s.add_test("hash token: escaped code point", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "#\\41");
+        expect_token(output, HashToken{.type = HashToken::Type::Id, .data = "A"});
+    });
+
+    s.add_test("hash token: invalid escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "#\\\n");
+        expect_token(output, DelimToken{'#'});
+        expect_token(output, DelimToken{'\\'});
+        expect_token(output, WhitespaceToken{});
+    });
+
     return s.run();
 }

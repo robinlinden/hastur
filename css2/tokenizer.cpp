@@ -84,6 +84,29 @@ void Tokenizer::run() {
                         current_token_ = StringToken{""};
                         state_ = State::String;
                         continue;
+                    case '#': {
+                        auto next_input = peek_input(0);
+                        if (!next_input) {
+                            emit(DelimToken{'#'});
+                            continue;
+                        }
+
+                        if (is_ident_code_point(*next_input) || is_valid_escape_sequence(*next_input, peek_input(1))) {
+                            std::ignore = consume_next_input_character();
+                            HashToken token{};
+
+                            if (inputs_starts_ident_sequence(*next_input)) {
+                                token.type = HashToken::Type::Id;
+                            }
+
+                            token.data = consume_an_ident_sequence(*next_input);
+                            emit(std::move(token));
+                            continue;
+                        }
+
+                        emit(DelimToken{'#'});
+                        continue;
+                    }
                     case '/':
                         state_ = State::CommentStart;
                         continue;
