@@ -70,6 +70,21 @@ class Parser {
 public:
     explicit constexpr Parser(std::string_view json) : json_{json} {}
 
+    std::optional<Value> parse() {
+        auto v = parse_value();
+        skip_whitespace();
+
+        if (!is_eof()) {
+            return std::nullopt;
+        }
+
+        return v;
+    }
+
+private:
+    std::string_view json_;
+    std::size_t pos_{0};
+
     constexpr bool is_eof() const { return pos_ >= json_.size(); }
 
     constexpr bool is_whitespace(char c) const {
@@ -106,17 +121,6 @@ public:
         while (!is_eof() && is_whitespace(peek())) {
             std::ignore = consume();
         }
-    }
-
-    std::optional<Value> parse() {
-        auto v = parse_value();
-        skip_whitespace();
-
-        if (!is_eof()) {
-            return std::nullopt;
-        }
-
-        return v;
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
@@ -486,10 +490,6 @@ public:
 
         return code_unit;
     }
-
-private:
-    std::string_view json_;
-    std::size_t pos_{0};
 };
 
 inline std::optional<Value> parse(std::string_view json) {
