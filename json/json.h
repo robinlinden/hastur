@@ -71,7 +71,8 @@ public:
     explicit constexpr Parser(std::string_view json) : json_{json} {}
 
     std::optional<Value> parse() {
-        auto v = parse_value();
+        static constexpr auto kRecursionLimit = 257;
+        auto v = parse_value(kRecursionLimit);
         skip_whitespace();
 
         if (!is_eof()) {
@@ -124,7 +125,11 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::optional<Value> parse_value() {
+    std::optional<Value> parse_value(int recursion_limit) {
+        if (recursion_limit <= 0) {
+            return std::nullopt;
+        }
+
         skip_whitespace();
         auto c = peek();
         if (!c) {
@@ -145,9 +150,9 @@ private:
             case 'n':
                 return parse_null();
             case '[':
-                return parse_array();
+                return parse_array(recursion_limit);
             case '{':
-                return parse_object();
+                return parse_object(recursion_limit);
             default:
                 return std::nullopt;
         }
@@ -250,7 +255,7 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::optional<Value> parse_object() {
+    std::optional<Value> parse_object(int recursion_limit) {
         std::ignore = consume(); // '{'
         skip_whitespace();
 
@@ -273,7 +278,7 @@ private:
                 return std::nullopt;
             }
 
-            auto value = parse_value();
+            auto value = parse_value(recursion_limit - 1);
             if (!value) {
                 return std::nullopt;
             }
@@ -301,7 +306,7 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::optional<Value> parse_array() {
+    std::optional<Value> parse_array(int recursion_limit) {
         std::ignore = consume(); // '['
         skip_whitespace();
 
@@ -312,7 +317,7 @@ private:
 
         Array array;
         while (true) {
-            auto v = parse_value();
+            auto v = parse_value(recursion_limit - 1);
             if (!v) {
                 return std::nullopt;
             }

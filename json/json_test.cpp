@@ -7,7 +7,10 @@
 #include "etest/etest2.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <optional>
+#include <string>
+#include <variant>
 
 int main() {
     using json::Value;
@@ -140,6 +143,99 @@ int main() {
 
         a.expect_eq(json::parse("0.123e456"), std::nullopt); // out-of-range
         a.expect_eq(json::parse("123."), std::nullopt);
+    });
+
+    s.add_test("deeply nested object", [](etest::IActions &a) {
+        static constexpr auto kMaxDepth = 256;
+        std::string to_parse;
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += R"({"a":)";
+        }
+
+        to_parse += R"("b")";
+
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += "}";
+        }
+
+        auto json = json::parse(to_parse).value();
+
+        json::Object const *v = std::get_if<json::Object>(&json);
+        a.expect(v != nullptr);
+
+        while (v != nullptr && !v->values.empty()) {
+            a.expect_eq(v->values[0].first, "a");
+            if (!std::holds_alternative<json::Object>(v->values[0].second)) {
+                break;
+            }
+
+            v = std::get_if<json::Object>(&v->values[0].second);
+        }
+
+        a.require_eq(v->values.size(), std::size_t{1});
+        a.expect_eq(std::get<std::string>(v->values[0].second), "b");
+    });
+
+    s.add_test("deeply nested object, limit hit", [](etest::IActions &a) {
+        static constexpr auto kMaxDepth = 300;
+        std::string to_parse;
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += R"({"a":)";
+        }
+
+        to_parse += R"("b")";
+
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += "}";
+        }
+
+        a.expect_eq(json::Parser{to_parse}.parse(), std::nullopt);
+    });
+
+    s.add_test("deeply nested array", [](etest::IActions &a) {
+        static constexpr auto kMaxDepth = 256;
+        std::string to_parse;
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += "[";
+        }
+
+        to_parse += R"("b")";
+
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += "]";
+        }
+
+        auto json = json::parse(to_parse).value();
+
+        json::Array const *v = std::get_if<json::Array>(&json);
+        a.expect(v != nullptr);
+
+        while (v != nullptr && !v->values.empty()) {
+            if (!std::holds_alternative<json::Array>(v->values[0])) {
+                break;
+            }
+
+            v = std::get_if<json::Array>(&v->values[0]);
+        }
+
+        a.require_eq(v->values.size(), std::size_t{1});
+        a.expect_eq(std::get<std::string>(v->values[0]), "b");
+    });
+
+    s.add_test("deeply nested array, limit hit", [](etest::IActions &a) {
+        static constexpr auto kMaxDepth = 300;
+        std::string to_parse;
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += "[";
+        }
+
+        to_parse += R"("b")";
+
+        for (int i = 0; i < kMaxDepth; ++i) {
+            to_parse += "]";
+        }
+
+        a.expect_eq(json::Parser{to_parse}.parse(), std::nullopt);
     });
 
     return s.run();
