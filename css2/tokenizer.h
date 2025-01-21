@@ -35,6 +35,7 @@ enum class ParseError : std::uint8_t {
     EofInComment,
     EofInEscapeSequence,
     EofInString,
+    InvalidEscapeSequence,
     NewlineInString,
 };
 

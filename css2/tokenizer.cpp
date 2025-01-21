@@ -56,6 +56,8 @@ std::string_view to_string(ParseError e) {
             return "EofInEscapeSequence";
         case ParseError::EofInString:
             return "EofInString";
+        case ParseError::InvalidEscapeSequence:
+            return "InvalidEscapeSequence";
         case ParseError::NewlineInString:
             return "NewlineInString";
     }
@@ -176,6 +178,15 @@ void Tokenizer::run() {
                         continue;
                     case '[':
                         emit(OpenSquareToken{});
+                        continue;
+                    case '\\':
+                        if (is_valid_escape_sequence('\\', peek_input(0))) {
+                            reconsume_in(State::IdentLike);
+                            continue;
+                        }
+
+                        emit(ParseError::InvalidEscapeSequence);
+                        emit(DelimToken{'\\'});
                         continue;
                     case ']':
                         emit(CloseSquareToken{});

@@ -316,6 +316,7 @@ int main() {
     s.add_test("at keyword start, but with bad escape", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "@\\\n");
         expect_token(output, DelimToken{'@'});
+        expect_error(output, ParseError::InvalidEscapeSequence);
         expect_token(output, DelimToken{'\\'});
         expect_token(output, WhitespaceToken{});
     });
@@ -638,6 +639,19 @@ int main() {
     s.add_test("hash token: invalid escape", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "#\\\n");
         expect_token(output, DelimToken{'#'});
+        expect_error(output, ParseError::InvalidEscapeSequence);
+        expect_token(output, DelimToken{'\\'});
+        expect_token(output, WhitespaceToken{});
+    });
+
+    s.add_test("\\: ident-like", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "\\Hallo");
+        expect_token(output, IdentToken{"Hallo"});
+    });
+
+    s.add_test("\\: invalid escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "\\\n");
+        expect_error(output, ParseError::InvalidEscapeSequence);
         expect_token(output, DelimToken{'\\'});
         expect_token(output, WhitespaceToken{});
     });
