@@ -508,6 +508,18 @@ int main() {
         expect_token(output, IdentToken{"lol"});
     });
 
+    s.add_test("<: delim", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "<hello");
+        expect_token(output, DelimToken{'<'});
+        expect_token(output, IdentToken{"hello"});
+    });
+
+    s.add_test("<: cdo", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "<!--lol");
+        expect_token(output, CdoToken{});
+        expect_token(output, IdentToken{"lol"});
+    });
+
     s.add_test("number: ez", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "0.25");
         expect_token(output, NumberToken{0.25});

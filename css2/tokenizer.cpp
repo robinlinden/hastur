@@ -165,6 +165,15 @@ void Tokenizer::run() {
                     case ';':
                         emit(SemiColonToken{});
                         continue;
+                    case '<':
+                        if (peek_input(0) == '!' && peek_input(1) == '-' && peek_input(2) == '-') {
+                            emit(CdoToken{});
+                            pos_ += 3;
+                            continue;
+                        }
+
+                        emit(DelimToken{'<'});
+                        continue;
                     case '[':
                         emit(OpenSquareToken{});
                         continue;
