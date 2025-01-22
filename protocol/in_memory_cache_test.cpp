@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -12,6 +12,7 @@
 
 #include <tl/expected.hpp>
 
+#include <functional>
 #include <memory>
 #include <utility>
 
@@ -21,17 +22,11 @@ namespace {
 
 class FakeProtocolHandler final : public protocol::IProtocolHandler {
 public:
-    explicit FakeProtocolHandler(int &calls, protocol::Response response)
-        : calls_{calls}, response_{std::move(response)} {}
-
-    tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &) override {
-        ++calls_;
-        return response_;
-    }
+    explicit FakeProtocolHandler(std::function<Response()> on_handle) : on_handle_{std::move(on_handle)} {}
+    tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &) override { return on_handle_(); }
 
 private:
-    int &calls_;
-    tl::expected<protocol::Response, protocol::Error> response_;
+    std::function<Response()> on_handle_;
 };
 
 } // namespace
@@ -42,7 +37,11 @@ int main() {
     s.add_test("cache returns cached response", [](etest::IActions &a) {
         int calls{};
         auto response = Response{.body{"hello"}};
-        InMemoryCache cache{std::make_unique<FakeProtocolHandler>(calls, response)};
+        InMemoryCache cache{std::make_unique<FakeProtocolHandler>([&] {
+            ++calls;
+            return response;
+        })};
+
         uri::Uri const uri;
         a.expect_eq(calls, 0);
         a.expect_eq(cache.handle(uri), response);
