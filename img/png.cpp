@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -67,6 +67,7 @@ std::optional<Png> Png::from(std::istream &is) {
 
     png_set_expand(png);
     png_set_add_alpha(png, 0xff, PNG_FILLER_AFTER);
+    int const interlacing_passes = png_set_interlace_handling(png);
 
     png_read_update_info(png, info);
 
@@ -76,8 +77,10 @@ std::optional<Png> Png::from(std::istream &is) {
     std::vector<unsigned char> bytes;
     bytes.resize(bytes_per_row * height);
 
-    for (std::uint32_t row = 0; row < height; ++row) {
-        png_read_row(png, bytes.data() + row * bytes_per_row, nullptr);
+    for (int i = 0; i < interlacing_passes; ++i) {
+        for (std::uint32_t row = 0; row < height; ++row) {
+            png_read_row(png, bytes.data() + row * bytes_per_row, nullptr);
+        }
     }
 
     Png ret{
