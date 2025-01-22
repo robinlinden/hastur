@@ -13,8 +13,10 @@
 #include <tl/expected.hpp>
 
 #include <functional>
+#include <future>
 #include <memory>
 #include <utility>
+#include <vector>
 
 using namespace protocol;
 
@@ -48,6 +50,24 @@ int main() {
         a.expect_eq(calls, 1);
         a.expect_eq(cache.handle(uri), response);
         a.expect_eq(calls, 1);
+    });
+
+    // The cache is used in a threaded context where we download things like
+    // stylesheets and images in parallel. This threading will go away once
+    // we've switched to async-io for downloading resources.
+    s.add_test("thread safety", [](etest::IActions &a) {
+        auto response = Response{.body{"hello"}};
+        InMemoryCache cache{std::make_unique<FakeProtocolHandler>([&] { return response; })};
+        uri::Uri const uri;
+
+        std::vector<std::future<Response>> jobs;
+        jobs.reserve(2);
+        jobs.push_back(std::async(std::launch::async, [&cache, &uri] { return cache.handle(uri).value(); }));
+        jobs.push_back(std::async(std::launch::async, [&cache, &uri] { return cache.handle(uri).value(); }));
+
+        for (auto &job : jobs) {
+            a.expect_eq(job.get(), response);
+        }
     });
 
     return s.run();
