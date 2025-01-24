@@ -981,6 +981,56 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
+    static constexpr auto kClosingTags = std::to_array<std::string_view>({
+            "address",
+            "article",
+            "aside",
+            "blockquote",
+            "button",
+            "center",
+            "details",
+            "dialog",
+            "dir",
+            "div",
+            "dl",
+            "fieldset",
+            "figcaption",
+            "figure",
+            "footer",
+            "header",
+            "hgroup",
+            "listing",
+            "main",
+            "menu",
+            "nav",
+            "ol",
+            "pre",
+            "search",
+            "section",
+            "summary",
+            "ul",
+    });
+    if (end != nullptr && is_in_array<kClosingTags>(end->tag_name)) {
+        if (!has_element_in_scope(a, end->tag_name)) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, end->tag_name);
+        if (a.current_node_name() != end->tag_name) {
+            // Parse error.
+        }
+
+        while (a.current_node_name() != end->tag_name) {
+            a.pop_current_node();
+        }
+
+        a.pop_current_node();
+        return {};
+    }
+
+    // TODO(robinlinden): Most things.
+
     if (end != nullptr && end->tag_name == "li") {
         if (!has_element_in_list_item_scope(a, "li")) {
             // Parse error.
