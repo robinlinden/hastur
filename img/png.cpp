@@ -5,7 +5,9 @@
 #include "img/png.h"
 
 #include <array>
+#include <cassert>
 #include <csetjmp>
+#include <cstddef>
 #include <cstdint>
 #include <istream>
 #include <optional>
@@ -76,6 +78,7 @@ std::optional<Png> Png::from(std::istream &is) {
     auto width = png_get_image_width(png, info);
     auto bytes_per_row = png_get_rowbytes(png, info);
     std::vector<unsigned char> bytes;
+    assert(bytes_per_row == std::size_t{width} * 4);
     bytes.resize(bytes_per_row * height);
 
     for (int i = 0; i < interlacing_passes; ++i) {
