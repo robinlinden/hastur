@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -33,7 +34,7 @@ std::string_view to_string(BrotliError err) {
     return "Unknown error";
 }
 
-tl::expected<std::vector<std::byte>, BrotliError> brotli_decode(std::span<std::byte const> const input) {
+tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::span<std::byte const> const input) const {
     if (input.empty()) {
         return tl::unexpected{BrotliError::InputEmpty};
     }
@@ -45,9 +46,6 @@ tl::expected<std::vector<std::byte>, BrotliError> brotli_decode(std::span<std::b
         return tl::unexpected{BrotliError::DecoderState};
     }
 
-    // Cap output buffer at 1GB. If we hit this, something fishy is probably
-    // going on, and we should bail before we OOM.
-    std::size_t constexpr kMaxOutSize = 1000000000;
     std::size_t constexpr kChunkSize = 131072; // Matches the zstd chunk size
 
     std::vector<std::byte> out;
@@ -63,10 +61,6 @@ tl::expected<std::vector<std::byte>, BrotliError> brotli_decode(std::span<std::b
     while (res != BROTLI_DECODER_RESULT_SUCCESS) {
         std::size_t avail_out = kChunkSize;
         auto *next_out = reinterpret_cast<std::uint8_t *>(intermediate_buf.data());
-
-        if (out.size() >= kMaxOutSize) {
-            return tl::unexpected{BrotliError::MaximumOutputLengthExceeded};
-        }
 
         res = BrotliDecoderDecompressStream(br_state.get(), &avail_in, &next_in, &avail_out, &next_out, &total_out);
 
@@ -85,6 +79,10 @@ tl::expected<std::vector<std::byte>, BrotliError> brotli_decode(std::span<std::b
             }
 
             return tl::unexpected{BrotliError::BrotliInternalError};
+        }
+
+        if (out.size() + intermediate_buf.size() - avail_out >= max_output_length_) {
+            return tl::unexpected{BrotliError::MaximumOutputLengthExceeded};
         }
 
         // TODO(zero-one): Replace with insert_range() when support is better
