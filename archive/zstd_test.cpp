@@ -281,5 +281,21 @@ int main() {
         a.expect_eq(ret.error(), ZstdError::DecodeEarlyTermination);
     });
 
+    s.add_test("all error codes can be printed", [](etest::IActions &a) {
+        static constexpr auto kFirstError = ZstdError::DecodeEarlyTermination;
+        static constexpr auto kLastError = ZstdError::ZstdInternalError;
+
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<ZstdError>(error)) != "Unknown error",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<ZstdError>(error + 1)), "Unknown error");
+    });
+
     return s.run();
 }
