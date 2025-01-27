@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -13,6 +14,7 @@
 #include <cstdint>
 #include <span>
 #include <string>
+#include <string_view>
 
 namespace {
 std::span<std::byte const> as_bytes(std::span<std::uint8_t const> s) {
@@ -37,6 +39,22 @@ int main() {
         a.expect(ret.has_value());
         a.expect_eq(ret->size(), 14ul);
         a.expect_eq(std::string(reinterpret_cast<char const *>(ret->data()), ret->size()), "This is a test");
+    });
+
+    s.add_test("output too large", [](etest::IActions &a) {
+        constexpr auto kCompress = std::to_array<std::uint8_t>(
+                {0x1f, 0x0d, 0x00, 0xf8, 0xa5, 0x40, 0xc2, 0xaa, 0x10, 0x49, 0xea, 0x16, 0x85, 0x9c, 0x32, 0x00});
+
+        BrotliDecoder decoder;
+
+        decoder.set_max_output_length(14);
+        auto ret = decoder.decode(as_bytes(kCompress));
+        a.expect_eq(ret, tl::unexpected{BrotliError::MaximumOutputLengthExceeded});
+
+        decoder.set_max_output_length(15);
+        ret = decoder.decode(as_bytes(kCompress));
+        a.require(ret.has_value());
+        a.expect_eq(std::string_view{reinterpret_cast<char const *>(ret->data()), ret->size()}, "This is a test");
     });
 
     s.add_test("input ends at block boundary", [](etest::IActions &a) {
