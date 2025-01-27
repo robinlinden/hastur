@@ -114,5 +114,21 @@ int main() {
         a.expect(ret->empty());
     });
 
+    s.add_test("all error codes can be printed", [](etest::IActions &a) {
+        static constexpr auto kFirstError = BrotliError::BrotliInternalError;
+        static constexpr auto kLastError = BrotliError::MaximumOutputLengthExceeded;
+
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<BrotliError>(error)) != "Unknown error",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<BrotliError>(error + 1)), "Unknown error");
+    });
+
     return s.run();
 }

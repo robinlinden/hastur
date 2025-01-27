@@ -17,11 +17,11 @@
 namespace archive {
 
 enum class BrotliError : std::uint8_t {
+    BrotliInternalError,
     DecoderState,
     InputCorrupt,
     InputEmpty,
     MaximumOutputLengthExceeded,
-    BrotliInternalError,
 };
 
 std::string_view to_string(BrotliError);
