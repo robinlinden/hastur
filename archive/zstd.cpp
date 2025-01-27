@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -35,7 +35,7 @@ std::string_view to_string(ZstdError err) {
     return "Unknown error";
 }
 
-tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte const> const input) {
+tl::expected<std::vector<std::byte>, ZstdError> ZstdDecoder::decode(std::span<std::byte const> const input) const {
     if (input.empty()) {
         return tl::unexpected{ZstdError::InputEmpty};
     }
@@ -45,10 +45,6 @@ tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte 
     if (dctx == nullptr) {
         return tl::unexpected{ZstdError::DecompressionContext};
     }
-
-    // Cap output buffer at 1GB. If we hit this, something fishy is probably
-    // going on, and we should bail before we OOM.
-    std::size_t constexpr kMaxOutSize = 1000000000;
 
     std::size_t const chunk_size = ZSTD_DStreamOutSize();
 
@@ -64,10 +60,6 @@ tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte 
     while (in_buf.pos < in_buf.size) {
         count++;
 
-        if ((chunk_size * count) > kMaxOutSize) {
-            return tl::unexpected{ZstdError::MaximumOutputLengthExceeded};
-        }
-
         out.resize(chunk_size * count);
 
         ZSTD_outBuffer out_buf = {out.data() + (chunk_size * (count - 1)), chunk_size, 0};
@@ -76,6 +68,10 @@ tl::expected<std::vector<std::byte>, ZstdError> zstd_decode(std::span<std::byte 
 
         if (ZSTD_isError(ret) != 0u) {
             return tl::unexpected{ZstdError::ZstdInternalError};
+        }
+
+        if (chunk_size * (count - 1) + out_buf.pos > max_output_length_) {
+            return tl::unexpected{ZstdError::MaximumOutputLengthExceeded};
         }
 
         last_ret = ret;
