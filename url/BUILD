@@ -49,7 +49,7 @@ cc_test(
     name = "wpt_test",
     size = "small",
     srcs = ["wpt_test.cpp"],
-    args = ["$(location @wpt//:url/resources/urltestdata.json)"],
+    args = ["$(location @wpt_urltestdata//file)"],
     copts = HASTUR_COPTS + select({
         "@platforms//os:windows": [
             "/wd4100",
@@ -57,7 +57,7 @@ cc_test(
         ],
         "//conditions:default": [],
     }),
-    data = ["@wpt//:url/resources/urltestdata.json"],
+    data = ["@wpt_urltestdata//file"],
     tags = ["no-cross"],
     deps = [
         ":url",
