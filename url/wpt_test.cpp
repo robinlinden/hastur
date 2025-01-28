@@ -54,13 +54,13 @@ int main(int argc, char **argv) {
             }
 
             // Get input URL
-            std::string_view input = obj["input"].get_string(true);
+            std::string_view input = obj["input"].get_string();
 
             // Parse base URL if it exists
             std::optional<url::Url> base_test;
 
             if (!obj["base"].is_null()) {
-                std::string_view base_str = obj["base"].get_string(true);
+                std::string_view base_str = obj["base"].get_string();
 
                 base_test = p.parse(std::string{base_str});
 
