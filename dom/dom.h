@@ -63,6 +63,8 @@ inline std::vector<Element const *> dom_children(Element const &e) {
     return children;
 }
 
+// Prints a dom tree in the format described at
+// https://github.com/html5lib/html5lib-tests/blob/a9f44960a9fedf265093d22b2aa3c7ca123727b9/tree-construction/README.md
 std::string to_string(Document const &);
 std::string to_string(Node const &);
 
