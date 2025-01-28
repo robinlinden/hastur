@@ -13,12 +13,27 @@ int main() {
 
     s.add_test("to_string(Document)", [](etest::IActions &a) {
         auto document = dom::Document{.doctype{"html5"}};
-        document.html_node = dom::Element{.name{"span"}, .children{{dom::Text{"hello"}}}};
+        document.html_node = dom::Element{
+                .name{"span"},
+                .children{{
+                        dom::Text{"hello"},
+                        dom::Element{
+                                .name{"a"},
+                                .attributes{{"href", "https://example.com"}, {"class", "link"}},
+                                .children{dom::Text{"go!"}},
+                        },
+                }},
+        };
+
         std::string_view expected =
                 "#document\n"
                 "| <!DOCTYPE html5>\n"
                 "| <span>\n"
-                "|   \"hello\"";
+                "|   \"hello\"\n"
+                "|   <a>\n"
+                "|     class=\"link\"\n"
+                "|     href=\"https://example.com\"\n"
+                "|     \"go!\"";
         a.expect_eq(to_string(document), expected);
     });
 
