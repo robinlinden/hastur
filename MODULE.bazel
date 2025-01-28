@@ -708,23 +708,12 @@ EOF""",
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# Stuck on the last commit where the archive has the same content every
-# download. git_repository sort of works if we want to upgrade, but it's so slow
-# that downloading wpt occasionally times out in CI.
-# See: https://github.com/web-platform-tests/wpt/issues/47124
-# https://github.com/web-platform-tests/wpt
-bazel_dep(name = "wpt")
-archive_override(
-    module_name = "wpt",  # BSD-3-Clause
-    build_file_content = """exports_files(["url/resources/urltestdata.json"])""",
-    integrity = "sha256-sUgB+WnWZ3UEjMoPO5kL4g2kot0TigulBNHbCTi4v9A=",
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "wpt")
-EOF""",
-    ],
-    strip_prefix = "wpt-13861f4a19afa26daa9e2a4ca2dcce82fc2e1236",
-    url = "https://github.com/web-platform-tests/wpt/archive/13861f4a19afa26daa9e2a4ca2dcce82fc2e1236.tar.gz",
+WPT_REVISION = "13861f4a19afa26daa9e2a4ca2dcce82fc2e1236"
+
+http_file(
+    name = "wpt_urltestdata",
+    integrity = "sha256-XlND8jM+ECOXzWK3RnaBGO7QS5h31TF0wfI7aaQxpYg=",
+    url = "https://raw.githubusercontent.com/web-platform-tests/wpt/%s/url/resources/urltestdata.json" % WPT_REVISION,
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxcursor
