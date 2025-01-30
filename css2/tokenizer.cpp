@@ -297,6 +297,13 @@ void Tokenizer::run() {
                 assert(c); // Guaranteed by the caller.
                 auto ident = consume_an_ident_sequence(*c);
 
+                if (peek_input(0) == '(') {
+                    std::ignore = consume_next_input_character(); // '('
+                    emit(FunctionToken{std::move(ident)});
+                    state_ = State::Main;
+                    continue;
+                }
+
                 // TODO(mkiael): Handle url and function token
 
                 emit(IdentToken{std::move(ident)});
