@@ -46,6 +46,10 @@ constexpr bool is_valid_escape_sequence(char first_byte, std::optional<char> sec
     return first_byte == '\\' && second_byte != '\n';
 }
 
+constexpr bool is_whitespace(char c) {
+    return c == ' ' || c == '\n' || c == '\t';
+}
+
 } // namespace
 
 std::string_view to_string(ParseError e) {
@@ -74,12 +78,12 @@ void Tokenizer::run() {
                     return;
                 }
 
+                if (is_whitespace(*c)) {
+                    state_ = State::Whitespace;
+                    continue;
+                }
+
                 switch (*c) {
-                    case ' ':
-                    case '\n':
-                    case '\t':
-                        state_ = State::Whitespace;
-                        continue;
                     case '\'':
                     case '"':
                         string_ending_ = *c;
@@ -336,16 +340,13 @@ void Tokenizer::run() {
                     return;
                 }
 
-                switch (*c) {
-                    case ' ':
-                    case '\n':
-                    case '\t':
-                        continue;
-                    default:
-                        emit(WhitespaceToken{});
-                        reconsume_in(State::Main);
-                        continue;
+                if (is_whitespace(*c)) {
+                    continue;
                 }
+
+                emit(WhitespaceToken{});
+                reconsume_in(State::Main);
+                continue;
             }
         }
     }
