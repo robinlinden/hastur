@@ -50,16 +50,29 @@ constexpr bool is_whitespace(char c) {
     return c == ' ' || c == '\n' || c == '\t';
 }
 
+constexpr bool is_whitespace(std::optional<char> c) {
+    return c && is_whitespace(*c);
+}
+
+// https://www.w3.org/TR/css-syntax-3/#non-printable-code-point
+constexpr bool is_non_printable(char c) {
+    return (c >= 0x00 && c <= 0x08) || c == 0x0B || (c >= 0x0E && c <= 0x1F) || c == 0x7F;
+}
+
 } // namespace
 
 std::string_view to_string(ParseError e) {
     switch (e) {
+        case ParseError::DisallowedCharacterInUrl:
+            return "DisallowedCharacterInUrl";
         case ParseError::EofInComment:
             return "EofInComment";
         case ParseError::EofInEscapeSequence:
             return "EofInEscapeSequence";
         case ParseError::EofInString:
             return "EofInString";
+        case ParseError::EofInUrl:
+            return "EofInUrl";
         case ParseError::InvalidEscapeSequence:
             return "InvalidEscapeSequence";
         case ParseError::NewlineInString:
@@ -297,14 +310,30 @@ void Tokenizer::run() {
                 assert(c); // Guaranteed by the caller.
                 auto ident = consume_an_ident_sequence(*c);
 
+                if (util::no_case_compare(ident, "url") && peek_input(0) == '(') {
+                    std::ignore = consume_next_input_character(); // '('
+                    while (is_whitespace(peek_input(0)) && is_whitespace(peek_input(1))) {
+                        std::ignore = consume_next_input_character(); // whitespace
+                    }
+
+                    if ((peek_input(0) == '\'' || peek_input(0) == '"')
+                            || (is_whitespace(peek_input(0)) && (peek_input(1) == '\'' || peek_input(1) == '"'))) {
+                        emit(FunctionToken{std::move(ident)});
+                        state_ = State::Main;
+                        continue;
+                    }
+
+                    emit(consume_a_url_token());
+                    state_ = State::Main;
+                    continue;
+                }
+
                 if (peek_input(0) == '(') {
                     std::ignore = consume_next_input_character(); // '('
                     emit(FunctionToken{std::move(ident)});
                     state_ = State::Main;
                     continue;
                 }
-
-                // TODO(mkiael): Handle url and function token
 
                 emit(IdentToken{std::move(ident)});
                 state_ = State::Main;
@@ -609,6 +638,79 @@ std::string Tokenizer::consume_an_ident_sequence(char first_byte) {
     }
 
     return result;
+}
+
+// https://www.w3.org/TR/css-syntax-3/#consume-a-url-token
+Token Tokenizer::consume_a_url_token() {
+    while (is_whitespace(peek_input(0))) {
+        std::ignore = consume_next_input_character();
+    }
+
+    std::string url{};
+
+    while (true) {
+        auto c = consume_next_input_character();
+        if (!c) {
+            emit(ParseError::EofInUrl);
+            return UrlToken{std::move(url)};
+        }
+
+        if (*c == ')') {
+            return UrlToken{std::move(url)};
+        }
+
+        if (is_whitespace(*c)) {
+            while (is_whitespace(peek_input(0))) {
+                std::ignore = consume_next_input_character();
+            }
+
+            if (peek_input(0) == ')') {
+                std::ignore = consume_next_input_character();
+                return UrlToken{std::move(url)};
+            }
+
+            if (peek_input(0) == std::nullopt) {
+                emit(ParseError::EofInUrl);
+                return UrlToken{std::move(url)};
+            }
+
+            consume_the_remnants_of_a_bad_url();
+            return BadUrlToken{};
+        }
+
+        if (*c == '"' || *c == '\'' || *c == '(' || is_non_printable(*c)) {
+            emit(ParseError::DisallowedCharacterInUrl);
+            consume_the_remnants_of_a_bad_url();
+            return BadUrlToken{};
+        }
+
+        if (*c == '\\') {
+            if (is_valid_escape_sequence(*c, peek_input(0))) {
+                url += consume_an_escaped_code_point();
+                continue;
+            }
+
+            emit(ParseError::InvalidEscapeSequence);
+            consume_the_remnants_of_a_bad_url();
+            return BadUrlToken{};
+        }
+
+        url += *c;
+    }
+}
+
+// https://www.w3.org/TR/css-syntax-3/#consume-the-remnants-of-a-bad-url
+void Tokenizer::consume_the_remnants_of_a_bad_url() {
+    while (true) {
+        auto c = consume_next_input_character();
+        if (!c || *c == ')') {
+            return;
+        }
+
+        if (is_valid_escape_sequence(*c, peek_input(0))) {
+            std::ignore = consume_an_escaped_code_point();
+        }
+    }
 }
 
 } // namespace css2
