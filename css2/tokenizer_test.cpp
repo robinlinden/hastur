@@ -656,5 +656,11 @@ int main() {
         expect_token(output, WhitespaceToken{});
     });
 
+    s.add_test("function: ez", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "foo()");
+        expect_token(output, FunctionToken{.data = "foo"});
+        expect_token(output, CloseParenToken{});
+    });
+
     return s.run();
 }
