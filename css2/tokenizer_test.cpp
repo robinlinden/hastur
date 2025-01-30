@@ -9,6 +9,7 @@
 
 #include "etest/etest2.h"
 
+#include <array>
 #include <cstdint>
 #include <limits>
 #include <source_location>
@@ -88,7 +89,7 @@ int main() {
     etest::Suite s{};
 
     s.add_test("to_string(ParseError)", [](etest::IActions &a) {
-        static constexpr auto kFirstError = ParseError::EofInComment;
+        static constexpr auto kFirstError = ParseError::DisallowedCharacterInUrl;
         static constexpr auto kLastError = ParseError::NewlineInString;
 
         auto error = static_cast<int>(kFirstError);
@@ -660,6 +661,76 @@ int main() {
         auto output = run_tokenizer(a, "foo()");
         expect_token(output, FunctionToken{.data = "foo"});
         expect_token(output, CloseParenToken{});
+    });
+
+    s.add_test("not a function", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "foo ()");
+        expect_token(output, IdentToken{"foo"});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, OpenParenToken{});
+        expect_token(output, CloseParenToken{});
+    });
+
+    s.add_test("function: url()-trickery", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url(  'foo'  )");
+        expect_token(output, FunctionToken{.data = "url"});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, StringToken{"foo"});
+        expect_token(output, WhitespaceToken{});
+        expect_token(output, CloseParenToken{});
+    });
+
+    s.add_test("function: more url()-trickery", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url(\"foo\")");
+        expect_token(output, FunctionToken{.data = "url"});
+        expect_token(output, StringToken{"foo"});
+        expect_token(output, CloseParenToken{});
+    });
+
+    s.add_test("url: obviously", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url(foo)");
+        expect_token(output, UrlToken{.data = "foo"});
+    });
+
+    s.add_test("url: eof", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url( ");
+        expect_error(output, ParseError::EofInUrl);
+        expect_token(output, UrlToken{});
+    });
+
+    s.add_test("url: whitespace nonsense", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url( test  \t\n)");
+        expect_token(output, UrlToken{.data = "test"});
+    });
+
+    s.add_test("url: whitespace and eof", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url( test  ");
+        expect_error(output, ParseError::EofInUrl);
+        expect_token(output, UrlToken{.data = "test"});
+    });
+
+    s.add_test("url: whitespace bad url", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url( test  hello");
+        expect_token(output, BadUrlToken{});
+    });
+
+    for (auto c : std::to_array<char>({'\'', '"', '\x08', '('})) {
+        s.add_test("url: bad url: "s + c, [c](etest::IActions &a) {
+            auto output = run_tokenizer(a, "url(hello"s + c);
+            expect_error(output, ParseError::DisallowedCharacterInUrl);
+            expect_token(output, BadUrlToken{});
+        });
+    }
+
+    s.add_test("url: escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url(\\41)");
+        expect_token(output, UrlToken{.data = "A"});
+    });
+
+    s.add_test("url: BAD escape", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "url(\\\n)");
+        expect_error(output, ParseError::InvalidEscapeSequence);
+        expect_token(output, BadUrlToken{});
     });
 
     return s.run();
