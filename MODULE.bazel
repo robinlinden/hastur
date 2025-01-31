@@ -544,22 +544,6 @@ EOF""",
     url = "https://github.com/martinus/nanobench/archive/refs/tags/v4.3.11.tar.gz",
 )
 
-# https://github.com/simdjson/simdjson
-bazel_dep(name = "simdjson")  # Apache-2.0
-archive_override(
-    module_name = "simdjson",
-    build_file = "//third_party:simdjson.BUILD",
-    integrity = "sha256-cXai/rmOGza2ufpW1kFRBohl9QWgziQgPz3bs/mFEDs=",
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "simdjson")
-bazel_dep(name = "rules_cc")
-EOF""",
-    ],
-    strip_prefix = "simdjson-3.11.6",
-    url = "https://github.com/simdjson/simdjson/archive/refs/tags/v3.11.6.tar.gz",
-)
-
 # https://github.com/glennrp/libpng
 bazel_dep(name = "libpng")  # Libpng
 archive_override(

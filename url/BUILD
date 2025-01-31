@@ -62,8 +62,8 @@ cc_test(
     deps = [
         ":url",
         "//etest",
+        "//json",
         "@icu//:common",
-        "@simdjson",
     ],
 )
 
