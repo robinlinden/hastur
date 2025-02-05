@@ -44,9 +44,6 @@ constexpr bool is_valid(wasm::instructions::BlockType const &bt, Module const &m
     return true;
 }
 
-// TODO(Zer0-One): Start using these?
-// NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if)
-#if 0
 // https://webassembly.github.io/spec/core/valid/types.html#limits
 constexpr bool is_valid(Limits const &l, std::uint64_t k) {
     if (l.min > k) {
@@ -67,6 +64,9 @@ constexpr bool is_valid(TableType const &t) {
     return is_valid(t.limits, (1ULL << 32) - 1);
 }
 
+// TODO(Zer0-One): Start using these?
+// NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if)
+#if 0
 // https://webassembly.github.io/spec/core/valid/types.html#memory-types
 constexpr bool is_valid(MemType const &mt) {
     return is_valid(mt, 1ULL << 16);
@@ -550,6 +550,8 @@ std::string_view to_string(ValidationError err) {
             return "Attempted a load, but memory is empty";
         case ValidationError::MemorySectionUndefined:
             return "Attempted a load or store, but no memory section was defined";
+        case ValidationError::TableInvalid:
+            return "A table has invalid limits";
         case ValidationError::TypeSectionUndefined:
             return "A type section is required, but was not defined";
         case ValidationError::UnknownInstruction:
@@ -573,6 +575,15 @@ tl::expected<void, ValidationError> validate(Module const &m) {
 
         if (!ret.has_value()) {
             return ret;
+        }
+    }
+
+    // https://webassembly.github.io/spec/core/valid/modules.html#tables
+    if (m.table_section.has_value()) {
+        for (auto const &t : m.table_section->tables) {
+            if (!is_valid(t)) {
+                return tl::unexpected{ValidationError::TableInvalid};
+            }
         }
     }
 

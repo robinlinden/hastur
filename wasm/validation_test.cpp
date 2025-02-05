@@ -228,5 +228,15 @@ int main() {
         a.expect_eq(to_string(static_cast<ValidationError>(error + 1)), "Unknown error");
     });
 
+    s.add_test("Table: valid table", [=](etest::IActions &a) mutable {
+        m.table_section = {{{ValueType::FunctionReference, {0, 1}}}};
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Table: invalid table, min size > max", [=](etest::IActions &a) mutable {
+        m.table_section = {{{ValueType::FunctionReference, {1, 0}}}};
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::TableInvalid});
+    });
+
     return s.run();
 }
