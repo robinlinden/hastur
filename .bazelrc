@@ -147,6 +147,9 @@ build:zig-cross --dynamic_mode=off
 # * py_test targets have host dependencies.
 build:zig-cross --build_tag_filters=-no-cross
 build:zig-cross --test_tag_filters=-no-cross
+# zig cc seems pretty happy with the flags we use on Linux.
+build:zig-cross --noenable_platform_specific_config
+build:zig-cross --config=linux
 
 build:zig-cross-musl --config=zig-cross
 build:zig-cross-musl --copt=-fPIC
