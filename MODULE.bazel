@@ -38,8 +38,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-sLi3ss+/V1ESrPcW7HiIR5KfMi76XDQZXrEqQ9Hfflw=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.7.2"),
+    integrity = "sha256-jaoOT4AJecdDh+TNk/l+V27G1SvquKyUcQ0pMcV/jYs=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.9.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -117,9 +117,9 @@ archive_override(
 # https://github.com/bazelbuild/rules_android
 archive_override(
     module_name = "rules_android",
-    integrity = "sha256-r4S2mrPRbdGkEFYobmUR8UepTM6plWA+E+k0yRXBYxw=",
-    strip_prefix = "rules_android-0.6.0",
-    urls = ["https://github.com/bazelbuild/rules_android/releases/download/v0.6.0/rules_android-v0.6.0.tar.gz"],
+    integrity = "sha256-fcem7Qub9T8fNjKScz49cWThQOlu1DOik3sZVw0B1Rc=",
+    strip_prefix = "rules_android-0.6.1",
+    url = "https://github.com/bazelbuild/rules_android/releases/download/v{0}/rules_android-v{0}.tar.gz".format("0.6.1"),
 )
 
 # https://github.com/bazelbuild/rules_kotlin
@@ -157,16 +157,16 @@ archive_override(
 # https://github.com/bazel-contrib/bazel_features
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-zjKgKEnIYebj5NQPzIdfl5t8SJ6SpCaDHUWIKQ+hYGg=",
-    strip_prefix = "bazel_features-1.24.0",
-    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format("1.24.0"),
+    integrity = "sha256-T9mSLUZGhoIP/Y/O+ijM/6FH983GtqwNiwf95WXGXWY=",
+    strip_prefix = "bazel_features-1.25.0",
+    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format("1.25.0"),
 )
 
 # https://github.com/bazel-contrib/bazel-gazelle
 archive_override(
     module_name = "gazelle",
-    integrity = "sha256-rvvy/Hx2Fsntc6o9UcdxAHJNWzzmbPoWQG6ME+h8i1I=",
-    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.41.0/bazel-gazelle-v0.41.0.tar.gz",
+    integrity = "sha256-XYDmKnAxTznMdkwcPqqADFk2yfHqkWJQBiJ85NIM0IY=",
+    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.42.0"),
 )
 
 # https://github.com/bazel-contrib/rules_go
@@ -198,17 +198,17 @@ archive_override(
 # https://github.com/fmeum/buildozer
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-//tUN16M8XL/Jpvq8guABn19bDaoRkXM+KCLb2QW9U8=",
-    strip_prefix = "buildozer-8.0.1",
-    url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format("8.0.1"),
+    integrity = "sha256-BFrzeNsFM6fIEDBubr2BEGn9pVxbJzBu13M2VKg7JkY=",
+    strip_prefix = "buildozer-8.0.3",
+    url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format("8.0.3"),
 )
 
 # https://github.com/google/googletest
 archive_override(
     module_name = "googletest",
-    integrity = "sha256-e0K01u1IgQxTYsJloX+uvpDcI3PIheUhZDnTeSfwKSY=",
-    strip_prefix = "googletest-1.15.2",
-    urls = ["https://github.com/google/googletest/releases/download/v1.15.2/googletest-1.15.2.tar.gz"],
+    integrity = "sha256-eMZ2/GOIFSm/l7+dRZSNkFpmgz+/pTGOos10eMuY85k=",
+    strip_prefix = "googletest-1.16.0",
+    url = "https://github.com/google/googletest/releases/download/v{0}/googletest-{0}.tar.gz".format("1.16.0"),
 )
 
 # https://github.com/protocolbuffers/protobuf
