@@ -328,7 +328,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install
         run: |
-          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.0.1/buildifier-linux-amd64
+          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.0.3/buildifier-linux-amd64
           sudo chmod +x buildifier
       - name: Check
         run: ./buildifier --lint=warn --warnings=all -mode diff $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl" -or -iname "*.bazel")
