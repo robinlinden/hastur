@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support")  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-tT9kkedCVJ8ThmYo3f/MddHzstaYfcTxShayQhE8iQs=",
-    urls = ["https://github.com/bazelbuild/apple_support/releases/download/1.17.1/apple_support.1.17.1.tar.gz"],
+    integrity = "sha256-thSN4te7355YGbTiJl9lCDIajh8KFZkOsEj4Is1BVQ0=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.18.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -27,9 +27,9 @@ archive_override(
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-SxIUmgQd37gwao/Q6QTjnWc1Us6C5ClulvrJy/B4Dlk=",
-    strip_prefix = "rules_cc-0.1.0",
-    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.1.0/rules_cc-0.1.0.tar.gz"],
+    integrity = "sha256-cS13hosxUt1hjE1k+q3e/MWWX5D13m5t0dXdzQvoLUI=",
+    strip_prefix = "rules_cc-0.1.1",
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format("0.1.1"),
 )
 
 cc_configure = use_extension("@rules_cc//cc:extensions.bzl", "cc_configure_extension")
@@ -102,9 +102,9 @@ archive_override(
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-2M1KOpH8HcaNTH1rZV8J3vEJ9xhkN+P1Cptgq0NqDFM=",
-    strip_prefix = "rules_shell-0.3.0",
-    urls = ["https://github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz"],
+    integrity = "sha256-PhFEJKXH5P1D4BM8xuzf5U5Fror/oU+t2DnymQFCQEM=",
+    strip_prefix = "rules_shell-0.4.0",
+    url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format("0.4.0"),
 )
 
 # https://github.com/bazelbuild/bazel-skylib
@@ -487,19 +487,19 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-bazel_dep(name = "imgui")
+bazel_dep(name = "imgui")  # MIT
 archive_override(
-    module_name = "imgui",  # MIT
+    module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-IAHatL3X0XjYJ307F8QKof8eduLMrF56uMba+XVjEsI=",
+    integrity = "sha256-2zouAr/Wwmmt8JaJUFcwU9AC9Avfue8uSpC86ASw8oY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "imgui-1.91.7",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.7.tar.gz",
+    strip_prefix = "imgui-1.91.8",
+    url = "https://github.com/ocornut/imgui/archive/v1.91.8.tar.gz",
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -590,12 +590,11 @@ EOF""",
 )
 
 # https://github.com/gabime/spdlog
-# v1.15.0 + compatibility w/ fmt 11.1.
 bazel_dep(name = "spdlog")  # MIT
 archive_override(
     module_name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-6liG3I9xacEVu4bA7SzPIt7ajHcnEgen4zN3Rcl8AIA=",
+    integrity = "sha256-JchDhg8DmhYA8jLG654B5mJ/fQMKKuXiMr3TySBdJsw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
@@ -604,8 +603,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "spdlog-276ee5f5c0eb13626bd367b006ace5eae9526d8a",
-    url = "https://github.com/gabime/spdlog/archive/276ee5f5c0eb13626bd367b006ace5eae9526d8a.tar.gz",
+    strip_prefix = "spdlog-1.15.1",
+    url = "https://github.com/gabime/spdlog/archive/v1.15.1.tar.gz",
 )
 
 # HEAD as of 2024-11-20.
@@ -656,14 +655,14 @@ EOF""",
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.4.305"
+VULKAN_TAG = "1.4.307"
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-dYHF7QM3/+7wcHZRVh9yJwAIG8acYsWCxHDNd8K+CSA=",
+    integrity = "sha256-boRFvBLB4nAsJ/TwLRoFf7g/QMxWxqjkWDFB1OqtkNQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -680,7 +679,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-TlJqZbT8NouyaAFZ1OlD3LX5hVVBnokSltk/HMRGccQ=",
+    integrity = "sha256-bR9I6YspshcKRfg5wTqq4/6P2C14s5EqFqPVDhiM2mc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
