@@ -145,6 +145,10 @@ public:
         return names;
     }
 
+    void set_foster_parenting(bool) override {
+        // TODO(robinlinden): Implement.
+    }
+
 private:
     void insert(dom::Element element) {
         if (element.name == "html") {

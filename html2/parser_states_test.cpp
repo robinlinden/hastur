@@ -14,6 +14,7 @@
 #include <array>
 #include <cstddef>
 #include <format>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -35,7 +36,7 @@ struct ParseOptions {
 };
 
 // TODO(robinlinden): This is very awkward, but I'll make it better later, I promise.
-ParseResult parse(std::string_view html, ParseOptions opts) {
+ParseResult parse(std::string_view html, ParseOptions const &opts) {
     html2::Tokenizer tokenizer{html, [&](auto &, auto const &) {
                                }};
 
@@ -672,6 +673,29 @@ void in_table_tests(etest::Suite &s) {
     });
 }
 
+void in_table_text_tests(etest::Suite &s) {
+    s.add_test("InTableText: hello", [](etest::IActions &a) {
+        auto res = parse("<table>hello", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        a.expect_eq(table, dom::Element{"table", {}, {dom::Text{"hello"}}});
+    });
+
+    s.add_test("InTableText: \0hello"s, [](etest::IActions &a) {
+        auto res = parse("<table>\0hello"sv, {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        a.expect_eq(table, dom::Element{"table", {}, {dom::Text{"hello"}}});
+    });
+
+    s.add_test("InTableText: boring whitespace", [](etest::IActions &a) {
+        auto res = parse("<table>    ", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        a.expect_eq(table, dom::Element{"table", {}, {dom::Text{"    "}}});
+    });
+}
+
 void in_frameset_tests(etest::Suite &s) {
     s.add_test("InFrameset: boring whitespace", [](etest::IActions &a) {
         auto res = parse("<head></head><frameset> ", {});
@@ -781,6 +805,7 @@ int main() {
     after_head_tests(s);
     in_body_tests(s);
     in_table_tests(s);
+    in_table_text_tests(s);
     in_frameset_tests(s);
     return s.run();
 }

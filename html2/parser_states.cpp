@@ -30,7 +30,7 @@ namespace {
 class InternalActions : public IActions {
 public:
     explicit InternalActions(IActions &wrapped, InsertionMode mode_override)
-        : wrapped_{wrapped}, current_insertion_mode_override_{mode_override} {}
+        : wrapped_{wrapped}, current_insertion_mode_override_{std::move(mode_override)} {}
 
     void set_doctype_name(std::string name) override { wrapped_.set_doctype_name(std::move(name)); }
     void set_quirks_mode(QuirksMode quirks) override { wrapped_.set_quirks_mode(quirks); }
@@ -54,6 +54,7 @@ public:
     }
     void reconstruct_active_formatting_elements() override { wrapped_.reconstruct_active_formatting_elements(); }
     std::vector<std::string_view> names_of_open_elements() const override { return wrapped_.names_of_open_elements(); }
+    void set_foster_parenting(bool foster) override { wrapped_.set_foster_parenting(foster); }
 
 private:
     IActions &wrapped_;
@@ -61,7 +62,7 @@ private:
 };
 
 InternalActions current_insertion_mode_override(IActions &a, InsertionMode override) {
-    return InternalActions{a, override};
+    return InternalActions{a, std::move(override)};
 }
 
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
@@ -1170,7 +1171,16 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
 // Incomplete.
 std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &token) {
-    // TODO(robinlinden): CharacterToken.
+    auto const *character = std::get_if<html2::CharacterToken>(&token);
+
+    static constexpr auto kTableTextElements =
+            std::to_array<std::string_view>({"table", "tbody", "template", "tfoot", "thead", "tr"});
+    if (character != nullptr && is_in_array<kTableTextElements>(a.current_node_name())) {
+        a.store_original_insertion_mode(a.current_insertion_mode());
+        auto table_text = InTableText{};
+        auto maybe_next = table_text.process(a, token);
+        return maybe_next.value_or(std::move(table_text));
+    }
 
     if (std::holds_alternative<html2::CommentToken>(token)) {
         // TODO(robinlinden): Insert.
@@ -1217,6 +1227,36 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
     // TODO(robinlinden): Everything.
 
     return {};
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intabletext
+std::optional<InsertionMode> InTableText::process(IActions &a, html2::Token const &token) {
+    if (auto const *character = std::get_if<html2::CharacterToken>(&token); character != nullptr) {
+        if (character->data == '\0') {
+            // Parse error.
+            return {};
+        }
+
+        pending_character_tokens.push_back(*character);
+        return {};
+    }
+
+    if (std::ranges::any_of(pending_character_tokens, [](auto const &t) { return !is_boring_whitespace(t); })) {
+        // Parse error.
+        a.set_foster_parenting(true);
+        for (auto const &pending : pending_character_tokens) {
+            InBody{}.process(a, pending);
+        }
+
+        a.set_foster_parenting(false);
+    } else {
+        for (auto const &pending : pending_character_tokens) {
+            a.insert_character(pending);
+        }
+    }
+
+    auto mode = a.original_insertion_mode();
+    return std::visit([&](auto &m) { return m.process(a, token).value_or(m); }, mode);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody

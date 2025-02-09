@@ -43,6 +43,7 @@ public:
     virtual void push_head_as_current_open_element() = 0;
     virtual void remove_from_open_elements(std::string_view element_name) = 0;
     virtual void reconstruct_active_formatting_elements() = 0;
+    virtual void set_foster_parenting(bool) = 0;
 
     // The most recently opened element is the first element in the list.
     virtual std::vector<std::string_view> names_of_open_elements() const = 0;

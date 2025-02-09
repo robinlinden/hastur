@@ -9,6 +9,7 @@
 
 #include <optional>
 #include <variant>
+#include <vector>
 
 namespace html2 {
 
@@ -47,7 +48,7 @@ using InsertionMode = std::variant<Initial,
         InBody,
         Text,
         InTable,
-        // InTableText,
+        InTableText,
         // InCaption,
         // InColumnGroup,
         // InTableBody,
@@ -63,7 +64,6 @@ using InsertionMode = std::variant<Initial,
         // AfterAfterFrameset
         >;
 
-struct InTableText {};
 struct InCaption {};
 struct InColumnGroup {};
 struct InTableBody {};
@@ -108,6 +108,11 @@ struct Text {
 
 struct InTable {
     std::optional<InsertionMode> process(IActions &, html2::Token const &);
+};
+
+struct InTableText {
+    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::vector<html2::CharacterToken> pending_character_tokens;
 };
 
 struct AfterBody {
