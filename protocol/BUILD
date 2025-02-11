@@ -10,9 +10,9 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
+    implementation_deps = ["//net"],
     visibility = ["//visibility:public"],
     deps = [
-        "//net",
         "//uri",
         "//util:string",
         "@expected",

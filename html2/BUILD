@@ -11,11 +11,11 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         "//unicode:util",
         "//util:string",
     ],
+    visibility = ["//visibility:public"],
 )
 
 # TODO(robinlinden): Remove.

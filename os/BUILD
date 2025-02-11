@@ -30,6 +30,7 @@ cc_library(
     }),
     hdrs = ["memory.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = OS_DEPS,
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
@@ -43,7 +44,6 @@ cc_library(
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
-    deps = OS_DEPS,
 )
 
 cc_test(
@@ -67,6 +67,7 @@ cc_library(
     }),
     hdrs = ["system_info.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = OS_DEPS,
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
@@ -79,7 +80,6 @@ cc_library(
     }),
     local_defines = OS_LOCAL_DEFINES,
     visibility = ["//visibility:public"],
-    deps = OS_DEPS,
 )
 
 cc_test(
@@ -104,6 +104,7 @@ cc_library(
     }),
     hdrs = ["xdg.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = OS_DEPS,
     linkopts = select({
         "@platforms//os:linux": [],
         "@platforms//os:macos": [],
@@ -116,7 +117,6 @@ cc_library(
     }),
     local_defines = OS_LOCAL_DEFINES,
     visibility = ["//visibility:public"],
-    deps = OS_DEPS,
 )
 
 cc_test(

@@ -23,8 +23,8 @@ cc_library(
     srcs = ["png.cpp"],
     hdrs = ["png.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = ["@libpng"],
     visibility = ["//visibility:public"],
-    deps = ["@libpng"],
 )
 
 cc_library(

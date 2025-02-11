@@ -13,11 +13,9 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
+    implementation_deps = ["//util:variant"],
     visibility = ["//visibility:public"],
-    deps = [
-        "//util:variant",
-        "@expected",
-    ],
+    deps = ["@expected"],
 )
 
 [cc_test(

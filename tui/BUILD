@@ -6,13 +6,13 @@ cc_library(
     srcs = ["tui.cpp"],
     hdrs = ["tui.h"],
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         "//css",
-        "//layout",
         "//style",
         "@ftxui",
     ],
+    visibility = ["//visibility:public"],
+    deps = ["//layout"],
 )
 
 cc_test(

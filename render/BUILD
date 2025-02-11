@@ -6,14 +6,16 @@ cc_library(
     srcs = ["render.cpp"],
     hdrs = ["render.h"],
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         "//css",
         "//dom",
+        "//style",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
         "//geom",
         "//gfx",
         "//layout",
-        "//style",
     ],
 )
 

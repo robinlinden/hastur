@@ -20,16 +20,16 @@ cc_library(
     ],
     hdrs = ["url.h"],
     copts = HASTUR_COPTS,
-    tags = ["no-cross"],
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         ":rtti_hack",
         "//unicode:util",
-        "//util:string",
         "//util:uuid",
         "@icu//:common",
         "@icu//:icudata",
     ],
+    tags = ["no-cross"],
+    visibility = ["//visibility:public"],
+    deps = ["//util:string"],
 )
 
 cc_test(

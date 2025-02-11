@@ -11,11 +11,9 @@ cc_library(
         "icanvas.h",
     ],
     copts = HASTUR_COPTS,
+    implementation_deps = ["//util:string"],
     visibility = ["//visibility:public"],
-    deps = [
-        "//geom",
-        "//util:string",
-    ],
+    deps = ["//geom"],
 )
 
 genrule(
@@ -45,11 +43,11 @@ cc_library(
         "opengl_shader.h",
     ],
     copts = HASTUR_COPTS,
+    implementation_deps = ["@glad2"],
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
         "//geom",
-        "@glad2",
     ],
 )
 
@@ -72,16 +70,18 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
+    implementation_deps = [
+        "//os:xdg",
+        "@sfml//:system",
+        "@spdlog",
+    ],
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
         ":gfx",
         "//geom",
-        "//os:xdg",
         "//type:sfml",
         "@sfml//:graphics",
-        "@sfml//:system",
-        "@spdlog",
     ],
 )
 

@@ -6,13 +6,16 @@ cc_library(
     srcs = ["engine.cpp"],
     hdrs = ["engine.h"],
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         "//archive:zlib",
         "//archive:zstd",
+        "//html",
+        "@spdlog",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
         "//css",
         "//dom",
-        "//html",
         "//layout",
         "//protocol",
         "//style",
@@ -20,7 +23,6 @@ cc_library(
         "//type:naive",
         "//uri",
         "@expected",
-        "@spdlog",
     ],
 )
 

@@ -10,12 +10,12 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         "//unicode:util",
         "//util:from_chars",
         "//util:string",
     ],
+    visibility = ["//visibility:public"],
 )
 
 [cc_test(

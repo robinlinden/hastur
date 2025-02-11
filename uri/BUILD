@@ -7,10 +7,8 @@ cc_library(
     srcs = ["uri.cpp"],
     hdrs = ["uri.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = ["//util:string"],
     visibility = ["//visibility:public"],
-    deps = [
-        "//util:string",
-    ],
 )
 
 cc_test(

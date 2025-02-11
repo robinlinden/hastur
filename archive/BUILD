@@ -7,11 +7,9 @@ cc_library(
     srcs = ["zlib.cpp"],
     hdrs = ["zlib.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = ["@zlib"],
     visibility = ["//visibility:public"],
-    deps = [
-        "@expected",
-        "@zlib",
-    ],
+    deps = ["@expected"],
 )
 
 cc_library(
@@ -19,11 +17,9 @@ cc_library(
     srcs = ["zstd.cpp"],
     hdrs = ["zstd.h"],
     copts = HASTUR_COPTS,
+    implementation_deps = ["@zstd"],
     visibility = ["//visibility:public"],
-    deps = [
-        "@expected",
-        "@zstd",
-    ],
+    deps = ["@expected"],
 )
 
 cc_library(
@@ -31,13 +27,13 @@ cc_library(
     srcs = ["brotli.cpp"],
     hdrs = ["brotli.h"],
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
+    implementation_deps = [
         "@brotli//:brotli_inc",
         "@brotli//:brotlicommon",
         "@brotli//:brotlidec",
-        "@expected",
     ],
+    visibility = ["//visibility:public"],
+    deps = ["@expected"],
 )
 
 # TODO(robinlinden): Separate APIs for gzip and zlib.

@@ -24,16 +24,16 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     copts = NET_COPTS,
+    implementation_deps = [
+        "@asio",
+        "@boringssl//:ssl",
+    ],
     target_compatible_with = select({
         # boringssl doesn't work on wasi but doesn't mark itself as incompatible.
         "@platforms//os:wasi": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
-    deps = [
-        "@asio",
-        "@boringssl//:ssl",
-    ],
 )
 
 cc_library(
