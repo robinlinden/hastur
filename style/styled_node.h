@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -79,6 +79,13 @@ struct FontWeight {
     static constexpr FontWeight bold() { return {kBold}; }
 };
 
+enum class TextAlign : std::uint8_t {
+    Left,
+    Right,
+    Center,
+    Justify,
+};
+
 enum class TextDecorationLine : std::uint8_t {
     None,
     Underline,
@@ -149,6 +156,8 @@ struct StyledNode {
             return get_font_style_property();
         } else if constexpr (T == css::PropertyId::FontWeight) {
             return get_font_weight_property();
+        } else if constexpr (T == css::PropertyId::TextAlign) {
+            return get_text_align_property();
         } else if constexpr (T == css::PropertyId::TextDecorationLine) {
             return get_text_decoration_line_property();
         } else if constexpr (T == css::PropertyId::TextTransform) {
@@ -185,6 +194,7 @@ private:
     FontStyle get_font_style_property() const;
     int get_font_size_property() const;
     std::optional<FontWeight> get_font_weight_property() const;
+    TextAlign get_text_align_property() const;
     std::vector<TextDecorationLine> get_text_decoration_line_property() const;
     std::optional<TextTransform> get_text_transform_property() const;
     std::optional<WhiteSpace> get_white_space_property() const;

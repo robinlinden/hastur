@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -395,6 +395,16 @@ int main() {
         expect_property_eq<css::PropertyId::Float>(a, "inline-start", style::Float::InlineStart);
         expect_property_eq<css::PropertyId::Float>(a, "inline-end", style::Float::InlineEnd);
         expect_property_eq<css::PropertyId::Float>(a, "???", std::nullopt);
+    });
+
+    s.add_test("get_property, text-align", [](etest::IActions &a) {
+        using enum style::TextAlign;
+        expect_property_eq<css::PropertyId::TextAlign>(a, "left", Left);
+        expect_property_eq<css::PropertyId::TextAlign>(a, "right", Right);
+        expect_property_eq<css::PropertyId::TextAlign>(a, "center", Center);
+        expect_property_eq<css::PropertyId::TextAlign>(a, "justify", Justify);
+
+        expect_property_eq<css::PropertyId::TextAlign>(a, "unhandled!", Left);
     });
 
     s.add_test("get_property, text-decoration-line", [](etest::IActions &a) {
