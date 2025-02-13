@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -453,6 +453,30 @@ FontStyle StyledNode::get_font_style_property() const {
 
     spdlog::warn("Unhandled font style value {}", raw);
     return FontStyle::Normal;
+}
+
+TextAlign StyledNode::get_text_align_property() const {
+    auto raw = get_raw_property(css::PropertyId::TextAlign);
+    if (raw == "left") {
+        return TextAlign::Left;
+    }
+
+    if (raw == "right") {
+        return TextAlign::Right;
+    }
+
+    if (raw == "center") {
+        return TextAlign::Center;
+    }
+
+    if (raw == "justify") {
+        return TextAlign::Justify;
+    }
+
+    // TODO(robinlinden): start, end, match-parent, requires PropertyId::Direction.
+
+    spdlog::warn("Unhandled text-align value '{}'", raw);
+    return TextAlign::Left;
 }
 
 std::vector<TextDecorationLine> StyledNode::get_text_decoration_line_property() const {
