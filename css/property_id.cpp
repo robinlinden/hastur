@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -154,6 +154,10 @@ constexpr auto kInitialValues = std::to_array<std::pair<css::PropertyId, std::st
         {css::PropertyId::FontStyle, "normal"sv},
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#formal_definition
         {css::PropertyId::FontWeight, "normal"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/text-align#formal_definition
+        // TODO(robinlinden): start, once supported.
+        {css::PropertyId::TextAlign, "left"sv},
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
         {css::PropertyId::TextDecorationColor, "currentcolor"sv},
