@@ -26,6 +26,7 @@ enum class ValidationError : std::uint8_t {
     MemoryBadAlignment,
     MemoryEmpty,
     MemorySectionUndefined,
+    TableTypeInvalid,
     TypeSectionUndefined,
     UnknownInstruction,
     ValueStackHeightMismatch,
