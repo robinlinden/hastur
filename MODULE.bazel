@@ -50,14 +50,15 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-# 0.40.0 instead of 1.0.0 as 1.0.0 breaks things like rules_fuzzing with
-# `@rules_python//python/config_settings:bootstrap_impl=script` set.
 bazel_dep(name = "rules_python")  # Apache-2.0
+
+RULES_PYTHON_VERSION = "1.2.0-rc0"
+
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-aQ4BQXJKu1aCZ+ADx7bZpUkl30DCdahwpNk0Fh3J3VM=",
-    strip_prefix = "rules_python-0.40.0",
-    urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.40.0/rules_python-0.40.0.tar.gz"],
+    integrity = "sha256-TQ+KAqZw4DaWhg0rCNeQ7usTRzz6WCu1eeJS3Z4HmuI=",
+    strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
+    url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")

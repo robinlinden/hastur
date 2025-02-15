@@ -26,8 +26,8 @@ build --incompatible_enforce_config_setting_visibility
 # Third-party configuration
 # =========================================================
 
-# Don't require a system Python installation.
-build --@rules_python//python/config_settings:bootstrap_impl=script
+# TODO(robinlinden): Investigate why this is broken: https://github.com/robinlinden/hastur/issues/1181
+# build --@rules_python//python/config_settings:bootstrap_impl=script
 
 # Compiler configuration
 # =========================================================
