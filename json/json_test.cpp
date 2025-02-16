@@ -10,9 +10,11 @@
 #include <cstddef>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <variant>
 
 int main() {
+    using namespace std::literals;
     using json::Value;
     etest::Suite s{};
 
@@ -29,6 +31,11 @@ int main() {
         a.expect_eq(json::parse(R"("")"), json::Value{""});
         a.expect_eq(json::parse(R"("hello)"), std::nullopt);
         a.expect_eq(json::parse(R"(")"), std::nullopt);
+
+        // Control characters (where a control character is <= 0x1f) are disallowed.
+        a.expect_eq(json::parse("\"\x00\""sv), std::nullopt);
+        a.expect_eq(json::parse("\"\x1f\""), std::nullopt);
+        a.expect_eq(json::parse("\"\x7f\""), json::Value{"\x7f"});
     });
 
     s.add_test("string, escapes", [](etest::IActions &a) {

@@ -100,6 +100,8 @@ private:
         }
     }
 
+    static constexpr bool is_control(unsigned char c) { return c < 0x20; }
+
     constexpr bool is_whitespace(std::optional<char> c) const { return c && is_whitespace(*c); }
 
     constexpr std::optional<char> peek() const {
@@ -390,6 +392,10 @@ private:
         while (auto c = consume()) {
             if (*c == '"') {
                 return value;
+            }
+
+            if (is_control(*c)) {
+                return std::nullopt;
             }
 
             if (*c == '\\') {
