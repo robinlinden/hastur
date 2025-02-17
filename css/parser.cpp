@@ -464,7 +464,10 @@ std::optional<css::Rule> Parser::parse_rule() {
         auto [name, value] = *decl;
         if (name.starts_with("--")) {
             rule.custom_properties.insert_or_assign(std::string{name}, value);
-        } else if (!util::is_alpha(name.front())) {
+        } else if (auto name_start_byte = name.front(); name_start_byte == '-') {
+            // We don't really care about the -moz, -ms, -webkit, or similar prefixed properties.
+            spdlog::debug("Ignoring vendor-prefixed property: '{}'", name);
+        } else if (!util::is_alpha(name_start_byte)) {
             spdlog::warn("Ignoring unknown property: '{}'", name);
         } else if (value.ends_with("!important")) {
             value.remove_suffix(std::strlen("!important"));
