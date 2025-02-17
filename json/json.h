@@ -7,6 +7,9 @@
 
 #include "unicode/util.h"
 #include "util/from_chars.h"
+#include "util/string.h"
+
+#include <tl/expected.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -23,6 +26,43 @@
 #include <vector>
 
 namespace json {
+
+enum class Error : std::uint8_t {
+    InvalidEscape,
+    InvalidKeyword,
+    InvalidNumber,
+    NestingLimitReached,
+    TrailingGarbage,
+    UnexpectedCharacter,
+    UnexpectedControlCharacter,
+    UnexpectedEof,
+    UnpairedSurrogate,
+};
+
+constexpr std::string_view to_string(Error e) {
+    switch (e) {
+        case Error::InvalidEscape:
+            return "InvalidEscape";
+        case Error::InvalidKeyword:
+            return "InvalidKeyword";
+        case Error::InvalidNumber:
+            return "InvalidNumber";
+        case Error::NestingLimitReached:
+            return "NestingLimitReached";
+        case Error::TrailingGarbage:
+            return "TrailingGarbage";
+        case Error::UnexpectedCharacter:
+            return "UnexpectedCharacter";
+        case Error::UnexpectedControlCharacter:
+            return "UnexpectedControlCharacter";
+        case Error::UnexpectedEof:
+            return "UnexpectedEof";
+        case Error::UnpairedSurrogate:
+            return "UnpairedSurrogate";
+    }
+
+    return "Unknown error";
+}
 
 struct Null {
     constexpr bool operator==(Null const &) const = default;
@@ -70,13 +110,16 @@ class Parser {
 public:
     explicit constexpr Parser(std::string_view json) : json_{json} {}
 
-    std::optional<Value> parse() {
+    tl::expected<Value, Error> parse() {
         static constexpr auto kRecursionLimit = 257;
         auto v = parse_value(kRecursionLimit);
-        skip_whitespace();
+        if (!v) {
+            return v;
+        }
 
+        skip_whitespace();
         if (!is_eof()) {
-            return std::nullopt;
+            return tl::unexpected{Error::TrailingGarbage};
         }
 
         return v;
@@ -127,15 +170,15 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::optional<Value> parse_value(int recursion_limit) {
+    tl::expected<Value, Error> parse_value(int recursion_limit) {
         if (recursion_limit <= 0) {
-            return std::nullopt;
+            return tl::unexpected{Error::NestingLimitReached};
         }
 
         skip_whitespace();
         auto c = peek();
         if (!c) {
-            return std::nullopt;
+            return tl::unexpected{Error::UnexpectedEof};
         }
 
         if (*c == '-' || (*c >= '0' && *c <= '9')) {
@@ -156,11 +199,11 @@ private:
             case '{':
                 return parse_object(recursion_limit);
             default:
-                return std::nullopt;
+                return tl::unexpected{Error::UnexpectedCharacter};
         }
     }
 
-    std::optional<Value> parse_number() {
+    tl::expected<Value, Error> parse_number() {
         std::string number;
         if (auto c = peek(); c == '-') {
             number.push_back('-');
@@ -181,7 +224,7 @@ private:
                 std::ignore = consume();
             }
         } else {
-            return std::nullopt;
+            return tl::unexpected{Error::UnexpectedCharacter};
         }
 
         bool is_floating_point = false;
@@ -191,8 +234,12 @@ private:
             is_floating_point = true;
 
             auto c = peek();
-            if (!c || *c < '0' || *c > '9') {
-                return std::nullopt;
+            if (!c) {
+                return tl::unexpected{Error::UnexpectedEof};
+            }
+
+            if (*c < '0' || *c > '9') {
+                return tl::unexpected{Error::UnexpectedCharacter};
             }
 
             number.push_back(*c);
@@ -219,8 +266,13 @@ private:
                 std::ignore = consume();
             }
 
-            if (c = peek(); !c || *c < '0' || *c > '9') {
-                return std::nullopt;
+            c = peek();
+            if (!c) {
+                return tl::unexpected{Error::UnexpectedEof};
+            }
+
+            if (*c < '0' || *c > '9') {
+                return tl::unexpected{Error::UnexpectedCharacter};
             }
 
             number.push_back(*c);
@@ -241,7 +293,7 @@ private:
             std::int64_t value{};
             if (auto [p, ec] = std::from_chars(number.data(), number.data() + number.size(), value);
                     ec != std::errc{} || p != number.data() + number.size()) {
-                return std::nullopt;
+                return tl::unexpected{Error::InvalidNumber};
             }
 
             return Value{value};
@@ -250,14 +302,14 @@ private:
         double value{};
         if (auto [p, ec] = util::from_chars(number.data(), number.data() + number.size(), value);
                 ec != std::errc{} || p != number.data() + number.size()) {
-            return std::nullopt;
+            return tl::unexpected{Error::InvalidNumber};
         }
 
         return Value{value};
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::optional<Value> parse_object(int recursion_limit) {
+    tl::expected<Value, Error> parse_object(int recursion_limit) {
         std::ignore = consume(); // '{'
         skip_whitespace();
 
@@ -272,17 +324,17 @@ private:
 
             auto key = parse_string();
             if (!key) {
-                return std::nullopt;
+                return key;
             }
 
             skip_whitespace();
-            if (consume() != ':') {
-                return std::nullopt;
+            if (auto c = consume(); c != ':') {
+                return tl::unexpected{c.has_value() ? Error::UnexpectedCharacter : Error::UnexpectedEof};
             }
 
             auto value = parse_value(recursion_limit - 1);
             if (!value) {
-                return std::nullopt;
+                return value;
             }
 
             object.values.emplace_back(std::get<std::string>(*std::move(key)), *std::move(value));
@@ -290,7 +342,7 @@ private:
 
             auto c = peek();
             if (!c) {
-                return std::nullopt;
+                return tl::unexpected{Error::UnexpectedEof};
             }
 
             if (*c == ',') {
@@ -303,12 +355,12 @@ private:
                 return object;
             }
 
-            return std::nullopt;
+            return tl::unexpected{Error::UnexpectedCharacter};
         }
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::optional<Value> parse_array(int recursion_limit) {
+    tl::expected<Value, Error> parse_array(int recursion_limit) {
         std::ignore = consume(); // '['
         skip_whitespace();
 
@@ -321,7 +373,7 @@ private:
         while (true) {
             auto v = parse_value(recursion_limit - 1);
             if (!v) {
-                return std::nullopt;
+                return v;
             }
 
             array.values.push_back(*std::move(v));
@@ -329,7 +381,7 @@ private:
 
             auto c = peek();
             if (!c) {
-                return std::nullopt;
+                return tl::unexpected{Error::UnexpectedEof};
             }
 
             if (*c == ',') {
@@ -342,51 +394,55 @@ private:
                 return array;
             }
 
-            return std::nullopt;
+            return tl::unexpected{Error::UnexpectedCharacter};
         }
     }
 
-    std::optional<Value> parse_true() {
+    tl::expected<Value, Error> parse_true() {
         std::ignore = consume(); // 't'
         auto r = consume();
         auto u = consume();
         auto e = consume();
         if (r != 'r' || u != 'u' || e != 'e') {
-            return std::nullopt;
+            return tl::unexpected{Error::InvalidKeyword};
         }
 
         return Value{true};
     }
 
-    std::optional<Value> parse_false() {
+    tl::expected<Value, Error> parse_false() {
         std::ignore = consume(); // 'f'
         auto a = consume();
         auto l = consume();
         auto s = consume();
         auto e = consume();
         if (a != 'a' || l != 'l' || s != 's' || e != 'e') {
-            return std::nullopt;
+            return tl::unexpected{Error::InvalidKeyword};
         }
 
         return Value{false};
     }
 
-    std::optional<Value> parse_null() {
+    tl::expected<Value, Error> parse_null() {
         std::ignore = consume(); // 'n'
         auto u = consume();
         auto l1 = consume();
         auto l2 = consume();
         if (u != 'u' || l1 != 'l' || l2 != 'l') {
-            return std::nullopt;
+            return tl::unexpected{Error::InvalidKeyword};
         }
 
         return Value{Null{}};
     }
 
-    std::optional<Value> parse_string() {
+    tl::expected<Value, Error> parse_string() {
         std::string value;
         if (consume() != '"') {
-            return std::nullopt;
+            if (is_eof()) {
+                return tl::unexpected{Error::UnexpectedEof};
+            }
+
+            return tl::unexpected{Error::UnexpectedCharacter};
         }
 
         while (auto c = consume()) {
@@ -395,13 +451,13 @@ private:
             }
 
             if (is_control(*c)) {
-                return std::nullopt;
+                return tl::unexpected{Error::UnexpectedControlCharacter};
             }
 
             if (*c == '\\') {
                 auto escaped = consume();
                 if (!escaped) {
-                    return std::nullopt;
+                    return tl::unexpected{Error::UnexpectedEof};
                 }
 
                 switch (*escaped) {
@@ -432,23 +488,26 @@ private:
                     case 'u': {
                         auto code_unit = parse_utf16_escaped_hex();
                         if (!code_unit) {
-                            return std::nullopt;
+                            return code_unit;
                         }
 
                         if (unicode::is_high_surrogate(*code_unit)) {
                             if (consume() != '\\' || consume() != 'u') {
-                                return std::nullopt;
+                                return tl::unexpected{Error::UnpairedSurrogate};
                             }
 
                             auto low_surrogate = parse_utf16_escaped_hex();
-                            if (!low_surrogate || !unicode::is_low_surrogate(*low_surrogate)) {
-                                return std::nullopt;
+                            if (!low_surrogate) {
+                                return low_surrogate;
+                            }
+
+                            if (!unicode::is_low_surrogate(*low_surrogate)) {
+                                return tl::unexpected{Error::UnpairedSurrogate};
                             }
 
                             auto code_point = unicode::utf16_surrogate_pair_to_code_point(*code_unit, *low_surrogate);
-                            if (!code_point) {
-                                return std::nullopt;
-                            }
+                            // We always pass a high and low surrogate, so this should always succeed.
+                            assert(code_point.has_value());
 
                             auto utf8 = unicode::to_utf8(*code_point);
                             // The only error-checking in to_utf8 is to make sure
@@ -462,14 +521,14 @@ private:
 
                         auto utf8 = unicode::utf16_to_utf8(*code_unit);
                         if (!utf8) {
-                            return std::nullopt;
+                            return tl::unexpected{Error::InvalidEscape};
                         }
 
                         value += *utf8;
                         break;
                     }
                     default:
-                        return std::nullopt;
+                        return tl::unexpected{Error::UnexpectedCharacter};
                 }
 
                 continue;
@@ -478,32 +537,35 @@ private:
             value.push_back(*c);
         }
 
-        return std::nullopt;
+        return tl::unexpected{Error::UnexpectedEof};
     }
 
     // This *only* parses the 4 hex digits after the \u.
-    std::optional<std::uint16_t> parse_utf16_escaped_hex() {
+    tl::expected<std::uint16_t, Error> parse_utf16_escaped_hex() {
         std::string hex;
         for (int i = 0; i < 4; ++i) {
             auto hex_digit = consume();
             if (!hex_digit) {
-                return std::nullopt;
+                return tl::unexpected{Error::UnexpectedEof};
+            }
+
+            if (!util::is_hex_digit(*hex_digit)) {
+                return tl::unexpected{Error::InvalidEscape};
             }
 
             hex.push_back(*hex_digit);
         }
 
         std::uint16_t code_unit{};
-        if (auto [p, ec] = std::from_chars(hex.data(), hex.data() + hex.size(), code_unit, 16);
-                ec != std::errc{} || p != hex.data() + hex.size()) {
-            return std::nullopt;
-        }
+        [[maybe_unused]] auto [p, ec] = std::from_chars(hex.data(), hex.data() + hex.size(), code_unit, 16);
+        // We fail earlier if the input isn't 4 hex digits, so this will always work.
+        assert(ec == std::errc{} && p == hex.data() + hex.size());
 
         return code_unit;
     }
 };
 
-inline std::optional<Value> parse(std::string_view json) {
+inline tl::expected<Value, Error> parse(std::string_view json) {
     return Parser{json}.parse();
 }
 

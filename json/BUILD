@@ -10,6 +10,8 @@ cc_library(
     deps = [
         "//unicode:util",
         "//util:from_chars",
+        "//util:string",
+        "@expected",
     ],
 )
 
@@ -21,6 +23,7 @@ cc_library(
     deps = [
         ":json",
         "//etest",
+        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],
