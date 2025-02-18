@@ -50,13 +50,7 @@ cc_test(
     size = "small",
     srcs = ["wpt_test.cpp"],
     args = ["$(location @wpt_urltestdata//file)"],
-    copts = HASTUR_COPTS + select({
-        "@platforms//os:windows": [
-            "/wd4100",
-            "/wd4706",
-        ],
-        "//conditions:default": [],
-    }),
+    copts = HASTUR_COPTS,
     data = ["@wpt_urltestdata//file"],
     tags = ["no-cross"],
     deps = [

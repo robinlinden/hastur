@@ -50,14 +50,7 @@ cc_binary(
     name = "html5lib_test_runner",
     testonly = True,
     srcs = ["html5lib_test.cpp"],
-    copts = HASTUR_COPTS + select({
-        # simdjson leaks a bunch of warnings into our code.
-        "@platforms//os:windows": [
-            "/wd4100",
-            "/wd4706",
-        ],
-        "//conditions:default": [],
-    }),
+    copts = HASTUR_COPTS,
     deps = [
         ":html2",
         "//etest",
