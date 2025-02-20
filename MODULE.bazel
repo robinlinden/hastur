@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support")  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-thSN4te7355YGbTiJl9lCDIajh8KFZkOsEj4Is1BVQ0=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.18.0"),
+    integrity = "sha256-1xsC1t8FAPQyeeIkANtmgAJMHEORFcV6moLp7/4ZnXs=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.18.1"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -76,12 +76,14 @@ pip.parse(
 use_repo(pip, "pypi")
 
 # https://github.com/bazelbuild/rules_fuzzing
+RULES_FUZZING_VERSION = "0.5.3"
+
 bazel_dep(name = "rules_fuzzing")  # Apache-2.0
 archive_override(
     module_name = "rules_fuzzing",
-    integrity = "sha256-5rwhm/rJ4fg7Mn3QkPcoqflz7pm5tdjloYSicy7whiM=",
-    strip_prefix = "rules_fuzzing-0.5.2",
-    urls = ["https://github.com/bazelbuild/rules_fuzzing/releases/download/v0.5.2/rules_fuzzing-0.5.2.zip"],
+    integrity = "sha256-CCdEIsQ4NBbfX5gpQ+QNWBQfdJwJAIu3gEQO7OaxE+Q=",
+    strip_prefix = "rules_fuzzing-%s" % RULES_FUZZING_VERSION,
+    url = "https://github.com/bazel-contrib/rules_fuzzing/archive/refs/tags/v{0}.tar.gz".format(RULES_FUZZING_VERSION),
 )
 
 # https://github.com/bazelbuild/rules_pkg
@@ -156,11 +158,13 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
+BAZEL_FEATURES_VERSION = "1.26.0"
+
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-T9mSLUZGhoIP/Y/O+ijM/6FH983GtqwNiwf95WXGXWY=",
-    strip_prefix = "bazel_features-1.25.0",
-    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format("1.25.0"),
+    integrity = "sha256-CR2LHh8L8fe9aIuVAHaH6GLMSJ+Nm8IcFL5f0DKoNi8=",
+    strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
+    url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
 
 # https://github.com/bazel-contrib/bazel-gazelle
@@ -173,16 +177,18 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-kP6PtALe6VejdfPrhRFFW9c4x+1WJpX03RF6x9LYM7E=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.52.0"),
+    integrity = "sha256-t493RY53Fi9FtFZNayC2+S9WQx7VnqqrCeeBnR2FAxM=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.53.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
+RULES_JVM_EXTERNAL_VERSION = "6.7"
+
 archive_override(
     module_name = "rules_jvm_external",
-    integrity = "sha256-Ov5RlQab03k3NSiJnAOjBy9WjTO9lv4De9Q7H1kFNec=",
-    strip_prefix = "rules_jvm_external-6.6",
-    urls = ["https://github.com/bazel-contrib/rules_jvm_external/releases/download/6.6/rules_jvm_external-6.6.tar.gz"],
+    integrity = "sha256-oeNRYH8E/tKWujPEl30/4qYV7VDfeJZna2eqyZPFPBg=",
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_VERSION,
+    url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
 
 # Other Bazel-required dependencies
@@ -277,8 +283,8 @@ archive_override(
 bazel_dep(name = "hermetic_cc_toolchain")  # MIT
 archive_override(
     module_name = "hermetic_cc_toolchain",
-    integrity = "sha256-kHdFv5FVX3foI0wLlTNx5srFunFdHPEv9kFJbdG86dE=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v3.1.1/hermetic_cc_toolchain-v3.1.1.tar.gz",
+    integrity = "sha256-+CMR4st1jyz/JWe+Fs+MBs6ZeV5RTMlMF5MrdNMsHzY=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("3.2.0"),
 )
 
 zig_toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")
@@ -333,12 +339,14 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
+BORINGSSL_VERSION = "0.20250212.0"
+
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-uK9hYU+E5aONR8oNhMxnKPZSUQsrroHGX1KOQmu1wuo=",
-    strip_prefix = "boringssl-0.20250114.0",
-    url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format("0.20250114.0"),
+    integrity = "sha256-u47Zn8r6feJ7WIDm8q77gVVXXz5iPo3l3dU5CsBqVFg=",
+    strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
+    url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
 
 # https://github.com/google/brotli
@@ -786,11 +794,13 @@ EOF""",
 )
 
 # https://github.com/facebook/zstd
+ZSTD_VERSION = "1.5.7"
+
 bazel_dep(name = "zstd")
 archive_override(
     module_name = "zstd",  # BSD-3-Clause
     build_file = "//third_party:zstd.BUILD",
-    integrity = "sha256-jCngbPQqrMHq/EB3ri7Gxvy5amJhV+BZPV6Co0/UA8E=",
+    integrity = "sha256-6zPlH0mhXgI5UM14Jcp0pKK0Pbg1SCWsJPwbfuCeb6M=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "zstd")
@@ -798,6 +808,6 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "zstd-1.5.6",
-    url = "https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz",
+    strip_prefix = "zstd-%s" % ZSTD_VERSION,
+    url = "https://github.com/facebook/zstd/releases/download/v{0}/zstd-{0}.tar.gz".format(ZSTD_VERSION),
 )
