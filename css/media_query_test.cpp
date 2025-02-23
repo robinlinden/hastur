@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -54,6 +54,11 @@ void to_string_tests(etest::Suite &s) {
     s.add_test("to_string: prefers-color-scheme", [](etest::IActions &a) {
         a.expect_eq(css::to_string(css::MediaQuery::PrefersColorScheme{.color_scheme = css::ColorScheme::Light}), //
                 "prefers-color-scheme: light");
+    });
+
+    s.add_test("to_string: prefers-reduced-motion", [](etest::IActions &a) {
+        a.expect_eq(css::to_string(css::MediaQuery::PrefersReducedMotion{}), //
+                "prefers-reduced-motion: reduce");
     });
 
     s.add_test("to_string: type", [](etest::IActions &a) {
@@ -171,6 +176,26 @@ void prefers_color_scheme_tests(etest::Suite &s) {
     });
 }
 
+void prefers_reduced_motion_tests(etest::Suite &s) {
+    s.add_test("prefers-reduced-motion: reduce", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(prefers-reduced-motion: reduce)"),
+                css::MediaQuery{css::MediaQuery::PrefersReducedMotion{}});
+
+        auto query = css::MediaQuery::PrefersReducedMotion{};
+        a.expect(query.evaluate({.reduce_motion = css::ReduceMotion::Reduce}));
+        a.expect(!query.evaluate({.reduce_motion = css::ReduceMotion::NoPreference}));
+    });
+
+    s.add_test("prefers-reduced-motion: no-preference", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(prefers-reduced-motion: no-preference)"),
+                css::MediaQuery{css::MediaQuery::False{}});
+    });
+
+    s.add_test("prefers-reduced-motion: no-preference", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(prefers-reduced-motion: yasss)"), std::nullopt);
+    });
+}
+
 void type_tests(etest::Suite &s) {
     s.add_test("type", [](etest::IActions &a) {
         a.expect_eq(css::MediaQuery::parse("all"), css::MediaQuery{css::MediaQuery::True{}});
@@ -240,6 +265,7 @@ int main() {
     false_tests(s);
     true_tests(s);
     prefers_color_scheme_tests(s);
+    prefers_reduced_motion_tests(s);
     type_tests(s);
     width_tests(s);
     return s.run();

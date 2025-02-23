@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -37,6 +37,11 @@ enum class MediaType : std::uint8_t {
     Screen,
 };
 
+enum class ReduceMotion : std::uint8_t {
+    NoPreference,
+    Reduce,
+};
+
 // This namespace is a workaround required when using libstdc++.
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96645
 namespace detail {
@@ -45,15 +50,17 @@ struct Context {
     int window_width{};
     ColorScheme color_scheme{ColorScheme::Light};
     MediaType media_type{MediaType::Screen};
+    ReduceMotion reduce_motion{ReduceMotion::NoPreference};
 };
 
 struct And;
 struct False;
 struct PrefersColorScheme;
+struct PrefersReducedMotion;
 struct True;
 struct Type;
 struct Width;
-using Query = std::variant<And, False, PrefersColorScheme, True, Type, Width>;
+using Query = std::variant<And, False, PrefersColorScheme, PrefersReducedMotion, True, Type, Width>;
 
 struct False {
     [[nodiscard]] bool operator==(False const &) const = default;
@@ -66,6 +73,13 @@ struct PrefersColorScheme {
     [[nodiscard]] bool operator==(PrefersColorScheme const &) const = default;
 
     constexpr bool evaluate(Context const &ctx) const { return ctx.color_scheme == color_scheme; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+struct PrefersReducedMotion {
+    [[nodiscard]] bool operator==(PrefersReducedMotion const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.reduce_motion == ReduceMotion::Reduce; }
 };
 
 struct True {
@@ -104,6 +118,7 @@ public:
     using Context = detail::Context;
     using False = detail::False;
     using PrefersColorScheme = detail::PrefersColorScheme;
+    using PrefersReducedMotion = detail::PrefersReducedMotion;
     using True = detail::True;
     using Type = detail::Type;
     using Width = detail::Width;
@@ -172,6 +187,18 @@ private:
 
             if (value_str == "dark") {
                 return MediaQuery{PrefersColorScheme{.color_scheme = ColorScheme::Dark}};
+            }
+
+            return std::nullopt;
+        }
+
+        if (feature_name == "prefers-reduced-motion") {
+            if (value_str == "reduce") {
+                return MediaQuery{PrefersReducedMotion{}};
+            }
+
+            if (value_str == "no-preference") {
+                return MediaQuery{False{}};
             }
 
             return std::nullopt;
@@ -250,6 +277,10 @@ constexpr std::string to_string(MediaQuery::Type const &q) {
 
 constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {
     return q.color_scheme == ColorScheme::Light ? "prefers-color-scheme: light" : "prefers-color-scheme: dark";
+}
+
+constexpr std::string to_string(MediaQuery::PrefersReducedMotion const &) {
+    return "prefers-reduced-motion: reduce";
 }
 
 constexpr std::string to_string(MediaQuery::And const &);
