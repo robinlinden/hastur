@@ -237,6 +237,14 @@ private:
             return std::nullopt;
         }
 
+        if (value_unit == "em") {
+            // TODO(robinlinden): Make configurable. Needs to match the default
+            // font size in the StyledNode property calulations right now.
+            static constexpr int kDefaultFontSize{16};
+            value *= kDefaultFontSize;
+            value_unit = "px";
+        }
+
         // ...and we only handle px as the unit.
         if (value != 0 && value_unit != "px") {
             return std::nullopt;

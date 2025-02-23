@@ -550,6 +550,8 @@ std::optional<TextTransform> StyledNode::get_text_transform_property() const {
     return std::nullopt;
 }
 
+// TODO(robinlinden): Make configurable. Needs to match the default font size in
+// our media query parsing right now.
 static constexpr int kDefaultFontSize{16};
 // https://drafts.csswg.org/css-fonts-4/#absolute-size-mapping
 constexpr int kMediumFontSize = kDefaultFontSize;
