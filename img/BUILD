@@ -19,6 +19,21 @@ cc_library(
 )
 
 cc_library(
+    name = "jpeg_turbo",
+    srcs = ["jpeg_turbo.cpp"],
+    hdrs = ["jpeg_turbo.h"],
+    copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # libjpeg-turbo requires us to use setjmp/longjmp for error handling,
+        # and our wasm setup doesn't get along with that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+    deps = ["@libjpeg-turbo"],
+)
+
+cc_library(
     name = "png",
     srcs = ["png.cpp"],
     hdrs = ["png.h"],
@@ -44,7 +59,16 @@ genrule(
     cmd = "xxd -i $< >$@",
 )
 
+# See: https://web.archive.org/web/20111224041840/http://www.techsupportteam.org/forum/digital-imaging-photography/1892-worlds-smallest-valid-jpeg.html
+genrule(
+    name = "tiny_jpg",
+    srcs = ["tiny.jpg"],
+    outs = ["tiny_jpg.h"],
+    cmd = "xxd -i $< >$@",
+)
+
 extra_srcs = {
+    "jpeg_turbo": [":tiny_jpg"],
     "png": [":tiny_png"],
 }
 
