@@ -556,6 +556,24 @@ EOF""",
     url = "https://github.com/martinus/nanobench/archive/refs/tags/v4.3.11.tar.gz",
 )
 
+# https://github.com/libjpeg-turbo/libjpeg-turbo
+bazel_dep(name = "libjpeg-turbo")  # BSD-3-Clause AND IJG
+archive_override(
+    module_name = "libjpeg-turbo",
+    build_file = "//third_party:libjpeg-turbo.BUILD",
+    integrity = "sha256-lWTHKx39HW/mJ0xflajZibWYVFddS77kSt57wXqpvJM=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "libjpeg-turbo")
+bazel_dep(name = "bazel_skylib")
+bazel_dep(name = "platforms")
+bazel_dep(name = "rules_cc")
+EOF""",
+    ],
+    strip_prefix = "libjpeg-turbo-3.1.0",
+    url = "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.0/libjpeg-turbo-3.1.0.tar.gz",
+)
+
 # https://github.com/glennrp/libpng
 LIBPNG_VERSION = "1.6.47"
 
