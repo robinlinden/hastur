@@ -19,6 +19,21 @@ cc_library(
 )
 
 cc_library(
+    name = "jpeg_turbo",
+    srcs = ["jpeg_turbo.cpp"],
+    hdrs = ["jpeg_turbo.h"],
+    copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # libjpeg-turbo requires us to use setjmp/longjmp for error handling,
+        # and our wasm setup doesn't get along with that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+    deps = ["@libjpeg-turbo"],
+)
+
+cc_library(
     name = "png",
     srcs = ["png.cpp"],
     hdrs = ["png.h"],
