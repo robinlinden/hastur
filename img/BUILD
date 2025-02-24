@@ -19,6 +19,15 @@ cc_library(
 )
 
 cc_library(
+    name = "jpeg_turbo",
+    srcs = ["jpeg_turbo.cpp"],
+    hdrs = ["jpeg_turbo.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = ["@libjpeg-turbo"],
+)
+
+cc_library(
     name = "png",
     srcs = ["png.cpp"],
     hdrs = ["png.h"],
