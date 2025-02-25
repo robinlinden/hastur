@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#ifndef IMG_JPEG_H_
+#define IMG_JPEG_H_
+
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
@@ -24,3 +27,5 @@ public:
 };
 
 } // namespace img
+
+#endif
