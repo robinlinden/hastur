@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -572,8 +572,8 @@ void Layouter::calculate_non_inline_height(LayoutBox &box, int const font_size) 
     if (auto height = box.get_property<css::PropertyId::Height>(); !height.is_auto()) {
         if (box.node->parent == nullptr) {
             content.height = height.resolve(font_size, resolution_context_, resolution_context_.viewport_height);
-        } else {
-            content.height = height.resolve(font_size, resolution_context_);
+        } else if (auto maybe_height = height.try_resolve(font_size, resolution_context_)) {
+            content.height = *maybe_height;
         }
     }
 

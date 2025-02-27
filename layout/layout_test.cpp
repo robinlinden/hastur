@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -2198,6 +2198,95 @@ int main() {
 
         auto layout = layout::create_layout(style, {.viewport_height = 1000}).value();
         a.expect_eq(layout.dimensions.border_box().height, 500);
+    });
+
+    s.add_test("%-height on node", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{
+                .name{"html"},
+                .children{
+                        dom::Element{"div", {}, {dom::Text{"hello"}}},
+                },
+        };
+
+        auto const &html = std::get<dom::Element>(dom);
+        auto const &div = std::get<dom::Element>(html.children[0]);
+        style::StyledNode style{
+                .node{dom},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        style::StyledNode{
+                                .node{html.children[0]},
+                                .properties{
+                                        {css::PropertyId::Display, "block"},
+                                        {css::PropertyId::Height, "50%"},
+                                },
+                                .children{
+                                        style::StyledNode{
+                                                .node{div.children[0]},
+                                        },
+                                },
+                        },
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        // Without an explicit height on the parent node, the %-height should be treated as 'auto'.
+        layout::LayoutBox expected{
+                .node = &style,
+                .dimensions{{0, 0, 100, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children[0],
+                        .dimensions{{0, 0, 100, 10}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = nullptr,
+                                        .dimensions{{0, 0, 100, 10}},
+                                        .children{
+                                                layout::LayoutBox{
+                                                        .node = &style.children[0].children[0],
+                                                        .dimensions{{0, 0, 25, 10}},
+                                                        .layout_text = "hello"sv,
+                                                },
+                                        },
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 100).value();
+        a.expect_eq(l, expected);
+
+        // And with an explicit height on the parent node, the %-height should be calculated properly.
+        style.properties.emplace_back(css::PropertyId::Height, "100px");
+        expected = layout::LayoutBox{
+                .node = &style,
+                .dimensions{{0, 0, 100, 100}},
+                .children{layout::LayoutBox{
+                        .node = &style.children[0],
+                        // TODO(robinlinden)
+                        // .dimensions{{0, 0, 100, 50}},
+                        .dimensions{{0, 0, 100, 10}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = nullptr,
+                                        .dimensions{{0, 0, 100, 10}},
+                                        .children{
+                                                layout::LayoutBox{
+                                                        .node = &style.children[0].children[0],
+                                                        .dimensions{{0, 0, 25, 10}},
+                                                        .layout_text = "hello"sv,
+                                                },
+                                        },
+                                },
+                        },
+                }},
+        };
+
+        l = layout::create_layout(style, 100).value();
+        a.expect_eq(l, expected);
     });
 
     whitespace_collapsing_tests(s);
