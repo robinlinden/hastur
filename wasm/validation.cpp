@@ -64,13 +64,14 @@ constexpr bool is_valid(TableType const &t) {
     return is_valid(t.limits, (1ULL << 32) - 1);
 }
 
-// TODO(Zer0-One): Start using these?
-// NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if)
-#if 0
 // https://webassembly.github.io/spec/core/valid/types.html#memory-types
 constexpr bool is_valid(MemType const &mt) {
     return is_valid(mt, 1ULL << 16);
 }
+
+// TODO(Zer0-One): Start using these?
+// NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if)
+#if 0
 
 // https://webassembly.github.io/spec/core/valid/types.html#match-limits
 // https://webassembly.github.io/spec/core/valid/types.html#memories
@@ -548,6 +549,8 @@ std::string_view to_string(ValidationError err) {
             return "Attempted a load or store with a bad alignment value";
         case ValidationError::MemoryEmpty:
             return "Attempted a load, but memory is empty";
+        case ValidationError::MemoryInvalid:
+            return "A memory has invalid limits";
         case ValidationError::MemorySectionUndefined:
             return "Attempted a load or store, but no memory section was defined";
         case ValidationError::TableInvalid:
@@ -583,6 +586,15 @@ tl::expected<void, ValidationError> validate(Module const &m) {
         for (auto const &t : m.table_section->tables) {
             if (!is_valid(t)) {
                 return tl::unexpected{ValidationError::TableInvalid};
+            }
+        }
+    }
+
+    // https://webassembly.github.io/spec/core/valid/modules.html#memories
+    if (m.memory_section.has_value()) {
+        for (auto const &mem : m.memory_section->memories) {
+            if (!is_valid(mem)) {
+                return tl::unexpected{ValidationError::MemoryInvalid};
             }
         }
     }

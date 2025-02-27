@@ -238,5 +238,20 @@ int main() {
         a.expect_eq(validate(m), tl::unexpected{ValidationError::TableInvalid});
     });
 
+    s.add_test("Memory: valid memory", [=](etest::IActions &a) mutable {
+        m.memory_section = {{{0, 100}}};
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Memory: invalid memory, min size > max", [=](etest::IActions &a) mutable {
+        m.memory_section = {{{1, 0}}};
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryInvalid});
+    });
+
+    s.add_test("Memory: invalid memory, max size > 2^16", [=](etest::IActions &a) mutable {
+        m.memory_section = {{{0, 1UL << 17}}};
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryInvalid});
+    });
+
     return s.run();
 }
