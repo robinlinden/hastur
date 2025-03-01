@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -15,17 +15,24 @@
 #include <fstream>
 #include <ios>
 #include <string>
+#include <system_error>
 #include <utility>
 
 namespace protocol {
 
 tl::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
     auto path = std::filesystem::path(uri.path);
-    if (!exists(path)) {
+    std::error_code ec;
+    auto type = status(path, ec).type();
+    if (ec && ec != std::errc::no_such_file_or_directory) {
+        return tl::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
+    }
+
+    if (type == std::filesystem::file_type::not_found) {
         return tl::unexpected{protocol::Error{ErrorCode::Unresolved}};
     }
 
-    if (!is_regular_file(path)) {
+    if (type != std::filesystem::file_type::regular) {
         return tl::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
     }
 

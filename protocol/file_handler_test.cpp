@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -64,6 +64,15 @@ int main() {
         auto res = handler.handle(uri::Uri::parse("file:///this/file/does/definitely/not/exist.hastur").value());
         a.expect_eq(res.error(), protocol::Error{protocol::ErrorCode::Unresolved});
     });
+
+#ifdef _WIN32
+    // TOOD(robinlinden): Test case that's not Windows-specific.
+    s.add_test("invalid file", [](etest::IActions &a) {
+        protocol::FileHandler handler;
+        auto res = handler.handle(uri::Uri::parse("NUL").value());
+        a.expect_eq(res.error(), protocol::Error{protocol::ErrorCode::InvalidResponse});
+    });
+#endif
 
     s.add_test("uri pointing to a folder", [](etest::IActions &a) {
         auto tmp_dir = fs::temp_directory_path();
