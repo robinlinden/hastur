@@ -9,54 +9,25 @@
 #include "etest/etest2.h"
 #include "uri/uri.h"
 
-#include <cerrno>
+#include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <optional>
-#include <random>
-#include <utility>
 
 namespace fs = std::filesystem;
 
-namespace {
-
-class TmpFile {
-public:
-    explicit TmpFile(fs::path location, std::fstream file) : location_{std::move(location)}, file_{std::move(file)} {}
-
-    static std::optional<TmpFile> create(fs::path location) {
-        if (fs::exists(location)) {
-            std::cerr << "File already exists at " << location.generic_string() << '\n';
-            return std::nullopt;
-        }
-
-        std::fstream file{location, std::fstream::in | std::fstream::out | std::fstream::trunc};
-        if (!file) {
-            std::cerr << "Unable to create file at " << location.generic_string() << " (" << errno << ")\n";
-            return std::nullopt;
-        }
-
-        return std::optional<TmpFile>{std::in_place_t{}, std::move(location), std::move(file)};
-    }
-
-    fs::path const &path() const { return location_; }
-    std::fstream &fstream() { return file_; }
-
-    ~TmpFile() {
-        file_.close();
-        fs::remove(location_);
-    }
-
-private:
-    fs::path location_;
-    std::fstream file_;
-};
-
-} // namespace
-
 int main() {
+    // https://bazel.build/reference/test-encyclopedia#test-interaction-filesystem
+    auto *const bazel_tmp_dir = std::getenv("TEST_TMPDIR"); // NOLINT(concurrency-mt-unsafe)
+    if (bazel_tmp_dir == nullptr) {
+        std::cerr << "TEST_TMPDIR must be set\n";
+        return 1;
+    }
+
+    auto const tmp_dir = fs::path{bazel_tmp_dir};
+
     etest::Suite s;
 
     s.add_test("uri pointing to non-existent file", [](etest::IActions &a) {
@@ -74,24 +45,22 @@ int main() {
     });
 #endif
 
-    s.add_test("uri pointing to a folder", [](etest::IActions &a) {
-        auto tmp_dir = fs::temp_directory_path();
-
+    s.add_test("uri pointing to a folder", [&](etest::IActions &a) {
         protocol::FileHandler handler;
         auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_dir.generic_string())).value());
         a.expect_eq(res.error(), protocol::Error{protocol::ErrorCode::InvalidResponse});
     });
 
-    s.add_test("uri pointing to a regular file", [](etest::IActions &a) {
-        std::random_device rng;
-        auto tmp_dst = fs::temp_directory_path() / std::format("hastur-uri-pointing-to-a-regular-file-test.{}", rng());
-
-        auto tmp_file = TmpFile::create(std::move(tmp_dst));
-        a.require(tmp_file.has_value());
-        a.require(bool{tmp_file->fstream() << "hello!" << std::flush});
+    s.add_test("uri pointing to a regular file", [&](etest::IActions &a) {
+        auto tmp_dst = tmp_dir / "hastur-uri-pointing-to-a-regular-file-test";
+        {
+            std::ofstream tmp_file{tmp_dst};
+            a.require(!tmp_file.fail());
+            a.require(bool{tmp_file << "hello!"});
+        }
 
         protocol::FileHandler handler;
-        auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_file->path().generic_string())).value());
+        auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_dst.generic_string())).value());
         a.expect_eq(res, protocol::Response{{}, {}, "hello!"});
     });
 
