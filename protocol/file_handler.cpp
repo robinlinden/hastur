@@ -12,13 +12,44 @@
 #include <tl/expected.hpp>
 
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <ios>
+#include <iterator>
 #include <string>
 #include <system_error>
 #include <utility>
 
 namespace protocol {
+namespace {
+
+tl::expected<Response, Error> handle_folder_request(std::filesystem::path const &path) {
+    Response response{};
+
+    // TODO(robinlinden): Only show '..' if we can navigate up. Will be more
+    // convenient to deal with once we've switched to the spec-compliant url
+    // implementation.
+    // Allow navigation up in the directory structure.
+    response.body += "<a href=\"../\">../</a></br>\n";
+
+    auto body = std::back_inserter(response.body);
+
+    for (auto const &entry : std::filesystem::directory_iterator(path)) {
+        auto path_str = entry.path().string();
+        auto filename = entry.path().filename().string();
+
+        if (entry.is_directory()) {
+            std::format_to(body, "<a href=\"{}/\">{}/</a></br>\n", path_str, filename);
+            continue;
+        }
+
+        std::format_to(body, "<a href=\"{}\">{}</a></br>\n", path_str, filename);
+    }
+
+    return response;
+}
+
+} // namespace
 
 tl::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
     auto path = std::filesystem::path(uri.path);
@@ -30,6 +61,10 @@ tl::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
 
     if (type == std::filesystem::file_type::not_found) {
         return tl::unexpected{protocol::Error{ErrorCode::Unresolved}};
+    }
+
+    if (type == std::filesystem::file_type::directory) {
+        return handle_folder_request(path);
     }
 
     if (type != std::filesystem::file_type::regular) {

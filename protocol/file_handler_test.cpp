@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -46,9 +47,24 @@ int main() {
 #endif
 
     s.add_test("uri pointing to a folder", [&](etest::IActions &a) {
+        auto tmp_dst = tmp_dir / "hastur-uri-pointing-to-a-folder-test";
+        a.require(fs::create_directory(tmp_dst));
+
+        {
+            std::ofstream tmp_file{tmp_dst / "good_file"};
+            a.require(!tmp_file.fail());
+            a.require(bool{tmp_file << "hello!"});
+        }
+
+        a.require(fs::create_directory(tmp_dst / "good_folder"));
+
         protocol::FileHandler handler;
-        auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_dir.generic_string())).value());
-        a.expect_eq(res.error(), protocol::Error{protocol::ErrorCode::InvalidResponse});
+        auto res = handler.handle(uri::Uri::parse(std::format("file://{}", tmp_dst.generic_string())).value()).value();
+
+        // Sort-order and the path-formatting is not guaranteed, so we just
+        // check for the presence of the names of the two entries for now.
+        a.expect(res.body.find("good_folder/") != std::string::npos);
+        a.expect(res.body.find("good_file") != std::string::npos);
     });
 
     s.add_test("uri pointing to a regular file", [&](etest::IActions &a) {
