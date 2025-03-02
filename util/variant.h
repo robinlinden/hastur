@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +15,11 @@ namespace util {
 template<typename... T, typename... Ts>
 constexpr bool holds_any_of(std::variant<Ts...> const &v) noexcept {
     return (std::holds_alternative<T>(v) || ...);
+}
+
+template<typename... T, typename... Ts>
+constexpr bool holds_none_of(std::variant<Ts...> const &v) noexcept {
+    return (!std::holds_alternative<T>(v) && ...);
 }
 
 template<typename T, typename... Ts>
