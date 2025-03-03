@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support")  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-1xsC1t8FAPQyeeIkANtmgAJMHEORFcV6moLp7/4ZnXs=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.18.1"),
+    integrity = "sha256-3KlmgjF8xxEub66HMy4TqP77wjI1TCk5sRs+BsCeWUk=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.19.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -50,13 +50,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
+RULES_PYTHON_VERSION = "1.2.0"
+
 bazel_dep(name = "rules_python")  # Apache-2.0
-
-RULES_PYTHON_VERSION = "1.2.0-rc0"
-
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-TQ+KAqZw4DaWhg0rCNeQ7usTRzz6WCu1eeJS3Z4HmuI=",
+    integrity = "sha256-LvQP3NeX4H8Lar2kRtHYTi2VcNI0/d+PzSqiYtqFLRw=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -118,18 +117,20 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_android
+RULES_ANDROID_VERSION = "0.6.3"
+
 archive_override(
     module_name = "rules_android",
-    integrity = "sha256-fcem7Qub9T8fNjKScz49cWThQOlu1DOik3sZVw0B1Rc=",
-    strip_prefix = "rules_android-0.6.1",
-    url = "https://github.com/bazelbuild/rules_android/releases/download/v{0}/rules_android-v{0}.tar.gz".format("0.6.1"),
+    integrity = "sha256-Fss+f6DpYzcwQU/61bxO+XIjNsIX9XvRMOPpVokTj0U=",
+    strip_prefix = "rules_android-%s" % RULES_ANDROID_VERSION,
+    url = "https://github.com/bazelbuild/rules_android/releases/download/v{0}/rules_android-v{0}.tar.gz".format(RULES_ANDROID_VERSION),
 )
 
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    integrity = "sha256-3TLxnnPHDzLMuaFmxhXAykrtjifnLEpjMMNSPq+hqlU=",
-    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v2.1.0/rules_kotlin-v2.1.0.tar.gz",
+    integrity = "sha256-bqHFMCYXVlRtAiWgtuWA6vL0kITihnmmwX+K0czsyl0=",
+    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.1.2"),
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -381,11 +382,13 @@ EOF""",
 )
 
 # https://github.com/fmtlib/fmt
+FMT_VERSION = "11.1.4"
+
 bazel_dep(name = "fmt")  # MIT
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-ffL9NCaxjVUoQMBxyXfciR7+J0BR0ufEfiyDw5GLpt8=",
+    integrity = "sha256-SbA5YBGW4adl6BxcmgWmHtPTPyOzlhMj1zIuT+IT0+Y=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -393,8 +396,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "fmt-11.1.3",
-    url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format("11.1.3"),
+    strip_prefix = "fmt-%s" % FMT_VERSION,
+    url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format(FMT_VERSION),
 )
 
 # https://github.com/freetype/freetype
@@ -554,11 +557,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
+LIBPNG_VERSION = "1.6.47"
+
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-f/aJhSBkVxbdw9g4HZe24Ck3sD2pLm/Q18+dfSsNp4A=",
+    integrity = "sha256-YxpMWOpsEMgfFgxLIfqElbcV0lFpjrwlUgd+hFDzBFQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -567,8 +572,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "zlib")
 EOF""",
     ],
-    strip_prefix = "libpng-1.6.45",
-    url = "https://github.com/glennrp/libpng/archive/v1.6.45.tar.gz",
+    strip_prefix = "libpng-%s" % LIBPNG_VERSION,
+    url = "https://github.com/glennrp/libpng/archive/v%s.tar.gz" % LIBPNG_VERSION,
 )
 
 # https://github.com/SFML/SFML
@@ -664,14 +669,15 @@ EOF""",
     url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
 )
 
-VULKAN_TAG = "1.4.307"
-
 # https://github.com/KhronosGroup/Vulkan-Headers
+# https://github.com/KhronosGroup/Vulkan-Hpp
+VULKAN_TAG = "1.4.309"
+
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-boRFvBLB4nAsJ/TwLRoFf7g/QMxWxqjkWDFB1OqtkNQ=",
+    integrity = "sha256-Q3klraFg2G7XY9Kdy5MYwbsNAk196vd7x8FwuOtrbxA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -683,12 +689,11 @@ EOF""",
     url = "https://github.com/KhronosGroup/Vulkan-Headers/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# https://github.com/KhronosGroup/Vulkan-Hpp
 bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-bR9I6YspshcKRfg5wTqq4/6P2C14s5EqFqPVDhiM2mc=",
+    integrity = "sha256-sVHwxve4/ESumMlH4V9yrWtuuziAR7zz7LmPFy9atbk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -701,6 +706,7 @@ EOF""",
 )
 
 # HEAD as of 2025-01-28.
+# https://github.com/web-platform-tests/wpt/blob/master/url/resources/urltestdata.json
 WPT_REVISION = "45e7dd49afae442ab0bb56b00d72dd138a4b47e9"
 
 http_file(
