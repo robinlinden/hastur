@@ -13,6 +13,7 @@
 #include "dom/dom.h"
 #include "dom/xpath.h"
 #include "html/parser.h"
+#include "html2/tokenizer.h"
 #include "layout/layout.h"
 #include "protocol/response.h"
 #include "style/style.h"
@@ -110,7 +111,8 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     state->uri = std::move(result.uri_after_redirects);
     state->response = std::move(result.response.value());
     spdlog::info("Parsing HTML");
-    state->dom = html::parse(state->response.body);
+    state->dom = html::parse(
+            state->response.body, {}, [](html2::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); });
 
     spdlog::info("Parsing inline styles");
     state->stylesheet = css::default_style();
