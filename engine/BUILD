@@ -10,6 +10,7 @@ cc_library(
         "//archive:zlib",
         "//archive:zstd",
         "//html",
+        "//html2",
         "@spdlog",
     ],
     visibility = ["//visibility:public"],
