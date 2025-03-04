@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,7 +32,11 @@ public:
 
 private:
     Parser(std::string_view input, ParserOptions const &opts)
-        : tokenizer_{input, std::bind_front(&Parser::on_token, this)}, scripting_{opts.scripting} {}
+        : tokenizer_{input,
+                  [this](html2::Tokenizer &tokenizer, html2::Token &&token) {
+                      on_token(tokenizer, std::move(token));
+                  }},
+          scripting_{opts.scripting} {}
 
     [[nodiscard]] dom::Document run() {
         tokenizer_.run();
