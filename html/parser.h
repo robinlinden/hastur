@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -25,14 +25,20 @@ struct ParserOptions {
 
 class Parser {
 public:
-    [[nodiscard]] static dom::Document parse_document(std::string_view input, ParserOptions const &opts) {
-        Parser parser{input, opts};
+    [[nodiscard]] static dom::Document parse_document(
+            std::string_view input, ParserOptions const &opts, std::function<void(html2::ParseError)> const &on_error) {
+        Parser parser{input, opts, on_error};
         return parser.run();
     }
 
 private:
-    Parser(std::string_view input, ParserOptions const &opts)
-        : tokenizer_{input, std::bind_front(&Parser::on_token, this)}, scripting_{opts.scripting} {}
+    Parser(std::string_view input, ParserOptions const &opts, std::function<void(html2::ParseError)> const &on_error)
+        : tokenizer_{input,
+                  std::bind_front(&Parser::on_token, this),
+                  [&on_error](html2::Tokenizer &, html2::ParseError err) {
+                      on_error(err);
+                  }},
+          scripting_{opts.scripting} {}
 
     [[nodiscard]] dom::Document run() {
         tokenizer_.run();
@@ -49,8 +55,11 @@ private:
     Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_};
 };
 
-inline dom::Document parse(std::string_view input, ParserOptions const &opts = {}) {
-    return Parser::parse_document(input, opts);
+inline dom::Document parse(
+        std::string_view input,
+        ParserOptions const &opts = {},
+        std::function<void(html2::ParseError)> const &on_error = [](auto) {}) {
+    return Parser::parse_document(input, opts, on_error);
 }
 
 } // namespace html
