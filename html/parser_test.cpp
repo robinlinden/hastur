@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,10 +6,13 @@
 
 #include "dom/dom.h"
 #include "etest/etest2.h"
+#include "html2/tokenizer.h"
 
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <vector>
 
 using namespace std::literals;
 
@@ -417,6 +420,13 @@ int main() {
     s.add_test("doctype, but too late!", [](etest::IActions &a) {
         auto doc = html::parse("<!doctype abcd></head><!doctype html>");
         a.expect_eq(doc.doctype, "abcd");
+    });
+
+    s.add_test("errors", [](etest::IActions &a) {
+        auto errors = std::vector<html2::ParseError>{};
+        std::ignore = html::parse("<!--", {}, [&](html2::ParseError e) { errors.push_back(e); });
+
+        a.expect_eq(errors, std::vector{html2::ParseError::EofInComment});
     });
 
     return s.run();

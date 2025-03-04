@@ -25,16 +25,18 @@ struct ParserOptions {
 
 class Parser {
 public:
-    [[nodiscard]] static dom::Document parse_document(std::string_view input, ParserOptions const &opts) {
-        Parser parser{input, opts};
+    [[nodiscard]] static dom::Document parse_document(
+            std::string_view input, ParserOptions const &opts, std::function<void(html2::ParseError)> const &on_error) {
+        Parser parser{input, opts, on_error};
         return parser.run();
     }
 
 private:
-    Parser(std::string_view input, ParserOptions const &opts)
+    Parser(std::string_view input, ParserOptions const &opts, std::function<void(html2::ParseError)> const &on_error)
         : tokenizer_{input,
-                  [this](html2::Tokenizer &tokenizer, html2::Token &&token) {
-                      on_token(tokenizer, std::move(token));
+                  [this](html2::Tokenizer &tokenizer, html2::Token &&token) { on_token(tokenizer, std::move(token)); },
+                  [&on_error](html2::Tokenizer &, html2::ParseError err) {
+                      on_error(err);
                   }},
           scripting_{opts.scripting} {}
 
@@ -53,8 +55,11 @@ private:
     Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_};
 };
 
-inline dom::Document parse(std::string_view input, ParserOptions const &opts = {}) {
-    return Parser::parse_document(input, opts);
+inline dom::Document parse(
+        std::string_view input,
+        ParserOptions const &opts = {},
+        std::function<void(html2::ParseError)> const &on_error = [](auto) {}) {
+    return Parser::parse_document(input, opts, on_error);
 }
 
 } // namespace html
