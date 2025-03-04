@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,7 +9,8 @@
 
 // Workaround for libc++ not supporting std::from_chars for floating point numbers.
 // TODO(robinlinden): Nuke once libc++ supports std::from_chars w/ floats.
-#if defined(_LIBCPP_VERSION)
+// https://github.com/llvm/llvm-project/blob/a12744ff05bbc2d0de711afb8b3a1c7a03a33914/libcxx/include/__config#L28-L31
+#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 200000
 
 #include <cerrno>
 #include <charconv>

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -23,8 +23,8 @@ void add_tests(etest::Suite &s, std::string_view name_prefix) {
         a.expect_eq(res,
                 util::from_chars_result{from.data() + from.size(), std::errc::result_out_of_range},
                 std::make_error_code(res.ec).message());
-#ifndef _MSC_VER
-        // Microsoft's STL sets v to HUGE_VALF when ERANGE occurs.
+#if !defined(_MSC_VER) && !(defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 200000)
+        // Microsoft's STL sets v to HUGE_VALF when ERANGE occurs. libc++ does the same.
         // See: https://en.cppreference.com/w/cpp/utility/from_chars#Return_value
         a.expect_eq(v, T{0.});
 #endif
