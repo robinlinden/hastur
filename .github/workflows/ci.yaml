@@ -54,6 +54,11 @@ jobs:
             bazel: --config libc++
             apt: libc++abi-18-dev libc++-18-dev libclang-rt-18-dev
 
+          - name: clang-20
+            os: ubuntu-24.04
+            compiler: clang
+            version: 20
+
     steps:
       - name: Setup gcc
         if: startsWith(matrix.compiler, 'gcc')
@@ -65,6 +70,11 @@ jobs:
         run: |
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+      - name: Set up the llvm repository
+        if: startsWith(matrix.compiler, 'clang') && matrix.version >= 19
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
       - uses: actions/checkout@v4
       - name: Install
         run: |
