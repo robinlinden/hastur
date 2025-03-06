@@ -151,8 +151,6 @@ jobs:
       # lcov: ERROR: "external/boringssl/crypto/conf/internal.h":30:  function conf.c:lh_CONF_VALUE_insert found on line but no corresponding 'line' coverage data point.  Cannot derive function end line.
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           pipx install codecov-cli==10.2.0
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
