@@ -13,6 +13,7 @@
 #include "gfx/color.h"
 #include "gfx/opengl_canvas.h"
 #include "gfx/sfml_canvas.h"
+#include "img/jpeg_turbo.h"
 #include "img/png.h"
 #include "layout/layout.h"
 #include "layout/layout_box.h"
@@ -43,6 +44,7 @@
 #include <cassert>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
@@ -496,19 +498,38 @@ void App::step() {
             continue;
         }
 
-        auto ss = std::istringstream{std::move(result.result.response->body)};
-        auto png = img::Png::from(ss);
-        if (!png.has_value()) {
-            spdlog::warn("Error parsing png from '{}'", result.result.uri_after_redirects.uri);
-            continue;
-        }
+        if (result.resource_id.ends_with(".png")) {
+            auto ss = std::istringstream{std::move(result.result.response->body)};
+            auto png = img::Png::from(ss);
+            if (!png.has_value()) {
+                spdlog::warn("Error parsing png from '{}'", result.result.uri_after_redirects.uri);
+                continue;
+            }
 
-        auto &image = images_[std::move(result.resource_id)];
-        image.width = png->width;
-        image.height = png->height;
-        image.rgba_bytes = std::move(png->bytes);
-        spdlog::info("Parsed image (w={},h={}) '{}'", image.width, image.height, result.result.uri_after_redirects.uri);
-        should_relayout = true;
+            auto &image = images_[std::move(result.resource_id)];
+            image.width = png->width;
+            image.height = png->height;
+            image.rgba_bytes = std::move(png->bytes);
+            spdlog::info(
+                    "Parsed image (w={},h={}) '{}'", image.width, image.height, result.result.uri_after_redirects.uri);
+            should_relayout = true;
+        } else {
+            assert(result.resource_id.ends_with(".jpg") || result.resource_id.ends_with(".jpeg"));
+            auto const &body = result.result.response->body;
+            auto jpeg = img::JpegTurbo::from({reinterpret_cast<std::byte const *>(body.data()), body.size()});
+            if (!jpeg.has_value()) {
+                spdlog::warn("Error parsing jpeg from '{}'", result.result.uri_after_redirects.uri);
+                continue;
+            }
+
+            auto &image = images_[std::move(result.resource_id)];
+            image.width = jpeg->width;
+            image.height = jpeg->height;
+            image.rgba_bytes = std::move(jpeg->bytes);
+            spdlog::info(
+                    "Parsed image (w={},h={}) '{}'", image.width, image.height, result.result.uri_after_redirects.uri);
+            should_relayout = true;
+        }
     }
 
     if (should_relayout) {
@@ -868,7 +889,7 @@ void App::switch_canvas() {
 
 void App::start_loading_images() {
     if (auto const &layout = page().layout; layout.has_value()) {
-        constexpr static auto kSupportedImageTypes = std::to_array<std::string_view>({".png"sv});
+        constexpr static auto kSupportedImageTypes = std::to_array<std::string_view>({".png"sv, ".jpg"sv, ".jpeg"sv});
         auto image_urls = collect_image_urls(*layout, kSupportedImageTypes);
         for (auto const &url : image_urls) {
             auto uri = uri::Uri::parse(std::string{url}, page().uri);

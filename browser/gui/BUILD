@@ -18,6 +18,7 @@ cc_binary(
         "//gfx",
         "//gfx:opengl",
         "//gfx:sfml",
+        "//img:jpeg_turbo",
         "//img:png",
         "//layout",
         "//os:system_info",
