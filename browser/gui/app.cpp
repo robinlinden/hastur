@@ -4,7 +4,6 @@
 
 #include "browser/gui/app.h"
 
-#include "css/rule.h"
 #include "css/style_sheet.h"
 #include "dom/dom.h"
 #include "dom/xpath.h"
@@ -122,14 +121,6 @@ std::string element_text(layout::LayoutBox const *element) {
     }
 
     return std::get<dom::Element>(element->node->node).name;
-}
-
-std::string stylesheet_to_string(css::StyleSheet const &stylesheet) {
-    std::stringstream ss;
-    for (auto const &rule : stylesheet.rules) {
-        ss << css::to_string(rule) << '\n';
-    }
-    return std::move(ss).str();
 }
 
 template<std::size_t WidthT, std::size_t HeightT>
@@ -820,7 +811,7 @@ void App::run_debug_widget() const {
     }
 
     if (ImGui::Button("Stylesheet")) {
-        std::cout << "\nStylesheet:\n" << stylesheet_to_string(page().stylesheet) << '\n';
+        std::cout << "\nStylesheet:\n" << to_string(page().stylesheet) << '\n';
     }
 
     std::optional<layout::LayoutBox> const &layout =

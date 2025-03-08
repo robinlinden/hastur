@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +8,7 @@
 #include "css/rule.h"
 
 #include <iterator>
+#include <string>
 #include <vector>
 
 namespace css {
@@ -22,6 +23,8 @@ struct StyleSheet {
                 end(rules), std::make_move_iterator(begin(other.rules)), std::make_move_iterator(end(other.rules)));
     }
 };
+
+std::string to_string(css::StyleSheet const &);
 
 } // namespace css
 
