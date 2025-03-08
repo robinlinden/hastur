@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -75,7 +75,7 @@ private:
 
     bool render_debug_{};
     bool display_debug_gui_{};
-    bool load_images_{};
+    bool load_images_{true};
 
     unsigned scale_{1};
 
