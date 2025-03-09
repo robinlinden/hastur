@@ -25,6 +25,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace browser::gui {
@@ -83,7 +84,8 @@ private:
     int process_iterations_{10};
 
     util::History<uri::Uri> browse_history_;
-    std::vector<std::future<ResourceResult>> pending_loads_;
+    std::vector<std::pair<uri::Uri, std::string>> pending_loads_;
+    std::vector<std::future<ResourceResult>> ongoing_loads_;
     std::map<std::string, Image, std::less<>> images_;
 
     engine::PageState &page() { return *maybe_page_.value(); }
