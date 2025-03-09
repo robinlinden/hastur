@@ -68,8 +68,24 @@ namespace {
 auto constexpr kDefaultResolutionX = 1024;
 auto constexpr kDefaultResolutionY = 768;
 
+// Limit is pretty low right now as we currently spawn one thread per load
+// instead of doing something sane. Will be made configurable in the future.
+auto constexpr kMaxConcurrentImageLoads = 5;
+
 // Magic number that felt right during testing.
 auto constexpr kMouseWheelScrollFactor = 10;
+
+std::future<ResourceResult> load_image(engine::Engine &e, uri::Uri uri, std::string id) {
+    return std::async(std::launch::async, [&e, uri = std::move(uri), resource_id = std::move(id)]() mutable {
+        spdlog::info("Loading image from '{}'", uri.uri);
+        auto start_time = std::chrono::steady_clock::now();
+        auto res = e.load(uri);
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        spdlog::info("Loaded image from '{}' in {}ms", uri.uri, duration.count());
+        return ResourceResult{std::move(resource_id), std::move(res)};
+    });
+}
 
 std::optional<std::string_view> try_get_text_content(dom::Document const &doc, std::string_view xpath) {
     auto nodes = dom::nodes_by_xpath(doc.html(), xpath);
@@ -371,6 +387,7 @@ void App::step() {
                     if (load_images_ && maybe_page_) {
                         start_loading_images();
                     } else {
+                        ongoing_loads_.clear();
                         pending_loads_.clear();
                         images_.clear();
                         if (maybe_page_) {
@@ -471,7 +488,7 @@ void App::step() {
     }
 
     bool should_relayout{};
-    for (auto it = begin(pending_loads_); it != end(pending_loads_);) {
+    for (auto it = begin(ongoing_loads_); it != end(ongoing_loads_);) {
         auto &load = *it;
         if (load.wait_for(std::chrono::seconds{0}) != std::future_status::ready) {
             ++it;
@@ -479,7 +496,7 @@ void App::step() {
         }
 
         auto result = load.get();
-        it = pending_loads_.erase(it);
+        it = ongoing_loads_.erase(it);
         if (!result.result.response.has_value()) {
             auto const &err = result.result.response.error();
             spdlog::warn("Error {} downloading '{}': {}",
@@ -521,6 +538,12 @@ void App::step() {
                     "Parsed image (w={},h={}) '{}'", image.width, image.height, result.result.uri_after_redirects.uri);
             should_relayout = true;
         }
+    }
+
+    while (ongoing_loads_.size() < kMaxConcurrentImageLoads && !pending_loads_.empty()) {
+        auto [uri, id] = std::move(pending_loads_.back());
+        pending_loads_.pop_back();
+        ongoing_loads_.push_back(load_image(engine_, std::move(uri), std::move(id)));
     }
 
     if (should_relayout) {
@@ -579,6 +602,7 @@ void App::navigate() {
 
     spdlog::info("Navigating to '{}'", uri->uri);
     browse_history_.push(*uri);
+    ongoing_loads_.clear();
     pending_loads_.clear();
     images_.clear();
     maybe_page_ = engine_.navigate(*std::move(uri), make_options());
@@ -889,16 +913,13 @@ void App::start_loading_images() {
                 continue;
             }
 
-            pending_loads_.push_back(std::async(
-                    std::launch::async, [this, uri = std::move(*uri), resource_id = std::string{url}]() mutable {
-                        spdlog::info("Loading image from '{}'", uri.uri);
-                        auto start_time = std::chrono::steady_clock::now();
-                        auto res = engine_.load(uri);
-                        auto end_time = std::chrono::steady_clock::now();
-                        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-                        spdlog::info("Loaded image from '{}' in {}ms", uri.uri, duration.count());
-                        return ResourceResult{std::move(resource_id), std::move(res)};
-                    }));
+            if (ongoing_loads_.size() >= kMaxConcurrentImageLoads) {
+                spdlog::info("Concurrent image load limit reached, queueing '{}'", uri->uri);
+                pending_loads_.emplace_back(std::move(*uri), std::string{url});
+                continue;
+            }
+
+            ongoing_loads_.push_back(load_image(engine_, std::move(*uri), std::string{url}));
         }
     }
 }
