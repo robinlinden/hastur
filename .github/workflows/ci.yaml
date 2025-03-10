@@ -215,7 +215,13 @@ jobs:
           bazelisk run browser:tui file://$(pwd)/example.html
       - run: bazelisk run browser -- --exit-after-load file://$(pwd)/example.html
 
-  windows-msvc:
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: clang-cl
+          - compiler: msvc
     runs-on: windows-2025
     timeout-minutes: 30
     defaults:
@@ -226,35 +232,12 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/bazel
-          key: windows_msvc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - run: echo "build --disk_cache ~/.cache/bazel" >.bazelrc.local
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - name: Test
-        run: bazel test ... -c dbg
-      - name: Run tui
-        run: |
-          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          python3 -m http.server --bind localhost 12345 &
-          sleep 5 # Sometimes the server isn't ready by the time the tui starts.
-          bazel run browser:tui -c dbg http://localhost:12345/example.html
-      - run: bazel run browser -c dbg -- --exit-after-load http://localhost:12345/example.html
-
-  windows-clang-cl:
-    runs-on: windows-2025
-    timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/bazel
-          key: windows_clang_cl-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+          key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
+        if: matrix.compiler == 'clang-cl'
+      # We run the MSVC job in debug mode because we want their extra stdlib runtime checks.
+      - run: echo "build -c dbg" >.bazelrc.local
+        if: matrix.compiler == 'msvc'
       - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
         env:
