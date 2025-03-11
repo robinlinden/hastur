@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude-dir=.github --exclude-dir="bazel-*" --exclude-dir=.cache --exclude-dir=external --exclude=WORKSPACE --exclude=*test.cpp --exclude=ci.yaml --exclude="*.bazel.lock" 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider --no-verbose
+grep --recursive --no-filename --only-matching --exclude-dir="*corpus" --exclude-dir=.github --exclude-dir="bazel-*" --exclude-dir=.cache --exclude-dir=external --exclude=MODULE.bazel --exclude=*test.cpp --exclude=ci.yaml --exclude="*.bazel.lock" 'https://[^)(}{",# ]*' | grep -v '^https://$' | sort | uniq | xargs wget --spider --no-verbose
