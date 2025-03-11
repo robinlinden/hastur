@@ -185,22 +185,20 @@ void collapse_whitespace(LayoutBox &box) {
             }
         } else if (last_text_box != nullptr && !std::holds_alternative<std::monostate>(current.layout_text)) {
             // Remove all but 1 trailing space.
-            auto &text = std::get<std::string_view>(last_text_box->layout_text);
-            auto last_non_whitespace_idx = text.find_last_not_of(" \n\r\f\v\t");
+            auto &last_text = std::get<std::string_view>(last_text_box->layout_text);
+            auto last_non_whitespace_idx = last_text.find_last_not_of(" \n\r\f\v\t");
             if (last_non_whitespace_idx != std::string_view::npos) {
-                auto trailing_whitespace_count = text.size() - last_non_whitespace_idx - 1;
+                auto trailing_whitespace_count = last_text.size() - last_non_whitespace_idx - 1;
                 if (trailing_whitespace_count > 1) {
-                    text.remove_suffix(trailing_whitespace_count - 1);
+                    last_text.remove_suffix(trailing_whitespace_count - 1);
                 }
             }
 
-            if (last_text_box->text()
-                            .transform([](auto sv) { return sv.empty() || util::is_whitespace(sv.back()); })
-                            .value_or(false)) {
+            if (last_text.empty() || util::is_whitespace(last_text.back())) {
                 current.layout_text = util::trim_start(std::get<std::string_view>(current.layout_text));
             }
 
-            if (needs_allocating_whitespace_collapsing(std::get<std::string_view>(last_text_box->layout_text))) {
+            if (needs_allocating_whitespace_collapsing(last_text)) {
                 perform_allocating_collapsing(*last_text_box);
             }
 
