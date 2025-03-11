@@ -45,7 +45,7 @@ HASTUR_COPTS = select({
     "@rules_cc//cc/compiler:msvc-cl": HASTUR_MSVC_WARNING_FLAGS,
 })
 
-# C++ fuzzing requires a Clang compiler: https://github.com/bazelbuild/rules_fuzzing#prerequisites
+# C++ fuzzing requires a Clang compiler: https://github.com/bazel-contrib/rules_fuzzing#prerequisites
 HASTUR_FUZZ_PLATFORMS = select({
     "@rules_cc//cc/compiler:clang": ["//bzl:linux_or_macos"],
     "//conditions:default": ["@platforms//:incompatible"],

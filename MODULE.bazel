@@ -74,7 +74,7 @@ pip.parse(
 )
 use_repo(pip, "pypi")
 
-# https://github.com/bazelbuild/rules_fuzzing
+# https://github.com/bazel-contrib/rules_fuzzing
 RULES_FUZZING_VERSION = "0.5.3"
 
 bazel_dep(name = "rules_fuzzing")  # Apache-2.0

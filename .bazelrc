@@ -186,12 +186,12 @@ build:wasi-wasm --copt=-fno-exceptions
 # Fuzzing options
 # =========================================================
 
-# https://github.com/bazelbuild/rules_fuzzing says to also set
+# https://github.com/bazel-contrib/rules_fuzzing says to also set
 # @rules_fuzzing//fuzzing:cc_engine_sanitizer=asan or similar which sets things
 # like -fsanitize=asan. We don't use this as we set these options ourselves.
 # See:
-# * https://github.com/bazelbuild/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/BUILD
-# * https://github.com/bazelbuild/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/private/instrum_opts.bzl
+# * https://github.com/bazel-contrib/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/BUILD
+# * https://github.com/bazel-contrib/rules_fuzzing/blob/9865504b549e86ccfb4713afcc1914c982567f05/fuzzing/private/instrum_opts.bzl
 
 build:libfuzzer --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
 build:libfuzzer --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer

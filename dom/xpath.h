@@ -13,7 +13,7 @@
 
 namespace dom {
 
-// https://developer.mozilla.org/en-US/docs/Web/XPath
+// https://developer.mozilla.org/en-US/docs/Web/XML/XPath
 // https://en.wikipedia.org/wiki/XPath
 template<typename T>
 inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpath) {
