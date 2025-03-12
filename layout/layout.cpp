@@ -149,11 +149,14 @@ void collapse_whitespace(LayoutBox &box) {
     LayoutBox *last_text_box = nullptr;
     std::list<LayoutBox *> to_collapse{&box};
 
+    // TODO(robinlinden): More accurate handling of the white-space property.
     auto starts_text_run = [](LayoutBox const &l) {
-        return !std::holds_alternative<std::monostate>(l.layout_text);
+        return !std::holds_alternative<std::monostate>(l.layout_text)
+                && l.get_property<css::PropertyId::WhiteSpace>() == style::WhiteSpace::Normal;
     };
     auto ends_text_run = [](LayoutBox const &l) {
-        return l.is_anonymous_block() || l.get_property<css::PropertyId::Display>() != style::Display::inline_flow();
+        return l.is_anonymous_block() || l.get_property<css::PropertyId::Display>() != style::Display::inline_flow()
+                || l.get_property<css::PropertyId::WhiteSpace>() != style::WhiteSpace::Normal;
     };
     auto needs_allocating_whitespace_collapsing = [](std::string_view text) {
         return (std::ranges::adjacent_find(
@@ -183,7 +186,9 @@ void collapse_whitespace(LayoutBox &box) {
             if (text.empty()) {
                 last_text_box = nullptr;
             }
-        } else if (last_text_box != nullptr && !std::holds_alternative<std::monostate>(current.layout_text)) {
+        } else if (last_text_box != nullptr
+                && (!std::holds_alternative<std::monostate>(current.layout_text)
+                        && current.get_property<css::PropertyId::WhiteSpace>() == style::WhiteSpace::Normal)) {
             // Remove all but 1 trailing space.
             auto &last_text = std::get<std::string_view>(last_text_box->layout_text);
             auto last_non_whitespace_idx = last_text.find_last_not_of(" \n\r\f\v\t");
