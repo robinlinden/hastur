@@ -145,7 +145,7 @@ jobs:
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          pipx install codecov-cli==10.2.0
+          pipx install codecov-cli==10.2.1
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
@@ -327,7 +327,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64 && chmod +x shfmt
+      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.11.0/shfmt_v3.11.0_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
 
