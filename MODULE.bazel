@@ -343,12 +343,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250212.0"
+BORINGSSL_VERSION = "0.20250311.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-u47Zn8r6feJ7WIDm8q77gVVXXz5iPo3l3dU5CsBqVFg=",
+    integrity = "sha256-73PkU8L2Dzeo8dMOBFjadu1mlfRHaPsgBnYkIFsHbfY=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -466,11 +466,13 @@ EOF""",
 )
 
 # https://github.com/unicode-org/icu
-bazel_dep(name = "icu")
+ICU_VERSION = "77-1"
+
+bazel_dep(name = "icu")  # Unicode-DFS-2016
 archive_override(
-    module_name = "icu",  # Unicode-DFS-2016
+    module_name = "icu",
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-osRDQE8ACY6ekKzyncMY4EnS3HjZrl9G77Jhk0pzDOI=",
+    integrity = "sha256-3tOpb2tyNtFg3zCvRlkxZbnHik7HKkFKpjz1BhTkwU4=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
@@ -490,8 +492,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "platforms")
 EOF""",
     ],
-    strip_prefix = "icu-release-76-1/icu4c",
-    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-76-1.tar.gz",
+    strip_prefix = "icu-release-%s/icu4c" % ICU_VERSION,
+    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-%s.tar.gz" % ICU_VERSION,
 )
 
 # https://www.unicode.org/Public/idna/
@@ -692,13 +694,13 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.309"
+VULKAN_TAG = "1.4.310"
 
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-Q3klraFg2G7XY9Kdy5MYwbsNAk196vd7x8FwuOtrbxA=",
+    integrity = "sha256-v7lw5022bcZExPM8zvYc1p4FfNopUO/C8RHILHupimw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -714,7 +716,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-sVHwxve4/ESumMlH4V9yrWtuuziAR7zz7LmPFy9atbk=",
+    integrity = "sha256-P4Ci0T7BMfJtW3kXJ6sOb9PhqbdH9ziHdxxOjevm/1M=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
