@@ -38,8 +38,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-jaoOT4AJecdDh+TNk/l+V27G1SvquKyUcQ0pMcV/jYs=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.9.0"),
+    integrity = "sha256-0xtsaeR5/6RUYLZNycd5KkMcrHIe+NUhn8n2A/ov+Hc=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.11.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -88,8 +88,8 @@ archive_override(
 # https://github.com/bazelbuild/rules_pkg
 archive_override(
     module_name = "rules_pkg",
-    integrity = "sha256-0gyVGWDtd8t7NBwqWUiFNOSU1a0dMMSBjHNtV3cqn+8=",
-    urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/1.0.1/rules_pkg-1.0.1.tar.gz"],
+    integrity = "sha256-tyFcY28iwYSfHDFCxy9LlUuxK7jc88viKa5uacxkeds=",
+    url = "https://github.com/bazelbuild/rules_pkg/releases/download/{0}/rules_pkg-{0}.tar.gz".format("1.1.0"),
 )
 
 # https://github.com/bazelbuild/rules_proto
@@ -220,6 +220,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
+# This doesn't support MSVC anymore, but as it only has to be here because
+# something in the module system in Bazel requires it and not because we use it,
+# so that's probably fine to ignore? Leaving updating this for later to see if
+# anything changes.
+# See: https://github.com/protocolbuffers/protobuf/commit/117e7bbe74ac7c7faa9b6f44c1b22de366302854
 archive_override(
     module_name = "protobuf",
     integrity = "sha256-AIoRzFb5uWZ5tMKF/QX0bTF9aFvjq1JLKjEL4PutmH4=",
@@ -249,16 +254,14 @@ EOF""",
 )
 
 # https://github.com/open-source-parsers/jsoncpp
+# 1.9.6 + Bazel module support.
+JSONCPP_VERSION = "037752d9a1e48c8b7e5a62ee895a352166df03e3"
+
 archive_override(
     module_name = "jsoncpp",
-    integrity = "sha256-+Ttt1855axPQLBCLyfeYEiRaguV3WBxMmqvlcHXJDqI=",
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "jsoncpp")
-EOF""",
-    ],
-    strip_prefix = "jsoncpp-1.9.6",
-    urls = ["https://github.com/open-source-parsers/jsoncpp/archive/1.9.6.tar.gz"],
+    integrity = "sha256-xkiG0GJ54QhZBO3LXqnfMc5QgVwX85uD/9GqGc78RTw=",
+    strip_prefix = "jsoncpp-%s" % JSONCPP_VERSION,
+    url = "https://github.com/open-source-parsers/jsoncpp/archive/%s.tar.gz" % JSONCPP_VERSION,
 )
 
 # https://github.com/google/re2
