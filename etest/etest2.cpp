@@ -17,8 +17,9 @@
 #include <utility>
 #include <vector>
 
-#if defined(_MSC_VER)
-// MSVC doesn't seem to have a way of disabling exceptions.
+#if defined(_MSC_VER) && defined(_HAS_EXCEPTIONS) && _HAS_EXCEPTIONS != 0
+// Unsupported* by Microsoft, but _HAS_EXCEPTIONS is 0 in MSVC if exceptions are disabled.
+// See: https://github.com/microsoft/STL/issues/202#issuecomment-545235685
 #define ETEST_EXCEPTIONS
 #elif defined(__EXCEPTIONS)
 // __EXCEPTIONS is set in gcc and Clang unless -fno-exceptions is used.
