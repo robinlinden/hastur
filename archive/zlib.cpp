@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -16,7 +16,8 @@
 
 namespace archive {
 
-tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(std::span<std::byte const> data, ZlibMode mode) {
+tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
+        std::span<std::byte const> data, ZlibMode mode, std::size_t max_output_length) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
             .avail_in = static_cast<uInt>(data.size()),
@@ -63,6 +64,11 @@ tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(std::span<std::byte 
         }
 
         uInt inflated_bytes = static_cast<uInt>(buf.size()) - s.avail_out;
+        if (out.size() + inflated_bytes > max_output_length) {
+            inflateEnd(&s);
+            return tl::unexpected{ZlibError{.message = "Output too large", .code = Z_BUF_ERROR}};
+        }
+
         auto const *buf_ptr = reinterpret_cast<std::byte const *>(buf.data());
         out.insert(out.end(), buf_ptr, buf_ptr + inflated_bytes);
     } while (s.avail_out == 0);

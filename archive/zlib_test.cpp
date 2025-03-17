@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -40,6 +40,10 @@ int main() {
 
         auto res = zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Zlib);
         a.expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
+
+        auto err = zlib_decode(as_bytes(kZlibbedCss), ZlibMode::Zlib, 15);
+        a.expect(!err.has_value());
+        a.expect_eq(err.error().message, "Output too large");
     });
 
     s.add_test("gzip", [](etest::IActions &a) {
@@ -48,6 +52,10 @@ int main() {
 
         auto res = zlib_decode(as_bytes(kGzippedCss), ZlibMode::Gzip);
         a.expect(std::ranges::equal(res.value(), as_bytes(kExpected)));
+
+        auto err = zlib_decode(as_bytes(kGzippedCss), ZlibMode::Gzip, 15);
+        a.expect(!err.has_value());
+        a.expect_eq(err.error().message, "Output too large");
     });
 
     return s.run();
