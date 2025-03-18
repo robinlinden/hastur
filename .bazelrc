@@ -124,6 +124,8 @@ build:buildbuddy-cache-common --config=buildbuddy-bes
 build:buildbuddy-cache-common --remote_cache=grpcs://remote.buildbuddy.io
 build:buildbuddy-cache-common --remote_timeout=3600
 build:buildbuddy-cache-common --remote_cache_compression
+build:buildbuddy-cache-common --experimental_remote_cache_compression_threshold=100
+build:buildbuddy-cache-common --nolegacy_important_outputs
 build:buildbuddy-cache-common --noslim_profile
 build:buildbuddy-cache-common --experimental_profile_include_target_label
 build:buildbuddy-cache-common --experimental_profile_include_primary_output
