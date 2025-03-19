@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -10,6 +10,7 @@
 #include "css/rule.h"
 #include "css/style_sheet.h"
 
+#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -23,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <format>
+#include <iterator>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -96,15 +98,65 @@ constexpr bool is_stretch(std::string_view str) {
     return is_in_array<kStretchKeywords>(str);
 }
 
-constexpr bool is_length_or_percentage(std::string_view str) {
-    // TODO(mkiael): Make this check more reliable.
-    std::size_t pos = str.find_first_not_of(kDotAndDigits);
-    return pos > 0 && pos != std::string_view::npos;
+bool is_length_or_percentage(std::string_view str) {
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/length
+    static constexpr auto kLengthUnits = std::to_array({
+            // Relative units based on font.
+            "cap",
+            "ch",
+            "em",
+            "ex",
+            "ic",
+            "lh",
+
+            // Relative units based on root element's font.
+            "rcap",
+            "rch",
+            "rem",
+            "rex",
+            "ric",
+            "rlh",
+
+            // Relative untis based on viewport.
+            "vh",
+            "vw",
+            "vmax",
+            "vmin",
+            "vb",
+            "vi",
+
+            // Container query units.
+            "cqw",
+            "cqh",
+            "cqi",
+            "cqb",
+            "cqmin",
+            "cqmax",
+
+            // Absolute units.
+            "px",
+            "cm",
+            "mm",
+            "Q",
+            "in",
+            "pc",
+            "pt",
+    });
+
+    double d{};
+    auto res = util::from_chars(str.data(), str.data() + str.size(), d);
+    if (res.ec != std::errc{}) {
+        return false;
+    }
+
+    auto unit = str.substr(std::distance(str.data(), res.ptr));
+    return unit == "%" || std::ranges::find(kLengthUnits, unit) != std::cend(kLengthUnits);
 }
 
 std::optional<int> to_int(std::string_view str) {
     int result{};
-    if (std::from_chars(str.data(), str.data() + str.size(), result).ec != std::errc{}) {
+    auto res = std::from_chars(str.data(), str.data() + str.size(), result);
+    if (res.ec != std::errc{} || res.ptr != str.data() + str.size()) {
         return std::nullopt;
     }
     return result;
@@ -904,6 +956,11 @@ void Parser::expand_font(Declarations &declarations, std::string_view value) {
             font_stretch = *maybe_font_stretch;
         }
         tokenizer.next();
+    }
+
+    if (font_size.empty() || font_family.empty()) {
+        spdlog::warn("Unable to parse font size: '{}'", value);
+        return;
     }
 
     declarations.insert_or_assign(PropertyId::FontStyle, font_style);

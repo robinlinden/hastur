@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -707,6 +707,12 @@ int main() {
         a.expect(get_and_erase(a, body.declarations, css::PropertyId::FontFamily) == "sans-serif"s);
         a.expect(get_and_erase(a, body.declarations, css::PropertyId::FontSize) == "1.5em"s);
         a.expect(check_initial_font_values(body.declarations));
+    });
+
+    s.add_test("parser: shorthand font w/ invalid size", [](etest::IActions &a) {
+        auto rules = css::parse("p { font: 1.5.5em monospace; }"sv).rules;
+        auto &p = rules.at(0);
+        a.expect(p.declarations.empty());
     });
 
     s.add_test("parser: shorthand font with size, line height, and generic font family", [](etest::IActions &a) {
