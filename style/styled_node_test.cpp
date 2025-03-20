@@ -571,6 +571,30 @@ int main() {
         a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 123);
     });
 
+    s.add_test("var() with var() fallback", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"baka"};
+        style::StyledNode styled_node{
+                .node = dom,
+                .properties{{css::PropertyId::FontWeight, "var(--a, var(--b, 789))"}},
+                .custom_properties{{"--a", "123"}},
+        };
+
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 123);
+
+        styled_node.custom_properties = {{"--b", "456"}};
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 456);
+
+        styled_node.custom_properties = {};
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 789);
+
+        styled_node.custom_properties = {{"--a", "var(--c, var(--b))"}, {"--b", "888"}};
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, 888);
+
+        // Silly circular reference, should return the initial value.
+        styled_node.custom_properties = {{"--a", "var(--c, var(--a))"}};
+        a.expect_eq(styled_node.get_property<css::PropertyId::FontWeight>()->value, style::FontWeight::normal().value);
+    });
+
     s.add_test("var() with fallback, no var exists", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"baka"};
         style::StyledNode styled_node{

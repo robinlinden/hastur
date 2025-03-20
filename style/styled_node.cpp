@@ -299,11 +299,11 @@ std::optional<std::string_view> StyledNode::resolve_variable(std::string_view va
         if (!prop) {
             spdlog::info("No matching variable for custom property '{}'", var_name);
             fallback = util::trim(fallback);
-            if (!fallback.empty()) {
-                return fallback;
+            if (fallback.empty()) {
+                break;
             }
 
-            break;
+            prop = fallback;
         }
 
         if (!prop->starts_with("var(")) {
