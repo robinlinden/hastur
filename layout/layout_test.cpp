@@ -457,6 +457,87 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         auto actual = layout::create_layout(style, 1234);
         a.expect_eq(actual, expected_layout);
     });
+
+    s.add_test("whitespace collapsing: white-space: pre", [](etest::IActions &a) {
+        constexpr auto kFirstText = "  hello  "sv;
+        constexpr auto kSecondText = "  world  "sv;
+        constexpr auto kSpaceText = "    "sv;
+        constexpr auto kFirstWidth = kFirstText.length() * 5;
+        constexpr auto kSecondWidth = kSecondText.length() * 5;
+        constexpr auto kSpaceWidth = kSpaceText.length() * 5;
+
+        dom::Element first{.name{"span"}, .children{dom::Text{std::string{kFirstText}}}};
+        dom::Text space{std::string{kSpaceText}};
+        dom::Element second{.name{"span"}, .children{dom::Text{std::string{kSecondText}}}};
+        dom::Node html = dom::Element{.name{"html"}, .children{std::move(first), std::move(space), std::move(second)}};
+        auto const &html_element = std::get<dom::Element>(html);
+        auto const &first_text_element = std::get<dom::Element>(html_element.children.at(0));
+        auto const &second_text_element = std::get<dom::Element>(html_element.children.at(2));
+
+        style::StyledNode first_style{
+                .node{first_text_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{first_text_element.children.at(0)}},
+        };
+        style::StyledNode space_style{.node{html_element.children.at(1)}};
+        style::StyledNode second_style{
+                .node{second_text_element},
+                .properties{{css::PropertyId::Display, "inline"}},
+                .children{style::StyledNode{second_text_element.children.at(0)}},
+        };
+        style::StyledNode style{
+                .node{html},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::WhiteSpace, "pre"},
+                },
+                .children{std::move(first_style), std::move(space_style), std::move(second_style)},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox first_layout{
+                .node = &style.children.at(0),
+                .dimensions{{0, 0, kFirstWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(0).children.at(0),
+                        .dimensions{{0, 0, kFirstWidth, 10}},
+                        .layout_text{kFirstText},
+                }},
+        };
+        layout::LayoutBox space_layout{
+                .node = &style.children.at(1),
+                .dimensions{{kFirstWidth, 0, kSpaceWidth, 10}},
+                .layout_text{kSpaceText},
+        };
+        layout::LayoutBox second_layout{
+                .node = &style.children.at(2),
+                .dimensions{{kFirstWidth + kSpaceWidth, 0, kSecondWidth, 10}},
+                .children{layout::LayoutBox{
+                        .node = &style.children.at(2).children.at(0),
+                        .dimensions{{kFirstWidth + kSpaceWidth, 0, kSecondWidth, 10}},
+                        .layout_text{kSecondText},
+                }},
+        };
+        layout::LayoutBox expected_layout{
+                .node = &style,
+                .dimensions{{0, 0, 1234, 10}},
+                .children{
+                        layout::LayoutBox{
+                                .node = nullptr,
+                                .dimensions{{0, 0, 1234, 10}},
+                                .children{
+                                        std::move(first_layout),
+                                        std::move(space_layout),
+                                        std::move(second_layout),
+                                },
+                        },
+                },
+        };
+
+        auto actual = layout::create_layout(style, 1234);
+        a.expect_eq(actual, expected_layout);
+    });
 }
 
 void text_transform_tests(etest::Suite &s) {
