@@ -84,7 +84,7 @@ tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::spa
             return tl::unexpected{BrotliError::MaximumOutputLengthExceeded};
         }
 
-        // TODO(zero-one): Replace with insert_range() when support is better
+        // TODO(zero-one): Replace with insert_range() when support is better. Requires P1206.
         out.insert(out.end(), intermediate_buf.begin(), intermediate_buf.end() - avail_out);
     }
 
