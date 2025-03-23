@@ -52,7 +52,6 @@ tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::spa
 
     std::size_t avail_in = input.size();
     auto const *next_in = reinterpret_cast<std::uint8_t const *>(input.data());
-    std::size_t total_out = 0;
 
     BrotliDecoderResult res = BROTLI_DECODER_RESULT_ERROR;
 
@@ -62,7 +61,7 @@ tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::spa
         std::size_t avail_out = kChunkSize;
         auto *next_out = reinterpret_cast<std::uint8_t *>(intermediate_buf.data());
 
-        res = BrotliDecoderDecompressStream(br_state.get(), &avail_in, &next_in, &avail_out, &next_out, &total_out);
+        res = BrotliDecoderDecompressStream(br_state.get(), &avail_in, &next_in, &avail_out, &next_out, nullptr);
 
         // Because we provide the whole input up-front, there's no reason we
         // would ever block on needing more input, except for corrupt data
