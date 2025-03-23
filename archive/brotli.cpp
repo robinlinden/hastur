@@ -70,14 +70,30 @@ tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::spa
         }
 
         if (res == BROTLI_DECODER_RESULT_ERROR) {
-            // Brotli doesn't expose this in a sane way, so we use magic
-            // numbers from the headers. -1 through -16 are errors related to
-            // bad input.
-            if (BrotliDecoderGetErrorCode(br_state.get()) <= -1 && BrotliDecoderGetErrorCode(br_state.get()) >= -16) {
-                return tl::unexpected{BrotliError::InputCorrupt};
+            auto e = BrotliDecoderGetErrorCode(br_state.get());
+            switch (e) {
+                // These are all the error codes related to bad input, indicated
+                // by being prefixed w/ ERROR_FORMAT_.
+                case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
+                case BROTLI_DECODER_ERROR_FORMAT_RESERVED:
+                case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
+                case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
+                case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
+                case BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
+                case BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
+                case BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
+                case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1:
+                case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2:
+                case BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
+                case BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
+                case BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS:
+                case BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
+                case BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
+                case BROTLI_DECODER_ERROR_FORMAT_DISTANCE:
+                    return tl::unexpected{BrotliError::InputCorrupt};
+                default:
+                    return tl::unexpected{BrotliError::BrotliInternalError};
             }
-
-            return tl::unexpected{BrotliError::BrotliInternalError};
         }
 
         if (out.size() + intermediate_buf.size() - avail_out >= max_output_length_) {
