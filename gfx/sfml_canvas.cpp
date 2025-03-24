@@ -137,16 +137,6 @@ void SfmlCanvas::clear(Color c) {
     textures_.clear();
 }
 
-void SfmlCanvas::fill_rect(geom::Rect const &rect, Color color) {
-    auto translated{rect.translated(tx_, ty_)};
-    auto scaled{translated.scaled(scale_)};
-
-    sf::RectangleShape drawable{{static_cast<float>(scaled.width), static_cast<float>(scaled.height)}};
-    drawable.setPosition({static_cast<float>(scaled.x), static_cast<float>(scaled.y)});
-    drawable.setFillColor(sf::Color{color.r, color.g, color.b, color.a});
-    target_.draw(drawable);
-}
-
 void SfmlCanvas::draw_rect(geom::Rect const &rect, Color const &color, Borders const &borders, Corners const &corners) {
     auto translated{rect.translated(tx_, ty_)};
     auto inner_rect{translated.scaled(scale_)};

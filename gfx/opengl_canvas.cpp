@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -50,13 +50,6 @@ void OpenGLCanvas::set_viewport_size(int width, int height) {
 void OpenGLCanvas::clear(Color c) {
     glClearColor(c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f);
     glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void OpenGLCanvas::fill_rect(geom::Rect const &rect, Color color) {
-    auto translated{rect.translated(translation_x_, translation_y_)};
-    auto scaled{translated.scaled(scale_)};
-    glColor4ub(color.r, color.g, color.b, color.a);
-    glRecti(scaled.x, scaled.y, scaled.x + scaled.width, scaled.y + scaled.height);
 }
 
 void OpenGLCanvas::draw_rect(

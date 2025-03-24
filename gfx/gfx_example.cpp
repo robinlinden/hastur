@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
 
         canvas->clear(gfx::Color{0xFF, 0xFF, 0xFF});
 
-        canvas->fill_rect({200, 200, 100, 100}, gfx::Color{0, 0, 0xAA});
-        canvas->fill_rect({x / 4 + 50, y / 3 + 50, x / 2, y / 3}, gfx::Color{0xAA, 0, 0, 0x33});
+        canvas->draw_rect({200, 200, 100, 100}, gfx::Color{0, 0, 0xAA}, {}, {});
+        canvas->draw_rect({x / 4 + 50, y / 3 + 50, x / 2, y / 3}, gfx::Color{0xAA, 0, 0, 0x33}, {}, {});
 
         canvas->draw_rect({400, 100, 50, 50}, gfx::Color{80, 80, 80}, {}, {.top_right{50, 50}, .bottom_left{25, 25}});
 
