@@ -102,9 +102,9 @@ int main() {
         gfx::Color c{0xFF, 0xFF, 0xFF, 0x30};
         a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{},
-                        gfx::FillRectCmd{{10, 20, 100, 100}, c},
-                        gfx::FillRectCmd{{10, 20, 10, 10}, c},
-                        gfx::FillRectCmd{{10, 30, 10, 10}, c}});
+                        gfx::DrawRectCmd{{10, 20, 100, 100}, c},
+                        gfx::DrawRectCmd{{10, 20, 10, 10}, c},
+                        gfx::DrawRectCmd{{10, 30, 10, 10}, c}});
     });
 
     s.add_test("render block with transparent background-color", [](etest::IActions &a) {

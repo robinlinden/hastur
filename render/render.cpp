@@ -199,7 +199,7 @@ namespace {
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void render_layout_depth_impl(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
-    painter.fill_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30});
+    painter.draw_rect(layout.dimensions.padding_box(), {0xFF, 0xFF, 0xFF, 0x30}, {}, {});
     for (auto const &child : layout.children) {
         render_layout_depth_impl(painter, child);
     }
