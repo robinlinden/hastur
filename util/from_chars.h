@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,9 +7,9 @@
 
 #include <version> // IWYU pragma: keep
 
-// Workaround for libc++ not supporting std::from_chars for floating point numbers.
-// TODO(robinlinden): Nuke once libc++ supports std::from_chars w/ floats.
-#if defined(_LIBCPP_VERSION)
+// Workaround for libc++19 and older not supporting std::from_chars for floating point numbers.
+// TODO(robinlinden): Nuke once we drop support for libc++19 and older.
+#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 200000
 
 #include <cerrno>
 #include <charconv>

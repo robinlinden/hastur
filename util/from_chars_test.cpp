@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,6 +9,12 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+
+#ifdef _MSC_VER
+#define BROKEN_RESULT_OUT_OF_RANGE
+#elif defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 200000
+#define BROKEN_RESULT_OUT_OF_RANGE
+#endif
 
 using namespace std::literals;
 
@@ -23,8 +29,8 @@ void add_tests(etest::Suite &s, std::string_view name_prefix) {
         a.expect_eq(res,
                 util::from_chars_result{from.data() + from.size(), std::errc::result_out_of_range},
                 std::make_error_code(res.ec).message());
-#ifndef _MSC_VER
-        // Microsoft's STL sets v to HUGE_VALF when ERANGE occurs.
+#ifndef BROKEN_RESULT_OUT_OF_RANGE
+        // Microsoft's STL and libc++20 sets v to HUGE_VALF when ERANGE occurs.
         // See: https://en.cppreference.com/w/cpp/utility/from_chars#Return_value
         a.expect_eq(v, T{0.});
 #endif
