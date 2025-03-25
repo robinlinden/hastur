@@ -52,6 +52,13 @@ jobs:
             compiler: clang
             version: 20
 
+          - name: clang-20-libc++
+            os: ubuntu-24.04
+            compiler: clang
+            version: 20
+            bazel: --config libc++ --keep_going
+            apt: libc++abi-20-dev libc++-20-dev libclang-rt-20-dev
+
     steps:
       - name: Setup gcc
         if: startsWith(matrix.compiler, 'gcc')
