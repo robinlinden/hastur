@@ -606,6 +606,10 @@ archive_override(
     build_file = "//third_party:sfml.BUILD",
     integrity = "sha256-N1Bvr71hix+OFTu8qIEeYiA6cLMqEYMnn7lhL9BQHSs=",
     patch_cmds = [
+        # Fix libc++20 compilation failure due to SFML not including what it uses.
+        # This was (accidentally?) fixed in https://github.com/SFML/SFML/pull/3362,
+        # and has been added SFML's 3.x backport branch, but not been released yet.
+        "sed -i'' -e '36i\\\n#include <ostream>\\\n' src/SFML/Graphics/GLCheck.hpp",
         # SFML uses a non-standard include path to vulkan.h
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
