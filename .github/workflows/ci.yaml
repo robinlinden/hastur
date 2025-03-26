@@ -152,7 +152,7 @@ jobs:
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          pipx install codecov-cli==10.2.1
+          pipx install codecov-cli==10.3.0
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
@@ -182,12 +182,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v30.0.2
-      WASMTIME_NAME: wasmtime-v30.0.2-x86_64-linux
+      WASMTIME_VERSION: v31.0.0
     steps:
       - uses: actions/checkout@v4
       - name: Set up wasmtime
         run: |
+          export WASMTIME_NAME=wasmtime-${WASMTIME_VERSION}-x86_64-linux
+          echo WASMTIME_NAME=${WASMTIME_NAME} >>$GITHUB_ENV
           wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
           tar -xf wasmtime.tar.xz
           chmod +x ${WASMTIME_NAME}/wasmtime
@@ -268,7 +269,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: pipx install pre-commit==4.1.0
+      - run: pipx install pre-commit==4.2.0
       - run: pre-commit run --all-files
 
   clang-format:
