@@ -233,11 +233,13 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-cpp
+ABSEIL_CPP_VERSION = "20250127.1"
+
 archive_override(
     module_name = "abseil-cpp",
-    integrity = "sha256-QM7mdgQGCnyHlNkxU4y1X01EQHPlVpgMiLbEm7mxm7c=",
-    strip_prefix = "abseil-cpp-20240722.1",
-    url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format("20240722.1"),
+    integrity = "sha256-s5ZAH9KeLmecrOd4Z0gdOIyAdnHcKsxgKgJZ7rebeBE=",
+    strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
+    url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
 )
 
 # https://github.com/abseil/abseil-py
@@ -422,22 +424,22 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-bazel_dep(name = "ftxui")
+FTXUI_VERSION = "6.0.1"
+
+bazel_dep(name = "ftxui")  # MIT
 archive_override(
-    module_name = "ftxui",  # MIT
+    module_name = "ftxui",
     build_file = "//third_party:ftxui.BUILD",
+    integrity = "sha256-ffeWjPOggiBTkLhOqGuuW2N0ZT1wj0po3byeY6Jz9Ow=",
     patch_cmds = [
-        # Work around circular header dependency detected by clang-tidy 18.
-        """sed -i'' -e /deprecated.hpp/d include/ftxui/dom/elements.hpp""",
         """cat <<EOF >MODULE.bazel
 module(name = "ftxui")
 bazel_dep(name = "rules_cc")
 bazel_dep(name = "platforms")
 EOF""",
     ],
-    sha256 = "a2991cb222c944aee14397965d9f6b050245da849d8c5da7c72d112de2786b5b",
-    strip_prefix = "FTXUI-5.0.0",
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v5.0.0.tar.gz",
+    strip_prefix = "FTXUI-%s" % FTXUI_VERSION,
+    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v%s.tar.gz" % FTXUI_VERSION,
 )
 
 # https://github.com/Dav1dde/glad/
@@ -504,19 +506,21 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
+IMGUI_VERSION = "1.91.9b"
+
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-2zouAr/Wwmmt8JaJUFcwU9AC9Avfue8uSpC86ASw8oY=",
+    integrity = "sha256-jhu8dscddP7y+4Xbfnyo66E9aoZiPFSZK2AWLbVU/9s=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "imgui-1.91.8",
-    url = "https://github.com/ocornut/imgui/archive/v1.91.8.tar.gz",
+    strip_prefix = "imgui-%s" % IMGUI_VERSION,
+    url = "https://github.com/ocornut/imgui/archive/v%s.tar.gz" % IMGUI_VERSION,
 )
 
 # https://github.com/SFML/imgui-sfml
@@ -698,13 +702,13 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.310"
+VULKAN_TAG = "1.4.311"
 
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-v7lw5022bcZExPM8zvYc1p4FfNopUO/C8RHILHupimw=",
+    integrity = "sha256-eYnDYLhwvMLeUrn9Ym/SunohL+F3reOqOhCyvLYfhok=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -720,7 +724,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-P4Ci0T7BMfJtW3kXJ6sOb9PhqbdH9ziHdxxOjevm/1M=",
+    integrity = "sha256-xk3PBNN+Gf7uhur+KN+3dfpJPYVlXE9BMQTO8ypQfSs=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
