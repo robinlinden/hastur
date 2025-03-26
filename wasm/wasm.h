@@ -142,14 +142,21 @@ struct CodeSection {
 
 // https://webassembly.github.io/spec/core/binary/modules.html#data-section
 struct DataSection {
-    // TODO(robinlinden): Active data.
+    struct ActiveData {
+        std::uint32_t memory_idx{};
+        std::vector<instructions::Instruction> offset{};
+        std::vector<std::byte> data{};
+
+        [[nodiscard]] bool operator==(ActiveData const &) const = default;
+    };
+
     struct PassiveData {
         std::vector<std::byte> data{};
 
         [[nodiscard]] bool operator==(PassiveData const &) const = default;
     };
 
-    using Data = std::variant<PassiveData>;
+    using Data = std::variant<ActiveData, PassiveData>;
     std::vector<Data> data{};
 
     [[nodiscard]] bool operator==(DataSection const &) const = default;

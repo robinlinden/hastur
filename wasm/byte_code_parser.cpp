@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -284,7 +284,9 @@ std::optional<DataSection::Data> parse(std::istream &is) {
         return std::nullopt;
     }
 
+    static constexpr std::uint32_t kActiveDataTag = 0;
     static constexpr std::uint32_t kPassiveDataTag = 1;
+    static constexpr std::uint32_t kActiveDataWithMemIdxTag = 2;
 
     if (*type == kPassiveDataTag) {
         // TODO(robinlinden): We can read more than 1 byte at a time to speed this up.
@@ -296,7 +298,33 @@ std::optional<DataSection::Data> parse(std::istream &is) {
         return DataSection::Data{DataSection::PassiveData{.data = *std::move(init)}};
     }
 
-    return std::nullopt;
+    std::uint32_t memory_idx{};
+    if (*type == kActiveDataWithMemIdxTag) {
+        auto idx = Leb128<std::uint32_t>::decode_from(is);
+        if (!idx) {
+            return std::nullopt;
+        }
+
+        memory_idx = *idx;
+    } else if (*type != kActiveDataTag) {
+        return std::nullopt;
+    }
+
+    auto offset = ByteCodeParser::parse_instructions(is);
+    if (!offset) {
+        return std::nullopt;
+    }
+
+    auto init = parse_vector<std::byte>(is);
+    if (!init) {
+        return std::nullopt;
+    }
+
+    return DataSection::Data{DataSection::ActiveData{
+            .memory_idx = memory_idx,
+            .offset = *std::move(offset),
+            .data = *std::move(init),
+    }};
 }
 
 // https://webassembly.github.io/spec/core/binary/modules.html#binary-import

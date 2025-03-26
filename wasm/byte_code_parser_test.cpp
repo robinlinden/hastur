@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -680,6 +680,58 @@ void data_tests(etest::Suite &s) {
         a.expect_eq(module.data_section,
                 DataSection{
                         .data{DataSection::PassiveData{{std::byte{37}}}, DataSection::PassiveData{{std::byte{42}}}}});
+    });
+
+    auto active_data_bytes = std::vector<std::uint8_t>({
+            1, // section contains 1 data
+            0, // active data tag
+            0x41, // i32_const 42, end
+            0x2a,
+            0x0b,
+            3, // vec{1, 2, 3}
+            1,
+            2,
+            3,
+    });
+
+    s.add_test("data section, active data, everything's fine", [active_data_bytes](etest::IActions &a) {
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, active_data_bytes)).value();
+        a.expect_eq(module.data_section,
+                DataSection{.data{DataSection::ActiveData{
+                        .offset{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
+                        .data{std::byte{1}, std::byte{2}, std::byte{3}},
+                }}});
+    });
+
+    s.add_test("data section, active data w/ memidx", [active_data_bytes](etest::IActions &a) mutable {
+        active_data_bytes[1] = 2; // active data w/ memory index tag
+        active_data_bytes.insert(active_data_bytes.begin() + 2, 13); // memory index 13
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, active_data_bytes)).value();
+        a.expect_eq(module.data_section,
+                DataSection{.data{DataSection::ActiveData{
+                        .memory_idx = 13,
+                        .offset{wasm::instructions::I32Const{42}, wasm::instructions::End{}},
+                        .data{std::byte{1}, std::byte{2}, std::byte{3}},
+                }}});
+    });
+
+    s.add_test("data section, active data w/ memidx, invalid index", [active_data_bytes](etest::IActions &a) mutable {
+        active_data_bytes[1] = 2; // active data w/ memory index tag
+        active_data_bytes.resize(2); // Remove everything after the tag.
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, active_data_bytes));
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+    });
+
+    s.add_test("data section, active data, bad offset", [active_data_bytes](etest::IActions &a) mutable {
+        active_data_bytes.resize(4); // Remove everything after i32_const 42.
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, active_data_bytes));
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
+    });
+
+    s.add_test("data section, active data, bad init", [active_data_bytes](etest::IActions &a) mutable {
+        active_data_bytes.resize(6); // Remove everything after the init size.
+        auto module = ByteCodeParser::parse_module(make_module_bytes(SectionId::Data, active_data_bytes));
+        a.expect_eq(module, tl::unexpected{wasm::ModuleParseError::InvalidDataSection});
     });
 
     s.add_test("data section, passive data, eof", [](etest::IActions &a) {
