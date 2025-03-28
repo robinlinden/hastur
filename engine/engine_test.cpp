@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -398,6 +398,42 @@ int main() {
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
         auto const &body = std::get<dom::Element>(page->dom.html().children.at(1));
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}});
+    });
+
+    // echo -n '<p>brotli!' | brotli
+    std::string brotli_compressed_html = "\x8f\x04\x80\x3c\x70\x3e\x62\x72\x6f\x74\x6c\x69\x21\x03";
+
+    s.add_test("html, brotli-compressed", [brotli_compressed_html](etest::IActions &a) {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "br"}},
+                .body{brotli_compressed_html},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        auto const &body = std::get<dom::Element>(page->dom.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"brotli!"}}}}});
+    });
+
+    s.add_test("html, brotli-compressed, failure", [zstd_compressed_html](etest::IActions &a) {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "br"}},
+                .body{zstd_compressed_html},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
+        a.expect_eq(page,
+                tl::unexpected{engine::NavigationError{
+                        .uri = uri::Uri::parse("hax://example.com").value(),
+                        .response =
+                                protocol::Error{
+                                        ErrorCode::InvalidResponse,
+                                        protocol::StatusLine{.status_code = 200},
+                                },
+                }});
     });
 
     s.add_test("html, unhandled content-encoding", [zstd_compressed_html](etest::IActions &a) {

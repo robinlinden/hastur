@@ -7,6 +7,7 @@ cc_library(
     hdrs = ["engine.h"],
     copts = HASTUR_COPTS,
     implementation_deps = [
+        "//archive:brotli",
         "//archive:zlib",
         "//archive:zstd",
         "//html",

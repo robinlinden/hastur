@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -48,6 +48,7 @@ struct PageState {
 struct NavigationError {
     uri::Uri uri{};
     protocol::Error response{};
+    [[nodiscard]] constexpr bool operator==(NavigationError const &) const = default;
 };
 
 class Engine {

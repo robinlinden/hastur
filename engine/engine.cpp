@@ -4,6 +4,7 @@
 
 #include "engine/engine.h"
 
+#include "archive/brotli.h"
 #include "archive/zlib.h"
 #include "archive/zstd.h"
 #include "css/default.h"
@@ -61,6 +62,19 @@ namespace {
 
     if (encoding == "zstd") {
         auto decoded = archive::zstd_decode(body_view);
+        if (!decoded) {
+            auto const &err = decoded.error();
+            spdlog::error(
+                    "Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, static_cast<int>(err), to_string(err));
+            return false;
+        }
+
+        response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
+        return true;
+    }
+
+    if (encoding == "br") {
+        auto decoded = archive::brotli_decode(body_view);
         if (!decoded) {
             auto const &err = decoded.error();
             spdlog::error(
