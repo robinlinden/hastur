@@ -4,46 +4,51 @@
 
 #include "dom/dom.h"
 
-#include <cstdint>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace dom {
 namespace {
 
-void print_attribute(std::pair<std::string, std::string> const &attribute, std::ostream &os, std::uint8_t depth) {
-    os << "\n| ";
-    for (std::uint8_t i = 1; i < depth; ++i) {
-        os << "  ";
-    }
-
-    os << attribute.first << "=\"" << attribute.second << '"';
-}
-
-// NOLINTNEXTLINE(misc-no-recursion)
-void print_node(dom::Node const &node, std::ostream &os, std::uint8_t depth = 0) {
+void print_whitespace(std::ostream &os, int depth) {
     if (depth > 0) {
         os << "\n| ";
     }
 
-    for (std::uint8_t i = 1; i < depth; ++i) {
+    for (int i = 1; i < depth; ++i) {
         os << "  ";
     }
+}
 
-    if (auto const *element = std::get_if<dom::Element>(&node)) {
-        os << '<' << element->name << ">";
-        for (auto const &attribute : element->attributes) {
-            print_attribute(attribute, os, depth + 1);
-        }
+void print_attribute(std::pair<std::string, std::string> const &attribute, std::ostream &os, int depth) {
+    print_whitespace(os, depth);
+    os << attribute.first << "=\"" << attribute.second << '"';
+}
 
-        for (auto const &child : element->children) {
-            print_node(child, os, depth + 1);
+void print_node(dom::Node const &node, std::ostream &os, int initial_depth = 0) {
+    std::vector<std::pair<dom::Node const *, int>> to_print{{&node, initial_depth}};
+    while (!to_print.empty()) {
+        auto [current_node, current_depth] = to_print.back();
+        to_print.pop_back();
+
+        print_whitespace(os, current_depth);
+
+        if (auto const *element = std::get_if<dom::Element>(current_node)) {
+            os << '<' << element->name << ">";
+            for (auto const &attribute : element->attributes) {
+                print_attribute(attribute, os, current_depth + 1);
+            }
+
+            for (auto const &child : element->children) {
+                to_print.emplace(to_print.begin(), &child, current_depth + 1);
+            }
+        } else {
+            os << '"' << std::get<dom::Text>(*current_node).text << '"';
         }
-    } else {
-        os << '"' << std::get<dom::Text>(node).text << '"';
     }
 }
 
