@@ -237,7 +237,7 @@ private:
             return std::nullopt;
         }
 
-        if (value_unit == "em") {
+        if (value_unit == "em" || value_unit == "rem") {
             // TODO(robinlinden): Make configurable. Needs to match the default
             // font size in the StyledNode property calulations right now.
             static constexpr int kDefaultFontSize{16};

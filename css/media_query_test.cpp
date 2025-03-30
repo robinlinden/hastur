@@ -53,6 +53,8 @@ void to_string_tests(etest::Suite &s) {
         // 1em == 16px right now. This will probably break when that's made configurable.
         a.expect_eq(css::to_string(css::MediaQuery::parse("(width: 10em)").value()), //
                 "160 <= width <= 160");
+        a.expect_eq(css::to_string(css::MediaQuery::parse("(width: 100rem)").value()), //
+                "1600 <= width <= 1600");
     });
 
     s.add_test("to_string: prefers-color-scheme", [](etest::IActions &a) {
