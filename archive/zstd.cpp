@@ -16,6 +16,10 @@
 #include <string_view>
 #include <vector>
 
+#if CHAR_BIT != 8
+#error "zstd requires 8-bit input"
+#endif
+
 namespace archive {
 
 std::string_view to_string(ZstdError err) {
@@ -50,7 +54,6 @@ tl::expected<std::vector<std::byte>, ZstdError> ZstdDecoder::decode(std::span<st
 
     std::vector<std::byte> out;
 
-    static_assert(CHAR_BIT == 8, "zstd requires 8-bit input");
     ZSTD_inBuffer in_buf = {input.data(), input.size_bytes(), 0};
 
     std::size_t count = 0;
