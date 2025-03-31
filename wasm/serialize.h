@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -47,11 +47,11 @@ namespace wasm::instructions {
 constexpr std::string to_string(BlockType const &bt) {
     std::string out;
 
-    if (ValueType const *v = std::get_if<ValueType>(&bt.value)) {
+    if (auto const *v = std::get_if<ValueType>(&bt.value)) {
         out += "(result ";
         out += wasm::to_string(*v);
         out += ")";
-    } else if (TypeIdx const *t = std::get_if<TypeIdx>(&bt.value)) {
+    } else if (auto const *t = std::get_if<TypeIdx>(&bt.value)) {
         out += "(type ";
         out += std::to_string(*t);
         out += ")";

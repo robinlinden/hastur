@@ -345,13 +345,13 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             v.push_val(ValueType::Int32);
         }
         // https://webassembly.github.io/spec/core/valid/instructions.html#variable-instructions
-        else if (LocalGet const *lg = std::get_if<LocalGet>(&inst)) {
+        else if (auto const *lg = std::get_if<LocalGet>(&inst)) {
             if (lg->idx >= func_code.locals.size()) {
                 return tl::unexpected{ValidationError::LocalUndefined};
             }
 
             v.push_val(func_code.locals[lg->idx].type);
-        } else if (LocalSet const *ls = std::get_if<LocalSet>(&inst)) {
+        } else if (auto const *ls = std::get_if<LocalSet>(&inst)) {
             if (ls->idx >= func_code.locals.size()) {
                 return tl::unexpected{ValidationError::LocalUndefined};
             }
@@ -359,7 +359,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             if (auto pop_res = v.pop_val_expect(func_code.locals[ls->idx].type); !pop_res.has_value()) {
                 return tl::unexpected{pop_res.error()};
             }
-        } else if (LocalTee const *lt = std::get_if<LocalTee>(&inst)) {
+        } else if (auto const *lt = std::get_if<LocalTee>(&inst)) {
             if (lt->idx >= func_code.locals.size()) {
                 return tl::unexpected{ValidationError::LocalUndefined};
             }
@@ -371,7 +371,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             v.push_val(func_code.locals[lt->idx].type);
         }
         // https://webassembly.github.io/spec/core/valid/instructions.html#memory-instructions
-        else if (I32Load const *i32l = std::get_if<I32Load>(&inst)) {
+        else if (auto const *i32l = std::get_if<I32Load>(&inst)) {
             if (!m.memory_section.has_value()) {
                 return tl::unexpected{ValidationError::MemorySectionUndefined};
             }
@@ -393,7 +393,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             v.push_val(ValueType::Int32);
         }
         // https://webassembly.github.io/spec/core/valid/instructions.html#control-instructions
-        else if (Block const *block = std::get_if<Block>(&inst)) {
+        else if (auto const *block = std::get_if<Block>(&inst)) {
             if (!is_valid(block->type, m)) {
                 return tl::unexpected{ValidationError::BlockTypeInvalid};
             }
@@ -401,9 +401,9 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             std::vector<ValueType> params;
             std::vector<ValueType> results;
 
-            if (ValueType const *vt = std::get_if<ValueType>(&(block->type.value))) {
+            if (auto const *vt = std::get_if<ValueType>(&(block->type.value))) {
                 results.push_back(*vt);
-            } else if (TypeIdx const *idx = std::get_if<TypeIdx>(&(block->type.value))) {
+            } else if (auto const *idx = std::get_if<TypeIdx>(&(block->type.value))) {
                 params = ts.types[*idx].parameters;
                 results = ts.types[*idx].results;
             }
@@ -411,7 +411,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             // The case of an empty block type is handled implicitly by leaving the vectors empty
 
             v.push_ctrl(Block{}, std::move(params), std::move(results));
-        } else if (Loop const *loop = std::get_if<Loop>(&inst)) {
+        } else if (auto const *loop = std::get_if<Loop>(&inst)) {
             if (!is_valid(loop->type, m)) {
                 return tl::unexpected{ValidationError::BlockTypeInvalid};
             }
@@ -419,9 +419,9 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             std::vector<ValueType> params;
             std::vector<ValueType> results;
 
-            if (ValueType const *vt = std::get_if<ValueType>(&loop->type.value)) {
+            if (auto const *vt = std::get_if<ValueType>(&loop->type.value)) {
                 results.push_back(*vt);
-            } else if (TypeIdx const *idx = std::get_if<TypeIdx>(&loop->type.value)) {
+            } else if (auto const *idx = std::get_if<TypeIdx>(&loop->type.value)) {
                 params = ts.types[*idx].parameters;
                 results = ts.types[*idx].results;
             }
@@ -437,7 +437,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             }
 
             v.push_vals(maybe_frame->results);
-        } else if (Branch const *branch = std::get_if<Branch>(&inst)) {
+        } else if (auto const *branch = std::get_if<Branch>(&inst)) {
             if (v.control_stack.size() <= branch->label_idx) {
                 return tl::unexpected{ValidationError::LabelInvalid};
             }
@@ -450,7 +450,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             }
 
             v.mark_unreachable();
-        } else if (BranchIf const *branch_if = std::get_if<BranchIf>(&inst)) {
+        } else if (auto const *branch_if = std::get_if<BranchIf>(&inst)) {
             if (v.control_stack.size() <= branch_if->label_idx) {
                 return tl::unexpected{ValidationError::LabelInvalid};
             }
