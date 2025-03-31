@@ -297,12 +297,12 @@ jobs:
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-19 libc++abi-19-dev libc++-19-dev
-      - run: echo "CC=clang-19" >>$GITHUB_ENV && echo "CXX=clang++-19" >>$GITHUB_ENV
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-20 libc++abi-20-dev libc++-20-dev
+      - run: echo "CC=clang-20" >>$GITHUB_ENV && echo "CXX=clang++-20" >>$GITHUB_ENV
       - run: |
-          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-19 100
-          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-19
+          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-20 100
+          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-20
           update-alternatives --query clang-tidy
           clang-tidy --version
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
