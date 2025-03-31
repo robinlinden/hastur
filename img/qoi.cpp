@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -119,7 +119,7 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
             return tl::unexpected{QoiError::AbruptEof};
         }
 
-        auto const short_tag = chunk & 0b1100'0000;
+        auto const short_tag = static_cast<std::uint8_t>(chunk & 0b1100'0000);
         auto const short_value = chunk & 0b0011'1111;
 
         if (chunk == kQoiOpRgb) {

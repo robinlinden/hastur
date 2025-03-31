@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -474,8 +475,8 @@ std::optional<Url> UrlParser::parse_basic(
 
         // This check accomodates the one scenario (commented on in
         // state_scheme_start, below) in which the parser position goes
-        // negative.
-        if (is_eof() && pos_ != static_cast<std::size_t>(-1)) {
+        // negative and wraps around.
+        if (is_eof() && pos_ != std::numeric_limits<std::size_t>::max()) {
             break;
         }
 

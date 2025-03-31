@@ -763,7 +763,7 @@ void App::scroll(int pixels) {
 
     auto const &layout = *maybe_layout;
     // Don't allow scrolling if the entire page fits on the screen.
-    if (static_cast<int>(window_.getSize().y / scale_) > layout.dimensions.margin_box().height) {
+    if (std::cmp_greater(window_.getSize().y / scale_, layout.dimensions.margin_box().height)) {
         return;
     }
 
