@@ -7,6 +7,11 @@
 #
 # -bugprone-narrowing-conversions: Very noisy for not much gain.
 #
+# TODO(robinlinden): Enable again once this is fixed in libfmt or we're std::format instead.
+# -clang-analyzer-optin.cplusplus.UninitializedObject: Unusable together with
+# libfmt due to warnings about uninitialized fields triggering everywhere string
+# formatting is used. Last tested with 11.1.4.
+#
 # -cppcoreguidelines-[...]: TODO(robinlidnen): Investigate.
 #
 # -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
@@ -54,6 +59,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
+  -clang-analyzer-optin.cplusplus.UninitializedObject,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-do-while,
   -cppcoreguidelines-avoid-magic-numbers,
