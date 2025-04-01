@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,7 +8,6 @@
 
 #include "unicode/util.h"
 
-// NOLINTNEXTLINE(misc-include-cleaner): This is used for std::ranges::lower_bound.
 #include <algorithm>
 #include <cassert>
 #include <optional>
@@ -24,10 +23,8 @@ std::optional<std::string> Uts46::map(std::string_view input) {
     result.reserve(input.size());
 
     for (auto const code_point : unicode::CodePointView{input}) {
-        // * clang-tidy thinks std::ranges::lower_bound is provided by
-        //   <bits/ranges_algo.h> when it's actually provided by <algorithm>.
-        // * clang-tidy says this is pointer-ish, but msvc disagrees.
-        // NOLINTNEXTLINE(misc-include-cleaner,readability-qualified-auto)
+        // clang-tidy says this is pointer-ish, but msvc disagrees.
+        // NOLINTNEXTLINE(readability-qualified-auto)
         auto mapping = std::ranges::lower_bound(
                 uts46::kMappings, code_point, {}, &decltype(uts46::kMappings)::value_type::first);
 

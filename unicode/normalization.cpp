@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,7 +7,6 @@
 #include "unicode/unicode_data.h"
 #include "unicode/util.h"
 
-// NOLINTNEXTLINE(misc-include-cleaner): This is used for std::ranges::lower_bound.
 #include <algorithm>
 #include <ostream>
 #include <sstream>
@@ -20,10 +19,8 @@ namespace {
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void decompose_to(std::ostream &os, char32_t code_point) {
-    // * clang-tidy thinks std::ranges::lower_bound is provided by
-    //   <bits/ranges_algo.h> when it's actually provided by <algorithm>.
-    // * clang-tidy says this is pointer-ish, but msvc disagrees.
-    // NOLINTNEXTLINE(misc-include-cleaner,readability-qualified-auto)
+    // clang-tidy says this is pointer-ish, but msvc disagrees.
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto maybe_decomposition = std::ranges::lower_bound(
             generated::kDecompositions, code_point, {}, &decltype(generated::kDecompositions)::value_type::code_point);
 
