@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024-2025 David Zero <zero-one@zer0-one.net>
 // SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -104,6 +104,19 @@ constexpr bool is_match(GlobalType const &g1, GlobalType const &g2) {
     return g1 == g2;
 }
 #endif
+
+// https://webassembly.github.io/spec/core/valid/instructions.html#constant-expressions
+bool is_constant_expression(std::vector<Instruction> expr) {
+    for (auto const &inst : expr) {
+        // TODO(dzero): Update this with the other const instructions,
+        // ref.null, ref.func, and global.get when we implement those
+        if(util::holds_none_of<I32Const>(inst)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 // https://webassembly.github.io/spec/core/appendix/algorithm.html#validation-algorithm
 struct ControlFrame {
@@ -524,6 +537,8 @@ tl::expected<void, ValidationError> validate_functions(Module const &m, Function
     return {};
 }
 
+
+
 } // namespace
 
 std::string_view to_string(ValidationError err) {
@@ -541,6 +556,8 @@ std::string_view to_string(ValidationError err) {
             return "A function section is required, but was not defined";
         case ValidationError::FuncUndefinedCode:
             return "Function body is undefined/missing";
+        case ValidationError::GlobalNotConstant:
+            return "A global is being initialized with a non-constant expression";
         case ValidationError::LabelInvalid:
             return "Attempted to branch to a label which isn't valid";
         case ValidationError::LocalUndefined:
@@ -595,6 +612,15 @@ tl::expected<void, ValidationError> validate(Module const &m) {
         for (auto const &mem : m.memory_section->memories) {
             if (!is_valid(mem)) {
                 return tl::unexpected{ValidationError::MemoryInvalid};
+            }
+        }
+    }
+
+    // https://webassembly.github.io/spec/core/valid/modules.html#globals
+    if (m.global_section.has_value()) {
+        for (auto const &global : m.global_section->globals) {
+            if(!is_constant_expression(global.init)) {
+                return tl::unexpected{ValidationError::GlobalNotConstant};
             }
         }
     }
