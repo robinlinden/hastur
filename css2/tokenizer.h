@@ -28,7 +28,6 @@ enum class State : std::uint8_t {
     CommercialAt,
     IdentLike,
     String,
-    Whitespace,
 };
 
 enum class ParseError : std::uint8_t {

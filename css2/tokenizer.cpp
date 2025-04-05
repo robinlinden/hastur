@@ -92,7 +92,12 @@ void Tokenizer::run() {
                 }
 
                 if (is_whitespace(*c)) {
-                    state_ = State::Whitespace;
+                    while (is_whitespace(consume_next_input_character())) {
+                        // Do nothing.
+                    }
+
+                    reconsume();
+                    emit(WhitespaceToken{});
                     continue;
                 }
 
@@ -377,22 +382,6 @@ void Tokenizer::run() {
                         std::get<StringToken>(current_token_).data.append(1, *c);
                         continue;
                 }
-            }
-
-            case State::Whitespace: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(WhitespaceToken{});
-                    return;
-                }
-
-                if (is_whitespace(*c)) {
-                    continue;
-                }
-
-                emit(WhitespaceToken{});
-                reconsume_in(State::Main);
-                continue;
             }
         }
     }
