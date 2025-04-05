@@ -361,6 +361,11 @@ void Tokenizer::run() {
                             break;
                         }
 
+                        if (peek_input(0) == '\n') {
+                            std::ignore = consume_next_input_character();
+                            continue;
+                        }
+
                         std::get<StringToken>(current_token_).data += consume_an_escaped_code_point();
                         continue;
                     case '\n':

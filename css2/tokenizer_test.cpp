@@ -209,6 +209,11 @@ int main() {
         expect_token(output, WhitespaceToken{});
     });
 
+    s.add_test("escaped newline in string", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "'this is a\\\n blessed string'");
+        expect_token(output, StringToken{"this is a blessed string"});
+    });
+
     s.add_test("single quoted string with escaped code point", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "'foo\\40'");
         expect_token(output, StringToken{"foo@"});
