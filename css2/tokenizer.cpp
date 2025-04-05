@@ -104,9 +104,7 @@ void Tokenizer::run() {
                 switch (*c) {
                     case '\'':
                     case '"':
-                        string_ending_ = *c;
-                        current_token_ = StringToken{""};
-                        state_ = State::String;
+                        emit(consume_string(*c));
                         continue;
                     case '#': {
                         auto next_input = peek_input(0);
@@ -344,45 +342,6 @@ void Tokenizer::run() {
                 state_ = State::Main;
                 continue;
             }
-
-            case State::String: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(ParseError::EofInString);
-                    emit(std::move(current_token_));
-                    return;
-                }
-
-                if (*c == string_ending_) {
-                    emit(std::move(current_token_));
-                    state_ = State::Main;
-                    continue;
-                }
-
-                switch (*c) {
-                    case '\\':
-                        if (is_eof()) {
-                            // Do nothing.
-                            break;
-                        }
-
-                        if (peek_input(0) == '\n') {
-                            std::ignore = consume_next_input_character();
-                            continue;
-                        }
-
-                        std::get<StringToken>(current_token_).data += consume_an_escaped_code_point();
-                        continue;
-                    case '\n':
-                        emit(ParseError::NewlineInString);
-                        emit(BadStringToken{});
-                        reconsume_in(State::Main);
-                        continue;
-                    default:
-                        std::get<StringToken>(current_token_).data.append(1, *c);
-                        continue;
-                }
-            }
         }
     }
 }
@@ -466,6 +425,45 @@ void Tokenizer::reconsume() {
 void Tokenizer::reconsume_in(State state) {
     --pos_;
     state_ = state;
+}
+
+Token Tokenizer::consume_string(char ending_code_point) {
+    std::string result{};
+
+    while (true) {
+        auto c = consume_next_input_character();
+
+        if (!c) {
+            emit(ParseError::EofInString);
+            return StringToken{std::move(result)};
+        }
+
+        if (*c == ending_code_point) {
+            return StringToken{std::move(result)};
+        }
+
+        if (*c == '\n') {
+            emit(ParseError::NewlineInString);
+            reconsume();
+            return BadStringToken{};
+        }
+
+        if (*c == '\\') {
+            if (is_eof()) {
+                continue;
+            }
+
+            if (peek_input(0) == '\n') {
+                std::ignore = consume_next_input_character();
+                continue;
+            }
+
+            result += consume_an_escaped_code_point();
+            continue;
+        }
+
+        result += *c;
+    }
 }
 
 // https://www.w3.org/TR/css-syntax-3/#consume-a-number

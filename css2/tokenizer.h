@@ -27,7 +27,6 @@ enum class State : std::uint8_t {
     CommentEnd,
     CommercialAt,
     IdentLike,
-    String,
 };
 
 enum class ParseError : std::uint8_t {
@@ -53,9 +52,6 @@ private:
     std::string_view input_;
     std::size_t pos_{0};
     State state_{State::Main};
-    Token current_token_{};
-
-    char string_ending_{};
 
     std::function<void(Token &&)> on_emit_;
     std::function<void(ParseError)> on_error_;
@@ -70,6 +66,7 @@ private:
     void reconsume();
     void reconsume_in(State);
 
+    Token consume_string(char ending_code_point);
     std::variant<std::int32_t, double> consume_number(char first_byte);
     std::string consume_an_escaped_code_point();
     Token consume_a_numeric_token(char first_byte);
