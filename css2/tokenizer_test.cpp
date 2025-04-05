@@ -214,6 +214,12 @@ int main() {
         expect_token(output, StringToken{"foo@"});
     });
 
+    s.add_test("string, escape before eof", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "'foo\\");
+        expect_error(output, ParseError::EofInString);
+        expect_token(output, StringToken{"foo"});
+    });
+
     s.add_test("ident token", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "foo");
 

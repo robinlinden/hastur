@@ -356,6 +356,11 @@ void Tokenizer::run() {
 
                 switch (*c) {
                     case '\\':
+                        if (is_eof()) {
+                            // Do nothing.
+                            break;
+                        }
+
                         std::get<StringToken>(current_token_).data += consume_an_escaped_code_point();
                         continue;
                     case '\n':
