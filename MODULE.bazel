@@ -50,12 +50,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.2.0"
+RULES_PYTHON_VERSION = "1.3.0"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-LvQP3NeX4H8Lar2kRtHYTi2VcNI0/d+PzSqiYtqFLRw=",
+    integrity = "sha256-LMJrvVOFTOt23UKoNLEALNS6f43zVEDPA0guBFr/wkQ=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -426,13 +426,13 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-FTXUI_VERSION = "6.0.1"
+FTXUI_VERSION = "6.0.2"
 
 bazel_dep(name = "ftxui")  # MIT
 archive_override(
     module_name = "ftxui",
     build_file = "//third_party:ftxui.BUILD",
-    integrity = "sha256-ffeWjPOggiBTkLhOqGuuW2N0ZT1wj0po3byeY6Jz9Ow=",
+    integrity = "sha256-rONHeo3XzbkR28dee0PNzJzx1KPMP7QRaOzDHAZibLk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "ftxui")
@@ -637,11 +637,13 @@ EOF""",
 )
 
 # https://github.com/gabime/spdlog
+SPDLOG_VERSION = "1.15.2"
+
 bazel_dep(name = "spdlog")  # MIT
 archive_override(
     module_name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-JchDhg8DmhYA8jLG654B5mJ/fQMKKuXiMr3TySBdJsw=",
+    integrity = "sha256-eoCJY1fz6Okg6F6SYzsUug8inFBub5eFeL3DW6Ceml0=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
@@ -650,8 +652,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "spdlog-1.15.1",
-    url = "https://github.com/gabime/spdlog/archive/v1.15.1.tar.gz",
+    strip_prefix = "spdlog-%s" % SPDLOG_VERSION,
+    url = "https://github.com/gabime/spdlog/archive/v%s.tar.gz" % SPDLOG_VERSION,
 )
 
 # HEAD as of 2024-11-20.
