@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support")  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-3KlmgjF8xxEub66HMy4TqP77wjI1TCk5sRs+BsCeWUk=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.19.0"),
+    integrity = "sha256-c8jcbN186oeVbbknmmnJ5ovSpexqalB+Ntbi19pNcaQ=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.21.1"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -129,8 +129,8 @@ archive_override(
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    integrity = "sha256-bqHFMCYXVlRtAiWgtuWA6vL0kITihnmmwX+K0czsyl0=",
-    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.1.2"),
+    integrity = "sha256-4USKVrJGJAeyaI3qht9cN1s2oJkb1HjC3dlMlxaBJeI=",
+    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.1.3"),
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -159,11 +159,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.26.0"
+BAZEL_FEATURES_VERSION = "1.27.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-CR2LHh8L8fe9aIuVAHaH6GLMSJ+Nm8IcFL5f0DKoNi8=",
+    integrity = "sha256-LaCqzL1yWtYfTjXW117UIb9z7B3hZ0WLAP/s7zzXj20=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -243,16 +243,18 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-py
+ABSEIL_PY_VERSION = "2.2.2"
+
 archive_override(
     module_name = "abseil-py",
-    integrity = "sha256-ij0IMOTrT2bE+pB8Bu32zhxxnO2BGhLibZ0xYvhHF1g=",
+    integrity = "sha256-dXqqriyT3fYeAY82KHFYYOsi4p4dUBES7DXeDkZtgRs=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "abseil-py")
 EOF""",
     ],
-    strip_prefix = "abseil-py-2.1.0",
-    urls = ["https://github.com/abseil/abseil-py/archive/v2.1.0.tar.gz"],
+    strip_prefix = "abseil-py-%s" % ABSEIL_PY_VERSION,
+    url = "https://github.com/abseil/abseil-py/archive/v%s.tar.gz" % ABSEIL_PY_VERSION,
 )
 
 # https://github.com/open-source-parsers/jsoncpp
