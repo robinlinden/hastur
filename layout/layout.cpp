@@ -47,23 +47,23 @@ public:
         : resolution_context_{context}, type_{type},
           get_intrensic_size_for_resource_at_url_{get_intrensic_size_for_resource_at_url} {}
 
-    void layout(LayoutBox &, geom::Rect const &bounds) const;
+    void layout(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
 
 private:
     style::ResolutionInfo resolution_context_;
     type::IType const &type_;
     std::function<std::optional<Size>(std::string_view)> get_intrensic_size_for_resource_at_url_;
 
-    void layout_inline(LayoutBox &, geom::Rect const &bounds) const;
-    void layout_block(LayoutBox &, geom::Rect const &bounds) const;
-    void layout_anonymous_block(LayoutBox &, geom::Rect const &bounds) const;
+    void layout_inline(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
+    void layout_block(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
+    void layout_anonymous_block(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
 
     void calculate_left_and_right_margin(LayoutBox &,
-            geom::Rect const &parent,
+            int parent_width,
             style::UnresolvedValue margin_left,
             style::UnresolvedValue margin_right,
             int font_size) const;
-    void calculate_width_and_margin(LayoutBox &, geom::Rect const &parent, int font_size) const;
+    void calculate_width_and_margin(LayoutBox &, geom::Rect const &parent, int font_size, int last_block_width) const;
     void calculate_inline_height(LayoutBox &, int font_size) const;
     void calculate_non_inline_height(LayoutBox &, int font_size) const;
     void calculate_padding(LayoutBox &, int font_size) const;
@@ -287,9 +287,9 @@ void calculate_position(LayoutBox &box, geom::Rect const &parent) {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
+void Layouter::layout(LayoutBox &box, geom::Rect const &bounds, int last_block_width) const {
     if (box.is_anonymous_block()) {
-        layout_anonymous_block(box, bounds);
+        layout_anonymous_block(box, bounds, last_block_width);
         return;
     }
 
@@ -297,11 +297,11 @@ void Layouter::layout(LayoutBox &box, geom::Rect const &bounds) const {
     auto display = box.get_property<css::PropertyId::Display>();
     assert(display.has_value());
     if (display == style::Display::inline_flow()) {
-        layout_inline(box, bounds);
+        layout_inline(box, bounds, last_block_width);
         return;
     }
 
-    layout_block(box, bounds);
+    layout_block(box, bounds, last_block_width);
 }
 
 type::Weight to_type(std::optional<style::FontWeight> const &weight) {
@@ -328,7 +328,7 @@ std::string_view try_get_src(LayoutBox const &box) {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
+void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds, int last_block_width) const {
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
     calculate_padding(box, font_size);
@@ -367,7 +367,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
 
     int last_child_end{};
     for (auto &child : box.children) {
-        layout(child, box.dimensions.content.translated(last_child_end, 0));
+        layout(child, box.dimensions.content.translated(last_child_end, 0), last_block_width);
         last_child_end += child.dimensions.margin_box().width;
         box.dimensions.content.height = std::max(box.dimensions.content.height, child.dimensions.margin_box().height);
         box.dimensions.content.width += child.dimensions.margin_box().width;
@@ -376,24 +376,24 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds) const {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds) const {
+void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds, int last_block_width) const {
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
     calculate_padding(box, font_size);
     calculate_border(box, font_size);
-    calculate_width_and_margin(box, bounds, font_size);
+    calculate_width_and_margin(box, bounds, font_size, last_block_width);
     calculate_position(box, bounds);
     for (auto &child : box.children) {
-        layout(child, box.dimensions.content);
+        layout(child, box.dimensions.content, box.dimensions.content.width);
         box.dimensions.content.height += child.dimensions.margin_box().height;
     }
     calculate_non_inline_height(box, font_size);
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) const {
+void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds, int last_block_width) const {
     calculate_position(box, bounds);
-    box.dimensions.content.width = bounds.width;
+    box.dimensions.content.width = last_block_width;
     int last_child_end{};
     int current_line{};
     auto font_size = type::Px{!box.children.empty() ? box.children[0].get_property<css::PropertyId::FontSize>() : 0};
@@ -412,7 +412,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 
     for (std::size_t i = 0; i < box.children.size(); ++i) {
         auto *child = &box.children[i];
-        layout(*child, box.dimensions.content.translated(last_child_end, current_line * font_size.v));
+        layout(*child, box.dimensions.content.translated(last_child_end, current_line * font_size.v), last_block_width);
 
         // TODO(robinlinden): This needs to get along better with whitespace
         // collapsing. A <br> followed by a whitespace will be lead to a leading
@@ -429,7 +429,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
             if (child->dimensions.margin_box().x - box.dimensions.margin_box().x > bounds.width) {
                 last_child_end = 0;
                 current_line += 1;
-                layout(*child, box.dimensions.content.translated(0, current_line * font_size.v));
+                layout(*child, box.dimensions.content.translated(0, current_line * font_size.v), last_block_width);
                 continue;
             }
 
@@ -476,26 +476,27 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds) 
 }
 
 void Layouter::calculate_left_and_right_margin(LayoutBox &box,
-        geom::Rect const &parent,
+        int const parent_width,
         style::UnresolvedValue margin_left,
         style::UnresolvedValue margin_right,
         int const font_size) const {
     if (margin_left.is_auto() && margin_right.is_auto()) {
-        int margin_px = (parent.width - box.dimensions.border_box().width) / 2;
+        int margin_px = (parent_width - box.dimensions.border_box().width) / 2;
         box.dimensions.margin.left = box.dimensions.margin.right = margin_px;
     } else if (margin_left.is_auto() && !margin_right.is_auto()) {
         box.dimensions.margin.right = margin_right.resolve(font_size, resolution_context_);
-        box.dimensions.margin.left = parent.width - box.dimensions.margin_box().width;
+        box.dimensions.margin.left = parent_width - box.dimensions.margin_box().width;
     } else if (!margin_left.is_auto() && margin_right.is_auto()) {
         box.dimensions.margin.left = margin_left.resolve(font_size, resolution_context_);
-        box.dimensions.margin.right = parent.width - box.dimensions.margin_box().width;
+        box.dimensions.margin.right = parent_width - box.dimensions.margin_box().width;
     } else {
         // TODO(mkiael): Compute margin depending on direction property
     }
 }
 
 // https://www.w3.org/TR/CSS2/visudet.html#blockwidth
-void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &parent, int const font_size) const {
+void Layouter::calculate_width_and_margin(
+        LayoutBox &box, geom::Rect const &parent, int const font_size, int const last_block_width) const {
     assert(box.node != nullptr);
 
     auto &margins = box.dimensions.margin;
@@ -516,12 +517,12 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
     auto width = box.get_property<css::PropertyId::Width>();
     std::optional<int> resolved_width;
     if (!width.is_auto()) {
-        resolved_width = width.try_resolve(font_size, resolution_context_, parent.width);
+        resolved_width = width.try_resolve(font_size, resolution_context_, last_block_width);
     }
 
     if (resolved_width) {
         box.dimensions.content.width = *resolved_width;
-        calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+        calculate_left_and_right_margin(box, last_block_width, margin_left, margin_right, font_size);
     } else {
         if (!margin_left.is_auto()) {
             margins.left = margin_left.resolve(font_size, resolution_context_);
@@ -529,14 +530,14 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
         if (!margin_right.is_auto()) {
             margins.right = margin_right.resolve(font_size, resolution_context_);
         }
-        box.dimensions.content.width = parent.width - box.dimensions.margin_box().width;
+        box.dimensions.content.width = last_block_width - box.dimensions.margin_box().width;
     }
 
     if (auto min = box.get_property<css::PropertyId::MinWidth>(); !min.is_auto()) {
-        auto resolved = min.resolve(font_size, resolution_context_, parent.width);
+        auto resolved = min.resolve(font_size, resolution_context_, last_block_width);
         if (box.dimensions.content.width < resolved) {
             box.dimensions.content.width = resolved;
-            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+            calculate_left_and_right_margin(box, last_block_width, margin_left, margin_right, font_size);
         }
     }
 
@@ -549,7 +550,7 @@ void Layouter::calculate_width_and_margin(LayoutBox &box, geom::Rect const &pare
     if (resolved_max) {
         if (box.dimensions.content.width > *resolved_max) {
             box.dimensions.content.width = *resolved_max;
-            calculate_left_and_right_margin(box, parent, margin_left, margin_right, font_size);
+            calculate_left_and_right_margin(box, last_block_width, margin_left, margin_right, font_size);
         }
     }
 }
@@ -656,7 +657,7 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node,
     };
 
     Layouter{resolution_context, type, get_intrensic_size_for_resource_at_url}.layout(
-            *tree, {0, 0, info.viewport_width, 0});
+            *tree, {0, 0, info.viewport_width, 0}, info.viewport_width);
     return tree;
 }
 

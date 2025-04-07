@@ -2370,6 +2370,62 @@ int main() {
         a.expect_eq(l, expected);
     });
 
+    s.add_test("silly blocks inside inline elements", [](etest::IActions &a) {
+        // <html><span><div>
+        dom::Node dom = dom::Element{
+                .name{"html"},
+                .children{dom::Element{"span", {}, {dom::Element{"div"}}}},
+        };
+
+        auto const &html = std::get<dom::Element>(dom);
+        auto const &span = std::get<dom::Element>(html.children[0]);
+        style::StyledNode style{
+                .node{dom},
+                .properties{{css::PropertyId::Display, "block"}},
+                .children{
+                        style::StyledNode{
+                                .node{span.children.at(0)},
+                                .properties{{css::PropertyId::Display, "inline"}},
+                                .children{
+                                        style::StyledNode{
+                                                .node{span.children.at(0)},
+                                                .properties{
+                                                        {css::PropertyId::Display, "block"},
+                                                        {css::PropertyId::Height, "10px"},
+                                                },
+                                        },
+                                },
+                        },
+                },
+        };
+
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .dimensions{{0, 0, 600, 10}},
+                .children{layout::LayoutBox{
+                        .node = nullptr,
+                        .dimensions{{0, 0, 600, 10}},
+                        .children{
+                                layout::LayoutBox{
+                                        .node = &style.children[0],
+                                        .dimensions{{0, 0, 600, 10}},
+                                        .children{
+                                                layout::LayoutBox{
+                                                        .node = &style.children[0].children[0],
+                                                        .dimensions{{0, 0, 600, 10}},
+                                                },
+                                        },
+                                },
+                        },
+                }},
+        };
+
+        auto l = layout::create_layout(style, 600).value();
+        a.expect_eq(l, expected);
+    });
+
     whitespace_collapsing_tests(s);
     text_transform_tests(s);
     img_tests(s);
