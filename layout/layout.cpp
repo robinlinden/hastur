@@ -396,9 +396,8 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds, 
     box.dimensions.content.width = last_block_width;
     int last_child_end{};
     int current_line{};
-    auto font_size = type::Px{!box.children.empty() ? box.children[0].get_property<css::PropertyId::FontSize>() : 0};
-    auto font_families = !box.children.empty() ? box.children[0].get_property<css::PropertyId::FontFamily>()
-                                               : std::vector<std::string_view>{};
+    auto font_size = type::Px{box.get_property<css::PropertyId::FontSize>()};
+    auto font_families = box.get_property<css::PropertyId::FontFamily>();
 
     auto maybe_font = find_font(font_families);
     if (!maybe_font) {
@@ -407,8 +406,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds, 
     }
     auto font = *maybe_font;
 
-    auto weight =
-            to_type(!box.children.empty() ? box.children[0].get_property<css::PropertyId::FontWeight>() : std::nullopt);
+    auto weight = to_type(box.get_property<css::PropertyId::FontWeight>());
 
     for (std::size_t i = 0; i < box.children.size(); ++i) {
         auto *child = &box.children[i];

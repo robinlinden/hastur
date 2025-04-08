@@ -930,6 +930,8 @@ int main() {
             },
         };
 
+        set_up_parent_ptrs(style_root);
+
         auto expected_layout = layout::LayoutBox{
             .node = &style_root,
             .dimensions = {},

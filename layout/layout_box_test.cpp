@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -12,6 +12,7 @@
 #include "dom/xpath.h"
 #include "etest/etest2.h"
 #include "style/styled_node.h"
+#include "style/unresolved_value.h"
 
 #include <cstddef>
 #include <string>
@@ -122,6 +123,9 @@ int main() {
                                 }},
                 },
         };
+
+        set_up_parent_ptrs(styled_node);
+
         auto layout = layout::create_layout(styled_node, 123).value();
 
         // Verify that we have a shady anon-box to deal with in here.
@@ -184,6 +188,10 @@ int main() {
                 "    p\n"
                 "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
         a.expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);
+    });
+
+    s.add_test("anonymous block, get_property", [](etest::IActions &a) {
+        a.expect_eq(layout::LayoutBox{}.get_property<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
     });
 
     return s.run();

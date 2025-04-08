@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -35,9 +35,19 @@ struct LayoutBox {
 
     template<css::PropertyId T>
     auto get_property() const {
-        // Calling get_property on an anonymous block (the only type that
-        // doesn't have a StyleNode) is a programming error.
-        assert(!is_anonymous_block());
+        if (is_anonymous_block()) {
+            if (css::is_inherited(T)) {
+                // TODO(robinlinden): Sad roundabout way of getting the parent.
+                // Make this nicer.
+                assert(!children.empty());
+                auto const *child = children.front().node;
+                assert(child != nullptr && child->parent != nullptr);
+                return child->parent->get_property<T>();
+            }
+
+            return style::initial_value<T>();
+        }
+
         assert(node);
         return node->get_property<T>();
     }
