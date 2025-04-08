@@ -224,6 +224,16 @@ inline std::vector<StyledNode const *> dom_children(StyledNode const &node) {
     return children;
 }
 
+template<css::PropertyId T>
+inline auto initial_value() {
+    // Sad roundabout way of getting css::initial_value(T) parsed via the
+    // StyledNode property system.
+    // TODO(robinlinden): Don't require dummy nodes for this.
+    dom::Node dom{};
+    style::StyledNode style{.node = dom};
+    return style.get_property<T>();
+}
+
 } // namespace style
 
 #endif

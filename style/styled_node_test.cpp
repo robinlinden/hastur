@@ -659,5 +659,15 @@ int main() {
         expect_property_eq<MaxWidth>(a, "none", style::UnresolvedValue{"none"});
     });
 
+    s.add_test("style::initial_value", [](etest::IActions &a) {
+        a.expect_eq(style::initial_value<css::PropertyId::Width>(), style::UnresolvedValue{"auto"});
+        a.expect_eq(style::initial_value<css::PropertyId::FontSize>(), 16);
+        a.expect_eq(style::initial_value<css::PropertyId::FontWeight>(), style::FontWeight::normal());
+        a.expect_eq(style::initial_value<css::PropertyId::FontStyle>(), style::FontStyle::Normal);
+        a.expect_eq(style::initial_value<css::PropertyId::TextAlign>(), style::TextAlign::Left);
+        a.expect_eq(style::initial_value<css::PropertyId::TextDecorationLine>(),
+                std::vector{style::TextDecorationLine::None});
+    });
+
     return s.run();
 }
