@@ -122,6 +122,9 @@ int main() {
                                 }},
                 },
         };
+
+        set_up_parent_ptrs(styled_node);
+
         auto layout = layout::create_layout(styled_node, 123).value();
 
         // Verify that we have a shady anon-box to deal with in here.
