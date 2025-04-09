@@ -27,6 +27,7 @@ cc_binary(
         "//type",
         "//type:sfml",
         "//uri",
+        "//url:percent_encode",
         "//util:history",
         "//util:string",
         "@expected",

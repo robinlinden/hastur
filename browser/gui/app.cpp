@@ -24,6 +24,7 @@
 #include "type/sfml.h"
 #include "type/type.h"
 #include "uri/uri.h"
+#include "url/percent_encode.h"
 #include "util/string.h"
 
 #include <SFML/Graphics/Image.hpp>
@@ -798,6 +799,13 @@ void App::run_nav_widget() {
     ImGui::Begin("Navigation");
     if (ImGui::InputText("Url", &url_buf_, ImGuiInputTextFlags_EnterReturnsTrue)) {
         ensure_has_scheme(url_buf_);
+        navigate();
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Search")) {
+        url_buf_ = std::format(
+                "https://www.ecosia.org/search?q={}", url::percent_encode(url_buf_, url::PercentEncodeSet::query));
         navigate();
     }
 
