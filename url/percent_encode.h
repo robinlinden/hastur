@@ -23,6 +23,31 @@
 
 namespace url {
 
+struct PercentEncodeSet {
+    static constexpr bool c0_control(char c) {
+        return util::is_c0(c) || c == 0x7f || static_cast<std::uint8_t>(c) > 0x7f;
+    }
+
+    static constexpr bool fragment(char c) {
+        return c0_control(c) || c == ' ' || c == '"' || c == '<' || c == '>' || c == '`';
+    }
+
+    static constexpr bool query(char c) {
+        return c0_control(c) || c == ' ' || c == '"' || c == '#' || c == '<' || c == '>';
+    }
+
+    static constexpr bool special_query(char c) { return query(c) || c == '\''; }
+
+    static constexpr bool path(char c) { return query(c) || c == '?' || c == '`' || c == '{' || c == '}'; }
+
+    static constexpr bool userinfo(char c) {
+        return path(c) || c == '/' || c == ':' || c == ';' || c == '=' || c == '@' || (c >= '[' && c <= '^')
+                || c == '|';
+    }
+
+    static constexpr bool component(char c) { return userinfo(c) || (c >= '$' && c <= '&') || c == '+' || c == ','; }
+};
+
 // https://url.spec.whatwg.org/#string-percent-encode-after-encoding
 inline std::string percent_encode(
         std::string_view input, std::predicate<char> auto in_encode_set, bool space_as_plus = false) {
