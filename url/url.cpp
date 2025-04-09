@@ -5,6 +5,7 @@
 
 #include "url/url.h"
 
+#include "url/percent_encode.h"
 #include "url/rtti_hack.h" // IWYU pragma: keep
 
 #include "unicode/util.h"
@@ -287,8 +288,8 @@ std::string Url::serialize(bool exclude_fragment, bool rfc3986_norm) const {
     // help with things like caching, remembering visited links, etc
     // https://en.wikipedia.org/wiki/URI_normalization#Normalizations_that_preserve_semantics
     if (rfc3986_norm) {
-        output = util::percent_encoded_triplets_to_upper(output);
-        output = util::percent_decode_unreserved(output);
+        output = percent_encoded_triplets_to_upper(output);
+        output = percent_decode_unreserved(output);
     }
 
     return output;
@@ -746,7 +747,7 @@ void UrlParser::state_authority() {
             }
 
             std::string encoded_code_points =
-                    util::percent_encode(std::string_view{buffer_}.substr(i, 1), PercentEncodeSet::userinfo);
+                    percent_encode(std::string_view{buffer_}.substr(i, 1), PercentEncodeSet::userinfo);
 
             if (password_token_seen_) {
                 url_.passwd += encoded_code_points;
@@ -1113,7 +1114,7 @@ void UrlParser::state_path() {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        buffer_ += util::percent_encode(*peek(1), PercentEncodeSet::path);
+        buffer_ += percent_encode(*peek(1), PercentEncodeSet::path);
     }
 }
 
@@ -1139,7 +1140,7 @@ void UrlParser::state_opaque_path() {
         }
 
         if (!is_eof()) {
-            std::get<0>(url_.path) += util::percent_encode(*peek(1), PercentEncodeSet::c0_control);
+            std::get<0>(url_.path) += percent_encode(*peek(1), PercentEncodeSet::c0_control);
         }
     }
 }
@@ -1148,9 +1149,9 @@ void UrlParser::state_opaque_path() {
 void UrlParser::state_query() {
     if (auto c = peek(); (!state_override_.has_value() && c == '#') || is_eof()) {
         if (is_special_scheme(url_.scheme)) {
-            url_.query.value() += util::percent_encode(buffer_, PercentEncodeSet::special_query);
+            url_.query.value() += percent_encode(buffer_, PercentEncodeSet::special_query);
         } else {
-            url_.query.value() += util::percent_encode(buffer_, PercentEncodeSet::query);
+            url_.query.value() += percent_encode(buffer_, PercentEncodeSet::query);
         }
 
         buffer_.clear();
@@ -1188,7 +1189,7 @@ void UrlParser::state_fragment() {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        url_.fragment.value() += util::percent_encode(*peek(1), PercentEncodeSet::fragment);
+        url_.fragment.value() += percent_encode(*peek(1), PercentEncodeSet::fragment);
     }
 }
 
@@ -1308,7 +1309,7 @@ std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_not_sp
 
     assert(!input.empty());
 
-    std::string domain = util::percent_decode(input);
+    std::string domain = percent_decode(input);
 
     std::optional<std::string> ascii_domain = domain_to_ascii(domain, false);
 
@@ -1697,7 +1698,7 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
         tmp.remove_prefix(len);
     }
 
-    return util::percent_encode(input, PercentEncodeSet::c0_control);
+    return percent_encode(input, PercentEncodeSet::c0_control);
 }
 
 bool UrlParser::is_url_codepoint(std::uint32_t cp) const {

@@ -14,6 +14,25 @@ cc_library(
 )
 
 cc_library(
+    name = "percent_encode",
+    hdrs = ["percent_encode.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = ["//util:string"],
+)
+
+cc_test(
+    name = "percent_encode_test",
+    size = "small",
+    srcs = ["percent_encode_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":percent_encode",
+        "//etest",
+    ],
+)
+
+cc_library(
     name = "url",
     srcs = [
         "url.cpp",
@@ -21,6 +40,7 @@ cc_library(
     hdrs = ["url.h"],
     copts = HASTUR_COPTS,
     implementation_deps = [
+        ":percent_encode",
         ":rtti_hack",
         "//unicode:util",
         "//util:uuid",
