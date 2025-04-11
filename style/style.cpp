@@ -235,11 +235,8 @@ MatchingProperties matching_properties(
 
 namespace {
 // NOLINTNEXTLINE(misc-no-recursion)
-void style_tree_impl(StyledNode &current,
-        dom::Node const &root,
-        css::StyleSheet const &stylesheet,
-        css::MediaQuery::Context const &ctx) {
-    auto const *element = std::get_if<dom::Element>(&root);
+void style_tree_impl(StyledNode &current, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
+    auto const *element = std::get_if<dom::Element>(&current.node);
     if (element == nullptr) {
         return;
     }
@@ -248,7 +245,7 @@ void style_tree_impl(StyledNode &current,
     for (auto const &child : element->children) {
         auto &child_node = current.children.emplace_back(child);
         child_node.parent = &current;
-        style_tree_impl(child_node, child, stylesheet, ctx);
+        style_tree_impl(child_node, stylesheet, ctx);
     }
 
     auto [normal, custom] = matching_properties(current, stylesheet, ctx);
@@ -260,7 +257,7 @@ void style_tree_impl(StyledNode &current,
 std::unique_ptr<StyledNode> style_tree(
         dom::Node const &root, css::StyleSheet const &stylesheet, css::MediaQuery::Context const &ctx) {
     auto tree_root = std::make_unique<StyledNode>(root);
-    style_tree_impl(*tree_root, root, stylesheet, ctx);
+    style_tree_impl(*tree_root, stylesheet, ctx);
     return tree_root;
 }
 
