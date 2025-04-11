@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -65,6 +65,12 @@ void inline_css_tests(etest::Suite &s) {
         a.expect_eq(styled->properties,
                 std::vector{
                         std::pair{css::PropertyId::FontSize, "2000px"s}, std::pair{css::PropertyId::FontSize, "2px"s}});
+    });
+
+    s.add_test("inline css: !important", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"div", {{"style", {"font-size:2px !important"}}}};
+        auto styled = style::style_tree(dom, {}, {});
+        a.expect_eq(styled->properties, std::vector{std::pair{css::PropertyId::FontSize, "2px"s}});
     });
 }
 

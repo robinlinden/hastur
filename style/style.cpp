@@ -211,6 +211,7 @@ MatchingProperties matching_properties(
             // The above should always parse to 1 rule when using the old parser.
             if (element_style.size() == 1) {
                 std::ranges::copy(element_style[0].declarations, std::back_inserter(matched_properties));
+                std::ranges::copy(element_style[0].important_declarations, std::back_inserter(matched_properties));
                 std::ranges::copy(element_style[0].custom_properties, std::back_inserter(matched_custom_properties));
             } else {
                 spdlog::warn("Failed to parse inline style '{}' for element '{}'", style_attr->second, element->name);
