@@ -239,6 +239,16 @@ int main() {
         a.expect_eq(body.important_declarations.at(css::PropertyId::Width), "50px"s);
     });
 
+    s.add_test("parser: important rule w/ more whitespace", [](etest::IActions &a) {
+        auto rules = css::parse("body { width: 50px !important }"sv).rules;
+
+        auto const &body = rules.at(0);
+        a.expect_eq(body.selectors, std::vector{"body"s});
+        a.expect(body.declarations.empty());
+        a.expect_eq(body.important_declarations.size(), std::size_t{1});
+        a.expect_eq(body.important_declarations.at(css::PropertyId::Width), "50px"s);
+    });
+
     s.add_test("selector with spaces", [](etest::IActions &a) {
         auto rules = css::parse("p a { color: green; }").rules;
         a.expect_eq(rules,

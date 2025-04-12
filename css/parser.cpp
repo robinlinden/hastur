@@ -514,6 +514,7 @@ std::optional<css::Rule> Parser::parse_rule() {
         }
 
         auto [name, value] = *decl;
+        value = util::trim(value);
         if (name.starts_with("--")) {
             rule.custom_properties.insert_or_assign(std::string{name}, value);
         } else if (auto name_start_byte = name.front(); name_start_byte == '-') {
@@ -525,7 +526,7 @@ std::optional<css::Rule> Parser::parse_rule() {
             value.remove_suffix(std::strlen("!important"));
             add_declaration(rule.important_declarations, name, util::trim(value));
         } else {
-            add_declaration(rule.declarations, name, util::trim(value));
+            add_declaration(rule.declarations, name, value);
         }
         skip_whitespace_and_comments();
     }
