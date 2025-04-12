@@ -261,6 +261,71 @@ void width_tests(etest::Suite &s) {
         a.expect(!query.evaluate({.window_width = 301}));
     });
 }
+
+void hover_tests(etest::Suite &s) {
+    s.add_test("hover: hover", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(hover: hover)"),
+                css::MediaQuery{css::MediaQuery::HoverType{.hover = css::Hover::Hover}});
+
+        auto query = css::MediaQuery::HoverType{.hover = css::Hover::Hover};
+        a.expect(query.evaluate({.hover = css::Hover::Hover}));
+        a.expect(!query.evaluate({.hover = css::Hover::None}));
+    });
+
+    s.add_test("hover: none", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(hover: none)"),
+                css::MediaQuery{css::MediaQuery::HoverType{.hover = css::Hover::None}});
+
+        auto query = css::MediaQuery::HoverType{.hover = css::Hover::None};
+        a.expect(!query.evaluate({.hover = css::Hover::Hover}));
+        a.expect(query.evaluate({.hover = css::Hover::None}));
+    });
+
+    s.add_test("hover: invalid", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(hover: invalid)"), std::nullopt); //
+    });
+
+    s.add_test("hover: to_string", [](etest::IActions &a) {
+        auto query = css::MediaQuery::HoverType{.hover = css::Hover::Hover};
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "hover: hover");
+
+        query.hover = css::Hover::None;
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "hover: none");
+    });
+}
+
+void orientation_tests(etest::Suite &s) {
+    s.add_test("orientation: landscape", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(orientation: landscape)"),
+                css::MediaQuery{css::MediaQuery::IsInOrientation{.orientation = css::Orientation::Landscape}});
+
+        auto query = css::MediaQuery::IsInOrientation{.orientation = css::Orientation::Landscape};
+        a.expect(query.evaluate({.orientation = css::Orientation::Landscape}));
+        a.expect(!query.evaluate({.orientation = css::Orientation::Portrait}));
+    });
+
+    s.add_test("orientation: portrait", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(orientation: portrait)"),
+                css::MediaQuery{css::MediaQuery::IsInOrientation{.orientation = css::Orientation::Portrait}});
+
+        auto query = css::MediaQuery::IsInOrientation{.orientation = css::Orientation::Portrait};
+        a.expect(!query.evaluate({.orientation = css::Orientation::Landscape}));
+        a.expect(query.evaluate({.orientation = css::Orientation::Portrait}));
+    });
+
+    s.add_test("orientation: invalid", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(orientation: invalid)"), std::nullopt); //
+    });
+
+    s.add_test("orientation: to_string", [](etest::IActions &a) {
+        auto query = css::MediaQuery::IsInOrientation{.orientation = css::Orientation::Landscape};
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "orientation: landscape");
+
+        query.orientation = css::Orientation::Portrait;
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "orientation: portrait");
+    });
+}
+
 } // namespace
 
 int main() {
@@ -274,5 +339,7 @@ int main() {
     prefers_reduced_motion_tests(s);
     type_tests(s);
     width_tests(s);
+    hover_tests(s);
+    orientation_tests(s);
     return s.run();
 }

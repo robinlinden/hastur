@@ -93,6 +93,7 @@ namespace {
 css::MediaQuery::Context to_media_context(Options opts) {
     return {
             .window_width = opts.layout_width,
+            .window_height = opts.viewport_height,
             .color_scheme = opts.dark_mode ? css::ColorScheme::Dark : css::ColorScheme::Light,
     };
 }

@@ -32,9 +32,19 @@ enum class ColorScheme : std::uint8_t {
     Dark,
 };
 
+enum class Hover : std::uint8_t {
+    None,
+    Hover,
+};
+
 enum class MediaType : std::uint8_t {
     Print,
     Screen,
+};
+
+enum class Orientation : std::uint8_t {
+    Landscape,
+    Portrait,
 };
 
 enum class ReduceMotion : std::uint8_t {
@@ -48,23 +58,53 @@ namespace detail {
 
 struct Context {
     int window_width{};
+    int window_height{};
     ColorScheme color_scheme{ColorScheme::Light};
+    Hover hover{Hover::None};
     MediaType media_type{MediaType::Screen};
+    Orientation orientation{window_height >= window_width ? Orientation::Portrait : Orientation::Landscape};
     ReduceMotion reduce_motion{ReduceMotion::NoPreference};
 };
 
 struct And;
 struct False;
+struct HoverType;
+struct IsInOrientation;
 struct PrefersColorScheme;
 struct PrefersReducedMotion;
 struct True;
 struct Type;
 struct Width;
-using Query = std::variant<And, False, PrefersColorScheme, PrefersReducedMotion, True, Type, Width>;
+using Query = std::variant<And,
+        False,
+        IsInOrientation,
+        PrefersColorScheme,
+        PrefersReducedMotion,
+        HoverType,
+        True,
+        Type,
+        Width //
+        >;
 
 struct False {
     [[nodiscard]] bool operator==(False const &) const = default;
     constexpr bool evaluate(Context const &) const { return false; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/hover
+struct HoverType {
+    Hover hover{};
+    [[nodiscard]] bool operator==(HoverType const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.hover == hover; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation
+struct IsInOrientation {
+    Orientation orientation{};
+    [[nodiscard]] bool operator==(IsInOrientation const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.orientation == orientation; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
@@ -117,6 +157,8 @@ public:
     using And = detail::And;
     using Context = detail::Context;
     using False = detail::False;
+    using HoverType = detail::HoverType;
+    using IsInOrientation = detail::IsInOrientation;
     using PrefersColorScheme = detail::PrefersColorScheme;
     using PrefersReducedMotion = detail::PrefersReducedMotion;
     using True = detail::True;
@@ -199,6 +241,30 @@ private:
 
             if (value_str == "no-preference") {
                 return MediaQuery{False{}};
+            }
+
+            return std::nullopt;
+        }
+
+        if (feature_name == "hover") {
+            if (value_str == "hover") {
+                return MediaQuery{HoverType{.hover = Hover::Hover}};
+            }
+
+            if (value_str == "none") {
+                return MediaQuery{HoverType{.hover = Hover::None}};
+            }
+
+            return std::nullopt;
+        }
+
+        if (feature_name == "orientation") {
+            if (value_str == "landscape") {
+                return MediaQuery{IsInOrientation{.orientation = Orientation::Landscape}};
+            }
+
+            if (value_str == "portrait") {
+                return MediaQuery{IsInOrientation{.orientation = Orientation::Portrait}};
             }
 
             return std::nullopt;
@@ -289,6 +355,14 @@ constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {
 
 constexpr std::string to_string(MediaQuery::PrefersReducedMotion const &) {
     return "prefers-reduced-motion: reduce";
+}
+
+constexpr std::string to_string(MediaQuery::HoverType const &q) {
+    return q.hover == Hover::Hover ? "hover: hover" : "hover: none";
+}
+
+constexpr std::string to_string(MediaQuery::IsInOrientation const &q) {
+    return q.orientation == Orientation::Landscape ? "orientation: landscape" : "orientation: portrait";
 }
 
 constexpr std::string to_string(MediaQuery::And const &);
