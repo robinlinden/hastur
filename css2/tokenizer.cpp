@@ -131,9 +131,17 @@ void Tokenizer::run() {
                         emit(DelimToken{'#'});
                         continue;
                     }
-                    case '@':
-                        state_ = State::CommercialAt;
+                    case '@': {
+                        auto next_input = consume_next_input_character();
+                        if (!next_input || !inputs_starts_ident_sequence(*next_input)) {
+                            reconsume();
+                            emit(DelimToken{'@'});
+                            continue;
+                        }
+
+                        emit(AtKeywordToken{.data = consume_an_ident_sequence(*next_input)});
                         continue;
+                    }
                     case '(':
                         emit(OpenParenToken{});
                         continue;
@@ -239,24 +247,6 @@ void Tokenizer::run() {
                 }
 
                 emit(DelimToken{*c});
-                continue;
-            }
-
-            case State::CommercialAt: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(DelimToken{'@'});
-                    return;
-                }
-
-                if (inputs_starts_ident_sequence(*c)) {
-                    emit(AtKeywordToken{consume_an_ident_sequence(*c)});
-                    state_ = State::Main;
-                    continue;
-                }
-
-                emit(DelimToken{'@'});
-                reconsume_in(State::Main);
                 continue;
             }
 

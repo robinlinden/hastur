@@ -22,7 +22,6 @@ namespace css2 {
 // https://www.w3.org/TR/css-syntax-3/#tokenizer-algorithms
 enum class State : std::uint8_t {
     Main,
-    CommercialAt,
     IdentLike,
 };
 
