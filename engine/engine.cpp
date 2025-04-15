@@ -100,7 +100,6 @@ css::MediaQuery::Context to_media_context(Options opts) {
 
 } // namespace
 
-// NOLINTNEXTLINE(performance-unnecessary-value-param): Clang is wrong, the uri is moved below.
 tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::Uri uri, Options opts) {
     spdlog::info("Navigating to {}", uri.uri);
     auto result = load(std::move(uri));
