@@ -22,7 +22,6 @@ namespace css2 {
 // https://www.w3.org/TR/css-syntax-3/#tokenizer-algorithms
 enum class State : std::uint8_t {
     Main,
-    IdentLike,
 };
 
 enum class ParseError : std::uint8_t {
@@ -67,6 +66,7 @@ private:
     std::string consume_an_escaped_code_point();
     Token consume_a_numeric_token(char first_byte);
     [[nodiscard]] std::string consume_an_ident_sequence(char first_byte);
+    [[nodiscard]] Token consume_an_identlike_token(char first_byte);
     [[nodiscard]] Token consume_a_url_token();
     void consume_the_remnants_of_a_bad_url();
     void consume_comments();

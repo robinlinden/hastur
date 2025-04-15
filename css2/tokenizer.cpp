@@ -172,7 +172,7 @@ void Tokenizer::run() {
                         }
 
                         if (inputs_starts_ident_sequence(*c)) {
-                            reconsume_in(State::IdentLike);
+                            emit(consume_an_identlike_token(*c));
                             continue;
                         }
 
@@ -208,7 +208,7 @@ void Tokenizer::run() {
                         continue;
                     case '\\':
                         if (is_valid_escape_sequence('\\', peek_input(0))) {
-                            reconsume_in(State::IdentLike);
+                            emit(consume_an_identlike_token(*c));
                             continue;
                         }
 
@@ -241,47 +241,12 @@ void Tokenizer::run() {
                         break;
                 }
 
-                if (inputs_starts_ident_sequence(*c)) {
-                    reconsume_in(State::IdentLike);
+                if (is_ident_start_code_point(*c)) {
+                    emit(consume_an_identlike_token(*c));
                     continue;
                 }
 
                 emit(DelimToken{*c});
-                continue;
-            }
-
-            case State::IdentLike: {
-                auto c = consume_next_input_character();
-                assert(c); // Guaranteed by the caller.
-                auto ident = consume_an_ident_sequence(*c);
-
-                if (util::no_case_compare(ident, "url") && peek_input(0) == '(') {
-                    std::ignore = consume_next_input_character(); // '('
-                    while (is_whitespace(peek_input(0)) && is_whitespace(peek_input(1))) {
-                        std::ignore = consume_next_input_character(); // whitespace
-                    }
-
-                    if ((peek_input(0) == '\'' || peek_input(0) == '"')
-                            || (is_whitespace(peek_input(0)) && (peek_input(1) == '\'' || peek_input(1) == '"'))) {
-                        emit(FunctionToken{std::move(ident)});
-                        state_ = State::Main;
-                        continue;
-                    }
-
-                    emit(consume_a_url_token());
-                    state_ = State::Main;
-                    continue;
-                }
-
-                if (peek_input(0) == '(') {
-                    std::ignore = consume_next_input_character(); // '('
-                    emit(FunctionToken{std::move(ident)});
-                    state_ = State::Main;
-                    continue;
-                }
-
-                emit(IdentToken{std::move(ident)});
-                state_ = State::Main;
                 continue;
             }
         }
@@ -577,6 +542,32 @@ std::string Tokenizer::consume_an_ident_sequence(char first_byte) {
     }
 
     return result;
+}
+
+// https://www.w3.org/TR/css-syntax-3/#consume-an-ident-like-token
+Token Tokenizer::consume_an_identlike_token(char first_byte) {
+    auto ident = consume_an_ident_sequence(first_byte);
+
+    if (util::no_case_compare(ident, "url") && peek_input(0) == '(') {
+        std::ignore = consume_next_input_character(); // '('
+        while (is_whitespace(peek_input(0)) && is_whitespace(peek_input(1))) {
+            std::ignore = consume_next_input_character(); // whitespace
+        }
+
+        if ((peek_input(0) == '\'' || peek_input(0) == '"')
+                || (is_whitespace(peek_input(0)) && (peek_input(1) == '\'' || peek_input(1) == '"'))) {
+            return FunctionToken{std::move(ident)};
+        }
+
+        return consume_a_url_token();
+    }
+
+    if (peek_input(0) == '(') {
+        std::ignore = consume_next_input_character(); // '('
+        return FunctionToken{std::move(ident)};
+    }
+
+    return IdentToken{std::move(ident)};
 }
 
 // https://www.w3.org/TR/css-syntax-3/#consume-a-url-token
