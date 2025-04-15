@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <format>
 #include <optional>
 #include <ostream>
 #include <sstream>
@@ -41,15 +42,11 @@ std::string_view layout_type(LayoutBox const &box) {
 }
 
 std::string to_str(geom::Rect const &rect) {
-    std::stringstream ss;
-    ss << "{" << rect.x << "," << rect.y << "," << rect.width << "," << rect.height << "}";
-    return std::move(ss).str();
+    return std::format("{{{},{},{},{}}}", rect.x, rect.y, rect.width, rect.height);
 }
 
 std::string to_str(geom::EdgeSize const &edge) {
-    std::stringstream ss;
-    ss << "{" << edge.top << "," << edge.right << "," << edge.bottom << "," << edge.left << "}";
-    return std::move(ss).str();
+    return std::format("{{{},{},{},{}}}", edge.top, edge.right, edge.bottom, edge.left);
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
