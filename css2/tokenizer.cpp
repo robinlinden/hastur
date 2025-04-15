@@ -567,7 +567,7 @@ std::string Tokenizer::consume_an_ident_sequence(char first_byte) {
             continue;
         }
 
-        if (*c == '\\') {
+        if (is_valid_escape_sequence(*c, peek_input(0))) {
             result += consume_an_escaped_code_point();
             continue;
         }

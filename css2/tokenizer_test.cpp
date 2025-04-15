@@ -333,6 +333,14 @@ int main() {
         expect_token(output, WhitespaceToken{});
     });
 
+    s.add_test("at keyword start, but with bad escape later", [](etest::IActions &a) {
+        auto output = run_tokenizer(a, "@aaa\\\n");
+        expect_token(output, AtKeywordToken{"aaa"});
+        expect_error(output, ParseError::InvalidEscapeSequence);
+        expect_token(output, DelimToken{'\\'});
+        expect_token(output, WhitespaceToken{});
+    });
+
     s.add_test("at keyword token with digit", [](etest::IActions &a) {
         auto output = run_tokenizer(a, "@b4z");
 
