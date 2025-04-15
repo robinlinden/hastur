@@ -82,174 +82,170 @@ std::string_view to_string(ParseError e) {
     return "Unknown parse error";
 }
 
+// https://www.w3.org/TR/css-syntax-3/#tokenizer-algorithms
 void Tokenizer::run() {
     while (true) {
-        switch (state_) {
-            case State::Main: {
-                consume_comments();
+        consume_comments();
 
-                auto c = consume_next_input_character();
-                if (!c) {
-                    return;
-                }
+        auto c = consume_next_input_character();
+        if (!c) {
+            return;
+        }
 
-                if (is_whitespace(*c)) {
-                    while (is_whitespace(consume_next_input_character())) {
-                        // Do nothing.
-                    }
+        if (is_whitespace(*c)) {
+            while (is_whitespace(consume_next_input_character())) {
+                // Do nothing.
+            }
 
-                    reconsume();
-                    emit(WhitespaceToken{});
+            reconsume();
+            emit(WhitespaceToken{});
+            continue;
+        }
+
+        switch (*c) {
+            case '\'':
+            case '"':
+                emit(consume_string(*c));
+                continue;
+            case '#': {
+                auto next_input = peek_input(0);
+                if (!next_input) {
+                    emit(DelimToken{'#'});
                     continue;
                 }
 
-                switch (*c) {
-                    case '\'':
-                    case '"':
-                        emit(consume_string(*c));
-                        continue;
-                    case '#': {
-                        auto next_input = peek_input(0);
-                        if (!next_input) {
-                            emit(DelimToken{'#'});
-                            continue;
-                        }
+                if (is_ident_code_point(*next_input) || is_valid_escape_sequence(*next_input, peek_input(1))) {
+                    std::ignore = consume_next_input_character();
+                    HashToken token{};
 
-                        if (is_ident_code_point(*next_input) || is_valid_escape_sequence(*next_input, peek_input(1))) {
-                            std::ignore = consume_next_input_character();
-                            HashToken token{};
-
-                            if (inputs_starts_ident_sequence(*next_input)) {
-                                token.type = HashToken::Type::Id;
-                            }
-
-                            token.data = consume_an_ident_sequence(*next_input);
-                            emit(std::move(token));
-                            continue;
-                        }
-
-                        emit(DelimToken{'#'});
-                        continue;
+                    if (inputs_starts_ident_sequence(*next_input)) {
+                        token.type = HashToken::Type::Id;
                     }
-                    case '@': {
-                        auto next_input = consume_next_input_character();
-                        if (!next_input || !inputs_starts_ident_sequence(*next_input)) {
-                            reconsume();
-                            emit(DelimToken{'@'});
-                            continue;
-                        }
 
-                        emit(AtKeywordToken{.data = consume_an_ident_sequence(*next_input)});
-                        continue;
-                    }
-                    case '(':
-                        emit(OpenParenToken{});
-                        continue;
-                    case ')':
-                        emit(CloseParenToken{});
-                        continue;
-                    case '+': {
-                        if (inputs_starts_number(*c)) {
-                            emit(consume_a_numeric_token(*c));
-                        } else {
-                            emit(DelimToken{'+'});
-                        }
-                        continue;
-                    }
-                    case ',':
-                        emit(CommaToken{});
-                        continue;
-                    case '-': {
-                        if (inputs_starts_number(*c)) {
-                            emit(consume_a_numeric_token(*c));
-                            continue;
-                        }
-
-                        if (peek_input(0) == '-' && peek_input(1) == '>') {
-                            emit(CdcToken{});
-                            pos_ += 2;
-                            continue;
-                        }
-
-                        if (inputs_starts_ident_sequence(*c)) {
-                            emit(consume_an_identlike_token(*c));
-                            continue;
-                        }
-
-                        emit(DelimToken{'-'});
-                        continue;
-                    }
-                    case '.': {
-                        if (auto next_input = peek_input(0); is_digit(next_input)) {
-                            emit(consume_a_numeric_token(*c));
-                            continue;
-                        }
-
-                        emit(DelimToken{'.'});
-                        continue;
-                    }
-                    case ':':
-                        emit(ColonToken{});
-                        continue;
-                    case ';':
-                        emit(SemiColonToken{});
-                        continue;
-                    case '<':
-                        if (peek_input(0) == '!' && peek_input(1) == '-' && peek_input(2) == '-') {
-                            emit(CdoToken{});
-                            pos_ += 3;
-                            continue;
-                        }
-
-                        emit(DelimToken{'<'});
-                        continue;
-                    case '[':
-                        emit(OpenSquareToken{});
-                        continue;
-                    case '\\':
-                        if (is_valid_escape_sequence('\\', peek_input(0))) {
-                            emit(consume_an_identlike_token(*c));
-                            continue;
-                        }
-
-                        emit(ParseError::InvalidEscapeSequence);
-                        emit(DelimToken{'\\'});
-                        continue;
-                    case ']':
-                        emit(CloseSquareToken{});
-                        continue;
-                    case '{':
-                        emit(OpenCurlyToken{});
-                        continue;
-                    case '}':
-                        emit(CloseCurlyToken{});
-                        continue;
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9': {
-                        emit(consume_a_numeric_token(*c));
-                        continue;
-                    }
-                    default:
-                        break;
+                    token.data = consume_an_ident_sequence(*next_input);
+                    emit(std::move(token));
+                    continue;
                 }
 
-                if (is_ident_start_code_point(*c)) {
+                emit(DelimToken{'#'});
+                continue;
+            }
+            case '@': {
+                auto next_input = consume_next_input_character();
+                if (!next_input || !inputs_starts_ident_sequence(*next_input)) {
+                    reconsume();
+                    emit(DelimToken{'@'});
+                    continue;
+                }
+
+                emit(AtKeywordToken{.data = consume_an_ident_sequence(*next_input)});
+                continue;
+            }
+            case '(':
+                emit(OpenParenToken{});
+                continue;
+            case ')':
+                emit(CloseParenToken{});
+                continue;
+            case '+': {
+                if (inputs_starts_number(*c)) {
+                    emit(consume_a_numeric_token(*c));
+                } else {
+                    emit(DelimToken{'+'});
+                }
+                continue;
+            }
+            case ',':
+                emit(CommaToken{});
+                continue;
+            case '-': {
+                if (inputs_starts_number(*c)) {
+                    emit(consume_a_numeric_token(*c));
+                    continue;
+                }
+
+                if (peek_input(0) == '-' && peek_input(1) == '>') {
+                    emit(CdcToken{});
+                    pos_ += 2;
+                    continue;
+                }
+
+                if (inputs_starts_ident_sequence(*c)) {
                     emit(consume_an_identlike_token(*c));
                     continue;
                 }
 
-                emit(DelimToken{*c});
+                emit(DelimToken{'-'});
                 continue;
             }
+            case '.': {
+                if (auto next_input = peek_input(0); is_digit(next_input)) {
+                    emit(consume_a_numeric_token(*c));
+                    continue;
+                }
+
+                emit(DelimToken{'.'});
+                continue;
+            }
+            case ':':
+                emit(ColonToken{});
+                continue;
+            case ';':
+                emit(SemiColonToken{});
+                continue;
+            case '<':
+                if (peek_input(0) == '!' && peek_input(1) == '-' && peek_input(2) == '-') {
+                    emit(CdoToken{});
+                    pos_ += 3;
+                    continue;
+                }
+
+                emit(DelimToken{'<'});
+                continue;
+            case '[':
+                emit(OpenSquareToken{});
+                continue;
+            case '\\':
+                if (is_valid_escape_sequence('\\', peek_input(0))) {
+                    emit(consume_an_identlike_token(*c));
+                    continue;
+                }
+
+                emit(ParseError::InvalidEscapeSequence);
+                emit(DelimToken{'\\'});
+                continue;
+            case ']':
+                emit(CloseSquareToken{});
+                continue;
+            case '{':
+                emit(OpenCurlyToken{});
+                continue;
+            case '}':
+                emit(CloseCurlyToken{});
+                continue;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                emit(consume_a_numeric_token(*c));
+                continue;
+            }
+            default:
+                break;
         }
+
+        if (is_ident_start_code_point(*c)) {
+            emit(consume_an_identlike_token(*c));
+            continue;
+        }
+
+        emit(DelimToken{*c});
     }
 }
 
@@ -326,12 +322,7 @@ bool Tokenizer::is_eof() const {
 }
 
 void Tokenizer::reconsume() {
-    reconsume_in(state_);
-}
-
-void Tokenizer::reconsume_in(State state) {
     --pos_;
-    state_ = state;
 }
 
 Token Tokenizer::consume_string(char ending_code_point) {

@@ -19,11 +19,6 @@
 
 namespace css2 {
 
-// https://www.w3.org/TR/css-syntax-3/#tokenizer-algorithms
-enum class State : std::uint8_t {
-    Main,
-};
-
 enum class ParseError : std::uint8_t {
     DisallowedCharacterInUrl,
     EofInComment,
@@ -46,7 +41,6 @@ public:
 private:
     std::string_view input_;
     std::size_t pos_{0};
-    State state_{State::Main};
 
     std::function<void(Token &&)> on_emit_;
     std::function<void(ParseError)> on_error_;
@@ -59,7 +53,6 @@ private:
     bool inputs_starts_number(char first_character) const;
     bool is_eof() const;
     void reconsume();
-    void reconsume_in(State);
 
     Token consume_string(char ending_code_point);
     std::variant<std::int32_t, double> consume_number(char first_byte);
