@@ -86,6 +86,8 @@ void Tokenizer::run() {
     while (true) {
         switch (state_) {
             case State::Main: {
+                consume_comments();
+
                 auto c = consume_next_input_character();
                 if (!c) {
                     return;
@@ -129,9 +131,6 @@ void Tokenizer::run() {
                         emit(DelimToken{'#'});
                         continue;
                     }
-                    case '/':
-                        state_ = State::CommentStart;
-                        continue;
                     case '@':
                         state_ = State::CommercialAt;
                         continue;
@@ -241,53 +240,6 @@ void Tokenizer::run() {
 
                 emit(DelimToken{*c});
                 continue;
-            }
-
-            case State::CommentStart: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    return;
-                }
-
-                if (*c == '*') {
-                    state_ = State::Comment;
-                } else {
-                    emit(DelimToken{'/'});
-                    reconsume_in(State::Main);
-                }
-                continue;
-            }
-
-            case State::Comment: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(ParseError::EofInComment);
-                    return;
-                }
-
-                if (*c == '*') {
-                    state_ = State::CommentEnd;
-                }
-                continue;
-            }
-
-            case State::CommentEnd: {
-                auto c = consume_next_input_character();
-                if (!c) {
-                    emit(ParseError::EofInComment);
-                    return;
-                }
-
-                switch (*c) {
-                    case '*':
-                        continue;
-                    case '/':
-                        state_ = State::Main;
-                        continue;
-                    default:
-                        state_ = State::Comment;
-                        continue;
-                }
             }
 
             case State::CommercialAt: {
@@ -706,6 +658,26 @@ void Tokenizer::consume_the_remnants_of_a_bad_url() {
 
         if (is_valid_escape_sequence(*c, peek_input(0))) {
             std::ignore = consume_an_escaped_code_point();
+        }
+    }
+}
+
+void Tokenizer::consume_comments() {
+    while (peek_input(0) == '/' && peek_input(1) == '*') {
+        std::ignore = consume_next_input_character(); // '/'
+        std::ignore = consume_next_input_character(); // '*'
+
+        while (true) {
+            auto c = consume_next_input_character();
+            if (!c) {
+                emit(ParseError::EofInComment);
+                return;
+            }
+
+            if (*c == '*' && peek_input(0) == '/') {
+                std::ignore = consume_next_input_character();
+                break;
+            }
         }
     }
 }
