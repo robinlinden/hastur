@@ -23,6 +23,7 @@
 
 namespace url {
 
+// https://url.spec.whatwg.org/#percent-encoded-bytes
 struct PercentEncodeSet {
     static constexpr bool c0_control(char c) {
         return util::is_c0(c) || c == 0x7f || static_cast<std::uint8_t>(c) > 0x7f;
@@ -38,10 +39,10 @@ struct PercentEncodeSet {
 
     static constexpr bool special_query(char c) { return query(c) || c == '\''; }
 
-    static constexpr bool path(char c) { return query(c) || c == '?' || c == '`' || c == '{' || c == '}'; }
+    static constexpr bool path(char c) { return query(c) || c == '?' || c == '^' || c == '`' || c == '{' || c == '}'; }
 
     static constexpr bool userinfo(char c) {
-        return path(c) || c == '/' || c == ':' || c == ';' || c == '=' || c == '@' || (c >= '[' && c <= '^')
+        return path(c) || c == '/' || c == ':' || c == ';' || c == '=' || c == '@' || (c >= '[' && c <= ']')
                 || c == '|';
     }
 
