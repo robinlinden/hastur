@@ -740,13 +740,13 @@ EOF""",
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# HEAD, last updated at 2025-03-05.
+# HEAD, last updated at 2025-04-17.
 # https://github.com/web-platform-tests/wpt/blob/master/url/resources/urltestdata.json
-WPT_REVISION = "d2c39364360cfa39ce900f643f55ca6ef7b33093"
+WPT_REVISION = "048018b5af85f8d47b8a704b48cf6f9c0a461876"
 
 http_file(
     name = "wpt_urltestdata",
-    integrity = "sha256-uEvEsGs4NzOPiClE4EWUtsNzGtIGUV8TieQqFR9xM4E=",
+    integrity = "sha256-V4MdYOxP+cF7e1eftgpS3yWpXgcgjKGeM9tfbmjXpuc=",
     url = "https://raw.githubusercontent.com/web-platform-tests/wpt/%s/url/resources/urltestdata.json" % WPT_REVISION,
 )
 

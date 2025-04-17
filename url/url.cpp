@@ -1103,20 +1103,25 @@ void UrlParser::state_opaque_path() {
         url_.fragment = "";
 
         state_ = ParserState::Fragment;
-    } else {
-        if (!is_eof() && !is_url_codepoint(unicode::utf8_to_utf32(remaining_from(0))) && c != '%') {
+    } else if (c == ' ') {
+        assert(!remaining_from(1).empty());
+        if (auto f = remaining_from(1).front(); f == '?' || f == '#') {
+            std::get<0>(url_.path) += "%20";
+        } else {
+            std::get<0>(url_.path) += ' ';
+        }
+    } else if (c.has_value()) {
+        if (!is_url_codepoint(unicode::utf8_to_utf32(remaining_from(0))) && *c != '%') {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        if (c == '%'
+        if (*c == '%'
                 && (remaining_from(1).size() < 2 || !util::is_hex_digit(remaining_from(1)[0])
                         || !util::is_hex_digit(remaining_from(1)[1]))) {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        if (!is_eof()) {
-            std::get<0>(url_.path) += percent_encode(*peek(1), PercentEncodeSet::c0_control);
-        }
+        std::get<0>(url_.path) += percent_encode(*peek(1), PercentEncodeSet::c0_control);
     }
 }
 
