@@ -5,3 +5,8 @@ ignore=body-is-missing
 # Each commit must start with the main area it affects.
 [title-match-regex]
 regex=^(archive|azm|browser|bzl|css|css2|dom|dom2|engine|etest|geom|gfx|html|html2|idna|img|js|json|layout|net|os|protocol|render|style|tui|type|unicode|uri|url|util|wasm|all|build|ci|deps|doc|meta)(/.*|\+.*)?:
+
+# Splitting git trailers, e.g. the references to commits in other repos, into
+# two lines is silly.
+[ignore-body-lines]
+regex=^See:
