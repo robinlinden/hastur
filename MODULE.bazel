@@ -330,11 +330,13 @@ archive_override(
 # =========================================================
 
 # https://github.com/chriskohlhoff/asio
-bazel_dep(name = "asio")
+ASIO_VERSION = "1-34-2"
+
+bazel_dep(name = "asio")  # BSL-1.0
 archive_override(
-    module_name = "asio",  # BSL-1.0
+    module_name = "asio",
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-8blLgO6wC7Y6PIzvUEfU5AnfTYo/5QIwWXaWWCfZVnI=",
+    integrity = "sha256-87rAFTBfu3AFRb0pWfvFLXWh7C4F+cf2lYASc863jPU=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "asio")
@@ -342,17 +344,17 @@ bazel_dep(name = "boringssl")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "asio-asio-1-32-0",
-    url = "https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz",
+    strip_prefix = "asio-asio-%s" % ASIO_VERSION,
+    url = "https://github.com/chriskohlhoff/asio/archive/asio-%s.tar.gz" % ASIO_VERSION,
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250311.0"
+BORINGSSL_VERSION = "0.20250415.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-73PkU8L2Dzeo8dMOBFjadu1mlfRHaPsgBnYkIFsHbfY=",
+    integrity = "sha256-stZMTVLFBdYLD7hoM1aNxHYkRZENendX/5sXLlVWywE=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -656,21 +658,23 @@ EOF""",
     url = "https://github.com/gabime/spdlog/archive/v%s.tar.gz" % SPDLOG_VERSION,
 )
 
-# HEAD as of 2024-11-20.
+# HEAD, last updated at 2025-04-19.
 # https://github.com/nothings/stb
-bazel_dep(name = "stb")
+STB_VERSION = "f0569113c93ad095470c54bf34a17b36646bbbb5"
+
+bazel_dep(name = "stb")  # MIT/Unlicense
 archive_override(
-    module_name = "stb",  # MIT/Unlicense
+    module_name = "stb",
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-z+q5+ACWGILW0i3fNullUjszAC9Pk33ggyEwTJunKvM=",
+    integrity = "sha256-TQXJZkCuOoy9r9rY00S1DOYQgC94rugBVKzbjiZiguA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "stb")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "stb-5c205738c191bcb0abc65c4febfa9bd25ff35234",
-    url = "https://github.com/nothings/stb/archive/5c205738c191bcb0abc65c4febfa9bd25ff35234.tar.gz",
+    strip_prefix = "stb-%s" % STB_VERSION,
+    url = "https://github.com/nothings/stb/archive/%s.tar.gz" % STB_VERSION,
 )
 
 # https://www.unicode.org/Public/
@@ -706,13 +710,13 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.311"
+VULKAN_TAG = "1.4.312"
 
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-eYnDYLhwvMLeUrn9Ym/SunohL+F3reOqOhCyvLYfhok=",
+    integrity = "sha256-Dx6zSqEYK69jbj2+3J6c4Kyth3lOoV6UN4td7usXRj8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -728,7 +732,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-xk3PBNN+Gf7uhur+KN+3dfpJPYVlXE9BMQTO8ypQfSs=",
+    integrity = "sha256-jeCrfYURQccuj6NCHd+Z5Nd3TXGvLOJ65oSy3Wq0fsc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
