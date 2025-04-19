@@ -282,7 +282,7 @@ std::optional<std::string_view> StyledNode::resolve_variable(std::string_view va
     while (is_var(value)) {
         // Remove "var(" from the start and ")" from the end. 5 characters in total.
         auto var = value.substr(4, value.size() - 5);
-        auto [var_name, fallback] = util::split_once(var, ",");
+        auto [var_name, fallback] = util::split_once(var, ',');
 
         std::optional<std::string_view> prop;
         for (auto const *current = this; current != nullptr; current = current->parent) {
@@ -787,7 +787,7 @@ std::optional<WhiteSpace> StyledNode::get_white_space_property() const {
 
 std::pair<int, int> StyledNode::get_border_radius_property(css::PropertyId id) const {
     auto raw = get_raw_property(id);
-    auto [horizontal, vertical] = raw.contains('/') ? util::split_once(raw, "/") : std::pair{raw, raw};
+    auto [horizontal, vertical] = raw.contains('/') ? util::split_once(raw, '/') : std::pair{raw, raw};
     auto horizontal_prop = UnresolvedValue{horizontal};
     auto vertical_prop = UnresolvedValue{vertical};
 

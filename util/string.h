@@ -107,9 +107,9 @@ constexpr std::vector<std::string_view> split(std::string_view str, std::string_
     return result;
 }
 
-constexpr std::pair<std::string_view, std::string_view> split_once(std::string_view str, std::string_view sep) {
+constexpr std::pair<std::string_view, std::string_view> split_once(std::string_view str, char sep) {
     if (auto p = str.find(sep); p != std::string_view::npos) {
-        return {str.substr(0, p), str.substr(p + sep.size())};
+        return {str.substr(0, p), str.substr(p + 1)};
     }
     return {str, ""};
 }

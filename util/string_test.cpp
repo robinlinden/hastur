@@ -178,37 +178,30 @@ int main() {
         a.expect_eq(s[5], "");
     });
 
-    es.add_test("split once, single char delimiter", [](etest::IActions &a) {
+    es.constexpr_test("split once, single char delimiter", [](etest::IActions &a) {
         std::string_view str{"a,b,c,d"};
-        auto p = split_once(str, ",");
+        auto p = split_once(str, ',');
         a.expect_eq(p.first, "a");
         a.expect_eq(p.second, "b,c,d");
     });
 
-    es.add_test("split once, multi char delimiter", [](etest::IActions &a) {
-        std::string_view str{"abcccde"};
-        auto p = split_once(str, "ccc");
-        a.expect_eq(p.first, "ab");
-        a.expect_eq(p.second, "de");
-    });
-
-    es.add_test("split once, delimiter at start", [](etest::IActions &a) {
+    es.constexpr_test("split once, delimiter at start", [](etest::IActions &a) {
         std::string_view str{",a"};
-        auto p = split_once(str, ",");
+        auto p = split_once(str, ',');
         a.expect_eq(p.first, "");
         a.expect_eq(p.second, "a");
     });
 
-    es.add_test("split once, delimiter at end", [](etest::IActions &a) {
+    es.constexpr_test("split once, delimiter at end", [](etest::IActions &a) {
         std::string_view str{"a,"};
-        auto p = split_once(str, ",");
+        auto p = split_once(str, ',');
         a.expect_eq(p.first, "a");
         a.expect_eq(p.second, "");
     });
 
-    es.add_test("split once, only delimiter", [](etest::IActions &a) {
+    es.constexpr_test("split once, only delimiter", [](etest::IActions &a) {
         std::string_view str{","};
-        auto p = split_once(str, ",");
+        auto p = split_once(str, ',');
         a.expect_eq(p.first, "");
         a.expect_eq(p.second, "");
     });

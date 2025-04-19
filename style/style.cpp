@@ -45,7 +45,7 @@ bool contains_class(std::string_view classes, std::string_view needle_class) {
 bool is_match(style::StyledNode const &node, std::string_view selector) {
     auto const &element = std::get<dom::Element>(node.node);
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
-    auto [selector_, psuedo_class] = util::split_once(selector, ":");
+    auto [selector_, psuedo_class] = util::split_once(selector, ':');
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Child_combinator
     if (selector_.contains('>')) {
@@ -169,12 +169,12 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors
     if (selector_.starts_with('[') && selector_.contains(']')) {
         selector_.remove_prefix(1);
-        auto [attr, rest] = util::split_once(selector_, "]");
+        auto [attr, rest] = util::split_once(selector_, ']');
         if (!rest.empty() && !is_match(node, rest)) {
             return false;
         }
 
-        auto [key, value] = util::split_once(attr, "=");
+        auto [key, value] = util::split_once(attr, '=');
         if (value.empty()) {
             return element.attributes.contains(key);
         }

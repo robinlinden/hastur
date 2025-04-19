@@ -687,7 +687,7 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
     std::string top_right;
     std::string bottom_right;
     std::string bottom_left;
-    auto [horizontal, vertical] = util::split_once(value, "/");
+    auto [horizontal, vertical] = util::split_once(value, '/');
     Tokenizer tokenizer(horizontal, ' ');
 
     auto unchecked_get = [](Tokenizer &t) -> std::string_view {

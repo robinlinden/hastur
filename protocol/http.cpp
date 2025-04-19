@@ -94,7 +94,7 @@ std::optional<StatusLine> Http::parse_status_line(std::string_view status_line) 
 Headers Http::parse_headers(std::string_view header) {
     Headers headers;
     for (auto sep = header.find("\r\n"); sep != std::string_view::npos; sep = header.find("\r\n")) {
-        auto kv = util::split_once(header.substr(0, sep), ":");
+        auto kv = util::split_once(header.substr(0, sep), ':');
         if (is_valid_header(kv)) {
             kv.second = util::trim(kv.second);
             headers.add(std::move(kv));
@@ -103,7 +103,7 @@ Headers Http::parse_headers(std::string_view header) {
         header.remove_prefix(sep + 2);
     }
 
-    auto kv = util::split_once(header, ":");
+    auto kv = util::split_once(header, ':');
     if (is_valid_header(kv)) {
         kv.second = util::trim(kv.second);
         headers.add(std::move(kv));
