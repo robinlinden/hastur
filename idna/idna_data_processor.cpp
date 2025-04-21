@@ -1,22 +1,36 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "util/string.h"
 
+#include <charconv>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <variant>
 #include <vector>
 
 namespace {
+
+std::uint32_t code_point_from_hex(std::string_view s) {
+    std::uint32_t cp{};
+    auto res = std::from_chars(s.data(), s.data() + s.size(), cp, 16);
+    if (res.ec != std::errc{} || res.ptr != s.data() + s.size()) {
+        std::cerr << "Unable to parse code point: " << s << '\n';
+        std::abort();
+    }
+
+    return cp;
+}
 
 template<typename T>
 T parse_from_string(std::string_view s) {
@@ -25,8 +39,8 @@ T parse_from_string(std::string_view s) {
     }
 
     std::vector<std::uint32_t> maps_to;
-    for (auto part : util::split(s, " ")) {
-        maps_to.push_back(std::stoul(std::string{part}, nullptr, 16));
+    for (auto part : std::ranges::views::split(s, ' ')) {
+        maps_to.push_back(code_point_from_hex(std::string_view{part}));
     }
 
     return T{std::move(maps_to)};
@@ -113,7 +127,7 @@ struct Idna {
 
         for (std::string row; std::getline(is, row);) {
             // Drop the trailing comment about what code point this is.
-            row = util::split(row, "#")[0];
+            row = util::split_once(row, '#').first;
 
             auto cols = util::split(row, ";");
             for (auto &col : cols) {
@@ -126,11 +140,11 @@ struct Idna {
             }
 
             std::uint32_t code_point = [](std::string_view s) {
-                if (s.contains("..")) {
-                    return std::stoul(std::string{util::split(s, "..")[1]}, nullptr, 16);
+                if (auto it = s.find(".."); it != std::string_view::npos) {
+                    s.remove_prefix(it + 2);
                 }
 
-                return std::stoul(std::string{s}, nullptr, 16);
+                return code_point_from_hex(s);
             }(cols[0]);
 
             auto status = cols[1];
