@@ -121,7 +121,9 @@ void render_image(gfx::ICanvas &painter, layout::LayoutBox const &layout, ImageV
 std::optional<std::string_view> get_image_id(layout::LayoutBox const &layout) {
     assert(!layout.is_anonymous_block());
     auto const *img = std::get_if<dom::Element>(&layout.node->node);
-    if (img == nullptr || img->name != "img") {
+    // TODO(robinlinden): Allow images for `display: block` once hooked up in the layout system.
+    if (img == nullptr || img->name != "img"
+            || layout.get_property<css::PropertyId::Display>() == style::Display::block_flow()) {
         return {};
     }
 

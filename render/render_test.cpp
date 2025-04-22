@@ -200,6 +200,12 @@ int main() {
         a.expect_eq(saver.take_commands(),
                 CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, gfx::DrawPixelsCmd{{0, 0, 1, 3}, img}});
 
+        // Failure: blocks aren't supported yet
+        styled.properties = {{css::PropertyId::Display, "block"}};
+        render::render_layout(saver, layout, {}, get_img_success);
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});
+        styled.properties.clear();
+
         // Failure: image not found
         render::render_layout(saver, layout, {}, get_img_failure);
         a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}});

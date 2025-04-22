@@ -377,6 +377,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds, int last_
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds, int last_block_width) const {
+    // TODO(robinlinden): Support <img> sizing. Enable block <img> in //render once done.
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
     calculate_padding(box, font_size);
