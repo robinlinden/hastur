@@ -35,6 +35,24 @@ SFML_TYPE_COPTS = HASTUR_COPTS + select({
     "//conditions:default": [],
 })
 
+genrule(
+    name = "generate_fallback_font",
+    srcs = ["@opensans//file"],
+    outs = ["fallback_font_data.h"],
+    cmd = "xxd -n fallback_font -i $(location @opensans//file) >$@",
+)
+
+cc_library(
+    name = "fallback_font",
+    srcs = [
+        "fallback_font.cpp",
+        ":generate_fallback_font",
+    ],
+    hdrs = ["fallback_font.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "sfml",
     srcs = ["sfml.cpp"],
@@ -43,6 +61,7 @@ cc_library(
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
+        ":fallback_font",
         ":type",
         "//os:xdg",
         "//util:string",

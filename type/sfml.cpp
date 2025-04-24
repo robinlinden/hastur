@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "type/sfml.h"
 
+#include "type/fallback_font.h"
 #include "type/type.h"
 
 #include "os/xdg.h"
@@ -16,6 +17,7 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -112,6 +114,18 @@ std::optional<std::shared_ptr<IFont const>> SfmlType::font(std::string_view name
 
     font_cache_.insert(std::pair{std::string{name}, std::nullopt});
     return std::nullopt;
+}
+
+std::shared_ptr<SfmlFont const> SfmlType::fallback_font() const {
+    if (fallback_font_ == nullptr) {
+        auto font_data = type::fallback_font_ttf_data();
+        sf::Font font;
+        [[maybe_unused]] auto res = font.openFromMemory(font_data.data(), font_data.size());
+        assert(res);
+        fallback_font_ = std::make_shared<SfmlFont>(font);
+    }
+
+    return fallback_font_;
 }
 
 } // namespace type
