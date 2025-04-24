@@ -394,6 +394,14 @@ EOF""",
     url = "https://github.com/tartanllama/expected/archive/v1.1.0.tar.gz",
 )
 
+# HEAD, last updated 2025-04-24.
+# https://github.com/googlefonts/opensans
+http_file(
+    name = "opensans",  # OFL-1.1
+    integrity = "sha256-xTrO6i3PW0CYCZwMTQoGHRfheKBJMXtCpCKxqff461k=",
+    url = "https://github.com/googlefonts/opensans/raw/bd7e37632246368c60fdcbd374dbf9bad11969b6/fonts/ttf/OpenSans-Regular.ttf",
+)
+
 # https://github.com/fmtlib/fmt
 FMT_VERSION = "11.1.4"
 
