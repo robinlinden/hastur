@@ -9,7 +9,6 @@
 #include "gfx/color.h"
 #include "gfx/font.h"
 #include "gfx/icanvas.h"
-#include "os/xdg.h"
 #include "type/sfml.h"
 
 #include <SFML/Graphics/Color.hpp>
@@ -27,13 +26,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
-#include <filesystem>
 #include <memory>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <tuple>
 
 namespace gfx {
@@ -41,33 +38,6 @@ namespace {
 
 #include "gfx/basic_vertex_shader.h"
 #include "gfx/rect_fragment_shader.h"
-
-std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesystem::path const &path) {
-    std::error_code errc;
-    if (auto it = std::filesystem::recursive_directory_iterator(path, errc); !errc) {
-        return it;
-    }
-
-    return {};
-}
-
-sf::Font load_fallback_font() {
-    sf::Font font;
-    for (auto const &path : os::font_paths()) {
-        for (auto const &entry : get_font_dir_iterator(path)) {
-            if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
-                spdlog::info("Trying fallback {}", entry.path().string());
-                if (font.openFromFile(entry.path().string())) {
-                    spdlog::info("Using fallback {}", entry.path().string());
-                    return font;
-                }
-            }
-        }
-    }
-
-    spdlog::critical("Not a single usable font found");
-    std::terminate();
-}
 
 sf::Font const &find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
     for (auto const &family : font_families) {
@@ -78,7 +48,7 @@ sf::Font const &find_font(type::SfmlType &type, std::span<gfx::Font const> font_
         }
     }
 
-    auto fallback = std::make_shared<type::SfmlFont>(load_fallback_font());
+    auto fallback = type.fallback_font();
     if (!font_families.empty()) {
         type.set_font(std::string{font_families[0].font}, fallback);
     }
