@@ -69,10 +69,12 @@ sf::Font load_fallback_font() {
     std::terminate();
 }
 
-std::shared_ptr<type::SfmlFont const> find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
+sf::Font const &find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
     for (auto const &family : font_families) {
         if (auto font = type.font(family.font)) {
-            return std::static_pointer_cast<type::SfmlFont const>(*font);
+            auto sff = std::static_pointer_cast<type::SfmlFont const>(*font);
+            assert(sff != nullptr);
+            return sff->sf_font();
         }
     }
 
@@ -81,7 +83,7 @@ std::shared_ptr<type::SfmlFont const> find_font(type::SfmlType &type, std::span<
         type.set_font(std::string{font_families[0].font}, fallback);
     }
 
-    return fallback;
+    return fallback->sf_font();
 }
 
 sf::Glsl::Vec2 to_vec2(int x, int y) {
@@ -181,10 +183,8 @@ void SfmlCanvas::draw_text(geom::Position p,
         FontStyle style,
         Color color) {
     p = p.translated(tx_, ty_).scaled(scale_);
-    auto font = find_font(type_, font_options);
-    assert(font != nullptr);
 
-    sf::Text drawable{font->sf_font()};
+    sf::Text drawable{find_font(type_, font_options)};
     drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px * scale_);
