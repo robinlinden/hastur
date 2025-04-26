@@ -39,7 +39,7 @@ struct StatusLine {
     [[nodiscard]] bool operator==(StatusLine const &) const = default;
 };
 
-using Headers = std::map<std::string, std::string, detail::CaseInsensitiveLess>;
+using Headers = std::multimap<std::string, std::string, detail::CaseInsensitiveLess>;
 
 std::string to_string(Headers const &);
 

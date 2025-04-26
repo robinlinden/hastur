@@ -26,12 +26,13 @@ int main() {
     });
 
     s.add_test("to_string(Headers)", [](etest::IActions &a) {
-        // We don't preserve the order of headers, so let's just test one header.
+        // The insertion order is preserved for values with the same key.
         protocol::Headers headers{
                 {"Set-Cookie", "hello"},
+                {"Set-Cookie", "goodbye"},
         };
 
-        a.expect_eq(protocol::to_string(headers), "Set-Cookie: hello\n");
+        a.expect_eq(protocol::to_string(headers), "Set-Cookie: hello\nSet-Cookie: goodbye\n");
     });
 
     return s.run();

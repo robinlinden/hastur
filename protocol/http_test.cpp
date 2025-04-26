@@ -11,6 +11,8 @@
 #include "uri/uri.h"
 
 #include <cassert>
+#include <cstddef>
+#include <iterator>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -51,12 +53,14 @@ int main() {
                 "Age: 367849\r\n"
                 "Cache-Control: max-age=604800\r\n"
                 "Content-Type: text/html; charset=UTF-8\r\n"
+                "Set-Cookie: hello=1\r\n"
                 "Date: Mon, 25 Oct 2021 19:48:04 GMT\r\n"
                 "Etag: \"3147526947\"\r\n"
                 "Expires: Mon, 01 Nov 2021 19:48:04 GMT\r\n"
                 "Last-Modified: Thu, 17 Oct 2019 07:18:26 GMT\r\n"
                 "Server: ECS (nyb/1D2A)\r\n"
                 "Vary: Accept-Encoding\r\n"
+                "Set-Cookie: goodbye=2\r\n"
                 "X-Cache: HIT\r\n"
                 "Content-Length: 123\r\n"
                 "\r\n"
@@ -69,7 +73,7 @@ int main() {
 
         auto response = protocol::Http::get(socket, create_uri(), std::nullopt).value();
 
-        a.require(response.headers.size() == 13);
+        a.require_eq(response.headers.size(), std::size_t{15});
         a.expect_eq(socket.host, "example.com");
         a.expect_eq(socket.service, "http");
         a.expect_eq(response.status_line.version, "HTTP/1.1");
@@ -88,6 +92,15 @@ int main() {
         a.expect_eq(response.headers.find("Vary"sv)->second, "Accept-Encoding");
         a.expect_eq(response.headers.find("X-Cache"sv)->second, "HIT");
         a.expect_eq(response.headers.find("Content-Length"sv)->second, "123");
+
+        auto [cookies_it, cookies_end] = response.headers.equal_range("Set-Cookie");
+        a.require_eq(std::distance(cookies_it, cookies_end), 2);
+        a.expect_eq(cookies_it->second, "hello=1");
+        ++cookies_it;
+        a.expect_eq(cookies_it->second, "goodbye=2");
+        ++cookies_it;
+        a.expect_eq(cookies_it, cookies_end);
+
         a.expect_eq(response.body,
                 "<!doctype html>\n"
                 "<html>\n"
