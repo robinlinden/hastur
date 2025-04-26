@@ -5,6 +5,7 @@
 #include "dom/dom.h"
 
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -43,8 +44,8 @@ void print_node(dom::Node const &node, std::ostream &os, int initial_depth = 0) 
                 print_attribute(attribute, os, current_depth + 1);
             }
 
-            for (auto const &child : element->children) {
-                to_print.emplace(to_print.begin(), &child, current_depth + 1);
+            for (auto const &child : element->children | std::views::reverse) {
+                to_print.emplace_back(&child, current_depth + 1);
             }
         } else {
             os << '"' << std::get<dom::Text>(*current_node).text << '"';

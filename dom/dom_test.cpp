@@ -45,5 +45,32 @@ int main() {
         a.expect_eq(to_string(root), expected);
     });
 
+    s.add_test("to_string(Document) 2", [](etest::IActions &a) {
+        auto document = dom::Document{.doctype{"html5"}};
+        document.html_node = dom::Element{
+                .name{"html"},
+                .children{{
+                        dom::Element{
+                                .name{"head"},
+                                .children{{dom::Element{.name{"title"}, .children{dom::Text{"hello"}}}}},
+                        },
+                        dom::Element{
+                                .name{"body"},
+                                .children{dom::Text{"goodbye"}},
+                        },
+                }},
+        };
+
+        std::string_view expected = R"(#document
+| <!DOCTYPE html5>
+| <html>
+|   <head>
+|     <title>
+|       "hello"
+|   <body>
+|     "goodbye")";
+        a.expect_eq(to_string(document), expected);
+    });
+
     return s.run();
 }
