@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -54,8 +54,8 @@ public:
             return tl::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};
         }
 
-        auto encoding = headers.get("transfer-encoding"sv);
-        if (encoding == "chunked"sv) {
+        auto encoding = headers.find("transfer-encoding"sv);
+        if (encoding != headers.end() && encoding->second == "chunked"sv) {
             auto body = Http::get_chunked_body(socket);
             if (!body) {
                 return tl::unexpected{Error{ErrorCode::InvalidResponse, std::move(status_line)}};

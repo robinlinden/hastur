@@ -39,10 +39,12 @@ namespace {
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding#directives
 [[nodiscard]] bool try_decompress_response_body(uri::Uri const &uri, protocol::Response &response) {
-    auto encoding = response.headers.get("Content-Encoding");
-    if (!encoding) {
+    auto it = response.headers.find("Content-Encoding");
+    if (it == response.headers.end()) {
         return true;
     }
+
+    auto const &encoding = it->second;
 
     std::span<std::byte const> body_view{
             reinterpret_cast<std::byte const *>(response.body.data()), response.body.size()};
@@ -52,7 +54,7 @@ namespace {
         auto decoded = archive::zlib_decode(body_view, zlib_mode);
         if (!decoded) {
             auto const &err = decoded.error();
-            spdlog::error("Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, err.code, err.message);
+            spdlog::error("Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, err.code, err.message);
             return false;
         }
 
@@ -65,7 +67,7 @@ namespace {
         if (!decoded) {
             auto const &err = decoded.error();
             spdlog::error(
-                    "Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, static_cast<int>(err), to_string(err));
+                    "Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, static_cast<int>(err), to_string(err));
             return false;
         }
 
@@ -78,7 +80,7 @@ namespace {
         if (!decoded) {
             auto const &err = decoded.error();
             spdlog::error(
-                    "Failed {}-decoding of '{}': '{}: {}'", *encoding, uri.uri, static_cast<int>(err), to_string(err));
+                    "Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, static_cast<int>(err), to_string(err));
             return false;
         }
 
@@ -86,7 +88,7 @@ namespace {
         return true;
     }
 
-    spdlog::warn("Got unsupported encoding '{}' from '{}'", *encoding, uri.uri);
+    spdlog::warn("Got unsupported encoding '{}' from '{}'", encoding, uri.uri);
     return false;
 }
 
@@ -229,8 +231,8 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
     auto response = protocol_handler_->handle(uri);
     while (response.has_value() && is_redirect(response->status_line.status_code)) {
         ++redirect_count;
-        auto location = response->headers.get("Location");
-        if (!location) {
+        auto location = response->headers.find("Location");
+        if (location == response->headers.end()) {
             return {
                     .response = tl::unexpected{protocol::Error{
                             protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
@@ -238,8 +240,9 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
             };
         }
 
-        spdlog::info("Following {} redirect from {} to {}", response->status_line.status_code, uri.uri, *location);
-        auto new_uri = uri::Uri::parse(std::string(*location), uri);
+        spdlog::info(
+                "Following {} redirect from {} to {}", response->status_line.status_code, uri.uri, location->second);
+        auto new_uri = uri::Uri::parse(location->second, uri);
         if (!new_uri) {
             return {
                     .response = tl::unexpected{protocol::Error{

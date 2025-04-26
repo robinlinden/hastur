@@ -831,7 +831,7 @@ void App::run_debug_widget() const {
     }
 
     if (ImGui::Button("Response headers")) {
-        std::cout << "\nResponse headers:\n" << page().response.headers.to_string() << '\n';
+        std::cout << "\nResponse headers:\n" << protocol::to_string(page().response.headers) << '\n';
     }
 
     if (ImGui::Button("Response body")) {

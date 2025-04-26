@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -75,19 +75,19 @@ int main() {
         a.expect_eq(response.status_line.version, "HTTP/1.1");
         a.expect_eq(response.status_line.status_code, 200);
         a.expect_eq(response.status_line.reason, "OK");
-        a.expect_eq(response.headers.get("Content-Encoding"sv).value(), "gzip");
-        a.expect_eq(response.headers.get("Accept-Ranges"sv).value(), "bytes");
-        a.expect_eq(response.headers.get("Age"sv).value(), "367849");
-        a.expect_eq(response.headers.get("Cache-Control"sv).value(), "max-age=604800");
-        a.expect_eq(response.headers.get("Content-Type"sv).value(), "text/html; charset=UTF-8");
-        a.expect_eq(response.headers.get("Date"sv).value(), "Mon, 25 Oct 2021 19:48:04 GMT");
-        a.expect_eq(response.headers.get("Etag"sv).value(), R"("3147526947")");
-        a.expect_eq(response.headers.get("Expires"sv).value(), "Mon, 01 Nov 2021 19:48:04 GMT");
-        a.expect_eq(response.headers.get("Last-Modified"sv).value(), "Thu, 17 Oct 2019 07:18:26 GMT");
-        a.expect_eq(response.headers.get("Server"sv).value(), "ECS (nyb/1D2A)");
-        a.expect_eq(response.headers.get("Vary"sv).value(), "Accept-Encoding");
-        a.expect_eq(response.headers.get("X-Cache"sv).value(), "HIT");
-        a.expect_eq(response.headers.get("Content-Length"sv).value(), "123");
+        a.expect_eq(response.headers.find("Content-Encoding"sv)->second, "gzip");
+        a.expect_eq(response.headers.find("Accept-Ranges"sv)->second, "bytes");
+        a.expect_eq(response.headers.find("Age"sv)->second, "367849");
+        a.expect_eq(response.headers.find("Cache-Control"sv)->second, "max-age=604800");
+        a.expect_eq(response.headers.find("Content-Type"sv)->second, "text/html; charset=UTF-8");
+        a.expect_eq(response.headers.find("Date"sv)->second, "Mon, 25 Oct 2021 19:48:04 GMT");
+        a.expect_eq(response.headers.find("Etag"sv)->second, R"("3147526947")");
+        a.expect_eq(response.headers.find("Expires"sv)->second, "Mon, 01 Nov 2021 19:48:04 GMT");
+        a.expect_eq(response.headers.find("Last-Modified"sv)->second, "Thu, 17 Oct 2019 07:18:26 GMT");
+        a.expect_eq(response.headers.find("Server"sv)->second, "ECS (nyb/1D2A)");
+        a.expect_eq(response.headers.find("Vary"sv)->second, "Accept-Encoding");
+        a.expect_eq(response.headers.find("X-Cache"sv)->second, "HIT");
+        a.expect_eq(response.headers.find("Content-Length"sv)->second, "123");
         a.expect_eq(response.body,
                 "<!doctype html>\n"
                 "<html>\n"

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -6,16 +6,21 @@
 #ifndef PROTOCOL_RESPONSE_H_
 #define PROTOCOL_RESPONSE_H_
 
-#include <cstddef>
 #include <cstdint>
-#include <initializer_list>
 #include <map>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 
 namespace protocol {
+namespace detail {
+
+struct CaseInsensitiveLess {
+    using is_transparent = void;
+    bool operator()(std::string_view, std::string_view) const;
+};
+
+} // namespace detail
 
 enum class ErrorCode : std::uint8_t {
     Unresolved,
@@ -34,25 +39,9 @@ struct StatusLine {
     [[nodiscard]] bool operator==(StatusLine const &) const = default;
 };
 
-class Headers {
-public:
-    Headers() = default;
-    Headers(std::initializer_list<std::map<std::string, std::string>::value_type> init) : headers_{std::move(init)} {}
+using Headers = std::map<std::string, std::string, detail::CaseInsensitiveLess>;
 
-    void add(std::pair<std::string_view, std::string_view> nv);
-    [[nodiscard]] std::optional<std::string_view> get(std::string_view name) const;
-    [[nodiscard]] std::string to_string() const;
-    [[nodiscard]] std::size_t size() const;
-
-    [[nodiscard]] bool operator==(Headers const &) const = default;
-
-private:
-    struct CaseInsensitiveLess {
-        using is_transparent = void;
-        bool operator()(std::string_view s1, std::string_view s2) const;
-    };
-    std::map<std::string, std::string, CaseInsensitiveLess> headers_;
-};
+std::string to_string(Headers const &);
 
 struct Response {
     StatusLine status_line;

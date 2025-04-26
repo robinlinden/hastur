@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -97,7 +97,7 @@ Headers Http::parse_headers(std::string_view header) {
         auto kv = util::split_once(header.substr(0, sep), ':');
         if (is_valid_header(kv)) {
             kv.second = util::trim(kv.second);
-            headers.add(std::move(kv));
+            headers.emplace(kv);
         }
 
         header.remove_prefix(sep + 2);
@@ -106,7 +106,7 @@ Headers Http::parse_headers(std::string_view header) {
     auto kv = util::split_once(header, ':');
     if (is_valid_header(kv)) {
         kv.second = util::trim(kv.second);
-        headers.add(std::move(kv));
+        headers.emplace(kv);
     }
 
     return headers;
