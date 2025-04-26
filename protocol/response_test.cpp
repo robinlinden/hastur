@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -44,6 +44,15 @@ int main() {
         a.expect_eq(to_string(ErrorCode::RedirectLimit), "RedirectLimit"sv);
         // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
         a.expect_eq(to_string(static_cast<ErrorCode>(std::underlying_type_t<ErrorCode>{20})), "Unknown"sv);
+    });
+
+    s.add_test("Headers, to_string()", [](etest::IActions &a) {
+        // We don't preserve the order of headers, so let's just test one header.
+        protocol::Headers headers{
+                {"Set-Cookie", "hello"},
+        };
+
+        a.expect_eq(headers.to_string(), "Set-Cookie: hello\n");
     });
 
     return s.run();
