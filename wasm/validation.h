@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
+// SPDX-FileCopyrightText: 2024-2025 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,6 +21,7 @@ enum class ValidationError : std::uint8_t {
     FuncTypeInvalid,
     FunctionSectionUndefined,
     FuncUndefinedCode,
+    GlobalNotConstant,
     LabelInvalid,
     LocalUndefined,
     MemoryBadAlignment,

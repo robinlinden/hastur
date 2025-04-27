@@ -253,5 +253,30 @@ int main() {
         a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryInvalid});
     });
 
+    s.add_test("Global: empty global", [=](etest::IActions &a) mutable {
+        m.global_section = GlobalSection{
+                .globals = std::vector{Global{
+                        .type = GlobalType{.type = ValueType::Int32, .mutability = GlobalType::Mutability::Const},
+                        .init = {}}}};
+
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Global: initialized global", [=](etest::IActions &a) mutable {
+        m.global_section = GlobalSection{
+                .globals = std::vector{Global{
+                        .type = GlobalType{.type = ValueType::Int32, .mutability = GlobalType::Mutability::Const},
+                        .init = {I32Const{42}}}}};
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Global: initialized global, non-const initializer", [=](etest::IActions &a) mutable {
+        m.global_section = GlobalSection{
+                .globals = std::vector{Global{
+                        .type = GlobalType{.type = ValueType::Int32, .mutability = GlobalType::Mutability::Const},
+                        .init = {I32Const{42}, I32Const{42}, I32Add{}}}}};
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::GlobalNotConstant});
+    });
+
     return s.run();
 }
