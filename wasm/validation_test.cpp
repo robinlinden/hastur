@@ -13,6 +13,7 @@
 
 #include <tl/expected.hpp>
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -267,6 +268,7 @@ int main() {
                 .globals = std::vector{Global{
                         .type = GlobalType{.type = ValueType::Int32, .mutability = GlobalType::Mutability::Const},
                         .init = {I32Const{42}}}}};
+
         a.expect(validate(m).has_value());
     });
 
@@ -275,7 +277,49 @@ int main() {
                 .globals = std::vector{Global{
                         .type = GlobalType{.type = ValueType::Int32, .mutability = GlobalType::Mutability::Const},
                         .init = {I32Const{42}, I32Const{42}, I32Add{}}}}};
+
         a.expect_eq(validate(m), tl::unexpected{ValidationError::GlobalNotConstant});
+    });
+
+    s.add_test("Data: passive data", [=](etest::IActions &a) mutable {
+        m.data_section = {{DataSection::PassiveData{{std::byte{0x42}}}}};
+
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Data: valid active data", [=](etest::IActions &a) mutable {
+        m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
+        m.data_section = {{DataSection::ActiveData{0, {I32Const{42}}, {std::byte{0x42}}}}};
+
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Data: active data, undefined memory section", [=](etest::IActions &a) mutable {
+        m.data_section = {{DataSection::ActiveData{0, {I32Const{42}}, {std::byte{0x42}}}}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemorySectionUndefined});
+    });
+
+    s.add_test("Data: active data, non-constant offset", [=](etest::IActions &a) mutable {
+        m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
+        m.data_section = {{DataSection::ActiveData{0, {I32Const{42}, I32Const{42}, I32Add{}}, {std::byte{0x42}}}}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::DataOffsetNotConstant});
+    });
+
+    // TODO(dzero): Uncomment this test when we've implemented I64 instructions
+    // s.add_test("Data: active data, offset return incorrect type", [=](etest::IActions &a) mutable {
+    //    m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
+    //    m.data_section = {{DataSection::ActiveData{0, {I64Const{42}}, {std::byte{0x42}}}}};
+
+    //    a.expect_eq(validate(m), tl::unexpected{ValidationError::DataOffsetNotConstant});
+    //});
+
+    s.add_test("Data: active data, invalid memory index", [=](etest::IActions &a) mutable {
+        m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
+        m.data_section = {{DataSection::ActiveData{1, {I32Const{42}}, {std::byte{0x42}}}}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::DataMemoryIdxInvalid});
     });
 
     return s.run();

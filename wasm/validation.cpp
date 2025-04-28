@@ -571,6 +571,10 @@ std::string_view to_string(ValidationError err) {
             return "A code section is required, but was not defined";
         case ValidationError::ControlStackEmpty:
             return "Attempted to pop from the control stack, but the control stack is empty";
+        case ValidationError::DataOffsetNotConstant:
+            return "A data offset was specified with a non-constant expression";
+        case ValidationError::DataMemoryIdxInvalid:
+            return "A data memory index points to a non-existent memory";
         case ValidationError::FuncTypeInvalid:
             return "Function section references a non-existent type";
         case ValidationError::FunctionSectionUndefined:
@@ -590,7 +594,7 @@ std::string_view to_string(ValidationError err) {
         case ValidationError::MemoryInvalid:
             return "A memory has invalid limits";
         case ValidationError::MemorySectionUndefined:
-            return "Attempted a load or store, but no memory section was defined";
+            return "Attempted a load/store or data initialization, but no memory section was defined";
         case ValidationError::TableInvalid:
             return "A table has invalid limits";
         case ValidationError::TypeSectionUndefined:
@@ -648,6 +652,32 @@ tl::expected<void, ValidationError> validate(Module const &m) {
 
             if (!ret.has_value()) {
                 return ret;
+            }
+        }
+    }
+
+    // https://webassembly.github.io/spec/core/valid/modules.html#data-segments
+    if (m.data_section.has_value()) {
+        for (auto const &data : m.data_section->data) {
+            // Passive data is valid by default, so we only check active
+            if (auto const *dat = std::get_if<DataSection::ActiveData>(&data)) {
+                if (!is_constant_expression(dat->offset)) {
+                    return tl::unexpected{ValidationError::DataOffsetNotConstant};
+                }
+
+                auto const ret = validate_constant_expression(dat->offset, ValueType::Int32);
+
+                if (!ret.has_value()) {
+                    return ret;
+                }
+
+                if (!m.memory_section.has_value()) {
+                    return tl::unexpected{ValidationError::MemorySectionUndefined};
+                }
+
+                if (dat->memory_idx >= m.memory_section->memories.size()) {
+                    return tl::unexpected{ValidationError::DataMemoryIdxInvalid};
+                }
             }
         }
     }

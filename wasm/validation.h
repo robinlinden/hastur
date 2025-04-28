@@ -18,6 +18,8 @@ enum class ValidationError : std::uint8_t {
     BlockTypeInvalid,
     CodeSectionUndefined,
     ControlStackEmpty,
+    DataOffsetNotConstant,
+    DataMemoryIdxInvalid,
     FuncTypeInvalid,
     FunctionSectionUndefined,
     FuncUndefinedCode,
