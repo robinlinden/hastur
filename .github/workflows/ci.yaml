@@ -1,5 +1,10 @@
+# We run this on pushes to master even though the exact same commit has had CI
+# run on it in a PR to have a GitHub cache that PRs can use.
 on:
   pull_request:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 name: ci
 
