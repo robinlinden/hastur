@@ -39,6 +39,7 @@ cc_test(
     srcs = ["pngtest.c"],
     args = ["$(location :pngtest.png)"],
     data = ["pngtest.png"],
+    visibility = ["//visibility:public"],
     deps = [
         ":libpng",
         "@zlib",

@@ -75,5 +75,6 @@ cc_test(
         "//conditions:default": [],
     }),
     local_defines = ["FT2_BUILD_LIBRARY"],
+    visibility = ["//visibility:public"],
     deps = [":freetype2"],
 )
