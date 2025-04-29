@@ -86,6 +86,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
       - uses: actions/cache@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          path: ~/.cache/bazel
+          key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+      - uses: actions/cache/restore@v4
+        if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
@@ -125,6 +131,12 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/cache@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          path: ~/.cache/bazel
+          key: coverage-${{ matrix.compiler }}-${{ matrix.version }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+      - uses: actions/cache/restore@v4
+        if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: coverage-${{ matrix.compiler }}-${{ matrix.version }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
@@ -169,6 +181,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          path: ~/.cache/bazel
+          key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+      - uses: actions/cache/restore@v4
+        if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
@@ -246,6 +264,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          path: ~/.cache/bazel
+          key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+      - uses: actions/cache/restore@v4
+        if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
@@ -299,6 +323,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          path: ~/.cache/bazel
+          key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+      - uses: actions/cache/restore@v4
+        if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
