@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,14 +7,19 @@
 
 #include <tl/expected.hpp>
 
-#include <cassert>
-#include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <istream>
 
 namespace wasm {
+namespace detail {
+// TODO(robinlinden): Switch to std::ceil once https://wg21.link/P0533R9 is implemented.
+constexpr int ceil(float f) {
+    int i = static_cast<int>(f);
+    return f > i ? i + 1 : i;
+}
+} // namespace detail
 
 enum class Leb128ParseError : std::uint8_t {
     Invalid,
@@ -34,19 +39,19 @@ struct Leb128<T> {
     static tl::expected<T, Leb128ParseError> decode_from(std::istream &is) {
         T result{};
         std::uint8_t shift{};
-        auto const max_bytes = static_cast<int>(std::ceil(sizeof(T) * 8 / 7.f));
-        for (int i = 0; i < max_bytes; ++i) {
+        constexpr auto kMaxBytes = detail::ceil(sizeof(T) * 8 / 7.f);
+        for (int i = 0; i < kMaxBytes; ++i) {
             std::uint8_t byte{};
             if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
                 return tl::unexpected{Leb128ParseError::UnexpectedEof};
             }
 
-            if (i == max_bytes - 1) {
+            if (i == kMaxBytes - 1) {
                 // This is the last byte we'll read. Check that any extra bits are all 0.
-                auto remaining_value_bits = sizeof(T) * 8 - (max_bytes - 1) * std::size_t{7};
-                assert(remaining_value_bits < 8);
-                auto extra_bits_mask = (0xff << remaining_value_bits) & 0b0111'1111;
-                auto extra_bits = byte & extra_bits_mask;
+                constexpr auto kRemainingValueBits = sizeof(T) * 8 - (kMaxBytes - 1) * std::size_t{7};
+                static_assert(kRemainingValueBits < 8);
+                constexpr auto kExtraBitsMask = (0xff << kRemainingValueBits) & 0b0111'1111;
+                auto extra_bits = byte & kExtraBitsMask;
                 if (extra_bits != 0) {
                     return tl::unexpected{Leb128ParseError::NonZeroExtraBits};
                 }
@@ -76,19 +81,19 @@ struct Leb128<T> {
         T result{};
         std::uint8_t shift{};
         std::uint8_t byte{};
-        auto const max_bytes = static_cast<int>(std::ceil(sizeof(T) * 8 / 7.f));
-        for (int i = 0; i < max_bytes; ++i) {
+        constexpr auto kMaxBytes = detail::ceil(sizeof(T) * 8 / 7.f);
+        for (int i = 0; i < kMaxBytes; ++i) {
             if (!is.read(reinterpret_cast<char *>(&byte), sizeof(byte))) {
                 return tl::unexpected{Leb128ParseError::UnexpectedEof};
             }
 
-            if (i == max_bytes - 1) {
+            if (i == kMaxBytes - 1) {
                 // This is the last byte we'll read. Check that any extra bits are all 0.
-                auto remaining_value_bits = sizeof(T) * 8 - (max_bytes - 1) * std::size_t{7} - 1;
-                assert(remaining_value_bits < 8);
-                auto extra_bits_mask = (0xff << remaining_value_bits) & kNonContinuationBits;
-                auto extra_bits = byte & extra_bits_mask;
-                if (extra_bits != 0 && extra_bits != extra_bits_mask) {
+                constexpr auto kRemainingValueBits = sizeof(T) * 8 - (kMaxBytes - 1) * std::size_t{7} - 1;
+                static_assert(kRemainingValueBits < 8);
+                constexpr auto kExtraBitsMask = (0xff << kRemainingValueBits) & kNonContinuationBits;
+                auto extra_bits = byte & kExtraBitsMask;
+                if (extra_bits != 0 && extra_bits != kExtraBitsMask) {
                     return tl::unexpected{Leb128ParseError::NonZeroExtraBits};
                 }
             }
