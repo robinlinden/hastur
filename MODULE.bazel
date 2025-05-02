@@ -295,8 +295,8 @@ archive_override(
 bazel_dep(name = "hermetic_cc_toolchain")  # MIT
 archive_override(
     module_name = "hermetic_cc_toolchain",
-    integrity = "sha256-+CMR4st1jyz/JWe+Fs+MBs6ZeV5RTMlMF5MrdNMsHzY=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("3.2.0"),
+    integrity = "sha256-+kgf2vBY5UqGarYSRWhfa3qINZbc/dry+me3D9DRccQ=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("4.0.0"),
 )
 
 zig_toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")
@@ -608,16 +608,14 @@ EOF""",
 )
 
 # https://github.com/SFML/SFML
+SFML_VERSION = "3.0.1"
+
 bazel_dep(name = "sfml")  # Zlib
 archive_override(
     module_name = "sfml",
     build_file = "//third_party:sfml.BUILD",
-    integrity = "sha256-N1Bvr71hix+OFTu8qIEeYiA6cLMqEYMnn7lhL9BQHSs=",
+    integrity = "sha256-+Z9xuy8mCINbGjfgeFErdd051SuJ4T4SJGYDqVDaPB8=",
     patch_cmds = [
-        # Fix libc++20 compilation failure due to SFML not including what it uses.
-        # This was (accidentally?) fixed in https://github.com/SFML/SFML/pull/3362,
-        # and has been added SFML's 3.x backport branch, but not been released yet.
-        "sed -i'' -e '36i\\\n#include <ostream>\\\n' src/SFML/Graphics/GLCheck.hpp",
         # SFML uses a non-standard include path to vulkan.h
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
         "sed -i'' -e 's|vulkan.h|vulkan/vulkan.h|' src/SFML/Window/Win32/VulkanImplWin32.cpp",
@@ -634,8 +632,8 @@ bazel_dep(name = "xcursor")
 bazel_dep(name = "xrandr")
 EOF""",
     ],
-    strip_prefix = "SFML-3.0.0",
-    url = "https://github.com/SFML/SFML/archive/3.0.0.tar.gz",
+    strip_prefix = "SFML-%s" % SFML_VERSION,
+    url = "https://github.com/SFML/SFML/archive/%s.tar.gz" % SFML_VERSION,
 )
 
 # https://github.com/gabime/spdlog
@@ -710,13 +708,13 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.312"
+VULKAN_TAG = "1.4.313"
 
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-Dx6zSqEYK69jbj2+3J6c4Kyth3lOoV6UN4td7usXRj8=",
+    integrity = "sha256-8ymLjcYgUwSTKWdZhYpptiL5js7KDox1SIrSAAd4FI8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -732,7 +730,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-jeCrfYURQccuj6NCHd+Z5Nd3TXGvLOJ65oSy3Wq0fsc=",
+    integrity = "sha256-Znd7Q5ekbm0f6L63mhJ9YQEne+VvfSqhg9+fPQ7bw8w=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
