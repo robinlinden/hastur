@@ -23,6 +23,7 @@ test_suite(
     tags = ["no-clang-tidy"],
     tests = [
         "@freetype2//:bbox_test",
+        "@ftxui//:tests",
         "@libpng//:pngtest",
     ],
 )

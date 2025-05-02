@@ -9,7 +9,8 @@ cc_library(
     implementation_deps = [
         "//css",
         "//style",
-        "@ftxui",
+        "@ftxui//:dom",
+        "@ftxui//:screen",
     ],
     visibility = ["//visibility:public"],
     deps = ["//layout"],

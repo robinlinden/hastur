@@ -429,22 +429,17 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-FTXUI_VERSION = "6.0.2"
+FTXUI_VERSION = "6.1.8"
 
 bazel_dep(name = "ftxui")  # MIT
 archive_override(
     module_name = "ftxui",
-    build_file = "//third_party:ftxui.BUILD",
-    integrity = "sha256-rONHeo3XzbkR28dee0PNzJzx1KPMP7QRaOzDHAZibLk=",
+    integrity = "sha256-o/IQhhpC6blBQDgdlLGqEWCZvBfNTg8t0AgN7g/J5yk=",
     patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "ftxui")
-bazel_dep(name = "rules_cc")
-bazel_dep(name = "platforms")
-EOF""",
+        # Targets rely on transitive dependencies, and also #include srcs from other targets.
+        """sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel""",
     ],
-    strip_prefix = "FTXUI-%s" % FTXUI_VERSION,
-    url = "https://github.com/ArthurSonzogni/FTXUI/archive/v%s.tar.gz" % FTXUI_VERSION,
+    url = "https://github.com/ArthurSonzogni/FTXUI/releases/download/v%s/source.tar.gz" % FTXUI_VERSION,
 )
 
 # https://github.com/Dav1dde/glad/
