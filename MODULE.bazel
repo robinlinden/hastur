@@ -117,11 +117,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_android
-RULES_ANDROID_VERSION = "0.6.3"
+RULES_ANDROID_VERSION = "0.6.4"
 
 archive_override(
     module_name = "rules_android",
-    integrity = "sha256-Fss+f6DpYzcwQU/61bxO+XIjNsIX9XvRMOPpVokTj0U=",
+    integrity = "sha256-QTXi+jepS7NseAHjP67yk0yf5PmoTQA16sxBVMLDDkQ=",
     strip_prefix = "rules_android-%s" % RULES_ANDROID_VERSION,
     url = "https://github.com/bazelbuild/rules_android/releases/download/v{0}/rules_android-v{0}.tar.gz".format(RULES_ANDROID_VERSION),
 )
@@ -129,8 +129,8 @@ archive_override(
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    integrity = "sha256-4USKVrJGJAeyaI3qht9cN1s2oJkb1HjC3dlMlxaBJeI=",
-    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.1.3"),
+    integrity = "sha256-rBqaJhZ3Xmkp12xHLqvNk8lrEO3O1MRcfmxKRm7dfaw=",
+    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.1.4"),
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -159,11 +159,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.28.0"
+BAZEL_FEATURES_VERSION = "1.29.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-LwV90CCYoQYJXqKRtDRCVzmKBZ6tssdMxHDeD5Zk3M0=",
+    integrity = "sha256-2FLzic6NuLjC+YB6T68GWw0LowIWOJjNJCi2yn0IZoE=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -204,19 +204,23 @@ archive_override(
 )
 
 # https://github.com/fmeum/buildozer
+BUILDOZER_VERSION = "8.2.0"
+
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-BFrzeNsFM6fIEDBubr2BEGn9pVxbJzBu13M2VKg7JkY=",
-    strip_prefix = "buildozer-8.0.3",
-    url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format("8.0.3"),
+    integrity = "sha256-9n7RP6uZHjZV8dpcxhIGBU846QYFGTraBCbmeuzDS04=",
+    strip_prefix = "buildozer-%s" % BUILDOZER_VERSION,
+    url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format(BUILDOZER_VERSION),
 )
 
 # https://github.com/google/googletest
+GOOGLETEST_VERSION = "1.17.0"
+
 archive_override(
     module_name = "googletest",
-    integrity = "sha256-eMZ2/GOIFSm/l7+dRZSNkFpmgz+/pTGOos10eMuY85k=",
-    strip_prefix = "googletest-1.16.0",
-    url = "https://github.com/google/googletest/releases/download/v{0}/googletest-{0}.tar.gz".format("1.16.0"),
+    integrity = "sha256-Zfq3AdmCnTjLd8FKzcQx0hCL/b+JeeQOuK5Wft8Qsnw=",
+    strip_prefix = "googletest-%s" % GOOGLETEST_VERSION,
+    url = "https://github.com/google/googletest/releases/download/v{0}/googletest-{0}.tar.gz".format(GOOGLETEST_VERSION),
 )
 
 # https://github.com/protocolbuffers/protobuf
