@@ -173,6 +173,17 @@ int main() {
         });
     }
 
+    s.add_test("is_match: psuedo-class, :is()", [](etest::IActions &a) {
+        a.expect(is_match(dom::Element{"a"}, ":is(a)"sv));
+        a.expect(is_match(dom::Element{"a"}, ":is(a, b)"sv));
+        a.expect(is_match(dom::Element{"a"}, ":is(b, a)"sv));
+        a.expect(!is_match(dom::Element{"b"}, ":is(a)"sv));
+        a.expect(!is_match(dom::Element{"c"}, ":is(a, b)"sv));
+
+        // TODO(robinlinden): This should match.
+        a.expect(!is_match(dom::Element{"a", {}, {dom::Element{"b"}}}, ":is(a) b"sv));
+    });
+
     s.add_test("is_match: :root", [](etest::IActions &a) {
         dom::Element dom = dom::Element{"html", {}, {dom::Element{"body"}}};
         style::StyledNode node{dom, {}, {style::StyledNode{dom.children[0]}}};
