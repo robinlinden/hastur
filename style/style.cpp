@@ -123,9 +123,28 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
             if (selector_.empty()) {
                 return true;
             }
+        } else if (psuedo_class.starts_with("is(")) {
+            // https://developer.mozilla.org/en-US/docs/Web/CSS/:is
+            psuedo_class.remove_prefix(3);
+            auto [alternatives, rest] = util::split_once(psuedo_class, ')');
+            if (!rest.empty()) {
+                // TODO(robinlinden): Handle.
+                return false;
+            }
+
+            // NOLINTNEXTLINE(misc-no-recursion)
+            if (std::ranges::none_of(alternatives | std::views::split(','), [&](auto const &alternative) {
+                    return is_match(node, util::trim(std::string_view{alternative})); //
+                })) {
+                return false;
+            }
         } else {
             // Unhandled psuedo-classes never match.
             return false;
+        }
+
+        if (selector_.empty()) {
+            return true;
         }
     }
 
