@@ -9,7 +9,6 @@
 #include "gfx/color.h"
 #include "gfx/font.h"
 #include "gfx/icanvas.h"
-#include "os/xdg.h"
 #include "type/sfml.h"
 
 #include <SFML/Graphics/Color.hpp>
@@ -27,13 +26,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
-#include <filesystem>
 #include <memory>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <tuple>
 
 namespace gfx {
@@ -42,46 +39,21 @@ namespace {
 #include "gfx/basic_vertex_shader.h"
 #include "gfx/rect_fragment_shader.h"
 
-std::filesystem::recursive_directory_iterator get_font_dir_iterator(std::filesystem::path const &path) {
-    std::error_code errc;
-    if (auto it = std::filesystem::recursive_directory_iterator(path, errc); !errc) {
-        return it;
-    }
-
-    return {};
-}
-
-sf::Font load_fallback_font() {
-    sf::Font font;
-    for (auto const &path : os::font_paths()) {
-        for (auto const &entry : get_font_dir_iterator(path)) {
-            if (std::filesystem::is_regular_file(entry) && entry.path().filename().string().ends_with(".ttf")) {
-                spdlog::info("Trying fallback {}", entry.path().string());
-                if (font.openFromFile(entry.path().string())) {
-                    spdlog::info("Using fallback {}", entry.path().string());
-                    return font;
-                }
-            }
-        }
-    }
-
-    spdlog::critical("Not a single usable font found");
-    std::terminate();
-}
-
-std::shared_ptr<type::SfmlFont const> find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
+sf::Font const &find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
     for (auto const &family : font_families) {
         if (auto font = type.font(family.font)) {
-            return std::static_pointer_cast<type::SfmlFont const>(*font);
+            auto sff = std::static_pointer_cast<type::SfmlFont const>(*font);
+            assert(sff != nullptr);
+            return sff->sf_font();
         }
     }
 
-    auto fallback = std::make_shared<type::SfmlFont>(load_fallback_font());
+    auto fallback = type.fallback_font();
     if (!font_families.empty()) {
         type.set_font(std::string{font_families[0].font}, fallback);
     }
 
-    return fallback;
+    return fallback->sf_font();
 }
 
 sf::Glsl::Vec2 to_vec2(int x, int y) {
@@ -181,10 +153,8 @@ void SfmlCanvas::draw_text(geom::Position p,
         FontStyle style,
         Color color) {
     p = p.translated(tx_, ty_).scaled(scale_);
-    auto font = find_font(type_, font_options);
-    assert(font != nullptr);
 
-    sf::Text drawable{font->sf_font()};
+    sf::Text drawable{find_font(type_, font_options)};
     drawable.setString(sf::String::fromUtf8(cbegin(text), cend(text)));
     drawable.setFillColor(sf::Color(color.as_rgba_u32()));
     drawable.setCharacterSize(size.px * scale_);

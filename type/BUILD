@@ -35,6 +35,24 @@ SFML_TYPE_COPTS = HASTUR_COPTS + select({
     "//conditions:default": [],
 })
 
+genrule(
+    name = "generate_last_resort_font",
+    srcs = ["@opensans//file"],
+    outs = ["last_resort_font_data.h"],
+    cmd = "xxd -n last_resort_font -i $(location @opensans//file) >$@",
+)
+
+cc_library(
+    name = "last_resort_font",
+    srcs = [
+        "last_resort_font.cpp",
+        ":generate_last_resort_font",
+    ],
+    hdrs = ["last_resort_font.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "sfml",
     srcs = ["sfml.cpp"],
@@ -43,6 +61,7 @@ cc_library(
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
+        ":last_resort_font",
         ":type",
         "//os:xdg",
         "//util:string",
