@@ -55,6 +55,8 @@ void print_to(std::ostream &os, std::string_view actual_op, T const &a, U const 
 struct RunOptions {
     bool run_disabled_tests{false};
     std::optional<unsigned> rng_seed;
+    // Pattern to match test names against. Must be a valid regex compatible w/ std::regex.
+    std::string_view test_name_filter{".*"};
 };
 
 class IActions {

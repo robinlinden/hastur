@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,6 +11,8 @@
 #include <iterator>
 #include <optional>
 #include <random>
+#include <ranges>
+#include <regex>
 #include <source_location>
 #include <sstream>
 #include <string_view>
@@ -62,8 +64,13 @@ struct Actions : public IActions {
 } // namespace
 
 int Suite::run(RunOptions const &opts) {
+    auto pattern = std::regex{opts.test_name_filter.data(), opts.test_name_filter.size()};
+    auto test_name_filter = [&](Test const &test) {
+        return std::regex_search(test.name, pattern);
+    };
+
     std::vector<Test> tests_to_run;
-    std::ranges::copy(tests_, std::back_inserter(tests_to_run));
+    std::ranges::copy(tests_ | std::views::filter(test_name_filter), std::back_inserter(tests_to_run));
 
     std::cout << tests_.size() + disabled_tests_.size() << " test(s) registered";
     if (disabled_tests_.empty()) {
@@ -71,7 +78,7 @@ int Suite::run(RunOptions const &opts) {
     } else {
         std::cout << ", " << disabled_tests_.size() << " disabled.\n" << std::flush;
         if (opts.run_disabled_tests) {
-            std::ranges::copy(disabled_tests_, std::back_inserter(tests_to_run));
+            std::ranges::copy(disabled_tests_ | std::views::filter(test_name_filter), std::back_inserter(tests_to_run));
         }
     }
 
