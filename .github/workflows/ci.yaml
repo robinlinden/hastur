@@ -29,6 +29,11 @@ jobs:
             bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
             apt: valgrind
 
+          - name: gcc-15
+            os: ubuntu-24.04
+            compiler: gcc
+            version: 15
+
           - name: clang-18-tsan
             os: ubuntu-24.04
             compiler: clang
@@ -73,6 +78,9 @@ jobs:
         run: |
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+      - name: Prepare gcc install
+        if: startsWith(matrix.compiler, 'gcc') && matrix.version >= 15
+        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
       - name: Set up the llvm repository
         if: startsWith(matrix.compiler, 'clang') && matrix.version >= 19
         run: |
