@@ -752,6 +752,29 @@ http_file(
     url = "https://raw.githubusercontent.com/web-platform-tests/wpt/%s/url/resources/urltestdata.json" % WPT_REVISION,
 )
 
+# https://gitlab.freedesktop.org/xorg/lib/libx11
+X11_VERSION = "1.8.7"
+
+bazel_dep(name = "x11")  # X11
+archive_override(
+    module_name = "x11",
+    build_file = "//third_party:x11.BUILD",
+    integrity = "sha256-7RrvT88k3+tAQYCHRJI2yYmQqEQuoD5Lty3AEUsZDjE=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "x11")
+bazel_dep(name = "rules_cc")
+bazel_dep(name = "xcb")
+bazel_dep(name = "xproto")
+EOF""",
+    ],
+    strip_prefix = "libx11-libX11-%s" % X11_VERSION,
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libx11/-/archive/libX11-{0}/libx11-libX11-{0}.tar.gz".format(X11_VERSION),
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
 # https://gitlab.freedesktop.org/xorg/lib/libxcursor
 XCURSOR_VERSION = "1.2.3"
 
@@ -774,6 +797,73 @@ EOF""",
     ],
 )
 
+# https://gitlab.freedesktop.org/xorg/lib/libxau
+XAU_VERSION = "1.0.11"
+
+bazel_dep(name = "xau")  # X11
+archive_override(
+    module_name = "xau",
+    build_file = "//third_party:xau.BUILD",
+    integrity = "sha256-R/SV862lnAl9Gw8ofcNMY1uNXgQBRvi2brqiNWb4zUQ=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "xau")
+bazel_dep(name = "rules_cc")
+EOF""",
+    ],
+    strip_prefix = "libxau-libXau-%s" % XAU_VERSION,
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxau/-/archive/libXau-{0}/libxau-libXau-{0}.tar.gz".format(XAU_VERSION),
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
+# https://gitlab.freedesktop.org/xorg/lib/libxcb
+XCB_VERSION = "1.16"
+
+bazel_dep(name = "xcb")  # X11
+archive_override(
+    module_name = "xcb",
+    build_file = "//third_party:xcb.BUILD",
+    integrity = "sha256-4sXPzUz0DmtCBTP9SRDvd35YbIS6FuSTF2o7t27qpCY=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "xcb")
+bazel_dep(name = "rules_cc")
+bazel_dep(name = "rules_python")
+bazel_dep(name = "xau")
+bazel_dep(name = "xcbproto")
+bazel_dep(name = "xproto")
+EOF""",
+    ],
+    strip_prefix = "libxcb-libxcb-%s" % XCB_VERSION,
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/lib/libxcb/-/archive/libxcb-{0}/libxcb-libxcb-{0}.tar.gz".format(XCB_VERSION),
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
+# https://gitlab.freedesktop.org/xorg/proto/xcbproto
+XCBPROTO_VERSION = "1.16.0"
+
+bazel_dep(name = "xcbproto")  # X11
+archive_override(
+    module_name = "xcbproto",
+    build_file = "//third_party:xcbproto.BUILD",
+    integrity = "sha256-Dojkpo4oUhyrBWYMFMMgrjLqeqZLxJjCVVf3Jsz9o4g=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "xcbproto")
+bazel_dep(name = "rules_python")
+EOF""",
+    ],
+    strip_prefix = "xcbproto-xcb-proto-%s" % XCBPROTO_VERSION,
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/archive/xcb-proto-{0}/xcbproto-xcb-proto-{0}.tar.gz".format(XCBPROTO_VERSION),
+        # TODO(robinlinden): Mirror.
+    ],
+)
+
 # https://gitlab.freedesktop.org/xorg/lib/libxext
 XEXT_VERSION = "1.3.6"
 
@@ -792,6 +882,27 @@ EOF""",
     urls = [
         "https://github.com/robinlinden/libxext/archive/libXext-%s.tar.gz" % XEXT_VERSION,
         "https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-{0}/libxext-libXext-{0}.tar.gz".format(XEXT_VERSION),
+    ],
+)
+
+# https://gitlab.freedesktop.org/xorg/proto/xorgproto
+XPROTO_VERSION = "2023.2"
+
+bazel_dep(name = "xproto")  # MIT
+archive_override(
+    module_name = "xproto",
+    build_file = "//third_party:xproto.BUILD",
+    integrity = "sha256-HiCXHNdngGcqBjVCkGJHbwNNaUMWAccsPl2y64to+OU=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "xproto")
+bazel_dep(name = "rules_cc")
+EOF""",
+    ],
+    strip_prefix = "xorgproto-xorgproto-%s" % XPROTO_VERSION,
+    urls = [
+        "https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/archive/xorgproto-{0}/xorgproto-xorgproto-{0}.tar.gz".format(XPROTO_VERSION),
+        # TODO(robinlinden): Mirror.
     ],
 )
 
