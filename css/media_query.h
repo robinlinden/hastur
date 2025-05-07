@@ -68,6 +68,7 @@ struct Context {
 
 struct And;
 struct False;
+struct Height;
 struct HoverType;
 struct IsInOrientation;
 struct PrefersColorScheme;
@@ -77,6 +78,7 @@ struct Type;
 struct Width;
 using Query = std::variant<And,
         False,
+        Height,
         IsInOrientation,
         PrefersColorScheme,
         PrefersReducedMotion,
@@ -97,6 +99,15 @@ struct HoverType {
     [[nodiscard]] bool operator==(HoverType const &) const = default;
 
     constexpr bool evaluate(Context const &ctx) const { return ctx.hover == hover; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/height
+struct Height {
+    int min{};
+    int max{std::numeric_limits<int>::max()};
+    [[nodiscard]] bool operator==(Height const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return min <= ctx.window_height && ctx.window_height <= max; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation
@@ -157,6 +168,7 @@ public:
     using And = detail::And;
     using Context = detail::Context;
     using False = detail::False;
+    using Height = detail::Height;
     using HoverType = detail::HoverType;
     using IsInOrientation = detail::IsInOrientation;
     using PrefersColorScheme = detail::PrefersColorScheme;
@@ -220,6 +232,10 @@ private:
 
         if (feature_name == "width" || feature_name == "min-width" || feature_name == "max-width") {
             return parse_length<Width>("width", feature_name, value_str);
+        }
+
+        if (feature_name == "height" || feature_name == "min-height" || feature_name == "max-height") {
+            return parse_length<Height>("height", feature_name, value_str);
         }
 
         if (feature_name == "prefers-color-scheme") {
@@ -341,6 +357,10 @@ inline bool detail::And::evaluate(Context const &ctx) const {
 
 inline std::string to_string(MediaQuery::Width const &width) {
     return std::to_string(width.min) + " <= width <= " + std::to_string(width.max);
+}
+
+inline std::string to_string(MediaQuery::Height const &height) {
+    return std::to_string(height.min) + " <= height <= " + std::to_string(height.max);
 }
 
 constexpr std::string to_string(MediaQuery::False const &) {
