@@ -77,6 +77,11 @@ void to_string_tests(etest::Suite &s) {
                 "299 <= width <= 301");
     });
 
+    s.add_test("to_string: height", [](etest::IActions &a) {
+        a.expect_eq(css::to_string(css::MediaQuery::Height{.min = 299, .max = 301}), //
+                "299 <= height <= 301");
+    });
+
     s.add_test("to_string: false", [](etest::IActions &a) {
         a.expect_eq(css::to_string(css::MediaQuery::False{}), "false"); //
     });
@@ -262,6 +267,38 @@ void width_tests(etest::Suite &s) {
     });
 }
 
+void height_tests(etest::Suite &s) {
+    s.add_test("height: height", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(height: 300px)"),
+                css::MediaQuery{css::MediaQuery::Height{.min = 300, .max = 300}});
+
+        auto query = css::MediaQuery::Height{.min = 300, .max = 300};
+        a.expect(!query.evaluate({.window_height = 299}));
+        a.expect(query.evaluate({.window_height = 300}));
+        a.expect(!query.evaluate({.window_height = 301}));
+    });
+
+    s.add_test("height: min-height", [](etest::IActions &a) {
+        a.expect_eq(
+                css::MediaQuery::parse("(min-height: 300px)"), css::MediaQuery{css::MediaQuery::Height{.min = 300}});
+
+        auto query = css::MediaQuery::Height{.min = 300};
+        a.expect(!query.evaluate({.window_height = 299}));
+        a.expect(query.evaluate({.window_height = 300}));
+        a.expect(query.evaluate({.window_height = 301}));
+    });
+
+    s.add_test("height: max-height", [](etest::IActions &a) {
+        a.expect_eq(
+                css::MediaQuery::parse("(max-height: 300px)"), css::MediaQuery{css::MediaQuery::Height{.max = 300}});
+
+        auto query = css::MediaQuery::Height{.max = 300};
+        a.expect(query.evaluate({.window_height = 299}));
+        a.expect(query.evaluate({.window_height = 300}));
+        a.expect(!query.evaluate({.window_height = 301}));
+    });
+}
+
 void hover_tests(etest::Suite &s) {
     s.add_test("hover: hover", [](etest::IActions &a) {
         a.expect_eq(css::MediaQuery::parse("(hover: hover)"),
@@ -339,6 +376,7 @@ int main() {
     prefers_reduced_motion_tests(s);
     type_tests(s);
     width_tests(s);
+    height_tests(s);
     hover_tests(s);
     orientation_tests(s);
     return s.run();

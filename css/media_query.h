@@ -68,6 +68,7 @@ struct Context {
 
 struct And;
 struct False;
+struct Height;
 struct HoverType;
 struct IsInOrientation;
 struct PrefersColorScheme;
@@ -77,6 +78,7 @@ struct Type;
 struct Width;
 using Query = std::variant<And,
         False,
+        Height,
         IsInOrientation,
         PrefersColorScheme,
         PrefersReducedMotion,
@@ -97,6 +99,15 @@ struct HoverType {
     [[nodiscard]] bool operator==(HoverType const &) const = default;
 
     constexpr bool evaluate(Context const &ctx) const { return ctx.hover == hover; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/height
+struct Height {
+    int min{};
+    int max{std::numeric_limits<int>::max()};
+    [[nodiscard]] bool operator==(Height const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return min <= ctx.window_height && ctx.window_height <= max; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation
@@ -157,6 +168,7 @@ public:
     using And = detail::And;
     using Context = detail::Context;
     using False = detail::False;
+    using Height = detail::Height;
     using HoverType = detail::HoverType;
     using IsInOrientation = detail::IsInOrientation;
     using PrefersColorScheme = detail::PrefersColorScheme;
@@ -219,7 +231,11 @@ private:
         auto value_str = s.substr(value_start);
 
         if (feature_name == "width" || feature_name == "min-width" || feature_name == "max-width") {
-            return parse_width(feature_name, value_str);
+            return parse_length<Width>("width", feature_name, value_str);
+        }
+
+        if (feature_name == "height" || feature_name == "min-height" || feature_name == "max-height") {
+            return parse_length<Height>("height", feature_name, value_str);
         }
 
         if (feature_name == "prefers-color-scheme") {
@@ -291,7 +307,13 @@ private:
         return MediaQuery{And{.queries = std::move(queries)}};
     }
 
-    static std::optional<MediaQuery> parse_width(std::string_view feature_name, std::string_view value_str) {
+    template<typename T>
+    static std::optional<MediaQuery> parse_length(
+            std::string_view suffix, std::string_view feature_name, std::string_view value_str) {
+        // Checked by the caller.
+        assert(feature_name.ends_with(suffix));
+        feature_name.remove_suffix(suffix.size());
+
         float value{};
         auto value_parse_res = util::from_chars(value_str.data(), value_str.data() + value_str.size(), value);
         if (value_parse_res.ec != std::errc{}) {
@@ -316,16 +338,16 @@ private:
             return std::nullopt;
         }
 
-        if (feature_name == "min-width") {
-            return MediaQuery{Width{.min = static_cast<int>(value)}};
+        if (feature_name == "min-") {
+            return MediaQuery{T{.min = static_cast<int>(value)}};
         }
 
-        if (feature_name == "max-width") {
-            return MediaQuery{Width{.max = static_cast<int>(value)}};
+        if (feature_name == "max-") {
+            return MediaQuery{T{.max = static_cast<int>(value)}};
         }
 
-        assert(feature_name == "width");
-        return MediaQuery{Width{.min = static_cast<int>(value), .max = static_cast<int>(value)}};
+        assert(feature_name.empty());
+        return MediaQuery{T{.min = static_cast<int>(value), .max = static_cast<int>(value)}};
     }
 };
 
@@ -335,6 +357,10 @@ inline bool detail::And::evaluate(Context const &ctx) const {
 
 inline std::string to_string(MediaQuery::Width const &width) {
     return std::to_string(width.min) + " <= width <= " + std::to_string(width.max);
+}
+
+inline std::string to_string(MediaQuery::Height const &height) {
+    return std::to_string(height.min) + " <= height <= " + std::to_string(height.max);
 }
 
 constexpr std::string to_string(MediaQuery::False const &) {
