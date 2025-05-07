@@ -219,7 +219,7 @@ private:
         auto value_str = s.substr(value_start);
 
         if (feature_name == "width" || feature_name == "min-width" || feature_name == "max-width") {
-            return parse_width(feature_name, value_str);
+            return parse_length<Width>("width", feature_name, value_str);
         }
 
         if (feature_name == "prefers-color-scheme") {
@@ -291,7 +291,13 @@ private:
         return MediaQuery{And{.queries = std::move(queries)}};
     }
 
-    static std::optional<MediaQuery> parse_width(std::string_view feature_name, std::string_view value_str) {
+    template<typename T>
+    static std::optional<MediaQuery> parse_length(
+            std::string_view suffix, std::string_view feature_name, std::string_view value_str) {
+        // Checked by the caller.
+        assert(feature_name.ends_with(suffix));
+        feature_name.remove_suffix(suffix.size());
+
         float value{};
         auto value_parse_res = util::from_chars(value_str.data(), value_str.data() + value_str.size(), value);
         if (value_parse_res.ec != std::errc{}) {
@@ -316,16 +322,16 @@ private:
             return std::nullopt;
         }
 
-        if (feature_name == "min-width") {
-            return MediaQuery{Width{.min = static_cast<int>(value)}};
+        if (feature_name == "min-") {
+            return MediaQuery{T{.min = static_cast<int>(value)}};
         }
 
-        if (feature_name == "max-width") {
-            return MediaQuery{Width{.max = static_cast<int>(value)}};
+        if (feature_name == "max-") {
+            return MediaQuery{T{.max = static_cast<int>(value)}};
         }
 
-        assert(feature_name == "width");
-        return MediaQuery{Width{.min = static_cast<int>(value), .max = static_cast<int>(value)}};
+        assert(feature_name.empty());
+        return MediaQuery{T{.min = static_cast<int>(value), .max = static_cast<int>(value)}};
     }
 };
 
