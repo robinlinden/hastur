@@ -266,7 +266,7 @@ tl::expected<void, ValidationError> validate_constant_expression(
         }
     }
 
-    tl::expected maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
+    auto maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
     if (!maybe_vals.has_value()) {
         return tl::unexpected{maybe_vals.error()};
@@ -478,7 +478,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
                 return tl::unexpected{ValidationError::LabelInvalid};
             }
 
-            tl::expected maybe_vals =
+            auto maybe_vals =
                     v.pop_vals(v.label_types(v.control_stack[v.control_stack.size() - (branch->label_idx + 1)]));
 
             if (!maybe_vals.has_value()) {
@@ -497,7 +497,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
                 return tl::unexpected{maybe_val.error()};
             }
 
-            tl::expected maybe_vals =
+            auto maybe_vals =
                     v.pop_vals(v.label_types(v.control_stack[v.control_stack.size() - (branch_if->label_idx + 1)]));
 
             if (!maybe_vals.has_value()) {
@@ -506,7 +506,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
 
             v.push_vals(v.label_types(v.control_stack[v.control_stack.size() - (branch_if->label_idx + 1)]));
         } else if (std::holds_alternative<Return>(inst)) {
-            tl::expected maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
+            auto maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
             if (!maybe_vals.has_value()) {
                 return tl::unexpected{maybe_vals.error()};
@@ -522,7 +522,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
     // return. This only happens if a "return" was the last instruction in the
     // sequence.
     if (!std::holds_alternative<Return>(func_code.code.back()) && !v.control_stack.empty()) {
-        tl::expected maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
+        auto maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
         if (!maybe_vals.has_value()) {
             return tl::unexpected{maybe_vals.error()};

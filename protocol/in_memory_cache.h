@@ -26,14 +26,14 @@ public:
 
     [[nodiscard]] tl::expected<Response, Error> handle(uri::Uri const &uri) override {
         {
-            std::scoped_lock lock{cache_mutex_};
+            std::scoped_lock<std::mutex> lock{cache_mutex_};
             if (auto it = cache_.find(uri); it != cend(cache_)) {
                 return it->second;
             }
         }
 
         auto response = handler_->handle(uri);
-        std::scoped_lock lock{cache_mutex_};
+        std::scoped_lock<std::mutex> lock{cache_mutex_};
         return cache_[uri] = std::move(response);
     }
 
