@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,16 +9,18 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Wextra",
     "-pedantic-errors",
     "-Werror",
+    "-fno-common",
+    "-Wctad-maybe-unsupported",
     "-Wdouble-promotion",
     "-Wformat=2",
     "-Wmissing-declarations",
+    "-Wnon-virtual-dtor",
     "-Wnull-dereference",
+    "-Woverloaded-virtual",
     "-Wshadow",
     "-Wsign-compare",
     "-Wundef",
-    "-fno-common",
-    "-Wnon-virtual-dtor",
-    "-Woverloaded-virtual",
+
     # Common idiom for zeroing members.
     "-Wno-missing-field-initializers",
 ]

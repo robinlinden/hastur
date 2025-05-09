@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -73,7 +73,7 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
             }
 
             // Pretty gross, but we want to perform the search in tree order.
-            std::ranges::move(dom_children(*node), std::insert_iterator(searching, next(begin(searching), i + 1)));
+            std::ranges::move(dom_children(*node), std::inserter(searching, next(begin(searching), i + 1)));
         }
     };
 
