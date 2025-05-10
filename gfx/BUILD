@@ -71,7 +71,6 @@ cc_library(
         "//conditions:default": [],
     }),
     implementation_deps = [
-        "//os:xdg",
         "@sfml//:system",
         "@spdlog",
     ],
