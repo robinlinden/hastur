@@ -1682,6 +1682,10 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
 }
 
 bool UrlParser::is_url_codepoint(std::uint32_t cp) const {
+    if (unicode::is_ascii(cp) && util::is_alphanumeric(static_cast<char>(cp))) {
+        return true;
+    }
+
     return cp == '!' || cp == '$' || cp == '&' || cp == '\'' || cp == '(' || cp == ')' || cp == '*' || cp == '+'
             || cp == ',' || cp == '-' || cp == '.' || cp == '/' || cp == ':' || cp == ';' || cp == '=' || cp == '?'
             || cp == '@' || cp == '_' || cp == '~'
