@@ -9,7 +9,6 @@
 #include "unicode/util.h"
 
 #include <algorithm>
-#include <cassert>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -34,16 +33,6 @@ std::optional<std::string> Uts46::map(std::string_view input) {
         }
 
         if (std::holds_alternative<uts46::Disallowed>(entry)) {
-            return std::nullopt;
-        }
-
-        // tr46 strongly recommends using the std3 rules, so no opt-out for
-        // this.
-        if (std::holds_alternative<uts46::DisallowedStd3Valid>(entry)) {
-            return std::nullopt;
-        }
-
-        if (std::holds_alternative<uts46::DisallowedStd3Mapped>(entry)) {
             return std::nullopt;
         }
 

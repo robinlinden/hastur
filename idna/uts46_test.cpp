@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,26 +7,23 @@
 #include "etest/etest2.h"
 
 #include <optional>
-#include <string_view>
-
-using namespace std::literals;
 
 // https://unicode.org/reports/tr46/#Table_Example_Processing
 int main() {
     etest::Suite s{};
 
     s.add_test("disallowed", [](etest::IActions &a) {
-        // The first unicode value
-        a.expect_eq(idna::Uts46::map("\0"sv), std::nullopt);
+        // The first disallowed unicode value.
+        a.expect_eq(idna::Uts46::map("\xc2\x80"), std::nullopt); // U+0080
         // and the last one, U+10FFFF, but in UTF-8.
         a.expect_eq(idna::Uts46::map("\xf4\x8f\xbf\xbf"), std::nullopt);
 
-        a.expect_eq(idna::Uts46::map(","), std::nullopt);
-        a.expect_eq(idna::Uts46::map("\xc2\xa0"), std::nullopt);
+        a.expect_eq(idna::Uts46::map("\xc2\x9f"), std::nullopt); // Application program command.
         a.expect_eq(idna::Uts46::map("a⒈com"), std::nullopt);
     });
 
     s.add_test("mapped", [](etest::IActions &a) {
+        a.expect_eq(idna::Uts46::map("\xc2\xa0"), " "); // No-break space.
         a.expect_eq(idna::Uts46::map("ABCXYZ"), "abcxyz");
         a.expect_eq(idna::Uts46::map("日本語。ＪＰ"), "日本語.jp");
         a.expect_eq(idna::Uts46::map("☕.us"), "☕.us");

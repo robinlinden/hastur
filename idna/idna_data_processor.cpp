@@ -50,17 +50,6 @@ struct Disallowed {
     constexpr bool operator==(Disallowed const &) const = default;
 };
 
-struct DisallowedStd3Valid {
-    constexpr bool operator==(DisallowedStd3Valid const &) const = default;
-};
-
-struct DisallowedStd3Mapped {
-    std::vector<std::uint32_t> maps_to;
-    constexpr bool operator==(DisallowedStd3Mapped const &) const = default;
-
-    static DisallowedStd3Mapped from_string(std::string_view s) { return parse_from_string<DisallowedStd3Mapped>(s); }
-};
-
 struct Ignored {
     constexpr bool operator==(Ignored const &) const = default;
 };
@@ -91,15 +80,7 @@ struct ValidXv8 {
     constexpr bool operator==(ValidXv8 const &) const = default;
 };
 
-using Mapping = std::variant<Disallowed,
-        DisallowedStd3Valid,
-        DisallowedStd3Mapped,
-        Ignored,
-        Mapped,
-        Deviation,
-        Valid,
-        ValidNv8,
-        ValidXv8>;
+using Mapping = std::variant<Disallowed, Ignored, Mapped, Deviation, Valid, ValidNv8, ValidXv8>;
 
 template<typename T>
 bool last_mapping_was(auto const &mappings, std::optional<T> mapping = std::nullopt) {
@@ -154,18 +135,6 @@ struct Idna {
                     continue;
                 }
                 idna.mappings.emplace_back(code_point, Disallowed{});
-            } else if (status == "disallowed_STD3_valid") {
-                if (last_mapping_was<DisallowedStd3Valid>(idna.mappings)) {
-                    idna.mappings.back().first = code_point;
-                    continue;
-                }
-                idna.mappings.emplace_back(code_point, DisallowedStd3Valid{});
-            } else if (status == "disallowed_STD3_mapped") {
-                if (last_mapping_was<DisallowedStd3Mapped>(idna.mappings, DisallowedStd3Mapped::from_string(cols[2]))) {
-                    idna.mappings.back().first = code_point;
-                    continue;
-                }
-                idna.mappings.emplace_back(code_point, DisallowedStd3Mapped::from_string(cols[2]));
             } else if (status == "ignored") {
                 if (last_mapping_was<Ignored>(idna.mappings)) {
                     idna.mappings.back().first = code_point;
@@ -217,17 +186,6 @@ struct Idna {
 std::string to_cxx_variant(Mapping const &a) {
     struct Stringifier {
         std::string operator()(Disallowed const &) const { return "Disallowed{}"; }
-        std::string operator()(DisallowedStd3Valid const &) const { return "DisallowedStd3Valid{}"; }
-
-        std::string operator()(DisallowedStd3Mapped const &a) const {
-            std::string result;
-            for (auto c : a.maps_to) {
-                result += "\\U" + std::format("{:08X}", c);
-            }
-
-            return "DisallowedStd3Mapped{\"" + result + "\"}";
-        }
-
         std::string operator()(Ignored const &) const { return "Ignored{}"; }
 
         std::string operator()(Mapped const &a) const {
@@ -272,7 +230,7 @@ int main(int argc, char **argv) {
 
     auto idna = Idna::from_table(table);
 
-    std::cout << R"(// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+    std::cout << R"(// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -291,15 +249,6 @@ namespace idna::uts46 {
 
 struct Disallowed {
     constexpr bool operator==(Disallowed const &) const = default;
-};
-
-struct DisallowedStd3Valid {
-    constexpr bool operator==(DisallowedStd3Valid const &) const = default;
-};
-
-struct DisallowedStd3Mapped {
-    std::string_view maps_to;
-    constexpr bool operator==(DisallowedStd3Mapped const &) const = default;
 };
 
 struct Ignored {
@@ -330,8 +279,6 @@ struct ValidXv8 {
 
 using Mapping = std::variant<
         Disallowed,
-        DisallowedStd3Valid,
-        DisallowedStd3Mapped,
         Ignored,
         Mapped,
         Deviation,
