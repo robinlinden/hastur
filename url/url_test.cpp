@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -764,6 +764,17 @@ int main() {
         a.require(url.has_value());
 
         a.expect_eq(url->serialize(), "http://example.com/");
+    });
+
+    s.add_test("boring url", [](etest::IActions &a) {
+        auto [url, errors] = parse_url("http://example.com");
+        a.expect_eq(url.value(),
+                url::Url{
+                        .scheme = "http",
+                        .host = url::Host{.type = url::HostType::DnsDomain, .data = {"example.com"}},
+                        .path = std::string{"/"},
+                });
+        a.expect(errors.empty());
     });
 
     int ret = s.run();
