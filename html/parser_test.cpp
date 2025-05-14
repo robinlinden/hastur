@@ -445,5 +445,15 @@ int main() {
         std::ignore = html::parse("<!--", {}, cbs);
     });
 
+    s.add_test("on_element_closed cb", [](etest::IActions &a) {
+        auto closed = std::vector<std::string>{};
+        html::Callbacks cbs{
+                .on_element_closed = [&](dom::Element const &e) { closed.push_back(e.name); },
+        };
+
+        auto doc = html::parse("<html><head></head><body></body></html>", {}, cbs);
+        a.expect_eq(closed, std::vector<std::string>{"head", "body", "html"});
+    });
+
     return s.run();
 }

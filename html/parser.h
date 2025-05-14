@@ -24,6 +24,7 @@ struct ParserOptions {
 };
 
 struct Callbacks {
+    std::function<void(dom::Element const &)> on_element_closed;
     std::function<void(html2::ParseError)> on_error;
 };
 
@@ -46,10 +47,14 @@ private:
 
                       cbs.on_error(err);
                   }},
-          scripting_{opts.scripting} {}
+          scripting_{opts.scripting}, cbs_{cbs} {}
 
     [[nodiscard]] dom::Document run() {
         tokenizer_.run();
+        while (!open_elements_.empty()) {
+            actions_.pop_current_node();
+        }
+
         return std::move(doc_);
     }
 
@@ -59,8 +64,9 @@ private:
     dom::Document doc_{};
     std::vector<dom::Element *> open_elements_{};
     bool scripting_{false};
+    Callbacks const &cbs_;
     html2::InsertionMode insertion_mode_{};
-    Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_};
+    Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_, cbs_.on_element_closed};
 };
 
 inline dom::Document parse(std::string_view input, ParserOptions const &opts, Callbacks const &cbs) {

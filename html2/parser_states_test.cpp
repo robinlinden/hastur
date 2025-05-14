@@ -14,6 +14,7 @@
 #include <array>
 #include <cstddef>
 #include <format>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -43,7 +44,8 @@ ParseResult parse(std::string_view html, ParseOptions const &opts) {
     ParseResult res{};
     html2::InsertionMode mode{opts.initial_insertion_mode};
     std::vector<dom::Element *> open_elements{};
-    html::Actions actions{res.document, tokenizer, opts.scripting, mode, open_elements};
+    std::function<void(dom::Element const &)> on_element_closed{};
+    html::Actions actions{res.document, tokenizer, opts.scripting, mode, open_elements, on_element_closed};
 
     auto on_token = [&](html2::Tokenizer &, html2::Token const &token) {
         mode = std::visit([&](auto &v) { return v.process(actions, token); }, mode).value_or(mode);

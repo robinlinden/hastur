@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iterator>
 #include <span>
 #include <string>
@@ -29,9 +30,11 @@ public:
             html2::Tokenizer &tokenizer,
             bool scripting,
             html2::InsertionMode &current_insertion_mode,
-            std::vector<dom::Element *> &open_elements)
+            std::vector<dom::Element *> &open_elements,
+            std::function<void(dom::Element const &)> const &on_element_closed)
         : document_{document}, tokenizer_{tokenizer}, scripting_{scripting},
-          current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements} {}
+          current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements},
+          on_element_closed_{on_element_closed} {}
 
     void set_doctype_name(std::string name) override { document_.doctype = std::move(name); }
 
@@ -76,7 +79,17 @@ public:
         insert({token.tag_name, into_dom_attributes(token.attributes)});
     }
 
-    void pop_current_node() override { open_elements_.pop_back(); }
+    void pop_current_node() override {
+        auto const *current_element = open_elements_.back();
+        open_elements_.pop_back();
+
+        // This may not be perfect as some elements can be opened and closed
+        // multiple times (e.g. the head element), but it's good enough for now.
+        if (on_element_closed_) {
+            on_element_closed_(*current_element);
+        }
+    }
+
     std::string_view current_node_name() const override { return open_elements_.back()->name; }
 
     void merge_into_html_node(std::span<html2::Attribute const> attrs) override {
@@ -169,6 +182,7 @@ private:
     html2::InsertionMode original_insertion_mode_;
     html2::InsertionMode &current_insertion_mode_;
     std::vector<dom::Element *> &open_elements_;
+    std::function<void(dom::Element const &)> const &on_element_closed_;
 };
 
 } // namespace html
