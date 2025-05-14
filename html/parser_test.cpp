@@ -429,5 +429,21 @@ int main() {
         a.expect_eq(errors, std::vector{html2::ParseError::EofInComment});
     });
 
+    s.add_test("errors, new api", [](etest::IActions &a) {
+        auto errors = std::vector<html2::ParseError>{};
+        html::Callbacks cbs{
+                .on_error = [&](html2::ParseError e) { errors.push_back(e); },
+        };
+
+        std::ignore = html::parse("<!--", {}, cbs);
+
+        a.expect_eq(errors, std::vector{html2::ParseError::EofInComment});
+    });
+
+    s.add_test("errors, new api, no cb set", [](etest::IActions &) {
+        html::Callbacks cbs{};
+        std::ignore = html::parse("<!--", {}, cbs);
+    });
+
     return s.run();
 }
