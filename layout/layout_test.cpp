@@ -89,7 +89,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 }},
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -156,7 +156,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 }},
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -223,7 +223,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 }},
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -301,7 +301,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 },
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -377,7 +377,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 },
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -454,7 +454,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 },
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -535,7 +535,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 },
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 }
@@ -581,7 +581,7 @@ void text_transform_tests(etest::Suite &s) {
                 }},
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -625,7 +625,7 @@ void text_transform_tests(etest::Suite &s) {
                 }},
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 
@@ -669,7 +669,7 @@ void text_transform_tests(etest::Suite &s) {
                 }},
         };
 
-        auto actual = layout::create_layout(style, 1234);
+        auto actual = layout::create_layout(style, {.viewport_width = 1234});
         a.expect_eq(actual, expected_layout);
     });
 }
@@ -699,7 +699,7 @@ void img_tests(etest::Suite &s) {
                 }},
         };
 
-        auto layout_root = layout::create_layout(style, 100);
+        auto layout_root = layout::create_layout(style, {.viewport_width = 100});
         a.expect_eq(expected_layout, layout_root);
     });
 
@@ -729,7 +729,7 @@ void img_tests(etest::Suite &s) {
                 }},
         };
 
-        auto layout_root = layout::create_layout(style, 100);
+        auto layout_root = layout::create_layout(style, {.viewport_width = 100});
         a.expect_eq(expected_layout, layout_root);
         a.expect_eq(expected_layout.children.at(0).text(), "hello");
     });
@@ -760,8 +760,8 @@ void img_tests(etest::Suite &s) {
                 }},
         };
 
-        auto layout_root =
-                layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
+        auto layout_root = layout::create_layout(
+                style, {.viewport_width = 100}, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
         a.expect_eq(expected_layout, layout_root);
     });
 
@@ -790,8 +790,8 @@ void img_tests(etest::Suite &s) {
                 }},
         };
 
-        auto layout_root =
-                layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
+        auto layout_root = layout::create_layout(
+                style, {.viewport_width = 100}, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
         a.expect_eq(expected_layout, layout_root);
     });
 
@@ -820,12 +820,14 @@ void img_tests(etest::Suite &s) {
                 }},
         };
 
-        auto layout_root = layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return std::nullopt; });
+        auto layout_root = layout::create_layout(
+                style, {.viewport_width = 100}, type::NaiveType{}, [](auto) { return std::nullopt; });
         a.expect_eq(expected_layout, layout_root);
 
         // and an image not being found should be the same as src missing.
         std::get<dom::Element>(body.children[0]).attributes.clear();
-        layout_root = layout::create_layout(style, 100, type::NaiveType{}, [](auto) { return std::nullopt; });
+        layout_root = layout::create_layout(
+                style, {.viewport_width = 100}, type::NaiveType{}, [](auto) { return std::nullopt; });
         a.expect_eq(expected_layout, layout_root);
     });
 }
@@ -871,7 +873,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root, 0);
+        auto layout_root = layout::create_layout(style_root,{.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
 
@@ -906,7 +908,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root, 0);
+        auto layout_root = layout::create_layout(style_root,{.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
 
@@ -945,7 +947,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root, 0);
+        auto layout_root = layout::create_layout(style_root,{.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
 
@@ -966,7 +968,7 @@ int main() {
                 .children = {{&style_root.children[0], {}, {}}},
         };
 
-        auto layout_root = layout::create_layout(style_root, 0);
+        auto layout_root = layout::create_layout(style_root, {.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
     // clang-format off
@@ -1005,7 +1007,7 @@ int main() {
             }
         };
 
-        auto layout_root = layout::create_layout(style_root, 100);
+        auto layout_root = layout::create_layout(style_root,{.viewport_width = 100});
         a.expect(expected_layout == layout_root);
 
         a.expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
@@ -1040,7 +1042,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("min-width", [](etest::IActions &a) {
@@ -1071,7 +1073,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 20) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 20}) == expected_layout);
     });
 
     s.add_test("max-width", [](etest::IActions &a) {
@@ -1102,7 +1104,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("less simple width", [](etest::IActions &a) {
@@ -1133,7 +1135,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("auto width expands to fill parent", [](etest::IActions &a) {
@@ -1164,7 +1166,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("height doesn't affect children", [](etest::IActions &a) {
@@ -1195,7 +1197,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("height affects siblings and parents", [](etest::IActions &a) {
@@ -1229,7 +1231,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("min-height is respected", [](etest::IActions &a) {
@@ -1263,7 +1265,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("max-height is respected", [](etest::IActions &a) {
@@ -1297,7 +1299,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 0) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("padding is taken into account", [](etest::IActions &a) {
@@ -1340,7 +1342,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("border is taken into account", [](etest::IActions &a) {
@@ -1387,7 +1389,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("border is not added if border style is none", [](etest::IActions &a) {
@@ -1427,7 +1429,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("margin is taken into account", [](etest::IActions &a) {
@@ -1469,7 +1471,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 100) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("auto margin is handled", [](etest::IActions &a) {
@@ -1507,7 +1509,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 200) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 200}) == expected_layout);
     });
 
     s.add_test("auto left margin and fixed right margin is handled", [](etest::IActions &a) {
@@ -1545,7 +1547,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 200) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 200}) == expected_layout);
     });
 
     s.add_test("fixed left margin and auto right margin is handled", [](etest::IActions &a) {
@@ -1583,7 +1585,7 @@ int main() {
             }
         };
 
-        a.expect(layout::create_layout(style_root, 200) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 200}) == expected_layout);
     });
 
     s.add_test("em sizes depend on the font-size", [](etest::IActions &a) {
@@ -1606,7 +1608,7 @@ int main() {
                 .children = {}
             };
 
-            a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+            a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
         }
 
         // Doubling the font-size should double the width/height.
@@ -1627,7 +1629,7 @@ int main() {
             .children = {}
         };
 
-        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("px sizes don't depend on the font-size", [](etest::IActions &a) {
@@ -1650,7 +1652,7 @@ int main() {
                 .children = {}
             };
 
-            a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+            a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
         }
 
         // Doubling the font-size shouldn't change the width/height.
@@ -1671,7 +1673,7 @@ int main() {
             .children = {}
         };
 
-        a.expect(layout::create_layout(style_root, 1000) == expected_layout);
+        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
     });
 
     // clang-format on
@@ -1685,7 +1687,7 @@ int main() {
         };
         layout::LayoutBox expected_layout{.node = &style, .dimensions{{0, 0, 100, 0}}};
 
-        auto layout = layout::create_layout(style, 0);
+        auto layout = layout::create_layout(style, {.viewport_width = 0});
         a.expect_eq(layout, expected_layout);
     });
 
@@ -1699,7 +1701,7 @@ int main() {
         };
         layout::LayoutBox expected_layout{.node = &style, .dimensions{{0, 0, 0, 100}}};
 
-        auto layout = layout::create_layout(style, 0);
+        auto layout = layout::create_layout(style, {.viewport_width = 0});
         a.expect_eq(layout, expected_layout);
     });
 
@@ -1724,7 +1726,7 @@ int main() {
                 }},
         };
 
-        auto layout = layout::create_layout(style, 0);
+        auto layout = layout::create_layout(style, {.viewport_width = 0});
         a.expect_eq(layout, expected_layout);
     });
 
@@ -1739,9 +1741,9 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto medium_layout = layout::create_layout(style, 1000).value();
+        auto medium_layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         style.properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "xxx-large"}};
-        auto xxxlarge_layout = layout::create_layout(style, 1000).value();
+        auto xxxlarge_layout = layout::create_layout(style, {.viewport_width = 1000}).value();
 
         auto get_text_width = [&](layout::LayoutBox const &layout) {
             a.require_eq(layout.children.size(), std::size_t{1});
@@ -1770,7 +1772,7 @@ int main() {
                 .dimensions{{0, 0, 0, 0}},
         };
 
-        auto layout = layout::create_layout(style, 0);
+        auto layout = layout::create_layout(style, {.viewport_width = 0});
         a.expect_eq(layout, expected_layout);
     });
 
@@ -1786,7 +1788,7 @@ int main() {
                 .dimensions{{0, 0, 0, 0}},
         };
 
-        auto layout = layout::create_layout(style, 0);
+        auto layout = layout::create_layout(style, {.viewport_width = 0});
         a.expect_eq(layout, expected_layout);
     });
 
@@ -1799,7 +1801,7 @@ int main() {
                         {css::PropertyId::BorderLeftWidth, "thin"}},
         };
 
-        auto layout = layout::create_layout(style, 0).value();
+        auto layout = layout::create_layout(style, {.viewport_width = 0}).value();
         a.expect_eq(layout.dimensions.border, geom::EdgeSize{.left = 3});
     });
 
@@ -1826,7 +1828,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 30, NoType{}).value();
+        auto l = layout::create_layout(style, {.viewport_width = 30}, NoType{}).value();
         a.expect_eq(l, expected);
     });
 
@@ -1853,7 +1855,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 30, NoType{}).value();
+        auto l = layout::create_layout(style, {.viewport_width = 30}, NoType{}).value();
         a.expect_eq(l, expected);
     });
 
@@ -1873,13 +1875,13 @@ int main() {
             return std::pair{content_dims.width, content_dims.height};
         };
 
-        auto single_line_layout = layout::create_layout(style, 1000).value();
+        auto single_line_layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         auto single_line_layout_dims = get_text_dimensions(single_line_layout);
         a.require(single_line_layout_dims.second > 0);
 
         // This will get collapsed to a single line.
         std::get<dom::Text>(std::get<dom::Element>(dom).children[0]).text = "hi\nhi"s;
-        auto two_line_layout = layout::create_layout(style, 1000).value();
+        auto two_line_layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         auto two_line_layout_dims = get_text_dimensions(two_line_layout);
         a.expect_eq(std::get<std::string>(two_line_layout.children.at(0).children.at(0).layout_text), "hi hi"sv);
 
@@ -1920,7 +1922,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 30).value();
+        auto l = layout::create_layout(style, {.viewport_width = 30}).value();
         a.expect_eq(l, expected);
     });
 
@@ -1954,7 +1956,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 30).value();
+        auto l = layout::create_layout(style, {.viewport_width = 30}).value();
         a.expect_eq(l, expected);
     });
 
@@ -2011,7 +2013,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 20).value();
+        auto l = layout::create_layout(style, {.viewport_width = 20}).value();
         a.expect_eq(l, expected);
     });
 
@@ -2072,7 +2074,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 20).value();
+        auto l = layout::create_layout(style, {.viewport_width = 20}).value();
         a.expect_eq(l, expected);
     });
 
@@ -2099,7 +2101,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 15).value();
+        auto l = layout::create_layout(style, {.viewport_width = 15}).value();
         a.expect_eq(l, expected);
     });
 
@@ -2150,7 +2152,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 25).value();
+        auto l = layout::create_layout(style, {.viewport_width = 25}).value();
         a.expect_eq(l, expected);
     });
 
@@ -2161,7 +2163,7 @@ int main() {
                 .properties{{css::PropertyId::Display, "none"}},
         };
 
-        a.expect_eq(layout::create_layout(style, 0), std::nullopt);
+        a.expect_eq(layout::create_layout(style, {.viewport_width = 0}), std::nullopt);
     });
 
     s.add_test("rem units", [](etest::IActions &a) {
@@ -2179,11 +2181,11 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto layout = layout::create_layout(style, 1000).value();
+        auto layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.children.at(0).dimensions.border_box().width, 20);
 
         style.properties.at(0).second = "16px";
-        layout = layout::create_layout(style, 1000).value();
+        layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.children.at(0).dimensions.border_box().width, 32);
     });
 
@@ -2202,11 +2204,11 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto layout = layout::create_layout(style, 1000).value();
+        auto layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.children.at(0).dimensions.border_box().width, 250);
 
         style.properties.at(0).second = "10%";
-        layout = layout::create_layout(style, 1000).value();
+        layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.children.at(0).dimensions.border_box().width, 50);
     });
 
@@ -2225,12 +2227,12 @@ int main() {
         };
         set_up_parent_ptrs(style);
 
-        auto layout = layout::create_layout(style, 1000).value();
+        auto layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.dimensions.border_box().width, 1000);
         a.expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
 
         style.properties.emplace_back(css::PropertyId::MaxWidth, "asdf");
-        layout = layout::create_layout(style, 1000).value();
+        layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.dimensions.border_box().width, 1000);
         a.expect_eq(layout.children.at(0).dimensions.border_box().width, 100);
     });
@@ -2251,7 +2253,7 @@ int main() {
         set_up_parent_ptrs(style);
 
         // 0 due to height being ignored and there being no content.
-        auto layout = layout::create_layout(style, 1000).value();
+        auto layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.dimensions.border_box().height, 0);
         a.expect_eq(layout.children.at(0).dimensions.border_box().height, 0);
 
@@ -2261,13 +2263,13 @@ int main() {
         set_up_parent_ptrs(style);
 
         // 10px due to the text content being 10px tall.
-        layout = layout::create_layout(style, 1000).value();
+        layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.dimensions.border_box().height, 10);
         a.expect_eq(layout.children.at(0).dimensions.border_box().height, 10);
 
         // And blocks don't have the height ignored, so 100px.
         style.children.at(0).properties.at(1).second = "block";
-        layout = layout::create_layout(style, 1000).value();
+        layout = layout::create_layout(style, {.viewport_width = 1000}).value();
         a.expect_eq(layout.dimensions.border_box().height, 100);
         a.expect_eq(layout.children.at(0).dimensions.border_box().height, 100);
     });
@@ -2339,7 +2341,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 100).value();
+        auto l = layout::create_layout(style, {.viewport_width = 100}).value();
         a.expect_eq(l, expected);
 
         // And with an explicit height on the parent node, the %-height should be calculated properly.
@@ -2368,7 +2370,7 @@ int main() {
                 }},
         };
 
-        l = layout::create_layout(style, 100).value();
+        l = layout::create_layout(style, {.viewport_width = 100}).value();
         a.expect_eq(l, expected);
     });
 
@@ -2424,7 +2426,7 @@ int main() {
                 }},
         };
 
-        auto l = layout::create_layout(style, 600).value();
+        auto l = layout::create_layout(style, {.viewport_width = 600}).value();
         a.expect_eq(l, expected);
     });
 

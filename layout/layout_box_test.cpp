@@ -69,7 +69,7 @@ int main() {
                         {{nullptr, {{0, 0, 100, 10}}, {std::move(layout_children)}}},
                 }}};
 
-        auto layout_root = layout::create_layout(style_root, 100);
+        auto layout_root = layout::create_layout(style_root, {.viewport_width = 100});
         a.expect(expected_layout == layout_root);
 
         a.expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
@@ -126,7 +126,7 @@ int main() {
 
         set_up_parent_ptrs(styled_node);
 
-        auto layout = layout::create_layout(styled_node, 123).value();
+        auto layout = layout::create_layout(styled_node, {.viewport_width = 123}).value();
 
         // Verify that we have a shady anon-box to deal with in here.
         a.expect_eq(layout.children.size(), std::size_t{2});
@@ -187,7 +187,7 @@ int main() {
                 "        inline {0,0,35,10} {0,0,0,0} {0,0,0,0}\n"
                 "    p\n"
                 "    block {0,30,35,0} {5,15,0,0} {0,0,0,0}\n";
-        a.expect_eq(to_string(layout::create_layout(style_root, 0).value()), expected);
+        a.expect_eq(to_string(layout::create_layout(style_root, {.viewport_width = 0}).value()), expected);
     });
 
     s.add_test("anonymous block, get_property", [](etest::IActions &a) {
