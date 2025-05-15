@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -34,15 +34,6 @@ std::optional<LayoutBox> create_layout(
         type::IType const & = type::NaiveType{},
         std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url =
                 [](std::string_view) { return std::nullopt; });
-
-inline std::optional<LayoutBox> create_layout(
-        style::StyledNode const &node,
-        int width,
-        type::IType const &type = type::NaiveType{},
-        std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url =
-                [](std::string_view) { return std::nullopt; }) {
-    return create_layout(node, {width, 0}, type, get_intrensic_size_for_resource_at_url);
-}
 
 } // namespace layout
 
