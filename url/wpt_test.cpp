@@ -8,6 +8,7 @@
 #include "etest/etest2.h"
 #include "json/json.h"
 
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -66,12 +67,7 @@ int main(int argc, char **argv) {
 
             if (auto const *base_str = std::get_if<std::string>(&obj.at("base"))) {
                 base_test = p.parse(std::string{*base_str});
-
-                if (!should_fail) {
-                    a.expect(base_test.has_value(), "Parsing base URL:(" + std::string{*base_str} + ") failed");
-
-                    continue;
-                }
+                a.require(base_test.has_value(), std::format("Parsing base URL:({}) failed", *base_str));
             }
 
             // Parse input URL
