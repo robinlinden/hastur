@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -40,6 +40,7 @@ constexpr std::optional<std::uint8_t> register_index(Reg32 reg) {
     return std::nullopt;
 }
 
+// TODO(robinlinden): Clang (both w/ libc++ and libstdc++) doesn't like constexpr std::variant before clang-19.
 struct Label {
     struct Linked {
         std::size_t offset{};
@@ -57,14 +58,14 @@ struct Label {
 // https://www.felixcloutier.com/x86/
 class Assembler {
 public:
-    [[nodiscard]] std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
+    [[nodiscard]] constexpr std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
 
     Label label() const { return Label::linked(assembled_.size()); }
     Label unlinked_label() const { return Label::unlinked(); }
 
     void link(Label &label) {
         assert(std::holds_alternative<Label::Unlinked>(label.v));
-        static constexpr int kInstructionSize = 4;
+        constexpr int kInstructionSize = 4;
         std::size_t const jmp_target_offset = assembled_.size();
 
         auto const &unlinked = std::get<Label::Unlinked>(label.v);
@@ -80,7 +81,7 @@ public:
     }
 
     // Instructions
-    void add(Reg32 dst, Imm32 imm32) {
+    constexpr void add(Reg32 dst, Imm32 imm32) {
         if (dst == Reg32::Eax) {
             emit(0x05);
             emit(imm32);
@@ -97,14 +98,14 @@ public:
         if (std::holds_alternative<Label::Linked>(label.v)) {
             auto const &linked = std::get<Label::Linked>(label.v);
             auto const jmp_dst = static_cast<std::ptrdiff_t>(linked.offset - assembled_.size());
-            static constexpr int kShortInstructionSize = 2;
+            constexpr int kShortInstructionSize = 2;
             if (jmp_dst >= (-128 + kShortInstructionSize) && jmp_dst <= 0) {
                 emit(0xeb);
                 emit(static_cast<std::uint8_t>(jmp_dst) - kShortInstructionSize);
                 return;
             }
 
-            static constexpr int kNearInstructionSize = 5;
+            constexpr int kNearInstructionSize = 5;
             emit(0xe9);
             emit(Imm32{static_cast<std::uint32_t>(jmp_dst - kNearInstructionSize)});
             return;
@@ -116,30 +117,30 @@ public:
         emit(Imm32{0xdeadbeef});
     }
 
-    void mov(Reg32 dst, Imm32 imm32) {
+    constexpr void mov(Reg32 dst, Imm32 imm32) {
         auto idx = register_index(dst);
         assert(idx.has_value());
         emit(0xb8 + idx.value());
         emit(imm32);
     }
 
-    void ret() { emit(0xc3); }
+    constexpr void ret() { emit(0xc3); }
 
-    void ud2() {
+    constexpr void ud2() {
         emit(0x0f);
         emit(0x0b);
     }
 
 private:
-    void emit(std::uint8_t byte) { assembled_.push_back(byte); }
-    void emit(Imm32 imm32) {
+    constexpr void emit(std::uint8_t byte) { assembled_.push_back(byte); }
+    constexpr void emit(Imm32 imm32) {
         for (auto i = 0; i < 4; ++i) {
             emit(imm32.v & 0xff);
             imm32.v >>= 8;
         }
     }
 
-    void mod_rm(std::uint8_t mod, std::uint8_t reg, std::uint8_t rm) {
+    constexpr void mod_rm(std::uint8_t mod, std::uint8_t reg, std::uint8_t rm) {
         assert(mod < 4);
         assert(reg < 8);
         assert(rm < 8);

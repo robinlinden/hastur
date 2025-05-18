@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -18,7 +18,7 @@ int main() {
     etest::Suite s{"assembler::amd64"};
     using namespace azm::amd64;
 
-    s.add_test("Register index", [](etest::IActions &a) {
+    s.constexpr_test("Register index", [](etest::IActions &a) {
         a.expect_eq(register_index(Reg32::Eax), 0);
         a.expect_eq(register_index(Reg32::Ecx), 1);
         a.expect_eq(register_index(Reg32::Edx), 2);
@@ -27,7 +27,7 @@ int main() {
         a.expect_eq(register_index(static_cast<Reg32>(std::underlying_type_t<Reg32>{30})), std::nullopt);
     });
 
-    s.add_test("ADD reg32, imm32", [](etest::IActions &a) {
+    s.constexpr_test("ADD reg32, imm32", [](etest::IActions &a) {
         Assembler assembler;
 
         // ADD EAX,imm32 generates slightly shorter asm than ADD w/ other registers.
@@ -112,7 +112,7 @@ int main() {
         a.expect_eq(assembled, CodeVec{0xeb, 0x80, 0xe9, 0x7b, 0xff, 0xff, 0xff});
     });
 
-    s.add_test("MOV r32, imm32", [](etest::IActions &a) {
+    s.constexpr_test("MOV r32, imm32", [](etest::IActions &a) {
         Assembler assembler;
 
         assembler.mov(Reg32::Eax, Imm32{0xdeadbeef});
@@ -122,14 +122,14 @@ int main() {
         a.expect_eq(assembler.take_assembled(), CodeVec{0xba, 0x34, 0x12, 0, 0});
     });
 
-    s.add_test("RET", [](etest::IActions &a) {
+    s.constexpr_test("RET", [](etest::IActions &a) {
         Assembler assembler;
 
         assembler.ret();
         a.expect_eq(assembler.take_assembled(), CodeVec{0xc3});
     });
 
-    s.add_test("UD2", [](etest::IActions &a) {
+    s.constexpr_test("UD2", [](etest::IActions &a) {
         Assembler assembler;
 
         assembler.ud2();
