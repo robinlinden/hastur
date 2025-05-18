@@ -15,6 +15,7 @@
 #include <functional>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace html {
@@ -58,7 +59,10 @@ private:
         return std::move(doc_);
     }
 
-    void on_token(html2::Tokenizer &, html2::Token &&token);
+    void on_token(html2::Tokenizer &, html2::Token &&token) {
+        insertion_mode_ = std::visit([&](auto &mode) { return mode.process(actions_, token); }, insertion_mode_)
+                                  .value_or(insertion_mode_);
+    }
 
     html2::Tokenizer tokenizer_;
     dom::Document doc_{};
