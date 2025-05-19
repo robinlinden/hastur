@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -56,6 +56,10 @@ int main() {
 
     s.add_test("function call w/ multiple arguments", [](etest::IActions &a) {
         expect_tokens(a, "nh(5, 20)", {Identifier{"nh"}, LParen{}, IntLiteral{5}, Comma{}, IntLiteral{20}, RParen{}});
+    });
+
+    s.add_test("unsupported input", [](etest::IActions &a) {
+        a.expect_eq(tokenize("~"), std::nullopt); //
     });
 
     return s.run();

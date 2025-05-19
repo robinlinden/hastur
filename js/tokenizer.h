@@ -1,15 +1,15 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef JS_TOKENIZER_H_
 #define JS_TOKENIZER_H_
 
-#include <cassert>
 #include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -58,7 +58,7 @@ class Tokenizer {
 public:
     explicit Tokenizer(std::string_view input) : input_{input} {}
 
-    Token tokenize() {
+    std::optional<Token> tokenize() {
         char current{};
         do {
             if (pos_ >= input_.size()) {
@@ -84,7 +84,10 @@ public:
             return tokenize_int_literal(current);
         }
 
-        assert(is_alpha(current));
+        if (!is_alpha(current)) {
+            return std::nullopt;
+        }
+
         return tokenize_identifier(current);
     }
 
@@ -147,12 +150,17 @@ private:
     }
 };
 
-inline std::vector<Token> tokenize(std::string_view input) {
+inline std::optional<std::vector<Token>> tokenize(std::string_view input) {
     std::vector<Token> tokens;
     auto t = Tokenizer{input};
 
     do {
-        tokens.push_back(t.tokenize());
+        auto token = t.tokenize();
+        if (!token) {
+            return std::nullopt;
+        }
+
+        tokens.push_back(std::move(*token));
     } while (!std::holds_alternative<Eof>(tokens.back()));
 
     return tokens;
