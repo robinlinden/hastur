@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support")  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-c8jcbN186oeVbbknmmnJ5ovSpexqalB+Ntbi19pNcaQ=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.21.1"),
+    integrity = "sha256-smW+rPpHcIHKryvQWXjufRH9uMICobdtDvKNkB0eezM=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.22.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -159,11 +159,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.29.0"
+BAZEL_FEATURES_VERSION = "1.30.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-2FLzic6NuLjC+YB6T68GWw0LowIWOJjNJCi2yn0IZoE=",
+    integrity = "sha256-pmACf1qH8TIkq1S43G4ZFpPFVPJpL8ykbo4p7n2rxDs=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -178,8 +178,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-8tFb6j4kGqDjqQ+xeoLmqKsSIUeJ9q7d1TuNBDFtK3w=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.54.0"),
+    integrity = "sha256-Ewc5cEVAyqFOd8VIELnwHW2a6JfVPu3OtA/Wt178PCM=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.54.1"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
@@ -204,11 +204,11 @@ archive_override(
 )
 
 # https://github.com/fmeum/buildozer
-BUILDOZER_VERSION = "8.2.0"
+BUILDOZER_VERSION = "8.2.0.bcr.1"
 
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-9n7RP6uZHjZV8dpcxhIGBU846QYFGTraBCbmeuzDS04=",
+    integrity = "sha256-1ZWSulV9zcKWRsKj8SE6r+T6bZl8hgrcT4vCcw4TlWc=",
     strip_prefix = "buildozer-%s" % BUILDOZER_VERSION,
     url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format(BUILDOZER_VERSION),
 )
@@ -237,11 +237,11 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-cpp
-ABSEIL_CPP_VERSION = "20250127.1"
+ABSEIL_CPP_VERSION = "20250512.0"
 
 archive_override(
     module_name = "abseil-cpp",
-    integrity = "sha256-s5ZAH9KeLmecrOd4Z0gdOIyAdnHcKsxgKgJZ7rebeBE=",
+    integrity = "sha256-cmLap8FxFAYkjBD0ECbWheiCI7ySgX0W+5PBmttX9mk=",
     strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
     url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
 )
