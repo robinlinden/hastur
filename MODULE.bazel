@@ -50,12 +50,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.3.0"
+RULES_PYTHON_VERSION = "1.4.1"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-LMJrvVOFTOt23UKoNLEALNS6f43zVEDPA0guBFr/wkQ=",
+    integrity = "sha256-n587MAqSZOTHeZkxLOZjvl3umlbjYaH2/n7GDhvu+aM=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -101,12 +101,14 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_shell
+RULES_SHELL_VERSION = "0.4.1"
+
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-PhFEJKXH5P1D4BM8xuzf5U5Fror/oU+t2DnymQFCQEM=",
-    strip_prefix = "rules_shell-0.4.0",
-    url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format("0.4.0"),
+    integrity = "sha256-vGHvlPrMeOIKZFcm9kdW5eKFoEUDfHph9lrylB9MJeE=",
+    strip_prefix = "rules_shell-%s" % RULES_SHELL_VERSION,
+    url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format(RULES_SHELL_VERSION),
 )
 
 # https://github.com/bazelbuild/bazel-skylib
@@ -353,12 +355,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250415.0"
+BORINGSSL_VERSION = "0.20250514.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-stZMTVLFBdYLD7hoM1aNxHYkRZENendX/5sXLlVWywE=",
+    integrity = "sha256-ce8euEoDWgM61Vhn+JoUHdsuXFgp3UA16ngDv/8CV+0=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -403,13 +405,13 @@ http_file(
 )
 
 # https://github.com/fmtlib/fmt
-FMT_VERSION = "11.1.4"
+FMT_VERSION = "11.2.0"
 
 bazel_dep(name = "fmt")  # MIT
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-SbA5YBGW4adl6BxcmgWmHtPTPyOzlhMj1zIuT+IT0+Y=",
+    integrity = "sha256-ID606KoNdGxi2PkD31jgQZ43UVkbtT/5cQluqg69TsM=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -441,16 +443,12 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-FTXUI_VERSION = "6.1.8"
+FTXUI_VERSION = "6.1.9"
 
 bazel_dep(name = "ftxui")  # MIT
 archive_override(
     module_name = "ftxui",
-    integrity = "sha256-o/IQhhpC6blBQDgdlLGqEWCZvBfNTg8t0AgN7g/J5yk=",
-    patch_cmds = [
-        # Targets rely on transitive dependencies, and also #include srcs from other targets.
-        """sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel""",
-    ],
+    integrity = "sha256-hoZw5FHDi9w60j0IZ5ZUPN5KhF/QQgFIsZjf9cvggoU=",
     url = "https://github.com/ArthurSonzogni/FTXUI/releases/download/v%s/source.tar.gz" % FTXUI_VERSION,
 )
 
@@ -645,13 +643,13 @@ EOF""",
 )
 
 # https://github.com/gabime/spdlog
-SPDLOG_VERSION = "1.15.2"
+SPDLOG_VERSION = "1.15.3"
 
 bazel_dep(name = "spdlog")  # MIT
 archive_override(
     module_name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-eoCJY1fz6Okg6F6SYzsUug8inFBub5eFeL3DW6Ceml0=",
+    integrity = "sha256-FaBOacIi62wBCUtcf/iiSbNrsieI1yUZZG+4X+smfmc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
@@ -716,13 +714,13 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.313"
+VULKAN_TAG = "1.4.315"
 
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-8ymLjcYgUwSTKWdZhYpptiL5js7KDox1SIrSAAd4FI8=",
+    integrity = "sha256-d+OnjbhT+LnFvD3e8E5je++XROAdaoyQ6+DdzZFsDFA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -738,7 +736,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-Znd7Q5ekbm0f6L63mhJ9YQEne+VvfSqhg9+fPQ7bw8w=",
+    integrity = "sha256-X/7dLuvMWrdk72mSi6wF+zGKdqGLhhLkvt/DdJ4gXSo=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
