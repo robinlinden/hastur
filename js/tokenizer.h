@@ -5,7 +5,10 @@
 #ifndef JS_TOKENIZER_H_
 #define JS_TOKENIZER_H_
 
+#include <cassert>
 #include <cstddef>
+#include <cstdint>
+#include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -16,7 +19,7 @@
 namespace js::parse {
 
 struct IntLiteral {
-    int value{};
+    std::int32_t value{};
     bool operator==(IntLiteral const &) const = default;
 };
 
@@ -102,10 +105,16 @@ private:
         return std::nullopt;
     }
 
-    Token tokenize_int_literal(char current) {
-        int value{};
+    std::optional<Token> tokenize_int_literal(char current) {
+        constexpr int kUpperBound = std::numeric_limits<int32_t>::max();
+
+        std::uint64_t value{};
         while (true) {
             value += current - '0';
+            if (std::cmp_greater(value, kUpperBound)) {
+                return std::nullopt;
+            }
+
             auto next = peek();
             if (!next || !is_numeric(*next)) {
                 break;
@@ -115,7 +124,8 @@ private:
             pos_ += 1;
         }
 
-        return IntLiteral{value};
+        assert(value <= kUpperBound);
+        return IntLiteral{static_cast<int>(value)};
     }
 
     Token tokenize_identifier(char current) {
