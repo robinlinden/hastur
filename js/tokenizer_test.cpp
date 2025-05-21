@@ -31,6 +31,9 @@ int main() {
     s.add_test("int literal", [](etest::IActions &a) {
         expect_tokens(a, "13", {IntLiteral{13}});
         expect_tokens(a, "0", {IntLiteral{0}});
+
+        a.expect_eq(tokenize("2147483647"), std::vector<Token>{IntLiteral{2147483647}, Eof{}});
+        a.expect_eq(tokenize("2147483648"), std::nullopt);
     });
 
     s.add_test("identifier", [](etest::IActions &a) {
