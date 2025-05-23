@@ -65,5 +65,18 @@ int main() {
         a.expect_eq(tokenize("~"), std::nullopt); //
     });
 
+    s.add_test("comments", [](etest::IActions &a) {
+        expect_tokens(a, "/* comment */", {Comment{" comment "}});
+        expect_tokens(a, "/*comment*//* comment */", {Comment{"comment"}, Comment{" comment "}});
+        expect_tokens(a, "/* comment */5", {Comment{" comment "}, IntLiteral{5}});
+        expect_tokens(a, "/* comment */ 5 /* comment */", {Comment{" comment "}, IntLiteral{5}, Comment{" comment "}});
+        expect_tokens(a,
+                "/* comment */5/* comment */ 6",
+                {Comment{" comment "}, IntLiteral{5}, Comment{" comment "}, IntLiteral{6}});
+
+        a.expect_eq(tokenize("/"), std::nullopt);
+        expect_tokens(a, "/*asdf* ** ** ****", {Comment{"asdf* ** ** ****"}});
+    });
+
     return s.run();
 }
