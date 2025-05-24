@@ -25,6 +25,11 @@ struct Identifier {
     bool operator==(Identifier const &) const = default;
 };
 
+struct Comment {
+    std::string comment;
+    bool operator==(Comment const &) const = default;
+};
+
 struct LParen {
     bool operator==(LParen const &) const = default;
 };
@@ -48,6 +53,7 @@ struct Eof {
 using Token = std::variant< //
         IntLiteral,
         Identifier,
+        Comment,
         LParen,
         RParen,
         Semicolon,
@@ -59,15 +65,37 @@ public:
     explicit Tokenizer(std::string_view input) : input_{input} {}
 
     std::optional<Token> tokenize() {
-        char current{};
-        do {
-            if (pos_ >= input_.size()) {
-                return Eof{};
-            }
-            current = input_[pos_++];
-        } while (is_whitespace(current));
+        std::optional<char> current = consume();
 
-        switch (current) {
+        while (is_whitespace(current)) {
+            current = consume();
+        }
+
+        // Handle multi-line comments.
+        if (current == '/' && peek() == '*') {
+            pos_ += 1;
+
+            Comment comment{};
+            while (true) {
+                current = consume();
+                if (!current) {
+                    return comment;
+                }
+
+                if (*current == '*' && peek() == '/') {
+                    pos_ += 1;
+                    return comment;
+                }
+
+                comment.comment += *current;
+            }
+        }
+
+        if (!current) {
+            return Eof{};
+        }
+
+        switch (*current) {
             case '(':
                 return LParen{};
             case ')':
@@ -80,15 +108,15 @@ public:
                 break;
         }
 
-        if (is_numeric(current)) {
-            return tokenize_int_literal(current);
+        if (is_numeric(*current)) {
+            return tokenize_int_literal(*current);
         }
 
-        if (!is_alpha(current)) {
+        if (!is_alpha(*current)) {
             return std::nullopt;
         }
 
-        return tokenize_identifier(current);
+        return tokenize_identifier(*current);
     }
 
 private:
@@ -99,6 +127,14 @@ private:
         if ((pos_) < input_.size()) {
             return input_[pos_];
         }
+        return std::nullopt;
+    }
+
+    std::optional<char> consume() {
+        if (pos_ < input_.size()) {
+            return input_[pos_++];
+        }
+
         return std::nullopt;
     }
 
@@ -135,8 +171,12 @@ private:
 
     static constexpr bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
     static constexpr bool is_numeric(char c) { return (c >= '0' && c <= '9'); }
-    static constexpr bool is_whitespace(char c) {
-        switch (c) {
+    static constexpr bool is_whitespace(std::optional<char> c) {
+        if (!c) {
+            return false;
+        }
+
+        switch (*c) {
             case ' ':
             case '\n':
             case '\r':
