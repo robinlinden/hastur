@@ -158,7 +158,7 @@ struct And {
     std::vector<MediaQuery> queries;
     [[nodiscard]] bool operator==(And const &other) const = default;
 
-    inline bool evaluate(Context const &) const;
+    constexpr bool evaluate(Context const &) const;
 };
 
 } // namespace detail
@@ -351,15 +351,15 @@ private:
     }
 };
 
-inline bool detail::And::evaluate(Context const &ctx) const {
+constexpr bool detail::And::evaluate(Context const &ctx) const {
     return std::ranges::all_of(queries, [&](auto const &q) { return q.evaluate(ctx); });
 }
 
-inline std::string to_string(MediaQuery::Width const &width) {
+constexpr std::string to_string(MediaQuery::Width const &width) {
     return std::to_string(width.min) + " <= width <= " + std::to_string(width.max);
 }
 
-inline std::string to_string(MediaQuery::Height const &height) {
+constexpr std::string to_string(MediaQuery::Height const &height) {
     return std::to_string(height.min) + " <= height <= " + std::to_string(height.max);
 }
 
