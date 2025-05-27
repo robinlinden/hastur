@@ -39,7 +39,10 @@ genrule(
     name = "generate_fallback_font",
     srcs = ["@opensans//file"],
     outs = ["fallback_font_data.h"],
-    cmd = "xxd -n fallback_font -i $(location @opensans//file) >$@",
+    # cp here is a miserable hack to get xxd to generate a sane variable name.
+    # Specifying a name using xxd -n myname was only added in 2022, and I don't
+    # have that xxd everywhere yet.
+    cmd = "cp $(location @opensans//file) fallback_font ; xxd -i fallback_font >$@",
 )
 
 cc_library(
