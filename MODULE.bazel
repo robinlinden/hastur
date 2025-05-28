@@ -194,6 +194,21 @@ archive_override(
     url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
 
+# https://github.com/bazel-contrib/toolchains_llvm
+TOOLCHAINS_LLVM_VERSION = "1.4.0"
+
+bazel_dep(name = "toolchains_llvm")  # Apache-2.0
+archive_override(
+    module_name = "toolchains_llvm",
+    integrity = "sha256-/e0CVpYX0kVRoK0JwHUNxTowlyNxV7gookVoHwrnOfg=",
+    strip_prefix = "toolchains_llvm-v%s" % TOOLCHAINS_LLVM_VERSION,
+    url = "https://github.com/bazel-contrib/toolchains_llvm/releases/download/v{0}/toolchains_llvm-v{0}.tar.gz".format(TOOLCHAINS_LLVM_VERSION),
+)
+
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm.toolchain(llvm_version = "20.1.2")
+use_repo(llvm, "llvm_toolchain")
+
 # Other Bazel-required dependencies
 # =========================================================
 

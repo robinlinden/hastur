@@ -184,6 +184,13 @@ build:wasi-wasm --extra_toolchains=@zig_sdk//toolchain:wasip1_wasm
 # https://github.com/WebAssembly/wasi-sdk/tree/f1ebc52a74394cdf885d03bfde13899b3d5c6d2d?tab=readme-ov-file#notable-limitations
 build:wasi-wasm --copt=-fno-exceptions
 
+# Hermetic LLVM toolchain
+# =========================================================
+# Note that these toolchains don't work on Windows:
+# https://github.com/bazel-contrib/toolchains_llvm/issues/395
+
+build:clang-amd64 --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
+
 # Fuzzing options
 # =========================================================
 
