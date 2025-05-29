@@ -61,7 +61,6 @@ Checks: >
   -bugprone-narrowing-conversions,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
-  -cppcoreguidelines-avoid-do-while,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
