@@ -12,7 +12,7 @@
 # libfmt due to warnings about uninitialized fields triggering everywhere string
 # formatting is used. Last tested with 11.1.4.
 #
-# -cppcoreguidelines-[...]: TODO(robinlidnen): Investigate.
+# -cppcoreguidelines-[...]: TODO(robinlinden): Investigate.
 #
 # -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
 #
@@ -55,7 +55,6 @@ Checks: >
   modernize-*,
   performance-*,
   readability-*,
-  readability-avoid-unconditional-preprocessor-if,
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
