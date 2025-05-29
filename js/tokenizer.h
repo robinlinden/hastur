@@ -204,16 +204,17 @@ inline std::optional<std::vector<Token>> tokenize(std::string_view input) {
     std::vector<Token> tokens;
     auto t = Tokenizer{input};
 
-    do {
+    while (true) {
         auto token = t.tokenize();
         if (!token) {
             return std::nullopt;
         }
 
         tokens.push_back(std::move(*token));
-    } while (!std::holds_alternative<Eof>(tokens.back()));
-
-    return tokens;
+        if (std::holds_alternative<Eof>(tokens.back())) {
+            return tokens;
+        }
+    }
 }
 
 } // namespace js::parse
