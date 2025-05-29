@@ -50,7 +50,7 @@ tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
     std::string buf{};
     constexpr auto kZlibInflateChunkSize = std::size_t{64} * 1024; // Chosen by a fair dice roll.
     buf.resize(kZlibInflateChunkSize);
-    do {
+    while (s.avail_out == 0) {
         s.next_out = reinterpret_cast<Bytef *>(buf.data());
         s.avail_out = static_cast<uInt>(buf.size());
         int ret = inflate(&s, Z_NO_FLUSH);
@@ -71,7 +71,7 @@ tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
 
         auto const *buf_ptr = reinterpret_cast<std::byte const *>(buf.data());
         out.insert(out.end(), buf_ptr, buf_ptr + inflated_bytes);
-    } while (s.avail_out == 0);
+    }
 
     inflateEnd(&s);
     return out;
