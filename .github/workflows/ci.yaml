@@ -59,10 +59,8 @@ jobs:
 
           - name: clang-20-libc++
             os: ubuntu-24.04
-            compiler: clang
-            version: 20
-            bazel: --config libc++ --keep_going
-            apt: libc++abi-20-dev libc++-20-dev libclang-rt-20-dev
+            bazel: --config clang-amd64
+            skip-compiler-install: true
 
     steps:
       - name: Setup gcc
@@ -82,9 +80,15 @@ jobs:
           sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
       - uses: actions/checkout@v4
       - name: Install
+        if: ${{ !matrix.skip-compiler-install }}
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
+      - name: Install
+        if: ${{ matrix.skip-compiler-install }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
       - uses: actions/cache@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
