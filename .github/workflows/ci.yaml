@@ -101,6 +101,8 @@ jobs:
         if: env.BUILDBUDDY_API_KEY != ''
       - name: Test
         run: bazel test //... ${{ matrix.bazel }}
+      - name: Print elf binary comment
+        run: readelf -p .comment ./bazel-bin/browser/tui/tui
       - name: Run
         run: |
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
