@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021-2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "browser/gui/app.h"
 
 #include "os/system_info.h"
+#include "util/arg_parser.h"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/logger.h>
@@ -14,7 +15,6 @@
 
 #include <chrono>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -33,46 +33,32 @@ int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
-    std::optional<std::string> page_provided{std::nullopt};
-    std::optional<unsigned> scale{std::nullopt};
+    std::string page;
+    unsigned scale{os::active_window_scale_factor()};
     bool exit_after_load{false};
 
-    for (int i = 1; i < argc; ++i) {
-        auto arg = std::string_view{argv[i]};
-
-        if (arg == "--scale"sv) {
-            if (i == argc - 1) {
-                spdlog::error("Missing argument to --scale");
-                return 1;
-            }
-
-            auto maybe_scale = std::string_view{argv[i + 1]};
-            if (maybe_scale.length() != 1 || maybe_scale[0] < '1' || maybe_scale[0] > '9') {
-                spdlog::error("Invalid argument to --scale");
-                return 1;
-            }
-
-            scale = maybe_scale[0] - '0';
-            i += 1;
-            continue;
-        }
-
-        if (arg == "--exit-after-load"sv) {
-            exit_after_load = true;
-            continue;
-        }
-
-        if (i == argc - 1) {
-            page_provided = std::string{arg};
-            break;
-        }
-
-        spdlog::error("Unhandled arg {} at position {}", arg, i);
+    auto res = util::ArgParser{}
+                       .argument("--scale", scale)
+                       .argument("--exit-after-load", exit_after_load)
+                       .positional(page)
+                       .parse(argc, argv);
+    if (!res.has_value()) {
+        spdlog::error(res.error().message);
         return 1;
     }
 
-    browser::gui::App app{kBrowserTitle, page_provided.value_or(std::string{kStartpage}), page_provided.has_value()};
-    app.set_scale(scale.value_or(os::active_window_scale_factor()));
+    if (scale < 1 || scale > 9) {
+        spdlog::error("Invalid argument to --scale", scale);
+        return 1;
+    }
+
+    bool const page_provided = !page.empty();
+    if (!page_provided) {
+        page = kStartpage;
+    }
+
+    browser::gui::App app{kBrowserTitle, std::move(page), page_provided};
+    app.set_scale(scale);
 
     if (!exit_after_load) {
         return app.run();
