@@ -127,8 +127,9 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     state->uri = std::move(result.uri_after_redirects);
     state->response = std::move(result.response.value());
     spdlog::info("Parsing HTML");
-    state->dom = html::parse(
-            state->response.body, {}, [](html2::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); });
+    state->dom = html::parse(state->response.body, {.scripting = opts.enable_js}, [](html2::ParseError e) {
+        spdlog::warn("HTML parse error: {}", to_string(e));
+    });
 
     spdlog::info("Parsing inline styles");
     state->stylesheet = css::default_style();

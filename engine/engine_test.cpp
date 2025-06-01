@@ -556,5 +556,33 @@ int main() {
         a.expect(page.has_value());
     });
 
+    s.add_test("scripting flag is hooked up", [](etest::IActions &a) {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<head><noscript><meta name=hello></noscript>"},
+        };
+
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        {
+            // With scripting enabled, noscript only contains text, not elements.
+            auto page = e.navigate(uri::Uri::parse("hax://example.com").value(), {.enable_js = true}).value();
+            auto const &head = std::get<dom::Element>(page->dom.html().children.at(0));
+            auto const &noscript = std::get<dom::Element>(head.children.at(0));
+            auto const &noscript_content = std::get<dom::Text>(noscript.children.at(0));
+            a.expect_eq(noscript_content.text, "<meta name=hello>");
+        }
+
+        {
+            // With scripting disabled, noscript contains the element.
+            auto page = e.navigate(uri::Uri::parse("hax://example.com").value(), {.enable_js = false}).value();
+            auto const &head = std::get<dom::Element>(page->dom.html().children.at(0));
+            auto const &noscript = std::get<dom::Element>(head.children.at(0));
+            auto const &meta = std::get<dom::Element>(noscript.children.at(0));
+            a.expect_eq(meta.name, "meta");
+            a.expect_eq(meta.attributes.at("name"), "hello");
+        }
+    });
+
     return s.run();
 }

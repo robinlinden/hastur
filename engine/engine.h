@@ -32,6 +32,7 @@ struct Options {
     int layout_width{600};
     int viewport_height{800};
     bool dark_mode{false};
+    bool enable_js{false};
 };
 
 struct PageState {
