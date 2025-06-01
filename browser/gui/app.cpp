@@ -848,6 +848,14 @@ void App::run_debug_widget() {
         }
     }
 
+    if (ImGui::Checkbox("Enable JavaScript", &enable_js_)) {
+        if (maybe_page_) {
+            // Scripting affects the html parsing, so we actually
+            // need to reload the page for now.
+            reload();
+        }
+    }
+
     if (ImGui::BeginCombo("Render backend", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML")) {
         if (ImGui::Selectable("SFML", selected_canvas_ == Canvas::Sfml)) {
             select_canvas(Canvas::Sfml);
@@ -935,6 +943,7 @@ engine::Options App::make_options() const {
             .layout_width = static_cast<int>(window_.getSize().x / scale_),
             .viewport_height = static_cast<int>(window_.getSize().y / scale_),
             .dark_mode = os::is_dark_mode(),
+            .enable_js = enable_js_,
     };
 }
 

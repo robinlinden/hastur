@@ -76,6 +76,7 @@ private:
 
     bool render_debug_{};
     bool display_debug_gui_{};
+    bool enable_js_{false};
     bool load_images_{true};
 
     unsigned scale_{1};
