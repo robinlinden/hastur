@@ -39,6 +39,22 @@ ParseResult parse_url(std::string input, std::optional<url::Url> base = std::nul
 int main() {
     etest::Suite s{};
 
+    s.add_test("to_string(ValidationError)", [](etest::IActions &a) {
+        static constexpr auto kFirstError = url::ValidationError::DomainToAscii;
+        static constexpr auto kLastError = url::ValidationError::FileInvalidWindowsDriveLetterHost;
+
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<url::ValidationError>(error)) != "Unknown error",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<url::ValidationError>(error + 1)), "Unknown error");
+    });
+
     url::Url const base{"https",
             "",
             "",
@@ -95,6 +111,7 @@ int main() {
         a.expect(!url->fragment.has_value());
 
         a.expect_eq(url->serialize(), "https://example.com:8080/index.html");
+        a.expect_eq(to_string(*url), "https://example.com:8080/index.html");
     });
 
     s.add_test("URL parsing: 1 unicode char", [](etest::IActions &a) {

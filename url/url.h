@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -110,6 +110,10 @@ struct Url {
     bool operator==(Url const &b) const { return serialize() == b.serialize(); }
 };
 
+inline std::string to_string(url::Url const &url) {
+    return url.serialize();
+}
+
 enum class ValidationError : std::uint8_t {
     // IDNA
     DomainToAscii,
@@ -144,6 +148,71 @@ enum class ValidationError : std::uint8_t {
     FileInvalidWindowsDriveLetter,
     FileInvalidWindowsDriveLetterHost
 };
+
+constexpr std::string_view to_string(ValidationError e) {
+    switch (e) {
+        case ValidationError::DomainToAscii:
+            return "DomainToAscii";
+        case ValidationError::DomainToUnicode:
+            return "DomainToUnicode";
+        case ValidationError::DomainInvalidCodePoint:
+            return "DomainInvalidCodePoint";
+        case ValidationError::HostInvalidCodePoint:
+            return "HostInvalidCodePoint";
+        case ValidationError::IPv4EmptyPart:
+            return "IPv4EmptyPart";
+        case ValidationError::IPv4TooManyParts:
+            return "IPv4TooManyParts";
+        case ValidationError::IPv4NonNumericPart:
+            return "IPv4NonNumericPart";
+        case ValidationError::IPv4NonDecimalPart:
+            return "IPv4NonDecimalPart";
+        case ValidationError::IPv4OutOfRangePart:
+            return "IPv4OutOfRangePart";
+        case ValidationError::IPv6Unclosed:
+            return "IPv6Unclosed";
+        case ValidationError::IPv6InvalidCompression:
+            return "IPv6InvalidCompression";
+        case ValidationError::IPv6TooManyPieces:
+            return "IPv6TooManyPieces";
+        case ValidationError::IPv6MultipleCompression:
+            return "IPv6MultipleCompression";
+        case ValidationError::IPv6InvalidCodePoint:
+            return "IPv6InvalidCodePoint";
+        case ValidationError::IPv6TooFewPieces:
+            return "IPv6TooFewPieces";
+        case ValidationError::IPv4InIPv6TooManyPieces:
+            return "IPv4InIPv6TooManyPieces";
+        case ValidationError::IPv4InIPv6InvalidCodePoint:
+            return "IPv4InIPv6InvalidCodePoint";
+        case ValidationError::IPv4InIPv6OutOfRangePart:
+            return "IPv4InIPv6OutOfRangePart";
+        case ValidationError::IPv4InIPv6TooFewParts:
+            return "IPv4InIPv6TooFewParts";
+        case ValidationError::InvalidUrlUnit:
+            return "InvalidUrlUnit";
+        case ValidationError::SpecialSchemeMissingFollowingSolidus:
+            return "SpecialSchemeMissingFollowingSolidus";
+        case ValidationError::MissingSchemeNonRelativeUrl:
+            return "MissingSchemeNonRelativeUrl";
+        case ValidationError::InvalidReverseSolidus:
+            return "InvalidReverseSolidus";
+        case ValidationError::InvalidCredentials:
+            return "InvalidCredentials";
+        case ValidationError::HostMissing:
+            return "HostMissing";
+        case ValidationError::PortOutOfRange:
+            return "PortOutOfRange";
+        case ValidationError::PortInvalid:
+            return "PortInvalid";
+        case ValidationError::FileInvalidWindowsDriveLetter:
+            return "FileInvalidWindowsDriveLetter";
+        case ValidationError::FileInvalidWindowsDriveLetterHost:
+            return "FileInvalidWindowsDriveLetterHost";
+    }
+
+    return "Unknown error";
+}
 
 std::string_view description(ValidationError);
 
