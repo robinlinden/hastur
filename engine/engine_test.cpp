@@ -584,5 +584,41 @@ int main() {
         }
     });
 
+    s.add_test("<script>", [](etest::IActions &) {
+        // Scripting has no side-effects yet as it's work-in-progress, but this
+        // at least exercises the code path and makes sure that asserts hold.
+
+        Responses responses;
+        // Normal usage.
+        responses["hax://example.com/1"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<html><head><script>foo(42);</script></head></html>"},
+        };
+
+        // Empty <script>.
+        responses["hax://example.com/2"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<html><head><script></script></head></html>"},
+        };
+
+        // <script> containing HTML instead of JS.
+        responses["hax://example.com/3"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<html><head><script><p>hello</p><span></span>foo</script></head></html>"},
+        };
+
+        // <script> w/ JS we can't tokenize yet.
+        responses["hax://example.com/4"s] = Response{
+                .status_line = {.status_code = 200},
+                .body{"<html><head><script>[]{}();~!@#$%^&**</script></head></html>"},
+        };
+
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        std::ignore = e.navigate(uri::Uri::parse("hax://example.com/1").value(), {.enable_js = true});
+        std::ignore = e.navigate(uri::Uri::parse("hax://example.com/2").value(), {.enable_js = true});
+        std::ignore = e.navigate(uri::Uri::parse("hax://example.com/3").value(), {.enable_js = true});
+        std::ignore = e.navigate(uri::Uri::parse("hax://example.com/4").value(), {.enable_js = true});
+    });
+
     return s.run();
 }

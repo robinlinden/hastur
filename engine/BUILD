@@ -12,6 +12,7 @@ cc_library(
         "//archive:zstd",
         "//html",
         "//html2",
+        "//js",
         "@spdlog",
     ],
     visibility = ["//visibility:public"],

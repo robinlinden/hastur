@@ -15,6 +15,7 @@
 #include "dom/xpath.h"
 #include "html/parser.h"
 #include "html2/tokenizer.h"
+#include "js/tokenizer.h"
 #include "layout/layout.h"
 #include "protocol/response.h"
 #include "style/style.h"
@@ -23,6 +24,7 @@
 #include <spdlog/spdlog.h>
 #include <tl/expected.hpp>
 
+#include <cassert>
 #include <cstddef>
 #include <future>
 #include <memory>
@@ -30,6 +32,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 using namespace std::literals;
@@ -127,9 +130,23 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
     state->uri = std::move(result.uri_after_redirects);
     state->response = std::move(result.response.value());
     spdlog::info("Parsing HTML");
-    state->dom = html::parse(state->response.body, {.scripting = opts.enable_js}, {.on_error = [](html2::ParseError e) {
-        spdlog::warn("HTML parse error: {}", to_string(e));
-    }});
+    state->dom = html::parse(state->response.body,
+            {.scripting = opts.enable_js},
+            {
+                    .on_element_closed{[js_enabled = opts.enable_js](dom::Element const &e) {
+                        if (!js_enabled || e.name != "script" || e.children.empty()) {
+                            return;
+                        }
+
+                        assert(e.children.size() == 1 && std::holds_alternative<dom::Text>(e.children[0]));
+                        auto const &script_text = std::get<dom::Text>(e.children[0]);
+                        auto tokens = js::parse::tokenize(script_text.text);
+                        if (!tokens.has_value()) {
+                            spdlog::warn("Failed to tokenize JavaScript in <script> tag:\n{}", script_text.text);
+                        }
+                    }},
+                    .on_error = [](html2::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); },
+            });
 
     spdlog::info("Parsing inline styles");
     state->stylesheet = css::default_style();
