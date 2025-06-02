@@ -373,32 +373,6 @@ void App::step() {
                     scroll(static_cast<int>(window_.getSize().y) / 2);
                     break;
                 }
-                case sf::Keyboard::Key::F1: {
-                    render_debug_ = !render_debug_;
-                    spdlog::info("Render debug: {}", render_debug_);
-                    break;
-                }
-                case sf::Keyboard::Key::F2: {
-                    switch_canvas();
-                    spdlog::info("Switched canvas to {}", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML");
-                    break;
-                }
-                case sf::Keyboard::Key::F3: {
-                    load_images_ = !load_images_;
-                    if (load_images_ && maybe_page_) {
-                        start_loading_images();
-                    } else {
-                        ongoing_loads_.clear();
-                        pending_loads_.clear();
-                        images_.clear();
-                        if (maybe_page_) {
-                            engine_.relayout(page(), make_options());
-                            on_layout_updated();
-                        }
-                    }
-                    spdlog::info("Load images: {}", load_images_);
-                    break;
-                }
                 case sf::Keyboard::Key::F4: {
                     display_debug_gui_ = !display_debug_gui_;
                     spdlog::info("Display debug gui: {}", display_debug_gui_);
@@ -813,7 +787,7 @@ void App::run_nav_widget() {
     ImGui::End();
 }
 
-void App::run_debug_widget() const {
+void App::run_debug_widget() {
     ImGui::TextUnformatted("Print");
     ImGui::BeginDisabled(!maybe_page_.has_value());
 
@@ -858,6 +832,31 @@ void App::run_debug_widget() const {
     ImGui::EndDisabled();
 
     ImGui::EndDisabled();
+
+    ImGui::Checkbox("Render depth debug", &render_debug_);
+    if (ImGui::Checkbox("Enable image support", &load_images_)) {
+        if (load_images_ && maybe_page_) {
+            start_loading_images();
+        } else {
+            ongoing_loads_.clear();
+            pending_loads_.clear();
+            images_.clear();
+            if (maybe_page_) {
+                engine_.relayout(page(), make_options());
+                on_layout_updated();
+            }
+        }
+    }
+
+    if (ImGui::BeginCombo("Render backend", selected_canvas_ == Canvas::OpenGL ? "OpenGL" : "SFML")) {
+        if (ImGui::Selectable("SFML", selected_canvas_ == Canvas::Sfml)) {
+            select_canvas(Canvas::Sfml);
+        }
+        if (ImGui::Selectable("OpenGL", selected_canvas_ == Canvas::OpenGL)) {
+            select_canvas(Canvas::OpenGL);
+        }
+        ImGui::EndCombo();
+    }
 }
 
 void App::render_layout() {
@@ -896,13 +895,12 @@ void App::show_render_surface() {
     window_.display();
 }
 
-void App::switch_canvas() {
+void App::select_canvas(Canvas canvas) {
     reset_scroll();
-    if (selected_canvas_ == Canvas::OpenGL) {
-        selected_canvas_ = Canvas::Sfml;
+    selected_canvas_ = canvas;
+    if (canvas == Canvas::Sfml) {
         canvas_ = std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()));
     } else {
-        selected_canvas_ = Canvas::OpenGL;
         canvas_ = std::make_unique<gfx::OpenGLCanvas>();
     }
     canvas_->set_scale(scale_);

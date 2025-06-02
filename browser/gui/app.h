@@ -111,13 +111,13 @@ private:
     void run_overlay();
     void focus_url_input();
     void run_nav_widget();
-    void run_debug_widget() const;
+    void run_debug_widget();
 
     void render_layout();
     void render_overlay();
     void show_render_surface();
 
-    void switch_canvas();
+    void select_canvas(Canvas);
     void start_loading_images();
 
     engine::Options make_options() const;
