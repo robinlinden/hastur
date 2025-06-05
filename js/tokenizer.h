@@ -23,6 +23,11 @@ struct IntLiteral {
     bool operator==(IntLiteral const &) const = default;
 };
 
+struct StringLiteral {
+    std::string value;
+    bool operator==(StringLiteral const &) const = default;
+};
+
 struct Identifier {
     std::string name;
     bool operator==(Identifier const &) const = default;
@@ -41,6 +46,14 @@ struct RParen {
     bool operator==(RParen const &) const = default;
 };
 
+struct LBrace {
+    bool operator==(LBrace const &) const = default;
+};
+
+struct RBrace {
+    bool operator==(RBrace const &) const = default;
+};
+
 struct Semicolon {
     bool operator==(Semicolon const &) const = default;
 };
@@ -49,18 +62,31 @@ struct Comma {
     bool operator==(Comma const &) const = default;
 };
 
+struct Period {
+    bool operator==(Period const &) const = default;
+};
+
+struct Equals {
+    bool operator==(Equals const &) const = default;
+};
+
 struct Eof {
     bool operator==(Eof const &) const = default;
 };
 
 using Token = std::variant< //
         IntLiteral,
+        StringLiteral,
         Identifier,
         Comment,
         LParen,
         RParen,
+        LBrace,
+        RBrace,
         Semicolon,
         Comma,
+        Period,
+        Equals,
         Eof>;
 
 class Tokenizer {
@@ -103,10 +129,22 @@ public:
                 return LParen{};
             case ')':
                 return RParen{};
+            case '{':
+                return LBrace{};
+            case '}':
+                return RBrace{};
             case ';':
                 return Semicolon{};
             case ',':
                 return Comma{};
+            case '.':
+                return Period{};
+            case '=':
+                return Equals{};
+            case '\'':
+            case '"': {
+                return tokenize_string_literal(*current);
+            }
             default:
                 break;
         }
@@ -162,6 +200,26 @@ private:
 
         assert(value <= kUpperBound);
         return IntLiteral{static_cast<int>(value)};
+    }
+
+    // https://tc39.es/ecma262/#prod-StringLiteral
+    // TODO(robinlinden): All special cases.
+    std::optional<Token> tokenize_string_literal(char quote) {
+        auto token = std::make_optional<StringLiteral>();
+        std::string &str = token->value;
+
+        while (true) {
+            auto current = consume();
+            if (!current) {
+                return std::nullopt;
+            }
+
+            if (*current == quote) {
+                return token;
+            }
+
+            str += *current;
+        }
     }
 
     Token tokenize_identifier(char current) {

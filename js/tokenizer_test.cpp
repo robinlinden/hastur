@@ -23,6 +23,13 @@ void expect_tokens(etest::IActions &a,
     a.expect_eq(tokenize(input), tokens, std::nullopt, loc);
 }
 
+void expect_tokens(etest::IActions &a,
+        std::string_view input,
+        std::nullopt_t failure,
+        std::source_location const &loc = std::source_location::current()) {
+    a.expect_eq(tokenize(input), failure, std::nullopt, loc);
+}
+
 } // namespace
 
 int main() {
@@ -65,6 +72,24 @@ int main() {
         a.expect_eq(tokenize("~"), std::nullopt); //
     });
 
+    s.add_test("period", [](etest::IActions &a) {
+        expect_tokens(a, ".", {Period{}});
+        expect_tokens(a, "hello.world", {Identifier{"hello"}, Period{}, Identifier{"world"}});
+    });
+
+    s.add_test("equals", [](etest::IActions &a) {
+        expect_tokens(a, "=", {Equals{}});
+        expect_tokens(a, "hello = 5", {Identifier{"hello"}, Equals{}, IntLiteral{5}});
+        expect_tokens(a, "hello=5", {Identifier{"hello"}, Equals{}, IntLiteral{5}});
+    });
+
+    s.add_test("braces", [](etest::IActions &a) {
+        expect_tokens(a, "{}", {LBrace{}, RBrace{}});
+        expect_tokens(a, "{ }", {LBrace{}, RBrace{}});
+        expect_tokens(a, "{ hello }", {LBrace{}, Identifier{"hello"}, RBrace{}});
+        expect_tokens(a, "{ hello; }", {LBrace{}, Identifier{"hello"}, Semicolon{}, RBrace{}});
+    });
+
     s.add_test("comments", [](etest::IActions &a) {
         expect_tokens(a, "/* comment */", {Comment{" comment "}});
         expect_tokens(a, "/*comment*//* comment */", {Comment{"comment"}, Comment{" comment "}});
@@ -76,6 +101,15 @@ int main() {
 
         a.expect_eq(tokenize("/"), std::nullopt);
         expect_tokens(a, "/*asdf* ** ** ****", {Comment{"asdf* ** ** ****"}});
+    });
+
+    s.add_test("string literal", [](etest::IActions &a) {
+        expect_tokens(a, "'hello'", {StringLiteral{"hello"}});
+        expect_tokens(a, "\"hello\"", {StringLiteral{"hello"}});
+        expect_tokens(a, "''", {StringLiteral{}});
+        expect_tokens(a, "\"\"", {StringLiteral{}});
+        expect_tokens(a, "'asdf", std::nullopt);
+        expect_tokens(a, "\"asdf", std::nullopt);
     });
 
     return s.run();
