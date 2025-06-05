@@ -23,6 +23,13 @@ void expect_tokens(etest::IActions &a,
     a.expect_eq(tokenize(input), tokens, std::nullopt, loc);
 }
 
+void expect_tokens(etest::IActions &a,
+        std::string_view input,
+        std::nullopt_t failure,
+        std::source_location const &loc = std::source_location::current()) {
+    a.expect_eq(tokenize(input), failure, std::nullopt, loc);
+}
+
 } // namespace
 
 int main() {
@@ -76,6 +83,15 @@ int main() {
 
         a.expect_eq(tokenize("/"), std::nullopt);
         expect_tokens(a, "/*asdf* ** ** ****", {Comment{"asdf* ** ** ****"}});
+    });
+
+    s.add_test("string literal", [](etest::IActions &a) {
+        expect_tokens(a, "'hello'", {StringLiteral{"hello"}});
+        expect_tokens(a, "\"hello\"", {StringLiteral{"hello"}});
+        expect_tokens(a, "''", {StringLiteral{}});
+        expect_tokens(a, "\"\"", {StringLiteral{}});
+        expect_tokens(a, "'asdf", std::nullopt);
+        expect_tokens(a, "\"asdf", std::nullopt);
     });
 
     return s.run();
