@@ -41,15 +41,15 @@ extra_deps = {
 ) for src in glob(
     include = ["*_test.cpp"],
     exclude = [
-        "html5lib_test.cpp",
+        "html5lib_*.cpp",
         "*_fuzz_test.cpp",
     ],
 )]
 
 cc_binary(
-    name = "html5lib_test_runner",
+    name = "html5lib_tokenizer_test_runner",
     testonly = True,
-    srcs = ["html5lib_test.cpp"],
+    srcs = ["html5lib_tokenizer_test.cpp"],
     copts = HASTUR_COPTS,
     deps = [
         ":html2",
@@ -71,15 +71,15 @@ genrule(
 
 # TODO(robinlinden): Look into the remaining tests.
 [sh_test(
-    name = "html5lib_{}".format(test.rpartition("/")[-1].removesuffix(".test")),
+    name = "html5lib_tokenizer_{}".format(test.rpartition("/")[-1].removesuffix(".test")),
     size = "small",
     srcs = [":test_with_arg"],
     args = [
-        "$(location :html5lib_test_runner)",
+        "$(location :html5lib_tokenizer_test_runner)",
         "$(location {})".format(test),
     ],
     data = [
-        ":html5lib_test_runner",
+        ":html5lib_tokenizer_test_runner",
         test,
     ],
     target_compatible_with = select({
