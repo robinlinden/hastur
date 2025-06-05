@@ -23,6 +23,11 @@ struct IntLiteral {
     bool operator==(IntLiteral const &) const = default;
 };
 
+struct StringLiteral {
+    std::string value;
+    bool operator==(StringLiteral const &) const = default;
+};
+
 struct Identifier {
     std::string name;
     bool operator==(Identifier const &) const = default;
@@ -55,6 +60,7 @@ struct Eof {
 
 using Token = std::variant< //
         IntLiteral,
+        StringLiteral,
         Identifier,
         Comment,
         LParen,
@@ -107,6 +113,10 @@ public:
                 return Semicolon{};
             case ',':
                 return Comma{};
+            case '\'':
+            case '"': {
+                return tokenize_string_literal(*current);
+            }
             default:
                 break;
         }
@@ -162,6 +172,26 @@ private:
 
         assert(value <= kUpperBound);
         return IntLiteral{static_cast<int>(value)};
+    }
+
+    // https://tc39.es/ecma262/#prod-StringLiteral
+    // TODO(robinlinden): All special cases.
+    std::optional<Token> tokenize_string_literal(char quote) {
+        auto token = std::make_optional<StringLiteral>();
+        std::string &str = token->value;
+
+        while (true) {
+            auto current = consume();
+            if (!current) {
+                return std::nullopt;
+            }
+
+            if (*current == quote) {
+                return token;
+            }
+
+            str += *current;
+        }
     }
 
     Token tokenize_identifier(char current) {
