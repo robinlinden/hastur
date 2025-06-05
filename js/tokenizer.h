@@ -46,12 +46,28 @@ struct RParen {
     bool operator==(RParen const &) const = default;
 };
 
+struct LBrace {
+    bool operator==(LBrace const &) const = default;
+};
+
+struct RBrace {
+    bool operator==(RBrace const &) const = default;
+};
+
 struct Semicolon {
     bool operator==(Semicolon const &) const = default;
 };
 
 struct Comma {
     bool operator==(Comma const &) const = default;
+};
+
+struct Period {
+    bool operator==(Period const &) const = default;
+};
+
+struct Equals {
+    bool operator==(Equals const &) const = default;
 };
 
 struct Eof {
@@ -65,8 +81,12 @@ using Token = std::variant< //
         Comment,
         LParen,
         RParen,
+        LBrace,
+        RBrace,
         Semicolon,
         Comma,
+        Period,
+        Equals,
         Eof>;
 
 class Tokenizer {
@@ -109,10 +129,18 @@ public:
                 return LParen{};
             case ')':
                 return RParen{};
+            case '{':
+                return LBrace{};
+            case '}':
+                return RBrace{};
             case ';':
                 return Semicolon{};
             case ',':
                 return Comma{};
+            case '.':
+                return Period{};
+            case '=':
+                return Equals{};
             case '\'':
             case '"': {
                 return tokenize_string_literal(*current);
