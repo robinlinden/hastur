@@ -26,8 +26,33 @@ cc_library(
     ],
 ) for src in glob(
     include = ["*_test.cpp"],
-    exclude = ["*_fuzz_test.cpp"],
+    exclude = [
+        "html5lib_*.cpp",
+        "*_fuzz_test.cpp",
+    ],
 )]
+
+# TODO(robinlinden): Run more of the tree-construction tests.
+cc_test(
+    name = "html5lib_tree_construction_test_runner",
+    size = "small",
+    testonly = True,
+    srcs = ["html5lib_tree_construction_test.cpp"],
+    args = ["$(location @html5lib-tests//:tree-construction/doctype01.dat)"],
+    copts = HASTUR_COPTS,
+    data = ["@html5lib-tests//:tree-construction/doctype01.dat"],
+    target_compatible_with = select({
+        # TODO(robinlinden): Investigate why we fail to open the test files when
+        # running as a wasi binary.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":html",
+        "//dom",
+        "//etest",
+    ],
+)
 
 [cc_fuzz_test(
     name = src.removesuffix(".cpp"),
