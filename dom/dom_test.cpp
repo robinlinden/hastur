@@ -37,6 +37,37 @@ int main() {
         a.expect_eq(to_string(document), expected);
     });
 
+    s.add_test("to_string(Document), w/ public/system identifiers", [](etest::IActions &a) {
+        auto document = dom::Document{
+                .doctype{"html5"},
+                .public_identifier{"-//W3C//DTD HTML 4.01//EN"},
+                .system_identifier{"http://www.w3.org/TR/html4/strict.dtd"},
+        };
+        document.html_node = dom::Element{
+                .name{"html"},
+                .children{{
+                        dom::Element{
+                                .name{"head"},
+                                .children{{dom::Element{.name{"title"}, .children{dom::Text{"hello"}}}}},
+                        },
+                        dom::Element{
+                                .name{"body"},
+                                .children{dom::Text{"goodbye"}},
+                        },
+                }},
+        };
+
+        std::string_view expected = R"(#document
+| <!DOCTYPE html5 "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+| <html>
+|   <head>
+|     <title>
+|       "hello"
+|   <body>
+|     "goodbye")";
+        a.expect_eq(to_string(document), expected);
+    });
+
     s.add_test("to_string(Node)", [](etest::IActions &a) {
         dom::Node root = dom::Element{.name{"span"}, .children{{dom::Text{"hello"}}}};
         std::string_view expected =

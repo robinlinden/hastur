@@ -35,6 +35,8 @@ struct Element {
 
 struct Document {
     std::string doctype;
+    std::string public_identifier;
+    std::string system_identifier;
     Node html_node;
 
     // https://dom.spec.whatwg.org/#concept-document-mode

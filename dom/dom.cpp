@@ -59,7 +59,11 @@ std::string to_string(Document const &document) {
     std::stringstream ss;
     ss << "#document\n";
     if (!document.doctype.empty()) {
-        ss << "| <!DOCTYPE " << document.doctype << '>';
+        ss << "| <!DOCTYPE " << document.doctype;
+        if (!document.public_identifier.empty() || !document.system_identifier.empty()) {
+            ss << " \"" << document.public_identifier << "\" \"" << document.system_identifier << '"';
+        }
+        ss << '>';
     }
 
     print_node(document.html_node, ss, 1);
