@@ -19,8 +19,8 @@ archive_override(
 bazel_dep(name = "platforms")  # Apache-2.0
 archive_override(
     module_name = "platforms",
-    integrity = "sha256-KXQuhydYCbXlmNwvBNhpYMx6VbMGfZciHJq7yZJr/w8=",
-    url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("0.0.11"),
+    integrity = "sha256-M4TrHDB2JwT7445EAgThFBVAhsj8iowuPihEECjAGag=",
+    url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("1.0.0"),
 )
 
 # https://github.com/bazelbuild/rules_cc
@@ -38,8 +38,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-0xtsaeR5/6RUYLZNycd5KkMcrHIe+NUhn8n2A/ov+Hc=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.11.0"),
+    integrity = "sha256-FVhQj8bDSNf5lHe9IWgeV0aTbxXwQ2tfQjPjCDKlkPk=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.12.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -161,11 +161,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.30.0"
+BAZEL_FEATURES_VERSION = "1.31.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-pmACf1qH8TIkq1S43G4ZFpPFVPJpL8ykbo4p7n2rxDs=",
+    integrity = "sha256-oBXz8uv08aw/TKjqNxYQrLY+GQNRT6hyUnLTgZSNJ0c=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -180,8 +180,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-Ewc5cEVAyqFOd8VIELnwHW2a6JfVPu3OtA/Wt178PCM=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.54.1"),
+    integrity = "sha256-xs+dpmaKyExHDEPL/MuP3IROrStai5GOKBbUTymG9kQ=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.55.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
@@ -264,11 +264,11 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-py
-ABSEIL_PY_VERSION = "2.2.2"
+ABSEIL_PY_VERSION = "2.3.0"
 
 archive_override(
     module_name = "abseil-py",
-    integrity = "sha256-dXqqriyT3fYeAY82KHFYYOsi4p4dUBES7DXeDkZtgRs=",
+    integrity = "sha256-MuvP7yeHXiuc9HqbuVoctpIMZOnuuTazdh6QA3jcM8A=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "abseil-py")
@@ -609,13 +609,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
-LIBPNG_VERSION = "1.6.47"
+LIBPNG_VERSION = "1.6.48"
 
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-YxpMWOpsEMgfFgxLIfqElbcV0lFpjrwlUgd+hFDzBFQ=",
+    integrity = "sha256-sX6ZAmBVcn6MupkWDDqaf5r3iOn3htrq3e1aQiQ/HdA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -677,15 +677,15 @@ EOF""",
     url = "https://github.com/gabime/spdlog/archive/v%s.tar.gz" % SPDLOG_VERSION,
 )
 
-# HEAD, last updated at 2025-04-19.
+# HEAD, last updated at 2025-06-07.
 # https://github.com/nothings/stb
-STB_VERSION = "f0569113c93ad095470c54bf34a17b36646bbbb5"
+STB_VERSION = "f58f558c120e9b32c217290b80bad1a0729fbb2c"
 
 bazel_dep(name = "stb")  # MIT/Unlicense
 archive_override(
     module_name = "stb",
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-TQXJZkCuOoy9r9rY00S1DOYQgC94rugBVKzbjiZiguA=",
+    integrity = "sha256-vhpdrZrDj0Lvir8AvX23dhAWYbd2A/gy/MC66EPYKEY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "stb")
