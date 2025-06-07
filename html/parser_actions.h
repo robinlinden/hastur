@@ -36,7 +36,11 @@ public:
           current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements},
           on_element_closed_{on_element_closed} {}
 
-    void set_doctype_name(std::string name) override { document_.doctype = std::move(name); }
+    void set_doctype_from(html2::DoctypeToken const &dt) override {
+        document_.doctype = dt.name.value_or("");
+        document_.public_identifier = dt.public_identifier.value_or("");
+        document_.system_identifier = dt.system_identifier.value_or("");
+    }
 
     void set_quirks_mode(html2::QuirksMode mode) override {
         document_.mode = [=] {

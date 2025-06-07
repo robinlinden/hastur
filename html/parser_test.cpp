@@ -413,8 +413,10 @@ int main() {
     });
 
     s.add_test("doctype", [](etest::IActions &a) {
-        auto doc = html::parse("<!doctype abcd>");
+        auto doc = html::parse(R"(<!doctype abcd PUBLIC "hello" "goodbye">)");
         a.expect_eq(doc.doctype, "abcd");
+        a.expect_eq(doc.public_identifier, "hello");
+        a.expect_eq(doc.system_identifier, "goodbye");
     });
 
     s.add_test("doctype, but too late!", [](etest::IActions &a) {

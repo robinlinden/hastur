@@ -11,7 +11,6 @@
 
 #include <cstdint>
 #include <span>
-#include <string>
 #include <string_view>
 #include <vector>
 
@@ -27,7 +26,7 @@ class IActions {
 public:
     virtual ~IActions() = default;
 
-    virtual void set_doctype_name(std::string) = 0;
+    virtual void set_doctype_from(html2::DoctypeToken const &) = 0;
     virtual void set_quirks_mode(QuirksMode) = 0;
     virtual QuirksMode quirks_mode() const = 0;
     virtual bool scripting() const = 0;

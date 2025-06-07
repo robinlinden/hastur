@@ -32,7 +32,7 @@ public:
     explicit InternalActions(IActions &wrapped, InsertionMode mode_override)
         : wrapped_{wrapped}, current_insertion_mode_override_{std::move(mode_override)} {}
 
-    void set_doctype_name(std::string name) override { wrapped_.set_doctype_name(std::move(name)); }
+    void set_doctype_from(html2::DoctypeToken const &dt) override { wrapped_.set_doctype_from(dt); }
     void set_quirks_mode(QuirksMode quirks) override { wrapped_.set_quirks_mode(quirks); }
     QuirksMode quirks_mode() const override { return wrapped_.quirks_mode(); }
     bool scripting() const override { return wrapped_.scripting(); }
@@ -400,9 +400,7 @@ std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &t
     }
 
     if (auto const *doctype = std::get_if<html2::DoctypeToken>(&token)) {
-        if (doctype->name) {
-            a.set_doctype_name(*doctype->name);
-        }
+        a.set_doctype_from(*doctype);
 
         using StringOverload = std::string (*)(std::string);
         auto const pub_id = doctype->public_identifier.transform(static_cast<StringOverload>(util::lowercased));

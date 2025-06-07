@@ -16,4 +16,6 @@ exports_files([
     # https://github.com/html5lib/html5lib-tests/blob/a9f44960a9fedf265093d22b2aa3c7ca123727b9/tokenizer/README.md#xmlviolation-tests
     # https://html.spec.whatwg.org/multipage/parsing.html#coercing-an-html-dom-into-an-infoset
     # "tokenizer/xmlViolation.test",
+    "tree-construction/doctype01.dat",
+    # TODO(robinlinden): More tree-construction tests.
 ])
