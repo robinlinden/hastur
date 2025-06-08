@@ -4,6 +4,7 @@
 
 #include "html2/tokenizer.h"
 
+#include "html2/parse_error.h"
 #include "html2/token.h"
 
 #include "etest/etest2.h"
@@ -1665,23 +1666,6 @@ int main() {
         expect_error(tokens, ParseError::EofInDoctype);
         expect_token(tokens, DoctypeToken{.name = "hi", .force_quirks = true});
         expect_token(tokens, EndOfFileToken{});
-    });
-
-    s.add_test("to_string(ParseError)", [](etest::IActions &a) {
-        // This test will fail if we add new first or last errors, but that's fine.
-        constexpr auto kFirstError = ParseError::AbruptClosingOfEmptyComment;
-        constexpr auto kLastError = ParseError::UnknownNamedCharacterReference;
-
-        auto error = static_cast<int>(kFirstError);
-        a.expect_eq(error, 0);
-
-        while (error <= static_cast<int>(kLastError)) {
-            a.expect(to_string(static_cast<ParseError>(error)) != "Unknown error",
-                    std::to_string(error) + " is missing an error message");
-            error += 1;
-        }
-
-        a.expect_eq(to_string(static_cast<ParseError>(error + 1)), "Unknown error");
     });
 
     return s.run();

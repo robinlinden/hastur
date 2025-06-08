@@ -14,7 +14,7 @@
 #include "dom/dom.h"
 #include "dom/xpath.h"
 #include "html/parser.h"
-#include "html2/tokenizer.h"
+#include "html2/parse_error.h"
 #include "js/tokenizer.h"
 #include "layout/layout.h"
 #include "protocol/response.h"

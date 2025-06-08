@@ -6,7 +6,7 @@
 
 #include "dom/dom.h"
 #include "etest/etest2.h"
-#include "html2/tokenizer.h"
+#include "html2/parse_error.h"
 
 #include <cstddef>
 #include <string>

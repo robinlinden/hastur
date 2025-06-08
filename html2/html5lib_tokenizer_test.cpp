@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "html2/parse_error.h"
 #include "html2/token.h"
 #include "html2/tokenizer.h"
 

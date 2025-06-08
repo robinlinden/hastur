@@ -8,6 +8,7 @@
 #include "html/parser_actions.h"
 
 #include "dom/dom.h"
+#include "html2/parse_error.h"
 #include "html2/parser_states.h"
 #include "html2/token.h"
 #include "html2/tokenizer.h"

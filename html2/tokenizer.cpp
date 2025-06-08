@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "html2/tokenizer.h"
 
 #include "html2/character_reference.h"
+#include "html2/parse_error.h"
 #include "html2/token.h"
 
 #include "unicode/util.h"
