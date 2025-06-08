@@ -6,6 +6,7 @@
 #define HTML_PARSER_H_
 
 #include "html/parser_actions.h"
+#include "html/parser_options.h"
 
 #include "dom/dom.h"
 #include "html2/parse_error.h"
@@ -20,15 +21,6 @@
 #include <vector>
 
 namespace html {
-
-struct ParserOptions {
-    bool scripting{false};
-};
-
-struct Callbacks {
-    std::function<void(dom::Element const &)> on_element_closed;
-    std::function<void(html2::ParseError)> on_error;
-};
 
 class Parser {
 public:
@@ -73,17 +65,6 @@ private:
     html2::InsertionMode insertion_mode_{};
     Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_, cbs_.on_element_closed};
 };
-
-inline dom::Document parse(std::string_view input, ParserOptions const &opts, Callbacks const &cbs) {
-    return Parser::parse_document(input, opts, cbs);
-}
-
-inline dom::Document parse(
-        std::string_view input,
-        ParserOptions const &opts = {},
-        std::function<void(html2::ParseError)> const &on_error = [](auto) {}) {
-    return parse(input, opts, Callbacks{.on_error = on_error});
-}
 
 } // namespace html
 

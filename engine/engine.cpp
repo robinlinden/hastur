@@ -13,7 +13,7 @@
 #include "css/style_sheet.h"
 #include "dom/dom.h"
 #include "dom/xpath.h"
-#include "html/parser.h"
+#include "html/parse.h"
 #include "html2/parse_error.h"
 #include "js/tokenizer.h"
 #include "layout/layout.h"
