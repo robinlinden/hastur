@@ -30,6 +30,8 @@ enum class ValidationError : std::uint8_t {
     MemoryEmpty,
     MemoryInvalid,
     MemorySectionUndefined,
+    StartFunctionInvalid,
+    StartFunctionTypeInvalid,
     TableInvalid,
     TypeSectionUndefined,
     UnknownInstruction,
