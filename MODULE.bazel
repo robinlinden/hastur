@@ -24,12 +24,14 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
+RULES_CC_VERSION = "0.1.2"
+
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-cS13hosxUt1hjE1k+q3e/MWWX5D13m5t0dXdzQvoLUI=",
-    strip_prefix = "rules_cc-0.1.1",
-    url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format("0.1.1"),
+    integrity = "sha256-1iYktF4JEnE9zTuOMLpq5VQY7Wv5nm0TXNYbit2uMSs=",
+    strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
+    url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
 
 cc_configure = use_extension("@rules_cc//cc:extensions.bzl", "cc_configure_extension")
@@ -50,12 +52,16 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.4.1"
+RULES_PYTHON_VERSION = "1.5.0"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-n587MAqSZOTHeZkxLOZjvl3umlbjYaH2/n7GDhvu+aM=",
+    integrity = "sha256-e5A5wx6QnPWe6uqMy9xU8J9+uuuWCblDccfeRegCl3w=",
+    patch_cmds = [
+        # https://github.com/bazel-contrib/rules_python/pull/3045
+        """sed -i'' -e '198i\\\n        tags = ["manual"],\\\n' python/private/pypi/pip_compile.bzl""",
+    ],
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -101,12 +107,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_shell
-RULES_SHELL_VERSION = "0.4.1"
+RULES_SHELL_VERSION = "0.5.0"
 
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-vGHvlPrMeOIKZFcm9kdW5eKFoEUDfHph9lrylB9MJeE=",
+    integrity = "sha256-sVzC5pijxVPXc/9K8160s84pg8MZFjcH3d2ecPqqBi0=",
     strip_prefix = "rules_shell-%s" % RULES_SHELL_VERSION,
     url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format(RULES_SHELL_VERSION),
 )
@@ -328,8 +334,8 @@ archive_override(
 bazel_dep(name = "hermetic_cc_toolchain")  # MIT
 archive_override(
     module_name = "hermetic_cc_toolchain",
-    integrity = "sha256-+kgf2vBY5UqGarYSRWhfa3qINZbc/dry+me3D9DRccQ=",
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("4.0.0"),
+    integrity = "sha256-NkZViF5a9azQKymeTq8ROhMX3WViUySbN7fJ8FvyO3k=",
+    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("4.0.1"),
 )
 
 zig_toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")
@@ -386,12 +392,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250514.0"
+BORINGSSL_VERSION = "0.20250701.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-ce8euEoDWgM61Vhn+JoUHdsuXFgp3UA16ngDv/8CV+0=",
+    integrity = "sha256-6S/DjLm7/dvX6hUfnMlr0/ok588wejqbfO0wChbzJpM=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -547,6 +553,7 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
+# 1.92.0 doesn't have support in imgui-sfml yet.
 IMGUI_VERSION = "1.91.9b"
 
 bazel_dep(name = "imgui")  # MIT
@@ -607,11 +614,13 @@ EOF""",
 )
 
 # https://github.com/libjpeg-turbo/libjpeg-turbo
+LIBJPEG_TURBO_VERSION = "3.1.1"
+
 bazel_dep(name = "libjpeg-turbo")  # BSD-3-Clause AND IJG
 archive_override(
     module_name = "libjpeg-turbo",
     build_file = "//third_party:libjpeg-turbo.BUILD",
-    integrity = "sha256-lWTHKx39HW/mJ0xflajZibWYVFddS77kSt57wXqpvJM=",
+    integrity = "sha256-qtyX6pH27weLCuOmK7pp4AjZp9sZs05KyXOxm3G0IXw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libjpeg-turbo")
@@ -620,8 +629,8 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    strip_prefix = "libjpeg-turbo-3.1.0",
-    url = "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.0/libjpeg-turbo-3.1.0.tar.gz",
+    strip_prefix = "libjpeg-turbo-%s" % LIBJPEG_TURBO_VERSION,
+    url = "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/{0}/libjpeg-turbo-{0}.tar.gz".format(LIBJPEG_TURBO_VERSION),
 )
 
 # https://github.com/glennrp/libpng
@@ -745,13 +754,13 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.315"
+VULKAN_TAG = "1.4.320"
 
 bazel_dep(name = "vulkan")  # Apache-2.0
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-d+OnjbhT+LnFvD3e8E5je++XROAdaoyQ6+DdzZFsDFA=",
+    integrity = "sha256-Jr8r7+rWvzlyY6dIhdrD5o0TOvdgYjIcKlzoHeR7hCk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -767,7 +776,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-X/7dLuvMWrdk72mSi6wF+zGKdqGLhhLkvt/DdJ4gXSo=",
+    integrity = "sha256-i124D3dXXCUyitxUqZLrSISFhQejmmFrRK4D/abf9OU=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
