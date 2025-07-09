@@ -73,29 +73,24 @@ constexpr std::string_view kDotAndDigits = ".0123456789";
 
 constexpr std::array kGlobalValues{"inherit", "initial", "revert", "revert-layer", "unset"};
 
-template<auto const &array>
-constexpr bool is_in_array(std::string_view str) {
-    return std::ranges::find(array, str) != std::cend(array);
-}
-
 constexpr bool is_shorthand_edge_property(std::string_view str) {
-    return is_in_array<kShorthandEdgeProperties>(str);
+    return std::ranges::contains(kShorthandEdgeProperties, str);
 }
 
 constexpr bool is_absolute_size(std::string_view str) {
-    return is_in_array<kAbsoluteSizeKeywords>(str);
+    return std::ranges::contains(kAbsoluteSizeKeywords, str);
 }
 
 constexpr bool is_relative_size(std::string_view str) {
-    return is_in_array<kRelativeSizeKeywords>(str);
+    return std::ranges::contains(kRelativeSizeKeywords, str);
 }
 
 constexpr bool is_weight(std::string_view str) {
-    return is_in_array<kWeightKeywords>(str);
+    return std::ranges::contains(kWeightKeywords, str);
 }
 
 constexpr bool is_stretch(std::string_view str) {
-    return is_in_array<kStretchKeywords>(str);
+    return std::ranges::contains(kStretchKeywords, str);
 }
 
 bool is_length_or_percentage(std::string_view str) {
@@ -561,7 +556,7 @@ void Parser::add_declaration(Declarations &declarations, std::string_view name, 
         expand_text_decoration_values(declarations, value);
     } else if (name == "flex-flow") {
         expand_flex_flow(declarations, value);
-    } else if (is_in_array<kBorderShorthandProperties>(name)) {
+    } else if (std::ranges::contains(kBorderShorthandProperties, name)) {
         expand_border(name, declarations, value);
     } else if (name == "outline") {
         expand_outline(declarations, value);
@@ -618,11 +613,11 @@ void Parser::expand_border_or_outline_impl(
 
     enum class BorderPropertyType : std::uint8_t { Color, Style, Width };
     auto guess_type = [](std::string_view v) -> BorderPropertyType {
-        if (is_in_array<kBorderStyleKeywords>(v)) {
+        if (std::ranges::contains(kBorderStyleKeywords, v)) {
             return BorderPropertyType::Style;
         }
 
-        if (v.find_first_of(kDotAndDigits) == 0 || is_in_array<kBorderWidthKeywords>(v)) {
+        if (v.find_first_of(kDotAndDigits) == 0 || std::ranges::contains(kBorderWidthKeywords, v)) {
             return BorderPropertyType::Width;
         }
 
@@ -769,7 +764,7 @@ void Parser::expand_border_radius_values(Declarations &declarations, std::string
 // https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
 void Parser::expand_text_decoration_values(Declarations &declarations, std::string_view value) {
     // TODO(robinlinden): text-decoration-color, text-decoration-thickness.
-    if (is_in_array<kGlobalValues>(value)) {
+    if (std::ranges::contains(kGlobalValues, value)) {
         declarations.insert_or_assign(PropertyId::TextDecorationColor, value);
         declarations.insert_or_assign(PropertyId::TextDecorationLine, value);
         declarations.insert_or_assign(PropertyId::TextDecorationStyle, value);
@@ -784,9 +779,9 @@ void Parser::expand_text_decoration_values(Declarations &declarations, std::stri
 
     Tokenizer tokenizer{value, ' '};
     for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
-        if (is_in_array<kTextDecorationLineKeywords>(*v) && !line.has_value()) {
+        if (std::ranges::contains(kTextDecorationLineKeywords, *v) && !line.has_value()) {
             line = *v;
-        } else if (is_in_array<kTextDecorationStyleKeywords>(*v) && !style.has_value()) {
+        } else if (std::ranges::contains(kTextDecorationStyleKeywords, *v) && !style.has_value()) {
             style = *v;
         } else {
             spdlog::warn("Unsupported text-decoration value: '{}'", value);
@@ -820,7 +815,7 @@ void Parser::expand_flex_flow(Declarations &declarations, std::string_view value
     auto first = tokenizer.get();
     auto second = tokenizer.next().get();
     // Global values are only allowed if there's a single value.
-    if (first && !second && is_in_array<kGlobalValues>(*first)) {
+    if (first && !second && std::ranges::contains(kGlobalValues, *first)) {
         wrap = direction = *first;
         declarations.insert_or_assign(PropertyId::FlexDirection, direction);
         declarations.insert_or_assign(PropertyId::FlexWrap, wrap);
