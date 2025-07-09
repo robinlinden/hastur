@@ -1,0 +1,387 @@
+Generated-From: https://github.com/uber/hermetic_cc_toolchain/pull/203
+Generated-On: 2025-07-09
+
+From 7b517ddc7d6b66d9514c448989968fa5fe101917 Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Thu, 21 Nov 2024 19:27:45 +0800
+Subject: [PATCH 01/12] upgrade to zig 0.13.0
+
+---
+ toolchain/private/zig_sdk.bzl | 14 +++++++-------
+ toolchain/zig-wrapper.zig     |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/toolchain/private/zig_sdk.bzl b/toolchain/private/zig_sdk.bzl
+index a328df5..c1b3cf5 100644
+--- a/toolchain/private/zig_sdk.bzl
++++ b/toolchain/private/zig_sdk.bzl
+@@ -1,12 +1,12 @@
+-VERSION = "0.12.0"
++VERSION = "0.13.0"
+ 
+ HOST_PLATFORM_SHA256 = {
+-    "linux-aarch64": "754f1029484079b7e0ca3b913a0a2f2a6afd5a28990cb224fe8845e72f09de63",
+-    "linux-x86_64": "c7ae866b8a76a568e2d5cfd31fe89cdb629bdd161fdd5018b29a4a0a17045cad",
+-    "macos-aarch64": "294e224c14fd0822cfb15a35cf39aa14bd9967867999bf8bdfe3db7ddec2a27f",
+-    "macos-x86_64": "4d411bf413e7667821324da248e8589278180dbc197f4f282b7dbb599a689311",
+-    "windows-aarch64": "04c6b92689241ca7a8a59b5f12d2ca2820c09d5043c3c4808b7e93e41c7bf97b",
+-    "windows-x86_64": "2199eb4c2000ddb1fba85ba78f1fcf9c1fb8b3e57658f6a627a8e513131893f5",
++    "linux-aarch64": "041ac42323837eb5624068acd8b00cd5777dac4cf91179e8dad7a7e90dd0c556",
++    "linux-x86_64": "d45312e61ebcc48032b77bc4cf7fd6915c11fa16e4aad116b66c9468211230ea",
++    "macos-aarch64": "46fae219656545dfaf4dce12fb4e8685cec5b51d721beee9389ab4194d43394c",
++    "macos-x86_64": "8b06ed1091b2269b700b3b07f8e3be3b833000841bae5aa6a09b1a8b4773effd",
++    "windows-aarch64": "95ff88427af7ba2b4f312f45d2377ce7a033e5e3c620c8caaa396a9aba20efda",
++    "windows-x86_64": "d859994725ef9402381e557c60bb57497215682e355204d754ee3df75ee3c158",
+ }
+ 
+ # Official recommended version. Should use this when we have a usable release.
+diff --git a/toolchain/zig-wrapper.zig b/toolchain/zig-wrapper.zig
+index d1d59f9..99be373 100644
+--- a/toolchain/zig-wrapper.zig
++++ b/toolchain/zig-wrapper.zig
+@@ -93,7 +93,7 @@ const ParseResults = union(Action) {
+ };
+ 
+ // sub-commands in the same folder as `zig-wrapper`
+-const sub_commands_target = std.ComptimeStringMap(void, .{
++const sub_commands_target = std.StaticStringMap(void).initComptime(.{
+     .{"ar"},
+     .{"ld.lld"},
+     .{"lld-link"},
+
+From 5fea2ee7438e9ed5056464a48dc29e52a0d5c1a1 Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Thu, 21 Nov 2024 21:09:39 +0800
+Subject: [PATCH 02/12] fix windows
+
+---
+ toolchain/zig-wrapper.zig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/toolchain/zig-wrapper.zig b/toolchain/zig-wrapper.zig
+index 99be373..70ee41e 100644
+--- a/toolchain/zig-wrapper.zig
++++ b/toolchain/zig-wrapper.zig
+@@ -55,7 +55,7 @@ const std = @import("std");
+ const fs = std.fs;
+ const mem = std.mem;
+ const process = std.process;
+-const ChildProcess = std.ChildProcess;
++const ChildProcess = std.process.Child;
+ const ArrayListUnmanaged = std.ArrayListUnmanaged;
+ const sep = fs.path.sep_str;
+ 
+
+From 5ae465206fc169d37948e09d2760ed11c6cbf60d Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Fri, 22 Nov 2024 09:10:08 +0800
+Subject: [PATCH 03/12] attempt 0.14 nightly
+
+---
+ toolchain/private/zig_sdk.bzl | 4 ++--
+ toolchain/zig-wrapper.zig     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/toolchain/private/zig_sdk.bzl b/toolchain/private/zig_sdk.bzl
+index c1b3cf5..ad2154e 100644
+--- a/toolchain/private/zig_sdk.bzl
++++ b/toolchain/private/zig_sdk.bzl
+@@ -1,10 +1,10 @@
+-VERSION = "0.13.0"
++VERSION = "0.14.0-dev.2271+f845fa04a"
+ 
+ HOST_PLATFORM_SHA256 = {
+     "linux-aarch64": "041ac42323837eb5624068acd8b00cd5777dac4cf91179e8dad7a7e90dd0c556",
+     "linux-x86_64": "d45312e61ebcc48032b77bc4cf7fd6915c11fa16e4aad116b66c9468211230ea",
+     "macos-aarch64": "46fae219656545dfaf4dce12fb4e8685cec5b51d721beee9389ab4194d43394c",
+-    "macos-x86_64": "8b06ed1091b2269b700b3b07f8e3be3b833000841bae5aa6a09b1a8b4773effd",
++    "macos-x86_64": "fc77de265737737925e6c40d4339996506582565621bea0e834e552cd98a5e0d",
+     "windows-aarch64": "95ff88427af7ba2b4f312f45d2377ce7a033e5e3c620c8caaa396a9aba20efda",
+     "windows-x86_64": "d859994725ef9402381e557c60bb57497215682e355204d754ee3df75ee3c158",
+ }
+diff --git a/toolchain/zig-wrapper.zig b/toolchain/zig-wrapper.zig
+index 70ee41e..2a00af6 100644
+--- a/toolchain/zig-wrapper.zig
++++ b/toolchain/zig-wrapper.zig
+@@ -276,7 +276,7 @@ fn getRunMode(self_exe: []const u8, self_base_noexe: []const u8) error{BadParent
+     // strings `is.it.x86_64?-stallinux,macos-`; we are trying to aid users
+     // that run things from the wrong directory, not trying to punish the ones
+     // having fun.
+-    var it = mem.split(u8, triple, "-");
++    var it = mem.splitSequence(u8, triple, "-");
+ 
+     const arch = it.next() orelse return error.BadParent;
+     if (mem.indexOf(u8, "aarch64,x86_64,wasm32", arch) == null)
+
+From 4cd750516435cfb85c2913fb49653504cfdd00d6 Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Mon, 3 Feb 2025 20:19:13 +0800
+Subject: [PATCH 04/12] even newer nightly
+
+---
+ toolchain/private/zig_sdk.bzl | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/toolchain/private/zig_sdk.bzl b/toolchain/private/zig_sdk.bzl
+index ad2154e..01854e8 100644
+--- a/toolchain/private/zig_sdk.bzl
++++ b/toolchain/private/zig_sdk.bzl
+@@ -1,10 +1,10 @@
+-VERSION = "0.14.0-dev.2271+f845fa04a"
++VERSION = "0.14.0-dev.3028+cdc9d65b0"
+ 
+ HOST_PLATFORM_SHA256 = {
+     "linux-aarch64": "041ac42323837eb5624068acd8b00cd5777dac4cf91179e8dad7a7e90dd0c556",
+     "linux-x86_64": "d45312e61ebcc48032b77bc4cf7fd6915c11fa16e4aad116b66c9468211230ea",
+     "macos-aarch64": "46fae219656545dfaf4dce12fb4e8685cec5b51d721beee9389ab4194d43394c",
+-    "macos-x86_64": "fc77de265737737925e6c40d4339996506582565621bea0e834e552cd98a5e0d",
++    "macos-x86_64": "5d82aba58eff4221f736bdcfb009df4be186d221532e25cc2380ed41f9aca77f",
+     "windows-aarch64": "95ff88427af7ba2b4f312f45d2377ce7a033e5e3c620c8caaa396a9aba20efda",
+     "windows-x86_64": "d859994725ef9402381e557c60bb57497215682e355204d754ee3df75ee3c158",
+ }
+
+From c4d0bcbf0ba8798733a7288bfc7dbce4f8a8d7f7 Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Tue, 4 Feb 2025 19:15:40 +0800
+Subject: [PATCH 05/12] changed more shas
+
+---
+ toolchain/private/zig_sdk.bzl | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/toolchain/private/zig_sdk.bzl b/toolchain/private/zig_sdk.bzl
+index 01854e8..85a3977 100644
+--- a/toolchain/private/zig_sdk.bzl
++++ b/toolchain/private/zig_sdk.bzl
+@@ -1,12 +1,12 @@
+ VERSION = "0.14.0-dev.3028+cdc9d65b0"
+ 
+ HOST_PLATFORM_SHA256 = {
+-    "linux-aarch64": "041ac42323837eb5624068acd8b00cd5777dac4cf91179e8dad7a7e90dd0c556",
+-    "linux-x86_64": "d45312e61ebcc48032b77bc4cf7fd6915c11fa16e4aad116b66c9468211230ea",
+-    "macos-aarch64": "46fae219656545dfaf4dce12fb4e8685cec5b51d721beee9389ab4194d43394c",
+-    "macos-x86_64": "5d82aba58eff4221f736bdcfb009df4be186d221532e25cc2380ed41f9aca77f",
+-    "windows-aarch64": "95ff88427af7ba2b4f312f45d2377ce7a033e5e3c620c8caaa396a9aba20efda",
+-    "windows-x86_64": "d859994725ef9402381e557c60bb57497215682e355204d754ee3df75ee3c158",
++    "linux-aarch64": "2049eda7a11a4ca251d9d8d2546c6778828edd0940d621805f2b9c56a06c5043",
++    "linux-x86_64": "",
++    "macos-aarch64": "ea5b85f82fe22d81dc0d2f2f78f59999418e13ac0fb4d2a5fcfc7be1a979cb80",
++    "macos-x86_64": "",
++    "windows-aarch64": "",
++    "windows-x86_64": "1fa65e7110416ea338868f042c457ed4d724c281cb94329436f6c32f3e658854",
+ }
+ 
+ # Official recommended version. Should use this when we have a usable release.
+
+From a2a49082d5304f3e9ccb7da1b0a28b4c67509b25 Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Sun, 16 Mar 2025 20:11:29 +0800
+Subject: [PATCH 06/12] update to 0.14.0
+
+---
+ toolchain/private/zig_sdk.bzl | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/toolchain/private/zig_sdk.bzl b/toolchain/private/zig_sdk.bzl
+index 85a3977..fc6a0c8 100644
+--- a/toolchain/private/zig_sdk.bzl
++++ b/toolchain/private/zig_sdk.bzl
+@@ -1,12 +1,12 @@
+-VERSION = "0.14.0-dev.3028+cdc9d65b0"
++VERSION = "0.14.0"
+ 
+ HOST_PLATFORM_SHA256 = {
+-    "linux-aarch64": "2049eda7a11a4ca251d9d8d2546c6778828edd0940d621805f2b9c56a06c5043",
+-    "linux-x86_64": "",
+-    "macos-aarch64": "ea5b85f82fe22d81dc0d2f2f78f59999418e13ac0fb4d2a5fcfc7be1a979cb80",
+-    "macos-x86_64": "",
+-    "windows-aarch64": "",
+-    "windows-x86_64": "1fa65e7110416ea338868f042c457ed4d724c281cb94329436f6c32f3e658854",
++    "linux-aarch64": "ab64e3ea277f6fc5f3d723dcd95d9ce1ab282c8ed0f431b4de880d30df891e4f",
++    "linux-x86_64": "473ec26806133cf4d1918caf1a410f8403a13d979726a9045b421b685031a982",
++    "macos-aarch64": "b71e4b7c4b4be9953657877f7f9e6f7ee89114c716da7c070f4a238220e95d7e",
++    "macos-x86_64": "685816166f21f0b8d6fc7aa6a36e91396dcd82ca6556dfbe3e329deffc01fec3",
++    "windows-aarch64": "03e984383ebb8f85293557cfa9f48ee8698e7c400239570c9ff1aef3bffaf046",
++    "windows-x86_64": "f53e5f9011ba20bbc3e0e6d0a9441b31eb227a97bac0e7d24172f1b8b27b4371",
+ }
+ 
+ # Official recommended version. Should use this when we have a usable release.
+
+From 77609914ee26a36208155c23caa581d629dbcd77 Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Sun, 16 Mar 2025 20:43:27 +0800
+Subject: [PATCH 07/12] attempt to resolve mac test issue
+
+---
+ toolchain/private/defs.bzl | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/toolchain/private/defs.bzl b/toolchain/private/defs.bzl
+index c1342b2..b7af4d6 100644
+--- a/toolchain/private/defs.bzl
++++ b/toolchain/private/defs.bzl
+@@ -207,12 +207,18 @@ def _target_wasm():
+         zigtarget = "wasm32-wasi-musl",
+         includes = [
+             "libc/include/wasm-wasi-musl",
++            "libc/include/generic-musl",
+             "libc/wasi",
+         ] + _INCLUDE_TAIL,
+         linkopts = [],
+         dynamic_library_linkopts = [],
+         supports_dynamic_linker = False,
+-        copts = [],
++        copts = [
++            "-D_LIBCPP_HAS_MUSL_LIBC",
++            "-D_LIBCPP_HAS_NO_THREADS",
++            "-D_LIBCPP_HAS_NO_THREAD_UNSAFE_C_FUNCTIONS",
++            "-D_LIBCPP_HAS_NO_THREAD_API_PTHREAD",
++        ],
+         libc = "musl",
+         bazel_target_cpu = "wasm32",
+         constraint_values = [
+
+From f6d410794d007e8eba4fa797314465203b75894b Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Sun, 16 Mar 2025 20:51:48 +0800
+Subject: [PATCH 08/12] fix error with posix functions
+
+>  The error is coming from Go's CGo trying to build the standard library with the Zig C++ compiler, and it's failing to find certain POSIX terminal functions (grantpt, posix_openpt, ptsname, unlockpt).
+
+```
+bazel-out/darwin_x86_64-fastbuild-ST-1dd79e0b6a44/bin/external/rules_go~0.45.1/stdlib_/src/internal/testpty/pty_cgo.go:24:17: could not determine kind of name for C.grantpt
+bazel-out/darwin_x86_64-fastbuild-ST-1dd79e0b6a44/bin/external/rules_go~0.45.1/stdlib_/src/internal/testpty/pty_cgo.go:20:12: could not determine kind of name for C.posix_openpt
+bazel-out/darwin_x86_64-fastbuild-ST-1dd79e0b6a44/bin/external/rules_go~0.45.1/stdlib_/src/internal/testpty/pty_cgo.go:32:26: could not determine kind of name for C.ptsname
+bazel-out/darwin_x86_64-fastbuild-ST-1dd79e0b6a44/bin/external/rules_go~0.45.1/stdlib_/src/internal/testpty/pty_cgo.go:28:17: could not determine kind of name for C.unlockpt
+```
+---
+ toolchain/private/defs.bzl | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/toolchain/private/defs.bzl b/toolchain/private/defs.bzl
+index b7af4d6..a66ce98 100644
+--- a/toolchain/private/defs.bzl
++++ b/toolchain/private/defs.bzl
+@@ -161,7 +161,9 @@ def _target_linux_gnu(gocpu, zigcpu, glibc_version):
+         linkopts = [],
+         dynamic_library_linkopts = [],
+         supports_dynamic_linker = True,
+-        copts = [],
++        copts = [
++            "-D_POSIX_C_SOURCE=200809L",
++        ],
+         libc = "glibc",
+         bazel_target_cpu = "k8",
+         constraint_values = [
+
+From bd8c667ca1afe90c507645a565fe7c715ea25d8d Mon Sep 17 00:00:00 2001
+From: Chris Chua <chris.sirhc@gmail.com>
+Date: Sun, 16 Mar 2025 20:54:19 +0800
+Subject: [PATCH 09/12] need remaining copts in previous commit
+
+-D_GNU_SOURCE - Enables all GNU extensions
+-D_POSIX_C_SOURCE=200809L - Enables POSIX.1-2008 features
+-D_XOPEN_SOURCE=600 - Enables X/Open System Interface (XSI) features
+
+These macros should make the necessary POSIX terminal functions (grantpt, posix_openpt, ptsname, unlockpt) available to CGo when building the Go standard library.
+The error occurred because these functions are part of the POSIX terminal interface, and they need to be explicitly enabled through feature test macros when building with certain C library implementations.
+---
+ toolchain/private/defs.bzl | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/toolchain/private/defs.bzl b/toolchain/private/defs.bzl
+index a66ce98..9c3d193 100644
+--- a/toolchain/private/defs.bzl
++++ b/toolchain/private/defs.bzl
+@@ -162,7 +162,9 @@ def _target_linux_gnu(gocpu, zigcpu, glibc_version):
+         dynamic_library_linkopts = [],
+         supports_dynamic_linker = True,
+         copts = [
++            "-D_GNU_SOURCE",
+             "-D_POSIX_C_SOURCE=200809L",
++            "-D_XOPEN_SOURCE=600",
+         ],
+         libc = "glibc",
+         bazel_target_cpu = "k8",
+
+From 81dfbf9fd55775e788c616339ac040293377b7ad Mon Sep 17 00:00:00 2001
+From: chua <chua@uber.com>
+Date: Mon, 17 Mar 2025 04:15:22 +0000
+Subject: [PATCH 10/12] fix lint
+
+---
+ toolchain/zig-wrapper.zig | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/toolchain/zig-wrapper.zig b/toolchain/zig-wrapper.zig
+index 2a00af6..eaf336a 100644
+--- a/toolchain/zig-wrapper.zig
++++ b/toolchain/zig-wrapper.zig
+@@ -142,9 +142,9 @@ fn spawnWindows(arena: mem.Allocator, params: ExecParams) u8 {
+     proc.env_map = &params.env;
+     const ret = proc.spawnAndWait() catch |err|
+         return fatal(
+-        "error spawning {s}: {s}\n",
+-        .{ params.args.items[0], @errorName(err) },
+-    );
++            "error spawning {s}: {s}\n",
++            .{ params.args.items[0], @errorName(err) },
++        );
+ 
+     switch (ret) {
+         .Exited => |code| return code,
+
+From 4f7f15cae506dd104c5893cab9c4f5eca94fb0ba Mon Sep 17 00:00:00 2001
+From: chua <chua@uber.com>
+Date: Mon, 17 Mar 2025 04:20:54 +0000
+Subject: [PATCH 11/12] reduce to only essential copt
+
+---
+ toolchain/private/defs.bzl | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/toolchain/private/defs.bzl b/toolchain/private/defs.bzl
+index 9c3d193..5796d50 100644
+--- a/toolchain/private/defs.bzl
++++ b/toolchain/private/defs.bzl
+@@ -161,11 +161,7 @@ def _target_linux_gnu(gocpu, zigcpu, glibc_version):
+         linkopts = [],
+         dynamic_library_linkopts = [],
+         supports_dynamic_linker = True,
+-        copts = [
+-            "-D_GNU_SOURCE",
+-            "-D_POSIX_C_SOURCE=200809L",
+-            "-D_XOPEN_SOURCE=600",
+-        ],
++        copts = ["-D_GNU_SOURCE"],
+         libc = "glibc",
+         bazel_target_cpu = "k8",
+         constraint_values = [
+
+From f08bb9b9291e81eafbdf28c9c6f8147ea60cb293 Mon Sep 17 00:00:00 2001
+From: chua <chua@uber.com>
+Date: Mon, 17 Mar 2025 04:28:46 +0000
+Subject: [PATCH 12/12] reduce copts to minimal set
+
+---
+ toolchain/private/defs.bzl | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/toolchain/private/defs.bzl b/toolchain/private/defs.bzl
+index 5796d50..a389eb1 100644
+--- a/toolchain/private/defs.bzl
++++ b/toolchain/private/defs.bzl
+@@ -213,12 +213,7 @@ def _target_wasm():
+         linkopts = [],
+         dynamic_library_linkopts = [],
+         supports_dynamic_linker = False,
+-        copts = [
+-            "-D_LIBCPP_HAS_MUSL_LIBC",
+-            "-D_LIBCPP_HAS_NO_THREADS",
+-            "-D_LIBCPP_HAS_NO_THREAD_UNSAFE_C_FUNCTIONS",
+-            "-D_LIBCPP_HAS_NO_THREAD_API_PTHREAD",
+-        ],
++        copts = [],
+         libc = "musl",
+         bazel_target_cpu = "wasm32",
+         constraint_values = [
