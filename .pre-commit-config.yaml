@@ -4,6 +4,7 @@ repos:
     hooks:
       - id: check-vcs-permalinks
       - id: trailing-whitespace
+        exclude: ".*\\.patch"
       - id: end-of-file-fixer
         exclude: fuzz_test_corpus
       - id: check-yaml
