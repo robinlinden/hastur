@@ -85,11 +85,6 @@ bool is_boring_whitespace(html2::Token const &token) {
     return false;
 }
 
-template<auto const &array>
-constexpr bool is_in_array(std::string_view str) {
-    return std::ranges::find(array, str) != std::cend(array);
-}
-
 // All public and system identifiers here are lowercased compared to the spec in
 // order to simplify everything having to be done in a case-insensitive fashion.
 constexpr auto kQuirkyPublicIdentifiers = std::to_array<std::string_view>({
@@ -156,7 +151,7 @@ constexpr auto kQuirkyStartsOfPublicIdentifier = std::to_array<std::string_view>
 });
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
 constexpr bool is_quirky_public_identifier(std::string_view identifier) {
-    if (is_in_array<kQuirkyPublicIdentifiers>(identifier)) {
+    if (std::ranges::contains(kQuirkyPublicIdentifiers, identifier)) {
         return true;
     }
 
@@ -271,7 +266,7 @@ bool is_special(std::string_view node_name) {
             "xmp",
     });
 
-    return is_in_array<kSpecial>(node_name);
+    return std::ranges::contains(kSpecial, node_name);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#closing-elements-that-have-implied-end-tags
@@ -289,7 +284,7 @@ bool is_implicity_closed(std::string_view node_name) {
             "rtc",
     });
 
-    return is_in_array<kImplicityClosed>(node_name);
+    return std::ranges::contains(kImplicityClosed, node_name);
 }
 
 void generate_implied_end_tags(IActions &a, std::optional<std::string_view> exception) {
@@ -337,7 +332,7 @@ bool has_element_in_scope_impl(IActions const &a, std::string_view element_name)
             return true;
         }
 
-        if (is_in_array<scope_elements>(element)) {
+        if (std::ranges::contains(scope_elements, element)) {
             return false;
         }
     }
@@ -449,7 +444,7 @@ std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const
 
     static constexpr auto kAcceptableEndTags = std::to_array<std::string_view>({"head", "body", "html", "br"});
     if (auto const *end = std::get_if<html2::EndTagToken>(&token);
-            end != nullptr && (is_in_array<kAcceptableEndTags>(end->tag_name))) {
+            end != nullptr && (std::ranges::contains(kAcceptableEndTags, end->tag_name))) {
         // Fall through to "anything else."
     } else if (end != nullptr) {
         // Parse error.
@@ -488,7 +483,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
         }
     } else if (auto const *end = std::get_if<html2::EndTagToken>(&token)) {
         static constexpr std::array kSortOfHandledEndTags{"head"sv, "body"sv, "html"sv, "br"sv};
-        if (is_in_array<kSortOfHandledEndTags>(end->tag_name)) {
+        if (std::ranges::contains(kSortOfHandledEndTags, end->tag_name)) {
             // Treat as "anything else."
         } else {
             // Parse error.
@@ -618,7 +613,7 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     }
 
     static constexpr std::array kInHeadElements{"basefont"sv, "bgsound"sv, "link"sv, "meta"sv, "noframes"sv, "style"sv};
-    if ((start != nullptr && is_in_array<kInHeadElements>(start->tag_name))
+    if ((start != nullptr && std::ranges::contains(kInHeadElements, start->tag_name))
             || std::holds_alternative<html2::CommentToken>(token) || is_boring_whitespace(token)) {
         return InHead{}.process(a, token);
     }
@@ -626,7 +621,7 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     static constexpr std::array kIgnoredStartTags{"head"sv, "noscript"sv};
     if (end != nullptr && end->tag_name == "br") {
         // Let the anything-else case handle this.
-    } else if (start != nullptr && is_in_array<kIgnoredStartTags>(start->tag_name)) {
+    } else if (start != nullptr && std::ranges::contains(kIgnoredStartTags, start->tag_name)) {
         // Parse error, ignore the token.
         return {};
     }
@@ -788,7 +783,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "title"sv,
     });
 
-    if (start != nullptr && is_in_array<kInHeadElements>(start->tag_name)) {
+    if (start != nullptr && std::ranges::contains(kInHeadElements, start->tag_name)) {
         return InHead{}.process(a, token);
     }
 
@@ -827,7 +822,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
                         "body",
                         "html",
                 });
-                return is_in_array<kAllowedElements>(name);
+                return std::ranges::contains(kAllowedElements, name);
             }) != std::cend(open_elements)) {
             // Parse error.
         }
@@ -863,7 +858,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
                         "body",
                         "html",
                 });
-                return is_in_array<kAllowedElements>(name);
+                return std::ranges::contains(kAllowedElements, name);
             }) != std::cend(open_elements)) {
             // Parse error.
         }
@@ -901,7 +896,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "summary",
             "ul",
     });
-    if (start != nullptr && is_in_array<kClosesPElements>(start->tag_name)) {
+    if (start != nullptr && std::ranges::contains(kClosesPElements, start->tag_name)) {
         if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
         }
@@ -1009,7 +1004,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "summary",
             "ul",
     });
-    if (end != nullptr && is_in_array<kClosingTags>(end->tag_name)) {
+    if (end != nullptr && std::ranges::contains(kClosingTags, end->tag_name)) {
         if (!has_element_in_scope(a, end->tag_name)) {
             // Parse error.
             return {};
@@ -1069,7 +1064,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
             "wbr",
     });
     auto is_bad_br_end_tag = end != nullptr && end->tag_name == "br";
-    if ((start != nullptr && is_in_array<kImmediatelyPoppedElements>(start->tag_name)) || (is_bad_br_end_tag)) {
+    if ((start != nullptr && std::ranges::contains(kImmediatelyPoppedElements, start->tag_name))
+            || (is_bad_br_end_tag)) {
         if (is_bad_br_end_tag) {
             // Parse error.
             a.reconstruct_active_formatting_elements();
@@ -1173,7 +1169,7 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
 
     static constexpr auto kTableTextElements =
             std::to_array<std::string_view>({"table", "tbody", "template", "tfoot", "thead", "tr"});
-    if (character != nullptr && is_in_array<kTableTextElements>(a.current_node_name())) {
+    if (character != nullptr && std::ranges::contains(kTableTextElements, a.current_node_name())) {
         a.store_original_insertion_mode(a.current_insertion_mode());
         auto table_text = InTableText{};
         auto maybe_next = table_text.process(a, token);
@@ -1209,14 +1205,14 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
 
     static constexpr auto kBadEndTags = std::to_array<std::string_view>(
             {"body", "caption", "col", "colgroup", "html", "tbody", "td", "tfoot", "th", "thead", "tr"});
-    if (end != nullptr && is_in_array<kBadEndTags>(end->tag_name)) {
+    if (end != nullptr && std::ranges::contains(kBadEndTags, end->tag_name)) {
         // Parse error.
         return {};
     }
 
     auto const *start = std::get_if<html2::StartTagToken>(&token);
     static constexpr auto kInHeadStartTags = std::to_array<std::string_view>({"style", "script", "template"});
-    if ((start != nullptr && is_in_array<kInHeadStartTags>(start->tag_name))
+    if ((start != nullptr && std::ranges::contains(kInHeadStartTags, start->tag_name))
             || (end != nullptr && end->tag_name == "template")) {
         auto mode_override = current_insertion_mode_override(a, InTable{});
         return InHead{}.process(mode_override, token);
