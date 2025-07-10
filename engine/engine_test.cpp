@@ -46,10 +46,6 @@ private:
     Responses responses_;
 };
 
-bool contains(std::vector<css::Rule> const &stylesheet, css::Rule const &rule) {
-    return std::ranges::find(stylesheet, rule) != end(stylesheet);
-}
-
 } // namespace
 
 int main() {
@@ -181,10 +177,12 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(contains(
-                page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
-        a.expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
-        a.expect(contains(page->stylesheet.rules, {.selectors{"a"}, .declarations{{css::PropertyId::Color, "red"}}}));
+        a.expect(std::ranges::contains(page->stylesheet.rules,
+                css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        a.expect(std::ranges::contains(
+                page->stylesheet.rules, css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+        a.expect(std::ranges::contains(
+                page->stylesheet.rules, css::Rule{.selectors{"a"}, .declarations{{css::PropertyId::Color, "red"}}}));
     });
 
     s.add_test("stylesheet link, unsupported Content-Encoding", [](etest::IActions &a) {
@@ -200,8 +198,8 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(!contains(
-                page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
+        a.expect(!std::ranges::contains(page->stylesheet.rules,
+                css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
     });
 
     // p { font-size: 123em; }, gzipped.
@@ -494,7 +492,8 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(contains(page->stylesheet.rules, {.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
+        a.expect(std::ranges::contains(
+                page->stylesheet.rules, css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::Color, "green"}}}));
     });
 
     s.add_test("redirect loop", [](etest::IActions &a) {
