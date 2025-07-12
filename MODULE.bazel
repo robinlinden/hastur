@@ -8,7 +8,7 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 # =========================================================
 
 # https://github.com/bazelbuild/apple_support
-bazel_dep(name = "apple_support")  # Apache-2.0
+bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
     integrity = "sha256-smW+rPpHcIHKryvQWXjufRH9uMICobdtDvKNkB0eezM=",
@@ -215,7 +215,7 @@ archive_override(
 # https://github.com/bazel-contrib/toolchains_llvm
 TOOLCHAINS_LLVM_VERSION = "1.4.0"
 
-bazel_dep(name = "toolchains_llvm")  # Apache-2.0
+bazel_dep(name = "toolchains_llvm", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "toolchains_llvm",
     integrity = "sha256-/e0CVpYX0kVRoK0JwHUNxTowlyNxV7gookVoHwrnOfg=",
@@ -331,7 +331,7 @@ archive_override(
 # =========================================================
 
 # https://github.com/uber/hermetic_cc_toolchain
-bazel_dep(name = "hermetic_cc_toolchain")  # MIT
+bazel_dep(name = "hermetic_cc_toolchain", dev_dependency = True)  # MIT
 archive_override(
     module_name = "hermetic_cc_toolchain",
     integrity = "sha256-NkZViF5a9azQKymeTq8ROhMX3WViUySbN7fJ8FvyO3k=",
@@ -363,7 +363,7 @@ archive_override(
 
 # HEAD as of 2025-01-26.
 # https://github.com/erenon/bazel_clang_tidy
-bazel_dep(name = "bazel_clang_tidy")  # MIT
+bazel_dep(name = "bazel_clang_tidy", dev_dependency = True)  # MIT
 archive_override(
     module_name = "bazel_clang_tidy",
     integrity = "sha256-cjoiSKMv0j33LPlj9Kf0BEBYy9wJoa1+jvZ/0WwHM0Y=",
