@@ -98,6 +98,16 @@ build:tsan --strip=never
 build:tsan --features=tsan
 build:tsan --action_env=TSAN_OPTIONS=halt_on_error=1
 
+# https://clang.llvm.org/docs/TypeSanitizer.html
+# Doesn't really work for our code yet. False positives for things like arrays
+# containing string views, no support for halting on errors, and some of our
+# unit tests hang with this enabled. Last tested w/ LLVM 20.
+build:tysan --strip=never
+build:tysan --copt=-fsanitize=type
+build:tysan --linkopt=-fsanitize=type
+build:tysan --linkopt=-fsanitize-link-c++-runtime
+build:tysan --action_env=TYSAN_OPTIONS=print_stacktrace=1
+
 build:ubsan --strip=never
 build:ubsan --features=ubsan
 build:ubsan --copt=-fno-omit-frame-pointer
