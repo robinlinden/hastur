@@ -1,13 +1,15 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "html2/tokenizer.h"
 
+#include "html2/token.h"
+
 #include <cstddef>
 #include <cstdint>
-#include <optional>
 #include <string_view>
+#include <variant>
 
 extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size);
 
