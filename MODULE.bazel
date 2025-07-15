@@ -310,11 +310,11 @@ archive_override(
 )
 
 # https://github.com/google/re2
-RE2_VERSION = "2025-06-26b"
+RE2_VERSION = "2024-07-02"
 
 archive_override(
     module_name = "re2",
-    integrity = "sha256-ZBo8ozeBSmw2dqOJ6gZYEuAP95bzGkJwOLwBC64LhuM=",
+    integrity = "sha256-6y34B8eBYBwUomClB6W7RQm+HuYmAky0WsvVfLnUAys=",
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
 )
