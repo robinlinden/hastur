@@ -54,6 +54,14 @@ struct RBrace {
     bool operator==(RBrace const &) const = default;
 };
 
+struct LBracket {
+    bool operator==(LBracket const &) const = default;
+};
+
+struct RBracket {
+    bool operator==(RBracket const &) const = default;
+};
+
 struct Semicolon {
     bool operator==(Semicolon const &) const = default;
 };
@@ -70,6 +78,14 @@ struct Equals {
     bool operator==(Equals const &) const = default;
 };
 
+struct Plus {
+    bool operator==(Plus const &) const = default;
+};
+
+struct Asterisk {
+    bool operator==(Asterisk const &) const = default;
+};
+
 struct Eof {
     bool operator==(Eof const &) const = default;
 };
@@ -83,10 +99,14 @@ using Token = std::variant< //
         RParen,
         LBrace,
         RBrace,
+        LBracket,
+        RBracket,
         Semicolon,
         Comma,
         Period,
         Equals,
+        Plus,
+        Asterisk,
         Eof>;
 
 class Tokenizer {
@@ -133,6 +153,10 @@ public:
                 return LBrace{};
             case '}':
                 return RBrace{};
+            case '[':
+                return LBracket{};
+            case ']':
+                return RBracket{};
             case ';':
                 return Semicolon{};
             case ',':
@@ -141,6 +165,10 @@ public:
                 return Period{};
             case '=':
                 return Equals{};
+            case '+':
+                return Plus{};
+            case '*':
+                return Asterisk{};
             case '\'':
             case '"': {
                 return tokenize_string_literal(*current);

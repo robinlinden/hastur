@@ -90,6 +90,20 @@ int main() {
         expect_tokens(a, "{ hello; }", {LBrace{}, Identifier{"hello"}, Semicolon{}, RBrace{}});
     });
 
+    s.add_test("brackets", [](etest::IActions &a) {
+        expect_tokens(a, "[]", {LBracket{}, RBracket{}});
+        expect_tokens(a, "[ ]", {LBracket{}, RBracket{}});
+        expect_tokens(a, "[ hello ]", {LBracket{}, Identifier{"hello"}, RBracket{}});
+        expect_tokens(a, "[ hello; ]", {LBracket{}, Identifier{"hello"}, Semicolon{}, RBracket{}});
+    });
+
+    s.add_test("maths", [](etest::IActions &a) {
+        expect_tokens(a, "5 + 6", {IntLiteral{5}, Plus{}, IntLiteral{6}});
+        expect_tokens(a, "5*6", {IntLiteral{5}, Asterisk{}, IntLiteral{6}});
+        expect_tokens(a, "5 * 6", {IntLiteral{5}, Asterisk{}, IntLiteral{6}});
+        expect_tokens(a, "5+6*7", {IntLiteral{5}, Plus{}, IntLiteral{6}, Asterisk{}, IntLiteral{7}});
+    });
+
     s.add_test("comments", [](etest::IActions &a) {
         expect_tokens(a, "/* comment */", {Comment{" comment "}});
         expect_tokens(a, "/*comment*//* comment */", {Comment{"comment"}, Comment{" comment "}});
