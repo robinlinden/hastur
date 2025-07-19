@@ -40,6 +40,7 @@ cc_library(
     name = "test",
     testonly = True,
     hdrs = glob(["test/*.h"]),
+    copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
 )
 
