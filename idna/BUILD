@@ -4,6 +4,7 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 cc_binary(
     name = "idna_data_processor",
     srcs = ["idna_data_processor.cpp"],
+    copts = HASTUR_COPTS,
     deps = ["//util:string"],
 )
 
