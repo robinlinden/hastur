@@ -114,9 +114,14 @@ public:
         return execute(v.body);
     }
 
-    Value operator()(BlockStatement const &) {
-        // TODO(robinlinden): Implement.
-        return Value{};
+    Value operator()(BlockStatement const &v) {
+        Value result{};
+
+        for (auto const &statement : v.body) {
+            result = execute(statement);
+        }
+
+        return result;
     }
 
     Value operator()(FunctionBody const &v) {

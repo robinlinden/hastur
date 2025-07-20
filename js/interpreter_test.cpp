@@ -268,5 +268,17 @@ int main() {
         a.expect_eq(Interpreter{}.execute(Program{}), Value{});
     });
 
+    s.add_test("block statement", [](etest::IActions &a) {
+        BlockStatement block{
+                .body{
+                        ExpressionStatement{StringLiteral{"hello"}},
+                        ExpressionStatement{NumericLiteral{42.}},
+                },
+        };
+
+        a.expect_eq(Interpreter{}.execute(block), Value{42.});
+        a.expect_eq(Interpreter{}.execute(BlockStatement{}), Value{});
+    });
+
     return s.run();
 }
