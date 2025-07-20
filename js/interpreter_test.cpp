@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -254,6 +254,18 @@ int main() {
 
         a.expect_eq(e.execute(while_loop), Value{});
         a.expect_eq(loop_count, 3);
+    });
+
+    s.add_test("program", [](etest::IActions &a) {
+        Program p{
+                .body{
+                        ExpressionStatement{StringLiteral{"hello"}},
+                        ExpressionStatement{NumericLiteral{42.}},
+                },
+        };
+
+        a.expect_eq(Interpreter{}.execute(p), Value{42.});
+        a.expect_eq(Interpreter{}.execute(Program{}), Value{});
     });
 
     return s.run();

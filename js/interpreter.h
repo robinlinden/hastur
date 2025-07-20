@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -23,6 +23,16 @@ namespace js::ast {
 class Interpreter {
 public:
     Value execute(auto const &ast) { return (*this)(ast); }
+
+    Value operator()(Program const &v) {
+        Value result{};
+
+        for (auto const &statement : v.body) {
+            result = execute(statement);
+        }
+
+        return result;
+    }
 
     Value operator()(Literal const &v) { return std::visit(*this, v); }
     Value operator()(NumericLiteral const &v) { return Value{v.value}; }
