@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -132,11 +132,11 @@ struct BinaryExpression {
 };
 
 struct Program {
-    std::vector<std::shared_ptr<Statement>> body;
+    std::vector<Statement> body;
 };
 
 struct BlockStatement {
-    std::vector<std::shared_ptr<Statement>> body;
+    std::vector<Statement> body;
 };
 
 struct FunctionBody {
