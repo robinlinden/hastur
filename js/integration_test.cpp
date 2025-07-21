@@ -64,9 +64,7 @@ int main() {
         e.variables["hello"] = js::ast::Value{"fantastic"};
 
         auto p = js::Parser::parse("foo(hello)").value();
-        // TODO(robinlinden): Bug in the interpreter. This should return "fantastic".
-        // a.expect_eq(e.execute(p), js::ast::Value{"fantastic"});
-        a.expect_eq(e.execute(p), js::ast::Value{"hello"});
+        a.expect_eq(e.execute(p), js::ast::Value{"fantastic"});
     });
 
     return s.run();

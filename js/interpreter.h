@@ -86,7 +86,7 @@ public:
         std::vector<Value> args;
         args.reserve(v.arguments.size());
         for (auto const &arg : v.arguments) {
-            args.push_back(execute(*arg));
+            args.push_back(get_value_resolving_variables(*arg));
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments

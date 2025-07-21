@@ -108,6 +108,18 @@ int main() {
 
         // The only variable in scope should be the function we declared.
         a.expect_eq(e.variables.size(), std::size_t{1});
+
+        // And check that we can resolve function arguments via variables.
+        e.variables["a"] = Value{38.};
+        call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"func"}),
+                .arguments{
+                        std::make_shared<Expression>(Identifier{"a"}),
+                        std::make_shared<Expression>(NumericLiteral{4.}),
+                },
+        };
+
+        a.expect_eq(e.execute(call), Value{38. + 4.});
     });
 
     s.add_test("member expression", [](etest::IActions &a) {
