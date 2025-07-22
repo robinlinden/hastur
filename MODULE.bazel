@@ -24,12 +24,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.1.2"
+RULES_CC_VERSION = "0.1.4"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-1iYktF4JEnE9zTuOMLpq5VQY7Wv5nm0TXNYbit2uMSs=",
+    integrity = "sha256-DTtPmExMLhrP0TeOAUjTXK8u8dnrlbaI+OGc4MQb31s=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -52,12 +52,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.5.0"
+RULES_PYTHON_VERSION = "1.5.1"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-e5A5wx6QnPWe6uqMy9xU8J9+uuuWCblDccfeRegCl3w=",
+    integrity = "sha256-+lMtY18pwDimTIBickr3AMMM9rMRdN1PrBILxWGhpWA=",
     patch_cmds = [
         # https://github.com/bazel-contrib/rules_python/pull/3045
         """sed -i'' -e '198i\\\n        tags = ["manual"],\\\n' python/private/pypi/pip_compile.bzl""",
@@ -81,12 +81,12 @@ pip.parse(
 use_repo(pip, "pypi")
 
 # https://github.com/bazel-contrib/rules_fuzzing
-RULES_FUZZING_VERSION = "0.5.3"
+RULES_FUZZING_VERSION = "0.6.0"
 
 bazel_dep(name = "rules_fuzzing")  # Apache-2.0
 archive_override(
     module_name = "rules_fuzzing",
-    integrity = "sha256-CCdEIsQ4NBbfX5gpQ+QNWBQfdJwJAIu3gEQO7OaxE+Q=",
+    integrity = "sha256-hQiXmJ68BlZ+oGyVnrSmEp+lCe0tu9DRR9YtK5hnFKk=",
     strip_prefix = "rules_fuzzing-%s" % RULES_FUZZING_VERSION,
     url = "https://github.com/bazel-contrib/rules_fuzzing/archive/refs/tags/v{0}.tar.gz".format(RULES_FUZZING_VERSION),
 )
@@ -420,19 +420,25 @@ EOF""",
 )
 
 # https://github.com/tartanllama/expected
+EXPECTED_VERSION = "1.2.0"
+
 bazel_dep(name = "expected")
 archive_override(
     module_name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
+    integrity = "sha256-9UJPX8dOeRV7mYG6JXiijgKFrG7CqPB16GxBIm/jM4Y=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "expected")
 bazel_dep(name = "rules_cc")
 EOF""",
+        # expected uses TL_CPLUSPLUS before they define it.
+        # https://github.com/TartanLlama/expected/pull/175
+        "sed -i'' -e '25i\\\n#include <cassert>\\\n' include/tl/expected.hpp",
+        "sed -i'' -e '26i\\\n#define TL_ASSERT(x) assert(x)\\\n' include/tl/expected.hpp",
     ],
-    sha256 = "1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6",
-    strip_prefix = "expected-1.1.0",
-    url = "https://github.com/tartanllama/expected/archive/v1.1.0.tar.gz",
+    strip_prefix = "expected-%s" % EXPECTED_VERSION,
+    url = "https://github.com/tartanllama/expected/archive/v%s.tar.gz" % EXPECTED_VERSION,
 )
 
 # HEAD, last updated 2025-04-24.
@@ -554,14 +560,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-# 1.92.0 doesn't have support in imgui-sfml yet.
-IMGUI_VERSION = "1.91.9b"
+IMGUI_VERSION = "1.92.1"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-jhu8dscddP7y+4Xbfnyo66E9aoZiPFSZK2AWLbVU/9s=",
+    integrity = "sha256-MsI3wqv2ei/8yqwXGS9xHUp4dVS0EzGHoVPUkFfWEJw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -573,16 +578,21 @@ EOF""",
 )
 
 # https://github.com/SFML/imgui-sfml
+# 3.0 + support for imgui 1.92.x.
+IMGUI_SFML_VERSION = "f768c96c3a8ff8ca9817ea1d1ce597162e7e714c"
+
 bazel_dep(name = "imgui-sfml")  # MIT
 archive_override(
     module_name = "imgui-sfml",
     build_file = "//third_party:imgui-sfml.BUILD",
-    integrity = "sha256-VhoEQH3MkTuPHCWhZK1JB4UrUftPEZB9GrnbY1GvkRs=",
+    integrity = "sha256-pWbdZqZmO3S9sJDfWatrwqBXie7QGZbm5cXP9dBFV8Y=",
     patch_cmds = [
         # Use glad for OpenGL instead of the system OpenGL headers.
         "sed -i'' -e /OpenGL.hpp/d imgui-SFML.cpp",
         "sed -i'' -e '4i\\\n#include <glad/gl.h>\\\n' imgui-SFML.cpp",
         "sed -i'' -e '297i\\\n\\\tif (gladLoaderLoadGL() == 0) std::abort();\\\n' imgui-SFML.cpp",
+        # Hack in compatibility with imgui 1.92.x. They forgot to fix this when officially adding support for it.
+        "sed -i'' -e '/You forgot to create and set font texture/d' imgui-SFML.cpp",
         """cat <<EOF >MODULE.bazel
 module(name = "imgui-sfml")
 bazel_dep(name = "glad2")
@@ -591,8 +601,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "sfml")
 EOF""",
     ],
-    strip_prefix = "imgui-sfml-3.0",
-    url = "https://github.com/SFML/imgui-sfml/archive/v3.0.tar.gz",
+    strip_prefix = "imgui-sfml-%s" % IMGUI_SFML_VERSION,
+    url = "https://github.com/SFML/imgui-sfml/archive/%s.tar.gz" % IMGUI_SFML_VERSION,
 )
 
 # https://github.com/martinus/nanobench
@@ -635,13 +645,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
-LIBPNG_VERSION = "1.6.48"
+LIBPNG_VERSION = "1.6.50"
 
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-sX6ZAmBVcn6MupkWDDqaf5r3iOn3htrq3e1aQiQ/HdA=",
+    integrity = "sha256-cRWOU8/fKHe8mbyrM2QdeN8/SObg2q0DCv6cuMAxqkY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -753,12 +763,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.320"
+VULKAN_TAG = "1.4.323"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-Jr8r7+rWvzlyY6dIhdrD5o0TOvdgYjIcKlzoHeR7hCk=",
+    integrity = "sha256-20odqjeo02GjWuIXLXgG1K3VSgxlvFkBx0PkZzZ/QSE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -774,7 +784,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-i124D3dXXCUyitxUqZLrSISFhQejmmFrRK4D/abf9OU=",
+    integrity = "sha256-sJ5CiJwfHTKyVU3zw+LCuy3UdTirEqk/WC+lV0Rk+Cc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
