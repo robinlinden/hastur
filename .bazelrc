@@ -91,14 +91,14 @@ build:libc++ --host_copt=-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 # * https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
 # * https://github.com/google/sanitizers/wiki/ThreadSanitizerFlags
 build:asan --strip=never
-build:asan --features=asan
+build:asan --features=asan --host_features=asan
 build:asan --copt=-fsanitize-address-use-after-scope
 build:asan --copt=-fno-omit-frame-pointer
 build:asan --action_env=ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_invalid_pointer_pairs=2
 build:asan --action_env=LSAN_OPTIONS=report_objects=1
 
 build:tsan --strip=never
-build:tsan --features=tsan
+build:tsan --features=tsan --host_features=tsan
 build:tsan --action_env=TSAN_OPTIONS=halt_on_error=1
 
 # https://clang.llvm.org/docs/TypeSanitizer.html
@@ -112,7 +112,7 @@ build:tysan --linkopt=-fsanitize-link-c++-runtime
 build:tysan --action_env=TYSAN_OPTIONS=print_stacktrace=1
 
 build:ubsan --strip=never
-build:ubsan --features=ubsan
+build:ubsan --features=ubsan --host_features=ubsan
 build:ubsan --copt=-fno-omit-frame-pointer
 build:ubsan --linkopt=-fsanitize-link-c++-runtime
 build:ubsan --host_linkopt=-fsanitize-link-c++-runtime
