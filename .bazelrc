@@ -95,11 +95,17 @@ build:asan --features=asan --host_features=asan
 build:asan --copt=-fsanitize-address-use-after-scope
 build:asan --copt=-fno-omit-frame-pointer
 build:asan --action_env=ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_invalid_pointer_pairs=2
+build:asan   --test_env=ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_invalid_pointer_pairs=2
+run:asan      --run_env=ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_invalid_pointer_pairs=2
 build:asan --action_env=LSAN_OPTIONS=report_objects=1
+build:asan   --test_env=LSAN_OPTIONS=report_objects=1
+run:asan      --run_env=LSAN_OPTIONS=report_objects=1
 
 build:tsan --strip=never
 build:tsan --features=tsan --host_features=tsan
 build:tsan --action_env=TSAN_OPTIONS=halt_on_error=1
+build:tsan   --test_env=TSAN_OPTIONS=halt_on_error=1
+run:tsan      --run_env=TSAN_OPTIONS=halt_on_error=1
 
 # https://clang.llvm.org/docs/TypeSanitizer.html
 # Doesn't really work for our code yet. False positives for things like arrays
@@ -110,6 +116,8 @@ build:tysan --copt=-fsanitize=type
 build:tysan --linkopt=-fsanitize=type
 build:tysan --linkopt=-fsanitize-link-c++-runtime
 build:tysan --action_env=TYSAN_OPTIONS=print_stacktrace=1
+build:tysan   --test_env=TYSAN_OPTIONS=print_stacktrace=1
+run:tysan      --run_env=TYSAN_OPTIONS=print_stacktrace=1
 
 build:ubsan --strip=never
 build:ubsan --features=ubsan --host_features=ubsan
@@ -117,6 +125,8 @@ build:ubsan --copt=-fno-omit-frame-pointer
 build:ubsan --linkopt=-fsanitize-link-c++-runtime
 build:ubsan --host_linkopt=-fsanitize-link-c++-runtime
 build:ubsan --action_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+build:ubsan   --test_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+run:ubsan      --run_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
 
 build:clang-coverage
 build:clang-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
