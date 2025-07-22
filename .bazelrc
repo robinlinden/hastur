@@ -84,14 +84,17 @@ build:libc++ --host_linkopt=-stdlib=libc++
 build:libc++      --copt=-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 build:libc++ --host_copt=-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 
-# Some of this is from "Can I run AddressSanitizer with more aggressive diagnostics enabled?"
-# on https://github.com/google/sanitizers/wiki/AddressSanitizer#faq and some is from
-# https://chromium.googlesource.com/external/github.com/grpc/grpc/+/4e9206f48c91e17f43856b016b12f59dd5118293/tools/bazel.rc
+# Sanitizer flags listed at:
+# * https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
+# * https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#flags
+# * https://github.com/google/sanitizers/wiki/LeakSanitizerFlags
+# * https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
+# * https://github.com/google/sanitizers/wiki/ThreadSanitizerFlags
 build:asan --strip=never
 build:asan --features=asan
 build:asan --copt=-fsanitize-address-use-after-scope
 build:asan --copt=-fno-omit-frame-pointer
-build:asan --action_env=ASAN_OPTIONS=detect_odr_violation=2:detect_leaks=1:strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1
+build:asan --action_env=ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:detect_invalid_pointer_pairs=2
 build:asan --action_env=LSAN_OPTIONS=report_objects=1
 
 build:tsan --strip=never
