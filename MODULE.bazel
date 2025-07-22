@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-smW+rPpHcIHKryvQWXjufRH9uMICobdtDvKNkB0eezM=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.22.0"),
+    integrity = "sha256-b+UKcxvTG0rzrXve//GdtHs2poTlXkuWdKevFAE0nq4=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.22.1"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -40,8 +40,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-tsbZLKnbt33jH7bGp5TSBCcHJmPOQcKwR5Av/MEj4+8=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.13.0"),
+    integrity = "sha256-u+fZQ2DMntRgfsX9lJlf0exB6EJXAgtvCeZAVSgeyxI=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.14.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -120,8 +120,8 @@ archive_override(
 # https://github.com/bazelbuild/bazel-skylib
 archive_override(
     module_name = "bazel_skylib",
-    integrity = "sha256-+gEpKFlyZgPjzToPPyliXmj00rFlZHxykIBFAnRz6TM=",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.8.0"),
+    integrity = "sha256-UbUQWnYLNTdz+QTSu8XmZNCYf7ryImUWTeZdQ+kQ2Kw=",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.8.1"),
 )
 
 # https://github.com/bazelbuild/rules_android
@@ -186,11 +186,11 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/supply-chain
-PACKAGE_METADATA_VERSION = "0.0.3"
+PACKAGE_METADATA_VERSION = "0.0.5"
 
 archive_override(
     module_name = "package_metadata",
-    integrity = "sha256-Dok2fxy22TpaGv6ktVsR6mso9j9lO0cVQVNnfKfUr+o=",
+    integrity = "sha256-Se0R5da3UsVfpTnLsQsnNpdPNHsIHXvVAKgNrLfb7AY=",
     strip_prefix = "supply-chain-%s/metadata" % PACKAGE_METADATA_VERSION,
     url = "https://github.com/bazel-contrib/supply-chain/releases/download/v{0}/supply-chain-v{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
 )
@@ -203,11 +203,11 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
-RULES_JVM_EXTERNAL_VERSION = "6.7"
+RULES_JVM_EXTERNAL_VERSION = "6.8"
 
 archive_override(
     module_name = "rules_jvm_external",
-    integrity = "sha256-oeNRYH8E/tKWujPEl30/4qYV7VDfeJZna2eqyZPFPBg=",
+    integrity = "sha256-cEoBl+TpZvlpkyYEGPJUJWgZhJBFbCGBT2R65wkfVvI=",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_VERSION,
     url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
@@ -284,11 +284,11 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-py
-ABSEIL_PY_VERSION = "2.3.0"
+ABSEIL_PY_VERSION = "2.3.1"
 
 archive_override(
     module_name = "abseil-py",
-    integrity = "sha256-MuvP7yeHXiuc9HqbuVoctpIMZOnuuTazdh6QA3jcM8A=",
+    integrity = "sha256-zG2HZMC912zBMI79t1A10CFEeXQnGoPv+n8mFlRO49o=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "abseil-py")
@@ -310,11 +310,11 @@ archive_override(
 )
 
 # https://github.com/google/re2
-RE2_VERSION = "2024-07-02"
+RE2_VERSION = "2025-07-22"
 
 archive_override(
     module_name = "re2",
-    integrity = "sha256-6y34B8eBYBwUomClB6W7RQm+HuYmAky0WsvVfLnUAys=",
+    integrity = "sha256-9Uwp8cPhPhJpPj1tEjBVTfOrOhBmsuHyjFMwv79tseM=",
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
 )
