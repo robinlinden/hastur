@@ -16,6 +16,7 @@ jobs:
   linux-ci:
     name: linux-${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     timeout-minutes: 30
 
     strategy:
@@ -28,6 +29,13 @@ jobs:
             version: 14
             bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
             apt: valgrind
+
+          - name: gcc-15
+            os: ubuntu-24.04
+            container: ubuntu:25.04
+            compiler: gcc
+            version: 15
+            apt: g++-15
 
           - name: clang-18-tsan
             os: ubuntu-24.04
@@ -63,6 +71,14 @@ jobs:
             skip-compiler-install: true
 
     steps:
+      - name: Add things missing from containers
+        if: ${{ matrix.container != '' }}
+        run: |
+          echo '#!/bin/sh\n"$@"' >/usr/bin/sudo && chmod +x /usr/bin/sudo
+          apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates xxd python3
+          curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.26.0/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
+          # icu requires gcc to exist.
+          ln -s /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
       - name: Setup gcc
         if: startsWith(matrix.compiler, 'gcc')
         run: |
@@ -83,12 +99,12 @@ jobs:
         if: ${{ !matrix.skip-compiler-install }}
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
+          sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
       - name: Install
         if: ${{ matrix.skip-compiler-install }}
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
+          sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
       - uses: actions/cache@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
