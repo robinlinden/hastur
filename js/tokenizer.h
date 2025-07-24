@@ -111,9 +111,9 @@ using Token = std::variant< //
 
 class Tokenizer {
 public:
-    explicit Tokenizer(std::string_view input) : input_{input} {}
+    constexpr explicit Tokenizer(std::string_view input) : input_{input} {}
 
-    std::optional<Token> tokenize() {
+    constexpr std::optional<Token> tokenize() {
         std::optional<char> current = consume();
 
         while (is_whitespace(current)) {
@@ -192,14 +192,14 @@ private:
     std::string_view input_;
     std::size_t pos_{};
 
-    std::optional<char> peek() const {
+    constexpr std::optional<char> peek() const {
         if ((pos_) < input_.size()) {
             return input_[pos_];
         }
         return std::nullopt;
     }
 
-    std::optional<char> consume() {
+    constexpr std::optional<char> consume() {
         if (pos_ < input_.size()) {
             return input_[pos_++];
         }
@@ -207,7 +207,7 @@ private:
         return std::nullopt;
     }
 
-    std::optional<Token> tokenize_int_literal(char current) {
+    constexpr std::optional<Token> tokenize_int_literal(char current) {
         constexpr int kUpperBound = std::numeric_limits<int32_t>::max();
 
         std::uint64_t value{};
@@ -232,7 +232,7 @@ private:
 
     // https://tc39.es/ecma262/#prod-StringLiteral
     // TODO(robinlinden): All special cases.
-    std::optional<Token> tokenize_string_literal(char quote) {
+    constexpr std::optional<Token> tokenize_string_literal(char quote) {
         auto token = std::make_optional<StringLiteral>();
         std::string &str = token->value;
 
@@ -250,7 +250,7 @@ private:
         }
     }
 
-    Token tokenize_identifier(char current) {
+    constexpr Token tokenize_identifier(char current) {
         Identifier id{};
         while (true) {
             id.name += current;
@@ -286,7 +286,7 @@ private:
     }
 };
 
-inline std::optional<std::vector<Token>> tokenize(std::string_view input) {
+constexpr std::optional<std::vector<Token>> tokenize(std::string_view input) {
     std::vector<Token> tokens;
     auto t = Tokenizer{input};
 
