@@ -21,8 +21,7 @@ namespace js {
 
 class Parser {
 public:
-    // TODO(robinlinden): Support more than super trivial scripts. This can
-    // literally only parse a program w/ a single function call right now.
+    // TODO(robinlinden): Support more than super trivial scripts.
     static std::optional<ast::Program> parse(std::string_view input) {
         auto maybe_tokens = parse::tokenize(input);
         if (!maybe_tokens) {
@@ -33,16 +32,26 @@ public:
         assert(std::holds_alternative<parse::Eof>(tokens.back()));
         tokens = tokens.subspan(0, tokens.size() - 1); // Remove EOF.
 
-        auto call = parse_call_expr(tokens);
-        if (!call) {
-            return std::nullopt;
+        std::vector<ast::Statement> program_body;
+
+        while (!tokens.empty()) {
+            auto call = parse_call_expr(tokens);
+            if (!call) {
+                return std::nullopt;
+            }
+
+            program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*call)});
+
+            if (!tokens.empty()) {
+                if (!std::holds_alternative<parse::Semicolon>(tokens.front())) {
+                    return std::nullopt;
+                }
+
+                tokens = tokens.subspan(1);
+            }
         }
 
-        return ast::Program{
-                .body{
-                        ast::ExpressionStatement{.expression = std::move(*call)},
-                },
-        };
+        return ast::Program{.body = std::move(program_body)};
     }
 
 private:

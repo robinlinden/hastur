@@ -40,6 +40,41 @@ int main() {
         a.expect_eq(call.arguments.size(), std::size_t{0});
     });
 
+    // Same as above, but with a semicolon. We can't just compare the asts due
+    // to it containing shared_ptrs.
+    s.add_test("foo();", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo();").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &call = std::get<js::ast::CallExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "foo");
+        a.expect_eq(call.arguments.size(), std::size_t{0});
+    });
+
+    s.add_test("foo(); bar()", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo(); bar()").value();
+
+        a.expect_eq(p.body.size(), std::size_t{2});
+        auto &first_statement = p.body.at(0);
+        auto &first_expr = std::get<js::ast::ExpressionStatement>(first_statement).expression;
+        auto &first_call = std::get<js::ast::CallExpression>(first_expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*first_call.callee).name, "foo");
+        a.expect_eq(first_call.arguments.size(), std::size_t{0});
+
+        auto &second_statement = p.body.at(1);
+        auto &second_expr = std::get<js::ast::ExpressionStatement>(second_statement).expression;
+        auto &second_call = std::get<js::ast::CallExpression>(second_expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*second_call.callee).name, "bar");
+        a.expect_eq(second_call.arguments.size(), std::size_t{0});
+    });
+
+    s.add_test("foo() bar()", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo() bar()");
+        a.expect_eq(p, std::nullopt);
+    });
+
     s.add_test("foo(", [](etest::IActions &a) {
         auto p = js::Parser::parse("foo(");
         a.expect_eq(p, std::nullopt);
