@@ -11,6 +11,7 @@
 #include <cassert>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <utility>
 #include <variant>
@@ -28,9 +29,24 @@ public:
             return std::nullopt;
         }
 
-        auto &tokens = *maybe_tokens;
+        std::span<parse::Token> tokens = *maybe_tokens;
         assert(std::holds_alternative<parse::Eof>(tokens.back()));
-        tokens.pop_back();
+        tokens = tokens.subspan(0, tokens.size() - 1); // Remove EOF.
+
+        auto call = parse_call_expr(tokens);
+        if (!call) {
+            return std::nullopt;
+        }
+
+        return ast::Program{
+                .body{
+                        ast::ExpressionStatement{.expression = std::move(*call)},
+                },
+        };
+    }
+
+private:
+    static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
         if (tokens.size() < 3) {
             return std::nullopt;
         }
@@ -93,17 +109,14 @@ public:
             args.push_back(std::move(*arg));
         }
 
-        return ast::Program{
-                .body{
-                        ast::ExpressionStatement{
-                                .expression =
-                                        ast::CallExpression{
-                                                .callee = std::make_shared<ast::Expression>(
-                                                        ast::Identifier{.name = std::move(fn_name.name)}),
-                                                .arguments{std::move(args)},
-                                        },
-                        },
-                },
+        // Each arg has a comma, except the last one.
+        auto const arg_tokens = args.empty() ? 0 : args.size() * 2 - 1;
+        auto const function_tokens = 3 + arg_tokens; // fn_name + ( + args + )
+        tokens = tokens.subspan(function_tokens);
+
+        return ast::CallExpression{
+                .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
+                .arguments{std::move(args)},
         };
     }
 };
