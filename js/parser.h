@@ -11,6 +11,7 @@
 #include <cassert>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <utility>
 #include <variant>
@@ -20,17 +21,41 @@ namespace js {
 
 class Parser {
 public:
-    // TODO(robinlinden): Support more than super trivial scripts. This can
-    // literally only parse a program w/ a single function call right now.
+    // TODO(robinlinden): Support more than super trivial scripts.
     static std::optional<ast::Program> parse(std::string_view input) {
         auto maybe_tokens = parse::tokenize(input);
         if (!maybe_tokens) {
             return std::nullopt;
         }
 
-        auto &tokens = *maybe_tokens;
+        std::span<parse::Token> tokens = *maybe_tokens;
         assert(std::holds_alternative<parse::Eof>(tokens.back()));
-        tokens.pop_back();
+        tokens = tokens.subspan(0, tokens.size() - 1); // Remove EOF.
+
+        std::vector<ast::Statement> program_body;
+
+        while (!tokens.empty()) {
+            auto call = parse_call_expr(tokens);
+            if (!call) {
+                return std::nullopt;
+            }
+
+            program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*call)});
+
+            if (!tokens.empty()) {
+                if (!std::holds_alternative<parse::Semicolon>(tokens.front())) {
+                    return std::nullopt;
+                }
+
+                tokens = tokens.subspan(1);
+            }
+        }
+
+        return ast::Program{.body = std::move(program_body)};
+    }
+
+private:
+    static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
         if (tokens.size() < 3) {
             return std::nullopt;
         }
@@ -93,17 +118,14 @@ public:
             args.push_back(std::move(*arg));
         }
 
-        return ast::Program{
-                .body{
-                        ast::ExpressionStatement{
-                                .expression =
-                                        ast::CallExpression{
-                                                .callee = std::make_shared<ast::Expression>(
-                                                        ast::Identifier{.name = std::move(fn_name.name)}),
-                                                .arguments{std::move(args)},
-                                        },
-                        },
-                },
+        // Each arg has a comma, except the last one.
+        auto const arg_tokens = args.empty() ? 0 : args.size() * 2 - 1;
+        auto const function_tokens = 3 + arg_tokens; // fn_name + ( + args + )
+        tokens = tokens.subspan(function_tokens);
+
+        return ast::CallExpression{
+                .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
+                .arguments{std::move(args)},
         };
     }
 };
