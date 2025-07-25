@@ -322,5 +322,45 @@ int main() {
         a.expect_eq(validate(m), tl::unexpected{ValidationError::DataMemoryIdxInvalid});
     });
 
+    s.add_test("Start: valid start function", [=](etest::IActions &a) mutable {
+        m.start_section = {0};
+        m.function_section = {{0}};
+        m.type_section = {{{{}, {}}}};
+
+        a.expect(validate(m).has_value());
+    });
+
+    s.add_test("Start: invalid function type", [=](etest::IActions &a) mutable {
+        m.start_section = {0};
+        m.function_section = {{0}};
+        m.type_section = {{{{ValueType::Int32}, {ValueType::Int32}}}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::StartFunctionTypeInvalid});
+    });
+
+    s.add_test("Start: undefined function section", [=](etest::IActions &a) mutable {
+        m.start_section = {0};
+        m.function_section.reset();
+        m.type_section = {{{{}, {}}}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::FunctionSectionUndefined});
+    });
+
+    s.add_test("Start: undefined type section", [=](etest::IActions &a) mutable {
+        m.start_section = {0};
+        m.function_section = {{0}};
+        m.type_section.reset();
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::TypeSectionUndefined});
+    });
+
+    s.add_test("Start: invalid function index", [=](etest::IActions &a) mutable {
+        m.start_section = {1};
+        m.function_section = {{0}};
+        m.type_section = {{{{}, {}}}};
+
+        a.expect_eq(validate(m), tl::unexpected{ValidationError::StartFunctionInvalid});
+    });
+
     return s.run();
 }
