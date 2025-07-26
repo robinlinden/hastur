@@ -136,7 +136,7 @@ public:
         });
 
         assert(head != document_.html().children.end());
-        assert(std::ranges::find(open_elements_, &std::get<dom::Element>(*head)) == open_elements_.end());
+        assert(!std::ranges::contains(open_elements_, &std::get<dom::Element>(*head)));
 
         open_elements_.push_back(&std::get<dom::Element>(*head));
     }

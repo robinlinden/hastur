@@ -65,7 +65,7 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
             auto name = dom_name(*node);
             if (xpath.substr(0, xpath.find_first_of('|')) == name) {
                 // TODO(robinlinden): Less terrible way of deduplicating goal nodes.
-                if (std::ranges::find(goal_nodes, node) == end(goal_nodes)) {
+                if (!std::ranges::contains(goal_nodes, node)) {
                     goal_nodes.push_back(node);
                 }
             } else if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && is_separator(xpath[name.size()])) {

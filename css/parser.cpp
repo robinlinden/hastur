@@ -145,7 +145,7 @@ bool is_length_or_percentage(std::string_view str) {
     }
 
     auto unit = str.substr(std::distance(str.data(), res.ptr));
-    return unit == "%" || std::ranges::find(kLengthUnits, unit) != std::cend(kLengthUnits);
+    return unit == "%" || std::ranges::contains(kLengthUnits, unit);
 }
 
 std::optional<int> to_int(std::string_view str) {

@@ -227,12 +227,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                != end(page->stylesheet.rules));
+        a.expect(std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
 
         // And again, but with x-gzip instead.
         responses["hax://example.com/lol.css"s] = Response{
@@ -242,12 +241,11 @@ int main() {
         };
         e = engine::Engine{std::make_unique<FakeProtocolHandler>(responses)};
         page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                != end(page->stylesheet.rules));
+        a.expect(std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     s.add_test("stylesheet link, gzip Content-Encoding, bad header", [gzipped_css](etest::IActions &a) mutable {
@@ -265,12 +263,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                == end(page->stylesheet.rules));
+        a.expect(!std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     s.add_test("stylesheet link, gzip Content-Encoding, crc32 mismatch", [gzipped_css](etest::IActions &a) mutable {
@@ -288,12 +285,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                == end(page->stylesheet.rules));
+        a.expect(!std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     s.add_test("stylesheet link, gzip Content-Encoding, served zlib", [zlibbed_css](etest::IActions &a) {
@@ -309,12 +305,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                == end(page->stylesheet.rules));
+        a.expect(!std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     s.add_test("stylesheet link, deflate Content-Encoding", [zlibbed_css](etest::IActions &a) {
@@ -330,12 +325,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                != end(page->stylesheet.rules));
+        a.expect(std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     s.add_test("stylesheet link, zstd Content-Encoding", [zstd_compressed_css](etest::IActions &a) {
@@ -351,12 +345,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                != end(page->stylesheet.rules));
+        a.expect(std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     s.add_test("stylesheet link, zstd decoding failure", [zstd_compressed_css](etest::IActions &a) mutable {
@@ -373,12 +366,11 @@ int main() {
         };
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
-        a.expect(std::ranges::find(page->stylesheet.rules,
-                         css::Rule{
-                                 .selectors{"p"},
-                                 .declarations{{css::PropertyId::FontSize, "123em"}},
-                         })
-                == end(page->stylesheet.rules));
+        a.expect(!std::ranges::contains(page->stylesheet.rules,
+                css::Rule{
+                        .selectors{"p"},
+                        .declarations{{css::PropertyId::FontSize, "123em"}},
+                }));
     });
 
     // echo -n "<p>hello" | zstd -19 -

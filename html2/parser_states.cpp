@@ -14,7 +14,6 @@
 #include <array>
 #include <cassert>
 #include <optional>
-#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -680,7 +679,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
                 "title"sv,
         });
 
-        if (std::ranges::find(kInHeadElements, start->tag_name) != std::ranges::end(kInHeadElements)) {
+        if (std::ranges::contains(kInHeadElements, start->tag_name)) {
             // Parse error.
             a.push_head_as_current_open_element();
             auto mode_override = current_insertion_mode_override(a, AfterHead{});

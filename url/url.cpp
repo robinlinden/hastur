@@ -58,8 +58,7 @@ constexpr auto kSpecialSchemes = std::to_array<std::pair<std::string_view, std::
 });
 
 constexpr bool is_special_scheme(std::string_view scheme) {
-    return std::ranges::find(kSpecialSchemes, scheme, &decltype(kSpecialSchemes)::value_type::first)
-            != end(kSpecialSchemes);
+    return std::ranges::contains(kSpecialSchemes, scheme, &decltype(kSpecialSchemes)::value_type::first);
 }
 
 constexpr std::uint16_t special_scheme_port(std::string_view scheme) {
