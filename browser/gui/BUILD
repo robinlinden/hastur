@@ -38,6 +38,7 @@ cc_binary(
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
+        ":about_handler",
         "//css",
         "//dom",
         "//engine",

@@ -4,6 +4,8 @@
 
 #include "browser/gui/app.h"
 
+#include "browser/gui/about_handler.h"
+
 #include "css/style_sheet.h"
 #include "dom/dom.h"
 #include "dom/xpath.h"
@@ -19,6 +21,7 @@
 #include "os/system_info.h"
 #include "protocol/handler_factory.h"
 #include "protocol/in_memory_cache.h"
+#include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
 #include "render/render.h"
 #include "type/sfml.h"
@@ -102,7 +105,8 @@ std::optional<std::string_view> try_get_text_content(dom::Document const &doc, s
 }
 
 void ensure_has_scheme(std::string &url) {
-    if (!url.contains("://")) {
+    // TODO(robinlinden): Handle opaque urls in a nicer way.
+    if (!url.contains("://") && !url.starts_with("about:")) {
         spdlog::info("Url missing scheme, assuming https");
         url = std::format("https://{}", url);
     }
@@ -264,12 +268,24 @@ std::vector<std::string_view> collect_image_urls(
     return image_urls;
 }
 
+std::unique_ptr<protocol::IProtocolHandler> create_protocol_handler() {
+    auto handlers = protocol::HandlerFactory::create(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0");
+    auto about_handler = std::make_unique<browser::gui::AboutHandler>(Handlers{
+            {
+                    "blank",
+                    []() { return ""; },
+            },
+    });
+    handlers->add("about", std::move(about_handler));
+    return std::make_unique<protocol::InMemoryCache>(std::move(handlers));
+};
+
 } // namespace
 
 // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
-    : engine_{std::make_unique<protocol::InMemoryCache>(protocol::HandlerFactory::create(
-                      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0")),
+    : engine_{create_protocol_handler(),
               create_font_system(),
               [this](std::string_view url) -> std::optional<layout::Size> {
                   auto it = images_.find(url);
