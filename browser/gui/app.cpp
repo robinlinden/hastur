@@ -274,7 +274,20 @@ std::unique_ptr<protocol::IProtocolHandler> create_protocol_handler() {
     auto about_handler = std::make_unique<browser::gui::AboutHandler>(Handlers{
             {
                     "blank",
-                    []() { return ""; },
+                    []() {
+                        return R"(<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            html { background-color: black; }
+        }
+    </style>
+</head>
+<body></body>
+</html>
+)";
+                    },
             },
     });
     handlers->add("about", std::move(about_handler));
