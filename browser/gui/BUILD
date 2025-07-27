@@ -1,12 +1,39 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
+
+# TODO(robinlinden): This will live somewhere else once it's a bit more fleshed out.
+cc_library(
+    name = "about_handler",
+    hdrs = ["about_handler.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+    deps = [
+        "//protocol",
+        "//uri",
+        "@expected",
+    ],
+)
+
+cc_test(
+    name = "about_handler_test",
+    srcs = ["about_handler_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":about_handler",
+        "//etest",
+        "//protocol",
+        "//uri",
+        "@expected",
+    ],
+)
 
 cc_binary(
     name = "gui",
-    srcs = glob([
-        "*.cpp",
-        "*.h",
-    ]),
+    srcs = [
+        "app.cpp",
+        "app.h",
+        "gui.cpp",
+    ],
     copts = HASTUR_COPTS,
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
