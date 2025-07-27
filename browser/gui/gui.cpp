@@ -16,14 +16,10 @@
 #include <chrono>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <utility>
-
-using namespace std::literals;
 
 namespace {
 constexpr auto kBrowserTitle{"hastur"};
-constexpr auto kStartpage{"http://example.com"sv};
 } // namespace
 
 int main(int argc, char **argv) {
@@ -33,7 +29,7 @@ int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
-    std::string page;
+    std::string page{"about:blank"};
     unsigned scale{os::active_window_scale_factor()};
     bool exit_after_load{false};
 
@@ -52,12 +48,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    bool const page_provided = !page.empty();
-    if (!page_provided) {
-        page = kStartpage;
-    }
-
-    browser::gui::App app{kBrowserTitle, std::move(page), page_provided};
+    browser::gui::App app{kBrowserTitle, std::move(page), true};
     app.set_scale(scale);
 
     if (!exit_after_load) {
