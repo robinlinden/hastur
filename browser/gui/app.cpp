@@ -369,7 +369,7 @@ void App::step() {
             }
         } else if (auto const *key_pressed = event->getIf<sf::Event::KeyPressed>()) {
             if (ImGui::GetIO().WantCaptureKeyboard) {
-                break;
+                continue;
             }
 
             switch (key_pressed->code) {
@@ -437,7 +437,7 @@ void App::step() {
             }
         } else if (auto const *mouse_moved = event->getIf<sf::Event::MouseMoved>()) {
             if (!maybe_page_) {
-                break;
+                continue;
             }
 
             auto window_position = geom::Position{mouse_moved->position.x, mouse_moved->position.y};
@@ -449,7 +449,7 @@ void App::step() {
             // If imgui is dealing with the mouse, we do nothing and let imgui change the cursor.
             if (ImGui::GetIO().WantCaptureMouse) {
                 ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
-                break;
+                continue;
             }
 
             // Otherwise we tell imgui not to mess with the cursor, and change it according to what we're
@@ -469,7 +469,7 @@ void App::step() {
             }
         } else if (auto const *mouse_button_released = event->getIf<sf::Event::MouseButtonReleased>()) {
             if (ImGui::GetIO().WantCaptureMouse || mouse_button_released->button != sf::Mouse::Button::Left) {
-                break;
+                continue;
             }
 
             auto window_position = geom::Position{mouse_button_released->position.x, mouse_button_released->position.y};
@@ -479,15 +479,12 @@ void App::step() {
                 url_buf_ = std::string{*uri};
                 navigate();
             }
-
-            break;
         } else if (auto const *mouse_scroll = event->getIf<sf::Event::MouseWheelScrolled>()) {
             if (ImGui::GetIO().WantCaptureMouse || mouse_scroll->wheel != sf::Mouse::Wheel::Vertical) {
-                break;
+                continue;
             }
 
             scroll(std::lround(mouse_scroll->delta) * kMouseWheelScrollFactor);
-            break;
         }
     }
 
