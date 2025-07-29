@@ -16,6 +16,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Cursor.hpp>
+#include <SFML/Window/Event.hpp>
 #include <tl/expected.hpp>
 
 #include <cstdint>
@@ -91,6 +92,8 @@ private:
 
     engine::PageState &page() { return *maybe_page_.value(); }
     engine::PageState const &page() const { return *maybe_page_.value(); }
+
+    void handle_event(sf::Event const &);
 
     void on_navigation_failure(protocol::ErrorCode);
     void on_page_loaded();
