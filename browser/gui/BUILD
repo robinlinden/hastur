@@ -27,13 +27,10 @@ cc_test(
     ],
 )
 
-cc_binary(
-    name = "gui",
-    srcs = [
-        "app.cpp",
-        "app.h",
-        "gui.cpp",
-    ],
+cc_library(
+    name = "app",
+    srcs = ["app.cpp"],
+    hdrs = ["app.h"],
     copts = HASTUR_COPTS,
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
@@ -56,7 +53,6 @@ cc_binary(
         "//type:sfml",
         "//uri",
         "//url:percent_encode",
-        "//util:arg_parser",
         "//util:history",
         "//util:string",
         "@expected",
@@ -65,6 +61,20 @@ cc_binary(
         "@sfml//:graphics",
         "@sfml//:system",
         "@sfml//:window",
+        "@spdlog",
+    ],
+)
+
+cc_binary(
+    name = "gui",
+    srcs = ["main.cpp"],
+    copts = HASTUR_COPTS,
+    tags = ["no-cross"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":app",
+        "//os:system_info",
+        "//util:arg_parser",
         "@spdlog",
     ],
 )
