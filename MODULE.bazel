@@ -40,8 +40,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-u+fZQ2DMntRgfsX9lJlf0exB6EJXAgtvCeZAVSgeyxI=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.14.0"),
+    integrity = "sha256-Cn6IEcrAS1U/bGwNGFBG48aKTLd06D83p6X7aj3u4mE=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.15.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -149,18 +149,18 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/bazel-worker-api
-BAZEL_WORKER_API_VERSION = "0.0.5"
+BAZEL_WORKER_API_VERSION = "0.0.6"
 
 archive_override(
     module_name = "bazel_worker_api",
-    integrity = "sha256-B7X6nIg1WON4oAxn2uBaTcuNQ8wSSGci1odSJEVKijA=",
+    integrity = "sha256-Wqxq5qIwFcx5hEkqEU3FOe/8JE7FrH+PaxU5wV+zdus=",
     strip_prefix = "bazel-worker-api-%s/proto" % BAZEL_WORKER_API_VERSION,
     url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
 
 archive_override(
     module_name = "bazel_worker_java",
-    integrity = "sha256-B7X6nIg1WON4oAxn2uBaTcuNQ8wSSGci1odSJEVKijA=",
+    integrity = "sha256-Wqxq5qIwFcx5hEkqEU3FOe/8JE7FrH+PaxU5wV+zdus=",
     strip_prefix = "bazel-worker-api-%s/java" % BAZEL_WORKER_API_VERSION,
     url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
@@ -169,11 +169,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.32.0"
+BAZEL_FEATURES_VERSION = "1.33.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-B70rGHZM3uHg1v9CycCmER/8vQwX8N445/RPFRnRwM0=",
+    integrity = "sha256-xBhT47Y2xTO4a/WrRlgGTmzJ2wo7zlLL/wYp4JQ0TKk=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -198,8 +198,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-nXL3uJBBKK+5jUa774KtciPsn/NxjUGa+zVf3dn5SEo=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.55.1"),
+    integrity = "sha256-lGQ8TOAvO2Lzvn0T1Selx4ClaAc7dWJgbng5mSkAX5g=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.56.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
