@@ -95,8 +95,8 @@ sf::Text::Style to_sfml(FontStyle style) {
 SfmlCanvas::SfmlCanvas(sf::RenderTarget &target, type::SfmlType &type) : target_{target}, type_{type} {
     // TODO(robinlinden): Error-handling.
     std::ignore = border_shader_.loadFromMemory(
-            std::string{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len},
-            std::string{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len});
+            std::string_view{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len},
+            std::string_view{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len});
 }
 
 void SfmlCanvas::set_viewport_size(int width, int height) {
