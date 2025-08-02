@@ -16,8 +16,10 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace sf {
@@ -29,7 +31,7 @@ namespace gfx {
 
 class SfmlCanvas : public ICanvas {
 public:
-    explicit SfmlCanvas(sf::RenderTarget &target, type::SfmlType &);
+    static std::optional<SfmlCanvas> create(sf::RenderTarget &, type::SfmlType &);
 
     void set_viewport_size(int width, int height) override;
     constexpr void set_scale(int scale) override { scale_ = scale; }
@@ -46,6 +48,9 @@ public:
     void draw_pixels(geom::Rect const &, std::span<std::uint8_t const> rgba_data) override;
 
 private:
+    SfmlCanvas(sf::RenderTarget &target, type::SfmlType &type, sf::Shader border_shader)
+        : target_{target}, type_{type}, border_shader_{std::move(border_shader)} {}
+
     sf::RenderTarget &target_;
     type::SfmlType &type_;
     sf::Shader border_shader_;
