@@ -348,7 +348,7 @@ use_repo(zig_toolchains, "zig_sdk")
 
 # HEAD as of 2024-10-28.
 # https://github.com/hedronvision/bazel-compile-commands-extractor
-bazel_dep(name = "hedron_compile_commands")
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
 archive_override(
     module_name = "hedron_compile_commands",
     integrity = "sha256-ZYEiz7HyW+duohKwD16wR9jirci8+SO5GEYfKx43zfI=",
