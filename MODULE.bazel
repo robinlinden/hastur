@@ -24,12 +24,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.1.4"
+RULES_CC_VERSION = "0.2.0"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-DTtPmExMLhrP0TeOAUjTXK8u8dnrlbaI+OGc4MQb31s=",
+    integrity = "sha256-riRPQAIY9KEu6BZY/yRsC+XLAsXKLeVRntUFpnlUMek=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -52,16 +52,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.5.1"
+RULES_PYTHON_VERSION = "1.5.3"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-+lMtY18pwDimTIBickr3AMMM9rMRdN1PrBILxWGhpWA=",
-    patch_cmds = [
-        # https://github.com/bazel-contrib/rules_python/pull/3045
-        """sed -i'' -e '198i\\\n        tags = ["manual"],\\\n' python/private/pypi/pip_compile.bzl""",
-    ],
+    integrity = "sha256-Chzv77SntVD7C0P1TfZ9balbe6NSY3Zp5GyYf2mYb2o=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -107,12 +103,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_shell
-RULES_SHELL_VERSION = "0.5.0"
+RULES_SHELL_VERSION = "0.5.1"
 
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-sVzC5pijxVPXc/9K8160s84pg8MZFjcH3d2ecPqqBi0=",
+    integrity = "sha256-mb/Hqu/R7WlhO70l4kv3hx1orq/KOmt59fhcCZakE1U=",
     strip_prefix = "rules_shell-%s" % RULES_SHELL_VERSION,
     url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format(RULES_SHELL_VERSION),
 )
@@ -394,12 +390,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250701.0"
+BORINGSSL_VERSION = "0.20250807.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-6S/DjLm7/dvX6hUfnMlr0/ok588wejqbfO0wChbzJpM=",
+    integrity = "sha256-DNOiuiQurUszZbjGbP7UpfPwrlEenA/WJ+3uElLT2+I=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -560,13 +556,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.1"
+IMGUI_VERSION = "1.92.2"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-MsI3wqv2ei/8yqwXGS9xHUp4dVS0EzGHoVPUkFfWEJw=",
+    integrity = "sha256-mUqteFoKpXJTjZCbkjvwpk57/lqzNg2K4OOXxrsxLAQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -763,12 +759,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.323"
+VULKAN_TAG = "1.4.325"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-20odqjeo02GjWuIXLXgG1K3VSgxlvFkBx0PkZzZ/QSE=",
+    integrity = "sha256-V0PaTiA0Vu8KDReVDUSLT3DpOhmr3FR6ozwVSCtP7Bc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -784,7 +780,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-sJ5CiJwfHTKyVU3zw+LCuy3UdTirEqk/WC+lV0Rk+Cc=",
+    integrity = "sha256-ihc4GTKzEkKUUKih/6WXloXGhfVMeGhIa91RLTWw6Mk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
