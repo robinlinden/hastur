@@ -40,8 +40,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-Cn6IEcrAS1U/bGwNGFBG48aKTLd06D83p6X7aj3u4mE=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.15.0"),
+    integrity = "sha256-mwTLuw/uBjKuumKBWZOEhM+t9KnS9bHDVugwDFZGeJY=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.15.1"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -181,8 +181,8 @@ archive_override(
 # https://github.com/bazel-contrib/bazel-gazelle
 archive_override(
     module_name = "gazelle",
-    integrity = "sha256-SbFMaRzuyEH0RfhkLSgzbplFfR2xYgkv1QgjUeowLx0=",
-    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.44.0"),
+    integrity = "sha256-5Ge4AQRrZZjGVzCbRdJCbcA1E3d70Qkq8sYu6/mQrKU=",
+    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.45.0"),
 )
 
 # https://github.com/bazel-contrib/supply-chain
@@ -198,8 +198,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-lGQ8TOAvO2Lzvn0T1Selx4ClaAc7dWJgbng5mSkAX5g=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.56.0"),
+    integrity = "sha256-idIFBBBgIULJrK/QHJW69Itl+N0W9HcdN8ifgvXhR/I=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.56.1"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
@@ -241,11 +241,11 @@ archive_override(
 )
 
 # https://github.com/fmeum/buildozer
-BUILDOZER_VERSION = "8.2.0.bcr.1"
+BUILDOZER_VERSION = "8.2.1"
 
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-1ZWSulV9zcKWRsKj8SE6r+T6bZl8hgrcT4vCcw4TlWc=",
+    integrity = "sha256-qguc6LLFdWL7OXk1Bm2fatLqzOEggu1Av5wAVNiJnec=",
     strip_prefix = "buildozer-%s" % BUILDOZER_VERSION,
     url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format(BUILDOZER_VERSION),
 )
@@ -310,11 +310,11 @@ archive_override(
 )
 
 # https://github.com/google/re2
-RE2_VERSION = "2025-07-22"
+RE2_VERSION = "2025-08-05"
 
 archive_override(
     module_name = "re2",
-    integrity = "sha256-9Uwp8cPhPhJpPj1tEjBVTfOrOhBmsuHyjFMwv79tseM=",
+    integrity = "sha256-tXCNg4gRBiTIXzAOfps5xO1UaYkesRJ91/nWEnLQSQc=",
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
 )
