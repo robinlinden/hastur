@@ -9,3 +9,4 @@ repos:
         exclude: fuzz_test_corpus
       - id: check-yaml
       - id: check-added-large-files
+      - id: check-shebang-scripts-are-executable
