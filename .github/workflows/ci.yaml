@@ -76,7 +76,7 @@ jobs:
         run: |
           echo '#!/bin/sh\n"$@"' >/usr/bin/sudo && chmod +x /usr/bin/sudo
           apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates xxd
-          curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.26.0/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
+          curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.27.0/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
           # icu requires gcc to exist.
           ln -s /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
       - name: Setup gcc
@@ -94,7 +94,7 @@ jobs:
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install
         if: ${{ !matrix.skip-compiler-install }}
         run: |
@@ -149,7 +149,7 @@ jobs:
             version: 19
             bazel: --config=clang19-coverage
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: actions/cache@v4
@@ -201,7 +201,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/cache@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
@@ -232,7 +232,7 @@ jobs:
     env:
       WASMTIME_VERSION: v35.0.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up wasmtime
         run: |
           export WASMTIME_NAME=wasmtime-${WASMTIME_VERSION}-x86_64-linux
@@ -259,7 +259,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
         env:
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
@@ -284,7 +284,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/cache@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
@@ -322,15 +322,15 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - run: pipx install pre-commit==4.2.0
+      - uses: actions/checkout@v5
+      - run: pipx install pre-commit==4.3.0
       - run: pre-commit run --all-files
 
   clang-format:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -343,7 +343,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/cache@v4
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
@@ -375,7 +375,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install
         run: |
           wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.2.1/buildifier-linux-amd64
@@ -387,7 +387,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: npm install --global prettier@3.6.2
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
@@ -398,7 +398,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
@@ -407,7 +407,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - run: pipx install gitlint-core==0.19.1
