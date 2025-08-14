@@ -54,6 +54,14 @@ public:
         return *this;
     }
 
+    [[nodiscard]] ArgParser &argument(std::string_view arg, std::string &out) {
+        long_[arg] = [&out](std::string_view argument) {
+            out.assign(argument);
+            return Status::Success;
+        };
+        return *this;
+    }
+
     [[nodiscard]] ArgParser &positional(std::string &out) {
         positional_.emplace_back([&out](std::string_view argument) { out = std::string{argument}; });
         return *this;

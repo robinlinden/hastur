@@ -197,6 +197,30 @@ void int_tests(etest::Suite &s) {
     });
 }
 
+void string_tests(etest::Suite &s) {
+    s.add_test("string, no args", [](etest::IActions &a) {
+        constexpr auto kArgV = std::to_array<char const *>({"hello"});
+        constexpr int kArgC = static_cast<int>(kArgV.size());
+
+        std::string value;
+        auto res = util::ArgParser{}.argument("--value", value).parse(kArgC, kArgV.data());
+
+        a.expect(res.has_value());
+        a.expect(value.empty());
+    });
+
+    s.add_test("string, with args", [](etest::IActions &a) {
+        constexpr auto kArgV = std::to_array<char const *>({"hello", "--value", "42"});
+        constexpr int kArgC = static_cast<int>(kArgV.size());
+
+        std::string value;
+        auto res = util::ArgParser{}.argument("--value", value).parse(kArgC, kArgV.data());
+
+        a.expect(res.has_value());
+        a.expect_eq(value, "42");
+    });
+}
+
 } // namespace
 
 int main() {
@@ -206,6 +230,7 @@ int main() {
     positional_tests(s);
     bool_tests(s);
     int_tests(s);
+    string_tests(s);
 
     return s.run();
 }
