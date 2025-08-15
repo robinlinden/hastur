@@ -6,7 +6,8 @@ genrule(
     name = "default_css",
     srcs = ["default.css"],
     outs = ["default_css.h"],
-    cmd = "xxd -i $< >$@",
+    cmd = "$(location //tool:embed) --name kDefaultCss $< >$@",
+    tools = ["//tool:embed"],
 )
 
 cc_library(
