@@ -5,10 +5,13 @@
 
 #include "gfx/sfml_canvas.h"
 
-#include "geom/geom.h"
+#include "gfx/basic_vertex_shader.h"
 #include "gfx/color.h"
 #include "gfx/font.h"
 #include "gfx/icanvas.h"
+#include "gfx/rect_fragment_shader.h"
+
+#include "geom/geom.h"
 #include "type/sfml.h"
 
 #include <SFML/Graphics/Color.hpp>
@@ -35,9 +38,6 @@
 
 namespace gfx {
 namespace {
-
-#include "gfx/basic_vertex_shader.h"
-#include "gfx/rect_fragment_shader.h"
 
 sf::Font const &find_font(type::SfmlType &type, std::span<gfx::Font const> font_families) {
     for (auto const &family : font_families) {
@@ -94,9 +94,7 @@ sf::Text::Style to_sfml(FontStyle style) {
 
 SfmlCanvas::SfmlCanvas(sf::RenderTarget &target, type::SfmlType &type) : target_{target}, type_{type} {
     // TODO(robinlinden): Error-handling.
-    std::ignore = border_shader_.loadFromMemory(
-            std::string_view{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len},
-            std::string_view{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len});
+    std::ignore = border_shader_.loadFromMemory(kBasicVertexShader, kRectFragmentShader);
 }
 
 void SfmlCanvas::set_viewport_size(int width, int height) {

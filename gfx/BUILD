@@ -20,14 +20,16 @@ genrule(
     name = "basic_vertex_shader",
     srcs = ["basic_shader.vert"],
     outs = ["basic_vertex_shader.h"],
-    cmd = "xxd -i $< >$@",
+    cmd = "$(location //tool:embed) --name kBasicVertexShader $< >$@",
+    tools = ["//tool:embed"],
 )
 
 genrule(
     name = "rect_fragment_shader",
     srcs = ["rect_shader.frag"],
     outs = ["rect_fragment_shader.h"],
-    cmd = "xxd -i $< >$@",
+    cmd = "$(location //tool:embed) --name kRectFragmentShader $< >$@",
+    tools = ["//tool:embed"],
 )
 
 cc_library(
