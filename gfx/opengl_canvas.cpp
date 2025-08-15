@@ -4,9 +4,11 @@
 
 #include "gfx/opengl_canvas.h"
 
+#include "gfx/basic_vertex_shader.h"
 #include "gfx/color.h"
 #include "gfx/icanvas.h"
 #include "gfx/opengl_shader.h"
+#include "gfx/rect_fragment_shader.h"
 
 #include "geom/geom.h"
 
@@ -18,17 +20,10 @@
 #include <utility>
 
 namespace gfx {
-namespace {
-#include "gfx/basic_vertex_shader.h"
-#include "gfx/rect_fragment_shader.h"
-
-std::string_view const vertex_shader{reinterpret_cast<char const *>(gfx_basic_shader_vert), gfx_basic_shader_vert_len};
-std::string_view const fragment_shader{reinterpret_cast<char const *>(gfx_rect_shader_frag), gfx_rect_shader_frag_len};
-} // namespace
 
 OpenGLCanvas::OpenGLCanvas()
     : border_shader_{[] {
-          auto shader = OpenGLShader::create(vertex_shader, fragment_shader);
+          auto shader = OpenGLShader::create(kBasicVertexShader, kRectFragmentShader);
           assert(shader.has_value());
           return std::move(shader).value();
       }()} {
