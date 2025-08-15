@@ -56,7 +56,8 @@ genrule(
     name = "tiny_png",
     srcs = ["tiny.png"],
     outs = ["tiny_png.h"],
-    cmd = "xxd -i $< >$@",
+    cmd = "$(location //tool:embed) --name kTinyPng $< >$@",
+    tools = ["//tool:embed"],
 )
 
 # See: https://web.archive.org/web/20111224041840/http://www.techsupportteam.org/forum/digital-imaging-photography/1892-worlds-smallest-valid-jpeg.html
@@ -64,7 +65,8 @@ genrule(
     name = "tiny_jpg",
     srcs = ["tiny.jpg"],
     outs = ["tiny_jpg.h"],
-    cmd = "xxd -i $< >$@",
+    cmd = "$(location //tool:embed) --name kTinyJpg $< >$@",
+    tools = ["//tool:embed"],
 )
 
 extra_srcs = {

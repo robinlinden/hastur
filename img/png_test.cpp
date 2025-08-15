@@ -1,8 +1,10 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "img/png.h"
+
+#include "img/tiny_png.h"
 
 #include "etest/etest2.h"
 
@@ -14,11 +16,6 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-
-namespace {
-#include "img/tiny_png.h"
-std::string_view const png_bytes(reinterpret_cast<char const *>(img_tiny_png), img_tiny_png_len);
-} // namespace
 
 int main() {
     etest::Suite s;
@@ -37,18 +34,18 @@ int main() {
             return expected;
         }();
 
-        auto png = img::Png::from(std::stringstream(std::string{png_bytes})).value();
+        auto png = img::Png::from(std::stringstream(std::string{kTinyPng})).value();
         a.expect_eq(png, img::Png{.width = 256, .height = 256, .bytes = std::move(expected_pixels)});
     });
 
     s.add_test("invalid signatures are rejected", [](etest::IActions &a) {
-        auto invalid_signature_bytes = std::string{png_bytes};
+        auto invalid_signature_bytes = std::string{kTinyPng};
         invalid_signature_bytes[7] = 'b';
         a.expect_eq(img::Png::from(std::stringstream(std::move(invalid_signature_bytes))), std::nullopt);
     });
 
     s.add_test("it handles truncated files", [](etest::IActions &a) {
-        auto truncated_bytes = std::string{png_bytes.substr(0, 30)};
+        auto truncated_bytes = std::string{kTinyPng.substr(0, 30)};
         a.expect_eq(img::Png::from(std::stringstream(std::move(truncated_bytes))), std::nullopt);
     });
 

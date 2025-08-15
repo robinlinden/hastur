@@ -4,6 +4,8 @@
 
 #include "img/jpeg_turbo.h"
 
+#include "img/tiny_jpg.h"
+
 #include "etest/etest2.h"
 
 #include <cstddef>
@@ -12,9 +14,8 @@
 #include <tuple>
 
 namespace {
-#include "img/tiny_jpg.h"
 // NOLINTNEXTLINE(cert-err58-cpp): Why would this throw?
-std::span<std::byte const> const jpg_bytes(reinterpret_cast<std::byte const *>(img_tiny_jpg), img_tiny_jpg_len);
+std::span<std::byte const> const jpg_bytes(reinterpret_cast<std::byte const *>(kTinyJpg.data()), kTinyJpg.size());
 } // namespace
 
 int main() {
@@ -32,7 +33,7 @@ int main() {
 
     // The same bytes should make the same image, span/ostream shouldn't matter.
     s.add_test("JpegTurbo::from(ostream &)", [](etest::IActions &a) {
-        std::stringstream ss{std::string{reinterpret_cast<char const *>(img_tiny_jpg), img_tiny_jpg_len}};
+        std::stringstream ss{std::string{kTinyJpg}};
         auto const image = img::JpegTurbo::from(ss).value();
         a.expect_eq(image, img::JpegTurbo::from(jpg_bytes).value());
     });
