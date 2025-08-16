@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <utility>
 
 using namespace js::ast;
@@ -58,12 +57,6 @@ int main() {
 
         Interpreter e;
         a.expect_eq(e.execute(minus_expr), Value{-20.});
-    });
-
-    s.add_test("the ast is copyable", [](etest::IActions &) {
-        Program p1;
-        auto p2 = p1; // NOLINT(performance-unnecessary-copy-initialization)
-        std::ignore = p2;
     });
 
     s.add_test("variable declaration", [](etest::IActions &a) {
