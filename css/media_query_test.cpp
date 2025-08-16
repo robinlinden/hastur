@@ -299,6 +299,37 @@ void height_tests(etest::Suite &s) {
     });
 }
 
+void forced_colors_tests(etest::Suite &s) {
+    s.add_test("forced-colors: none", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(forced-colors: none)"),
+                css::MediaQuery{css::MediaQuery::ForcedColorsMode{.forced_colors = css::ForcedColors::None}});
+
+        auto query = css::MediaQuery::ForcedColorsMode{.forced_colors = css::ForcedColors::None};
+        a.expect(query.evaluate({.forced_colors = css::ForcedColors::None}));
+        a.expect(!query.evaluate({.forced_colors = css::ForcedColors::Force}));
+    });
+
+    s.add_test("forced-colors: active", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(forced-colors: active)"),
+                css::MediaQuery{css::MediaQuery::ForcedColorsMode{.forced_colors = css::ForcedColors::Force}});
+
+        auto query = css::MediaQuery::ForcedColorsMode{.forced_colors = css::ForcedColors::Force};
+        a.expect(!query.evaluate({.forced_colors = css::ForcedColors::None}));
+        a.expect(query.evaluate({.forced_colors = css::ForcedColors::Force}));
+    });
+
+    s.add_test("forced-colors: invalid", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(forced-colors: invalid)"), std::nullopt); //
+    });
+
+    s.add_test("forced-colors: to_string", [](etest::IActions &a) {
+        a.expect_eq(css::to_string(css::MediaQuery::ForcedColorsMode{css::ForcedColors::None}), "forced-colors: none");
+
+        a.expect_eq(
+                css::to_string(css::MediaQuery::ForcedColorsMode{css::ForcedColors::Force}), "forced-colors: active");
+    });
+}
+
 void hover_tests(etest::Suite &s) {
     s.add_test("hover: hover", [](etest::IActions &a) {
         a.expect_eq(css::MediaQuery::parse("(hover: hover)"),
@@ -377,6 +408,7 @@ int main() {
     type_tests(s);
     width_tests(s);
     height_tests(s);
+    forced_colors_tests(s);
     hover_tests(s);
     orientation_tests(s);
     return s.run();
