@@ -32,6 +32,11 @@ enum class ColorScheme : std::uint8_t {
     Dark,
 };
 
+enum class ForcedColors : std::uint8_t {
+    None,
+    Force,
+};
+
 enum class Hover : std::uint8_t {
     None,
     Hover,
@@ -60,6 +65,7 @@ struct Context {
     int window_width{};
     int window_height{};
     ColorScheme color_scheme{ColorScheme::Light};
+    ForcedColors forced_colors{ForcedColors::None};
     Hover hover{Hover::None};
     MediaType media_type{MediaType::Screen};
     Orientation orientation{window_height >= window_width ? Orientation::Portrait : Orientation::Landscape};
@@ -68,6 +74,7 @@ struct Context {
 
 struct And;
 struct False;
+struct ForcedColorsMode;
 struct Height;
 struct HoverType;
 struct IsInOrientation;
@@ -78,6 +85,7 @@ struct Type;
 struct Width;
 using Query = std::variant<And,
         False,
+        ForcedColorsMode,
         Height,
         IsInOrientation,
         PrefersColorScheme,
@@ -91,6 +99,14 @@ using Query = std::variant<And,
 struct False {
     [[nodiscard]] bool operator==(False const &) const = default;
     constexpr bool evaluate(Context const &) const { return false; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
+struct ForcedColorsMode {
+    ForcedColors forced_colors{ForcedColors::None};
+    [[nodiscard]] bool operator==(ForcedColorsMode const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.forced_colors == forced_colors; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/hover
@@ -168,6 +184,7 @@ public:
     using And = detail::And;
     using Context = detail::Context;
     using False = detail::False;
+    using ForcedColorsMode = detail::ForcedColorsMode;
     using Height = detail::Height;
     using HoverType = detail::HoverType;
     using IsInOrientation = detail::IsInOrientation;
@@ -257,6 +274,18 @@ private:
 
             if (value_str == "no-preference") {
                 return MediaQuery{False{}};
+            }
+
+            return std::nullopt;
+        }
+
+        if (feature_name == "forced-colors") {
+            if (value_str == "none") {
+                return MediaQuery{ForcedColorsMode{.forced_colors = ForcedColors::None}};
+            }
+
+            if (value_str == "active" || value_str == "force") {
+                return MediaQuery{ForcedColorsMode{.forced_colors = ForcedColors::Force}};
             }
 
             return std::nullopt;
@@ -369,6 +398,10 @@ constexpr std::string to_string(MediaQuery::False const &) {
 
 constexpr std::string to_string(MediaQuery::True const &) {
     return "true";
+}
+
+constexpr std::string to_string(MediaQuery::ForcedColorsMode const &q) {
+    return q.forced_colors == ForcedColors::None ? "forced-colors: none" : "forced-colors: active";
 }
 
 constexpr std::string to_string(MediaQuery::Type const &q) {
