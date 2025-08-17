@@ -101,6 +101,16 @@ int main() {
 |   <body>
 |     "goodbye")";
         a.expect_eq(to_string(document), expected);
+
+        // And with no doctype.
+        document.doctype.clear();
+        a.expect_eq(to_string(document), R"(#document
+| <html>
+|   <head>
+|     <title>
+|       "hello"
+|   <body>
+|     "goodbye")");
     });
 
     return s.run();
