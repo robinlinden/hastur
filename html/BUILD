@@ -36,15 +36,14 @@ cc_library(
     ],
 )]
 
-# TODO(robinlinden): Run more of the tree-construction tests.
-cc_test(
-    name = "html5lib_tree_construction_test_runner",
+[cc_test(
+    name = "html5lib_tree_construction_test_%s" % test,
     size = "small",
     testonly = True,
     srcs = ["html5lib_tree_construction_test.cpp"],
-    args = ["$(location @html5lib-tests//:tree-construction/doctype01.dat)"],
+    args = ["$(location @html5lib-tests//:tree-construction/%s.dat)" % test],
     copts = HASTUR_COPTS,
-    data = ["@html5lib-tests//:tree-construction/doctype01.dat"],
+    data = ["@html5lib-tests//:tree-construction/%s.dat" % test],
     target_compatible_with = select({
         # TODO(robinlinden): Investigate why we fail to open the test files when
         # running as a wasi binary.
@@ -56,7 +55,66 @@ cc_test(
         "//dom",
         "//etest",
     ],
-)
+) for test in [
+    # TODO(robinlinden): Run more of the tree-construction tests.
+    # "adoption01",
+    # "adoption02",
+    # "blocks",
+    # "comments01",
+    "doctype01",
+    # "domjs-unsafe",
+    "entities01",
+    "entities02",
+    # "foreign-fragment",
+    # "html5test-com",
+    "inbody01",
+    "isindex",
+    # "main-element",
+    # "math",
+    # "menuitem-element",
+    # "namespace-sensitivity",
+    # "noscript01",
+    # "pending-spec-changes",
+    # "pending-spec-changes-plain-text-unsafe",
+    # "plain-text-unsafe",
+    "quirks01",
+    # "ruby",
+    "scriptdata01",
+    # "search-element",
+    # "svg",
+    # "tables01",
+    # "template",
+    # "tests1",
+    # "tests2",
+    # "tests3",
+    # "tests4",
+    # "tests5",
+    # "tests6",
+    # "tests7",
+    # "tests8",
+    # "tests9",
+    # "tests10",
+    # "tests11",
+    # "tests12",
+    # There is no tests13.
+    "tests14",
+    # "tests15",
+    # "tests16",
+    # "tests17",
+    # "tests18",
+    # "tests19",
+    # "tests20",
+    # "tests21",
+    # "tests22",
+    # "tests23",
+    "tests24",
+    # "tests25",
+    # "tests26",
+    # "tests_innerHTML_1",
+    # "tricky01",
+    # "webkit01",
+    # "webkit02",
+]]
 
 [cc_fuzz_test(
     name = src.removesuffix(".cpp"),
