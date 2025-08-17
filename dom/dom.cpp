@@ -57,9 +57,9 @@ void print_node(dom::Node const &node, std::ostream &os, int initial_depth = 0) 
 
 std::string to_string(Document const &document) {
     std::stringstream ss;
-    ss << "#document\n";
+    ss << "#document";
     if (!document.doctype.empty()) {
-        ss << "| <!DOCTYPE " << document.doctype;
+        ss << "\n| <!DOCTYPE " << document.doctype;
         if (!document.public_identifier.empty() || !document.system_identifier.empty()) {
             ss << " \"" << document.public_identifier << "\" \"" << document.system_identifier << '"';
         }
