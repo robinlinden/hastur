@@ -297,48 +297,48 @@ int main() {
     s.add_test("port is removed for standard ports", [](etest::IActions &a) {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri("http://example.com:80"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
+        a.expect(socket.write_data.contains("Host: example.com\r\n"));
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("http://example.com:79"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
-        a.expect(socket.write_data.find("Host: example.com:79\r\n") != std::string::npos);
+        a.expect(!socket.write_data.contains("Host: example.com\r\n"));
+        a.expect(socket.write_data.contains("Host: example.com:79\r\n"));
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("http://example.com:443"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
-        a.expect(socket.write_data.find("Host: example.com:443\r\n") != std::string::npos);
+        a.expect(!socket.write_data.contains("Host: example.com\r\n"));
+        a.expect(socket.write_data.contains("Host: example.com:443\r\n"));
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("https://example.com"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
-        a.expect(socket.write_data.find("Host: example.com:443\r\n") == std::string::npos);
+        a.expect(socket.write_data.contains("Host: example.com\r\n"));
+        a.expect(!socket.write_data.contains("Host: example.com:443\r\n"));
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("https://example.com:443"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com\r\n") != std::string::npos);
-        a.expect(socket.write_data.find("Host: example.com:443\r\n") == std::string::npos);
+        a.expect(socket.write_data.contains("Host: example.com\r\n"));
+        a.expect(!socket.write_data.contains("Host: example.com:443\r\n"));
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri("https://example.com:80"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com\r\n") == std::string::npos);
-        a.expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
+        a.expect(!socket.write_data.contains("Host: example.com\r\n"));
+        a.expect(socket.write_data.contains("Host: example.com:80\r\n"));
     });
 
     s.add_test("unknown schemes don't have their ports dropped", [](etest::IActions &a) {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri("ftp://example.com:80"), std::nullopt);
-        a.expect(socket.write_data.find("Host: example.com:80\r\n") != std::string::npos);
+        a.expect(socket.write_data.contains("Host: example.com:80\r\n"));
     });
 
     s.add_test("user agent is included", [](etest::IActions &a) {
         FakeSocket socket{};
         std::ignore = protocol::Http::get(socket, create_uri(), "test-agent");
-        a.expect(socket.write_data.find("User-Agent: test-agent\r\n") != std::string::npos);
+        a.expect(socket.write_data.contains("User-Agent: test-agent\r\n"));
 
         socket = FakeSocket{};
         std::ignore = protocol::Http::get(socket, create_uri(), std::nullopt);
-        a.expect(socket.write_data.find("User-Agent: test-agent\r\n") == std::string::npos);
+        a.expect(!socket.write_data.contains("User-Agent: test-agent\r\n"));
     });
 
     s.add_test("truncated status line", [](etest::IActions &a) {

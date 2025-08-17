@@ -63,8 +63,8 @@ int main() {
 
         // Sort-order and the path-formatting is not guaranteed, so we just
         // check for the presence of the names of the two entries for now.
-        a.expect(res.body.find("good_folder/") != std::string::npos);
-        a.expect(res.body.find("good_file") != std::string::npos);
+        a.expect(res.body.contains("good_folder/"));
+        a.expect(res.body.contains("good_file"));
     });
 
     s.add_test("uri pointing to a regular file", [&](etest::IActions &a) {
