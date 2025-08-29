@@ -230,7 +230,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v35.0.0
+      WASMTIME_VERSION: v36.0.2
     steps:
       - uses: actions/checkout@v5
       - name: Set up wasmtime
