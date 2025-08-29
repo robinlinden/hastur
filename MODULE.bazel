@@ -23,6 +23,15 @@ archive_override(
     url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("1.0.0"),
 )
 
+# https://github.com/bazelbuild/rules_apple
+RULES_APPLE_VERSION = "4.1.2"
+
+archive_override(
+    module_name = "rules_apple",
+    integrity = "sha256-3hyLuHLaawPSq/9lkXjTq/2lzI2Ka2Rv2rlqstAMn6c=",
+    url = "https://github.com/bazelbuild/rules_apple/releases/download/{0}/rules_apple.{0}.tar.gz".format(RULES_APPLE_VERSION),
+)
+
 # https://github.com/bazelbuild/rules_cc
 RULES_CC_VERSION = "0.2.0"
 
@@ -75,6 +84,15 @@ pip.parse(
     requirements_lock = "//third_party:requirements.txt",
 )
 use_repo(pip, "pypi")
+
+# https://github.com/bazelbuild/rules_swift
+RULES_SWIFT_VERSION = "3.1.2"
+
+archive_override(
+    module_name = "rules_swift",
+    integrity = "sha256-Xv9xfBi7UTKFtJmt1o8jMVCc1OQR/whelqhrM0LB5ao=",
+    url = "https://github.com/bazelbuild/rules_swift/releases/download/{0}/rules_swift.{0}.tar.gz".format(RULES_SWIFT_VERSION),
+)
 
 # https://github.com/bazel-contrib/rules_fuzzing
 RULES_FUZZING_VERSION = "0.6.0"
@@ -257,16 +275,13 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-# This doesn't support MSVC anymore, but as it only has to be here because
-# something in the module system in Bazel requires it and not because we use it,
-# so that's probably fine to ignore? Leaving updating this for later to see if
-# anything changes.
-# See: https://github.com/protocolbuffers/protobuf/commit/117e7bbe74ac7c7faa9b6f44c1b22de366302854
+PROTOBUF_VERSION = "32.0"
+
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-AIoRzFb5uWZ5tMKF/QX0bTF9aFvjq1JLKjEL4PutmH4=",
-    strip_prefix = "protobuf-29.3",
-    url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format("29.3"),
+    integrity = "sha256-nf3wgSnwJabFgCYTuO4TlQRP7LcdOCEMpZ7K0oPvaLs=",
+    strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
+    url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
 
 # https://github.com/abseil/abseil-cpp
@@ -305,6 +320,16 @@ archive_override(
     url = "https://github.com/open-source-parsers/jsoncpp/archive/%s.tar.gz" % JSONCPP_VERSION,
 )
 
+# https://github.com/nlohmann/json
+NLOHMANN_JSON_VERSION = "3.12.0"
+
+archive_override(
+    module_name = "nlohmann_json",
+    integrity = "sha256-S5LrDAbRBoP3RHzpQGy5fNS0U74Y1yeTIPey8CXBAYc=",
+    strip_prefix = "json-%s" % NLOHMANN_JSON_VERSION,
+    url = "https://github.com/nlohmann/json/archive/refs/tags/v%s.tar.gz" % NLOHMANN_JSON_VERSION,
+)
+
 # https://github.com/google/re2
 RE2_VERSION = "2025-08-05"
 
@@ -321,6 +346,23 @@ archive_override(
     integrity = "sha256-yuaAZwv6boJwPAPyo8mVQIzcv0NhbXvdGY70XTwydzE=",
     strip_prefix = "pybind11_bazel-2.13.6",
     urls = ["https://github.com/pybind/pybind11_bazel/releases/download/v2.13.6/pybind11_bazel-2.13.6.tar.gz"],
+)
+
+# https://github.com/apple/swift-argument-parser
+SWIFT_ARGUMENT_PARSER_VERSION = "1.6.1"
+
+archive_override(
+    module_name = "swift_argument_parser",
+    integrity = "sha256-0vuxWIYRW7LZv7Y9TB3dQIDLtL/vJlEzXF07ndXzyLo=",
+    # Missing build file, but that's fine as it's unused and only required to
+    # satisfy some dark corner of Bazel.
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "swift_argument_parser")
+EOF""",
+    ],
+    strip_prefix = "swift-argument-parser-%s" % SWIFT_ARGUMENT_PARSER_VERSION,
+    url = "https://github.com/apple/swift-argument-parser/archive/refs/tags/%s.tar.gz" % SWIFT_ARGUMENT_PARSER_VERSION,
 )
 
 # Third-party Bazel
