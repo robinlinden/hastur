@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-b+UKcxvTG0rzrXve//GdtHs2poTlXkuWdKevFAE0nq4=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.22.1"),
+    integrity = "sha256-7iDMXAurRwZUc8gDPUYjdN040XJAbsyN5cjwhIeUPy8=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.23.1"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -183,11 +183,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.33.0"
+BAZEL_FEATURES_VERSION = "1.35.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-xBhT47Y2xTO4a/WrRlgGTmzJ2wo7zlLL/wYp4JQ0TKk=",
+    integrity = "sha256-BqlpG+zDV8HkrwEbn7MjkJdQPOAGB9nraxHqD6wwQDk=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -212,8 +212,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-idIFBBBgIULJrK/QHJW69Itl+N0W9HcdN8ifgvXhR/I=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.56.1"),
+    integrity = "sha256-pynI7SRHyQ/hQAd2iQecoKz7dYDsQWN/MS1lDOnZPZY=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.57.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
@@ -331,11 +331,11 @@ archive_override(
 )
 
 # https://github.com/google/re2
-RE2_VERSION = "2025-08-05"
+RE2_VERSION = "2025-08-12"
 
 archive_override(
     module_name = "re2",
-    integrity = "sha256-tXCNg4gRBiTIXzAOfps5xO1UaYkesRJ91/nWEnLQSQc=",
+    integrity = "sha256-LzvsY0w+Ueofrw1EHgqHGLc+91jXAgF17X41LfP2rhI=",
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
 )
