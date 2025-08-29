@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.0"
+RULES_CC_VERSION = "0.2.2"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-riRPQAIY9KEu6BZY/yRsC+XLAsXKLeVRntUFpnlUMek=",
+    integrity = "sha256-5Q8kUGARhB4qyD2XM6DH4FjrOhCm4+ELqpx5Qv9fR2c=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -61,12 +61,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.5.3"
+RULES_PYTHON_VERSION = "1.5.4"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-Chzv77SntVD7C0P1TfZ9balbe6NSY3Zp5GyYf2mYb2o=",
+    integrity = "sha256-E2cdMEz+QzUDAiE6YNk6X8C3Y7Cm3hc5fj4jklO2G3M=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -121,12 +121,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_shell
-RULES_SHELL_VERSION = "0.5.1"
+RULES_SHELL_VERSION = "0.6.0"
 
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-mb/Hqu/R7WlhO70l4kv3hx1orq/KOmt59fhcCZakE1U=",
+    integrity = "sha256-/OKnqXSqcOk2cGgSLhnDmmonpayjBpi8+QML61KWErY=",
     strip_prefix = "rules_shell-%s" % RULES_SHELL_VERSION,
     url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format(RULES_SHELL_VERSION),
 )
@@ -432,12 +432,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250807.0"
+BORINGSSL_VERSION = "0.20250818.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-DNOiuiQurUszZbjGbP7UpfPwrlEenA/WJ+3uElLT2+I=",
+    integrity = "sha256-ZFKUSe9Fg4E0axYzAlI6H7h25bZnvsSkvTjQ0v/4tCs=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -458,25 +458,22 @@ EOF""",
 )
 
 # https://github.com/tartanllama/expected
-EXPECTED_VERSION = "1.2.0"
+# 1.2.0 + fix for TL_CPLUSPLUS being used before being defined.
+EXPECTED_VERSION = "2089ecb887780923813903db390f1c9cbc94b855"
 
 bazel_dep(name = "expected")
 archive_override(
     module_name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
-    integrity = "sha256-9UJPX8dOeRV7mYG6JXiijgKFrG7CqPB16GxBIm/jM4Y=",
+    integrity = "sha256-z9gsPy0ox7y/qZ2NrPsKIvHeU3dcIpH017RQyMXziok=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "expected")
 bazel_dep(name = "rules_cc")
 EOF""",
-        # expected uses TL_CPLUSPLUS before they define it.
-        # https://github.com/TartanLlama/expected/pull/175
-        "sed -i'' -e '25i\\\n#include <cassert>\\\n' include/tl/expected.hpp",
-        "sed -i'' -e '26i\\\n#define TL_ASSERT(x) assert(x)\\\n' include/tl/expected.hpp",
     ],
     strip_prefix = "expected-%s" % EXPECTED_VERSION,
-    url = "https://github.com/tartanllama/expected/archive/v%s.tar.gz" % EXPECTED_VERSION,
+    url = "https://github.com/tartanllama/expected/archive/%s.tar.gz" % EXPECTED_VERSION,
 )
 
 # HEAD, last updated 2025-04-24.
@@ -598,13 +595,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.2"
+IMGUI_VERSION = "1.92.2b"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-mUqteFoKpXJTjZCbkjvwpk57/lqzNg2K4OOXxrsxLAQ=",
+    integrity = "sha256-2j1FPM504Ps9Z/jXmKKo0E/K8LM84OATHQaV38T2QZE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
