@@ -485,12 +485,13 @@ http_file(
 )
 
 # https://github.com/fmtlib/fmt
-FMT_VERSION = "11.2.0"
+# 11.2.0 + compile fix for libc++21. See: https://github.com/fmtlib/fmt/pull/4477
+FMT_VERSION = "f4345467fce7edbc6b36c3fa1cf197a67be617e2"
 
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-ID606KoNdGxi2PkD31jgQZ43UVkbtT/5cQluqg69TsM=",
+    integrity = "sha256-TIydkMctdpoc376K6Cjwy7PQsuiUb8JeZW0BTsrHAsE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -499,7 +500,8 @@ bazel_dep(name = "rules_cc")
 EOF""",
     ],
     strip_prefix = "fmt-%s" % FMT_VERSION,
-    url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format(FMT_VERSION),
+    # url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format(FMT_VERSION),
+    url = "https://github.com/fmtlib/fmt/archive/%s.tar.gz" % FMT_VERSION,
 )
 
 # https://github.com/freetype/freetype
