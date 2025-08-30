@@ -70,6 +70,18 @@ jobs:
             bazel: --config clang-amd64
             skip-compiler-install: true
 
+          - name: clang-21
+            os: ubuntu-24.04
+            compiler: clang
+            version: 21
+
+          - name: clang-21-libc++
+            os: ubuntu-24.04
+            compiler: clang
+            version: 21
+            bazel: --config libc++
+            apt: libc++abi-21-dev libc++-21-dev libclang-rt-21-dev
+
     steps:
       - name: Add things missing from containers
         if: ${{ matrix.container != '' }}
