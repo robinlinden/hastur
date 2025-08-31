@@ -23,7 +23,7 @@
 // Unsupported* by Microsoft, but _HAS_EXCEPTIONS is 0 in MSVC if exceptions are disabled.
 // See: https://github.com/microsoft/STL/issues/202#issuecomment-545235685
 #define ETEST_EXCEPTIONS
-#elif defined(__EXCEPTIONS)
+#elifdef __EXCEPTIONS
 // __EXCEPTIONS is set in gcc and Clang unless -fno-exceptions is used.
 #define ETEST_EXCEPTIONS
 #endif
