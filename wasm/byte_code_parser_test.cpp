@@ -49,9 +49,9 @@ enum class SectionId : std::uint8_t {
 std::stringstream make_module_bytes(SectionId id, std::vector<std::uint8_t> const &section_content) {
     std::stringstream wasm_bytes;
     wasm_bytes << "\0asm\1\0\0\0"sv;
-    wasm_bytes << static_cast<std::uint8_t>(id);
+    wasm_bytes << static_cast<char>(id);
     assert(section_content.size() < 0x7f); // > 0x7f requires leb128-serialization.
-    wasm_bytes << static_cast<std::uint8_t>(section_content.size());
+    wasm_bytes << static_cast<char>(section_content.size());
     std::ranges::copy(section_content, std::ostreambuf_iterator<char>{wasm_bytes});
     return wasm_bytes;
 }
@@ -104,8 +104,8 @@ void custom_section_tests(etest::Suite &s) {
     s.add_test("custom section, eof in data", [](etest::IActions &a) {
         std::stringstream wasm_bytes;
         wasm_bytes << "\0asm\1\0\0\0"sv;
-        wasm_bytes << static_cast<std::uint8_t>(SectionId::Custom);
-        wasm_bytes << static_cast<std::uint8_t>(100);
+        wasm_bytes << static_cast<char>(SectionId::Custom);
+        wasm_bytes << static_cast<char>(100);
         wasm_bytes << "\2hi";
         wasm_bytes << "123";
         auto module = ByteCodeParser::parse_module(wasm_bytes);
