@@ -89,7 +89,9 @@ public:
         }
 
         emit(0x81);
-        mod_rm(0b11, 0, register_index(dst).value());
+        auto idx = register_index(dst);
+        assert(idx.has_value());
+        mod_rm(0b11, 0, *idx);
         emit(imm32);
     }
 
