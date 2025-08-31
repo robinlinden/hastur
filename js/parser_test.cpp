@@ -150,5 +150,9 @@ int main() {
         a.expect_eq(std::get<js::ast::Identifier>(*call.arguments[0]).name, "hello");
     });
 
+    s.add_test("you(fool", [](etest::IActions &a) {
+        a.expect_eq(js::Parser::parse("you(fool"), std::nullopt); //
+    });
+
     return s.run();
 }

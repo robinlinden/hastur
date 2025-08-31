@@ -89,9 +89,11 @@ private:
         std::vector<std::shared_ptr<ast::Expression>> args;
 
         // arg1, arg2, arg3)
+        bool found_rparen{false};
         for (auto it = tokens.begin() + 2; it != tokens.end(); ++it) {
             if (std::holds_alternative<parse::RParen>(*it)) {
                 // We reached the end of the arguments.
+                found_rparen = true;
                 break;
             }
 
@@ -118,10 +120,16 @@ private:
             args.push_back(std::move(*arg));
         }
 
+        if (!found_rparen) {
+            return std::nullopt;
+        }
+
         // Each arg has a comma, except the last one.
-        auto const arg_tokens = args.empty() ? 0 : args.size() * 2 - 1;
-        auto const function_tokens = 3 + arg_tokens; // fn_name + ( + args + )
-        tokens = tokens.subspan(function_tokens);
+        auto const arg_token_count = args.empty() ? 0 : args.size() * 2 - 1;
+        auto const function_token_count = 3 + arg_token_count; // fn_name + ( + args + )
+        assert(tokens.size() >= function_token_count);
+
+        tokens = tokens.subspan(function_token_count);
 
         return ast::CallExpression{
                 .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
