@@ -6,8 +6,6 @@
 #ifndef URL_URL_H_
 #define URL_URL_H_
 
-#include "util/string.h"
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -328,14 +326,6 @@ private:
     // Misc
     bool starts_with_windows_drive_letter(std::string_view) const;
     void shorten_url_path(Url &) const;
-
-    constexpr bool is_windows_drive_letter(std::string_view input) const {
-        return input.size() == 2 && util::is_alpha(input[0]) && (input[1] == ':' || input[1] == '|');
-    }
-
-    constexpr bool is_normal_windows_drive_letter(std::string_view input) const {
-        return input.size() == 2 && util::is_alpha(input[0]) && input[1] == ':';
-    }
 
     // Parser state
     std::string_view input_{};

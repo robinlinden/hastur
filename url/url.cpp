@@ -48,6 +48,14 @@ namespace url {
 
 namespace {
 
+constexpr bool is_windows_drive_letter(std::string_view input) {
+    return input.size() == 2 && util::is_alpha(input[0]) && (input[1] == ':' || input[1] == '|');
+}
+
+constexpr bool is_normal_windows_drive_letter(std::string_view input) {
+    return input.size() == 2 && util::is_alpha(input[0]) && input[1] == ':';
+}
+
 constexpr auto kSpecialSchemes = std::to_array<std::pair<std::string_view, std::uint16_t>>({
         {"ftp", std::uint16_t{21}},
         {"file", std::uint16_t{0}},
