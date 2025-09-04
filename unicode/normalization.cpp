@@ -19,8 +19,6 @@ namespace {
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void decompose_to(std::ostream &os, char32_t code_point) {
-    // clang-tidy says this is pointer-ish, but msvc disagrees.
-    // NOLINTNEXTLINE(readability-qualified-auto)
     auto maybe_decomposition = std::ranges::lower_bound(
             generated::kDecompositions, code_point, {}, &decltype(generated::kDecompositions)::value_type::code_point);
 

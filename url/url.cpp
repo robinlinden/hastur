@@ -70,7 +70,6 @@ constexpr bool is_special_scheme(std::string_view scheme) {
 }
 
 constexpr std::uint16_t special_scheme_port(std::string_view scheme) {
-    // NOLINTNEXTLINE(readability-qualified-auto): Ptr-ish in libc++, but not MSVC.
     auto it = std::ranges::find(kSpecialSchemes, scheme, &decltype(kSpecialSchemes)::value_type::first);
     assert(it != end(kSpecialSchemes));
     return it->second;
@@ -317,7 +316,6 @@ void UrlParser::validation_error(ValidationError err) const {
 }
 
 std::string_view description(ValidationError e) {
-    // NOLINTNEXTLINE(readability-qualified-auto): Ptr-ish in libc++, but not MSVC.
     auto it = std::ranges::find(kValidationErrorStr, e, &decltype(kValidationErrorStr)::value_type::first);
     assert(it != end(kValidationErrorStr));
     return it->second;

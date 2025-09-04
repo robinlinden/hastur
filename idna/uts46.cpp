@@ -22,8 +22,6 @@ std::optional<std::string> Uts46::map(std::string_view input) {
     result.reserve(input.size());
 
     for (auto const code_point : unicode::CodePointView{input}) {
-        // clang-tidy says this is pointer-ish, but msvc disagrees.
-        // NOLINTNEXTLINE(readability-qualified-auto)
         auto mapping = std::ranges::lower_bound(
                 uts46::kMappings, code_point, {}, &decltype(uts46::kMappings)::value_type::first);
 

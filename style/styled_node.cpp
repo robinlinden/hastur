@@ -213,7 +213,6 @@ constexpr auto kBorderWidthKeywords = std::to_array<std::pair<std::string_view, 
 
 int UnresolvedBorderWidth::resolve(
         int font_size, ResolutionInfo context, std::optional<int> percent_relative_to) const {
-    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
     if (auto it = std::ranges::find(
                 kBorderWidthKeywords, width.raw, &decltype(kBorderWidthKeywords)::value_type::first);
             it != kBorderWidthKeywords.end()) {
@@ -597,7 +596,6 @@ int StyledNode::get_font_size_property() const {
         raw_value = *resolved;
     }
 
-    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
     if (auto it = std::ranges::find(
                 kFontSizeAbsoluteSizeKeywords, raw_value, &decltype(kFontSizeAbsoluteSizeKeywords)::value_type::first);
             it != end(kFontSizeAbsoluteSizeKeywords)) {

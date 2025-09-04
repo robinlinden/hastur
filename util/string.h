@@ -120,8 +120,6 @@ constexpr bool is_whitespace(char ch) {
 }
 
 constexpr std::string_view trim_start(std::string_view s, std::predicate<char> auto should_trim) {
-    // clang-tidy says this is pointer-ish, but msvc disagrees.
-    // NOLINTNEXTLINE(readability-qualified-auto)
     auto it = std::ranges::find_if(s, [&](char ch) { return !should_trim(ch); });
     s.remove_prefix(std::distance(cbegin(s), it));
     return s;

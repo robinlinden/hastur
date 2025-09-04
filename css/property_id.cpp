@@ -234,7 +234,6 @@ constexpr auto kInitialValues = std::to_array<std::pair<css::PropertyId, std::st
 } // namespace
 
 PropertyId property_id_from_string(std::string_view id) {
-    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
     if (auto it = std::ranges::find(kKnownProperties, id, &decltype(kKnownProperties)::value_type::first);
             it != end(kKnownProperties)) {
         return it->second;
@@ -244,7 +243,6 @@ PropertyId property_id_from_string(std::string_view id) {
 }
 
 std::string_view to_string(PropertyId id) {
-    // NOLINTNEXTLINE(readability-qualified-auto): Not guaranteed to be a ptr.
     auto it = std::ranges::find_if(kKnownProperties, [id](auto const &entry) { return entry.second == id; });
     if (it != end(kKnownProperties)) {
         return it->first;

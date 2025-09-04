@@ -156,6 +156,12 @@ CheckOptions:
   - key: readability-identifier-naming.EnumConstantCase
     value: CamelCase
 
+  # readability-qualified-auto
+  # Don't complain about this for e.g. array iterators as they're ptrish in
+  # libc++, but not in e.g. MSVC.
+  - key: readability-qualified-auto.AllowedTypes
+    value: iterator(_t)?
+
   # misc-non-private-member-variables-in-classes
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true

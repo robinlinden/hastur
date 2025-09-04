@@ -38,8 +38,6 @@ public:
             }
         }
 
-        // clang-tidy says this is pointer-ish, but msvc disagrees.
-        // NOLINTNEXTLINE(readability-qualified-auto)
         auto input = encoded.begin();
         while (input != encoded.end()) {
             int oldi = i;
