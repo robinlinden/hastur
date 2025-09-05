@@ -15,10 +15,6 @@ test --test_verbose_timeout_warnings
 # tag w/ "requires-network" for opt-in network access.
 build --sandbox_default_allow_network=false
 
-# The repo contents cache introduced in 8.3.0 is broken.
-# See: https://github.com/bazelbuild/bazel/issues/26450
-build --repo_contents_cache=
-
 # Bazel deprecations
 # =========================================================
 # See: https://docs.bazel.build/versions/main/backward-compatibility.html
