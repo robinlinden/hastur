@@ -640,6 +640,12 @@ void in_body_tests(etest::Suite &s) {
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"marquee"}}});
     });
+
+    s.add_test("InBody: <noembed>", [](etest::IActions &a) {
+        auto res = parse("<noembed>hello", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"noembed", {}, {dom::Text{"hello"}}}}});
+    });
 }
 
 void in_table_tests(etest::Suite &s) {

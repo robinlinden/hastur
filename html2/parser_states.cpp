@@ -589,7 +589,8 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
 
     assert(a.current_node_name() == "head");
     a.pop_current_node();
-    return AfterHead{}.process(a, token).value_or(AfterHead{});
+    auto mode_override = current_insertion_mode_override(a, AfterHead{});
+    return AfterHead{}.process(mode_override, token).value_or(AfterHead{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
@@ -629,7 +630,8 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     assert(a.current_node_name() == "noscript");
     a.pop_current_node();
     assert(a.current_node_name() == "head");
-    return InHead{}.process(a, token).value_or(InHead{});
+    auto mode_override = current_insertion_mode_override(a, InHead{});
+    return InHead{}.process(mode_override, token).value_or(InHead{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
@@ -709,7 +711,8 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
     }
 
     a.insert_element_for({.tag_name = "body"});
-    return InBody{}.process(a, token).value_or(InBody{});
+    auto mode_override = current_insertion_mode_override(a, InBody{});
+    return InBody{}.process(mode_override, token).value_or(InBody{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
