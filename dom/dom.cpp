@@ -47,8 +47,11 @@ void print_node(dom::Node const &node, std::ostream &os, int initial_depth = 0) 
             for (auto const &child : element->children | std::views::reverse) {
                 to_print.emplace_back(&child, current_depth + 1);
             }
+        } else if (auto const *comment = std::get_if<dom::Comment>(current_node)) {
+            os << "<!-- " << comment->text << " -->";
         } else {
-            os << '"' << std::get<dom::Text>(*current_node).text << '"';
+            auto const &text = std::get<dom::Text>(*current_node);
+            os << '"' << text.text << '"';
         }
     }
 }
@@ -58,6 +61,10 @@ void print_node(dom::Node const &node, std::ostream &os, int initial_depth = 0) 
 std::string to_string(Document const &document) {
     std::stringstream ss;
     ss << "#document";
+    for (auto const &comment : document.pre_html_node_comments) {
+        ss << "\n| <!-- " << comment.text << " -->";
+    }
+
     if (!document.doctype.empty()) {
         ss << "\n| <!DOCTYPE " << document.doctype;
         if (!document.public_identifier.empty() || !document.system_identifier.empty()) {

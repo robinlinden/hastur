@@ -113,5 +113,43 @@ int main() {
 |     "goodbye")");
     });
 
+    s.add_test("to_string(Document), but with comments!", [](etest::IActions &a) {
+        auto document = dom::Document{
+                .doctype{"html5"},
+                .public_identifier{"-//W3C//DTD HTML 4.01//EN"},
+                .system_identifier{"http://www.w3.org/TR/html4/strict.dtd"},
+                .pre_html_node_comments{{"This is a comment before the html node"}, {"this is too!"}},
+        };
+        document.html_node = dom::Element{
+                .name{"html"},
+                .children{{
+                        dom::Element{
+                                .name{"head"},
+                                .children{{dom::Element{.name{"title"}, .children{dom::Text{"hello"}}}}},
+                        },
+                        dom::Element{
+                                .name{"body"},
+                                .children{
+                                        dom::Comment{"This is a comment inside body"},
+                                        dom::Text{"goodbye"},
+                                },
+                        },
+                }},
+        };
+
+        std::string_view expected = R"(#document
+| <!-- This is a comment before the html node -->
+| <!-- this is too! -->
+| <!DOCTYPE html5 "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+| <html>
+|   <head>
+|     <title>
+|       "hello"
+|   <body>
+|     <!-- This is a comment inside body -->
+|     "goodbye")";
+        a.expect_eq(to_string(document), expected);
+    });
+
     return s.run();
 }

@@ -17,13 +17,19 @@ namespace dom {
 
 struct Text;
 struct Element;
+struct Comment;
 
 using AttrMap = std::map<std::string, std::string, std::less<>>;
-using Node = std::variant<Element, Text>;
+using Node = std::variant<Element, Text, Comment>;
 
 struct Text {
     std::string text;
     [[nodiscard]] bool operator==(Text const &) const = default;
+};
+
+struct Comment {
+    std::string text;
+    [[nodiscard]] bool operator==(Comment const &) const = default;
 };
 
 struct Element {
@@ -37,6 +43,7 @@ struct Document {
     std::string doctype;
     std::string public_identifier;
     std::string system_identifier;
+    std::vector<Comment> pre_html_node_comments;
     Node html_node;
 
     // https://dom.spec.whatwg.org/#concept-document-mode
