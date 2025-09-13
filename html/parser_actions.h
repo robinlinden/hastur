@@ -83,6 +83,10 @@ public:
         insert({token.tag_name, into_dom_attributes(token.attributes)});
     }
 
+    void insert_element_for(html2::CommentToken const &) override {
+        // TODO(robinlinden): Insert comments.
+    }
+
     void pop_current_node() override {
         auto const *current_element = open_elements_.back();
         open_elements_.pop_back();

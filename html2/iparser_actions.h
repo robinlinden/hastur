@@ -31,6 +31,7 @@ public:
     virtual QuirksMode quirks_mode() const = 0;
     virtual bool scripting() const = 0;
     virtual void insert_element_for(html2::StartTagToken const &) = 0;
+    virtual void insert_element_for(html2::CommentToken const &) = 0;
     virtual void pop_current_node() = 0;
     virtual std::string_view current_node_name() const = 0;
     virtual void merge_into_html_node(std::span<html2::Attribute const>) = 0;

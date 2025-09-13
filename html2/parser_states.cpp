@@ -36,6 +36,7 @@ public:
     QuirksMode quirks_mode() const override { return wrapped_.quirks_mode(); }
     bool scripting() const override { return wrapped_.scripting(); }
     void insert_element_for(html2::StartTagToken const &token) override { wrapped_.insert_element_for(token); }
+    void insert_element_for(html2::CommentToken const &token) override { wrapped_.insert_element_for(token); }
     void pop_current_node() override { wrapped_.pop_current_node(); }
     std::string_view current_node_name() const override { return wrapped_.current_node_name(); }
     void merge_into_html_node(std::span<html2::Attribute const> attributes) override {
@@ -388,8 +389,8 @@ std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &t
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert as last child.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
@@ -461,8 +462,8 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert a comment.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
@@ -504,8 +505,8 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert a comment.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
@@ -642,8 +643,8 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
@@ -751,8 +752,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
@@ -1178,8 +1179,8 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
         return maybe_next.value_or(std::move(table_text));
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
@@ -1274,8 +1275,8 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
-        // TODO(robinlinden): Insert.
+    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+        a.insert_element_for(*comment);
         return {};
     }
 
