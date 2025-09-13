@@ -41,7 +41,7 @@ private:
 
                       cbs.on_error(err);
                   }},
-          scripting_{opts.scripting}, cbs_{cbs} {}
+          scripting_{opts.scripting}, include_comments_{opts.include_comments}, cbs_{cbs} {}
 
     [[nodiscard]] dom::Document run() {
         tokenizer_.run();
@@ -61,9 +61,18 @@ private:
     dom::Document doc_{};
     std::vector<dom::Element *> open_elements_{};
     bool scripting_{false};
+    bool include_comments_{false};
     Callbacks const &cbs_;
     html2::InsertionMode insertion_mode_{};
-    Actions actions_{doc_, tokenizer_, scripting_, insertion_mode_, open_elements_, cbs_.on_element_closed};
+    Actions actions_{
+            doc_,
+            tokenizer_,
+            scripting_,
+            include_comments_ ? CommentMode::Keep : CommentMode::Discard,
+            insertion_mode_,
+            open_elements_,
+            cbs_.on_element_closed,
+    };
 };
 
 } // namespace html

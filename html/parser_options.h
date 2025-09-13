@@ -14,6 +14,7 @@ namespace html {
 
 struct ParserOptions {
     bool scripting{false};
+    bool include_comments{false};
 };
 
 struct Callbacks {

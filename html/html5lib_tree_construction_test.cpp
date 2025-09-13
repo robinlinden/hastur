@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
         }
 
         s.add_test(test.input, [=](etest::IActions &a) {
-            auto document = html::parse(test.input);
+            auto document = html::parse(test.input, {.include_comments = true});
             a.expect_eq(to_string(document), test.expected_result);
         });
     }

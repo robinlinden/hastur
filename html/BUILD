@@ -60,7 +60,7 @@ cc_library(
     # "adoption01",
     # "adoption02",
     # "blocks",
-    # "comments01",
+    "comments01",
     "doctype01",
     # "domjs-unsafe",
     "entities01",

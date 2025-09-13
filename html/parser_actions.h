@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <span>
@@ -24,15 +25,21 @@
 
 namespace html {
 
+enum class CommentMode : std::uint8_t {
+    Keep,
+    Discard,
+};
+
 class Actions : public html2::IActions {
 public:
     Actions(dom::Document &document,
             html2::Tokenizer &tokenizer,
             bool scripting,
+            CommentMode comment_mode,
             html2::InsertionMode &current_insertion_mode,
             std::vector<dom::Element *> &open_elements,
             std::function<void(dom::Element const &)> const &on_element_closed)
-        : document_{document}, tokenizer_{tokenizer}, scripting_{scripting},
+        : document_{document}, tokenizer_{tokenizer}, scripting_{scripting}, comment_mode_{comment_mode},
           current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements},
           on_element_closed_{on_element_closed} {}
 
@@ -83,8 +90,19 @@ public:
         insert({token.tag_name, into_dom_attributes(token.attributes)});
     }
 
-    void insert_element_for(html2::CommentToken const &) override {
-        // TODO(robinlinden): Insert comments.
+    void insert_element_for(html2::CommentToken const &token) override {
+        if (comment_mode_ == CommentMode::Discard) {
+            return;
+        }
+
+        if (open_elements_.empty()) {
+            assert(std::get<dom::Element>(document_.html_node).children.empty());
+            document_.pre_html_node_comments.push_back(dom::Comment{token.data});
+            return;
+        }
+
+        auto &current_element = open_elements_.back();
+        current_element->children.emplace_back(dom::Comment{token.data});
     }
 
     void pop_current_node() override {
@@ -187,6 +205,7 @@ private:
     dom::Document &document_;
     html2::Tokenizer &tokenizer_;
     bool scripting_;
+    CommentMode comment_mode_;
     html2::InsertionMode original_insertion_mode_;
     html2::InsertionMode &current_insertion_mode_;
     std::vector<dom::Element *> &open_elements_;
