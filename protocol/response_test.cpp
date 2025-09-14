@@ -7,19 +7,25 @@
 
 #include "etest/etest2.h"
 
-#include <type_traits>
+#include <string>
 
 int main() {
     etest::Suite s;
 
     s.add_test("ErrorCode, to_string", [](etest::IActions &a) {
-        using protocol::ErrorCode;
-        a.expect_eq(to_string(ErrorCode::Unresolved), "Unresolved");
-        a.expect_eq(to_string(ErrorCode::Unhandled), "Unhandled");
-        a.expect_eq(to_string(ErrorCode::InvalidResponse), "InvalidResponse");
-        a.expect_eq(to_string(ErrorCode::RedirectLimit), "RedirectLimit");
-        // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
-        a.expect_eq(to_string(static_cast<ErrorCode>(std::underlying_type_t<ErrorCode>{20})), "Unknown");
+        static constexpr auto kFirstError = protocol::ErrorCode::Unresolved;
+        static constexpr auto kLastError = protocol::ErrorCode::RedirectLimit;
+
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<protocol::ErrorCode>(error)) != "Unknown",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<protocol::ErrorCode>(error + 1)), "Unknown");
     });
 
     s.add_test("to_string(Headers)", [](etest::IActions &a) {
