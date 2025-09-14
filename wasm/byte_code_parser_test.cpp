@@ -57,30 +57,20 @@ std::stringstream make_module_bytes(SectionId id, std::vector<std::uint8_t> cons
 }
 
 void parse_error_to_string_tests(etest::Suite &s) {
-    using wasm::ModuleParseError;
     s.add_test("to_string(ModuleParseError)", [](etest::IActions &a) {
-        a.expect_eq(wasm::to_string(ModuleParseError::UnexpectedEof), "Unexpected end of file");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidMagic), "Invalid magic number");
-        a.expect_eq(wasm::to_string(ModuleParseError::UnsupportedVersion), "Unsupported version");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidSectionId), "Invalid section id");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidSize), "Invalid section size");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidCustomSection), "Invalid custom section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidTypeSection), "Invalid type section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidImportSection), "Invalid import section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidFunctionSection), "Invalid function section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidTableSection), "Invalid table section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidMemorySection), "Invalid memory section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidGlobalSection), "Invalid global section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidExportSection), "Invalid export section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidStartSection), "Invalid start section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidCodeSection), "Invalid code section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidDataSection), "Invalid data section");
-        a.expect_eq(wasm::to_string(ModuleParseError::InvalidDataCountSection), "Invalid data count section");
-        a.expect_eq(wasm::to_string(ModuleParseError::UnhandledSection), "Unhandled section");
+        static constexpr auto kFirstError = wasm::ModuleParseError::UnexpectedEof;
+        static constexpr auto kLastError = wasm::ModuleParseError::UnhandledSection;
 
-        auto last_error_value = static_cast<int>(ModuleParseError::UnhandledSection);
-        // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
-        a.expect_eq(wasm::to_string(static_cast<ModuleParseError>(last_error_value + 1)), "Unknown error");
+        auto error = static_cast<int>(kFirstError);
+        a.expect_eq(error, 0);
+
+        while (error <= static_cast<int>(kLastError)) {
+            a.expect(to_string(static_cast<wasm::ModuleParseError>(error)) != "Unknown error",
+                    std::to_string(error) + " is missing an error message");
+            error += 1;
+        }
+
+        a.expect_eq(to_string(static_cast<wasm::ModuleParseError>(error + 1)), "Unknown error");
     });
 }
 
