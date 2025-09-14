@@ -35,11 +35,15 @@ public:
 
 // Until we have a nicer tree-creation abstraction for the tests, this needs to
 // be called if a test relies on property inheritance.
-// NOLINTNEXTLINE(misc-no-recursion)
-void set_up_parent_ptrs(style::StyledNode &parent) {
-    for (auto &child : parent.children) {
-        child.parent = &parent;
-        set_up_parent_ptrs(child);
+void set_up_parent_ptrs(style::StyledNode &root) {
+    std::vector<style::StyledNode *> stack{&root};
+    while (!stack.empty()) {
+        auto *node = stack.back();
+        stack.pop_back();
+        for (auto &child : node->children) {
+            child.parent = node;
+            stack.push_back(&child);
+        }
     }
 }
 
