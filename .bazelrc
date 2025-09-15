@@ -158,6 +158,9 @@ build:buildbuddy-cache-upload --remote_upload_local_results
 # Cross-compilation
 # =========================================================
 
+# zig-cross uses the host compiler for tooling used in genrules, so no
+# BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1 here.
+
 # See: https://github.com/uber/hermetic_cc_toolchain/issues/134
 build:zig-cross --sandbox_add_mount_pair=/tmp
 # build:zig-cross --sandbox_add_mount_pair=/var/tmp  # macOS
@@ -212,6 +215,7 @@ build:wasi-wasm --copt=-fno-exceptions
 # https://github.com/bazel-contrib/toolchains_llvm/issues/395
 
 build:clang-amd64 --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
+build:clang-amd64 --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
 # Fuzzing options
 # =========================================================
