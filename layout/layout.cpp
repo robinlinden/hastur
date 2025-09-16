@@ -409,9 +409,12 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds, 
 
     auto weight = to_type(box.get_property<css::PropertyId::FontWeight>());
 
+    // TODO(robinlinden): This function should probably be looking at the child-items' height.
+    auto line_height = box.get_property<css::PropertyId::LineHeight>().resolve(font_size.v, resolution_context_);
+
     for (std::size_t i = 0; i < box.children.size(); ++i) {
         auto *child = &box.children[i];
-        layout(*child, box.dimensions.content.translated(last_child_end, current_line * font_size.v), last_block_width);
+        layout(*child, box.dimensions.content.translated(last_child_end, current_line * line_height), last_block_width);
 
         // TODO(robinlinden): This needs to get along better with whitespace
         // collapsing. A <br> followed by a whitespace will be lead to a leading
@@ -428,7 +431,7 @@ void Layouter::layout_anonymous_block(LayoutBox &box, geom::Rect const &bounds, 
             if (child->dimensions.margin_box().x - box.dimensions.margin_box().x > bounds.width) {
                 last_child_end = 0;
                 current_line += 1;
-                layout(*child, box.dimensions.content.translated(0, current_line * font_size.v), last_block_width);
+                layout(*child, box.dimensions.content.translated(0, current_line * line_height), last_block_width);
                 continue;
             }
 
@@ -557,8 +560,9 @@ void Layouter::calculate_width_and_margin(
 void Layouter::calculate_inline_height(LayoutBox &box, int const font_size) const {
     assert(box.node != nullptr);
     if (auto text = box.text()) {
+        auto line_height = box.get_property<css::PropertyId::LineHeight>().resolve(font_size, resolution_context_);
         int lines = static_cast<int>(std::ranges::count(*text, '\n')) + 1;
-        box.dimensions.content.height = lines * font_size;
+        box.dimensions.content.height = lines * line_height;
     }
 }
 

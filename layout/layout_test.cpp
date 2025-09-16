@@ -69,7 +69,11 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(p_style)},
         };
         set_up_parent_ptrs(style);
@@ -124,7 +128,11 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(p_style)},
         };
         set_up_parent_ptrs(style);
@@ -191,7 +199,11 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(p_style)},
         };
         set_up_parent_ptrs(style);
@@ -261,7 +273,11 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(first_style), std::move(block_style), std::move(second_style)},
         };
         set_up_parent_ptrs(style);
@@ -337,7 +353,11 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(first_style), std::move(space_style), std::move(second_style)},
         };
         set_up_parent_ptrs(style);
@@ -412,7 +432,11 @@ void whitespace_collapsing_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(first_style), std::move(space_style), std::move(second_style)},
         };
         set_up_parent_ptrs(style);
@@ -494,6 +518,7 @@ void whitespace_collapsing_tests(etest::Suite &s) {
                 .properties{
                         {css::PropertyId::Display, "block"},
                         {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
                         {css::PropertyId::WhiteSpace, "pre"},
                 },
                 .children{std::move(first_style), std::move(space_style), std::move(second_style)},
@@ -561,7 +586,11 @@ void text_transform_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(p_style)},
         };
         set_up_parent_ptrs(style);
@@ -605,7 +634,11 @@ void text_transform_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(p_style)},
         };
         set_up_parent_ptrs(style);
@@ -649,7 +682,11 @@ void text_transform_tests(etest::Suite &s) {
         };
         style::StyledNode style{
                 .node{html},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{std::move(p_style)},
         };
         set_up_parent_ptrs(style);
@@ -988,7 +1025,11 @@ int main() {
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
             .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+            .properties = {
+                    {css::PropertyId::Display, "block"},
+                    {css::PropertyId::FontSize, "10px"},
+                    {css::PropertyId::LineHeight, "1"},
+            },
             .children = {
                 {children[0], {{css::PropertyId::Display, "block"}}, {
                     {std::get<dom::Element>(children[0]).children[0], {}, {}},
@@ -1816,6 +1857,7 @@ int main() {
                 .properties{
                         {css::PropertyId::Display, "inline"},
                         {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
                         {css::PropertyId::FontWeight, "bold"},
                 },
                 .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
@@ -1840,7 +1882,11 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
         };
         set_up_parent_ptrs(style);
@@ -1897,7 +1943,11 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi hello"}}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
         };
         set_up_parent_ptrs(style);
@@ -1934,7 +1984,11 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"oh no !! !"}}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
         };
         set_up_parent_ptrs(style);
@@ -1980,6 +2034,7 @@ int main() {
                 .properties{
                         {css::PropertyId::Display, "block"},
                         {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
                 },
                 .children{
                         style::StyledNode{.node{html.children[0]}},
@@ -2037,6 +2092,7 @@ int main() {
                 .properties{
                         {css::PropertyId::Display, "block"},
                         {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
                 },
                 .children{
                         style::StyledNode{.node{html.children[0]}},
@@ -2086,7 +2142,11 @@ int main() {
         dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hello"}}};
         style::StyledNode style{
                 .node{dom},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{style::StyledNode{.node{std::get<dom::Element>(dom).children[0]}}},
         };
         set_up_parent_ptrs(style);
@@ -2122,7 +2182,11 @@ int main() {
 
         style::StyledNode style{
                 .node{dom},
-                .properties{{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{
                         style::StyledNode{.node{children[0]}},
                         style::StyledNode{.node{children[1]}},
@@ -2246,7 +2310,11 @@ int main() {
         auto &span = std::get<dom::Element>(dom).children[0];
         style::StyledNode style{
                 .node{dom},
-                .properties{{css::PropertyId::FontSize, "10px"}, {css::PropertyId::Display, "block"}},
+                .properties{
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{
                         style::StyledNode{
                                 .node{span},
@@ -2304,6 +2372,7 @@ int main() {
                 .properties{
                         {css::PropertyId::Display, "block"},
                         {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
                 },
                 .children{
                         style::StyledNode{
@@ -2431,6 +2500,41 @@ int main() {
         };
 
         auto l = layout::create_layout(style, {.viewport_width = 600}).value();
+        a.expect_eq(l, expected);
+    });
+
+    s.add_test("line-height", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{.name{"html"}, .children{dom::Text{"hi"}}};
+        style::StyledNode style{
+                .node{dom},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1.5"},
+                },
+                .children{style::StyledNode{.node{std::get<dom::Element>(dom).children.at(0)}}},
+        };
+        set_up_parent_ptrs(style);
+
+        layout::LayoutBox expected{
+                .node = &style,
+                .dimensions{{0, 0, 25, 15}},
+                .children{
+                        layout::LayoutBox{
+                                .node = nullptr,
+                                .dimensions{{0, 0, 25, 15}},
+                                .children{
+                                        layout::LayoutBox{
+                                                .node = &style.children[0],
+                                                .dimensions{{0, 0, 10, 15}},
+                                                .layout_text = "hi"sv,
+                                        },
+                                },
+                        },
+                },
+        };
+
+        auto l = layout::create_layout(style, {.viewport_width = 25}, NoType{}).value();
         a.expect_eq(l, expected);
     });
 

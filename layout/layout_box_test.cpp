@@ -54,7 +54,11 @@ int main() {
         };
         auto style_root = style::StyledNode{
                 .node = dom_root,
-                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{
                         {children[0], {{css::PropertyId::Display, "block"}}, {std::move(style_children)}},
                 },
@@ -174,7 +178,11 @@ int main() {
         };
         auto style_root = style::StyledNode{
                 .node = dom_root,
-                .properties = {{css::PropertyId::Display, "block"}, {css::PropertyId::FontSize, "10px"}},
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
                 .children{{std::move(body_style)}},
         };
         set_up_parent_ptrs(style_root);
