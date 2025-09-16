@@ -155,6 +155,9 @@ constexpr auto kInitialValues = std::to_array<std::pair<css::PropertyId, std::st
         // https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#formal_definition
         {css::PropertyId::FontWeight, "normal"sv},
 
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/line-height#formal_definition
+        {css::PropertyId::LineHeight, "normal"sv},
+
         // https://developer.mozilla.org/en-US/docs/Web/CSS/text-align#formal_definition
         // TODO(robinlinden): start, once supported.
         {css::PropertyId::TextAlign, "left"sv},

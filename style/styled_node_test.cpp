@@ -669,5 +669,14 @@ int main() {
                 std::vector{style::TextDecorationLine::None});
     });
 
+    s.add_test("line-height", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::LineHeight>(a, "normal", style::UnresolvedLineHeight{"normal"});
+        expect_property_eq<css::PropertyId::LineHeight>(a, "1.5", style::UnresolvedLineHeight{"1.5"});
+
+        a.expect_eq(style::UnresolvedLineHeight{"30px"}.resolve(0, {}), 30.f);
+        a.expect_eq(style::UnresolvedLineHeight{"1.5"}.resolve(10, {}), 15.f);
+        a.expect_eq(style::UnresolvedLineHeight{"normal"}.resolve(10, {}), 12.f);
+    });
+
     return s.run();
 }

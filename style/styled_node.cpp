@@ -222,6 +222,22 @@ int UnresolvedBorderWidth::resolve(
     return width.resolve(font_size, context, percent_relative_to);
 }
 
+int UnresolvedLineHeight::resolve(int font_size, ResolutionInfo context, std::optional<int> percent_relative_to) const {
+    if (line_height.raw == "normal") {
+        return static_cast<int>(font_size * 1.2f);
+    }
+
+    float maybe_line_height{};
+    auto res = util::from_chars(
+            line_height.raw.data(), line_height.raw.data() + line_height.raw.size(), maybe_line_height);
+    if (res.ec == std::errc{} && line_height.raw.data() + line_height.raw.size() == res.ptr) {
+        return static_cast<int>(font_size * maybe_line_height);
+    }
+
+    return line_height.try_resolve(font_size, context, percent_relative_to)
+            .value_or(static_cast<int>(1.2f * font_size));
+}
+
 // NOLINTNEXTLINE(misc-no-recursion)
 std::string_view StyledNode::get_raw_property(css::PropertyId property) const {
     // We don't support selector specificity yet, so the last property is found

@@ -117,6 +117,14 @@ struct UnresolvedBorderWidth {
     int resolve(int font_size, ResolutionInfo, std::optional<int> percent_relative_to = std::nullopt) const;
 };
 
+struct UnresolvedLineHeight {
+    UnresolvedValue line_height{};
+    [[nodiscard]] bool operator==(UnresolvedLineHeight const &) const = default;
+
+    [[nodiscard]] int resolve(
+            int font_size, ResolutionInfo, std::optional<int> percent_relative_to = std::nullopt) const;
+};
+
 // NOLINTNEXTLINE(misc-no-recursion)
 struct StyledNode {
     dom::Node const &node;
@@ -179,6 +187,8 @@ struct StyledNode {
         } else if constexpr (T == css::PropertyId::BorderBottomWidth || T == css::PropertyId::BorderLeftWidth
                 || T == css::PropertyId::BorderRightWidth || T == css::PropertyId::BorderTopWidth) {
             return UnresolvedBorderWidth{{get_raw_property(T)}};
+        } else if constexpr (T == css::PropertyId::LineHeight) {
+            return UnresolvedLineHeight{{get_raw_property(T)}};
         } else {
             return get_raw_property(T);
         }
