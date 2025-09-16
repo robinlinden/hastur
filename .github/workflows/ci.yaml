@@ -80,7 +80,7 @@ jobs:
             compiler: clang
             version: 21
             bazel: --config libc++
-            apt: libc++abi-21-dev libc++-21-dev libclang-rt-21-dev
+            apt: libc++abi-21-dev libc++-21-dev libclang-rt-21-dev libunwind-21-dev
 
     steps:
       - name: Add things missing from containers
