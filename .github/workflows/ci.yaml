@@ -206,7 +206,7 @@ jobs:
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          pipx install codecov-cli==10.4.0
+          pipx install codecov-cli==11.2.3
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
