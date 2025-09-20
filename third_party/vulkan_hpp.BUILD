@@ -11,6 +11,7 @@ cc_library(
 cc_binary(
     name = "dispatch_loader_dynamic_test",
     srcs = ["tests/DispatchLoaderDynamic/DispatchLoaderDynamic.cpp"],
+    defines = ["VULKAN_HPP_DISPATCH_LOADER_DYNAMIC"],
     visibility = ["//visibility:public"],
     deps = [":hpp"],
 )

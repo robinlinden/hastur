@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.2"
+RULES_CC_VERSION = "0.2.8"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-5Q8kUGARhB4qyD2XM6DH4FjrOhCm4+ELqpx5Qv9fR2c=",
+    integrity = "sha256-IH6gc90gpwX56LxawC9SA+liH8Zyd0uxoJNa76t66/o=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -61,12 +61,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.5.4"
+RULES_PYTHON_VERSION = "1.6.1"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-E2cdMEz+QzUDAiE6YNk6X8C3Y7Cm3hc5fj4jklO2G3M=",
+    integrity = "sha256-8ugPl/nAuC4kieYecl3x5r2vFsTaz14muVZoeHFkuv8=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -121,12 +121,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_shell
-RULES_SHELL_VERSION = "0.6.0"
+RULES_SHELL_VERSION = "0.6.1"
 
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-/OKnqXSqcOk2cGgSLhnDmmonpayjBpi8+QML61KWErY=",
+    integrity = "sha256-5rh8ib0LJwOeOvLF2gEUdFLyQPddUF9baICHTzEDYwc=",
     strip_prefix = "rules_shell-%s" % RULES_SHELL_VERSION,
     url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format(RULES_SHELL_VERSION),
 )
@@ -227,18 +227,18 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/toolchains_llvm
-TOOLCHAINS_LLVM_VERSION = "1.4.0"
+TOOLCHAINS_LLVM_VERSION = "1.5.0"
 
 bazel_dep(name = "toolchains_llvm", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "toolchains_llvm",
-    integrity = "sha256-/e0CVpYX0kVRoK0JwHUNxTowlyNxV7gookVoHwrnOfg=",
+    integrity = "sha256-SeacARvKpMmnJGooerH7T37T/efL1zADdMEDD0DSu5U=",
     strip_prefix = "toolchains_llvm-v%s" % TOOLCHAINS_LLVM_VERSION,
     url = "https://github.com/bazel-contrib/toolchains_llvm/releases/download/v{0}/toolchains_llvm-v{0}.tar.gz".format(TOOLCHAINS_LLVM_VERSION),
 )
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
-llvm.toolchain(llvm_version = "20.1.2")
+llvm.toolchain(llvm_version = "20.1.8")
 use_repo(llvm, "llvm_toolchain")
 
 # Other Bazel-required dependencies
@@ -458,14 +458,13 @@ EOF""",
 )
 
 # https://github.com/tartanllama/expected
-# 1.2.0 + fix for TL_CPLUSPLUS being used before being defined.
-EXPECTED_VERSION = "2089ecb887780923813903db390f1c9cbc94b855"
+EXPECTED_VERSION = "1.3.1"
 
 bazel_dep(name = "expected")
 archive_override(
     module_name = "expected",  # CC0-1.0
     build_file = "//third_party:expected.BUILD",
-    integrity = "sha256-z9gsPy0ox7y/qZ2NrPsKIvHeU3dcIpH017RQyMXziok=",
+    integrity = "sha256-mgT09HL7tcML9gQC8cpibEp2mH+GeXjQuKNderP7j+c=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "expected")
@@ -473,7 +472,7 @@ bazel_dep(name = "rules_cc")
 EOF""",
     ],
     strip_prefix = "expected-%s" % EXPECTED_VERSION,
-    url = "https://github.com/tartanllama/expected/archive/%s.tar.gz" % EXPECTED_VERSION,
+    url = "https://github.com/tartanllama/expected/archive/v%s.tar.gz" % EXPECTED_VERSION,
 )
 
 # HEAD, last updated 2025-04-24.
@@ -485,23 +484,20 @@ http_file(
 )
 
 # https://github.com/fmtlib/fmt
-# 11.2.0 + compile fix for libc++21. See: https://github.com/fmtlib/fmt/pull/4477
-FMT_VERSION = "f4345467fce7edbc6b36c3fa1cf197a67be617e2"
+FMT_VERSION = "12.0.0"
 
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-TIydkMctdpoc376K6Cjwy7PQsuiUb8JeZW0BTsrHAsE=",
+    integrity = "sha256-HDIpMgNEl5K/jpTH9mmcZDiH6Cby1mqAhptPJ5+wfSU=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
-bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
     strip_prefix = "fmt-%s" % FMT_VERSION,
-    # url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format(FMT_VERSION),
-    url = "https://github.com/fmtlib/fmt/archive/%s.tar.gz" % FMT_VERSION,
+    url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format(FMT_VERSION),
 )
 
 # https://github.com/freetype/freetype
@@ -597,13 +593,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.2b"
+IMGUI_VERSION = "1.92.3"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-2j1FPM504Ps9Z/jXmKKo0E/K8LM84OATHQaV38T2QZE=",
+    integrity = "sha256-khLufEcYsUZqXZnmS84+8ZZXBK/qS6ZR+Nl40HkbfHw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -662,13 +658,13 @@ EOF""",
 )
 
 # https://github.com/libjpeg-turbo/libjpeg-turbo
-LIBJPEG_TURBO_VERSION = "3.1.1"
+LIBJPEG_TURBO_VERSION = "3.1.2"
 
 bazel_dep(name = "libjpeg-turbo")  # BSD-3-Clause AND IJG
 archive_override(
     module_name = "libjpeg-turbo",
     build_file = "//third_party:libjpeg-turbo.BUILD",
-    integrity = "sha256-qtyX6pH27weLCuOmK7pp4AjZp9sZs05KyXOxm3G0IXw=",
+    integrity = "sha256-jwASI0tGTOUIkMSQ8YGU+ROnsfTmoD1mRBefoPhn0M8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libjpeg-turbo")
@@ -702,13 +698,13 @@ EOF""",
 )
 
 # https://github.com/SFML/SFML
-SFML_VERSION = "3.0.1"
+SFML_VERSION = "3.0.2"
 
 bazel_dep(name = "sfml")  # Zlib
 archive_override(
     module_name = "sfml",
     build_file = "//third_party:sfml.BUILD",
-    integrity = "sha256-+Z9xuy8mCINbGjfgeFErdd051SuJ4T4SJGYDqVDaPB8=",
+    integrity = "sha256-ADTgX5VQnl0/uBsWJXE+Btp7Bo8hAojOP9ZxBvj0aZU=",
     patch_cmds = [
         # SFML uses a non-standard include path to vulkan.h
         # libvulkan-dev: /usr/include/vulkan/vulkan.h
@@ -800,12 +796,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.325"
+VULKAN_TAG = "1.4.326"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-V0PaTiA0Vu8KDReVDUSLT3DpOhmr3FR6ozwVSCtP7Bc=",
+    integrity = "sha256-Ge7Zo/Hpb3+iowMX+ZN0EDWJ+6V2b5dDq2EmXGiJwJk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -821,7 +817,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-ihc4GTKzEkKUUKih/6WXloXGhfVMeGhIa91RLTWw6Mk=",
+    integrity = "sha256-lkQoR2Oi/PSuaxN84eBJge0q/4PFLflxxdP+YQ37/J0=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
