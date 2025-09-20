@@ -24,11 +24,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_apple
-RULES_APPLE_VERSION = "4.1.2"
+RULES_APPLE_VERSION = "4.2.0"
 
 archive_override(
     module_name = "rules_apple",
-    integrity = "sha256-3hyLuHLaawPSq/9lkXjTq/2lzI2Ka2Rv2rlqstAMn6c=",
+    integrity = "sha256-74pXRLL//0n0dkcib2nw8GUiyi6Kb6Gq9dZdUxSBPDQ=",
     url = "https://github.com/bazelbuild/rules_apple/releases/download/{0}/rules_apple.{0}.tar.gz".format(RULES_APPLE_VERSION),
 )
 
@@ -49,8 +49,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-mwTLuw/uBjKuumKBWZOEhM+t9KnS9bHDVugwDFZGeJY=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.15.1"),
+    integrity = "sha256-R2MsxQbIWAEYUwc0SYAdZI4QSD1LUOCA7CVJpLI5iWA=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.15.2"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -183,11 +183,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.35.0"
+BAZEL_FEATURES_VERSION = "1.36.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-BqlpG+zDV8HkrwEbn7MjkJdQPOAGB9nraxHqD6wwQDk=",
+    integrity = "sha256-k5CzkaaNOySu95ZrzoVW0oAD/j8CKlAI78eAforKrxo=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -275,11 +275,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "32.0"
+PROTOBUF_VERSION = "32.1"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-nf3wgSnwJabFgCYTuO4TlQRP7LcdOCEMpZ7K0oPvaLs=",
+    integrity = "sha256-P+6r0HehErVq9SUZvE7OkOKLRYP0/CVJyV12WYXg/Tw=",
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
