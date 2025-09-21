@@ -33,6 +33,24 @@ cc_test(
 )
 
 cc_library(
+    name = "ip_serialization",
+    hdrs = ["ip_serialization.h"],
+    copts = HASTUR_COPTS,
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "ip_serialization_test",
+    size = "small",
+    srcs = ["ip_serialization_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":ip_serialization",
+        "//etest",
+    ],
+)
+
+cc_library(
     name = "url",
     srcs = [
         "url.cpp",
@@ -40,6 +58,7 @@ cc_library(
     hdrs = ["url.h"],
     copts = HASTUR_COPTS,
     implementation_deps = [
+        ":ip_serialization",
         ":percent_encode",
         ":rtti_hack",
         "//unicode:util",

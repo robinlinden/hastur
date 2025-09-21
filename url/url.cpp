@@ -5,6 +5,7 @@
 
 #include "url/url.h"
 
+#include "url/ip_serialization.h"
 #include "url/percent_encode.h"
 #include "url/rtti_hack.h" // IWYU pragma: keep
 
@@ -179,11 +180,11 @@ std::string blob_url_create(Origin const &origin) {
                 serialized += std::get<std::string>(origin.host.data);
                 break;
             case HostType::Ip4Addr:
-                serialized += util::ipv4_serialize(std::get<std::uint32_t>(origin.host.data));
+                serialized += ipv4_serialize(std::get<std::uint32_t>(origin.host.data));
                 break;
             case HostType::Ip6Addr:
                 std::array<std::uint16_t, 8> v6 = std::get<std::array<std::uint16_t, 8>>(origin.host.data);
-                serialized += "[" + util::ipv6_serialize(v6) + "]";
+                serialized += "[" + ipv6_serialize(v6) + "]";
         }
 
         if (origin.port.has_value()) {
@@ -201,11 +202,11 @@ std::string blob_url_create(Origin const &origin) {
 // https://url.spec.whatwg.org/#concept-host-serializer
 std::string Host::serialize() const {
     if (type == HostType::Ip4Addr) {
-        return util::ipv4_serialize(std::get<std::uint32_t>(data));
+        return ipv4_serialize(std::get<std::uint32_t>(data));
     }
 
     if (type == HostType::Ip6Addr) {
-        return "[" + util::ipv6_serialize(std::get<2>(data)) + "]";
+        return "[" + ipv6_serialize(std::get<2>(data)) + "]";
     }
 
     return std::get<std::string>(data);
