@@ -312,7 +312,7 @@ private:
     void validation_error(ValidationError) const;
 
     // Host parsing
-    std::optional<Host> parse_host(std::string_view input, bool is_not_special = false) const;
+    std::optional<Host> parse_host(std::string_view input, bool is_opaque = false) const;
     bool ends_in_number(std::string_view) const;
     std::optional<std::uint32_t> parse_ipv4(std::string_view) const;
     std::optional<std::tuple<std::uint64_t, bool>> parse_ipv4_number(std::string_view) const;
