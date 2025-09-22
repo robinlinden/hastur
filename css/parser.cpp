@@ -377,7 +377,8 @@ StyleSheet Parser::parse_rules() {
             skip_whitespace_and_comments();
 
             while (peek() != '}') {
-                if (auto rule = parse_rule(); !rule) {
+                StyleSheet dummy;
+                if (!parse_rule(dummy, std::nullopt, nullptr)) {
                     spdlog::error("Eof while looking for end of rule in unknown at-rule");
                     return style;
                 }
@@ -390,14 +391,10 @@ StyleSheet Parser::parse_rules() {
             continue;
         }
 
-        auto rule = parse_rule();
-        if (!rule) {
+        if (!parse_rule(style, media_query, nullptr)) {
             spdlog::error("Eof while parsing rule");
             return style;
         }
-
-        style.rules.push_back(*std::move(rule));
-        style.rules.back().media_query = media_query;
 
         skip_whitespace_and_comments();
 
@@ -463,17 +460,28 @@ void Parser::skip_whitespace_and_comments() {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-std::optional<css::Rule> Parser::parse_rule() {
+bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &active_media_query, Rule const *parent) {
     Rule rule{};
+
     while (peek() != '{') {
         auto selector = consume_while([](char c) { return c != ',' && c != '{'; });
         if (!selector) {
-            return std::nullopt;
+            return false;
         }
 
         rule.selectors.emplace_back(util::trim(*selector));
         skip_if_neq('{'); // ' ' or ','
         skip_whitespace_and_comments();
+    }
+
+    if (parent != nullptr) {
+        // Add the parent selector as a prefix to the current rule's selectors.
+        auto old_child_selectors = std::exchange(rule.selectors, {});
+        for (auto const &child_selector : old_child_selectors) {
+            for (auto const &parent_selector : parent->selectors) {
+                rule.selectors.push_back(std::format("{} {}", parent_selector, child_selector));
+            }
+        }
     }
 
     consume_char(); // {
@@ -485,18 +493,15 @@ std::optional<css::Rule> Parser::parse_rule() {
         // due to the assumption that "ascii:" always is a CSS property name.
         auto nested_rule_or_declaration_name = consume_while([](char c) { return c != ':' && c != '{'; });
         if (!nested_rule_or_declaration_name || nested_rule_or_declaration_name->empty()) {
-            return std::nullopt;
+            return false;
         }
 
         // If a name starts w/ any of these, it's likely a nested rule w/ : as
         // part of the selector, e.g. &:hover { ... }. This isn't great, but
         // we're dropping this parser in favour of the css2 one soon(tm).
         if (peek() == '{' || std::string_view{".#>&[|+~:"}.contains(nested_rule_or_declaration_name->front())) {
-            // TODO(robinlinden): Nested rule. Skip over it for now.
             pos_ -= nested_rule_or_declaration_name->size();
-            if (auto nested_rule = parse_rule()) {
-                spdlog::warn("Ignoring nested rule: '{}'", to_string(*nested_rule));
-            } else {
+            if (!parse_rule(style, active_media_query, &rule)) {
                 spdlog::warn("Unable to parse nested rule: '{}'", *nested_rule_or_declaration_name);
             }
             skip_whitespace_and_comments();
@@ -505,7 +510,7 @@ std::optional<css::Rule> Parser::parse_rule() {
 
         auto decl = parse_declaration(*nested_rule_or_declaration_name);
         if (!decl) {
-            return std::nullopt;
+            return false;
         }
 
         auto [name, value] = *decl;
@@ -528,7 +533,9 @@ std::optional<css::Rule> Parser::parse_rule() {
 
     consume_char(); // }
 
-    return rule;
+    rule.media_query = active_media_query;
+    style.rules.push_back(std::move(rule));
+    return true;
 }
 
 std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration(std::string_view name) {

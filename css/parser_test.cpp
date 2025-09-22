@@ -1242,11 +1242,15 @@ int main() {
                 css::Rule{.selectors = {{"p"}}, .custom_properties = {{"--var", "value"}}});
     });
 
-    // TODO(robinlinden): Nested rules are currently skipped, but at least
-    // they mostly don't break parsing of the rule they're nested in.
     s.add_test("parser: nested rule", [](etest::IActions &a) {
         a.expect_eq(css::parse("p { color: green; a { font-size: 3px; } font-size: 5px; }").rules, //
                 std::vector{
+                        css::Rule{
+                                .selectors = {{"p a"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3px"},
+                                },
+                        },
                         css::Rule{
                                 .selectors = {{"p"}},
                                 .declarations{
@@ -1257,9 +1261,90 @@ int main() {
                 });
     });
 
-    s.add_test("parser: nested rule, : in name", [](etest::IActions &a) {
+    s.add_test("parser: nested rule, in media query", [](etest::IActions &a) {
+        std::string_view input = R"(
+            @media (max-width: 1px) {
+                p {
+                    color: green;
+                    a { font-size: 3px; }
+                    font-size: 5px;
+                }
+            }
+        )";
+        a.expect_eq(css::parse(input).rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{"p a"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3px"},
+                                },
+                                .media_query = css::MediaQuery{css::MediaQuery::Width{.max = 1}},
+                        },
+                        css::Rule{
+                                .selectors = {{"p"}},
+                                .declarations{
+                                        {css::PropertyId::Color, "green"},
+                                        {css::PropertyId::FontSize, "5px"},
+                                },
+                                .media_query = css::MediaQuery{css::MediaQuery::Width{.max = 1}},
+                        },
+                });
+    });
+
+    s.add_test("parser: nested rule, multiple parent selectors", [](etest::IActions &a) {
+        a.expect_eq(css::parse("p, b { color: green; a { font-size: 3px; } font-size: 5px; }").rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{"p a"}, {"b a"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3px"},
+                                },
+                        },
+                        css::Rule{
+                                .selectors = {{"p"}, {"b"}},
+                                .declarations{
+                                        {css::PropertyId::Color, "green"},
+                                        {css::PropertyId::FontSize, "5px"},
+                                },
+                        },
+                });
+    });
+
+    s.add_test("parser: nested rule, multiple child selectors", [](etest::IActions &a) {
+        a.expect_eq(css::parse("p { color: green; a, b { font-size: 3px; } font-size: 5px; }").rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{"p a"}, {"p b"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3px"},
+                                },
+                        },
+                        css::Rule{
+                                .selectors = {{"p"}},
+                                .declarations{
+                                        {css::PropertyId::Color, "green"},
+                                        {css::PropertyId::FontSize, "5px"},
+                                },
+                        },
+                });
+    });
+
+    s.add_test("parser: nested rule, nesting selector", [](etest::IActions &a) {
         a.expect_eq(css::parse("p { color: green; &:hover { font-size: 3px; } font-size: 5px; }").rules, //
                 std::vector{
+                        // TODO(robinlinden): Support &:blah.
+                        // css::Rule{
+                        //         .selectors = {{"p:hover"}},
+                        //         .declarations{
+                        //                 {css::PropertyId::FontSize, "3px"},
+                        //         },
+                        // },
+                        css::Rule{
+                                .selectors = {{"p &:hover"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3px"},
+                                },
+                        },
                         css::Rule{
                                 .selectors = {{"p"}},
                                 .declarations{

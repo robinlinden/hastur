@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -6,6 +6,7 @@
 #ifndef CSS_PARSER_H_
 #define CSS_PARSER_H_
 
+#include "css/media_query.h"
 #include "css/property_id.h"
 #include "css/rule.h"
 #include "css/style_sheet.h"
@@ -48,7 +49,8 @@ private:
 
     void skip_whitespace_and_comments();
 
-    std::optional<css::Rule> parse_rule();
+    [[nodiscard]] bool parse_rule(
+            StyleSheet &, std::optional<MediaQuery> const &active_media_query, Rule const *parent);
     std::optional<std::pair<std::string_view, std::string_view>> parse_declaration(std::string_view name);
 
     static void add_declaration(Declarations &, std::string_view name, std::string_view value);
