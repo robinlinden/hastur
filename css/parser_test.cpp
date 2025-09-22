@@ -1332,15 +1332,8 @@ int main() {
     s.add_test("parser: nested rule, nesting selector", [](etest::IActions &a) {
         a.expect_eq(css::parse("p { color: green; &:hover { font-size: 3px; } font-size: 5px; }").rules, //
                 std::vector{
-                        // TODO(robinlinden): Support &:blah.
-                        // css::Rule{
-                        //         .selectors = {{"p:hover"}},
-                        //         .declarations{
-                        //                 {css::PropertyId::FontSize, "3px"},
-                        //         },
-                        // },
                         css::Rule{
-                                .selectors = {{"p &:hover"}},
+                                .selectors = {{"p:hover"}},
                                 .declarations{
                                         {css::PropertyId::FontSize, "3px"},
                                 },
@@ -1350,6 +1343,28 @@ int main() {
                                 .declarations{
                                         {css::PropertyId::Color, "green"},
                                         {css::PropertyId::FontSize, "5px"},
+                                },
+                        },
+                });
+
+        a.expect_eq(css::parse(".a { color: green; &.b { font-size: 3px; } .b { font-size: 5px; } }").rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{".a.b"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3px"},
+                                },
+                        },
+                        css::Rule{
+                                .selectors = {{".a .b"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "5px"},
+                                },
+                        },
+                        css::Rule{
+                                .selectors = {{".a"}},
+                                .declarations{
+                                        {css::PropertyId::Color, "green"},
                                 },
                         },
                 });

@@ -479,7 +479,11 @@ bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &acti
         auto old_child_selectors = std::exchange(rule.selectors, {});
         for (auto const &child_selector : old_child_selectors) {
             for (auto const &parent_selector : parent->selectors) {
-                rule.selectors.push_back(std::format("{} {}", parent_selector, child_selector));
+                if (child_selector.starts_with('&')) {
+                    rule.selectors.push_back(std::format("{}{}", parent_selector, child_selector.substr(1)));
+                } else {
+                    rule.selectors.push_back(std::format("{} {}", parent_selector, child_selector));
+                }
             }
         }
     }
