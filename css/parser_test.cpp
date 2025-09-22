@@ -1370,6 +1370,48 @@ int main() {
                 });
     });
 
+    s.add_test("parser: nested rule, maximum selector combination exceeded", [](etest::IActions &a) {
+        constexpr int kMaxDepth = 7;
+        std::string input{"p {"};
+        for (int i = 0; i < kMaxDepth; ++i) {
+            input += "a, i { ";
+        }
+        for (int i = 0; i < kMaxDepth; ++i) {
+            input += " } ";
+        }
+
+        a.expect(!css::parse(input).rules.empty());
+
+        input = "p {";
+        for (int i = 0; i < kMaxDepth + 1; ++i) {
+            input += "a, i { ";
+        }
+        for (int i = 0; i < kMaxDepth + 1; ++i) {
+            input += " } ";
+        }
+
+        a.expect(css::parse(input).rules.empty());
+    });
+
+    s.add_test("parser: nested rule, selector length exceeded", [](etest::IActions &a) {
+        constexpr int kMaxSelectorLength = 512;
+        std::string input{"p { "};
+        while (input.size() < kMaxSelectorLength) {
+            input += ".classname";
+        }
+        input.resize(kMaxSelectorLength);
+        input += " { } }";
+
+        a.expect(!css::parse(input).rules.empty());
+
+        input = "p { ";
+        while (input.size() < kMaxSelectorLength) {
+            input += ".classname";
+        }
+        input += ".andabitmorejustforgoodmeasure { } }";
+        a.expect(css::parse(input).rules.empty());
+    });
+
     s.add_test("parser: eof in nested rule", [](etest::IActions &a) {
         a.expect(css::parse("p { color: green; a { font-size: 3px; ").rules.empty()); //
     });

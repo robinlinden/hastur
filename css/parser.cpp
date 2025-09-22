@@ -461,6 +461,11 @@ void Parser::skip_whitespace_and_comments() {
 
 // NOLINTNEXTLINE(misc-no-recursion)
 bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &active_media_query, Rule const *parent) {
+    // Selected based on what takes <1s to deal with when running honggfuzz w/ asan
+    // and ubsan on robinlinden's machine. Probably needs to be more carefully selected.
+    constexpr std::size_t kMaxNestedSelectorExpansion = 128;
+    constexpr std::size_t kMaxSelectorCombinationLength = 512;
+
     Rule rule{};
 
     while (peek() != '{') {
@@ -476,9 +481,23 @@ bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &acti
 
     if (parent != nullptr) {
         // Add the parent selector as a prefix to the current rule's selectors.
+        if (parent->selectors.size() * rule.selectors.size() > kMaxNestedSelectorExpansion) {
+            spdlog::error("Too many selectors when parsing rule: {} > {}",
+                    parent->selectors.size() * rule.selectors.size(),
+                    kMaxNestedSelectorExpansion);
+            return false;
+        }
+
         auto old_child_selectors = std::exchange(rule.selectors, {});
         for (auto const &child_selector : old_child_selectors) {
             for (auto const &parent_selector : parent->selectors) {
+                if (child_selector.size() + parent_selector.size() > kMaxSelectorCombinationLength) {
+                    spdlog::error("Selector too long: {} > {}",
+                            child_selector.size() + parent_selector.size(),
+                            kMaxSelectorCombinationLength);
+                    return false;
+                }
+
                 if (child_selector.starts_with('&')) {
                     rule.selectors.push_back(std::format("{}{}", parent_selector, child_selector.substr(1)));
                 } else {
