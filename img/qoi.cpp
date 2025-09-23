@@ -54,7 +54,7 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
     //     uint8_t colorspace; // 0 = sRGB with linear alpha, 1 = all channels linear
     // };
 
-    std::string magic{};
+    std::string magic;
     magic.resize(4);
 
     if (!is.read(magic.data(), magic.size())) {
@@ -107,7 +107,7 @@ tl::expected<Qoi, QoiError> Qoi::from(std::istream &is) {
         return tl::unexpected{QoiError::InvalidColorspace};
     }
 
-    std::vector<unsigned char> pixels{};
+    std::vector<unsigned char> pixels;
     auto const bytes_needed = std::size_t{width} * height * 4;
     pixels.reserve(bytes_needed);
 

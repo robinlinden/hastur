@@ -40,8 +40,8 @@ struct PageState {
     protocol::Response response{};
     dom::Document dom{};
     css::StyleSheet stylesheet{};
-    std::unique_ptr<style::StyledNode> styled{};
-    std::optional<layout::LayoutBox> layout{};
+    std::unique_ptr<style::StyledNode> styled;
+    std::optional<layout::LayoutBox> layout;
     int layout_width{};
     int viewport_height{};
 };
@@ -75,9 +75,9 @@ public:
     type::IType &font_system() { return *type_; }
 
 private:
-    std::unique_ptr<protocol::IProtocolHandler> protocol_handler_{};
-    std::unique_ptr<type::IType> type_{};
-    std::function<std::optional<layout::Size>(std::string_view)> get_intrensic_size_for_resource_at_url_{};
+    std::unique_ptr<protocol::IProtocolHandler> protocol_handler_;
+    std::unique_ptr<type::IType> type_;
+    std::function<std::optional<layout::Size>(std::string_view)> get_intrensic_size_for_resource_at_url_;
 };
 
 } // namespace engine

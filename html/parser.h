@@ -59,11 +59,11 @@ private:
 
     html2::Tokenizer tokenizer_;
     dom::Document doc_{};
-    std::vector<dom::Element *> open_elements_{};
+    std::vector<dom::Element *> open_elements_;
     bool scripting_{false};
     bool include_comments_{false};
     Callbacks const &cbs_;
-    html2::InsertionMode insertion_mode_{};
+    html2::InsertionMode insertion_mode_;
     Actions actions_{
             doc_,
             tokenizer_,

@@ -43,7 +43,7 @@ namespace unicode::generated {
 
 struct Decomposition {
     char32_t code_point{};
-    std::string_view decomposes_to{};
+    std::string_view decomposes_to;
     constexpr bool operator==(Decomposition const &) const = default;
 };
 

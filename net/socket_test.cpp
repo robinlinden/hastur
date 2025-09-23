@@ -43,8 +43,8 @@ public:
     std::uint16_t port() { return port_future_.get(); }
 
 private:
-    std::thread server_thread_{};
-    std::future<std::uint16_t> port_future_{};
+    std::thread server_thread_;
+    std::future<std::uint16_t> port_future_;
 };
 
 } // namespace

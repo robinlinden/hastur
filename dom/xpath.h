@@ -18,8 +18,8 @@ namespace dom {
 template<typename T>
 inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpath) {
     std::vector<T const *> next_search{&root};
-    std::vector<T const *> searching{};
-    std::vector<T const *> goal_nodes{};
+    std::vector<T const *> searching;
+    std::vector<T const *> goal_nodes;
 
     // We only support xpaths in the form /a/b/c right now.
     if (!xpath.starts_with('/')) {

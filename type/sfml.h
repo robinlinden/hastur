@@ -28,7 +28,7 @@ public:
     sf::Font const &sf_font() const { return font_; }
 
 private:
-    sf::Font font_{};
+    sf::Font font_;
 };
 
 class SfmlType : public IType {

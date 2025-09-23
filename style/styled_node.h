@@ -223,7 +223,7 @@ inline std::string_view dom_name(StyledNode const &node) {
 }
 
 inline std::vector<StyledNode const *> dom_children(StyledNode const &node) {
-    std::vector<StyledNode const *> children{};
+    std::vector<StyledNode const *> children;
     for (auto const &child : node.children) {
         if (!std::holds_alternative<dom::Element>(child.node)) {
             continue;

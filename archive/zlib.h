@@ -16,7 +16,7 @@
 namespace archive {
 
 struct ZlibError {
-    std::string message{};
+    std::string message;
     int code{};
 };
 

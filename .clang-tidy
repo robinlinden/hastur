@@ -49,7 +49,6 @@
 # -readability-named-parameter: Leaving out argument names is fine where it doesn't add anything.
 #
 # TODO(robinlinden): Investigate.
-# -readability-redundant-member-init
 # -readability-uppercase-literal-suffix
 # -modernize-use-designated-initializers
 # -readability-math-missing-parentheses
@@ -90,7 +89,6 @@ Checks: >
   -readability-identifier-length,
   -readability-magic-numbers,
   -readability-named-parameter,
-  -readability-redundant-member-init,
   -readability-uppercase-literal-suffix,
   -modernize-use-designated-initializers,
   -readability-math-missing-parentheses

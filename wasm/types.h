@@ -45,7 +45,7 @@ struct FunctionType {
 // https://webassembly.github.io/spec/core/binary/types.html#limits
 struct Limits {
     std::uint32_t min{};
-    std::optional<std::uint32_t> max{};
+    std::optional<std::uint32_t> max;
 
     [[nodiscard]] bool operator==(Limits const &) const = default;
 };

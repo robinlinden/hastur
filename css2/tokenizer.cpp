@@ -326,7 +326,7 @@ void Tokenizer::reconsume() {
 }
 
 Token Tokenizer::consume_string(char ending_code_point) {
-    std::string result{};
+    std::string result;
 
     while (true) {
         auto c = consume_next_input_character();
@@ -366,8 +366,8 @@ Token Tokenizer::consume_string(char ending_code_point) {
 
 // https://www.w3.org/TR/css-syntax-3/#consume-a-number
 std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
-    std::variant<std::int32_t, double> result{};
-    std::string repr{};
+    std::variant<std::int32_t, double> result;
+    std::string repr;
 
     assert(util::is_digit(first_byte) || first_byte == '-' || first_byte == '+' || first_byte == '.');
 
@@ -516,7 +516,7 @@ Token Tokenizer::consume_a_numeric_token(char first_byte) {
 
 // https://www.w3.org/TR/css-syntax-3/#consume-name
 std::string Tokenizer::consume_an_ident_sequence(char first_byte) {
-    std::string result{};
+    std::string result;
     for (std::optional<char> c = first_byte; c.has_value(); c = consume_next_input_character()) {
         if (is_ident_code_point(*c)) {
             result += *c;
@@ -567,7 +567,7 @@ Token Tokenizer::consume_a_url_token() {
         std::ignore = consume_next_input_character();
     }
 
-    std::string url{};
+    std::string url;
 
     while (true) {
         auto c = consume_next_input_character();

@@ -21,25 +21,25 @@ struct DoctypeToken {
 };
 
 struct Attribute {
-    std::string name{};
-    std::string value{};
+    std::string name;
+    std::string value;
     [[nodiscard]] bool operator==(Attribute const &) const = default;
 };
 
 struct StartTagToken {
-    std::string tag_name{};
+    std::string tag_name;
     bool self_closing{false};
-    std::vector<Attribute> attributes{};
+    std::vector<Attribute> attributes;
     [[nodiscard]] bool operator==(StartTagToken const &) const = default;
 };
 
 struct EndTagToken {
-    std::string tag_name{};
+    std::string tag_name;
     [[nodiscard]] bool operator==(EndTagToken const &) const = default;
 };
 
 struct CommentToken {
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(CommentToken const &) const = default;
 };
 

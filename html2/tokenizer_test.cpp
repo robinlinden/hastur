@@ -50,7 +50,7 @@ public:
 
 struct Options {
     bool in_html_namespace{true};
-    std::optional<html2::State> state_override{};
+    std::optional<html2::State> state_override;
 };
 
 TokenizerOutput run_tokenizer(etest::IActions &a,

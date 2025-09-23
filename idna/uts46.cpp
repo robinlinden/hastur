@@ -17,7 +17,7 @@
 namespace idna {
 
 std::optional<std::string> Uts46::map(std::string_view input) {
-    std::string result{};
+    std::string result;
     // input.size is just an estimate, but probably good enough for now.
     result.reserve(input.size());
 

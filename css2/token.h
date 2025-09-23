@@ -13,17 +13,17 @@
 namespace css2 {
 
 struct IdentToken {
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(IdentToken const &) const = default;
 };
 
 struct FunctionToken {
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(FunctionToken const &) const = default;
 };
 
 struct AtKeywordToken {
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(AtKeywordToken const &) const = default;
 };
 
@@ -33,12 +33,12 @@ struct HashToken {
         Id,
     };
     Type type{Type::Unrestricted};
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(HashToken const &) const = default;
 };
 
 struct StringToken {
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(StringToken const &) const = default;
 };
 
@@ -47,7 +47,7 @@ struct BadStringToken {
 };
 
 struct UrlToken {
-    std::string data{};
+    std::string data;
     [[nodiscard]] bool operator==(UrlToken const &) const = default;
 };
 
@@ -69,7 +69,7 @@ struct NumberToken {
 };
 
 struct PercentageToken {
-    std::variant<std::int32_t, double> data{};
+    std::variant<std::int32_t, double> data;
     [[nodiscard]] bool operator==(PercentageToken const &) const = default;
 
     [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }
@@ -77,8 +77,8 @@ struct PercentageToken {
 };
 
 struct DimensionToken {
-    std::variant<int, double> data{};
-    std::string unit{};
+    std::variant<int, double> data;
+    std::string unit;
     [[nodiscard]] bool operator==(DimensionToken const &) const = default;
 
     [[nodiscard]] constexpr bool is_integer() const { return std::holds_alternative<int>(data); }

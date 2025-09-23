@@ -345,7 +345,7 @@ std::optional<Import> parse(std::istream &is) {
         return std::nullopt;
     }
 
-    std::optional<Import::Description> desc{};
+    std::optional<Import::Description> desc;
     switch (kind) {
         case 0x00:
             desc = parse<TypeIdx>(is);
@@ -691,7 +691,7 @@ tl::expected<Module, ModuleParseError> ByteCodeParser::parse_module(std::istream
 
 std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_instructions(std::istream &is) {
     using namespace instructions;
-    std::vector<Instruction> instructions{};
+    std::vector<Instruction> instructions;
 
     // If an End-opcode is encountered when nesting == 0, we're done.
     int nesting = 0;

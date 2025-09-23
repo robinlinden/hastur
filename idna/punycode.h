@@ -130,7 +130,7 @@ private:
     }
 
     static constexpr std::string unicode_to_utf8(std::u32string const &code_points) {
-        std::string result{};
+        std::string result;
         for (auto const code_point : code_points) {
             result += unicode::to_utf8(code_point);
         }

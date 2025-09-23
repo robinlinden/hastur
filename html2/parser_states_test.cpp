@@ -32,7 +32,7 @@ struct ParseResult {
 };
 
 struct ParseOptions {
-    html2::InsertionMode initial_insertion_mode{};
+    html2::InsertionMode initial_insertion_mode;
     bool scripting{false};
 };
 
@@ -43,7 +43,7 @@ ParseResult parse(std::string_view html, ParseOptions const &opts) {
 
     ParseResult res{};
     html2::InsertionMode mode{opts.initial_insertion_mode};
-    std::vector<dom::Element *> open_elements{};
+    std::vector<dom::Element *> open_elements;
     std::function<void(dom::Element const &)> on_element_closed{};
     html::Actions actions{
             res.document,

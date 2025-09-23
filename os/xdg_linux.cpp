@@ -16,7 +16,7 @@ namespace os {
 // NOLINTBEGIN(concurrency-mt-unsafe)
 
 std::vector<std::string> font_paths() {
-    std::vector<std::string> paths{};
+    std::vector<std::string> paths;
 
     char const *home = std::getenv("HOME");
     if (char const *xdg_data_home = std::getenv("XDG_DATA_HOME")) {

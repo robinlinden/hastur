@@ -12,9 +12,9 @@
 namespace html2 {
 
 struct CharacterReference {
-    std::string_view name{};
+    std::string_view name;
     std::uint32_t first_codepoint{};
-    std::optional<std::uint32_t> second_codepoint{};
+    std::optional<std::uint32_t> second_codepoint;
 };
 
 std::optional<CharacterReference> find_named_character_reference_for(std::string_view);

@@ -46,7 +46,7 @@ struct Label {
         std::size_t offset{};
     };
     struct Unlinked {
-        std::vector<std::size_t> patch_offsets{};
+        std::vector<std::size_t> patch_offsets;
     };
 
     static Label linked(std::size_t jmp_target_offset) { return {Linked{jmp_target_offset}}; }

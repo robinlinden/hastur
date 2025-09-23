@@ -95,7 +95,7 @@ constexpr bool no_case_compare(std::string_view a, std::string_view b) {
 }
 
 constexpr std::vector<std::string_view> split(std::string_view str, std::string_view sep) {
-    std::vector<std::string_view> result{};
+    std::vector<std::string_view> result;
     for (auto p = str.find(sep); p != std::string_view::npos; p = str.find(sep)) {
         result.push_back(str.substr(0, p));
         str.remove_prefix(std::min(p + sep.size(), str.size()));

@@ -39,7 +39,7 @@ struct ResourceResult {
 struct Image {
     std::uint32_t width{};
     std::uint32_t height{};
-    std::vector<unsigned char> rgba_bytes{};
+    std::vector<unsigned char> rgba_bytes;
 };
 
 class App final {
@@ -56,12 +56,12 @@ private:
     tl::expected<std::unique_ptr<engine::PageState>, engine::NavigationError> maybe_page_{
             tl::unexpected<engine::NavigationError>{{}}};
 
-    std::string browser_title_{};
-    std::optional<sf::Cursor> cursor_{};
-    sf::RenderWindow window_{};
+    std::string browser_title_;
+    std::optional<sf::Cursor> cursor_;
+    sf::RenderWindow window_;
     sf::Clock clock_{};
-    std::string url_buf_{};
-    std::string nav_widget_extra_info_{};
+    std::string url_buf_;
+    std::string nav_widget_extra_info_;
 
     enum class Canvas : std::uint8_t {
         OpenGL,

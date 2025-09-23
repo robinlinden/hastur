@@ -220,7 +220,7 @@ int main() {
     s.add_test("native function", [](etest::IActions &a) {
         Interpreter e;
 
-        std::string argument{};
+        std::string argument;
         e.variables["set_string_and_get_42"] = Value{NativeFunction{[&](auto args) {
             a.require_eq(args.size(), std::size_t{1});
             argument = args[0].as_string();

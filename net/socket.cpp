@@ -54,7 +54,7 @@ struct BaseSocketImpl {
     std::string read_until(auto &socket, std::string_view delimiter) {
         asio::error_code ec;
         auto n = asio::read_until(socket, asio::dynamic_buffer(buffer), delimiter, ec);
-        std::string result{};
+        std::string result;
         if (n > 0) {
             result = buffer.substr(0, n);
             buffer.erase(0, n);
@@ -73,13 +73,13 @@ struct BaseSocketImpl {
         buffer.erase(0, bytes);
         return result;
     }
-    std::string buffer{};
+    std::string buffer;
 };
 
 } // namespace
 
 struct Socket::Impl : public BaseSocketImpl {
-    asio::io_context io_ctx{};
+    asio::io_context io_ctx;
     asio::ip::tcp::resolver resolver{io_ctx};
     asio::ip::tcp::socket socket{io_ctx};
 };
@@ -123,7 +123,7 @@ struct SecureSocket::Impl : public BaseSocketImpl {
         return false;
     }
 
-    asio::io_context io_ctx{};
+    asio::io_context io_ctx;
     asio::ip::tcp::resolver resolver{io_ctx};
     asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
     asio::ssl::stream<asio::ip::tcp::socket> socket{io_ctx, ctx};

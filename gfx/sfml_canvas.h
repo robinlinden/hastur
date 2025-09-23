@@ -48,7 +48,7 @@ public:
 private:
     sf::RenderTarget &target_;
     type::SfmlType &type_;
-    sf::Shader border_shader_{};
+    sf::Shader border_shader_;
     std::vector<sf::Texture> textures_;
 
     int scale_{1};

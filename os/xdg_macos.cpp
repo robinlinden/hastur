@@ -16,7 +16,7 @@ namespace os {
 // NOLINTBEGIN(concurrency-mt-unsafe)
 
 std::vector<std::string> font_paths() {
-    std::vector<std::string> paths{};
+    std::vector<std::string> paths;
 
     if (char const *home = std::getenv("HOME"); home != nullptr) {
         paths.push_back(home + "/Library/Fonts"s);

@@ -18,7 +18,7 @@ struct ResolutionInfo {
 };
 
 struct UnresolvedValue {
-    std::string_view raw{};
+    std::string_view raw;
     [[nodiscard]] bool operator==(UnresolvedValue const &) const = default;
 
     constexpr bool is_auto() const { return raw == "auto"; }

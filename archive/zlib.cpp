@@ -46,8 +46,8 @@ tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
         return tl::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
     }
 
-    std::vector<std::byte> out{};
-    std::string buf{};
+    std::vector<std::byte> out;
+    std::string buf;
     constexpr auto kZlibInflateChunkSize = std::size_t{64} * 1024; // Chosen by a fair dice roll.
     buf.resize(kZlibInflateChunkSize);
     while (s.avail_out == 0) {

@@ -160,9 +160,9 @@ public:
     [[nodiscard]] int run(RunOptions const & = {});
 
 private:
-    std::optional<std::string> name_{};
-    std::vector<Test> tests_{};
-    std::vector<Test> disabled_tests_{};
+    std::optional<std::string> name_;
+    std::vector<Test> tests_;
+    std::vector<Test> disabled_tests_;
 };
 
 } // namespace etest

@@ -329,7 +329,7 @@ private:
     void shorten_url_path(Url &) const;
 
     // Parser state
-    std::string_view input_{};
+    std::string_view input_;
     std::size_t pos_{0};
 
     Url url_;

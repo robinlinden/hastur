@@ -38,7 +38,7 @@ std::string_view to_string(ErrorCode e) {
 }
 
 std::string to_string(Headers const &h) {
-    std::stringstream ss{};
+    std::stringstream ss;
     for (auto const &[name, value] : h) {
         ss << name << ": " << value << "\n";
     }

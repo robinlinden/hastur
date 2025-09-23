@@ -59,7 +59,7 @@ std::optional<JpegTurbo> JpegTurbo::from(std::span<std::byte const> data) {
     std::ignore = jpeg_read_header(&d_info, TRUE);
     d_info.out_color_space = JCS_EXT_RGBA;
 
-    std::vector<unsigned char> bytes{};
+    std::vector<unsigned char> bytes;
     bytes.resize(std::size_t{d_info.image_width} * d_info.image_height * 4);
 
     // This will never fail as our data source will never suspend.

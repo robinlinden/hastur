@@ -21,7 +21,7 @@ public:
     static std::optional<JpegTurbo> from(std::span<std::byte const>);
 
     static std::optional<JpegTurbo> from(std::istream &is) {
-        std::vector<std::byte> bytes{};
+        std::vector<std::byte> bytes;
         std::ranges::transform(std::istreambuf_iterator<char>{is},
                 std::istreambuf_iterator<char>{},
                 std::back_inserter(bytes),
@@ -32,7 +32,7 @@ public:
 
     std::uint32_t width{};
     std::uint32_t height{};
-    std::vector<unsigned char> bytes{};
+    std::vector<unsigned char> bytes;
 
     [[nodiscard]] bool operator==(JpegTurbo const &) const = default;
 };

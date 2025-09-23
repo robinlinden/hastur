@@ -195,7 +195,7 @@ public:
     using Width = detail::Width;
 
     using Query = detail::Query;
-    Query query{};
+    Query query;
     [[nodiscard]] bool operator==(MediaQuery const &) const = default;
 
     // https://drafts.csswg.org/mediaqueries/#mq-syntax

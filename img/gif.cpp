@@ -88,7 +88,7 @@ struct ScreenDescriptor {
 // red-green-blue color triplets. If present, it contains a number of bytes
 // equal to 3 x 2^(Size of Global Color Table+1).
 struct GlobalColorTable {
-    std::vector<std::uint8_t> data{};
+    std::vector<std::uint8_t> data;
 
     static std::optional<GlobalColorTable> from(std::istream &is, std::uint8_t size) {
         // 2^1 == 2 << 0, so no +1 here.
@@ -119,7 +119,7 @@ std::optional<Gif> Gif::from(std::istream &is) {
 
     // Version Numbers as of 10 July 1990 :       "87a" - May 1987
     //                                            "89a" - July 1989
-    std::string magic{};
+    std::string magic;
     magic.resize(6);
 
     if (!is.read(magic.data(), magic.size())) {

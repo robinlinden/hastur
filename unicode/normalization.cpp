@@ -38,7 +38,7 @@ void decompose_to(std::ostream &os, char32_t code_point) {
 } // namespace
 
 std::string Normalization::decompose(std::string_view input) {
-    std::stringstream ss{};
+    std::stringstream ss;
 
     for (auto const code_point : CodePointView{input}) {
         decompose_to(ss, code_point);

@@ -60,8 +60,8 @@ struct DrawRectCmd {
 
 struct DrawTextWithFontOptionsCmd {
     geom::Position position{};
-    std::string text{};
-    std::vector<std::string> font_options{};
+    std::string text;
+    std::vector<std::string> font_options;
     int size{};
     FontStyle style{};
     Color color{};
@@ -71,8 +71,8 @@ struct DrawTextWithFontOptionsCmd {
 
 struct DrawTextCmd {
     geom::Position position{};
-    std::string text{};
-    std::string font{};
+    std::string text;
+    std::string font;
     int size{};
     FontStyle style{};
     Color color{};
@@ -82,7 +82,7 @@ struct DrawTextCmd {
 
 struct DrawPixelsCmd {
     geom::Rect rect{};
-    std::vector<std::uint8_t> rgba_data{};
+    std::vector<std::uint8_t> rgba_data;
 
     [[nodiscard]] bool operator==(DrawPixelsCmd const &) const = default;
 };
@@ -138,7 +138,7 @@ public:
     [[nodiscard]] std::vector<CanvasCommand> take_commands() { return std::exchange(cmds_, {}); }
 
 private:
-    std::vector<CanvasCommand> cmds_{};
+    std::vector<CanvasCommand> cmds_;
 };
 
 class CanvasCommandVisitor {

@@ -64,7 +64,7 @@ inline std::string_view dom_name(LayoutBox const &node) {
 
 inline std::vector<LayoutBox const *> dom_children(LayoutBox const &node) {
     assert(node.node);
-    std::vector<LayoutBox const *> children{};
+    std::vector<LayoutBox const *> children;
     for (auto const &child : node.children) {
         if (child.is_anonymous_block()) {
             for (auto const &inline_child : child.children) {

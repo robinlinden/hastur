@@ -57,10 +57,10 @@ struct App0Jfif {
     static constexpr std::uint16_t kMarker = 0xFFE0;
 
     using Density = std::variant<AspectRatio, DotsPerInch, DotsPerCm>;
-    Density density{}; // units, Xdensity, Ydensity
+    Density density; // units, Xdensity, Ydensity
     std::uint8_t thumbnail_x{}; // Xthumbnail
     std::uint8_t thumbnail_y{}; // Ythumbnail
-    std::vector<unsigned char> thumbnail_rgb{}; // (RGB)n
+    std::vector<unsigned char> thumbnail_rgb; // (RGB)n
 
     static std::optional<App0Jfif> parse(std::istream &is) {
         // TODO(robinlinden): Verify length?
@@ -69,7 +69,7 @@ struct App0Jfif {
             return {};
         }
 
-        std::string identifier{};
+        std::string identifier;
         identifier.resize(5);
         if (!is.read(identifier.data(), identifier.size()) || identifier != "JFIF\0"sv) {
             return {};
@@ -105,7 +105,7 @@ struct App0Jfif {
             return {};
         }
 
-        std::vector<unsigned char> thumbnail_rgb{};
+        std::vector<unsigned char> thumbnail_rgb;
         thumbnail_rgb.resize(std::size_t{x_thumbnail} * y_thumbnail * 3);
         if (!is.read(reinterpret_cast<char *>(thumbnail_rgb.data()), thumbnail_rgb.size())) {
             return {};
@@ -152,7 +152,7 @@ std::optional<Jpeg> Jpeg::thumbnail_from(std::istream &is) {
 
     auto to_rgba = [](std::vector<unsigned char> const &rgb) {
         assert(rgb.size() % 3 == 0);
-        std::vector<unsigned char> rgba{};
+        std::vector<unsigned char> rgba;
         rgba.reserve(rgb.size() / 3 * 4);
         for (std::size_t i = 0; i < rgb.size(); i += 3) {
             rgba.push_back(rgb[i]);

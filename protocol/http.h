@@ -73,7 +73,7 @@ private:
     static std::optional<std::string> get_chunked_body(auto &socket) {
         using namespace std::literals;
 
-        std::string body{};
+        std::string body;
         while (true) {
             // Read first part of chunk
             std::string bytes = socket.read_until("\r\n"sv);
