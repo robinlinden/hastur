@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -22,6 +22,15 @@ namespace {
 
 class Server {
 public:
+    static Server writing_server(std::string response) { return Server{std::move(response)}; }
+    ~Server() { server_thread_.join(); }
+
+    std::uint16_t port() { return port_future_.get(); }
+
+private:
+    std::thread server_thread_;
+    std::future<std::uint16_t> port_future_;
+
     explicit Server(std::string response) {
         std::promise<std::uint16_t> port_promise;
         port_future_ = port_promise.get_future();
@@ -37,14 +46,6 @@ public:
             asio::write(sock, asio::buffer(payload, payload.size()));
         }};
     }
-
-    ~Server() { server_thread_.join(); }
-
-    std::uint16_t port() { return port_future_.get(); }
-
-private:
-    std::thread server_thread_;
-    std::future<std::uint16_t> port_future_;
 };
 
 } // namespace
@@ -53,7 +54,7 @@ int main() {
     etest::Suite s;
 
     s.add_test("Socket::read_all", [](etest::IActions &a) {
-        auto server = Server{"hello!"};
+        auto server = Server::writing_server("hello!");
         net::Socket sock;
         a.require(sock.connect("localhost", std::to_string(server.port())));
 
@@ -61,7 +62,7 @@ int main() {
     });
 
     s.add_test("Socket::read_until", [](etest::IActions &a) {
-        auto server = Server{"beep\r\nbeep\r\nboop\r\n"};
+        auto server = Server::writing_server("beep\r\nbeep\r\nboop\r\n");
         net::Socket sock;
         a.require(sock.connect("localhost", std::to_string(server.port())));
 
@@ -71,7 +72,7 @@ int main() {
     });
 
     s.add_test("Socket::read_bytes", [](etest::IActions &a) {
-        auto server = Server{"123456789"};
+        auto server = Server::writing_server("123456789");
         net::Socket sock;
         a.require(sock.connect("localhost", std::to_string(server.port())));
 
