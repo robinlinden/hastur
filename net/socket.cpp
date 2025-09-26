@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -79,6 +79,13 @@ struct BaseSocketImpl {
 } // namespace
 
 struct Socket::Impl : public BaseSocketImpl {
+    bool disconnect() {
+        asio::error_code ec;
+        socket.shutdown(asio::ip::tcp::socket::shutdown_both, ec);
+        socket.close(ec);
+        return !ec;
+    }
+
     asio::io_context io_ctx;
     asio::ip::tcp::resolver resolver{io_ctx};
     asio::ip::tcp::socket socket{io_ctx};
@@ -91,6 +98,10 @@ Socket &Socket::operator=(Socket &&) noexcept = default;
 
 bool Socket::connect(std::string_view host, std::string_view service) {
     return impl_->connect(impl_->resolver, impl_->socket, host, service);
+}
+
+bool Socket::disconnect() {
+    return impl_->disconnect();
 }
 
 std::size_t Socket::write(std::string_view data) {
@@ -123,6 +134,13 @@ struct SecureSocket::Impl : public BaseSocketImpl {
         return false;
     }
 
+    bool disconnect() {
+        asio::error_code ec;
+        socket.shutdown(ec);
+        socket.lowest_layer().close(ec);
+        return !ec;
+    }
+
     asio::io_context io_ctx;
     asio::ip::tcp::resolver resolver{io_ctx};
     asio::ssl::context ctx{asio::ssl::context::method::sslv23_client};
@@ -136,6 +154,10 @@ SecureSocket &SecureSocket::operator=(SecureSocket &&) noexcept = default;
 
 bool SecureSocket::connect(std::string_view host, std::string_view service) {
     return impl_->connect(host, service);
+}
+
+bool SecureSocket::disconnect() {
+    return impl_->disconnect();
 }
 
 std::size_t SecureSocket::write(std::string_view data) {
