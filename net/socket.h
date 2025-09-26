@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
+// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,6 +22,7 @@ public:
     Socket &operator=(Socket &&) noexcept;
 
     [[nodiscard]] bool connect(std::string_view host, std::string_view service);
+    bool disconnect();
     std::size_t write(std::string_view data);
     std::string read_all();
     std::string read_until(std::string_view delimiter);
@@ -40,6 +42,7 @@ public:
     SecureSocket &operator=(SecureSocket &&) noexcept;
 
     [[nodiscard]] bool connect(std::string_view host, std::string_view service);
+    bool disconnect();
     std::size_t write(std::string_view data);
     std::string read_all();
     std::string read_until(std::string_view delimiter);
