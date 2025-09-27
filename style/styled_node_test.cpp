@@ -207,6 +207,10 @@ int main() {
     });
 
     s.add_test("get_font_size_property", [](etest::IActions &a) {
+        expect_property_eq<css::PropertyId::FontSize>(a, "-1px", 0);
+        constexpr int kMaxFontSize = 1000; // We currently have a hardcoded upper limit.
+        expect_property_eq<css::PropertyId::FontSize>(a, "99999px", kMaxFontSize);
+
         dom::Node dom_node = dom::Element{"dummy"s};
         style::StyledNode root{
                 .node = dom_node,

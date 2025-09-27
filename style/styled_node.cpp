@@ -648,16 +648,21 @@ int StyledNode::get_font_size_property() const {
         return 0;
     }
 
+    static constexpr auto kClamp = [](float v) -> int {
+        constexpr auto kMaxFontSize = 1000.f; // This upper limit was selected at random.
+        return static_cast<int>(std::clamp(v, 0.f, kMaxFontSize));
+    };
+
     if (unit == "px") {
-        return static_cast<int>(value);
+        return kClamp(value);
     }
 
     if (unit == "em") {
-        return static_cast<int>(value * parent_or_default_font_size());
+        return kClamp(value * parent_or_default_font_size());
     }
 
     if (unit == "%") {
-        return static_cast<int>(value / 100.f * parent_or_default_font_size());
+        return kClamp(value / 100.f * parent_or_default_font_size());
     }
 
     if (unit == "rem") {
@@ -669,13 +674,13 @@ int StyledNode::get_font_size_property() const {
             return n;
         }();
         auto root_font_size = (root != nullptr) && root != this ? root->get_font_size_property() : kDefaultFontSize;
-        return static_cast<int>(value * root_font_size);
+        return kClamp(value * root_font_size);
     }
 
     if (unit == "pt") {
         // 12pt seems to generally equal 16px.
         static constexpr float kPtToPxRatio = 16.f / 12.f;
-        return static_cast<int>(value * kPtToPxRatio);
+        return kClamp(value * kPtToPxRatio);
     }
 
     // https://www.w3.org/TR/css3-values/#ex
@@ -685,7 +690,7 @@ int StyledNode::get_font_size_property() const {
         // respectively, but we're allowed to approximate it as 50% of the em
         // value.
         static constexpr float kExToEmRatio = 0.5f;
-        return static_cast<int>(value * kExToEmRatio * parent_or_default_font_size());
+        return kClamp(value * kExToEmRatio * parent_or_default_font_size());
     }
 
     spdlog::warn("Unhandled unit '{}'", unit);
