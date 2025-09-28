@@ -70,5 +70,22 @@ int main() {
         }
     });
 
+    s.add_test("no-store responses are not cached", [](etest::IActions &a) {
+        int calls{};
+        InMemoryCache cache{std::make_unique<FakeProtocolHandler>([&] {
+            ++calls;
+            return Response{
+                    .headers{{"Cache-Control", "no-store"}},
+                    .body{"hello"},
+            };
+        })};
+
+        a.expect_eq(calls, 0);
+        a.expect_eq(cache.handle({}).value().body, "hello");
+        a.expect_eq(calls, 1);
+        a.expect_eq(cache.handle({}).value().body, "hello");
+        a.expect_eq(calls, 2);
+    });
+
     return s.run();
 }

@@ -33,6 +33,14 @@ public:
         }
 
         auto response = handler_->handle(uri);
+        if (response) {
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control
+            auto const &cache_control = response->headers.find("Cache-Control");
+            if (cache_control != end(response->headers) && cache_control->second == "no-store") {
+                return response;
+            }
+        }
+
         std::scoped_lock<std::mutex> lock{cache_mutex_};
         return cache_[uri] = std::move(response);
     }
