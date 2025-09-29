@@ -268,32 +268,6 @@ std::vector<std::string_view> collect_image_urls(
     return image_urls;
 }
 
-std::unique_ptr<protocol::IProtocolHandler> create_protocol_handler() {
-    auto handlers = protocol::HandlerFactory::create(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0");
-    auto about_handler = std::make_unique<browser::gui::AboutHandler>(Handlers{
-            {
-                    "blank",
-                    []() {
-                        return R"(<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            html { background-color: black; }
-        }
-    </style>
-</head>
-<body></body>
-</html>
-)";
-                    },
-            },
-    });
-    handlers->add("about", std::move(about_handler));
-    return std::make_unique<protocol::InMemoryCache>(std::move(handlers));
-};
-
 } // namespace
 
 // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
@@ -448,6 +422,32 @@ void App::step() {
     render_overlay();
     show_render_surface();
 }
+
+std::unique_ptr<protocol::IProtocolHandler> App::create_protocol_handler() const {
+    auto handlers = protocol::HandlerFactory::create(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0");
+    auto about_handler = std::make_unique<browser::gui::AboutHandler>(Handlers{
+            {
+                    "blank",
+                    []() {
+                        return R"(<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            html { background-color: black; }
+        }
+    </style>
+</head>
+<body></body>
+</html>
+)";
+                    },
+            },
+    });
+    handlers->add("about", std::move(about_handler));
+    return std::make_unique<protocol::InMemoryCache>(std::move(handlers));
+};
 
 void App::handle_event(sf::Event const &event) {
     ImGui::SFML::ProcessEvent(window_, event);

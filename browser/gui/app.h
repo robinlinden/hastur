@@ -9,6 +9,7 @@
 #include "geom/geom.h"
 #include "gfx/icanvas.h"
 #include "layout/layout_box.h"
+#include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
 #include "uri/uri.h"
 #include "util/history.h"
@@ -92,6 +93,8 @@ private:
 
     engine::PageState &page() { return *maybe_page_.value(); }
     engine::PageState const &page() const { return *maybe_page_.value(); }
+
+    std::unique_ptr<protocol::IProtocolHandler> create_protocol_handler() const;
 
     void handle_event(sf::Event const &);
 
