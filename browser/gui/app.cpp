@@ -52,9 +52,11 @@
 #include <cstdlib>
 #include <format>
 #include <future>
+#include <ios>
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <sstream>
 #include <string>
@@ -442,6 +444,31 @@ std::unique_ptr<protocol::IProtocolHandler> App::create_protocol_handler() const
 <body></body>
 </html>
 )";
+                    },
+            },
+            {
+                    "history",
+                    [this]() {
+                        std::ostringstream ss{R"(<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            html { background-color: black; }
+            a { color: lightblue; }
+        }
+    </style>
+</head>
+<body><ul>
+)",
+                                std::ios_base::ate};
+                        for (auto const &entry : browse_history_.entries() | std::views::reverse) {
+                            ss << std::format("<li><a href='{}'>{}</a></li>\n", entry.uri, entry.uri);
+                        }
+                        ss << R"(</ul></body>
+</html>
+)";
+                        return std::move(ss).str();
                     },
             },
     });
