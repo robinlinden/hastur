@@ -27,7 +27,11 @@ public:
     [[nodiscard]] tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &uri) override {
         auto it = pages_.find(uri.path);
         if (it != pages_.end()) {
-            return protocol::Response{{}, {}, it->second()};
+            return protocol::Response{
+                    .status_line = {},
+                    .headers = {{"Cache-Control", "no-store"}},
+                    .body = it->second(),
+            };
         }
 
         return tl::unexpected{protocol::Error{protocol::ErrorCode::Unresolved}};

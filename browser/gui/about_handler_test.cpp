@@ -29,7 +29,12 @@ int main() {
         }}};
 
         auto res = handler.handle(uri::Uri::parse("about:blank").value());
-        a.expect_eq(res, protocol::Response{{}, {}, "nothing to see here"});
+        a.expect_eq(res,
+                protocol::Response{
+                        .status_line = {},
+                        .headers = {{"Cache-Control", "no-store"}},
+                        .body = "nothing to see here",
+                });
     });
 
     return s.run();
