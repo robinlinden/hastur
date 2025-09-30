@@ -52,6 +52,12 @@ enum class Orientation : std::uint8_t {
     Portrait,
 };
 
+enum class Pointer : std::uint8_t {
+    None,
+    Coarse,
+    Fine,
+};
+
 enum class ReduceMotion : std::uint8_t {
     NoPreference,
     Reduce,
@@ -69,6 +75,7 @@ struct Context {
     Hover hover{Hover::None};
     MediaType media_type{MediaType::Screen};
     Orientation orientation{window_height >= window_width ? Orientation::Portrait : Orientation::Landscape};
+    Pointer pointer{Pointer::Fine};
     ReduceMotion reduce_motion{ReduceMotion::NoPreference};
 };
 
@@ -78,6 +85,7 @@ struct ForcedColorsMode;
 struct Height;
 struct HoverType;
 struct IsInOrientation;
+struct PointerType;
 struct PrefersColorScheme;
 struct PrefersReducedMotion;
 struct True;
@@ -88,6 +96,7 @@ using Query = std::variant<And,
         ForcedColorsMode,
         Height,
         IsInOrientation,
+        PointerType,
         PrefersColorScheme,
         PrefersReducedMotion,
         HoverType,
@@ -132,6 +141,14 @@ struct IsInOrientation {
     [[nodiscard]] bool operator==(IsInOrientation const &) const = default;
 
     constexpr bool evaluate(Context const &ctx) const { return ctx.orientation == orientation; }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@media/pointer
+struct PointerType {
+    Pointer pointer{};
+    [[nodiscard]] bool operator==(PointerType const &) const = default;
+
+    constexpr bool evaluate(Context const &ctx) const { return ctx.pointer == pointer; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
@@ -188,6 +205,7 @@ public:
     using Height = detail::Height;
     using HoverType = detail::HoverType;
     using IsInOrientation = detail::IsInOrientation;
+    using PointerType = detail::PointerType;
     using PrefersColorScheme = detail::PrefersColorScheme;
     using PrefersReducedMotion = detail::PrefersReducedMotion;
     using True = detail::True;
@@ -315,6 +333,22 @@ private:
             return std::nullopt;
         }
 
+        if (feature_name == "pointer") {
+            if (value_str == "none") {
+                return MediaQuery{PointerType{.pointer = Pointer::None}};
+            }
+
+            if (value_str == "coarse") {
+                return MediaQuery{PointerType{.pointer = Pointer::Coarse}};
+            }
+
+            if (value_str == "fine") {
+                return MediaQuery{PointerType{.pointer = Pointer::Fine}};
+            }
+
+            return std::nullopt;
+        }
+
         return std::nullopt;
     }
 
@@ -406,6 +440,18 @@ constexpr std::string to_string(MediaQuery::ForcedColorsMode const &q) {
 
 constexpr std::string to_string(MediaQuery::Type const &q) {
     return q.type == MediaType::Print ? "print" : "screen";
+}
+
+constexpr std::string to_string(MediaQuery::PointerType const &q) {
+    if (q.pointer == Pointer::Coarse) {
+        return "pointer: coarse";
+    }
+
+    if (q.pointer == Pointer::Fine) {
+        return "pointer: fine";
+    }
+
+    return "pointer: none";
 }
 
 constexpr std::string to_string(MediaQuery::PrefersColorScheme const &q) {

@@ -362,6 +362,53 @@ void hover_tests(etest::Suite &s) {
     });
 }
 
+void pointer_tests(etest::Suite &s) {
+    s.add_test("pointer: none", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(pointer: none)"),
+                css::MediaQuery{css::MediaQuery::PointerType{.pointer = css::Pointer::None}});
+
+        auto query = css::MediaQuery::PointerType{.pointer = css::Pointer::None};
+        a.expect(query.evaluate({.pointer = css::Pointer::None}));
+        a.expect(!query.evaluate({.pointer = css::Pointer::Coarse}));
+        a.expect(!query.evaluate({.pointer = css::Pointer::Fine}));
+    });
+
+    s.add_test("pointer: coarse", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(pointer: coarse)"),
+                css::MediaQuery{css::MediaQuery::PointerType{.pointer = css::Pointer::Coarse}});
+
+        auto query = css::MediaQuery::PointerType{.pointer = css::Pointer::Coarse};
+        a.expect(!query.evaluate({.pointer = css::Pointer::None}));
+        a.expect(query.evaluate({.pointer = css::Pointer::Coarse}));
+        a.expect(!query.evaluate({.pointer = css::Pointer::Fine}));
+    });
+
+    s.add_test("pointer: fine", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(pointer: fine)"),
+                css::MediaQuery{css::MediaQuery::PointerType{.pointer = css::Pointer::Fine}});
+
+        auto query = css::MediaQuery::PointerType{.pointer = css::Pointer::Fine};
+        a.expect(!query.evaluate({.pointer = css::Pointer::None}));
+        a.expect(!query.evaluate({.pointer = css::Pointer::Coarse}));
+        a.expect(query.evaluate({.pointer = css::Pointer::Fine}));
+    });
+
+    s.add_test("pointer: invalid", [](etest::IActions &a) {
+        a.expect_eq(css::MediaQuery::parse("(pointer: invalid)"), std::nullopt); //
+    });
+
+    s.add_test("pointer: to_string", [](etest::IActions &a) {
+        auto query = css::MediaQuery::PointerType{.pointer = css::Pointer::None};
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "pointer: none");
+
+        query.pointer = css::Pointer::Coarse;
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "pointer: coarse");
+
+        query.pointer = css::Pointer::Fine;
+        a.expect_eq(css::to_string(css::MediaQuery{query}), "pointer: fine");
+    });
+}
+
 void orientation_tests(etest::Suite &s) {
     s.add_test("orientation: landscape", [](etest::IActions &a) {
         a.expect_eq(css::MediaQuery::parse("(orientation: landscape)"),
@@ -410,6 +457,7 @@ int main() {
     height_tests(s);
     forced_colors_tests(s);
     hover_tests(s);
+    pointer_tests(s);
     orientation_tests(s);
     return s.run();
 }
