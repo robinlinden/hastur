@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     }
 
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
-    auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"s;
+    auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"s;
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     auto maybe_page = engine.navigate(*uri);
     if (!maybe_page) {

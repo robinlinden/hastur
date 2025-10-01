@@ -272,7 +272,6 @@ std::vector<std::string_view> collect_image_urls(
 
 } // namespace
 
-// Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
 App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
     : engine_{create_protocol_handler(),
               create_font_system(),
@@ -426,8 +425,9 @@ void App::step() {
 }
 
 std::unique_ptr<protocol::IProtocolHandler> App::create_protocol_handler() const {
+    // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     auto handlers = protocol::HandlerFactory::create(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0");
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0");
     auto about_handler = std::make_unique<browser::gui::AboutHandler>(Handlers{
             {
                     "blank",
