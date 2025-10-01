@@ -272,7 +272,7 @@ std::vector<std::string_view> collect_image_urls(
 
 } // namespace
 
-App::App(std::string browser_title, std::string start_page_hint, bool load_start_page)
+App::App(std::string browser_title, std::string start_page_hint)
     : engine_{create_protocol_handler(),
               create_font_system(),
               [this](std::string_view url) -> std::optional<layout::Size> {
@@ -303,10 +303,8 @@ App::App(std::string browser_title, std::string start_page_hint, bool load_start
 
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
-    if (load_start_page) {
-        ensure_has_scheme(url_buf_);
-        navigate();
-    }
+    ensure_has_scheme(url_buf_);
+    navigate();
 }
 
 App::~App() {

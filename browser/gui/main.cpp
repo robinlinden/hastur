@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    browser::gui::App app{kBrowserTitle, std::move(page), true};
+    browser::gui::App app{kBrowserTitle, std::move(page)};
     app.set_scale(scale);
 
     if (!exit_after_load) {

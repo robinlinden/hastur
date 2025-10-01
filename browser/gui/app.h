@@ -45,7 +45,7 @@ struct Image {
 
 class App final {
 public:
-    App(std::string browser_title, std::string start_page_hint, bool load_start_page);
+    App(std::string browser_title, std::string start_page_hint);
     ~App();
 
     void set_scale(unsigned scale);
