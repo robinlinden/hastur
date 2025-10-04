@@ -238,7 +238,6 @@ int main(int argc, char **argv) {
 
 #ifndef IDNA_IDNA_DATA_H_
 #define IDNA_IDNA_DATA_H_
-// clang-format off
 
 #include <array>
 #include <string_view>
@@ -298,7 +297,6 @@ constexpr std::array<std::pair<char32_t, Mapping>, )"
 
 } // namespace idna::uts46
 
-// clang-format on
 #endif
 )";
 }
