@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    std::cout << R"(// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+    std::cout << R"(// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -34,7 +34,6 @@ int main(int argc, char **argv) {
 
 #ifndef UNICODE_UNICODE_DATA_H_
 #define UNICODE_UNICODE_DATA_H_
-// clang-format off
 
 #include <array>
 #include <string_view>
@@ -82,6 +81,5 @@ constexpr auto kDecompositions = std::to_array<Decomposition>({
 
     std::cout << "});\n\n"
               << "} // namespace unicode::generated\n\n"
-              << "// clang-format on\n"
               << "#endif\n";
 }
