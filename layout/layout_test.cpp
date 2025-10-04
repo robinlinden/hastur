@@ -47,11 +47,6 @@ void set_up_parent_ptrs(style::StyledNode &root) {
     }
 }
 
-// TODO(robinlinden): Remove.
-dom::Node create_element_node(std::string_view name, dom::AttrMap attrs, std::vector<dom::Node> children) {
-    return dom::Element{std::string{name}, std::move(attrs), std::move(children)};
-}
-
 void whitespace_collapsing_tests(etest::Suite &s) {
     s.add_test("whitespace collapsing: simple", [](etest::IActions &a) {
         constexpr auto kText = "   hello   "sv;
@@ -824,7 +819,7 @@ void img_tests(etest::Suite &s) {
         auto expected_layout = layout::LayoutBox{
                 .node = &style,
                 .dimensions{{0, 0, 100, 87}},
-                .children = {{
+                .children{{
                         .node = nullptr,
                         .dimensions{{0, 0, 100, 87}},
                         .children{{&style.children[0], {{0, 0, 37, 87}}, {}}},
@@ -854,7 +849,7 @@ void img_tests(etest::Suite &s) {
         auto expected_layout = layout::LayoutBox{
                 .node = &style,
                 .dimensions{{0, 0, 100, 0}},
-                .children = {{
+                .children{{
                         .node = nullptr,
                         .dimensions{{0, 0, 100, 0}},
                         .children{{&style.children[0], {{0, 0, 0, 0}}, {}}},
@@ -875,126 +870,168 @@ void img_tests(etest::Suite &s) {
 
 } // namespace
 
-// TODO(robinlinden): clang-format doesn't get along well with how I structured
-// the trees in these test cases.
-
-// clang-format off
-
 int main() {
     etest::Suite s{};
 
     s.add_test("simple tree", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{.name = "head"},
+                        dom::Element{
+                                .name = "body",
+                                .children{dom::Element{.name = "p"}},
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {}},
-                {children[1], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[1]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {children[0], {{css::PropertyId::Display, "block"}}, {}},
+                        {
+                                children[1],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[1]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {},
-            .children = {
-                {&style_root.children[0], {}, {}},
-                {&style_root.children[1], {}, {
-                    {&style_root.children[1].children[0], {}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {},
+                .children{
+                        {&style_root.children[0], {}, {}},
+                        {
+                                &style_root.children[1],
+                                {},
+                                {
+                                        {&style_root.children[1].children[0], {}, {}},
+                                },
+                        },
+                },
         };
 
-        auto layout_root = layout::create_layout(style_root,{.viewport_width = 0});
+        auto layout_root = layout::create_layout(style_root, {.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
 
     s.add_test("layouting removes display:none nodes", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{.name = "head"},
+                        dom::Element{
+                                .name = "body",
+                                .children{dom::Element{.name = "p"}},
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "none"}}, {}},
-                {children[1], {{css::PropertyId::Display, "block"}}, {
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {children[0], {{css::PropertyId::Display, "none"}}, {}},
+                        {
+                                children[1],
+                                {{css::PropertyId::Display, "block"}},
+                                {
 
-                    {std::get<dom::Element>(children[1]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                                        {
+                                                std::get<dom::Element>(children[1]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                                {},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {},
-            .children = {
-                {&style_root.children[1], {}, {
-                    {&style_root.children[1].children[0], {}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {},
+                .children{
+                        {
+                                &style_root.children[1],
+                                {},
+                                {
+                                        {&style_root.children[1].children[0], {}, {}},
+                                },
+                        },
+                },
         };
 
-        auto layout_root = layout::create_layout(style_root,{.viewport_width = 0});
+        auto layout_root = layout::create_layout(style_root, {.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
 
     s.add_test("inline nodes get wrapped in anonymous blocks", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("head", {}, {}),
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{.name = "head"},
+                        dom::Element{
+                                .name = "body",
+                                .children{dom::Element{.name = "p"}},
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "inline"}}, {}},
-                {children[1], {{css::PropertyId::Display, "inline"}}, {
-                    {std::get<dom::Element>(children[1]).children[0], {}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {children[0], {{css::PropertyId::Display, "inline"}}, {}},
+                        {
+                                children[1],
+                                {{css::PropertyId::Display, "inline"}},
+                                {{std::get<dom::Element>(children[1]).children[0], {}, {}}},
+                        },
+                },
         };
 
         set_up_parent_ptrs(style_root);
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {},
-            .children = {
-                {nullptr, {}, {
-                    {&style_root.children[0], {}, {}},
-                    {&style_root.children[1], {}, {
-                        {&style_root.children[1].children[0], {}, {}},
-                    }},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {},
+                .children{
+                        {
+                                nullptr,
+                                {},
+                                {
+                                        {&style_root.children[0], {}, {}},
+                                        {
+                                                &style_root.children[1],
+                                                {},
+                                                {
+                                                        {&style_root.children[1].children[0], {}, {}},
+                                                },
+                                        },
+                                },
+                        },
+                },
         };
 
-        auto layout_root = layout::create_layout(style_root,{.viewport_width = 0});
+        auto layout_root = layout::create_layout(style_root, {.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
 
-    // clang-format on
     s.add_test("inline in inline don't get wrapped in anon-blocks", [](etest::IActions &a) {
-        auto dom_root = create_element_node("span", {}, {create_element_node("span", {}, {})});
+        dom::Node dom_root = dom::Element{
+                .name = "span",
+                .children{dom::Element{.name = "span"}},
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
@@ -1012,47 +1049,74 @@ int main() {
         auto layout_root = layout::create_layout(style_root, {.viewport_width = 0});
         a.expect(expected_layout == layout_root);
     });
-    // clang-format off
 
     s.add_test("text", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                dom::Text{"hello"},
-                dom::Text{"goodbye"},
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Text{"hello"},
+                                        dom::Text{"goodbye"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {
-                    {css::PropertyId::Display, "block"},
-                    {css::PropertyId::FontSize, "10px"},
-                    {css::PropertyId::LineHeight, "1"},
-            },
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                        {css::PropertyId::LineHeight, "1"},
+                },
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], {}, {}},
+                                        {std::get<dom::Element>(children[0]).children[1], {}, {}},
+                                },
+                        },
+                },
         };
         set_up_parent_ptrs(style_root);
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 10}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 10}}, {
-                    {nullptr, {{0, 0, 100, 10}}, {
-                        {&style_root.children[0].children[0], {{0, 0, 25, 10}}, {}, "hello"sv},
-                        {&style_root.children[0].children[1], {{25, 0, 35, 10}}, {}, "goodbye"sv},
-                    }},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 10}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 10}},
+                                {
+                                        {
+                                                nullptr,
+                                                {{0, 0, 100, 10}},
+                                                {
+                                                        {
+                                                                &style_root.children[0].children[0],
+                                                                {{0, 0, 25, 10}},
+                                                                {},
+                                                                "hello"sv,
+                                                        },
+                                                        {
+                                                                &style_root.children[0].children[1],
+                                                                {{25, 0, 35, 10}},
+                                                                {},
+                                                                "goodbye"sv,
+                                                        },
+                                                },
+                                        },
+                                },
+                        },
+                },
         };
 
-        auto layout_root = layout::create_layout(style_root,{.viewport_width = 100});
+        auto layout_root = layout::create_layout(style_root, {.viewport_width = 100});
         a.expect(expected_layout == layout_root);
 
         a.expect_eq(expected_layout.children.at(0).children.at(0).children.at(0).text(), "hello");
@@ -1060,300 +1124,469 @@ int main() {
     });
 
     s.add_test("simple width", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 0}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("min-width", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::MinWidth, "100px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::MinWidth, "50%"}, {css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::MinWidth, "100px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::MinWidth, "50%"}, {css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 0}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 20}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 20}) == expected_layout);
     });
 
     s.add_test("max-width", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::MaxWidth, "200px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::MaxWidth, "50%"}, {css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::MaxWidth, "200px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::MaxWidth, "50%"}, {css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 200, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 200, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 0}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("less simple width", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Width, "50px"}, {css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Width, "25px"}, {css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Width, "50px"}, {css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {{css::PropertyId::Width, "25px"}, {css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 50, 0}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 25, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 50, 0}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 25, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("auto width expands to fill parent", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Width, "100px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 0}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 0}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 100, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("height doesn't affect children", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Height, "100px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Height, "100px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 0, 100}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 0, 0}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 0, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 0, 100}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 0, 0}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 0, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("height affects siblings and parents", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {
+                                                        {css::PropertyId::Height, "25px"},
+                                                        {css::PropertyId::Display, "block"},
+                                                },
+                                        },
+                                        {
+                                                std::get<dom::Element>(children[0]).children[1],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 0, 25}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 0, 25}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 0, 25}}, {}},
-                    {&style_root.children[0].children[1], {{0, 25, 0, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 0, 25}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 0, 25}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 0, 25}}, {}},
+                                        {&style_root.children[0].children[1], {{0, 25, 0, 0}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("min-height is respected", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::MinHeight, "400px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "25px"}, {css::PropertyId::Display, "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::MinHeight, "400px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {
+                                                        {css::PropertyId::Height, "25px"},
+                                                        {css::PropertyId::Display, "block"},
+                                                },
+                                        },
+                                        {
+                                                std::get<dom::Element>(children[0]).children[1],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
-        auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 0, 400}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 0, 25}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 0, 25}}, {}},
-                    {&style_root.children[0].children[1], {{0, 25, 0, 0}}, {}},
-                }},
-            }
-        };
+        auto expected_layout = layout::LayoutBox{.node = &style_root,
+                .dimensions = {{0, 0, 0, 400}},
+                .children{
+                        {&style_root.children[0],
+                                {{0, 0, 0, 25}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 0, 25}}, {}},
+                                        {&style_root.children[0].children[1], {{0, 25, 0, 0}}, {}},
+                                }},
+                }};
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("max-height is respected", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::MaxHeight, "10px"}, {css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], {{css::PropertyId::Height, "400px"}, {css::PropertyId::Display, "block"}}, {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::MaxHeight, "10px"}, {css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {
+                                                std::get<dom::Element>(children[0]).children[0],
+                                                {
+                                                        {css::PropertyId::Height, "400px"},
+                                                        {css::PropertyId::Display, "block"},
+                                                },
+                                        },
+                                        {
+                                                std::get<dom::Element>(children[0]).children[1],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
-        auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 0, 10}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 0, 400}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 0, 400}}, {}},
-                    {&style_root.children[0].children[1], {{0, 400, 0, 0}}, {}},
-                }},
-            }
-        };
+        auto expected_layout = layout::LayoutBox{.node = &style_root,
+                .dimensions = {{0, 0, 0, 10}},
+                .children{
+                        {&style_root.children[0],
+                                {{0, 0, 0, 400}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 0, 400}}, {}},
+                                        {&style_root.children[0].children[1], {{0, 400, 0, 0}}, {}},
+                                }},
+                }};
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 0}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 0}) == expected_layout);
     });
 
     s.add_test("padding is taken into account", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1366,37 +1599,60 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                        {
+                                                std::get<dom::Element>(children[0]).children[1],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 120}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 120}}, {
-                    {&style_root.children[0].children[0], {{10, 10, 80, 100}, {10, 10, 10, 10}, {}, {0, 0, 0, 0}}, {}},
-                    {&style_root.children[0].children[1], {{0, 120, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 120}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 120}},
+                                {
+                                        {
+                                                &style_root.children[0].children[0],
+                                                {{10, 10, 80, 100}, {10, 10, 10, 10}, {}, {0, 0, 0, 0}},
+                                        },
+                                        {
+                                                &style_root.children[0].children[1],
+                                                {{0, 120, 100, 0}},
+                                        },
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("border is taken into account", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1413,36 +1669,56 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                        {
+                                                std::get<dom::Element>(children[0]).children[1],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 130}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 130}}, {
-                    {&style_root.children[0].children[0], {{10, 14, 78, 100}, {}, {10, 12, 14, 16}, {}}, {}},
-                    {&style_root.children[0].children[1], {{0, 130, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 130}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 130}},
+                                {
+                                        {
+                                                &style_root.children[0].children[0],
+                                                {{10, 14, 78, 100}, {}, {10, 12, 14, 16}, {}},
+                                        },
+                                        {&style_root.children[0].children[1], {{0, 130, 100, 0}}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("border is not added if border style is none", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1455,35 +1731,49 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 100}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 100}}, {
-                    {&style_root.children[0].children[0], {{0, 0, 100, 100}, {}, {}, {}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 100}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 100}},
+                                {
+                                        {&style_root.children[0].children[0], {{0, 0, 100, 100}, {}, {}, {}}, {}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("margin is taken into account", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1495,36 +1785,56 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                    {std::get<dom::Element>(children[0]).children[1], {{css::PropertyId::Display, "block"}}, {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                        {
+                                                std::get<dom::Element>(children[0]).children[1],
+                                                {{css::PropertyId::Display, "block"}},
+                                        },
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 100, 20}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 100, 20}}, {
-                    {&style_root.children[0].children[0], {{10, 10, 80, 0}, {}, {}, {10, 10, 10, 10}}, {}},
-                    {&style_root.children[0].children[1], {{0, 20, 100, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 100, 20}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 100, 20}},
+                                {
+                                        {
+                                                &style_root.children[0].children[0],
+                                                {{10, 10, 80, 0}, {}, {}, {10, 10, 10, 10}},
+                                        },
+                                        {&style_root.children[0].children[1], {{0, 20, 100, 0}}},
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 100}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 100}) == expected_layout);
     });
 
     s.add_test("auto margin is handled", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1535,34 +1845,51 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 200, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 200, 0}}, {
-                    {&style_root.children[0].children[0], {{50, 0, 100, 0}, {}, {}, {50, 50, 0, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 200, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 200, 0}},
+                                {
+                                        {
+                                                &style_root.children[0].children[0],
+                                                {{50, 0, 100, 0}, {}, {}, {50, 50, 0, 0}},
+                                        },
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 200}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 200}) == expected_layout);
     });
 
     s.add_test("auto left margin and fixed right margin is handled", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1573,34 +1900,51 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 200, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 200, 0}}, {
-                    {&style_root.children[0].children[0], {{80, 0, 100, 0}, {}, {}, {80, 20, 0, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 200, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 200, 0}},
+                                {
+                                        {
+                                                &style_root.children[0].children[0],
+                                                {{80, 0, 100, 0}, {}, {}, {80, 20, 0, 0}},
+                                        },
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 200}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 200}) == expected_layout);
     });
 
     s.add_test("fixed left margin and auto right margin is handled", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {
-            create_element_node("body", {}, {
-                create_element_node("p", {}, {}),
-            }),
-        });
+        dom::Node dom_root = dom::Element{
+                .name = "html",
+                .children{
+                        dom::Element{
+                                .name = "body",
+                                .children{
+                                        dom::Element{.name = "p"},
+                                },
+                        },
+                },
+        };
 
         auto properties = std::vector{
                 std::pair{css::PropertyId::Display, "block"s},
@@ -1611,117 +1955,114 @@ int main() {
 
         auto const &children = std::get<dom::Element>(dom_root).children;
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {{css::PropertyId::Display, "block"}},
-            .children = {
-                {children[0], {{css::PropertyId::Display, "block"}}, {
-                    {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
-                }},
-            },
+                .node = dom_root,
+                .properties = {{css::PropertyId::Display, "block"}},
+                .children{
+                        {
+                                children[0],
+                                {{css::PropertyId::Display, "block"}},
+                                {
+                                        {std::get<dom::Element>(children[0]).children[0], std::move(properties), {}},
+                                },
+                        },
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 200, 0}},
-            .children = {
-                {&style_root.children[0], {{0, 0, 200, 0}}, {
-                    {&style_root.children[0].children[0], {{75, 0, 100, 0}, {}, {}, {75, 25, 0, 0}}, {}},
-                }},
-            }
+                .node = &style_root,
+                .dimensions = {{0, 0, 200, 0}},
+                .children{
+                        {
+                                &style_root.children[0],
+                                {{0, 0, 200, 0}},
+                                {
+                                        {
+                                                &style_root.children[0].children[0],
+                                                {{75, 0, 100, 0}, {}, {}, {75, 25, 0, 0}},
+                                        },
+                                },
+                        },
+                },
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 200}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 200}) == expected_layout);
     });
 
     s.add_test("em sizes depend on the font-size", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {});
+        dom::Node dom_root = dom::Element{"html"};
         {
             auto style_root = style::StyledNode{
-                .node = dom_root,
-                .properties = {
-                        std::pair{css::PropertyId::Display, "block"},
-                        std::pair{css::PropertyId::FontSize, "10px"},
-                        std::pair{css::PropertyId::Height, "10em"},
-                        std::pair{css::PropertyId::Width, "10em"},
-                },
-                .children = {},
+                    .node = dom_root,
+                    .properties{
+                            std::pair{css::PropertyId::Display, "block"},
+                            std::pair{css::PropertyId::FontSize, "10px"},
+                            std::pair{css::PropertyId::Height, "10em"},
+                            std::pair{css::PropertyId::Width, "10em"},
+                    },
             };
 
             auto expected_layout = layout::LayoutBox{
-                .node = &style_root,
-                .dimensions = {{0, 0, 100, 100}},
-                .children = {}
+                    .node = &style_root,
+                    .dimensions = {{0, 0, 100, 100}},
             };
 
-            a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+            a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
         }
 
         // Doubling the font-size should double the width/height.
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {
-                    std::pair{css::PropertyId::Display, "block"},
-                    std::pair{css::PropertyId::FontSize, "20px"},
-                    std::pair{css::PropertyId::Height, "10em"},
-                    std::pair{css::PropertyId::Width, "10em"},
-            },
-            .children = {},
+                .node = dom_root,
+                .properties{
+                        std::pair{css::PropertyId::Display, "block"},
+                        std::pair{css::PropertyId::FontSize, "20px"},
+                        std::pair{css::PropertyId::Height, "10em"},
+                        std::pair{css::PropertyId::Width, "10em"},
+                },
         };
 
         auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 200, 200}},
-            .children = {}
+                .node = &style_root,
+                .dimensions = {{0, 0, 200, 200}},
         };
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
     });
 
     s.add_test("px sizes don't depend on the font-size", [](etest::IActions &a) {
-        auto dom_root = create_element_node("html", {}, {});
+        dom::Node dom_root = dom::Element{"html"};
         {
             auto style_root = style::StyledNode{
-                .node = dom_root,
-                .properties = {
-                        std::pair{css::PropertyId::Display, "block"},
-                        std::pair{css::PropertyId::FontSize, "10px"},
-                        std::pair{css::PropertyId::Height, "10px"},
-                        std::pair{css::PropertyId::Width, "10px"},
-                },
-                .children = {},
+                    .node = dom_root,
+                    .properties{
+                            std::pair{css::PropertyId::Display, "block"},
+                            std::pair{css::PropertyId::FontSize, "10px"},
+                            std::pair{css::PropertyId::Height, "10px"},
+                            std::pair{css::PropertyId::Width, "10px"},
+                    },
             };
 
-            auto expected_layout = layout::LayoutBox{
-                .node = &style_root,
-                .dimensions = {{0, 0, 10, 10}},
-                .children = {}
-            };
+            auto expected_layout =
+                    layout::LayoutBox{.node = &style_root, .dimensions = {{0, 0, 10, 10}}, .children = {}};
 
-            a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+            a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
         }
 
         // Doubling the font-size shouldn't change the width/height.
         auto style_root = style::StyledNode{
-            .node = dom_root,
-            .properties = {
-                    std::pair{css::PropertyId::Display, "block"},
-                    std::pair{css::PropertyId::FontSize, "20px"},
-                    std::pair{css::PropertyId::Height, "10px"},
-                    std::pair{css::PropertyId::Width, "10px"},
-            },
-            .children = {},
+                .node = dom_root,
+                .properties{
+                        std::pair{css::PropertyId::Display, "block"},
+                        std::pair{css::PropertyId::FontSize, "20px"},
+                        std::pair{css::PropertyId::Height, "10px"},
+                        std::pair{css::PropertyId::Width, "10px"},
+                },
         };
 
-        auto expected_layout = layout::LayoutBox{
-            .node = &style_root,
-            .dimensions = {{0, 0, 10, 10}},
-            .children = {}
-        };
+        auto expected_layout = layout::LayoutBox{.node = &style_root, .dimensions = {{0, 0, 10, 10}}};
 
-        a.expect(layout::create_layout(style_root,{.viewport_width = 1000}) == expected_layout);
+        a.expect(layout::create_layout(style_root, {.viewport_width = 1000}) == expected_layout);
     });
 
-    // clang-format on
     s.add_test("max-width: none", [](etest::IActions &a) {
         dom::Node dom = dom::Element{.name{"html"}};
         style::StyledNode style{
