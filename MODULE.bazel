@@ -54,8 +54,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-R2MsxQbIWAEYUwc0SYAdZI4QSD1LUOCA7CVJpLI5iWA=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.15.2"),
+    integrity = "sha256-GzBpjYnczZ3AGxpK1+nlxuZpzfGRjbsFAzTjZbQKG14=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.16.1"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -139,8 +139,8 @@ archive_override(
 # https://github.com/bazelbuild/bazel-skylib
 archive_override(
     module_name = "bazel_skylib",
-    integrity = "sha256-UbUQWnYLNTdz+QTSu8XmZNCYf7ryImUWTeZdQ+kQ2Kw=",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.8.1"),
+    integrity = "sha256-bnjw5X3iaAH29WT6fEpI3Is2hz5BYlepK7sJN+6shEY=",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.8.2"),
 )
 
 # https://github.com/bazelbuild/rules_android
@@ -290,11 +290,11 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-cpp
-ABSEIL_CPP_VERSION = "20250512.1"
+ABSEIL_CPP_VERSION = "20250814.1"
 
 archive_override(
     module_name = "abseil-cpp",
-    integrity = "sha256-m3oGQwXp/ZTRJP+mzDWFkutCtdpYj7TgfQklSqQAhts=",
+    integrity = "sha256-FpL3fRc5us8/lDNxiLeFg88JurfkINLcbFYFpPhnhaE=",
     strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
     url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
 )
