@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.8"
+RULES_CC_VERSION = "0.2.9"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-IH6gc90gpwX56LxawC9SA+liH8Zyd0uxoJNa76t66/o=",
+    integrity = "sha256-ac60VLmyngq6fagcculuyv2B0gRL6IO0Y5ixx3yn//k=",
     patch_cmds = [
         # Work around warning about overriding the /std-flag.
         # `cl : Command line warning D9025 : overriding '/std:c++17' with '/std:c++latest'`
@@ -66,12 +66,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.6.1"
+RULES_PYTHON_VERSION = "1.6.3"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-8ugPl/nAuC4kieYecl3x5r2vFsTaz14muVZoeHFkuv8=",
+    integrity = "sha256-L1woT7tOhgRcJjLTVz/ABvrLyl0foCl26J3AzVSItZA=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -418,13 +418,13 @@ archive_override(
 # =========================================================
 
 # https://github.com/chriskohlhoff/asio
-ASIO_VERSION = "1-34-2"
+ASIO_VERSION = "1-36-0"
 
 bazel_dep(name = "asio")  # BSL-1.0
 archive_override(
     module_name = "asio",
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-87rAFTBfu3AFRb0pWfvFLXWh7C4F+cf2lYASc863jPU=",
+    integrity = "sha256-AxCnayfhhU8J9pazDeV9xJC14bF/rtHrjJookflW5Ss=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "asio")
@@ -437,12 +437,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20250818.0"
+BORINGSSL_VERSION = "0.20251002.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-ZFKUSe9Fg4E0axYzAlI6H7h25bZnvsSkvTjQ0v/4tCs=",
+    integrity = "sha256-+Wcz/D3wPUGV22VtG3uMF0wz+V0FL4EfDsyPTk49szI=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -506,11 +506,13 @@ EOF""",
 )
 
 # https://github.com/freetype/freetype
-bazel_dep(name = "freetype2")
+FREETYPE_VERSION = "VER-2-14-1"
+
+bazel_dep(name = "freetype2")  # FTL
 archive_override(
-    module_name = "freetype2",  # FTL
+    module_name = "freetype2",
     build_file = "//third_party:freetype2.BUILD",
-    integrity = "sha256-vFyJjkdW03Pg2ZG6sFMDbF6yqnwNXGfoZi3cbaQMQQM=",
+    integrity = "sha256-RL1p0fB1BgNBDP1PJvHFUjxaOgh6LfqGObdX3Hxmd74=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "freetype2")
@@ -520,8 +522,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "zlib")
 EOF""",
     ],
-    strip_prefix = "freetype-VER-2-13-3",
-    url = "https://github.com/freetype/freetype/archive/VER-2-13-3.tar.gz",
+    strip_prefix = "freetype-%s" % FREETYPE_VERSION,
+    url = "https://github.com/freetype/freetype/archive/%s.tar.gz" % FREETYPE_VERSION,
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
@@ -543,20 +545,22 @@ local_path_override(
     path = "third_party/glad2",
 )
 
-# HEAD as of 2024-05-01.
+# HEAD, last updated at 2025-10-05.
 # https://github.com/html5lib/html5lib-tests/
+HTML5LIB_TESTS_VERSION = "f994590f528ac8b6073665791ddb1ed85c66dfb2"
+
 bazel_dep(name = "html5lib-tests")
 archive_override(
     module_name = "html5lib-tests",  # MIT
     build_file = "//third_party:html5lib-tests.BUILD",
-    integrity = "sha256-mUhh8tSAqB9amozHbhgHVKqcDWEQe0dhiWbaUm8bFI0=",
+    integrity = "sha256-Mm3mJftYKVzHglTgw+oyyN2jtSfp/nhcxZ3g1EJXYW4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "html5lib-tests")
 EOF""",
     ],
-    strip_prefix = "html5lib-tests-a9f44960a9fedf265093d22b2aa3c7ca123727b9",
-    url = "https://github.com/html5lib/html5lib-tests/archive/a9f44960a9fedf265093d22b2aa3c7ca123727b9.tar.gz",
+    strip_prefix = "html5lib-tests-%s" % HTML5LIB_TESTS_VERSION,
+    url = "https://github.com/html5lib/html5lib-tests/archive/%s.tar.gz" % HTML5LIB_TESTS_VERSION,
 )
 
 # https://github.com/unicode-org/icu
@@ -753,12 +757,12 @@ EOF""",
 
 # HEAD, last updated at 2025-06-07.
 # https://github.com/nothings/stb
-STB_VERSION = "f58f558c120e9b32c217290b80bad1a0729fbb2c"
+STB_VERSION = "fede005abaf93d9d7f3a679d1999b2db341b360f"
 
 archive_override(
     module_name = "stb",
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-vhpdrZrDj0Lvir8AvX23dhAWYbd2A/gy/MC66EPYKEY=",
+    integrity = "sha256-PEXpqxI5MydK14Lhn8QClES/4m4KXupIPDCoK4gLikI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "stb")
@@ -801,12 +805,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.326"
+VULKAN_TAG = "1.4.328"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-Ge7Zo/Hpb3+iowMX+ZN0EDWJ+6V2b5dDq2EmXGiJwJk=",
+    integrity = "sha256-OtVtOHF5tH3WMkMsz5ibu2l3Ph1zJpK3u62cTTaqEwQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -822,7 +826,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-lkQoR2Oi/PSuaxN84eBJge0q/4PFLflxxdP+YQ37/J0=",
+    integrity = "sha256-oKN7LRkp6u+Qcyds2yPtf3CClNSSPPfw03pp5F9isyI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
