@@ -268,6 +268,9 @@ jobs:
       matrix:
         include:
           - os: macos-15
+          # TODO(robinlinden): Investigate why the GUI isn't happy in the macOS-26 CI.
+          - os: macos-26
+            skip-gui: true
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -282,6 +285,7 @@ jobs:
           echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
           bazelisk run browser:tui file://$(pwd)/example.html
       - run: bazelisk run browser -- --exit-after-load file://$(pwd)/example.html
+        if: ${{ !matrix.skip-gui }}
 
   windows:
     strategy:
