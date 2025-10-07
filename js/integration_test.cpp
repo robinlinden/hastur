@@ -17,7 +17,7 @@ int main() {
     s.add_test("foo()", [](etest::IActions &a) {
         js::ast::Interpreter e;
         e.variables["foo"] = js::ast::Value{js::ast::NativeFunction{[](auto const &) {
-            return js::ast::Value{42};
+            return js::ast::Value{42}; //
         }}};
 
         auto p = js::Parser::parse("foo()").value();
@@ -27,7 +27,7 @@ int main() {
     s.add_test("foo();", [](etest::IActions &a) {
         js::ast::Interpreter e;
         e.variables["foo"] = js::ast::Value{js::ast::NativeFunction{[](auto const &) {
-            return js::ast::Value{42};
+            return js::ast::Value{42}; //
         }}};
 
         auto p = js::Parser::parse("foo();").value();
@@ -37,7 +37,7 @@ int main() {
     s.add_test("foo(1, 2)", [](etest::IActions &a) {
         js::ast::Interpreter e;
         e.variables["foo"] = js::ast::Value{js::ast::NativeFunction{[](auto const &args) {
-            return js::ast::Value{args.at(0).as_number() + args.at(1).as_number()};
+            return js::ast::Value{args.at(0).as_number() + args.at(1).as_number()}; //
         }}};
 
         auto p = js::Parser::parse("foo(1, 2)").value();
@@ -47,7 +47,7 @@ int main() {
     s.add_test("foo('bar')", [](etest::IActions &a) {
         js::ast::Interpreter e;
         e.variables["foo"] = js::ast::Value{js::ast::NativeFunction{[](auto const &args) {
-            return js::ast::Value{args.at(0).as_string()};
+            return js::ast::Value{args.at(0).as_string()}; //
         }}};
 
         auto p = js::Parser::parse("foo('bar')").value();
@@ -69,7 +69,7 @@ int main() {
     s.add_test("foo(hello)", [](etest::IActions &a) {
         js::ast::Interpreter e;
         e.variables["foo"] = js::ast::Value{js::ast::NativeFunction{[](auto const &args) {
-            return js::ast::Value{args.at(0).as_string()};
+            return js::ast::Value{args.at(0).as_string()}; //
         }}};
         e.variables["hello"] = js::ast::Value{"fantastic"};
 

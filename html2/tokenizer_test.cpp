@@ -72,9 +72,7 @@ TokenizerOutput run_tokenizer(etest::IActions &a,
                 }
                 tokens.push_back(std::move(t));
             },
-            [&](Tokenizer &the, ParseError e) {
-                errors.push_back({e, the.current_source_location()});
-            }};
+            [&](Tokenizer &the, ParseError e) { errors.push_back({e, the.current_source_location()}); }};
     if (opts.state_override) {
         tokenizer.set_state(*opts.state_override);
     }

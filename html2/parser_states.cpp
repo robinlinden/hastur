@@ -343,7 +343,15 @@ bool has_element_in_scope_impl(IActions const &a, std::string_view element_name)
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
 bool has_element_in_scope(IActions const &a, std::string_view element_name) {
     static constexpr auto kScopeElements = std::to_array<std::string_view>({
-            "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+            "applet",
+            "caption",
+            "html",
+            "table",
+            "td",
+            "th",
+            "marquee",
+            "object",
+            "template",
             // TODO(robinlinden): Add MathML and SVG elements.
             // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
             // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
@@ -356,7 +364,16 @@ bool has_element_in_scope(IActions const &a, std::string_view element_name) {
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
 bool has_element_in_button_scope(IActions const &a, std::string_view element_name) {
     static constexpr auto kScopeElements = std::to_array<std::string_view>({
-            "button", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+            "button",
+            "applet",
+            "caption",
+            "html",
+            "table",
+            "td",
+            "th",
+            "marquee",
+            "object",
+            "template",
             // TODO(robinlinden): Add MathML and SVG elements.
             // MathML mi, MathML mo, MathML mn, MathML ms, MathML mtext,
             // MathML annotation-xml, SVG foreignObject, SVG desc, SVG
@@ -369,7 +386,17 @@ bool has_element_in_button_scope(IActions const &a, std::string_view element_nam
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-list-item-scope
 bool has_element_in_list_item_scope(IActions const &a, std::string_view element_name) {
     static constexpr auto kScopeElements = std::to_array<std::string_view>({
-            "ol", "ul", "applet", "caption", "html", "table", "td", "th", "marquee", "object", "template",
+            "ol",
+            "ul",
+            "applet",
+            "caption",
+            "html",
+            "table",
+            "td",
+            "th",
+            "marquee",
+            "object",
+            "template",
             // TODO(robinlinden): Add MathML and SVG elements.
     });
 

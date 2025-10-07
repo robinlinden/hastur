@@ -790,7 +790,9 @@ void img_tests(etest::Suite &s) {
                 .node = &style,
                 .dimensions{{0, 0, 100, 0}},
                 .children{{
-                        &style.children[0], {{0, 0, 100, 0}}, {},
+                        &style.children[0],
+                        {{0, 0, 100, 0}},
+                        {},
                         // TODO(robinlinden)
                         // {{0, 0, 37, 87}},
                 }},

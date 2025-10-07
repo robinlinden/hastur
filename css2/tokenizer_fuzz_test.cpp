@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -12,10 +12,6 @@ extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size
 
 extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size) {
     auto input = std::string_view{reinterpret_cast<char const *>(data), size};
-    css2::Tokenizer{input,
-            [](auto &&) {},
-            [](auto) {
-            }}
-            .run();
+    css2::Tokenizer{input, [](auto &&) {}, [](auto) {}}.run();
     return 0;
 }

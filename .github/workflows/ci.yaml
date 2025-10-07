@@ -346,9 +346,9 @@ jobs:
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-19
-      - run: find . -name "*.h" -o -name "*.cpp" | xargs clang-format-19 -style=file -i
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-21
+      - run: find . -name "*.h" -o -name "*.cpp" | xargs clang-format-21 -style=file -i
       - run: git diff --exit-code
 
   clang-tidy:

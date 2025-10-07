@@ -38,8 +38,7 @@ struct ParseOptions {
 
 // TODO(robinlinden): This is very awkward, but I'll make it better later, I promise.
 ParseResult parse(std::string_view html, ParseOptions const &opts) {
-    html2::Tokenizer tokenizer{html, [&](auto &, auto const &) {
-                               }};
+    html2::Tokenizer tokenizer{html, [&](auto &, auto const &) {}};
 
     ParseResult res{};
     html2::InsertionMode mode{opts.initial_insertion_mode};

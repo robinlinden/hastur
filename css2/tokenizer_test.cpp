@@ -60,11 +60,9 @@ TokenizerOutput run_tokenizer(
         etest::IActions &a, std::string_view input, std::source_location loc = std::source_location::current()) {
     std::vector<Token> tokens;
     std::vector<ParseError> errors;
-    Tokenizer{input,
+    Tokenizer{input, //
             [&](Token &&t) { tokens.push_back(std::move(t)); },
-            [&](ParseError e) {
-                errors.push_back(e);
-            }}
+            [&](ParseError e) { errors.push_back(e); }}
             .run();
     return {a, std::move(tokens), std::move(errors), std::move(loc)};
 }
