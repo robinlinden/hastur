@@ -5,6 +5,8 @@
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
+#include <tl/expected.hpp>
+
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -49,8 +51,11 @@ using Statement = std::variant<Declaration,
         EmptyStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, MemberExpression, BinaryExpression>;
 
+struct ErrorValue;
+using ValueOrException = tl::expected<Value, ErrorValue>;
+
 struct NativeFunction {
-    std::function<Value(std::vector<Value> const &)> f;
+    std::function<ValueOrException(std::vector<Value> const &)> f;
     [[nodiscard]] bool operator==(NativeFunction const &) const { return false; }
 };
 
@@ -105,6 +110,11 @@ private:
             NativeFunction //
             >
             value_;
+};
+
+struct ErrorValue {
+    Value e;
+    [[nodiscard]] bool operator==(ErrorValue const &) const = default;
 };
 
 struct NumericLiteral {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -44,7 +44,7 @@ int main() {
         a.expect(!obj.contains("henlo"));
 
         a.expect_eq(obj.at("hello").as_number(), 5.);
-        a.expect_eq(obj.at("f").as_native_function().f({Value{5.}}).as_number(), 5. * 2);
+        a.expect_eq(obj.at("f").as_native_function().f({Value{5.}})->as_number(), 5. * 2);
     });
 
     return s.run();
