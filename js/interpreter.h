@@ -107,7 +107,13 @@ public:
             return callee;
         }
 
-        auto const &fn = variables.at(callee->as_string());
+        auto maybe_fn = variables.find(callee->as_string());
+        if (maybe_fn == variables.end()) {
+            // TODO(robinlinden): Better error value.
+            return tl::unexpected{ErrorValue{Value{}}};
+        }
+
+        auto const &fn = maybe_fn->second;
         assert(fn.is_function() || fn.is_native_function());
 
         std::vector<Value> args;
@@ -139,7 +145,14 @@ public:
         auto property = execute(v.property);
         assert(property);
 
-        return object->as_object().at(property->as_string());
+        auto const &obj = object->as_object();
+        auto it = obj.find(property->as_string());
+        if (it == obj.end()) {
+            // TODO(robinlinden): Better error value.
+            return tl::unexpected{ErrorValue{Value{}}};
+        }
+
+        return it->second;
     }
 
     ValueOrException operator()(Function const &v) {
@@ -244,7 +257,13 @@ private:
             auto id = execute(expr);
             assert(id);
 
-            return variables.at(id->as_string());
+            auto var_it = variables.find(id->as_string());
+            if (var_it == variables.end()) {
+                // TODO(robinlinden): Better error value.
+                return tl::unexpected{ErrorValue{Value{}}};
+            }
+
+            return var_it->second;
         }
 
         return execute(expr);
