@@ -66,6 +66,7 @@ public:
     explicit Value(std::vector<Value> value) : value_{std::move(value)} {}
     explicit Value(Object value) : value_{std::move(value)} {}
     explicit Value(NativeFunction value) : value_{std::move(value)} {}
+    explicit Value(std::function<Value(std::vector<Value> const &)> f) : value_{NativeFunction{std::move(f)}} {}
 
     bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
     bool is_number() const { return std::holds_alternative<double>(value_); }
