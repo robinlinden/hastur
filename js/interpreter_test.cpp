@@ -8,6 +8,8 @@
 
 #include "etest/etest2.h"
 
+#include <tl/expected.hpp>
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -33,6 +35,36 @@ int main() {
 
         Interpreter e;
         a.expect_eq(e.execute(plus_expr), Value{42.});
+    });
+
+    s.add_test("binary expression, plus, exception in lhs", [](etest::IActions &a) {
+        // foo() + 31
+        auto plus_expr = BinaryExpression{
+                .op = BinaryOperator::Plus,
+                .lhs = std::make_shared<Expression>(CallExpression{
+                        .callee = std::make_shared<Expression>(Identifier{"foo"}),
+                }),
+                .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
+        };
+
+        Interpreter e;
+        auto result = e.execute(plus_expr);
+        a.expect_eq(result.has_value(), false);
+    });
+
+    s.add_test("binary expression, plus, exception in rhs", [](etest::IActions &a) {
+        // 11 + foo()
+        auto plus_expr = BinaryExpression{
+                .op = BinaryOperator::Plus,
+                .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
+                .rhs = std::make_shared<Expression>(CallExpression{
+                        .callee = std::make_shared<Expression>(Identifier{"foo"}),
+                }),
+        };
+
+        Interpreter e;
+        auto result = e.execute(plus_expr);
+        a.expect_eq(result.has_value(), false);
     });
 
     s.add_test("binary expression, identifiers", [](etest::IActions &a) {
@@ -70,6 +102,20 @@ int main() {
         Interpreter e;
         a.expect_eq(e.execute(declaration), Value{});
         a.expect_eq(e.variables, decltype(e.variables){{"a", Value{1.}}});
+    });
+
+    s.add_test("variable declaration, exception in init", [](etest::IActions &a) {
+        // var a = foo()
+        auto declaration = VariableDeclaration{{
+                VariableDeclarator{
+                        .id = Identifier{"a"},
+                        .init = CallExpression{.callee = std::make_shared<Expression>(Identifier{"foo"})},
+                },
+        }};
+
+        Interpreter e;
+        auto result = e.execute(declaration);
+        a.expect_eq(result.has_value(), false);
     });
 
     s.add_test("function call, arguments", [](etest::IActions &a) {
@@ -115,6 +161,64 @@ int main() {
         a.expect_eq(e.execute(call), Value{38. + 4.});
     });
 
+    s.add_test("function call, exception in body", [](etest::IActions &a) {
+        auto function_body = ReturnStatement{CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"will_throw"}),
+        }};
+
+        auto declaration = FunctionDeclaration{
+                .id = Identifier{"func"},
+                .function = std::make_shared<Function>(Function{
+                        .params{},
+                        .body{{std::move(function_body)}},
+                }),
+        };
+
+        auto call = CallExpression{.callee = std::make_shared<Expression>(Identifier{"func"})};
+
+        Interpreter e;
+        a.expect_eq(e.execute(declaration), Value{});
+        auto result = e.execute(call);
+        a.expect_eq(result.has_value(), false);
+    });
+
+    s.add_test("function call, not found", [](etest::IActions &a) {
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"does_not_exist"}),
+        };
+
+        auto result = Interpreter{}.execute(call);
+        a.expect_eq(result.has_value(), false);
+    });
+
+    s.add_test("function call, exception in callee", [](etest::IActions &a) {
+        // foo()()
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(CallExpression{
+                        .callee = std::make_shared<Expression>(Identifier{"foo"}),
+                }),
+        };
+
+        Interpreter e;
+        auto result = e.execute(call);
+        a.expect_eq(result.has_value(), false);
+    });
+
+    s.add_test("function call, exception in argument", [](etest::IActions &a) {
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"func"}),
+                .arguments{
+                        std::make_shared<Expression>(Identifier{"will_throw"}),
+                },
+        };
+
+        Interpreter e;
+        e.variables["func"] = Value{NativeFunction{[](auto const &) { return Value{}; }}};
+
+        auto result = e.execute(call);
+        a.expect_eq(result.has_value(), false);
+    });
+
     s.add_test("member expression", [](etest::IActions &a) {
         Interpreter e;
         e.variables["obj"] = Value{Object{{"hello", Value{5.}}}};
@@ -125,6 +229,29 @@ int main() {
         };
 
         a.expect_eq(e.execute(member_expr), Value{5.});
+    });
+
+    s.add_test("member expression, object not found", [](etest::IActions &a) {
+        auto member_expr = MemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"does_not_exist"}),
+                .property = Identifier{"hello"},
+        };
+
+        Interpreter e;
+        auto result = e.execute(member_expr);
+        a.expect_eq(result.has_value(), false);
+    });
+
+    s.add_test("member expression, property not found", [](etest::IActions &a) {
+        auto member_expr = MemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"obj"}),
+                .property = Identifier{"does_not_exist"},
+        };
+
+        Interpreter e;
+        e.variables["obj"] = Value{Object{{"hello", Value{5.}}}};
+        auto result = e.execute(member_expr);
+        a.expect_eq(result.has_value(), false);
     });
 
     s.add_test("return, values are returned", [](etest::IActions &a) {
@@ -203,6 +330,17 @@ int main() {
         a.expect_eq(e.execute(if_stmt), Value{});
     });
 
+    s.add_test("if, exception in test", [](etest::IActions &a) {
+        auto if_stmt = IfStatement{
+                .test = CallExpression{.callee = std::make_shared<Expression>(Identifier{"foo"})},
+                .if_branch = std::make_shared<Statement>(ExpressionStatement{StringLiteral{"true!"}}),
+        };
+
+        Interpreter e;
+        auto result = e.execute(if_stmt);
+        a.expect_eq(result.has_value(), false);
+    });
+
     s.add_test("if-else", [](etest::IActions &a) {
         auto if_stmt = IfStatement{
                 .test = NumericLiteral{1},
@@ -236,6 +374,20 @@ int main() {
         a.expect_eq(argument, "did it!");
     });
 
+    s.add_test("native function, exception from native code", [](etest::IActions &a) {
+        Interpreter e;
+        e.variables["will_throw"] = Value{NativeFunction{[](auto const &) {
+            return tl::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}}; //
+        }}};
+
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"will_throw"}),
+        };
+
+        auto result = e.execute(call);
+        a.expect_eq(result, tl::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}});
+    });
+
     s.add_test("empty statement", [](etest::IActions &a) {
         Interpreter e;
         a.expect_eq(e.execute(EmptyStatement{}), Value{});
@@ -261,6 +413,39 @@ int main() {
         a.expect_eq(loop_count, 3);
     });
 
+    s.add_test("while statement, exception in test", [](etest::IActions &a) {
+        Interpreter e;
+
+        auto while_loop = WhileStatement{
+                .test = CallExpression{.callee = std::make_shared<Expression>(Identifier{"will_throw"})},
+                .body = std::make_shared<Statement>(EmptyStatement{}),
+        };
+
+        auto result = e.execute(while_loop);
+        a.expect_eq(result.has_value(), false);
+    });
+
+    s.add_test("while statement, exception in body", [](etest::IActions &a) {
+        Interpreter e;
+
+        int loop_count{};
+        e.variables["should_continue"] = Value{NativeFunction{[&](auto const &) {
+            // TODO(robinlinden): We don't have bool values yet.
+            return Value{++loop_count < 3 ? 1. : 0.};
+        }}};
+
+        auto while_loop = WhileStatement{
+                .test = CallExpression{.callee = std::make_shared<Expression>(Identifier{"should_continue"})},
+                .body = std::make_shared<Statement>(ExpressionStatement{
+                        CallExpression{.callee = std::make_shared<Expression>(Identifier{"will_throw"})},
+                }),
+        };
+
+        auto result = e.execute(while_loop);
+        a.expect_eq(result.has_value(), false);
+        a.expect_eq(loop_count, 1);
+    });
+
     s.add_test("program", [](etest::IActions &a) {
         Program p{
                 .body{
@@ -273,6 +458,18 @@ int main() {
         a.expect_eq(Interpreter{}.execute(Program{}), Value{});
     });
 
+    s.add_test("program, exception", [](etest::IActions &a) {
+        Program p{
+                .body{
+                        ExpressionStatement{CallExpression{.callee = std::make_shared<Expression>(Identifier{"foo"})}},
+                        ExpressionStatement{NumericLiteral{42.}},
+                },
+        };
+
+        auto result = Interpreter{}.execute(p);
+        a.expect_eq(result.has_value(), false);
+    });
+
     s.add_test("block statement", [](etest::IActions &a) {
         BlockStatement block{
                 .body{
@@ -283,6 +480,18 @@ int main() {
 
         a.expect_eq(Interpreter{}.execute(block), Value{42.});
         a.expect_eq(Interpreter{}.execute(BlockStatement{}), Value{});
+    });
+
+    s.add_test("block statement, exception", [](etest::IActions &a) {
+        BlockStatement block{
+                .body{
+                        ExpressionStatement{CallExpression{.callee = std::make_shared<Expression>(Identifier{"foo"})}},
+                        ExpressionStatement{NumericLiteral{42.}},
+                },
+        };
+
+        auto result = Interpreter{}.execute(block);
+        a.expect_eq(result.has_value(), false);
     });
 
     return s.run();
