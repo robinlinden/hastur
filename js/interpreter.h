@@ -7,6 +7,8 @@
 
 #include "js/ast.h"
 
+#include <tl/expected.hpp>
+
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
@@ -22,71 +24,101 @@ namespace js::ast {
 
 class Interpreter {
 public:
-    Value execute(auto const &ast) { return (*this)(ast); }
+    ValueOrException execute(auto const &ast) { return (*this)(ast); }
 
-    Value operator()(Program const &v) {
-        Value result{};
+    ValueOrException operator()(Program const &v) {
+        ValueOrException result{};
 
         for (auto const &statement : v.body) {
             result = execute(statement);
+            if (!result) {
+                return result;
+            }
         }
 
         return result;
     }
 
-    Value operator()(Literal const &v) { return std::visit(*this, v); }
-    Value operator()(NumericLiteral const &v) { return Value{v.value}; }
-    Value operator()(StringLiteral const &v) { return Value{v.value}; }
-    Value operator()(Expression const &v) { return std::visit(*this, v); }
-    Value operator()(Identifier const &v) { return Value{v.name}; }
-    Value operator()(Pattern const &v) { return std::visit(*this, v); }
-    Value operator()(Declaration const &v) { return std::visit(*this, v); }
-    Value operator()(Statement const &v) { return std::visit(*this, v); }
+    ValueOrException operator()(Literal const &v) { return std::visit(*this, v); }
+    ValueOrException operator()(NumericLiteral const &v) { return Value{v.value}; }
+    ValueOrException operator()(StringLiteral const &v) { return Value{v.value}; }
+    ValueOrException operator()(Expression const &v) { return std::visit(*this, v); }
+    ValueOrException operator()(Identifier const &v) { return Value{v.name}; }
+    ValueOrException operator()(Pattern const &v) { return std::visit(*this, v); }
+    ValueOrException operator()(Declaration const &v) { return std::visit(*this, v); }
+    ValueOrException operator()(Statement const &v) { return std::visit(*this, v); }
 
-    Value operator()(ExpressionStatement const &v) { return execute(v.expression); }
+    ValueOrException operator()(ExpressionStatement const &v) { return execute(v.expression); }
 
-    Value operator()(BinaryExpression const &v) {
+    ValueOrException operator()(BinaryExpression const &v) {
         auto lhs = get_value_resolving_variables(*v.lhs);
+        if (!lhs) {
+            return lhs;
+        }
+
         auto rhs = get_value_resolving_variables(*v.rhs);
+        if (!rhs) {
+            return rhs;
+        }
 
         switch (v.op) {
             case BinaryOperator::Plus:
-                return Value{lhs.as_number() + rhs.as_number()};
+                return Value{lhs->as_number() + rhs->as_number()};
             case BinaryOperator::Minus:
-                return Value{lhs.as_number() - rhs.as_number()};
+                return Value{lhs->as_number() - rhs->as_number()};
         }
         std::abort();
     }
 
-    Value operator()(VariableDeclaration const &v) {
+    ValueOrException operator()(VariableDeclaration const &v) {
         for (auto const &declaration : v.declarations) {
-            execute(declaration);
+            if (auto result = execute(declaration); !result) {
+                return result;
+            }
         }
 
         return Value{};
     }
 
-    Value operator()(VariableDeclarator const &v) {
-        auto name = execute(v.id).as_string();
-        variables[name] = v.init ? execute(*v.init) : Value{};
+    ValueOrException operator()(VariableDeclarator const &v) {
+        auto maybe_name = execute(v.id);
+        assert(maybe_name);
+
+        auto name = maybe_name->as_string();
+        ValueOrException init_value = v.init ? execute(*v.init) : Value{};
+        if (!init_value) {
+            return init_value;
+        }
+
+        variables[name] = *std::move(init_value);
         return Value{};
     }
 
-    Value operator()(FunctionDeclaration const &v) {
+    ValueOrException operator()(FunctionDeclaration const &v) {
         variables[v.id.name] = Value{v.function};
         return Value{};
     }
 
-    Value operator()(CallExpression const &v) {
+    ValueOrException operator()(CallExpression const &v) {
         Interpreter scope{*this};
 
-        auto const &fn = variables.at(execute(*v.callee).as_string());
+        auto callee = execute(*v.callee);
+        if (!callee) {
+            return callee;
+        }
+
+        auto const &fn = variables.at(callee->as_string());
         assert(fn.is_function() || fn.is_native_function());
 
         std::vector<Value> args;
         args.reserve(v.arguments.size());
         for (auto const &arg : v.arguments) {
-            args.push_back(get_value_resolving_variables(*arg));
+            auto arg_value = get_value_resolving_variables(*arg);
+            if (!arg_value) {
+                return arg_value;
+            }
+
+            args.push_back(*std::move(arg_value));
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
@@ -98,35 +130,51 @@ public:
         return scope.execute(fn.as_native_function());
     }
 
-    Value operator()(MemberExpression const &v) {
+    ValueOrException operator()(MemberExpression const &v) {
         auto object = get_value_resolving_variables(*v.object);
+        if (!object) {
+            return object;
+        }
+
         auto property = execute(v.property);
-        return object.as_object().at(property.as_string());
+        assert(property);
+
+        return object->as_object().at(property->as_string());
     }
 
-    Value operator()(Function const &v) {
+    ValueOrException operator()(Function const &v) {
         auto const &args = variables.at("arguments").as_vector();
         for (std::size_t i = 0; i < v.params.size(); ++i) {
-            auto id = execute(v.params[i]).as_string();
+            auto maybe_id = execute(v.params[i]);
+            assert(maybe_id);
+
+            auto id = maybe_id->as_string();
             variables[std::move(id)] = i < args.size() ? args[i] : Value{};
         }
 
         return execute(v.body);
     }
 
-    Value operator()(BlockStatement const &v) {
-        Value result{};
+    ValueOrException operator()(BlockStatement const &v) {
+        ValueOrException result{};
 
         for (auto const &statement : v.body) {
             result = execute(statement);
+            if (!result) {
+                return result;
+            }
         }
 
         return result;
     }
 
-    Value operator()(FunctionBody const &v) {
+    ValueOrException operator()(FunctionBody const &v) {
         for (auto const &statement : v.body) {
-            execute(statement);
+            auto result = execute(statement);
+            if (!result) {
+                return result;
+            }
+
             if (returning) {
                 auto ret = *std::move(returning);
                 returning = std::nullopt;
@@ -137,32 +185,53 @@ public:
         return Value{};
     }
 
-    Value operator()(ReturnStatement const &v) {
-        returning = v.argument ? execute(*v.argument) : Value{};
+    ValueOrException operator()(ReturnStatement const &v) {
+        auto ret = v.argument ? execute(*v.argument) : Value{};
+        if (!ret) {
+            return ret;
+        }
+
+        returning = *std::move(ret);
         return Value{};
     }
 
-    Value operator()(IfStatement const &v) {
-        if (execute(v.test).as_bool()) {
+    ValueOrException operator()(IfStatement const &v) {
+        auto test = execute(v.test);
+        if (!test) {
+            return test;
+        }
+
+        if (test->as_bool()) {
             return execute(*v.if_branch);
         }
 
         return v.else_branch ? execute(**v.else_branch) : Value{};
     }
 
-    Value operator()(NativeFunction const &v) { return v.f(variables.at("arguments").as_vector()); }
+    ValueOrException operator()(NativeFunction const &v) { return v.f(variables.at("arguments").as_vector()); }
 
-    Value operator()(EmptyStatement const &) { return Value{}; }
+    ValueOrException operator()(EmptyStatement const &) { return Value{}; }
 
-    Value operator()(WhileStatement const &v) {
-        while (execute(v.test).as_bool()) {
-            execute(*v.body);
+    ValueOrException operator()(WhileStatement const &v) {
+        while (true) {
+            auto test = execute(v.test);
+            if (!test) {
+                return test;
+            }
+
+            if (!test->as_bool()) {
+                return Value{};
+            }
+
+            auto result = execute(*v.body);
+            if (!result) {
+                return result;
+            }
+
             if (returning) {
-                break;
+                return Value{};
             }
         }
-
-        return Value{};
     }
 
     std::map<std::string, Value, std::less<>> variables;
@@ -170,9 +239,12 @@ public:
 
 private:
     // TODO(robinlinden): This should be done in a more generic fashion.
-    Value get_value_resolving_variables(Expression const &expr) {
+    ValueOrException get_value_resolving_variables(Expression const &expr) {
         if (std::holds_alternative<Identifier>(expr)) {
-            return variables.at(execute(expr).as_string());
+            auto id = execute(expr);
+            assert(id);
+
+            return variables.at(id->as_string());
         }
 
         return execute(expr);

@@ -5,6 +5,8 @@
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
+#include <tl/expected.hpp>
+
 #include <cstdint>
 #include <functional>
 #include <map>
@@ -49,8 +51,11 @@ using Statement = std::variant<Declaration,
         EmptyStatement>;
 using Expression = std::variant<Identifier, Literal, CallExpression, MemberExpression, BinaryExpression>;
 
+struct ErrorValue;
+using ValueOrException = tl::expected<Value, ErrorValue>;
+
 struct NativeFunction {
-    std::function<Value(std::vector<Value> const &)> f;
+    std::function<ValueOrException(std::vector<Value> const &)> f;
     [[nodiscard]] bool operator==(NativeFunction const &) const { return false; }
 };
 
@@ -66,7 +71,7 @@ public:
     explicit Value(std::vector<Value> value) : value_{std::move(value)} {}
     explicit Value(Object value) : value_{std::move(value)} {}
     explicit Value(NativeFunction value) : value_{std::move(value)} {}
-    explicit Value(std::function<Value(std::vector<Value> const &)> f) : value_{NativeFunction{std::move(f)}} {}
+    explicit Value(decltype(NativeFunction::f) f) : value_{NativeFunction{std::move(f)}} {}
 
     bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
     bool is_number() const { return std::holds_alternative<double>(value_); }
@@ -106,6 +111,11 @@ private:
             NativeFunction //
             >
             value_;
+};
+
+struct ErrorValue {
+    Value e;
+    [[nodiscard]] bool operator==(ErrorValue const &) const = default;
 };
 
 struct NumericLiteral {
