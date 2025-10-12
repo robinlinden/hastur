@@ -126,5 +126,46 @@ int main() {
         expect_tokens(a, "\"asdf", std::nullopt);
     });
 
+    s.add_test("reserved words", [](etest::IActions &a) {
+        expect_tokens(a, "await", {Await{}});
+        expect_tokens(a, "break", {Break{}});
+        expect_tokens(a, "case", {Case{}});
+        expect_tokens(a, "catch", {Catch{}});
+        expect_tokens(a, "class", {Class{}});
+        expect_tokens(a, "const", {Const{}});
+        expect_tokens(a, "continue", {Continue{}});
+        expect_tokens(a, "debugger", {Debugger{}});
+        expect_tokens(a, "default", {Default{}});
+        expect_tokens(a, "delete", {Delete{}});
+        expect_tokens(a, "do", {Do{}});
+        expect_tokens(a, "else", {Else{}});
+        expect_tokens(a, "enum", {Enum{}});
+        expect_tokens(a, "export", {Export{}});
+        expect_tokens(a, "extends", {Extends{}});
+        expect_tokens(a, "false", {False{}});
+        expect_tokens(a, "finally", {Finally{}});
+        expect_tokens(a, "for", {For{}});
+        expect_tokens(a, "function", {Function{}});
+        expect_tokens(a, "if", {If{}});
+        expect_tokens(a, "import", {Import{}});
+        expect_tokens(a, "in", {In{}});
+        expect_tokens(a, "instanceof", {InstanceOf{}});
+        expect_tokens(a, "new", {New{}});
+        expect_tokens(a, "null", {Null{}});
+        expect_tokens(a, "return", {Return{}});
+        expect_tokens(a, "super", {Super{}});
+        expect_tokens(a, "switch", {Switch{}});
+        expect_tokens(a, "this", {This{}});
+        expect_tokens(a, "throw", {Throw{}});
+        expect_tokens(a, "true", {True{}});
+        expect_tokens(a, "try", {Try{}});
+        expect_tokens(a, "typeof", {TypeOf{}});
+        expect_tokens(a, "var", {Var{}});
+        expect_tokens(a, "void", {Void{}});
+        expect_tokens(a, "while", {While{}});
+        expect_tokens(a, "with", {With{}});
+        expect_tokens(a, "yield", {Yield{}});
+    });
+
     return s.run();
 }

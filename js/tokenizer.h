@@ -90,6 +90,161 @@ struct Eof {
     bool operator==(Eof const &) const = default;
 };
 
+// Reserved words
+// https://tc39.es/ecma262/#prod-ReservedWord
+
+struct Await {
+    bool operator==(Await const &) const = default;
+};
+
+struct Break {
+    bool operator==(Break const &) const = default;
+};
+
+struct Case {
+    bool operator==(Case const &) const = default;
+};
+
+struct Catch {
+    bool operator==(Catch const &) const = default;
+};
+
+struct Class {
+    bool operator==(Class const &) const = default;
+};
+
+struct Const {
+    bool operator==(Const const &) const = default;
+};
+
+struct Continue {
+    bool operator==(Continue const &) const = default;
+};
+
+struct Debugger {
+    bool operator==(Debugger const &) const = default;
+};
+
+struct Default {
+    bool operator==(Default const &) const = default;
+};
+
+struct Delete {
+    bool operator==(Delete const &) const = default;
+};
+
+struct Do {
+    bool operator==(Do const &) const = default;
+};
+
+struct Else {
+    bool operator==(Else const &) const = default;
+};
+
+struct Enum {
+    bool operator==(Enum const &) const = default;
+};
+
+struct Export {
+    bool operator==(Export const &) const = default;
+};
+
+struct Extends {
+    bool operator==(Extends const &) const = default;
+};
+
+struct False {
+    bool operator==(False const &) const = default;
+};
+
+struct Finally {
+    bool operator==(Finally const &) const = default;
+};
+
+struct For {
+    bool operator==(For const &) const = default;
+};
+
+struct Function {
+    bool operator==(Function const &) const = default;
+};
+
+struct If {
+    bool operator==(If const &) const = default;
+};
+
+struct Import {
+    bool operator==(Import const &) const = default;
+};
+
+struct In {
+    bool operator==(In const &) const = default;
+};
+
+struct InstanceOf {
+    bool operator==(InstanceOf const &) const = default;
+};
+
+struct New {
+    bool operator==(New const &) const = default;
+};
+
+struct Null {
+    bool operator==(Null const &) const = default;
+};
+
+struct Return {
+    bool operator==(Return const &) const = default;
+};
+
+struct Super {
+    bool operator==(Super const &) const = default;
+};
+
+struct Switch {
+    bool operator==(Switch const &) const = default;
+};
+
+struct This {
+    bool operator==(This const &) const = default;
+};
+
+struct Throw {
+    bool operator==(Throw const &) const = default;
+};
+
+struct True {
+    bool operator==(True const &) const = default;
+};
+
+struct Try {
+    bool operator==(Try const &) const = default;
+};
+
+struct TypeOf {
+    bool operator==(TypeOf const &) const = default;
+};
+
+struct Var {
+    bool operator==(Var const &) const = default;
+};
+
+struct Void {
+    bool operator==(Void const &) const = default;
+};
+
+struct While {
+    bool operator==(While const &) const = default;
+};
+
+struct With {
+    bool operator==(With const &) const = default;
+};
+
+struct Yield {
+    bool operator==(Yield const &) const = default;
+};
+
 using Token = std::variant< //
         IntLiteral,
         StringLiteral,
@@ -107,7 +262,46 @@ using Token = std::variant< //
         Equals,
         Plus,
         Asterisk,
-        Eof>;
+        Eof,
+        // Reserved words
+        Await,
+        Break,
+        Case,
+        Catch,
+        Class,
+        Const,
+        Continue,
+        Debugger,
+        Default,
+        Delete,
+        Do,
+        Else,
+        Enum,
+        Export,
+        Extends,
+        False,
+        Finally,
+        For,
+        Function,
+        If,
+        Import,
+        In,
+        InstanceOf,
+        New,
+        Null,
+        Return,
+        Super,
+        Switch,
+        This,
+        Throw,
+        True,
+        Try,
+        TypeOf,
+        Var,
+        Void,
+        While,
+        With,
+        Yield>;
 
 class Tokenizer {
 public:
@@ -186,6 +380,158 @@ public:
         }
 
         auto current_word = consume_word(*current);
+        if (current_word == "await") {
+            return Await{};
+        }
+
+        if (current_word == "break") {
+            return Break{};
+        }
+
+        if (current_word == "case") {
+            return Case{};
+        }
+
+        if (current_word == "catch") {
+            return Catch{};
+        }
+
+        if (current_word == "class") {
+            return Class{};
+        }
+
+        if (current_word == "const") {
+            return Const{};
+        }
+
+        if (current_word == "continue") {
+            return Continue{};
+        }
+
+        if (current_word == "debugger") {
+            return Debugger{};
+        }
+
+        if (current_word == "default") {
+            return Default{};
+        }
+
+        if (current_word == "delete") {
+            return Delete{};
+        }
+
+        if (current_word == "do") {
+            return Do{};
+        }
+
+        if (current_word == "else") {
+            return Else{};
+        }
+
+        if (current_word == "enum") {
+            return Enum{};
+        }
+
+        if (current_word == "export") {
+            return Export{};
+        }
+
+        if (current_word == "extends") {
+            return Extends{};
+        }
+
+        if (current_word == "false") {
+            return False{};
+        }
+
+        if (current_word == "finally") {
+            return Finally{};
+        }
+
+        if (current_word == "for") {
+            return For{};
+        }
+
+        if (current_word == "function") {
+            return Function{};
+        }
+
+        if (current_word == "if") {
+            return If{};
+        }
+
+        if (current_word == "import") {
+            return Import{};
+        }
+
+        if (current_word == "in") {
+            return In{};
+        }
+
+        if (current_word == "instanceof") {
+            return InstanceOf{};
+        }
+
+        if (current_word == "new") {
+            return New{};
+        }
+
+        if (current_word == "null") {
+            return Null{};
+        }
+
+        if (current_word == "return") {
+            return Return{};
+        }
+
+        if (current_word == "super") {
+            return Super{};
+        }
+
+        if (current_word == "switch") {
+            return Switch{};
+        }
+
+        if (current_word == "this") {
+            return This{};
+        }
+
+        if (current_word == "throw") {
+            return Throw{};
+        }
+
+        if (current_word == "true") {
+            return True{};
+        }
+
+        if (current_word == "try") {
+            return Try{};
+        }
+
+        if (current_word == "typeof") {
+            return TypeOf{};
+        }
+
+        if (current_word == "var") {
+            return Var{};
+        }
+
+        if (current_word == "void") {
+            return Void{};
+        }
+
+        if (current_word == "while") {
+            return While{};
+        }
+
+        if (current_word == "with") {
+            return With{};
+        }
+
+        if (current_word == "yield") {
+            return Yield{};
+        }
+
         return Identifier{.name = std::move(current_word)};
     }
 
