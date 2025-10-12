@@ -185,7 +185,8 @@ public:
             return std::nullopt;
         }
 
-        return tokenize_identifier(*current);
+        auto current_word = consume_word(*current);
+        return Identifier{.name = std::move(current_word)};
     }
 
 private:
@@ -250,19 +251,20 @@ private:
         }
     }
 
-    Token tokenize_identifier(char current) {
-        Identifier id{};
+    [[nodiscard]] std::string consume_word(char current) {
+        std::string word;
         while (true) {
-            id.name += current;
+            word += current;
             auto next = peek();
             if (!next || !is_alpha(*next)) {
                 break;
             }
+
             current = *next;
             pos_ += 1;
         }
 
-        return id;
+        return word;
     }
 
     static constexpr bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
