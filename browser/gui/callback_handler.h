@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSER_GUI_ABOUT_HANDLER_H_
-#define BROWSER_GUI_ABOUT_HANDLER_H_
+#ifndef BROWSER_GUI_CALLBACK_HANDLER_H_
+#define BROWSER_GUI_CALLBACK_HANDLER_H_
 
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
@@ -20,9 +20,9 @@ namespace browser::gui {
 
 using Handlers = std::unordered_map<std::string, std::function<std::string()>>;
 
-class AboutHandler : public protocol::IProtocolHandler {
+class CallbackHandler : public protocol::IProtocolHandler {
 public:
-    explicit AboutHandler(Handlers pages) : pages_(std::move(pages)) {}
+    explicit CallbackHandler(Handlers pages) : pages_(std::move(pages)) {}
 
     [[nodiscard]] tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &uri) override {
         auto it = pages_.find(uri.path);
@@ -43,4 +43,4 @@ private:
 
 } // namespace browser::gui
 
-#endif // BROWSER_GUI_ABOUT_HANDLER_H_
+#endif // BROWSER_GUI_CALLBACK_HANDLER_H_

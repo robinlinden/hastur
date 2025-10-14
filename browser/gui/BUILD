@@ -3,8 +3,8 @@ load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 # TODO(robinlinden): This will live somewhere else once it's a bit more fleshed out.
 cc_library(
-    name = "about_handler",
-    hdrs = ["about_handler.h"],
+    name = "callback_handler",
+    hdrs = ["callback_handler.h"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
     deps = [
@@ -15,11 +15,11 @@ cc_library(
 )
 
 cc_test(
-    name = "about_handler_test",
-    srcs = ["about_handler_test.cpp"],
+    name = "callback_handler_test",
+    srcs = ["callback_handler_test.cpp"],
     copts = HASTUR_COPTS,
     deps = [
-        ":about_handler",
+        ":callback_handler",
         "//etest",
         "//protocol",
         "//uri",
@@ -35,7 +35,7 @@ cc_library(
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
-        ":about_handler",
+        ":callback_handler",
         "//css",
         "//dom",
         "//engine",

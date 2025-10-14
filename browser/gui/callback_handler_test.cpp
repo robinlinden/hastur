@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "browser/gui/about_handler.h"
+#include "browser/gui/callback_handler.h"
 
 #include "etest/etest2.h"
 #include "protocol/response.h"
@@ -16,14 +16,14 @@ int main() {
     etest::Suite s{};
 
     s.add_test("Not found", [](etest::IActions &a) {
-        AboutHandler handler{{}};
+        CallbackHandler handler{{}};
 
         auto res = handler.handle(uri::Uri::parse("about:nonexistent").value());
         a.expect_eq(res, tl::unexpected{protocol::Error{protocol::ErrorCode::Unresolved}});
     });
 
     s.add_test("Found", [](etest::IActions &a) {
-        AboutHandler handler{Handlers{{
+        CallbackHandler handler{Handlers{{
                 "blank",
                 []() { return "nothing to see here"; },
         }}};
