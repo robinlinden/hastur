@@ -1095,7 +1095,7 @@ void UrlParser::state_path() {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        buffer_ += percent_encode(*peek(1), PercentEncodeSet::path);
+        buffer_ += percent_encode(*c, PercentEncodeSet::path);
     }
 }
 
@@ -1127,7 +1127,7 @@ void UrlParser::state_opaque_path() {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        std::get<0>(url_.path) += percent_encode(*peek(1), PercentEncodeSet::c0_control);
+        std::get<0>(url_.path) += percent_encode(*c, PercentEncodeSet::c0_control);
     }
 }
 
@@ -1175,7 +1175,7 @@ void UrlParser::state_fragment() {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
-        url_.fragment.value() += percent_encode(*peek(1), PercentEncodeSet::fragment);
+        url_.fragment.value() += percent_encode(*c, PercentEncodeSet::fragment);
     }
 }
 

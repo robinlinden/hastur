@@ -258,14 +258,6 @@ private:
         return input_[pos_];
     }
 
-    constexpr std::optional<std::string_view> peek(std::size_t chars) const {
-        if (is_eof()) {
-            return std::nullopt;
-        }
-
-        return input_.substr(pos_, chars);
-    }
-
     constexpr std::string_view remaining_from(std::size_t skip) const {
         return pos_ + skip >= input_.size() ? "" : input_.substr(pos_ + skip);
     }
