@@ -1,31 +1,5 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
-
-# TODO(robinlinden): This will live somewhere else once it's a bit more fleshed out.
-cc_library(
-    name = "callback_handler",
-    hdrs = ["callback_handler.h"],
-    copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//protocol",
-        "//uri",
-        "@expected",
-    ],
-)
-
-cc_test(
-    name = "callback_handler_test",
-    srcs = ["callback_handler_test.cpp"],
-    copts = HASTUR_COPTS,
-    deps = [
-        ":callback_handler",
-        "//etest",
-        "//protocol",
-        "//uri",
-        "@expected",
-    ],
-)
 
 cc_library(
     name = "app",
@@ -35,7 +9,6 @@ cc_library(
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
-        ":callback_handler",
         "//css",
         "//dom",
         "//engine",

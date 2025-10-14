@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef BROWSER_GUI_CALLBACK_HANDLER_H_
-#define BROWSER_GUI_CALLBACK_HANDLER_H_
+#ifndef PROTOCOL_CALLBACK_HANDLER_H_
+#define PROTOCOL_CALLBACK_HANDLER_H_
 
 #include "protocol/iprotocol_handler.h"
 #include "protocol/response.h"
@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace browser::gui {
+namespace protocol {
 
 using Handlers = std::unordered_map<std::string, std::function<std::string()>>;
 
@@ -41,6 +41,6 @@ private:
     Handlers pages_;
 };
 
-} // namespace browser::gui
+} // namespace protocol
 
-#endif // BROWSER_GUI_CALLBACK_HANDLER_H_
+#endif // PROTOCOL_CALLBACK_HANDLER_H_

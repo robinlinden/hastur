@@ -4,8 +4,6 @@
 
 #include "browser/gui/app.h"
 
-#include "browser/gui/callback_handler.h"
-
 #include "css/style_sheet.h"
 #include "dom/dom.h"
 #include "dom/xpath.h"
@@ -19,6 +17,7 @@
 #include "layout/layout.h"
 #include "layout/layout_box.h"
 #include "os/system_info.h"
+#include "protocol/callback_handler.h"
 #include "protocol/handler_factory.h"
 #include "protocol/in_memory_cache.h"
 #include "protocol/iprotocol_handler.h"
@@ -426,7 +425,7 @@ std::unique_ptr<protocol::IProtocolHandler> App::create_protocol_handler() const
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     auto handlers = protocol::HandlerFactory::create(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0");
-    auto about_handler = std::make_unique<browser::gui::CallbackHandler>(Handlers{
+    auto about_handler = std::make_unique<protocol::CallbackHandler>(protocol::Handlers{
             {
                     "blank",
                     []() {

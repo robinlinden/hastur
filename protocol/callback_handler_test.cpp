@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "browser/gui/callback_handler.h"
+#include "protocol/callback_handler.h"
 
 #include "etest/etest2.h"
 #include "protocol/response.h"
@@ -11,7 +11,7 @@
 #include <tl/expected.hpp>
 
 int main() {
-    using namespace browser::gui;
+    using namespace protocol;
 
     etest::Suite s{};
 
