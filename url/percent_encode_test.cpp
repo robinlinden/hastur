@@ -46,5 +46,17 @@ int main() {
         a.expect_eq(percent_decode_unreserved(foo6), "%7F");
     });
 
+    s.add_test("percent_encode(char, ...)", [](etest::IActions &a) {
+        using url::PercentEncodeSet;
+        using url::percent_encode;
+
+        a.expect_eq(percent_encode('a', PercentEncodeSet::component), "a");
+        a.expect_eq(percent_encode(' ', PercentEncodeSet::component), "%20");
+        a.expect_eq(percent_encode(' ', PercentEncodeSet::component, true), "+");
+        a.expect_eq(percent_encode('%', PercentEncodeSet::component), "%25");
+        a.expect_eq(percent_encode('\x7f', PercentEncodeSet::component), "%7F");
+        a.expect_eq(percent_encode('\x80', PercentEncodeSet::component), "%80");
+    });
+
     return s.run();
 }

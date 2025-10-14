@@ -13,8 +13,7 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
-#include <iomanip>
-#include <ios>
+#include <format>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -50,19 +49,24 @@ struct PercentEncodeSet {
 };
 
 // https://url.spec.whatwg.org/#string-percent-encode-after-encoding
+inline std::string percent_encode(char input, std::predicate<char> auto in_encode_set, bool space_as_plus = false) {
+    if (space_as_plus && input == ' ') {
+        return std::string{'+'};
+    }
+
+    if (in_encode_set(input)) {
+        return std::format("%{:02X}", input);
+    }
+
+    return std::string{input};
+}
+
 inline std::string percent_encode(
         std::string_view input, std::predicate<char> auto in_encode_set, bool space_as_plus = false) {
     std::stringstream out;
 
     for (char i : input) {
-        if (space_as_plus && i == ' ') {
-            out << '+';
-        } else if (in_encode_set(i)) {
-            out << '%' << std::setfill('0') << std::setw(2) << std::uppercase << std::hex
-                << static_cast<unsigned int>(static_cast<unsigned char>(i));
-        } else {
-            out << i;
-        }
+        out << percent_encode(i, in_encode_set, space_as_plus);
     }
 
     return std::move(out).str();
