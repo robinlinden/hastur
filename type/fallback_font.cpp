@@ -4,16 +4,15 @@
 
 #include "type/fallback_font.h"
 
+#include "type/fallback_font_data.h"
+
 #include <cstddef>
 #include <span>
 
 namespace type {
-namespace {
-#include "type/fallback_font_data.h"
-} // namespace
 
 std::span<std::byte const> fallback_font_ttf_data() {
-    return std::span<std::byte const>{reinterpret_cast<std::byte const *>(fallback_font), fallback_font_len};
+    return std::span<std::byte const>{reinterpret_cast<std::byte const *>(kFallbackFont.data()), kFallbackFont.size()};
 }
 
 } // namespace type
