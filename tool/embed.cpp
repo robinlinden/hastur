@@ -6,12 +6,14 @@
 
 #include <array>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <ios>
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <system_error>
 
 int main(int argc, char **argv) {
     std::string name;
@@ -34,12 +36,19 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    std::error_code ec{};
+    auto file_size = std::filesystem::file_size(input_file, ec);
+    if (ec) {
+        std::cerr << "Error: Could not get file size of '" << input_file << "': " << ec.message() << '\n';
+        return 1;
+    }
+
     std::cout << "#ifndef HST_GENERATED_" << name << "_H\n";
     std::cout << "#define HST_GENERATED_" << name << "_H\n";
 
     std::cout << "#include <array>\n";
     std::cout << "#include <string_view>\n";
-    std::cout << "constexpr auto " << name << "Bytes = std::to_array<char>({\n";
+    std::cout << "constexpr auto " << name << "Bytes = std::array<char, " << file_size << ">{\n";
     std::array<char, 1024> data{};
     while (file.read(data.data(), data.size()) || file.gcount() > 0) {
         std::string_view chunk{data.data(), static_cast<std::size_t>(file.gcount())};
@@ -52,7 +61,7 @@ int main(int argc, char **argv) {
             }
         }
     }
-    std::cout << "});\n";
+    std::cout << "};\n";
 
     std::cout << "constexpr auto " << name << " = std::string_view{" << name << "Bytes.data(), " << name
               << "Bytes.size()};\n";
