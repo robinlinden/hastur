@@ -87,7 +87,7 @@ jobs:
         if: ${{ matrix.container != '' }}
         run: |
           echo '#!/bin/sh\n"$@"' >/usr/bin/sudo && chmod +x /usr/bin/sudo
-          apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates xxd
+          apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates
           curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.27.0/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
           # icu requires gcc to exist.
           ln -s /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
