@@ -297,6 +297,8 @@ using Token = std::variant< //
         With,
         Yield>;
 
+[[nodiscard]] std::string to_string(Token const &);
+
 } // namespace js::parse
 
 #endif
