@@ -6,6 +6,7 @@
 #define JS_PARSER_H_
 
 #include "js/ast.h"
+#include "js/token.h"
 #include "js/tokenizer.h"
 
 #include <cassert>
