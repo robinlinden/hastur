@@ -4,6 +4,8 @@
 
 #include "js/tokenizer.h"
 
+#include "js/token.h"
+
 #include "etest/etest2.h"
 
 #include <optional>
