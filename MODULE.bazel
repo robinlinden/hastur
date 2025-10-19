@@ -778,13 +778,13 @@ bazel_dep(name = "ucd")
 archive_override(
     module_name = "ucd",
     build_file_content = """exports_files(["UnicodeData.txt"])""",
-    integrity = "sha256-yG3YHysUpDsMwGSqX4mqckE4aAHjXFnHmE5XmDJjTrI=",
+    integrity = "sha256-IGbRkJsuqTkWzgktocDuSAjqPvhAfJS08U9bfrJj0o4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "ucd")
 EOF""",
     ],
-    url = "https://www.unicode.org/Public/16.0.0/ucd/UCD.zip",
+    url = "https://www.unicode.org/Public/17.0.0/ucd/UCD.zip",
 )
 
 # https://github.com/illiliti/libudev-zero
