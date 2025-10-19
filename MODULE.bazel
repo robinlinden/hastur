@@ -597,8 +597,8 @@ EOF""",
 # https://www.unicode.org/Public/idna/
 http_file(
     name = "idna_mapping_table",
-    integrity = "sha256-bbLvTtNfOz3nTrwuAEBKlgf3bUmfV2uNQEPPFPHtF1w=",
-    url = "https://www.unicode.org/Public/idna/16.0.0/IdnaMappingTable.txt",
+    integrity = "sha256-h/BVBdwCb9sr/xYTK9xoqAFGdYNogqmisYRFQK0744I=",
+    url = "https://www.unicode.org/Public/17.0.0/idna/IdnaMappingTable.txt",
 )
 
 # https://github.com/ocornut/imgui
