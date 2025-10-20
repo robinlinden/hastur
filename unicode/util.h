@@ -10,7 +10,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 
 namespace unicode {
 
@@ -210,7 +209,7 @@ class CodePointView {
     class CodePointIterator;
 
 public:
-    constexpr explicit CodePointView(std::string_view utf8_data) : view_{std::move(utf8_data)} {}
+    constexpr explicit CodePointView(std::string_view utf8_data) : view_{utf8_data} {}
 
     constexpr CodePointIterator begin() const { return CodePointIterator{view_.begin()}; }
     constexpr CodePointIterator end() const { return CodePointIterator{view_.end()}; }
@@ -220,7 +219,7 @@ private:
 
     class CodePointIterator {
     public:
-        constexpr explicit CodePointIterator(std::string_view::const_iterator it) : it_{std::move(it)} {}
+        constexpr explicit CodePointIterator(std::string_view::const_iterator it) : it_{it} {}
 
         constexpr CodePointIterator &operator++() {
             it_ += current_code_point_length();

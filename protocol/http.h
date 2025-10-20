@@ -33,7 +33,7 @@ public:
             return tl::unexpected{Error{ErrorCode::Unresolved}};
         }
 
-        socket.write(Http::create_get_request(uri, std::move(user_agent)));
+        socket.write(Http::create_get_request(uri, user_agent));
         auto data = socket.read_until("\r\n"sv);
         if (data.empty()) {
             return tl::unexpected{Error{ErrorCode::InvalidResponse}};

@@ -17,7 +17,6 @@
 #include <cstdint>
 #include <optional>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 using CanvasCommands = std::vector<gfx::CanvasCommand>;
@@ -245,7 +244,7 @@ int main() {
                 .rect{0, 0, 20, 20},
                 .color{gfx::Color{0xaa, 0xbb, 0xcc}},
         };
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
     });
 
     s.add_test("hex colors", [](etest::IActions &a) {
@@ -262,25 +261,25 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "#abcd"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc, 0xdd}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // #rrggbbaa
         styled.properties = {{css::PropertyId::BackgroundColor, "#12345678"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56, 0x78}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // #rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "#abc"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0xaa, 0xbb, 0xcc}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // #rrggbb
         styled.properties = {{css::PropertyId::BackgroundColor, "#123456"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{0x12, 0x34, 0x56}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
     });
 
     s.add_test("rgba colors", [](etest::IActions &a) {
@@ -297,61 +296,61 @@ int main() {
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3)"}};
         auto cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, rgba should be an alias of rgb
         styled.properties = {{css::PropertyId::BackgroundColor, "rgba(100, 200, 255)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{100, 200, 255}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.5)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 127}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, with alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 0.2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 51}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, alpha out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, 2)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{gfx::Color{1, 2, 3, 0xFF}}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, garbage values in alpha
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3, blergh)"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, missing closing paren
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2, 3"}};
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
         render::render_layout(saver, layout);
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, value out of range
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(-1, 2, 3)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, wrong number of arguments
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(1, 2)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
 
         // rgb, garbage value
         styled.properties = {{css::PropertyId::BackgroundColor, "rgb(a, 2, 3)"}};
         render::render_layout(saver, layout);
         cmd = gfx::DrawRectCmd{.rect{0, 0, 20, 20}, .color{kInvalidColor}};
-        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, std::move(cmd)});
+        a.expect_eq(saver.take_commands(), CanvasCommands{gfx::ClearCmd{{0xFF, 0xFF, 0xFF}}, cmd});
     });
 
     s.add_test("text style", [](etest::IActions &a) {

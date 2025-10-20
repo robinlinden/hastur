@@ -64,7 +64,7 @@ TokenizerOutput run_tokenizer(
             [&](Token &&t) { tokens.push_back(std::move(t)); },
             [&](ParseError e) { errors.push_back(e); }}
             .run();
-    return {a, std::move(tokens), std::move(errors), std::move(loc)};
+    return {a, std::move(tokens), std::move(errors), loc};
 }
 
 void expect_token(

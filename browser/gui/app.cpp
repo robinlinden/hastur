@@ -559,7 +559,7 @@ void App::handle_event(sf::Event const &event) {
         }
 
         auto window_position = geom::Position{mouse_moved->position.x, mouse_moved->position.y};
-        auto document_position = to_document_position(std::move(window_position));
+        auto document_position = to_document_position(window_position);
         auto const *hovered = get_hovered_node(document_position);
         nav_widget_extra_info_ =
                 std::format("{},{}: {}", document_position.x, document_position.y, element_text(hovered));
@@ -591,8 +591,8 @@ void App::handle_event(sf::Event const &event) {
         }
 
         auto window_position = geom::Position{mouse_button_released->position.x, mouse_button_released->position.y};
-        auto document_position = to_document_position(std::move(window_position));
-        auto const *hovered = get_hovered_node(std::move(document_position));
+        auto document_position = to_document_position(window_position);
+        auto const *hovered = get_hovered_node(document_position);
         if (auto uri = try_get_uri(hovered); uri.has_value()) {
             url_buf_ = std::string{*uri};
             navigate();

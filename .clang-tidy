@@ -103,10 +103,6 @@ CheckOptions:
   - key: bugprone-suspicious-stringview-data-usage.AllowedCallees
     value: std::distance;from_chars_result
 
-  # performance-move-const-arg
-  - key: performance-move-const-arg.CheckTriviallyCopyableMove
-    value: false
-
   # readability-identifier-naming
   # Classes, structs, ...
   - key: readability-identifier-naming.NamespaceCase

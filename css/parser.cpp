@@ -212,11 +212,11 @@ std::optional<std::pair<std::string_view, std::optional<std::string_view>>> try_
         if (std::size_t loc = str.find('/'); loc != std::string_view::npos) {
             std::string_view font_size = str.substr(0, loc);
             std::string_view line_height = str.substr(loc + 1);
-            return std::pair(std::move(font_size), std::move(line_height));
+            return std::pair(font_size, line_height);
         }
 
         if (is_absolute_size(str) || is_relative_size(str) || is_length_or_percentage(str)) {
-            return std::pair(std::move(str), std::nullopt);
+            return std::pair(str, std::nullopt);
         }
     }
     return std::nullopt;

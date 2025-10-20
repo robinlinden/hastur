@@ -79,7 +79,7 @@ TokenizerOutput run_tokenizer(etest::IActions &a,
     tokenizer.set_adjusted_current_node_in_html_namespace(opts.in_html_namespace);
     tokenizer.run();
 
-    return {a, std::move(tokens), std::move(errors), std::move(loc)};
+    return {a, std::move(tokens), std::move(errors), loc};
 }
 
 void expect_token(

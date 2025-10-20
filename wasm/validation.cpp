@@ -208,7 +208,7 @@ void InstValidator::push_ctrl(Instruction i, std::vector<ValueType> params, std:
         push_vals(params);
     }
 
-    control_stack.emplace_back(std::move(i), std::move(params), std::move(results), value_stack.size(), false);
+    control_stack.emplace_back(i, std::move(params), std::move(results), value_stack.size(), false);
 }
 
 tl::expected<ControlFrame, ValidationError> InstValidator::pop_ctrl() {

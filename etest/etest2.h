@@ -76,7 +76,7 @@ public:
             return;
         }
 
-        expectation_failure(std::move(log_message), loc);
+        expectation_failure(log_message, loc);
     }
 
     // Hard test requirement. Stops the test (using an exception) if the check fails.
@@ -87,7 +87,7 @@ public:
             return;
         }
 
-        requirement_failure(std::move(log_message), loc);
+        requirement_failure(log_message, loc);
     }
 
     // Weak test requirement. Prints the types compared on failure (if printable).
@@ -101,7 +101,7 @@ public:
 
         std::stringstream ss;
         print_to(ss, "!=", a, b);
-        expect(false, log_message || ss.view().empty() ? std::move(log_message) : std::move(ss).str(), loc);
+        expect(false, log_message || ss.view().empty() ? log_message : std::move(ss).str(), loc);
     }
 
     // Hard test requirement. Prints the types compared on failure (if printable).
@@ -115,7 +115,7 @@ public:
 
         std::stringstream ss;
         print_to(ss, "!=", a, b);
-        require(false, log_message || ss.view().empty() ? std::move(log_message) : std::move(ss).str(), loc);
+        require(false, log_message || ss.view().empty() ? log_message : std::move(ss).str(), loc);
     }
 };
 
