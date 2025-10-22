@@ -188,11 +188,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.36.0"
+BAZEL_FEATURES_VERSION = "1.37.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-k5CzkaaNOySu95ZrzoVW0oAD/j8CKlAI78eAforKrxo=",
+    integrity = "sha256-rcjd8SGRfxl/dcUkXfqNexYZ8QoQAuJQYrCTt5V/J5g=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -205,11 +205,11 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/supply-chain
-PACKAGE_METADATA_VERSION = "0.0.5"
+PACKAGE_METADATA_VERSION = "0.0.6"
 
 archive_override(
     module_name = "package_metadata",
-    integrity = "sha256-Se0R5da3UsVfpTnLsQsnNpdPNHsIHXvVAKgNrLfb7AY=",
+    integrity = "sha256-W9DMdZTqUo/Sj5jYJFfxV4J9SMwg4HvP27VgcvNcj2c=",
     strip_prefix = "supply-chain-%s/metadata" % PACKAGE_METADATA_VERSION,
     url = "https://github.com/bazel-contrib/supply-chain/releases/download/v{0}/supply-chain-v{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
 )
@@ -280,11 +280,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "32.1"
+PROTOBUF_VERSION = "33.0"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-P+6r0HehErVq9SUZvE7OkOKLRYP0/CVJyV12WYXg/Tw=",
+    integrity = "sha256-y8U2BkcGtijc/lB77zhu8+IhTVY2V2EilvF4GqFV7gc=",
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
@@ -346,19 +346,21 @@ archive_override(
 )
 
 # https://github.com/pybind/pybind11_bazel
+PYBIND11_BAZEL_VERSION = "3.0.0"
+
 archive_override(
     module_name = "pybind11_bazel",
-    integrity = "sha256-yuaAZwv6boJwPAPyo8mVQIzcv0NhbXvdGY70XTwydzE=",
-    strip_prefix = "pybind11_bazel-2.13.6",
-    urls = ["https://github.com/pybind/pybind11_bazel/releases/download/v2.13.6/pybind11_bazel-2.13.6.tar.gz"],
+    integrity = "sha256-DS8PvRhMzZS4UpQ/kSw96H5f9jJbqcN+r+f0eTAmP9w=",
+    strip_prefix = "pybind11_bazel-%s" % PYBIND11_BAZEL_VERSION,
+    url = "https://github.com/pybind/pybind11_bazel/releases/download/v{0}/pybind11_bazel-{0}.tar.gz".format(PYBIND11_BAZEL_VERSION),
 )
 
 # https://github.com/apple/swift-argument-parser
-SWIFT_ARGUMENT_PARSER_VERSION = "1.6.1"
+SWIFT_ARGUMENT_PARSER_VERSION = "1.6.2"
 
 archive_override(
     module_name = "swift_argument_parser",
-    integrity = "sha256-0vuxWIYRW7LZv7Y9TB3dQIDLtL/vJlEzXF07ndXzyLo=",
+    integrity = "sha256-KYr8NJyy+L9ubJmF5MtZUo1XQlQTCJJC2JNEmrrUx/U=",
     # Missing build file, but that's fine as it's unused and only required to
     # satisfy some dark corner of Bazel.
     patch_cmds = [
