@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-7iDMXAurRwZUc8gDPUYjdN040XJAbsyN5cjwhIeUPy8=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.23.1"),
+    integrity = "sha256-onDwNAB6thEWRdJ6jtiLR84qdbYIr2M+7KiJy14Hrg0=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.24.1"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.9"
+RULES_CC_VERSION = "0.2.11"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-ac60VLmyngq6fagcculuyv2B0gRL6IO0Y5ixx3yn//k=",
+    integrity = "sha256-UoeCFSTRwdIPHA/6kL0sLXdkc92MhNr6nreDFQKG2CU=",
     patch_cmds = [
         # Work around warning about overriding the /std-flag.
         # `cl : Command line warning D9025 : overriding '/std:c++17' with '/std:c++latest'`
@@ -604,13 +604,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.3"
+IMGUI_VERSION = "1.92.4"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-khLufEcYsUZqXZnmS84+8ZZXBK/qS6ZR+Nl40HkbfHw=",
+    integrity = "sha256-DhddTZQRElMlSbQYztC9VGq+kCTsubX0MfimeiGXsLo=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -738,13 +738,13 @@ EOF""",
 )
 
 # https://github.com/gabime/spdlog
-SPDLOG_VERSION = "1.15.3"
+SPDLOG_VERSION = "1.16.0"
 
 bazel_dep(name = "spdlog")  # MIT
 archive_override(
     module_name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-FaBOacIi62wBCUtcf/iiSbNrsieI1yUZZG+4X+smfmc=",
+    integrity = "sha256-h0F1PkiKeN0NACTJgOH7W1yFiIRH4wnZy52Um9tSqj4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
@@ -757,7 +757,7 @@ EOF""",
     url = "https://github.com/gabime/spdlog/archive/v%s.tar.gz" % SPDLOG_VERSION,
 )
 
-# HEAD, last updated at 2025-06-07.
+# HEAD, last updated at 2025-10-05.
 # https://github.com/nothings/stb
 STB_VERSION = "fede005abaf93d9d7f3a679d1999b2db341b360f"
 
@@ -807,12 +807,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.328"
+VULKAN_TAG = "1.4.329"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-OtVtOHF5tH3WMkMsz5ibu2l3Ph1zJpK3u62cTTaqEwQ=",
+    integrity = "sha256-fqZ6q8zezG72FrTCQ/VjrJvKlFpj1PTMoh8bvNgosY4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -828,7 +828,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-oKN7LRkp6u+Qcyds2yPtf3CClNSSPPfw03pp5F9isyI=",
+    integrity = "sha256-N0U9cNz5BteVLzQGRC26XJBI6nK79CqO83+e3bxWhx0=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
