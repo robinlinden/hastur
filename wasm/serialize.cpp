@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -29,8 +29,6 @@ struct InstructionStringifyVisitor {
     void operator()(Loop const &t);
     void operator()(Branch const &t);
     void operator()(BranchIf const &t);
-    void operator()(Return const &);
-    void operator()(End const &);
     void operator()(I32Const const &t);
     void operator()(LocalGet const &t);
     void operator()(LocalSet const &t);
@@ -64,14 +62,6 @@ void InstructionStringifyVisitor::operator()(Branch const &t) {
 
 void InstructionStringifyVisitor::operator()(BranchIf const &t) {
     out << BranchIf::kMnemonic << " " << std::to_string(t.label_idx);
-}
-
-void InstructionStringifyVisitor::operator()(Return const &) {
-    out << Return::kMnemonic;
-}
-
-void InstructionStringifyVisitor::operator()(End const &) {
-    out << End::kMnemonic;
 }
 
 void InstructionStringifyVisitor::operator()(I32Const const &t) {
