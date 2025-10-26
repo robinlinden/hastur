@@ -73,7 +73,7 @@ cc_library(
     # "math",
     # "menuitem-element",
     # "namespace-sensitivity",
-    # "noscript01",
+    "noscript01",
     # "pending-spec-changes",
     # "pending-spec-changes-plain-text-unsafe",
     # "plain-text-unsafe",

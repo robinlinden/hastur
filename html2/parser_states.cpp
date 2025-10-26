@@ -648,7 +648,7 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
     static constexpr std::array kIgnoredStartTags{"head"sv, "noscript"sv};
     if (end != nullptr && end->tag_name == "br") {
         // Let the anything-else case handle this.
-    } else if (start != nullptr && std::ranges::contains(kIgnoredStartTags, start->tag_name)) {
+    } else if ((start != nullptr && std::ranges::contains(kIgnoredStartTags, start->tag_name)) || end != nullptr) {
         // Parse error, ignore the token.
         return {};
     }
