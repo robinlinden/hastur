@@ -54,8 +54,14 @@ std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) 
             test.input += line + '\n';
         }
 
-        while (std::getline(test_bytes, line) && line != "#document") {
+        while (std::getline(test_bytes, line) && line != "#document" && !line.starts_with("#script")) {
             // Skip the errors for now.
+        }
+
+        if (line.starts_with("#script")) {
+            // TODO(robinlinden): Handle tests that only work w/ scripting enabled or disabled.
+            std::cerr << "Tests that require scripting on/off aren't supported yet.\n";
+            return std::nullopt;
         }
 
         if (line != "#document") {
