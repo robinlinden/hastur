@@ -7,6 +7,7 @@
 #include "dom/dom.h"
 #include "etest/etest2.h"
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <istream>
@@ -33,9 +34,15 @@ namespace {
 // |     "Hello"
 // ```
 // TODO(robinlinden): Test errors as well.
+enum class Scripting : std::uint8_t {
+    Yes,
+    No,
+};
+
 struct TestCase {
     std::string input;
     std::string expected_result;
+    std::optional<Scripting> scripting{std::nullopt};
 };
 
 std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) {
@@ -59,9 +66,19 @@ std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) 
         }
 
         if (line.starts_with("#script")) {
-            // TODO(robinlinden): Handle tests that only work w/ scripting enabled or disabled.
-            std::cerr << "Tests that require scripting on/off aren't supported yet.\n";
-            return std::nullopt;
+            if (line == "#script-on") {
+                test.scripting = Scripting::Yes;
+            } else if (line == "#script-off") {
+                test.scripting = Scripting::No;
+            } else {
+                std::cerr << "Unknown scripting directive: " << line << '\n';
+                return std::nullopt;
+            }
+
+            if (!std::getline(test_bytes, line) || line != "#document") {
+                std::cerr << "Expected '#document' after scripting directive.\n";
+                return std::nullopt;
+            }
         }
 
         if (line != "#document") {
@@ -111,11 +128,15 @@ int main(int argc, char **argv) {
         }
 
         s.add_test(test.input, [=](etest::IActions &a) {
-            auto document = html::parse(test.input, {.scripting = false, .include_comments = true});
-            a.expect_eq(to_string(document), test.expected_result);
+            if (test.scripting.value_or(Scripting::No) == Scripting::No) {
+                auto document = html::parse(test.input, {.scripting = false, .include_comments = true});
+                a.expect_eq(to_string(document), test.expected_result);
+            }
 
-            document = html::parse(test.input, {.scripting = true, .include_comments = true});
-            a.expect_eq(to_string(document), test.expected_result);
+            if (test.scripting.value_or(Scripting::Yes) == Scripting::Yes) {
+                auto document = html::parse(test.input, {.scripting = true, .include_comments = true});
+                a.expect_eq(to_string(document), test.expected_result);
+            }
         });
     }
 
