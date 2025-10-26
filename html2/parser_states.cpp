@@ -527,8 +527,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
 // NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
     if (is_boring_whitespace(token)) {
-        // TODO(robinlinden): Should be inserting characters, but our last
-        // parser didn't do that so it will require rewriting tests.
+        a.insert_character(std::get<html2::CharacterToken>(token));
         return {};
     }
 

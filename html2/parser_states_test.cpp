@@ -235,10 +235,16 @@ void in_head_tests(etest::Suite &s) {
     });
 
     s.add_test("InHead: base, basefont, bgsound, link", [](etest::IActions &a) {
-        auto res = parse("<base> <basefont> <bgsound> <link>", {});
+        auto res = parse("<base> <basefont>    <bgsound><link>", {});
 
-        auto head_children =
-                NodeVec{dom::Element{"base"}, dom::Element{"basefont"}, dom::Element{"bgsound"}, dom::Element{"link"}};
+        auto head_children = NodeVec{
+                dom::Element{"base"},
+                dom::Text{" "},
+                dom::Element{"basefont"},
+                dom::Text{"    "},
+                dom::Element{"bgsound"},
+                dom::Element{"link"},
+        };
         auto head = dom::Element{"head", {}, std::move(head_children)};
 
         a.expect_eq(res.document.html(), dom::Element{"html", {}, {std::move(head), dom::Element{"body"}}});
