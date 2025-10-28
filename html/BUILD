@@ -88,7 +88,7 @@ cc_library(
     # "tests2",
     # "tests3",
     # "tests4",
-    # "tests5",
+    "tests5",
     # "tests6",
     # "tests7",
     # "tests8",

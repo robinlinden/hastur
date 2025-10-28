@@ -1126,6 +1126,35 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     // TODO(robinlinden): Most things.
 
+    if (start != nullptr && start->tag_name == "textarea") {
+        a.insert_element_for(*start);
+
+        // TODO(robinlinden): 2. If the next token is a U+000A LINE FEED (LF)
+        // character token, then ignore that token and move on to the next one.
+        // (Newlines at the start of textarea elements are ignored as an
+        // authoring convenience.)
+
+        a.set_tokenizer_state(html2::State::Rcdata);
+        a.store_original_insertion_mode(a.current_insertion_mode());
+        a.set_frameset_ok(false);
+        return Text{};
+    }
+
+    if (start != nullptr && start->tag_name == "xmp") {
+        if (has_element_in_button_scope(a, "p")) {
+            close_a_p_element();
+        }
+
+        a.reconstruct_active_formatting_elements();
+        a.set_frameset_ok(false);
+        return generic_raw_text_parse(a, *start);
+    }
+
+    if (start != nullptr && start->tag_name == "iframe") {
+        a.set_frameset_ok(false);
+        return generic_raw_text_parse(a, *start);
+    }
+
     if (start != nullptr && ((start->tag_name == "noembed") || (start->tag_name == "noscript" && a.scripting()))) {
         return generic_raw_text_parse(a, *start);
     }
