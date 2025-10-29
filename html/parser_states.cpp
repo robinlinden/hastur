@@ -1110,6 +1110,42 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
+    if (start != nullptr && start->tag_name == "input") {
+        // TODO(robinlinden): Fragment-parsing case.
+
+        if (has_element_in_scope(a, "select")) {
+            // Parse error.
+            while (a.current_node_name() != "select") {
+                a.pop_current_node();
+            }
+            a.pop_current_node();
+        }
+
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+
+        if (auto const type = std::ranges::find(start->attributes, "type", &Attribute::name);
+                type == std::end(start->attributes) || util::lowercased(type->value) == "hidden") {
+            a.set_frameset_ok(false);
+        }
+
+        return {};
+    }
+
+    static constexpr auto kSelfClosingElements = std::to_array<std::string_view>({
+            "param",
+            "source",
+            "track",
+    });
+    if (start != nullptr && std::ranges::contains(kSelfClosingElements, start->tag_name)) {
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        // TODO(robinlinden): Acknowledge the token's self-closing flag, if it is set.
+        return {};
+    }
+
     // TODO(robinlinden): Most things.
 
     if (start != nullptr && start->tag_name == "hr") {
@@ -1160,6 +1196,27 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     }
 
     // TODO(robinlinden): Most things.
+
+    if (start != nullptr) {
+        static constexpr auto kIgnoredStartTags = std::to_array<std::string_view>({
+                "caption",
+                "col",
+                "colgroup",
+                "frame",
+                "head",
+                "tbody",
+                "td",
+                "tfoot",
+                "th",
+                "thead",
+                "tr",
+        });
+
+        if (std::ranges::contains(kIgnoredStartTags, start->tag_name)) {
+            // Parse error.
+            return {};
+        }
+    }
 
     if (start != nullptr) {
         a.insert_element_for(*start);

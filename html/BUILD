@@ -109,7 +109,7 @@ cc_library(
     # "tests22",
     # "tests23",
     "tests24",
-    # "tests25",
+    "tests25",
     # "tests26",
     # "tests_innerHTML_1",
     # "tricky01",
