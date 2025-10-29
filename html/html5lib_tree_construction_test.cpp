@@ -61,7 +61,8 @@ std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) 
             test.input += line + '\n';
         }
 
-        while (std::getline(test_bytes, line) && line != "#document" && !line.starts_with("#script")) {
+        while (std::getline(test_bytes, line) && line != "#document" && !line.starts_with("#script")
+                && line != "#document-fragment") {
             // Skip the errors for now.
         }
 
@@ -79,6 +80,11 @@ std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) 
                 std::cerr << "Expected '#document' after scripting directive.\n";
                 return std::nullopt;
             }
+        }
+
+        if (line == "#document-fragment") {
+            std::cerr << "Document fragment tests aren't supported yet.\n";
+            return std::nullopt;
         }
 
         if (line != "#document") {
