@@ -1,18 +1,10 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
+# asio leaks this into our code.
 NET_COPTS = HASTUR_COPTS + select({
-    "@platforms//os:linux": [
-        # asio leaks this into our code.
-        "-Wno-null-dereference",
-        "-Wno-shadow",
-        "-Wno-unknown-pragmas",
-    ],
-    "@platforms//os:macos": [
-        "-Wno-null-dereference",
-        "-Wno-shadow",
-        "-Wno-unknown-pragmas",
-    ],
+    "@platforms//os:linux": ["-Wno-shadow"],
+    "@platforms//os:macos": ["-Wno-shadow"],
     "//conditions:default": [],
 })
 
