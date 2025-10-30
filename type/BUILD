@@ -28,13 +28,6 @@ cc_test(
     ],
 )
 
-SFML_TYPE_COPTS = HASTUR_COPTS + select({
-    # SFML leaks this into our code.
-    "@platforms//os:linux": ["-Wno-implicit-fallthrough"],
-    "@platforms//os:macos": ["-Wno-implicit-fallthrough"],
-    "//conditions:default": [],
-})
-
 genrule(
     name = "generate_fallback_font",
     srcs = ["@opensans//file"],
@@ -58,7 +51,7 @@ cc_library(
     name = "sfml",
     srcs = ["sfml.cpp"],
     hdrs = ["sfml.h"],
-    copts = SFML_TYPE_COPTS,
+    copts = HASTUR_COPTS,
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [

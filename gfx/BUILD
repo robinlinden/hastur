@@ -61,17 +61,7 @@ cc_library(
         ":rect_fragment_shader",
     ],
     hdrs = ["sfml_canvas.h"],
-    copts = HASTUR_COPTS + select({
-        "@platforms//os:linux": [
-            # sfml leaks this into our code.
-            "-Wno-implicit-fallthrough",
-        ],
-        "@platforms//os:macos": [
-            # sfml leaks this into our code.
-            "-Wno-implicit-fallthrough",
-        ],
-        "//conditions:default": [],
-    }),
+    copts = HASTUR_COPTS,
     implementation_deps = [
         "@sfml//:system",
         "@spdlog",
