@@ -595,6 +595,10 @@ std::string_view to_string(ValidationError err) {
             return "A memory has invalid limits";
         case ValidationError::MemorySectionUndefined:
             return "Attempted a load/store or data initialization, but no memory section was defined";
+        case ValidationError::StartFunctionInvalid:
+            return "Start section references a non-existent function";
+        case ValidationError::StartFunctionTypeInvalid:
+            return "Start function references a non-existent or invalid type";
         case ValidationError::TableInvalid:
             return "A table has invalid limits";
         case ValidationError::TypeSectionUndefined:
@@ -679,6 +683,33 @@ tl::expected<void, ValidationError> validate(Module const &m) {
                     return tl::unexpected{ValidationError::DataMemoryIdxInvalid};
                 }
             }
+        }
+    }
+
+    // https://webassembly.github.io/spec/core/valid/modules.html#start-function
+    if (m.start_section.has_value()) {
+        // Ensure function and type sections exist
+        if (!m.function_section.has_value()) {
+            return tl::unexpected{ValidationError::FunctionSectionUndefined};
+        }
+
+        if (!m.type_section.has_value()) {
+            return tl::unexpected{ValidationError::TypeSectionUndefined};
+        }
+
+        // Ensure start function has valid index into function and type section
+        if (m.start_section->start >= m.function_section->type_indices.size()) {
+            return tl::unexpected{ValidationError::StartFunctionInvalid};
+        }
+
+        if (m.start_section->start >= m.type_section->types.size()) {
+            return tl::unexpected{ValidationError::StartFunctionTypeInvalid};
+        }
+
+        // Start function must have type [] -> []
+        if (!m.type_section->types[m.start_section->start].parameters.empty()
+                || !m.type_section->types[m.start_section->start].results.empty()) {
+            return tl::unexpected{ValidationError::StartFunctionTypeInvalid};
         }
     }
 
