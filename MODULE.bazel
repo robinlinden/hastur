@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-onDwNAB6thEWRdJ6jtiLR84qdbYIr2M+7KiJy14Hrg0=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.24.1"),
+    integrity = "sha256-hafcE+Nw81W/ADgSONHLpWRQ0+WYVmuMUtkN3zAcXfs=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.24.3"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.11"
+RULES_CC_VERSION = "0.2.13"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-UoeCFSTRwdIPHA/6kL0sLXdkc92MhNr6nreDFQKG2CU=",
+    integrity = "sha256-Ry3cqM7B5krXjk8Mq77FWTajut2+e+8HJ2TKkVBL1SM=",
     patch_cmds = [
         # Work around warning about overriding the /std-flag.
         # `cl : Command line warning D9025 : overriding '/std:c++17' with '/std:c++latest'`
@@ -450,18 +450,20 @@ archive_override(
 )
 
 # https://github.com/google/brotli
-bazel_dep(name = "brotli")
+BROTLI_VERSION = "1.2.0"
+
+bazel_dep(name = "brotli")  # MIT
 archive_override(
-    module_name = "brotli",  # MIT
-    integrity = "sha256-5yCmyilCi4A/StFlNxdx9TmPq6OX7fZ3iDehhZnqE/8=",
+    module_name = "brotli",
+    integrity = "sha256-gWyW6Ojxk7QBUdrX6P83sSIdAZ28ucNc0/rb/mR33+w=",
     patch_cmds = [
         """sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel""",
         """cat <<EOF >MODULE.bazel
 module(name = "brotli")
 EOF""",
     ],
-    strip_prefix = "brotli-1.1.0",
-    url = "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz",
+    strip_prefix = "brotli-%s" % BROTLI_VERSION,
+    url = "https://github.com/google/brotli/archive/refs/tags/v%s.tar.gz" % BROTLI_VERSION,
 )
 
 # https://github.com/tartanllama/expected
@@ -491,12 +493,12 @@ http_file(
 )
 
 # https://github.com/fmtlib/fmt
-FMT_VERSION = "12.0.0"
+FMT_VERSION = "12.1.0"
 
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-HDIpMgNEl5K/jpTH9mmcZDiH6Cby1mqAhptPJ5+wfSU=",
+    integrity = "sha256-aV/Rl/pa/4/Ge18rvBEEkKh1zfekFoashRL7SA+orac=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -566,13 +568,13 @@ EOF""",
 )
 
 # https://github.com/unicode-org/icu
-ICU_VERSION = "77-1"
+ICU_VERSION = "78.1"
 
 bazel_dep(name = "icu")  # Unicode-DFS-2016
 archive_override(
     module_name = "icu",
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-3tOpb2tyNtFg3zCvRlkxZbnHik7HKkFKpjz1BhTkwU4=",
+    integrity = "sha256-Yhf1jKObIxJ2Bc/Gx+DTR1/ksNYxVwETg9cWy0FheIY=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
@@ -592,8 +594,8 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "platforms")
 EOF""",
     ],
-    strip_prefix = "icu-release-%s/icu4c" % ICU_VERSION,
-    url = "https://github.com/unicode-org/icu/archive/refs/tags/release-%s.tar.gz" % ICU_VERSION,
+    strip_prefix = "icu",
+    url = "https://github.com/unicode-org/icu/releases/download/release-{0}/icu4c-{0}-sources.tgz".format(ICU_VERSION),
 )
 
 # https://www.unicode.org/Public/idna/
