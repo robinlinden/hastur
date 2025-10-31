@@ -188,11 +188,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.37.0"
+BAZEL_FEATURES_VERSION = "1.38.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-rcjd8SGRfxl/dcUkXfqNexYZ8QoQAuJQYrCTt5V/J5g=",
+    integrity = "sha256-BycdD2sSYzd3tpAgxMsetnsZOcDPhLs5RNyFzCUMDAE=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -200,8 +200,8 @@ archive_override(
 # https://github.com/bazel-contrib/bazel-gazelle
 archive_override(
     module_name = "gazelle",
-    integrity = "sha256-5Ge4AQRrZZjGVzCbRdJCbcA1E3d70Qkq8sYu6/mQrKU=",
-    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.45.0"),
+    integrity = "sha256-79RJFJAP5S7tiRteEf9EPosY6puE4wQhPwTRjo4g3z0=",
+    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.46.0"),
 )
 
 # https://github.com/bazel-contrib/supply-chain
@@ -217,8 +217,8 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-pynI7SRHyQ/hQAd2iQecoKz7dYDsQWN/MS1lDOnZPZY=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.57.0"),
+    integrity = "sha256-gvCvJT/GHH8GsAXGfAeVc3dhERhbfDdCVj91EXiqpMA=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.58.3"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
