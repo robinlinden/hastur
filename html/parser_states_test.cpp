@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/parser_states.h"
+#include "html/parser_states.h"
 
-#include "html2/token.h"
-#include "html2/tokenizer.h"
+#include "html/parser_actions.h"
+#include "html/token.h"
+#include "html/tokenizer.h"
 
 #include "dom/dom.h"
 #include "etest/etest2.h"
-#include "html/parser_actions.h"
 
 #include <array>
 #include <cstddef>
@@ -32,16 +32,16 @@ struct ParseResult {
 };
 
 struct ParseOptions {
-    html2::InsertionMode initial_insertion_mode;
+    html::InsertionMode initial_insertion_mode;
     bool scripting{false};
 };
 
 // TODO(robinlinden): This is very awkward, but I'll make it better later, I promise.
 ParseResult parse(std::string_view html, ParseOptions const &opts) {
-    html2::Tokenizer tokenizer{html, [&](auto &, auto const &) {}};
+    html::Tokenizer tokenizer{html, [&](auto &, auto const &) {}};
 
     ParseResult res{};
-    html2::InsertionMode mode{opts.initial_insertion_mode};
+    html::InsertionMode mode{opts.initial_insertion_mode};
     std::vector<dom::Element *> open_elements;
     std::function<void(dom::Element const &)> on_element_closed{};
     html::Actions actions{
@@ -55,11 +55,11 @@ ParseResult parse(std::string_view html, ParseOptions const &opts) {
             on_element_closed,
     };
 
-    auto on_token = [&](html2::Tokenizer &, html2::Token const &token) {
+    auto on_token = [&](html::Tokenizer &, html::Token const &token) {
         mode = std::visit([&](auto &v) { return v.process(actions, token); }, mode).value_or(mode);
     };
 
-    tokenizer = html2::Tokenizer{html, std::move(on_token)};
+    tokenizer = html::Tokenizer{html, std::move(on_token)};
     tokenizer.run();
     return res;
 }
@@ -133,7 +133,7 @@ void initial_tests(etest::Suite &s) {
 
 void before_html_tests(etest::Suite &s) {
     s.add_test("BeforeHtml: doctype", [](etest::IActions &a) {
-        auto res = parse("<!DOCTYPE html>", {.initial_insertion_mode = html2::BeforeHtml{}});
+        auto res = parse("<!DOCTYPE html>", {.initial_insertion_mode = html::BeforeHtml{}});
         a.expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
@@ -156,12 +156,12 @@ void before_html_tests(etest::Suite &s) {
     });
 
     s.add_test("BeforeHtml: head end-tag", [](etest::IActions &a) {
-        auto res = parse("</head>", {.initial_insertion_mode = html2::BeforeHtml{}});
+        auto res = parse("</head>", {.initial_insertion_mode = html::BeforeHtml{}});
         a.expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 
     s.add_test("BeforeHtml: dropped end-tag", [](etest::IActions &a) {
-        auto res = parse("</img>", {.initial_insertion_mode = html2::BeforeHtml{}});
+        auto res = parse("</img>", {.initial_insertion_mode = html::BeforeHtml{}});
         a.expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
     });
 }

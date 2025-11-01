@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/parse_error.h"
-#include "html2/token.h"
-#include "html2/tokenizer.h"
+#include "html/tokenizer.h"
+
+#include "html/parse_error.h"
+#include "html/token.h"
 
 #include "etest/etest2.h"
 #include "json/json.h"
@@ -25,21 +26,21 @@
 
 namespace {
 struct Error {
-    html2::ParseError error{};
-    html2::SourceLocation location{};
+    html::ParseError error{};
+    html::SourceLocation location{};
 
     // TODO(robinlinden): Check line and column as well.
     [[nodiscard]] constexpr bool operator==(Error const &e) const { return error == e.error; }
 };
 
-std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
-        std::string_view input, html2::State state, std::optional<std::string_view> const &last_start_tag) {
-    std::vector<html2::Token> tokens;
+std::pair<std::vector<html::Token>, std::vector<Error>> tokenize(
+        std::string_view input, html::State state, std::optional<std::string_view> const &last_start_tag) {
+    std::vector<html::Token> tokens;
     std::vector<Error> errors;
     bool last_start_tag_set = true;
 
     // Patch the input so that we can set the last seen start tag without adding
-    // a setter that should only really be used in tests to html2::Tokenizer.
+    // a setter that should only really be used in tests to html::Tokenizer.
     std::string real_input;
     if (last_start_tag) {
         last_start_tag_set = false;
@@ -50,28 +51,28 @@ std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
         real_input = input;
     }
 
-    html2::Tokenizer tokenizer{real_input,
-            [&](html2::Tokenizer &t, html2::Token token) {
+    html::Tokenizer tokenizer{real_input,
+            [&](html::Tokenizer &t, html::Token token) {
                 // The expected token output doesn't contain eof tokens.
-                if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+                if (std::holds_alternative<html::EndOfFileToken>(token)) {
                     return;
                 }
 
                 if (!last_start_tag_set) {
-                    assert(std::holds_alternative<html2::StartTagToken>(token));
+                    assert(std::holds_alternative<html::StartTagToken>(token));
                     last_start_tag_set = true;
                     t.set_state(state);
                     return;
                 }
 
-                if (auto const *start_tag = std::get_if<html2::StartTagToken>(&token);
+                if (auto const *start_tag = std::get_if<html::StartTagToken>(&token);
                         start_tag != nullptr && start_tag->tag_name == "script") {
-                    t.set_state(html2::State::ScriptData);
+                    t.set_state(html::State::ScriptData);
                 }
 
                 tokens.push_back(std::move(token));
             },
-            [&](html2::Tokenizer &t, html2::ParseError error) {
+            [&](html::Tokenizer &t, html::ParseError error) {
                 errors.push_back({error, t.current_source_location()});
             }};
 
@@ -86,7 +87,7 @@ std::pair<std::vector<html2::Token>, std::vector<Error>> tokenize(
     return {std::move(tokens), std::move(errors)};
 }
 
-std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
+std::vector<html::Token> to_html2_tokens(json::Array const &tokens) {
     constexpr auto kGetOptionalStr = [](json::Value const &v) -> std::optional<std::string> {
         if (auto const *str = std::get_if<std::string>(&v)) {
             return *str;
@@ -94,7 +95,7 @@ std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
         return std::nullopt;
     };
 
-    std::vector<html2::Token> result;
+    std::vector<html::Token> result;
     for (auto const &token : tokens.values) {
         assert(std::holds_alternative<json::Array>(token));
         auto const &t = std::get<json::Array>(token);
@@ -106,7 +107,7 @@ std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
             auto system_id = kGetOptionalStr((*++it));
             // The json has "correctness" instead of "force quirks", so we negate it.
             auto force_quirks = !(std::get<bool>(*++it));
-            result.emplace_back(html2::DoctypeToken{
+            result.emplace_back(html::DoctypeToken{
                     std::move(name),
                     std::move(public_id),
                     std::move(system_id),
@@ -116,12 +117,12 @@ std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
         }
 
         if (kind == "Comment") {
-            result.emplace_back(html2::CommentToken{std::get<std::string>(*++it)});
+            result.emplace_back(html::CommentToken{std::get<std::string>(*++it)});
             continue;
         }
 
         if (kind == "StartTag") {
-            html2::StartTagToken start{std::get<std::string>(*++it)};
+            html::StartTagToken start{std::get<std::string>(*++it)};
             auto attrs = std::get<json::Object>(*++it);
             for (auto const &attr : attrs.values) {
                 start.attributes.push_back({
@@ -139,14 +140,14 @@ std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
         }
 
         if (kind == "EndTag") {
-            result.emplace_back(html2::EndTagToken{std::get<std::string>(*++it)});
+            result.emplace_back(html::EndTagToken{std::get<std::string>(*++it)});
             continue;
         }
 
         if (kind == "Character") {
             auto const &characters = std::get<std::string>(*++it);
             for (auto c : characters) {
-                result.emplace_back(html2::CharacterToken{c});
+                result.emplace_back(html::CharacterToken{c});
             }
             continue;
         }
@@ -158,213 +159,213 @@ std::vector<html2::Token> to_html2_tokens(json::Array const &tokens) {
     return result;
 }
 
-std::optional<html2::State> to_state(std::string_view state_name) {
+std::optional<html::State> to_state(std::string_view state_name) {
     if (state_name == "Data state") {
-        return html2::State::Data;
+        return html::State::Data;
     }
 
     if (state_name == "RCDATA state") {
-        return html2::State::Rcdata;
+        return html::State::Rcdata;
     }
 
     if (state_name == "RAWTEXT state") {
-        return html2::State::Rawtext;
+        return html::State::Rawtext;
     }
 
     if (state_name == "Script data state") {
-        return html2::State::ScriptData;
+        return html::State::ScriptData;
     }
 
     if (state_name == "PLAINTEXT state") {
-        return html2::State::Plaintext;
+        return html::State::Plaintext;
     }
 
     if (state_name == "CDATA section state") {
-        return html2::State::CdataSection;
+        return html::State::CdataSection;
     }
 
     return std::nullopt;
 }
 
-std::optional<html2::ParseError> to_parse_error(std::string_view error_name) {
+std::optional<html::ParseError> to_parse_error(std::string_view error_name) {
     if (error_name == "abrupt-closing-of-empty-comment") {
-        return html2::ParseError::AbruptClosingOfEmptyComment;
+        return html::ParseError::AbruptClosingOfEmptyComment;
     }
 
     if (error_name == "abrupt-doctype-public-identifier") {
-        return html2::ParseError::AbruptDoctypePublicIdentifier;
+        return html::ParseError::AbruptDoctypePublicIdentifier;
     }
 
     if (error_name == "abrupt-doctype-system-identifier") {
-        return html2::ParseError::AbruptDoctypeSystemIdentifier;
+        return html::ParseError::AbruptDoctypeSystemIdentifier;
     }
 
     if (error_name == "absence-of-digits-in-numeric-character-reference") {
-        return html2::ParseError::AbsenceOfDigitsInNumericCharacterReference;
+        return html::ParseError::AbsenceOfDigitsInNumericCharacterReference;
     }
 
     if (error_name == "cdata-in-html-content") {
-        return html2::ParseError::CdataInHtmlContent;
+        return html::ParseError::CdataInHtmlContent;
     }
 
     if (error_name == "character-reference-outside-unicode-range") {
-        return html2::ParseError::CharacterReferenceOutsideUnicodeRange;
+        return html::ParseError::CharacterReferenceOutsideUnicodeRange;
     }
 
     if (error_name == "control-character-reference") {
-        return html2::ParseError::ControlCharacterReference;
+        return html::ParseError::ControlCharacterReference;
     }
 
     if (error_name == "duplicate-attribute") {
-        return html2::ParseError::DuplicateAttribute;
+        return html::ParseError::DuplicateAttribute;
     }
 
     if (error_name == "end-tag-with-attributes") {
-        return html2::ParseError::EndTagWithAttributes;
+        return html::ParseError::EndTagWithAttributes;
     }
 
     if (error_name == "end-tag-with-trailing-solidus") {
-        return html2::ParseError::EndTagWithTrailingSolidus;
+        return html::ParseError::EndTagWithTrailingSolidus;
     }
 
     if (error_name == "eof-before-tag-name") {
-        return html2::ParseError::EofBeforeTagName;
+        return html::ParseError::EofBeforeTagName;
     }
 
     if (error_name == "eof-in-cdata") {
-        return html2::ParseError::EofInCdata;
+        return html::ParseError::EofInCdata;
     }
 
     if (error_name == "eof-in-comment") {
-        return html2::ParseError::EofInComment;
+        return html::ParseError::EofInComment;
     }
 
     if (error_name == "eof-in-doctype") {
-        return html2::ParseError::EofInDoctype;
+        return html::ParseError::EofInDoctype;
     }
 
     if (error_name == "eof-in-script-html-comment-like-text") {
-        return html2::ParseError::EofInScriptHtmlCommentLikeText;
+        return html::ParseError::EofInScriptHtmlCommentLikeText;
     }
 
     if (error_name == "eof-in-tag") {
-        return html2::ParseError::EofInTag;
+        return html::ParseError::EofInTag;
     }
 
     if (error_name == "incorrectly-closed-comment") {
-        return html2::ParseError::IncorrectlyClosedComment;
+        return html::ParseError::IncorrectlyClosedComment;
     }
 
     if (error_name == "incorrectly-opened-comment") {
-        return html2::ParseError::IncorrectlyOpenedComment;
+        return html::ParseError::IncorrectlyOpenedComment;
     }
 
     if (error_name == "invalid-character-sequence-after-doctype-name") {
-        return html2::ParseError::InvalidCharacterSequenceAfterDoctypeName;
+        return html::ParseError::InvalidCharacterSequenceAfterDoctypeName;
     }
 
     if (error_name == "invalid-first-character-of-tag-name") {
-        return html2::ParseError::InvalidFirstCharacterOfTagName;
+        return html::ParseError::InvalidFirstCharacterOfTagName;
     }
 
     if (error_name == "missing-attribute-value") {
-        return html2::ParseError::MissingAttributeValue;
+        return html::ParseError::MissingAttributeValue;
     }
 
     if (error_name == "missing-doctype-name") {
-        return html2::ParseError::MissingDoctypeName;
+        return html::ParseError::MissingDoctypeName;
     }
 
     if (error_name == "missing-doctype-public-identifier") {
-        return html2::ParseError::MissingDoctypePublicIdentifier;
+        return html::ParseError::MissingDoctypePublicIdentifier;
     }
 
     if (error_name == "missing-doctype-system-identifier") {
-        return html2::ParseError::MissingDoctypeSystemIdentifier;
+        return html::ParseError::MissingDoctypeSystemIdentifier;
     }
 
     if (error_name == "missing-end-tag-name") {
-        return html2::ParseError::MissingEndTagName;
+        return html::ParseError::MissingEndTagName;
     }
 
     if (error_name == "missing-quote-before-doctype-public-identifier") {
-        return html2::ParseError::MissingQuoteBeforeDoctypePublicIdentifier;
+        return html::ParseError::MissingQuoteBeforeDoctypePublicIdentifier;
     }
 
     if (error_name == "missing-quote-before-doctype-system-identifier") {
-        return html2::ParseError::MissingQuoteBeforeDoctypeSystemIdentifier;
+        return html::ParseError::MissingQuoteBeforeDoctypeSystemIdentifier;
     }
 
     if (error_name == "missing-semicolon-after-character-reference") {
-        return html2::ParseError::MissingSemicolonAfterCharacterReference;
+        return html::ParseError::MissingSemicolonAfterCharacterReference;
     }
 
     if (error_name == "missing-whitespace-after-doctype-public-keyword") {
-        return html2::ParseError::MissingWhitespaceAfterDoctypePublicKeyword;
+        return html::ParseError::MissingWhitespaceAfterDoctypePublicKeyword;
     }
 
     if (error_name == "missing-whitespace-after-doctype-system-keyword") {
-        return html2::ParseError::MissingWhitespaceAfterDoctypeSystemKeyword;
+        return html::ParseError::MissingWhitespaceAfterDoctypeSystemKeyword;
     }
 
     if (error_name == "missing-whitespace-before-doctype-name") {
-        return html2::ParseError::MissingWhitespaceBeforeDoctypeName;
+        return html::ParseError::MissingWhitespaceBeforeDoctypeName;
     }
 
     if (error_name == "missing-whitespace-between-attributes") {
-        return html2::ParseError::MissingWhitespaceBetweenAttributes;
+        return html::ParseError::MissingWhitespaceBetweenAttributes;
     }
 
     if (error_name == "missing-whitespace-between-doctype-public-and-system-identifiers") {
-        return html2::ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers;
+        return html::ParseError::MissingWhitespaceBetweenDoctypePublicAndSystemIdentifiers;
     }
 
     if (error_name == "nested-comment") {
-        return html2::ParseError::NestedComment;
+        return html::ParseError::NestedComment;
     }
 
     if (error_name == "noncharacter-character-reference") {
-        return html2::ParseError::NoncharacterCharacterReference;
+        return html::ParseError::NoncharacterCharacterReference;
     }
 
     if (error_name == "null-character-reference") {
-        return html2::ParseError::NullCharacterReference;
+        return html::ParseError::NullCharacterReference;
     }
 
     if (error_name == "surrogate-character-reference") {
-        return html2::ParseError::SurrogateCharacterReference;
+        return html::ParseError::SurrogateCharacterReference;
     }
 
     if (error_name == "unexpected-character-after-doctype-system-identifier") {
-        return html2::ParseError::UnexpectedCharacterAfterDoctypeSystemIdentifier;
+        return html::ParseError::UnexpectedCharacterAfterDoctypeSystemIdentifier;
     }
 
     if (error_name == "unexpected-character-in-attribute-name") {
-        return html2::ParseError::UnexpectedCharacterInAttributeName;
+        return html::ParseError::UnexpectedCharacterInAttributeName;
     }
 
     if (error_name == "unexpected-character-in-unquoted-attribute-value") {
-        return html2::ParseError::UnexpectedCharacterInUnquotedAttributeValue;
+        return html::ParseError::UnexpectedCharacterInUnquotedAttributeValue;
     }
 
     if (error_name == "unexpected-equals-sign-before-attribute-name") {
-        return html2::ParseError::UnexpectedEqualsSignBeforeAttributeName;
+        return html::ParseError::UnexpectedEqualsSignBeforeAttributeName;
     }
 
     if (error_name == "unexpected-null-character") {
-        return html2::ParseError::UnexpectedNullCharacter;
+        return html::ParseError::UnexpectedNullCharacter;
     }
 
     if (error_name == "unexpected-question-mark-instead-of-tag-name") {
-        return html2::ParseError::UnexpectedQuestionMarkInsteadOfTagName;
+        return html::ParseError::UnexpectedQuestionMarkInsteadOfTagName;
     }
 
     if (error_name == "unexpected-solidus-in-tag") {
-        return html2::ParseError::UnexpectedSolidusInTag;
+        return html::ParseError::UnexpectedSolidusInTag;
     }
 
     if (error_name == "unknown-named-character-reference") {
-        return html2::ParseError::UnknownNamedCharacterReference;
+        return html::ParseError::UnknownNamedCharacterReference;
     }
 
     std::cerr << "Unhandled error: " << error_name << '\n';
@@ -438,7 +439,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        std::vector<html2::State> initial_states{html2::State::Data};
+        std::vector<html::State> initial_states{html::State::Data};
 
         if (auto it = test.find("initialStates"); it != test.values.end()) {
             initial_states.clear();

@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/character_reference.h"
+#include "html/character_reference.h"
 
 #include <array>
 #include <optional>
@@ -10,7 +10,7 @@
 
 using namespace std::literals;
 
-namespace html2 {
+namespace html {
 namespace {
 
 // https://html.spec.whatwg.org/multipage/named-characters.html
@@ -2277,4 +2277,4 @@ std::optional<CharacterReference> find_named_character_reference_for(std::string
     return maybe_reference;
 }
 
-} // namespace html2
+} // namespace html

@@ -4,11 +4,11 @@
 
 #include "html/parse.h"
 
+#include "html/parse_error.h"
 #include "html/parser_options.h"
 
 #include "dom/dom.h"
 #include "etest/etest2.h"
-#include "html2/parse_error.h"
 
 #include <cstddef>
 #include <string>
@@ -427,21 +427,21 @@ int main() {
     });
 
     s.add_test("errors", [](etest::IActions &a) {
-        auto errors = std::vector<html2::ParseError>{};
-        std::ignore = html::parse("<!--", {}, [&](html2::ParseError e) { errors.push_back(e); });
+        auto errors = std::vector<html::ParseError>{};
+        std::ignore = html::parse("<!--", {}, [&](html::ParseError e) { errors.push_back(e); });
 
-        a.expect_eq(errors, std::vector{html2::ParseError::EofInComment});
+        a.expect_eq(errors, std::vector{html::ParseError::EofInComment});
     });
 
     s.add_test("errors, new api", [](etest::IActions &a) {
-        auto errors = std::vector<html2::ParseError>{};
+        auto errors = std::vector<html::ParseError>{};
         html::Callbacks cbs{
-                .on_error = [&](html2::ParseError e) { errors.push_back(e); },
+                .on_error = [&](html::ParseError e) { errors.push_back(e); },
         };
 
         std::ignore = html::parse("<!--", {}, cbs);
 
-        a.expect_eq(errors, std::vector{html2::ParseError::EofInComment});
+        a.expect_eq(errors, std::vector{html::ParseError::EofInComment});
     });
 
     s.add_test("errors, new api, no cb set", [](etest::IActions &) {

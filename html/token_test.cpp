@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/token.h"
+#include "html/token.h"
 
 #include "etest/etest2.h"
 
-using namespace html2;
+using namespace html;
 
 int main() {
     etest::Suite s;
