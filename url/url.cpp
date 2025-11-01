@@ -19,7 +19,6 @@
 #include <unicode/idna.h>
 #include <unicode/uclean.h> // IWYU pragma: keep
 #include <unicode/uidna.h>
-#include <unicode/urename.h>
 #include <unicode/utypes.h>
 
 #include <algorithm>

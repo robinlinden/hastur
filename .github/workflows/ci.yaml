@@ -206,7 +206,7 @@ jobs:
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          pipx install codecov-cli==11.2.3
+          pipx install codecov-cli==11.2.4
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
@@ -242,7 +242,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v37.0.1
+      WASMTIME_VERSION: v38.0.3
     steps:
       - uses: actions/checkout@v5
       - name: Set up wasmtime
