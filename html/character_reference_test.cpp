@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/character_reference.h"
+#include "html/character_reference.h"
 
 #include "etest/etest2.h"
 
@@ -10,7 +10,7 @@
 
 using namespace std::literals;
 
-using namespace html2;
+using namespace html;
 
 int main() {
     etest::Suite s;

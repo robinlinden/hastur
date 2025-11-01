@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/tokenizer.h"
+#include "html/tokenizer.h"
 
-#include "html2/character_reference.h"
-#include "html2/parse_error.h"
-#include "html2/token.h"
+#include "html/character_reference.h"
+#include "html/parse_error.h"
+#include "html/token.h"
 
 #include "unicode/util.h"
 #include "util/string.h"
@@ -25,7 +25,7 @@
 
 using namespace std::literals;
 
-namespace html2 {
+namespace html {
 namespace {
 
 constexpr bool is_c0_control(int code_point) {
@@ -2578,4 +2578,4 @@ void Tokenizer::emit_replacement_character() {
     }
 }
 
-} // namespace html2
+} // namespace html

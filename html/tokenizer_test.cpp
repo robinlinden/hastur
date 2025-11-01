@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/tokenizer.h"
+#include "html/tokenizer.h"
 
-#include "html2/parse_error.h"
-#include "html2/token.h"
+#include "html/parse_error.h"
+#include "html/token.h"
 
 #include "etest/etest2.h"
 
@@ -22,7 +22,7 @@
 
 using namespace std::literals;
 
-using namespace html2;
+using namespace html;
 
 namespace {
 
@@ -50,7 +50,7 @@ public:
 
 struct Options {
     bool in_html_namespace{true};
-    std::optional<html2::State> state_override;
+    std::optional<html::State> state_override;
 };
 
 TokenizerOutput run_tokenizer(etest::IActions &a,
@@ -133,12 +133,12 @@ void cdata_tests(etest::Suite &s) {
 
     s.add_test("cdata, eof", [](etest::IActions &a) {
         auto tokens = run_tokenizer(a, "<![CDATA["sv, Options{.in_html_namespace = false});
-        expect_error(tokens, html2::ParseError::EofInCdata);
+        expect_error(tokens, html::ParseError::EofInCdata);
     });
 
     s.add_test("cdata, bracket", [](etest::IActions &a) {
         auto tokens = run_tokenizer(a, "<![CDATA[]hello"sv, Options{.in_html_namespace = false});
-        expect_error(tokens, html2::ParseError::EofInCdata);
+        expect_error(tokens, html::ParseError::EofInCdata);
         expect_text(tokens, "]hello");
     });
 

@@ -5,10 +5,10 @@
 #ifndef HTML_PARSE_H_
 #define HTML_PARSE_H_
 
+#include "html/parse_error.h"
 #include "html/parser_options.h"
 
 #include "dom/dom.h"
-#include "html2/parse_error.h"
 
 #include <functional>
 #include <string_view>
@@ -20,7 +20,7 @@ dom::Document parse(std::string_view input, ParserOptions const &, Callbacks con
 inline dom::Document parse(
         std::string_view input,
         ParserOptions const &opts = {},
-        std::function<void(html2::ParseError)> const &on_error = [](auto) {}) {
+        std::function<void(ParseError)> const &on_error = [](auto) {}) {
     return parse(input, opts, Callbacks{.on_error = on_error});
 }
 

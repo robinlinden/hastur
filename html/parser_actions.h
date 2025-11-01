@@ -5,11 +5,12 @@
 #ifndef HTML_PARSER_ACTIONS_H_
 #define HTML_PARSER_ACTIONS_H_
 
+#include "html/iparser_actions.h"
+#include "html/parser_states.h"
+#include "html/token.h"
+#include "html/tokenizer.h"
+
 #include "dom/dom.h"
-#include "html2/iparser_actions.h"
-#include "html2/parser_states.h"
-#include "html2/token.h"
-#include "html2/tokenizer.h"
 
 #include <algorithm>
 #include <cassert>
@@ -30,55 +31,55 @@ enum class CommentMode : std::uint8_t {
     Discard,
 };
 
-class Actions : public html2::IActions {
+class Actions : public IActions {
 public:
     Actions(dom::Document &document,
-            html2::Tokenizer &tokenizer,
+            Tokenizer &tokenizer,
             bool scripting,
             CommentMode comment_mode,
-            html2::InsertionMode &current_insertion_mode,
+            InsertionMode &current_insertion_mode,
             std::vector<dom::Element *> &open_elements,
             std::function<void(dom::Element const &)> const &on_element_closed)
         : document_{document}, tokenizer_{tokenizer}, scripting_{scripting}, comment_mode_{comment_mode},
           current_insertion_mode_{current_insertion_mode}, open_elements_{open_elements},
           on_element_closed_{on_element_closed} {}
 
-    void set_doctype_from(html2::DoctypeToken const &dt) override {
+    void set_doctype_from(DoctypeToken const &dt) override {
         document_.doctype = dt.name.value_or("");
         document_.public_identifier = dt.public_identifier.value_or("");
         document_.system_identifier = dt.system_identifier.value_or("");
     }
 
-    void set_quirks_mode(html2::QuirksMode mode) override {
+    void set_quirks_mode(QuirksMode mode) override {
         document_.mode = [=] {
             switch (mode) {
-                case html2::QuirksMode::NoQuirks:
+                case QuirksMode::NoQuirks:
                     return dom::Document::Mode::NoQuirks;
-                case html2::QuirksMode::Quirks:
+                case QuirksMode::Quirks:
                     return dom::Document::Mode::Quirks;
-                case html2::QuirksMode::LimitedQuirks:
+                case QuirksMode::LimitedQuirks:
                     break;
             }
             return dom::Document::Mode::LimitedQuirks;
         }();
     }
 
-    html2::QuirksMode quirks_mode() const override {
+    QuirksMode quirks_mode() const override {
         switch (document_.mode) {
             case dom::Document::Mode::NoQuirks:
-                return html2::QuirksMode::NoQuirks;
+                return QuirksMode::NoQuirks;
             case dom::Document::Mode::Quirks:
-                return html2::QuirksMode::Quirks;
+                return QuirksMode::Quirks;
             case dom::Document::Mode::LimitedQuirks:
-                return html2::QuirksMode::LimitedQuirks;
+                return QuirksMode::LimitedQuirks;
         }
-        return html2::QuirksMode::LimitedQuirks;
+        return QuirksMode::LimitedQuirks;
     }
 
     bool scripting() const override { return scripting_; }
 
-    void insert_element_for(html2::StartTagToken const &token) override {
-        auto into_dom_attributes = [](std::vector<html2::Attribute> const &attributes) -> dom::AttrMap {
+    void insert_element_for(StartTagToken const &token) override {
+        auto into_dom_attributes = [](std::vector<Attribute> const &attributes) -> dom::AttrMap {
             dom::AttrMap attrs{};
             for (auto const &[name, value] : attributes) {
                 attrs[name] = value;
@@ -90,7 +91,7 @@ public:
         insert({token.tag_name, into_dom_attributes(token.attributes)});
     }
 
-    void insert_element_for(html2::CommentToken const &token) override {
+    void insert_element_for(CommentToken const &token) override {
         if (comment_mode_ == CommentMode::Discard) {
             return;
         }
@@ -118,7 +119,7 @@ public:
 
     std::string_view current_node_name() const override { return open_elements_.back()->name; }
 
-    void merge_into_html_node(std::span<html2::Attribute const> attrs) override {
+    void merge_into_html_node(std::span<Attribute const> attrs) override {
         auto &html = document_.html();
         for (auto const &attr : attrs) {
             if (html.attributes.contains(attr.name)) {
@@ -129,7 +130,7 @@ public:
         }
     }
 
-    void insert_character(html2::CharacterToken const &character) override {
+    void insert_character(CharacterToken const &character) override {
         auto &current_element = open_elements_.back();
         if (current_element->children.empty() || !std::holds_alternative<dom::Text>(current_element->children.back())) {
             current_element->children.emplace_back(dom::Text{});
@@ -138,15 +139,13 @@ public:
         std::get<dom::Text>(current_element->children.back()).text += character.data;
     }
 
-    void set_tokenizer_state(html2::State state) override { tokenizer_.set_state(state); }
+    void set_tokenizer_state(State state) override { tokenizer_.set_state(state); }
 
-    void store_original_insertion_mode(html2::InsertionMode mode) override {
-        original_insertion_mode_ = std::move(mode);
-    }
+    void store_original_insertion_mode(InsertionMode mode) override { original_insertion_mode_ = std::move(mode); }
 
-    html2::InsertionMode original_insertion_mode() override { return std::move(original_insertion_mode_); }
+    InsertionMode original_insertion_mode() override { return std::move(original_insertion_mode_); }
 
-    html2::InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
+    InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
 
     void set_frameset_ok(bool) override {
         // TODO(robinlinden): Implement.
@@ -203,11 +202,11 @@ private:
     }
 
     dom::Document &document_;
-    html2::Tokenizer &tokenizer_;
+    Tokenizer &tokenizer_;
     bool scripting_;
     CommentMode comment_mode_;
-    html2::InsertionMode original_insertion_mode_;
-    html2::InsertionMode &current_insertion_mode_;
+    InsertionMode original_insertion_mode_;
+    InsertionMode &current_insertion_mode_;
     std::vector<dom::Element *> &open_elements_;
     std::function<void(dom::Element const &)> const &on_element_closed_;
 };

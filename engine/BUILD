@@ -11,7 +11,6 @@ cc_library(
         "//archive:zlib",
         "//archive:zstd",
         "//html",
-        "//html2",
         "//js",
         "@spdlog",
     ],

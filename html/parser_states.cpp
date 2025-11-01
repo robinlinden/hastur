@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/parser_states.h"
+#include "html/parser_states.h"
 
-#include "html2/iparser_actions.h"
-#include "html2/token.h"
-#include "html2/tokenizer.h"
+#include "html/iparser_actions.h"
+#include "html/token.h"
+#include "html/tokenizer.h"
 
 #include "util/string.h"
 
@@ -23,7 +23,7 @@
 
 using namespace std::literals;
 
-namespace html2 {
+namespace html {
 namespace {
 
 class InternalActions : public IActions {
@@ -31,19 +31,19 @@ public:
     explicit InternalActions(IActions &wrapped, InsertionMode mode_override)
         : wrapped_{wrapped}, current_insertion_mode_override_{std::move(mode_override)} {}
 
-    void set_doctype_from(html2::DoctypeToken const &dt) override { wrapped_.set_doctype_from(dt); }
+    void set_doctype_from(DoctypeToken const &dt) override { wrapped_.set_doctype_from(dt); }
     void set_quirks_mode(QuirksMode quirks) override { wrapped_.set_quirks_mode(quirks); }
     QuirksMode quirks_mode() const override { return wrapped_.quirks_mode(); }
     bool scripting() const override { return wrapped_.scripting(); }
-    void insert_element_for(html2::StartTagToken const &token) override { wrapped_.insert_element_for(token); }
-    void insert_element_for(html2::CommentToken const &token) override { wrapped_.insert_element_for(token); }
+    void insert_element_for(StartTagToken const &token) override { wrapped_.insert_element_for(token); }
+    void insert_element_for(CommentToken const &token) override { wrapped_.insert_element_for(token); }
     void pop_current_node() override { wrapped_.pop_current_node(); }
     std::string_view current_node_name() const override { return wrapped_.current_node_name(); }
-    void merge_into_html_node(std::span<html2::Attribute const> attributes) override {
+    void merge_into_html_node(std::span<Attribute const> attributes) override {
         wrapped_.merge_into_html_node(attributes);
     }
-    void insert_character(html2::CharacterToken const &token) override { wrapped_.insert_character(token); }
-    void set_tokenizer_state(html2::State state) override { wrapped_.set_tokenizer_state(state); }
+    void insert_character(CharacterToken const &token) override { wrapped_.insert_character(token); }
+    void set_tokenizer_state(State state) override { wrapped_.set_tokenizer_state(state); }
     void store_original_insertion_mode(InsertionMode mode) override { wrapped_.store_original_insertion_mode(mode); }
     InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
     InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
@@ -68,8 +68,8 @@ InternalActions current_insertion_mode_override(IActions &a, InsertionMode overr
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
 // FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020
 // SPACE.
-bool is_boring_whitespace(html2::Token const &token) {
-    if (auto const &character = std::get_if<html2::CharacterToken>(&token)) {
+bool is_boring_whitespace(Token const &token) {
+    if (auto const &character = std::get_if<CharacterToken>(&token)) {
         switch (character->data) {
             case '\t':
             case '\n':
@@ -164,16 +164,16 @@ constexpr bool is_quirky_when_system_identifier_is_empty(std::string_view public
             || public_identifier.starts_with("-//w3c//dtd html 4.01 transitional//");
 }
 
-[[nodiscard]] InsertionMode generic_raw_text_parse(IActions &a, html2::StartTagToken const &token) {
+[[nodiscard]] InsertionMode generic_raw_text_parse(IActions &a, StartTagToken const &token) {
     a.insert_element_for(token);
-    a.set_tokenizer_state(html2::State::Rawtext);
+    a.set_tokenizer_state(State::Rawtext);
     a.store_original_insertion_mode(a.current_insertion_mode());
     return Text{};
 }
 
-[[nodiscard]] InsertionMode generic_rcdata_parse(IActions &a, html2::StartTagToken const &token) {
+[[nodiscard]] InsertionMode generic_rcdata_parse(IActions &a, StartTagToken const &token) {
     a.insert_element_for(token);
-    a.set_tokenizer_state(html2::State::Rcdata);
+    a.set_tokenizer_state(State::Rcdata);
     a.store_original_insertion_mode(a.current_insertion_mode());
     return Text{};
 }
@@ -411,17 +411,17 @@ bool has_element_in_table_scope(IActions const &a, std::string_view element_name
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
 // Incomplete.
-std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &token) {
+std::optional<InsertionMode> Initial::process(IActions &a, Token const &token) {
     if (is_boring_whitespace(token)) {
         return {};
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (auto const *doctype = std::get_if<html2::DoctypeToken>(&token)) {
+    if (auto const *doctype = std::get_if<DoctypeToken>(&token)) {
         a.set_doctype_from(*doctype);
 
         using StringOverload = std::string (*)(std::string);
@@ -449,13 +449,13 @@ std::optional<InsertionMode> Initial::process(IActions &a, html2::Token const &t
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
-std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const &token) {
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+std::optional<InsertionMode> BeforeHtml::process(IActions &a, Token const &token) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    if (std::holds_alternative<html2::CommentToken>(token)) {
+    if (std::holds_alternative<CommentToken>(token)) {
         // TODO(robinlinden): Insert as last child.
         return {};
     }
@@ -464,13 +464,13 @@ std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const
         return {};
     }
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
+    if (auto const *start = std::get_if<StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
         a.insert_element_for(*start);
         return BeforeHead{};
     }
 
     static constexpr auto kAcceptableEndTags = std::to_array<std::string_view>({"head", "body", "html", "br"});
-    if (auto const *end = std::get_if<html2::EndTagToken>(&token);
+    if (auto const *end = std::get_if<EndTagToken>(&token);
             end != nullptr && (std::ranges::contains(kAcceptableEndTags, end->tag_name))) {
         // Fall through to "anything else."
     } else if (end != nullptr) {
@@ -478,28 +478,28 @@ std::optional<InsertionMode> BeforeHtml::process(IActions &a, html2::Token const
         return {};
     }
 
-    a.insert_element_for(html2::StartTagToken{.tag_name = "html"});
+    a.insert_element_for(StartTagToken{.tag_name = "html"});
     auto mode_override = current_insertion_mode_override(a, BeforeHead{});
     return BeforeHead{}.process(mode_override, token).value_or(BeforeHead{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
-std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const &token) {
+std::optional<InsertionMode> BeforeHead::process(IActions &a, Token const &token) {
     if (is_boring_whitespace(token)) {
         return {};
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token)) {
+    if (auto const *start = std::get_if<StartTagToken>(&token)) {
         if (start->tag_name == "html") {
             return InBody{}.process(a, token);
         }
@@ -508,7 +508,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
             a.insert_element_for(*start);
             return InHead{};
         }
-    } else if (auto const *end = std::get_if<html2::EndTagToken>(&token)) {
+    } else if (auto const *end = std::get_if<EndTagToken>(&token)) {
         static constexpr std::array kSortOfHandledEndTags{"head"sv, "body"sv, "html"sv, "br"sv};
         if (std::ranges::contains(kSortOfHandledEndTags, end->tag_name)) {
             // Treat as "anything else."
@@ -518,30 +518,30 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, html2::Token const
         }
     }
 
-    a.insert_element_for(html2::StartTagToken{.tag_name = "head"});
+    a.insert_element_for(StartTagToken{.tag_name = "head"});
     auto mode_override = current_insertion_mode_override(a, InHead{});
     return InHead{}.process(mode_override, token).value_or(InHead{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
 // NOLINTNEXTLINE(misc-no-recursion)
-std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &token) {
+std::optional<InsertionMode> InHead::process(IActions &a, Token const &token) {
     if (is_boring_whitespace(token)) {
-        a.insert_character(std::get<html2::CharacterToken>(token));
+        a.insert_character(std::get<CharacterToken>(token));
         return {};
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    auto const *start = std::get_if<StartTagToken>(&token);
     if (start != nullptr && start->tag_name == "html") {
         return InBody{}.process(a, token);
     }
@@ -581,12 +581,12 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
     if (start != nullptr && start->tag_name == "script") {
         // TODO(robinlinden): A lot of things. See spec.
         a.insert_element_for(*start);
-        a.set_tokenizer_state(html2::State::ScriptData);
+        a.set_tokenizer_state(State::ScriptData);
         a.store_original_insertion_mode(a.current_insertion_mode());
         return Text{};
     }
 
-    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "head") {
         assert(a.current_node_name() == "head");
         a.pop_current_node();
@@ -621,18 +621,18 @@ std::optional<InsertionMode> InHead::process(IActions &a, html2::Token const &to
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
-std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token const &token) {
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+std::optional<InsertionMode> InHeadNoscript::process(IActions &a, Token const &token) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    auto const *start = std::get_if<StartTagToken>(&token);
     if (start != nullptr && start->tag_name == "html") {
         return InBody{}.process(a, token);
     }
 
-    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "noscript") {
         assert(a.current_node_name() == "noscript");
         a.pop_current_node();
@@ -641,7 +641,7 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
 
     static constexpr std::array kInHeadElements{"basefont"sv, "bgsound"sv, "link"sv, "meta"sv, "noframes"sv, "style"sv};
     if ((start != nullptr && std::ranges::contains(kInHeadElements, start->tag_name))
-            || std::holds_alternative<html2::CommentToken>(token) || is_boring_whitespace(token)) {
+            || std::holds_alternative<CommentToken>(token) || is_boring_whitespace(token)) {
         return InHead{}.process(a, token);
     }
 
@@ -663,23 +663,23 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, html2::Token c
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
 // NOLINTNEXTLINE(misc-no-recursion)
-std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const &token) {
+std::optional<InsertionMode> AfterHead::process(IActions &a, Token const &token) {
     if (is_boring_whitespace(token)) {
-        a.insert_character(std::get<html2::CharacterToken>(token));
+        a.insert_character(std::get<CharacterToken>(token));
         return {};
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr) {
+    if (auto const *start = std::get_if<StartTagToken>(&token); start != nullptr) {
         if (start->tag_name == "html") {
             return InBody{}.process(a, token);
         }
@@ -723,7 +723,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
         }
     }
 
-    if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr) {
+    if (auto const *end = std::get_if<EndTagToken>(&token); end != nullptr) {
         if (end->tag_name == "template") {
             // TODO(robinlinden): Process using InHead's rules once implemented.
             return {};
@@ -745,7 +745,7 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, html2::Token const 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 // Incomplete.
 // NOLINTNEXTLINE(misc-no-recursion)
-std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &token) {
+std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     auto close_a_p_element = [&] {
         generate_implied_end_tags(a, "p");
         if (a.current_node_name() != "p") {
@@ -759,7 +759,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         a.pop_current_node();
     };
 
-    auto const *character = std::get_if<html2::CharacterToken>(&token);
+    auto const *character = std::get_if<CharacterToken>(&token);
     if (character != nullptr && character->data == '\0') {
         // Parse error.
         return {};
@@ -767,7 +767,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
     if (is_boring_whitespace(token)) {
         a.reconstruct_active_formatting_elements();
-        a.insert_character(std::get<html2::CharacterToken>(token));
+        a.insert_character(std::get<CharacterToken>(token));
         return {};
     }
 
@@ -778,17 +778,17 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         return {};
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    auto const *start = std::get_if<StartTagToken>(&token);
     if (start != nullptr && start->tag_name == "html") {
         // Parse error.
         // TODO(robinlinden): If there is a template element on the stack of open elements, then ignore the token.
@@ -816,7 +816,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         return InHead{}.process(a, token);
     }
 
-    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "template") {
         return InHead{}.process(a, token);
     }
@@ -1098,7 +1098,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         if (is_bad_br_end_tag) {
             // Parse error.
             a.reconstruct_active_formatting_elements();
-            a.insert_element_for(html2::StartTagToken{.tag_name = "br"});
+            a.insert_element_for(StartTagToken{.tag_name = "br"});
         } else {
             a.reconstruct_active_formatting_elements();
             a.insert_element_for(*start);
@@ -1134,7 +1134,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
         // (Newlines at the start of textarea elements are ignored as an
         // authoring convenience.)
 
-        a.set_tokenizer_state(html2::State::Rcdata);
+        a.set_tokenizer_state(State::Rcdata);
         a.store_original_insertion_mode(a.current_insertion_mode());
         a.set_frameset_ok(false);
         return Text{};
@@ -1197,14 +1197,14 @@ std::optional<InsertionMode> InBody::process(IActions &a, html2::Token const &to
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
 // Incomplete.
-std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &token) {
-    if (auto const *character = std::get_if<html2::CharacterToken>(&token)) {
+std::optional<InsertionMode> Text::process(IActions &a, Token const &token) {
+    if (auto const *character = std::get_if<CharacterToken>(&token)) {
         assert(character->data != '\0');
         a.insert_character(*character);
         return {};
     }
 
-    if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+    if (std::holds_alternative<EndOfFileToken>(token)) {
         // Parse error.
         // TODO(robinlinden): If current node is a script, set its already-started to true.
         a.pop_current_node();
@@ -1212,7 +1212,7 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
         return std::visit([&](auto &m) { return m.process(a, token).value_or(m); }, mode);
     }
 
-    if ([[maybe_unused]] auto const *end = std::get_if<html2::EndTagToken>(&token)) {
+    if ([[maybe_unused]] auto const *end = std::get_if<EndTagToken>(&token)) {
         a.pop_current_node();
         return a.original_insertion_mode();
     }
@@ -1222,8 +1222,8 @@ std::optional<InsertionMode> Text::process(IActions &a, html2::Token const &toke
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
 // Incomplete.
-std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &token) {
-    auto const *character = std::get_if<html2::CharacterToken>(&token);
+std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
+    auto const *character = std::get_if<CharacterToken>(&token);
 
     static constexpr auto kTableTextElements =
             std::to_array<std::string_view>({"table", "tbody", "template", "tfoot", "thead", "tr"});
@@ -1234,19 +1234,19 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
         return maybe_next.value_or(std::move(table_text));
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
     // TODO(robinlinden): Everything.
 
-    auto const *end = std::get_if<html2::EndTagToken>(&token);
+    auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "table") {
         if (!has_element_in_table_scope(a, "table")) {
             // Parse error.
@@ -1268,7 +1268,7 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
         return {};
     }
 
-    auto const *start = std::get_if<html2::StartTagToken>(&token);
+    auto const *start = std::get_if<StartTagToken>(&token);
     static constexpr auto kInHeadStartTags = std::to_array<std::string_view>({"style", "script", "template"});
     if ((start != nullptr && std::ranges::contains(kInHeadStartTags, start->tag_name))
             || (end != nullptr && end->tag_name == "template")) {
@@ -1282,8 +1282,8 @@ std::optional<InsertionMode> InTable::process(IActions &a, html2::Token const &t
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intabletext
-std::optional<InsertionMode> InTableText::process(IActions &a, html2::Token const &token) {
-    if (auto const *character = std::get_if<html2::CharacterToken>(&token); character != nullptr) {
+std::optional<InsertionMode> InTableText::process(IActions &a, Token const &token) {
+    if (auto const *character = std::get_if<CharacterToken>(&token); character != nullptr) {
         if (character->data == '\0') {
             // Parse error.
             return {};
@@ -1313,8 +1313,8 @@ std::optional<InsertionMode> InTableText::process(IActions &a, html2::Token cons
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
 // Incomplete.
-std::optional<InsertionMode> AfterBody::process(IActions &, html2::Token const &token) {
-    auto const *end = std::get_if<html2::EndTagToken>(&token);
+std::optional<InsertionMode> AfterBody::process(IActions &, Token const &token) {
+    auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "html") {
         // TODO(robinlinden): Fragment-parsing stuff.
         return AfterAfterBody{};
@@ -1324,23 +1324,23 @@ std::optional<InsertionMode> AfterBody::process(IActions &, html2::Token const &
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
-std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const &token) {
+std::optional<InsertionMode> InFrameset::process(IActions &a, Token const &token) {
     if (is_boring_whitespace(token)) {
-        a.insert_character(std::get<html2::CharacterToken>(token));
+        a.insert_character(std::get<CharacterToken>(token));
         return {};
     }
 
-    if (auto const *comment = std::get_if<html2::CommentToken>(&token)) {
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
         a.insert_element_for(*comment);
         return {};
     }
 
-    if (std::holds_alternative<html2::DoctypeToken>(token)) {
+    if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
         return {};
     }
 
-    if (auto const *start = std::get_if<html2::StartTagToken>(&token); start != nullptr) {
+    if (auto const *start = std::get_if<StartTagToken>(&token); start != nullptr) {
         if (start->tag_name == "html") {
             return InBody{}.process(a, token);
         }
@@ -1363,7 +1363,7 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const
         }
     }
 
-    if (auto const *end = std::get_if<html2::EndTagToken>(&token); end != nullptr && end->tag_name == "frameset") {
+    if (auto const *end = std::get_if<EndTagToken>(&token); end != nullptr && end->tag_name == "frameset") {
         // TODO(robinlinden): Fragment-parsing.
         a.pop_current_node();
         if (a.current_node_name() != "frameset") {
@@ -1371,7 +1371,7 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const
         }
     }
 
-    if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+    if (std::holds_alternative<EndOfFileToken>(token)) {
         if (a.current_node_name() != "html") {
             // Parse error.
         }
@@ -1385,14 +1385,14 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, html2::Token const
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterframeset
 // Incomplete.
-std::optional<InsertionMode> AfterFrameset::process(IActions &, html2::Token const &) {
+std::optional<InsertionMode> AfterFrameset::process(IActions &, Token const &) {
     return {};
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-body-insertion-mode
 // Incomplete.
-std::optional<InsertionMode> AfterAfterBody::process(IActions &a, html2::Token const &token) {
-    if (std::holds_alternative<html2::EndOfFileToken>(token)) {
+std::optional<InsertionMode> AfterAfterBody::process(IActions &a, Token const &token) {
+    if (std::holds_alternative<EndOfFileToken>(token)) {
         return {};
     }
 
@@ -1400,4 +1400,4 @@ std::optional<InsertionMode> AfterAfterBody::process(IActions &a, html2::Token c
     return InBody{}.process(mode_override, token).value_or(InBody{});
 }
 
-} // namespace html2
+} // namespace html

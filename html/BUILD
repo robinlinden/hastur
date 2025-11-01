@@ -1,5 +1,6 @@
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
 cc_library(
@@ -10,11 +11,12 @@ cc_library(
     ),
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//dom",
-        "//html2",
+    implementation_deps = [
+        "//unicode:util",
+        "//util:string",
     ],
+    visibility = ["//visibility:public"],
+    deps = ["//dom"],
 )
 
 [cc_test(
@@ -26,7 +28,6 @@ cc_library(
         ":html",
         "//dom",
         "//etest",
-        "//html2",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],
@@ -114,6 +115,64 @@ cc_library(
     # "tricky01",
     # "webkit01",
     # "webkit02",
+]]
+
+cc_binary(
+    name = "html5lib_tokenizer_test_runner",
+    testonly = True,
+    srcs = ["html5lib_tokenizer_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":html",
+        "//etest",
+        "//json",
+    ],
+)
+
+genrule(
+    name = "test_with_arg",
+    testonly = True,
+    outs = ["test_with_arg.sh"],
+    cmd = """
+        echo '#!/bin/sh' >$@
+        echo 'exec "$$1" "$$2"' >>$@
+        chmod +x $@
+    """,
+)
+
+# TODO(robinlinden): Look into the remaining tests.
+[sh_test(
+    name = "html5lib_tokenizer_{}".format(test.rpartition("/")[-1].removesuffix(".test")),
+    size = "small",
+    srcs = [":test_with_arg"],
+    args = [
+        "$(location :html5lib_tokenizer_test_runner)",
+        "$(location {})".format(test),
+    ],
+    data = [
+        ":html5lib_tokenizer_test_runner",
+        test,
+    ],
+    target_compatible_with = select({
+        # TODO(robinlinden): Investigate why we fail to open the test files when
+        # running as a wasi binary.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+) for test in [
+    "@html5lib-tests//:tokenizer/contentModelFlags.test",
+    "@html5lib-tests//:tokenizer/domjs.test",
+    "@html5lib-tests//:tokenizer/entities.test",
+    "@html5lib-tests//:tokenizer/escapeFlag.test",
+    "@html5lib-tests//:tokenizer/namedEntities.test",
+    "@html5lib-tests//:tokenizer/numericEntities.test",
+    "@html5lib-tests//:tokenizer/pendingSpecChanges.test",
+    "@html5lib-tests//:tokenizer/test1.test",
+    "@html5lib-tests//:tokenizer/test2.test",
+    "@html5lib-tests//:tokenizer/test3.test",
+    "@html5lib-tests//:tokenizer/test4.test",
+    "@html5lib-tests//:tokenizer/unicodeChars.test",
+    # "@html5lib-tests//:tokenizer/unicodeCharsProblematic.test",
 ]]
 
 [cc_fuzz_test(

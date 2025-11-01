@@ -1,14 +1,14 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "html2/token.h"
+#include "html/token.h"
 
 #include <format>
 #include <string>
 #include <variant>
 
-namespace html2 {
+namespace html {
 namespace {
 
 class TokenStringifier {
@@ -34,4 +34,4 @@ std::string to_string(Token const &token) {
     return TokenStringifier::to_string(token);
 }
 
-} // namespace html2
+} // namespace html

@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML2_TOKENIZER_H_
-#define HTML2_TOKENIZER_H_
+#ifndef HTML_TOKENIZER_H_
+#define HTML_TOKENIZER_H_
 
-#include "html2/parse_error.h"
-#include "html2/token.h"
+#include "html/parse_error.h"
+#include "html/token.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -17,7 +17,7 @@
 #include <utility>
 #include <vector>
 
-namespace html2 {
+namespace html {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#tokenization
 enum class State : std::uint8_t {
@@ -167,6 +167,6 @@ private:
     void emit_replacement_character();
 };
 
-} // namespace html2
+} // namespace html
 
 #endif

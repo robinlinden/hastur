@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML2_PARSE_ERROR_H_
-#define HTML2_PARSE_ERROR_H_
+#ifndef HTML_PARSE_ERROR_H_
+#define HTML_PARSE_ERROR_H_
 
 #include <cstdint>
 #include <string_view>
 
-namespace html2 {
+namespace html {
 
 enum class ParseError : std::uint8_t {
     AbruptClosingOfEmptyComment,
@@ -155,6 +155,6 @@ constexpr std::string_view to_string(ParseError e) {
     return "Unknown error";
 }
 
-} // namespace html2
+} // namespace html
 
 #endif

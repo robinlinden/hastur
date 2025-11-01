@@ -2,19 +2,19 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML2_IPARSER_ACTIONS_H_
-#define HTML2_IPARSER_ACTIONS_H_
+#ifndef HTML_IPARSER_ACTIONS_H_
+#define HTML_IPARSER_ACTIONS_H_
 
-#include "html2/parser_states.h"
-#include "html2/token.h"
-#include "html2/tokenizer.h"
+#include "html/parser_states.h"
+#include "html/token.h"
+#include "html/tokenizer.h"
 
 #include <cstdint>
 #include <span>
 #include <string_view>
 #include <vector>
 
-namespace html2 {
+namespace html {
 
 enum class QuirksMode : std::uint8_t {
     NoQuirks,
@@ -26,17 +26,17 @@ class IActions {
 public:
     virtual ~IActions() = default;
 
-    virtual void set_doctype_from(html2::DoctypeToken const &) = 0;
+    virtual void set_doctype_from(DoctypeToken const &) = 0;
     virtual void set_quirks_mode(QuirksMode) = 0;
     virtual QuirksMode quirks_mode() const = 0;
     virtual bool scripting() const = 0;
-    virtual void insert_element_for(html2::StartTagToken const &) = 0;
-    virtual void insert_element_for(html2::CommentToken const &) = 0;
+    virtual void insert_element_for(StartTagToken const &) = 0;
+    virtual void insert_element_for(CommentToken const &) = 0;
     virtual void pop_current_node() = 0;
     virtual std::string_view current_node_name() const = 0;
-    virtual void merge_into_html_node(std::span<html2::Attribute const>) = 0;
-    virtual void insert_character(html2::CharacterToken const &) = 0;
-    virtual void set_tokenizer_state(html2::State) = 0;
+    virtual void merge_into_html_node(std::span<Attribute const>) = 0;
+    virtual void insert_character(CharacterToken const &) = 0;
+    virtual void set_tokenizer_state(State) = 0;
     virtual void store_original_insertion_mode(InsertionMode) = 0;
     virtual InsertionMode original_insertion_mode() = 0;
     virtual void set_frameset_ok(bool) = 0;
@@ -51,6 +51,6 @@ public:
     virtual InsertionMode current_insertion_mode() const = 0;
 };
 
-} // namespace html2
+} // namespace html
 
 #endif
