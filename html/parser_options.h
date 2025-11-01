@@ -5,8 +5,9 @@
 #ifndef HTML_PARSER_OPTIONS_H_
 #define HTML_PARSER_OPTIONS_H_
 
+#include "html/parse_error.h"
+
 #include "dom/dom.h"
-#include "html2/parse_error.h"
 
 #include <functional>
 
@@ -19,7 +20,7 @@ struct ParserOptions {
 
 struct Callbacks {
     std::function<void(dom::Element const &)> on_element_closed;
-    std::function<void(html2::ParseError)> on_error;
+    std::function<void(ParseError)> on_error;
 };
 
 } // namespace html

@@ -1,16 +1,16 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML2_TOKEN_H_
-#define HTML2_TOKEN_H_
+#ifndef HTML_TOKEN_H_
+#define HTML_TOKEN_H_
 
 #include <optional>
 #include <string>
 #include <variant>
 #include <vector>
 
-namespace html2 {
+namespace html {
 
 struct DoctypeToken {
     std::optional<std::string> name{std::nullopt};
@@ -56,6 +56,6 @@ using Token = std::variant<DoctypeToken, StartTagToken, EndTagToken, CommentToke
 
 std::string to_string(Token const &);
 
-} // namespace html2
+} // namespace html
 
 #endif

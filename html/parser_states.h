@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef HTML2_PARSER_STATES_H_
-#define HTML2_PARSER_STATES_H_
+#ifndef HTML_PARSER_STATES_H_
+#define HTML_PARSER_STATES_H_
 
-#include "html2/token.h"
+#include "html/token.h"
 
 #include <optional>
 #include <variant>
 #include <vector>
 
-namespace html2 {
+namespace html {
 
 class IActions;
 
@@ -75,62 +75,62 @@ struct InTemplate {};
 struct AfterAfterFrameset {};
 
 struct Initial {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct BeforeHtml {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct BeforeHead {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InHead {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InHeadNoscript {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct AfterHead {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InBody {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct Text {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InTable {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InTableText {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
-    std::vector<html2::CharacterToken> pending_character_tokens;
+    std::optional<InsertionMode> process(IActions &, Token const &);
+    std::vector<CharacterToken> pending_character_tokens;
 };
 
 struct AfterBody {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InFrameset {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct AfterFrameset {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct AfterAfterBody {
-    std::optional<InsertionMode> process(IActions &, html2::Token const &);
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
-} // namespace html2
+} // namespace html
 
 #endif

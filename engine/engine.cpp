@@ -14,7 +14,7 @@
 #include "dom/dom.h"
 #include "dom/xpath.h"
 #include "html/parse.h"
-#include "html2/parse_error.h"
+#include "html/parse_error.h"
 #include "js/tokenizer.h"
 #include "layout/layout.h"
 #include "protocol/response.h"
@@ -145,7 +145,7 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
                             spdlog::warn("Failed to tokenize JavaScript in <script> tag:\n{}", script_text.text);
                         }
                     }},
-                    .on_error = [](html2::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); },
+                    .on_error = [](html::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); },
             });
 
     spdlog::info("Parsing inline styles");

@@ -5,14 +5,14 @@
 #ifndef HTML_PARSER_H_
 #define HTML_PARSER_H_
 
+#include "html/parse_error.h"
 #include "html/parser_actions.h"
 #include "html/parser_options.h"
+#include "html/parser_states.h"
+#include "html/token.h"
+#include "html/tokenizer.h"
 
 #include "dom/dom.h"
-#include "html2/parse_error.h"
-#include "html2/parser_states.h"
-#include "html2/token.h"
-#include "html2/tokenizer.h"
 
 #include <functional>
 #include <string_view>
@@ -33,8 +33,8 @@ public:
 private:
     Parser(std::string_view input, ParserOptions const &opts, Callbacks const &cbs)
         : tokenizer_{input,
-                  [this](html2::Tokenizer &tokenizer, html2::Token &&token) { on_token(tokenizer, std::move(token)); },
-                  [&cbs](html2::Tokenizer &, html2::ParseError err) {
+                  [this](Tokenizer &tokenizer, Token &&token) { on_token(tokenizer, std::move(token)); },
+                  [&cbs](Tokenizer &, ParseError err) {
                       if (!cbs.on_error) {
                           return;
                       }
@@ -52,18 +52,18 @@ private:
         return std::move(doc_);
     }
 
-    void on_token(html2::Tokenizer &, html2::Token &&token) {
+    void on_token(Tokenizer &, Token &&token) {
         insertion_mode_ = std::visit([&](auto &mode) { return mode.process(actions_, token); }, insertion_mode_)
                                   .value_or(insertion_mode_);
     }
 
-    html2::Tokenizer tokenizer_;
+    Tokenizer tokenizer_;
     dom::Document doc_{};
     std::vector<dom::Element *> open_elements_;
     bool scripting_{false};
     bool include_comments_{false};
     Callbacks const &cbs_;
-    html2::InsertionMode insertion_mode_;
+    InsertionMode insertion_mode_;
     Actions actions_{
             doc_,
             tokenizer_,
