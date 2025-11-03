@@ -65,6 +65,14 @@ InternalActions current_insertion_mode_override(IActions &a, InsertionMode overr
     return InternalActions{a, std::move(override)};
 }
 
+void pop_past(IActions &a, std::string_view element_name) {
+    while (a.current_node_name() != element_name) {
+        a.pop_current_node();
+    }
+
+    a.pop_current_node();
+}
+
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
 // FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020
 // SPACE.
@@ -752,11 +760,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
             // Parse error.
         }
 
-        while (a.current_node_name() != "p") {
-            a.pop_current_node();
-        }
-
-        a.pop_current_node();
+        pop_past(a, "p");
     };
 
     auto const *character = std::get_if<CharacterToken>(&token);
@@ -948,11 +952,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
                     // Parse error.
                 }
 
-                while (a.current_node_name() != "li") {
-                    a.pop_current_node();
-                }
-
-                a.pop_current_node();
+                pop_past(a, "li");
                 break;
             }
 
@@ -981,11 +981,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
                     // Parse error.
                 }
 
-                while (a.current_node_name() != node) {
-                    a.pop_current_node();
-                }
-
-                a.pop_current_node();
+                pop_past(a, node);
                 break;
             }
 
@@ -1044,11 +1040,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
             // Parse error.
         }
 
-        while (a.current_node_name() != end->tag_name) {
-            a.pop_current_node();
-        }
-
-        a.pop_current_node();
+        pop_past(a, end->tag_name);
         return {};
     }
 
@@ -1065,11 +1057,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
             // Parse error.
         }
 
-        while (a.current_node_name() != "li") {
-            a.pop_current_node();
-        }
-
-        a.pop_current_node();
+        pop_past(a, "li");
     }
 
     // TODO(robinlinden): Most things.
@@ -1115,10 +1103,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
 
         if (has_element_in_scope(a, "select")) {
             // Parse error.
-            while (a.current_node_name() != "select") {
-                a.pop_current_node();
-            }
-            a.pop_current_node();
+            pop_past(a, "select");
         }
 
         a.reconstruct_active_formatting_elements();
@@ -1232,11 +1217,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
                     // Parse error.
                 }
 
-                while (a.current_node_name() != end->tag_name) {
-                    a.pop_current_node();
-                }
-
-                a.pop_current_node();
+                pop_past(a, end->tag_name);
                 break;
             }
 
@@ -1310,11 +1291,7 @@ std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
             return {};
         }
 
-        while (a.current_node_name() != "table") {
-            a.pop_current_node();
-        }
-
-        a.pop_current_node();
+        pop_past(a, "table");
         return appropriate_insertion_mode(a);
     }
 
