@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,6 +10,8 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
 def cc_xfail_test(
         name,
         size = None,
+        args = [],
+        data = [],
         **kwargs):
     cc_binary(
         name = name + "_bin",
@@ -22,6 +24,6 @@ def cc_xfail_test(
         name = name,
         size = size,
         srcs = ["//bzl:xfail_test_runner"],
-        data = [":%s_bin" % name],
-        args = ["$(location :%s_bin)" % name],
+        data = [":%s_bin" % name] + data,
+        args = ["$(location :%s_bin)" % name] + args,
     )

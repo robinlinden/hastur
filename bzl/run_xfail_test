@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,7 +11,7 @@ readonly TEST_BINARY="$1"
 shift 1
 
 set +e
-echo "Running test ${TEST_BINARY}" >&2
+echo "Running test ${TEST_BINARY}" "$@" >&2
 "${TEST_BINARY}" "$@"
 RESULT="$?"
 set -e
