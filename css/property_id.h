@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -112,6 +112,8 @@ enum class PropertyId : std::uint8_t {
     TextDecorationStyle,
     TextIndent,
     TextTransform,
+    TextWrapMode,
+    TextWrapStyle,
     Visibility,
     VoiceFamily,
     Volume,
@@ -165,6 +167,8 @@ constexpr bool is_inherited(PropertyId id) {
         case css::PropertyId::TextAlign:
         case css::PropertyId::TextIndent:
         case css::PropertyId::TextTransform:
+        case css::PropertyId::TextWrapMode:
+        case css::PropertyId::TextWrapStyle:
         case css::PropertyId::Visibility:
         case css::PropertyId::VoiceFamily:
         case css::PropertyId::Volume:

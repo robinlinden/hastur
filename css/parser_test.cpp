@@ -1237,6 +1237,35 @@ int main() {
                 std::map<css::PropertyId, std::string>{});
     });
 
+    s.add_test("parser: text-wrap shorthand", [](etest::IActions &a) {
+        a.expect_eq(css::parse("p { text-wrap: wrap; }").rules.at(0).declarations,
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextWrapMode, "wrap"},
+                        {css::PropertyId::TextWrapStyle, "auto"},
+                });
+
+        a.expect_eq(css::parse("p { text-wrap: nowrap; }").rules.at(0).declarations, //
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextWrapMode, "nowrap"},
+                        {css::PropertyId::TextWrapStyle, "auto"},
+                });
+
+        a.expect_eq(css::parse("p { text-wrap: pretty; }").rules.at(0).declarations, //
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextWrapMode, "wrap"},
+                        {css::PropertyId::TextWrapStyle, "pretty"},
+                });
+
+        a.expect_eq(css::parse("p { text-wrap: avoid-orphans nowrap; }").rules.at(0).declarations, //
+                std::map<css::PropertyId, std::string>{
+                        {css::PropertyId::TextWrapMode, "nowrap"},
+                        {css::PropertyId::TextWrapStyle, "avoid-orphans"},
+                });
+
+        a.expect_eq(css::parse("p { text-wrap: a b c; }").rules.at(0).declarations, //
+                std::map<css::PropertyId, std::string>{});
+    });
+
     s.add_test("parser: custom property", [](etest::IActions &a) {
         a.expect_eq(css::parse("p { --var: value; }").rules.at(0), //
                 css::Rule{.selectors = {{"p"}}, .custom_properties = {{"--var", "value"}}});

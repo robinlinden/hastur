@@ -588,6 +588,8 @@ void Parser::add_declaration(Declarations &declarations, std::string_view name, 
         expand_flex_flow(declarations, value);
     } else if (std::ranges::contains(kBorderShorthandProperties, name)) {
         expand_border(name, declarations, value);
+    } else if (name == "text-wrap") {
+        expand_text_wrap(declarations, value);
     } else if (name == "outline") {
         expand_outline(declarations, value);
     } else {
@@ -677,6 +679,29 @@ void Parser::expand_border_or_outline_impl(
     declarations.insert_or_assign(ids.color, color.value_or("currentcolor"));
     declarations.insert_or_assign(ids.style, style.value_or("none"));
     declarations.insert_or_assign(ids.width, width.value_or("medium"));
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-wrap
+void Parser::expand_text_wrap(Declarations &declarations, std::string_view value) {
+    Tokenizer tokenizer(value, ' ');
+    if (tokenizer.empty() || tokenizer.size() > 2) {
+        // TODO(robinlinden): Propagate info about invalid properties.
+        return;
+    }
+
+    std::optional<std::string_view> mode;
+    std::optional<std::string_view> style;
+
+    for (auto v = tokenizer.get(); v.has_value(); v = tokenizer.next().get()) {
+        if (*v == "wrap" || *v == "nowrap") {
+            mode = *v;
+        } else {
+            style = *v;
+        }
+    }
+
+    declarations.insert_or_assign(PropertyId::TextWrapMode, mode.value_or("wrap"));
+    declarations.insert_or_assign(PropertyId::TextWrapStyle, style.value_or("auto"));
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/outline

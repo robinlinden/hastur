@@ -76,6 +76,8 @@ private:
 
     static void expand_text_decoration_values(Declarations &, std::string_view value);
 
+    static void expand_text_wrap(Declarations &, std::string_view value);
+
     // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow
     static void expand_flex_flow(Declarations &, std::string_view);
 

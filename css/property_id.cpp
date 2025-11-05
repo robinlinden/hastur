@@ -115,6 +115,8 @@ constexpr auto kKnownProperties = std::to_array<std::pair<std::string_view, Prop
         {"text-decoration-style"sv, PropertyId::TextDecorationStyle},
         {"text-indent"sv, PropertyId::TextIndent},
         {"text-transform"sv, PropertyId::TextTransform},
+        {"text-wrap-mode"sv, PropertyId::TextWrapMode},
+        {"text-wrap-style"sv, PropertyId::TextWrapStyle},
         {"visibility"sv, PropertyId::Visibility},
         {"voice-family"sv, PropertyId::VoiceFamily},
         {"volume"sv, PropertyId::Volume},
@@ -161,6 +163,10 @@ constexpr auto kInitialValues = std::to_array<std::pair<css::PropertyId, std::st
         // https://developer.mozilla.org/en-US/docs/Web/CSS/text-align#formal_definition
         // TODO(robinlinden): start, once supported.
         {css::PropertyId::TextAlign, "left"sv},
+
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-wrap
+        {css::PropertyId::TextWrapMode, "wrap"sv},
+        {css::PropertyId::TextWrapStyle, "auto"sv},
 
         // https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration
         {css::PropertyId::TextDecorationColor, "currentcolor"sv},
