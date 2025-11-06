@@ -28,6 +28,14 @@
 #define ETEST_EXCEPTIONS
 #endif
 
+namespace ansi {
+namespace {
+constexpr std::string_view kGreenFg = "\u001b[32m";
+constexpr std::string_view kRedFg = "\u001b[31;1m";
+constexpr std::string_view kReset = "\u001b[0m";
+} // namespace
+} // namespace ansi
+
 namespace etest {
 namespace {
 struct TestFailure : public std::exception {};
@@ -103,6 +111,9 @@ int Suite::run(RunOptions const &opts) {
     auto const longest_name = std::ranges::max_element(
             tests_to_run, [](auto const &a, auto const &b) { return a.size() < b.size(); }, &Test::name);
 
+    auto const success_color = opts.enable_color_output ? ansi::kGreenFg : "";
+    auto const failure_color = opts.enable_color_output ? ansi::kRedFg : "";
+
     std::vector<Test const *> failed_tests;
     for (auto const &test : tests_to_run) {
         std::cout << std::left << std::setw(longest_name->name.size()) << test.name << ": " << std::flush;
@@ -125,9 +136,9 @@ int Suite::run(RunOptions const &opts) {
 #endif
 
         if (a.assertion_failures == 0) {
-            std::cout << "\u001b[32mPASSED\u001b[0m\n";
+            std::cout << success_color << "PASSED" << ansi::kReset << "\n";
         } else {
-            std::cout << "\u001b[31;1mFAILED\u001b[0m\n";
+            std::cout << failure_color << "FAILED" << ansi::kReset << "\n";
             std::cout << std::move(a.test_log).str();
             failed_tests.push_back(&test);
         }
@@ -137,7 +148,7 @@ int Suite::run(RunOptions const &opts) {
 
     if (!failed_tests.empty()) {
         std::cout << '\n' << tests_to_run.size() - failed_tests.size() << " passing test(s)\n";
-        std::cout << "\u001b[31;1m" << failed_tests.size() << " failing test(s):\u001b[0m\n";
+        std::cout << failure_color << failed_tests.size() << " failing test(s):" << ansi::kReset << "\n";
         for (auto const *test : failed_tests) {
             std::cout << "  " << test->name << '\n';
         }
