@@ -214,12 +214,10 @@ private:
             number.push_back('0');
             std::ignore = consume();
         } else if (c >= '1' && c <= '9') {
-            assert(c.has_value()); // clang-tidy 19 needs some help here.
             number.push_back(*c);
             std::ignore = consume();
 
             for (c = peek(); c >= '0' && c <= '9'; c = peek()) {
-                assert(c.has_value()); // clang-tidy 19 needs some help here.
                 number.push_back(*c);
                 std::ignore = consume();
             }
