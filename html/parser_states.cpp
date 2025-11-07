@@ -21,8 +21,6 @@
 #include <variant>
 #include <vector>
 
-using namespace std::literals;
-
 namespace html {
 namespace {
 
@@ -517,7 +515,7 @@ std::optional<InsertionMode> BeforeHead::process(IActions &a, Token const &token
             return InHead{};
         }
     } else if (auto const *end = std::get_if<EndTagToken>(&token)) {
-        static constexpr std::array kSortOfHandledEndTags{"head"sv, "body"sv, "html"sv, "br"sv};
+        static constexpr auto kSortOfHandledEndTags = std::to_array<std::string_view>({"head", "body", "html", "br"});
         if (std::ranges::contains(kSortOfHandledEndTags, end->tag_name)) {
             // Treat as "anything else."
         } else {
@@ -647,13 +645,14 @@ std::optional<InsertionMode> InHeadNoscript::process(IActions &a, Token const &t
         return InHead{};
     }
 
-    static constexpr std::array kInHeadElements{"basefont"sv, "bgsound"sv, "link"sv, "meta"sv, "noframes"sv, "style"sv};
+    static constexpr auto kInHeadElements =
+            std::to_array<std::string_view>({"basefont", "bgsound", "link", "meta", "noframes", "style"});
     if ((start != nullptr && std::ranges::contains(kInHeadElements, start->tag_name))
             || std::holds_alternative<CommentToken>(token) || is_boring_whitespace(token)) {
         return InHead{}.process(a, token);
     }
 
-    static constexpr std::array kIgnoredStartTags{"head"sv, "noscript"sv};
+    static constexpr auto kIgnoredStartTags = std::to_array<std::string_view>({"head", "noscript"});
     if (end != nullptr && end->tag_name == "br") {
         // Let the anything-else case handle this.
     } else if ((start != nullptr && std::ranges::contains(kIgnoredStartTags, start->tag_name)) || end != nullptr) {
@@ -704,16 +703,16 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, Token const &token)
         }
 
         static constexpr auto kInHeadElements = std::to_array<std::string_view>({
-                "base"sv,
-                "basefont"sv,
-                "bgsound"sv,
-                "link"sv,
-                "meta"sv,
-                "noframes"sv,
-                "script"sv,
-                "style"sv,
-                "template"sv,
-                "title"sv,
+                "base",
+                "basefont",
+                "bgsound",
+                "link",
+                "meta",
+                "noframes",
+                "script",
+                "style",
+                "template",
+                "title",
         });
 
         if (std::ranges::contains(kInHeadElements, start->tag_name)) {
@@ -804,16 +803,16 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     }
 
     static constexpr auto kInHeadElements = std::to_array<std::string_view>({
-            "base"sv,
-            "basefont"sv,
-            "bgsound"sv,
-            "link"sv,
-            "meta"sv,
-            "noframes"sv,
-            "script"sv,
-            "style"sv,
-            "template"sv,
-            "title"sv,
+            "base",
+            "basefont",
+            "bgsound",
+            "link",
+            "meta",
+            "noframes",
+            "script",
+            "style",
+            "template",
+            "title",
     });
 
     if (start != nullptr && std::ranges::contains(kInHeadElements, start->tag_name)) {
