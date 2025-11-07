@@ -146,7 +146,7 @@ std::optional<GlobalType> parse(std::istream &is) {
     }
 
     return GlobalType{
-            .type = *std::move(valtype),
+            .type = *valtype,
             .mutability = mut == 0 ? GlobalType::Mutability::Const : GlobalType::Mutability::Var,
     };
 }
@@ -164,7 +164,7 @@ std::optional<Global> parse(std::istream &is) {
     }
 
     return Global{
-            .type = *std::move(type),
+            .type = *type,
             .init = *std::move(init),
     };
 }
@@ -370,7 +370,7 @@ std::optional<Import> parse(std::istream &is) {
     return Import{
             .module = *std::move(module),
             .name = *std::move(name),
-            .description = *std::move(desc),
+            .description = *desc,
     };
 }
 
@@ -390,7 +390,7 @@ std::optional<instructions::BlockType> parse(std::istream &is) {
     std::stringstream ss{std::string{static_cast<char>(type)}};
     auto value_type = parse<ValueType>(ss);
     if (value_type) {
-        return BlockType{{*std::move(value_type)}};
+        return BlockType{{*value_type}};
     }
 
     std::cerr << "Unhandled BlockType\n";
@@ -709,7 +709,7 @@ std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_inst
                     return std::nullopt;
                 }
 
-                instructions.emplace_back(Block{*std::move(type)});
+                instructions.emplace_back(Block{*type});
                 ++nesting;
                 break;
             }
@@ -719,7 +719,7 @@ std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_inst
                     return std::nullopt;
                 }
 
-                instructions.emplace_back(Loop{*std::move(type)});
+                instructions.emplace_back(Loop{*type});
                 ++nesting;
                 break;
             }
@@ -899,7 +899,7 @@ std::optional<std::vector<instructions::Instruction>> ByteCodeParser::parse_inst
                     return std::nullopt;
                 }
 
-                instructions.emplace_back(I32Load{*std::move(arg)});
+                instructions.emplace_back(I32Load{*arg});
                 break;
             }
             default:
