@@ -1068,6 +1068,57 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
 
     // TODO(robinlinden): Most things.
 
+    static constexpr auto kFormattingElements = std::to_array<std::string_view>({
+            "b",
+            "big",
+            "code",
+            "em",
+            "font",
+            "i",
+            "s",
+            "small",
+            "strike",
+            "strong",
+            "tt",
+            "u",
+    });
+    if (start != nullptr && std::ranges::contains(kFormattingElements, start->tag_name)) {
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        a.push_current_element_onto_active_formatting_elements();
+        return {};
+    }
+
+    // TODO(robinlinden): Most things.
+
+    static constexpr auto kMarkerCreatingElements = std::to_array<std::string_view>({
+            "applet",
+            "marquee",
+            "object",
+    });
+    if (start != nullptr && std::ranges::contains(kMarkerCreatingElements, start->tag_name)) {
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        a.push_formatting_marker();
+        return {};
+    }
+
+    if (end != nullptr && std::ranges::contains(kMarkerCreatingElements, end->tag_name)) {
+        if (!has_element_in_scope(a, end->tag_name)) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, std::nullopt);
+        if (a.current_node_name() != end->tag_name) {
+            // Parse error.
+        }
+
+        pop_past(a, end->tag_name);
+        a.clear_formatting_elements_up_to_last_marker();
+        return {};
+    }
+
     if (start != nullptr && start->tag_name == "table") {
         if (a.quirks_mode() != QuirksMode::Quirks && has_element_in_button_scope(a, "p")) {
             close_a_p_element();

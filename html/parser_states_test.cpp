@@ -660,6 +660,31 @@ void in_body_tests(etest::Suite &s) {
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"noembed", {}, {dom::Text{"hello"}}}}});
     });
+
+    s.add_test("InBody: formatting elements", [](etest::IActions &a) {
+        auto res = parse("<b>hello", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"b", {}, {dom::Text{"hello"}}}}});
+    });
+
+    s.add_test("InBody: marquee", [](etest::IActions &a) {
+        auto res = parse("<marquee>hello</marquee>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"marquee", {}, {dom::Text{"hello"}}}}});
+    });
+
+    s.add_test("InBody: marquee, but worse", [](etest::IActions &a) {
+        auto res = parse("</marquee><marquee><a>hello</marquee>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body,
+                dom::Element{
+                        .name{"body"},
+                        .children{dom::Element{
+                                .name{"marquee"},
+                                .children{dom::Element{"a", {}, {dom::Text{"hello"}}}},
+                        }},
+                });
+    });
 }
 
 void in_table_tests(etest::Suite &s) {
