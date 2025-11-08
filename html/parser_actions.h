@@ -175,6 +175,18 @@ public:
         // TODO(robinlinden): Implement.
     }
 
+    void push_current_element_onto_active_formatting_elements() override {
+        // TODO(robinlinden): Implement.
+    }
+
+    void push_formatting_marker() override {
+        // TODO(robinlinden): Implement.
+    }
+
+    void clear_formatting_elements_up_to_last_marker() override {
+        // TODO(robinlinden): Implement.
+    }
+
     std::vector<std::string_view> names_of_open_elements() const override {
         std::vector<std::string_view> names;
         names.reserve(open_elements_.size());

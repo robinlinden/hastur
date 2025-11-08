@@ -51,6 +51,13 @@ public:
         wrapped_.remove_from_open_elements(element_name);
     }
     void reconstruct_active_formatting_elements() override { wrapped_.reconstruct_active_formatting_elements(); }
+    void push_current_element_onto_active_formatting_elements() override {
+        wrapped_.push_current_element_onto_active_formatting_elements();
+    }
+    void push_formatting_marker() override { wrapped_.push_formatting_marker(); }
+    void clear_formatting_elements_up_to_last_marker() override {
+        wrapped_.clear_formatting_elements_up_to_last_marker();
+    }
     std::vector<std::string_view> names_of_open_elements() const override { return wrapped_.names_of_open_elements(); }
     void set_foster_parenting(bool foster) override { wrapped_.set_foster_parenting(foster); }
 

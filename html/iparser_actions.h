@@ -43,6 +43,9 @@ public:
     virtual void push_head_as_current_open_element() = 0;
     virtual void remove_from_open_elements(std::string_view element_name) = 0;
     virtual void reconstruct_active_formatting_elements() = 0;
+    virtual void push_current_element_onto_active_formatting_elements() = 0;
+    virtual void push_formatting_marker() = 0;
+    virtual void clear_formatting_elements_up_to_last_marker() = 0;
     virtual void set_foster_parenting(bool) = 0;
 
     // The most recently opened element is the first element in the list.
