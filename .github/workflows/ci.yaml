@@ -339,7 +339,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-      - run: pipx install pre-commit==4.3.0
+      - run: pipx install pre-commit==4.4.0
       - run: pre-commit run --all-files
 
   clang-format:
