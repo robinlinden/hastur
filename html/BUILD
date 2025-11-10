@@ -2,7 +2,7 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
-load("//bzl:defs.bzl", "cc_xfail_test")
+load("//bzl:defs.bzl", "sh_xfail_test")
 
 cc_library(
     name = "html",
@@ -109,22 +109,22 @@ genrule(
 ]]
 
 # TODO(robinlinden): Stop xfailing these.
-[cc_xfail_test(
+[sh_xfail_test(
     name = "html5lib_tree_construction_xfail_test_%s" % test,
     size = "small",
-    srcs = ["html5lib_tree_construction_test.cpp"],
-    args = ["$(location @html5lib-tests//:tree-construction/%s.dat)" % test],
-    copts = HASTUR_COPTS,
-    data = ["@html5lib-tests//:tree-construction/%s.dat" % test],
+    srcs = [":test_with_arg"],
+    args = [
+        "$(location :html5lib_tree_construction_test_runner)",
+        "$(location @html5lib-tests//:tree-construction/%s.dat)" % test,
+    ],
+    data = [
+        ":html5lib_tree_construction_test_runner",
+        "@html5lib-tests//:tree-construction/%s.dat" % test,
+    ],
     target_compatible_with = select({
         "@platforms//os:wasi": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
-    deps = [
-        ":html",
-        "//dom",
-        "//etest",
-    ],
 ) for test in [
     "adoption01",
     "adoption02",
