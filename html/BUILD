@@ -38,25 +38,59 @@ cc_library(
     ],
 )]
 
-[cc_test(
-    name = "html5lib_tree_construction_test_%s" % test,
-    size = "small",
+cc_binary(
+    name = "html5lib_tree_construction_test_runner",
     testonly = True,
     srcs = ["html5lib_tree_construction_test.cpp"],
-    args = ["$(location @html5lib-tests//:tree-construction/%s.dat)" % test],
     copts = HASTUR_COPTS,
-    data = ["@html5lib-tests//:tree-construction/%s.dat" % test],
+    deps = [
+        ":html",
+        "//dom",
+        "//etest",
+    ],
+)
+
+cc_binary(
+    name = "html5lib_tokenizer_test_runner",
+    testonly = True,
+    srcs = ["html5lib_tokenizer_test.cpp"],
+    copts = HASTUR_COPTS,
+    deps = [
+        ":html",
+        "//etest",
+        "//json",
+    ],
+)
+
+genrule(
+    name = "test_with_arg",
+    testonly = True,
+    outs = ["test_with_arg.sh"],
+    cmd = """
+        echo '#!/bin/sh' >$@
+        echo 'exec "$$1" "$$2"' >>$@
+        chmod +x $@
+    """,
+)
+
+[sh_test(
+    name = "html5lib_tree_construction_test_%s" % test,
+    size = "small",
+    srcs = [":test_with_arg"],
+    args = [
+        "$(location :html5lib_tree_construction_test_runner)",
+        "$(location @html5lib-tests//:tree-construction/%s.dat)" % test,
+    ],
+    data = [
+        ":html5lib_tree_construction_test_runner",
+        "@html5lib-tests//:tree-construction/%s.dat" % test,
+    ],
     target_compatible_with = select({
         # TODO(robinlinden): Investigate why we fail to open the test files when
         # running as a wasi binary.
         "@platforms//os:wasi": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
-    deps = [
-        ":html",
-        "//dom",
-        "//etest",
-    ],
 ) for test in [
     "comments01",
     "doctype01",
@@ -136,29 +170,6 @@ cc_library(
     "webkit01",
     "webkit02",
 ]]
-
-cc_binary(
-    name = "html5lib_tokenizer_test_runner",
-    testonly = True,
-    srcs = ["html5lib_tokenizer_test.cpp"],
-    copts = HASTUR_COPTS,
-    deps = [
-        ":html",
-        "//etest",
-        "//json",
-    ],
-)
-
-genrule(
-    name = "test_with_arg",
-    testonly = True,
-    outs = ["test_with_arg.sh"],
-    cmd = """
-        echo '#!/bin/sh' >$@
-        echo 'exec "$$1" "$$2"' >>$@
-        chmod +x $@
-    """,
-)
 
 # TODO(robinlinden): Look into the remaining tests.
 [sh_test(
