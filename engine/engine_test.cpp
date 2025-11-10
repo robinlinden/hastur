@@ -20,6 +20,7 @@
 #include <tl/expected.hpp>
 
 #include <algorithm>
+#include <array>
 #include <map>
 #include <memory>
 #include <string>
@@ -500,19 +501,24 @@ int main() {
     });
 
     s.add_test("load", [](etest::IActions &a) {
-        Responses responses;
-        responses["hax://example.com"s] = Response{
-                .status_line = {.status_code = 301},
-                .headers = {{"Location", "hax://example.com/redirected"}},
-        };
-        responses["hax://example.com/redirected"s] = Response{
-                .status_line = {.status_code = 200},
-                .body{"<html><body>hello!</body></html>"},
-        };
-        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
-        auto res = e.load(uri::Uri::parse("hax://example.com").value());
-        a.expect_eq(res.uri_after_redirects, uri::Uri::parse("hax://example.com/redirected"));
-        a.expect_eq(res.response, responses.at("hax://example.com/redirected"));
+        static constexpr auto kRedirectedStatusCodes = std::array{301, 302, 303, 307, 308};
+        for (int status_code : kRedirectedStatusCodes) {
+            Responses responses;
+            responses["hax://example.com"s] = Response{
+                    .status_line = {.status_code = status_code},
+                    .headers = {{"Location", "hax://example.com/redirected"}},
+            };
+            responses["hax://example.com/redirected"s] = Response{
+                    .status_line = {.status_code = 200},
+                    .body{"<html><body>hello!</body></html>"},
+            };
+            engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+            auto res = e.load(uri::Uri::parse("hax://example.com").value());
+
+            auto err_msg = std::to_string(status_code);
+            a.expect_eq(res.uri_after_redirects, uri::Uri::parse("hax://example.com/redirected"), err_msg);
+            a.expect_eq(res.response, responses.at("hax://example.com/redirected"), err_msg);
+        }
     });
 
     s.add_test("IType accessor, you get what you give", [](etest::IActions &a) {

@@ -242,7 +242,8 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
     static constexpr int kMaxRedirects = 10;
 
     auto is_redirect = [](int status_code) {
-        return status_code == 301 || status_code == 302 || status_code == 307 || status_code == 308;
+        return status_code == 301 || status_code == 302 || status_code == 303 || status_code == 307
+                || status_code == 308;
     };
 
     int redirect_count = 0;
