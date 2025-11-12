@@ -231,6 +231,10 @@ struct I32LessThanUnsigned {
 struct I32GreaterThanSigned {
     static constexpr std::uint8_t kOpcode = 0x4a;
     static constexpr std::string_view kMnemonic = "i32.gt_s";
+
+    static constexpr NumericType kNumericType = NumericType::Relop;
+    using NumType = std::int32_t;
+    using Operation = std::greater<std::int32_t>;
     [[nodiscard]] bool operator==(I32GreaterThanSigned const &) const = default;
 };
 
@@ -243,6 +247,10 @@ struct I32GreaterThanUnsigned {
 struct I32LessThanEqualSigned {
     static constexpr std::uint8_t kOpcode = 0x4c;
     static constexpr std::string_view kMnemonic = "i32.le_s";
+
+    static constexpr NumericType kNumericType = NumericType::Relop;
+    using NumType = std::int32_t;
+    using Operation = std::less_equal<std::int32_t>;
     [[nodiscard]] bool operator==(I32LessThanEqualSigned const &) const = default;
 };
 
@@ -255,6 +263,10 @@ struct I32LessThanEqualUnsigned {
 struct I32GreaterThanEqualSigned {
     static constexpr std::uint8_t kOpcode = 0x4e;
     static constexpr std::string_view kMnemonic = "i32.ge_s";
+
+    static constexpr NumericType kNumericType = NumericType::Relop;
+    using NumType = std::int32_t;
+    using Operation = std::greater_equal<std::int32_t>;
     [[nodiscard]] bool operator==(I32GreaterThanEqualSigned const &) const = default;
 };
 

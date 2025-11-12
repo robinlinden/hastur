@@ -76,6 +76,84 @@ int main() {
         a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0);
     });
 
+    s.add_test("i32.gt_s", [](etest::IActions &a) {
+        Interpreter i;
+        // Less.
+        i.interpret(I32Const{10});
+        i.interpret(I32Const{20});
+        i.interpret(I32GreaterThanSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0);
+        i.stack.clear();
+
+        // Greater.
+        i.interpret(I32Const{20});
+        i.interpret(I32Const{10});
+        i.interpret(I32GreaterThanSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 1);
+        i.stack.clear();
+
+        // Same.
+        i.interpret(I32Const{10});
+        i.interpret(I32Const{10});
+        i.interpret(I32GreaterThanSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0);
+    });
+
+    s.add_test("i32.le_s", [](etest::IActions &a) {
+        Interpreter i;
+        // Less.
+        i.interpret(I32Const{10});
+        i.interpret(I32Const{20});
+        i.interpret(I32LessThanEqualSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 1);
+        i.stack.clear();
+
+        // Greater.
+        i.interpret(I32Const{20});
+        i.interpret(I32Const{10});
+        i.interpret(I32LessThanEqualSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0);
+        i.stack.clear();
+
+        // Same.
+        i.interpret(I32Const{10});
+        i.interpret(I32Const{10});
+        i.interpret(I32LessThanEqualSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 1);
+    });
+
+    s.add_test("i32.ge_s", [](etest::IActions &a) {
+        Interpreter i;
+        // Less.
+        i.interpret(I32Const{10});
+        i.interpret(I32Const{20});
+        i.interpret(I32GreaterThanEqualSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0);
+        i.stack.clear();
+
+        // Greater.
+        i.interpret(I32Const{20});
+        i.interpret(I32Const{10});
+        i.interpret(I32GreaterThanEqualSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 1);
+        i.stack.clear();
+
+        // Same.
+        i.interpret(I32Const{10});
+        i.interpret(I32Const{10});
+        i.interpret(I32GreaterThanEqualSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 1);
+    });
+
     s.add_test("i32.add", [](etest::IActions &a) {
         Interpreter i;
         i.interpret(I32Const{20});
