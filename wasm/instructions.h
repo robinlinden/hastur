@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -9,10 +9,21 @@
 #include "wasm/types.h"
 
 #include <cstdint>
+#include <functional>
 #include <string_view>
 #include <variant>
 
 namespace wasm::instructions {
+
+// https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+enum class NumericType : std::uint8_t {
+    // TODO(robinlinden): cvtop.
+    Binop,
+    Const,
+    Relop,
+    Testop,
+    Unop,
+};
 
 struct BlockType {
     struct Empty {
@@ -204,6 +215,10 @@ struct I32NotEqual {
 struct I32LessThanSigned {
     static constexpr std::uint8_t kOpcode = 0x48;
     static constexpr std::string_view kMnemonic = "i32.lt_s";
+
+    static constexpr NumericType kNumericType = NumericType::Relop;
+    using NumType = std::int32_t;
+    using Operation = std::less<std::int32_t>;
     [[nodiscard]] bool operator==(I32LessThanSigned const &) const = default;
 };
 

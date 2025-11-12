@@ -46,14 +46,16 @@ public:
     void interpret(instructions::I32Const const &v) { stack.emplace_back(v.value); }
 
     // t.binop
-    void interpret(instructions::I32LessThanSigned const &) {
+    template<typename T>
+    requires(T::kNumericType == instructions::NumericType::Relop)
+    void interpret(T const &) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
-        auto rhs = std::get<std::int32_t>(stack.back());
+        auto rhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
-        auto lhs = std::get<std::int32_t>(stack.back());
+        auto lhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
-        stack.emplace_back(lhs < rhs ? 1 : 0);
+        stack.emplace_back(typename T::Operation{}(lhs, rhs) ? 1 : 0);
     }
 
     void interpret(instructions::I32Add const &) {

@@ -52,15 +52,24 @@ int main() {
 
     s.add_test("i32.lt_s", [](etest::IActions &a) {
         Interpreter i;
+        // Less.
         i.interpret(I32Const{10});
         i.interpret(I32Const{20});
         i.interpret(I32LessThanSigned{});
-
         a.require_eq(i.stack.size(), std::size_t{1});
         a.expect_eq(std::get<std::int32_t>(i.stack.back()), 1);
-
         i.stack.clear();
+
+        // Greater.
         i.interpret(I32Const{20});
+        i.interpret(I32Const{10});
+        i.interpret(I32LessThanSigned{});
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0);
+        i.stack.clear();
+
+        // Same.
+        i.interpret(I32Const{10});
         i.interpret(I32Const{10});
         i.interpret(I32LessThanSigned{});
         a.require_eq(i.stack.size(), std::size_t{1});
