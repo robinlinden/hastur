@@ -9,7 +9,6 @@
 #include "wasm/types.h"
 
 #include <cstdint>
-#include <functional>
 #include <string_view>
 #include <variant>
 
@@ -218,7 +217,6 @@ struct I32LessThanSigned {
 
     static constexpr NumericType kNumericType = NumericType::Relop;
     using NumType = std::int32_t;
-    using Operation = std::less<std::int32_t>;
     [[nodiscard]] bool operator==(I32LessThanSigned const &) const = default;
 };
 
@@ -234,7 +232,6 @@ struct I32GreaterThanSigned {
 
     static constexpr NumericType kNumericType = NumericType::Relop;
     using NumType = std::int32_t;
-    using Operation = std::greater<std::int32_t>;
     [[nodiscard]] bool operator==(I32GreaterThanSigned const &) const = default;
 };
 
@@ -250,7 +247,6 @@ struct I32LessThanEqualSigned {
 
     static constexpr NumericType kNumericType = NumericType::Relop;
     using NumType = std::int32_t;
-    using Operation = std::less_equal<std::int32_t>;
     [[nodiscard]] bool operator==(I32LessThanEqualSigned const &) const = default;
 };
 
@@ -266,7 +262,6 @@ struct I32GreaterThanEqualSigned {
 
     static constexpr NumericType kNumericType = NumericType::Relop;
     using NumType = std::int32_t;
-    using Operation = std::greater_equal<std::int32_t>;
     [[nodiscard]] bool operator==(I32GreaterThanEqualSigned const &) const = default;
 };
 

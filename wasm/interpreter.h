@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <iostream>
 #include <optional>
 #include <span>
@@ -19,6 +20,32 @@
 #include <vector>
 
 namespace wasm {
+namespace detail {
+
+template<typename T>
+struct InterpreterInfo {};
+
+template<>
+struct InterpreterInfo<instructions::I32LessThanSigned> {
+    using Operation = std::less<std::int32_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I32GreaterThanSigned> {
+    using Operation = std::greater<std::int32_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I32LessThanEqualSigned> {
+    using Operation = std::less_equal<std::int32_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I32GreaterThanEqualSigned> {
+    using Operation = std::greater_equal<std::int32_t>;
+};
+
+} // namespace detail
 
 class Interpreter {
 public:
@@ -55,7 +82,7 @@ public:
         stack.pop_back();
         auto lhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
-        stack.emplace_back(typename T::Operation{}(lhs, rhs) ? 1 : 0);
+        stack.emplace_back(typename detail::InterpreterInfo<T>::Operation{}(lhs, rhs) ? 1 : 0);
     }
 
     void interpret(instructions::I32Add const &) {
