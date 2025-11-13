@@ -1,17 +1,14 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "wasm/instructions.h"
 #include "wasm/wasm.h"
 
 #include <tl/expected.hpp>
 
 #include <cstdint>
 #include <iosfwd>
-#include <optional>
 #include <string_view>
-#include <vector>
 
 namespace wasm {
 
@@ -82,9 +79,6 @@ class ByteCodeParser {
 public:
     static tl::expected<Module, ModuleParseError> parse_module(std::istream &);
     static tl::expected<Module, ModuleParseError> parse_module(std::istream &&is) { return parse_module(is); }
-
-    // TODO(robinlinden): Make private.
-    static std::optional<std::vector<instructions::Instruction>> parse_instructions(std::istream &);
 };
 
 } // namespace wasm

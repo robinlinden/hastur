@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -10,18 +10,45 @@
 
 #include "etest/etest2.h"
 
+#include <algorithm>
+#include <cassert>
+#include <iterator>
 #include <optional>
 #include <sstream>
 #include <string>
-#include <utility>
+#include <string_view>
 #include <vector>
 
 using InsnVec = std::vector<wasm::instructions::Instruction>;
 
 namespace {
-std::optional<InsnVec> parse(std::string s) {
-    std::stringstream ss{std::move(s)};
-    return wasm::ByteCodeParser::parse_instructions(ss);
+
+std::stringstream make_code_module_bytes(std::string_view section_content) {
+    using std::literals::operator""sv;
+    std::stringstream wasm_bytes;
+    wasm_bytes << "\0asm\1\0\0\0"sv;
+    wasm_bytes << static_cast<char>(10); // 0x10 is a code section.
+    assert(section_content.size() < (0x7f - 2)); // > 0x7f requires leb128-serialization.
+    wasm_bytes << static_cast<char>(section_content.size() + 2);
+    wasm_bytes << static_cast<char>(1); // 1 code entry.
+    wasm_bytes << static_cast<char>(section_content.size() + 1); // code entry size.
+    wasm_bytes << static_cast<char>(0); // 0 locals.
+    std::ranges::copy(section_content, std::ostreambuf_iterator<char>{wasm_bytes});
+    return wasm_bytes;
+}
+
+std::optional<InsnVec> parse(std::string_view s) {
+    std::stringstream ss = make_code_module_bytes(s);
+    auto module = wasm::ByteCodeParser::parse_module(ss);
+    if (!module.has_value()) {
+        return std::nullopt;
+    }
+
+    auto const &code_section = module->code_section;
+    assert(code_section.has_value());
+    assert(code_section->entries.size() == 1);
+
+    return code_section->entries[0].code;
 }
 } // namespace
 
