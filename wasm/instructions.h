@@ -301,6 +301,9 @@ struct I32Add {
 struct I32Subtract {
     static constexpr std::uint8_t kOpcode = 0x6b;
     static constexpr std::string_view kMnemonic = "i32.sub";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int32_t;
     [[nodiscard]] bool operator==(I32Subtract const &) const = default;
 };
 
@@ -337,18 +340,27 @@ struct I32RemainderUnsigned {
 struct I32And {
     static constexpr std::uint8_t kOpcode = 0x71;
     static constexpr std::string_view kMnemonic = "i32.and";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int32_t;
     [[nodiscard]] bool operator==(I32And const &) const = default;
 };
 
 struct I32Or {
     static constexpr std::uint8_t kOpcode = 0x72;
     static constexpr std::string_view kMnemonic = "i32.or";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int32_t;
     [[nodiscard]] bool operator==(I32Or const &) const = default;
 };
 
 struct I32ExclusiveOr {
     static constexpr std::uint8_t kOpcode = 0x73;
     static constexpr std::string_view kMnemonic = "i32.xor";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int32_t;
     [[nodiscard]] bool operator==(I32ExclusiveOr const &) const = default;
 };
 

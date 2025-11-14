@@ -164,6 +164,46 @@ int main() {
         a.expect_eq(std::get<std::int32_t>(i.stack.back()), 42);
     });
 
+    s.add_test("i32.sub", [](etest::IActions &a) {
+        Interpreter i;
+        i.interpret(I32Const{100});
+        i.interpret(I32Const{58});
+        i.interpret(I32Subtract{});
+
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 42);
+    });
+
+    s.add_test("i32.and", [](etest::IActions &a) {
+        Interpreter i;
+        i.interpret(I32Const{0b1100});
+        i.interpret(I32Const{0b1010});
+        i.interpret(I32And{});
+
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0b1000);
+    });
+
+    s.add_test("i32.or", [](etest::IActions &a) {
+        Interpreter i;
+        i.interpret(I32Const{0b1100});
+        i.interpret(I32Const{0b1010});
+        i.interpret(I32Or{});
+
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0b1110);
+    });
+
+    s.add_test("i32.xor", [](etest::IActions &a) {
+        Interpreter i;
+        i.interpret(I32Const{0b1100});
+        i.interpret(I32Const{0b1010});
+        i.interpret(I32ExclusiveOr{});
+
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 0b0110);
+    });
+
     s.add_test("local.get", [](etest::IActions &a) {
         Interpreter i;
         i.locals.emplace_back(42);

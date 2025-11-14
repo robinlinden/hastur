@@ -50,6 +50,26 @@ struct InterpreterInfo<instructions::I32Add> {
     using Operation = std::plus<std::int32_t>;
 };
 
+template<>
+struct InterpreterInfo<instructions::I32Subtract> {
+    using Operation = std::minus<std::int32_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I32And> {
+    using Operation = std::bit_and<std::int32_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I32Or> {
+    using Operation = std::bit_or<std::int32_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I32ExclusiveOr> {
+    using Operation = std::bit_xor<std::int32_t>;
+};
+
 } // namespace detail
 
 class Interpreter {
