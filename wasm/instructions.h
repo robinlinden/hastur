@@ -292,6 +292,9 @@ struct I32PopulationCount {
 struct I32Add {
     static constexpr std::uint8_t kOpcode = 0x6a;
     static constexpr std::string_view kMnemonic = "i32.add";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int32_t;
     [[nodiscard]] bool operator==(I32Add const &) const = default;
 };
 

@@ -45,6 +45,11 @@ struct InterpreterInfo<instructions::I32GreaterThanEqualSigned> {
     using Operation = std::greater_equal<std::int32_t>;
 };
 
+template<>
+struct InterpreterInfo<instructions::I32Add> {
+    using Operation = std::plus<std::int32_t>;
+};
+
 } // namespace detail
 
 class Interpreter {
@@ -72,7 +77,6 @@ public:
     // t.const c
     void interpret(instructions::I32Const const &v) { stack.emplace_back(v.value); }
 
-    // t.binop
     template<typename T>
     requires(T::kNumericType == instructions::NumericType::Relop)
     void interpret(T const &) {
@@ -85,14 +89,16 @@ public:
         stack.emplace_back(typename detail::InterpreterInfo<T>::Operation{}(lhs, rhs) ? 1 : 0);
     }
 
-    void interpret(instructions::I32Add const &) {
+    template<typename T>
+    requires(T::kNumericType == instructions::NumericType::Binop)
+    void interpret(T const &) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
-        auto rhs = std::get<std::int32_t>(stack.back());
+        auto rhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
-        auto lhs = std::get<std::int32_t>(stack.back());
+        auto lhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
-        stack.emplace_back(lhs + rhs);
+        stack.emplace_back(typename detail::InterpreterInfo<T>::Operation{}(lhs, rhs));
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#variable-instructions
