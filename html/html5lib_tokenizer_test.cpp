@@ -124,6 +124,7 @@ std::vector<html::Token> to_html2_tokens(json::Array const &tokens) {
         if (kind == "StartTag") {
             html::StartTagToken start{std::get<std::string>(*++it)};
             auto attrs = std::get<json::Object>(*++it);
+            start.attributes.reserve(attrs.values.size());
             for (auto const &attr : attrs.values) {
                 start.attributes.push_back({
                         std::string{attr.first},
