@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -23,6 +23,7 @@ ftxui::Element element_from_node(layout::LayoutBox const &box);
 // NOLINTNEXTLINE(misc-no-recursion)
 ftxui::Elements parse_children(layout::LayoutBox const &box) {
     ftxui::Elements children;
+    children.reserve(box.children.size());
     for (auto const &child : box.children) {
         children.push_back(element_from_node(child));
     };
