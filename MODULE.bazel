@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-hafcE+Nw81W/ADgSONHLpWRQ0+WYVmuMUtkN3zAcXfs=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.24.3"),
+    integrity = "sha256-Gub8+YPP8+2rcXY2+RrQ7/8uW6dWB/3d3f1q0NvfrxA=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("1.24.5"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.13"
+RULES_CC_VERSION = "0.2.14"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-Ry3cqM7B5krXjk8Mq77FWTajut2+e+8HJ2TKkVBL1SM=",
+    integrity = "sha256-ov394qubIXa9ajOvyhRFgDkCPtsd0uc+aCOBCAnfQCc=",
     patch_cmds = [
         # Work around warning about overriding the /std-flag.
         # `cl : Command line warning D9025 : overriding '/std:c++17' with '/std:c++latest'`
@@ -66,12 +66,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.6.3"
+RULES_PYTHON_VERSION = "1.7.0"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-L1woT7tOhgRcJjLTVz/ABvrLyl0foCl26J3AzVSItZA=",
+    integrity = "sha256-9gnzQdbpCQuYGz9FMk0FqBn9elpWQ0+EnHYZcc4sR9o=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -439,12 +439,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20251002.0"
+BORINGSSL_VERSION = "0.20251110.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-+Wcz/D3wPUGV22VtG3uMF0wz+V0FL4EfDsyPTk49szI=",
+    integrity = "sha256-HTsz5Ki5Nctygl2LkR8MkNEjogtCUVRQMO8G3rZEFMk=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -809,12 +809,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.329"
+VULKAN_TAG = "1.4.332"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-fqZ6q8zezG72FrTCQ/VjrJvKlFpj1PTMoh8bvNgosY4=",
+    integrity = "sha256-K5iUga+zAbEB+onl4qDnKjpV4jbvaawT+gUis6K8jaA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -830,7 +830,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-N0U9cNz5BteVLzQGRC26XJBI6nK79CqO83+e3bxWhx0=",
+    integrity = "sha256-7ifFvFJyAjz2rP7+7wCeaNmzVxSeGZ1luEyaRHvC7A0=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
