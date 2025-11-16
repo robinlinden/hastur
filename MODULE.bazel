@@ -54,8 +54,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-GzBpjYnczZ3AGxpK1+nlxuZpzfGRjbsFAzTjZbQKG14=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("8.16.1"),
+    integrity = "sha256-hls9M0vQ92lYdzdEdBDYBC1qlRNMxFvlOAgF/brNcVI=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.0.3"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -91,11 +91,11 @@ pip.parse(
 use_repo(pip, "pypi")
 
 # https://github.com/bazelbuild/rules_swift
-RULES_SWIFT_VERSION = "3.1.2"
+RULES_SWIFT_VERSION = "3.3.0"
 
 archive_override(
     module_name = "rules_swift",
-    integrity = "sha256-Xv9xfBi7UTKFtJmt1o8jMVCc1OQR/whelqhrM0LB5ao=",
+    integrity = "sha256-lBNu3xzNx7m7aP+F4Ab+aY6hYaAvvuVbof60znFSLPs=",
     url = "https://github.com/bazelbuild/rules_swift/releases/download/{0}/rules_swift.{0}.tar.gz".format(RULES_SWIFT_VERSION),
 )
 
@@ -200,8 +200,8 @@ archive_override(
 # https://github.com/bazel-contrib/bazel-gazelle
 archive_override(
     module_name = "gazelle",
-    integrity = "sha256-79RJFJAP5S7tiRteEf9EPosY6puE4wQhPwTRjo4g3z0=",
-    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.46.0"),
+    integrity = "sha256-Z1EU2LQz0Kn1TYEXGDO+luvEETEVZkt5Hm8gTVjpNEY=",
+    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.47.0"),
 )
 
 # https://github.com/bazel-contrib/supply-chain
@@ -217,16 +217,16 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-gvCvJT/GHH8GsAXGfAeVc3dhERhbfDdCVj91EXiqpMA=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.58.3"),
+    integrity = "sha256-aK9Uy5f73uXl6P6NIQ0VpRj51iq/1xYgw+r/Oyal/4Y=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.59.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
-RULES_JVM_EXTERNAL_VERSION = "6.8"
+RULES_JVM_EXTERNAL_VERSION = "6.9"
 
 archive_override(
     module_name = "rules_jvm_external",
-    integrity = "sha256-cEoBl+TpZvlpkyYEGPJUJWgZhJBFbCGBT2R65wkfVvI=",
+    # integrity = "sha256-cEoBl+TpZvlpkyYEGPJUJWgZhJBFbCGBT2R65wkfVvI=",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_VERSION,
     url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
@@ -280,11 +280,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "33.0"
+PROTOBUF_VERSION = "33.1"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-y8U2BkcGtijc/lB77zhu8+IhTVY2V2EilvF4GqFV7gc=",
+    integrity = "sha256-/aEyywyGQAOBwK8f6YvQ93XLVmyyR83MEF40TgCsww4=",
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
@@ -336,11 +336,11 @@ archive_override(
 )
 
 # https://github.com/google/re2
-RE2_VERSION = "2025-08-12"
+RE2_VERSION = "2025-11-05"
 
 archive_override(
     module_name = "re2",
-    integrity = "sha256-LzvsY0w+Ueofrw1EHgqHGLc+91jXAgF17X41LfP2rhI=",
+    integrity = "sha256-h/YCnS9t6KoCNlQkCgOtqQ6HbOmkZ24ljdAepMJv/Wc=",
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
 )
