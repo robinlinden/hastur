@@ -720,6 +720,104 @@ void in_table_tests(etest::Suite &s) {
     });
 }
 
+void in_cell_tests(etest::Suite &s) {
+    s.add_test("InCell: <td><td>", [](etest::IActions &a) {
+        auto res = parse("<table><tr><td><td>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        auto const &tbody = std::get<dom::Element>(table.children.at(0));
+        a.expect_eq(tbody,
+                dom::Element{
+                        .name{"tbody"},
+                        .children{
+                                dom::Element{
+                                        .name{"tr"},
+                                        .children{
+                                                dom::Element{"td"},
+                                                dom::Element{"td"},
+                                        },
+                                },
+                        },
+                });
+    });
+
+    s.add_test("InCell: </tfoot></tr>", [](etest::IActions &a) {
+        auto res = parse("<table><tr><td></tfoot></tr>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        auto const &tbody = std::get<dom::Element>(table.children.at(0));
+        a.expect_eq(tbody,
+                dom::Element{
+                        .name{"tbody"},
+                        .children{
+                                dom::Element{
+                                        .name{"tr"},
+                                        .children{
+                                                dom::Element{"td"},
+                                        },
+                                },
+                        },
+                });
+    });
+
+    s.add_test("InCell: <td></body><td>", [](etest::IActions &a) {
+        auto res = parse("<table><tr><td></body><td>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        auto const &tbody = std::get<dom::Element>(table.children.at(0));
+        a.expect_eq(tbody,
+                dom::Element{
+                        .name{"tbody"},
+                        .children{
+                                dom::Element{
+                                        .name{"tr"},
+                                        .children{
+                                                dom::Element{"td"},
+                                                dom::Element{"td"},
+                                        },
+                                },
+                        },
+                });
+    });
+
+    s.add_test("InCell: <td><a><td>", [](etest::IActions &a) {
+        auto res = parse("<table><tr><td><a><td>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        auto const &tbody = std::get<dom::Element>(table.children.at(0));
+        auto const &tr = std::get<dom::Element>(tbody.children.at(0));
+        a.expect_eq(tr,
+                dom::Element{
+                        .name{"tr"},
+                        .children{
+                                dom::Element{
+                                        .name{"td"},
+                                        .children{dom::Element{"a"}},
+                                },
+                                dom::Element{"td"},
+                        },
+                });
+    });
+
+    s.add_test("InCell: <td><a></th></td>", [](etest::IActions &a) {
+        auto res = parse("<table><tr><td><a></th></td>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        auto const &table = std::get<dom::Element>(body.children.at(0));
+        auto const &tbody = std::get<dom::Element>(table.children.at(0));
+        auto const &tr = std::get<dom::Element>(tbody.children.at(0));
+        a.expect_eq(tr,
+                dom::Element{
+                        .name{"tr"},
+                        .children{
+                                dom::Element{
+                                        .name{"td"},
+                                        .children{dom::Element{"a"}},
+                                },
+                        },
+                });
+    });
+}
+
 void in_table_text_tests(etest::Suite &s) {
     s.add_test("InTableText: hello", [](etest::IActions &a) {
         auto res = parse("<table>hello", {});
@@ -853,6 +951,7 @@ int main() {
     in_body_tests(s);
     in_table_tests(s);
     in_table_text_tests(s);
+    in_cell_tests(s);
     in_frameset_tests(s);
     return s.run();
 }
