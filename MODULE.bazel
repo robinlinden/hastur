@@ -226,7 +226,7 @@ RULES_JVM_EXTERNAL_VERSION = "6.9"
 
 archive_override(
     module_name = "rules_jvm_external",
-    # integrity = "sha256-cEoBl+TpZvlpkyYEGPJUJWgZhJBFbCGBT2R65wkfVvI=",
+    integrity = "sha256-PEHq5CJqff3OeyE7xUFVe4R1yS2nHiIz7HwwZjAkOmU=",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_VERSION,
     url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
