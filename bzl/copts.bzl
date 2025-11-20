@@ -20,9 +20,17 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Wshadow",
     "-Wsign-compare",
     "-Wundef",
+    "-Wunreachable-code",
+    "-Wuninitialized",
+    "-Wunused",
 
     # Common idiom for zeroing members.
     "-Wno-missing-field-initializers",
+]
+
+HASTUR_CLANG_WARNING_FLAGS = HASTUR_LINUX_WARNING_FLAGS + [
+    "-Wused-but-marked-unused",
+    "-Wundefined-reinterpret-cast",
 ]
 
 HASTUR_MSVC_WARNING_FLAGS = [
@@ -41,7 +49,7 @@ HASTUR_CLANG_CL_WARNING_FLAGS = [
 ]
 
 HASTUR_COPTS = select({
-    "@rules_cc//cc/compiler:clang": HASTUR_LINUX_WARNING_FLAGS,
+    "@rules_cc//cc/compiler:clang": HASTUR_CLANG_WARNING_FLAGS,
     "@rules_cc//cc/compiler:clang-cl": HASTUR_CLANG_CL_WARNING_FLAGS,
     "@rules_cc//cc/compiler:gcc": HASTUR_LINUX_WARNING_FLAGS,
     "@rules_cc//cc/compiler:msvc-cl": HASTUR_MSVC_WARNING_FLAGS,
