@@ -236,6 +236,26 @@ int main() {
         a.expect_eq(std::get<std::int32_t>(i.locals.back()), 24);
     });
 
+    s.add_test("global.get", [](etest::IActions &a) {
+        Interpreter i;
+        i.globals.emplace_back(84);
+        i.interpret(GlobalGet{0});
+
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 84);
+    });
+
+    s.add_test("global.set", [](etest::IActions &a) {
+        Interpreter i;
+        i.globals.emplace_back(84);
+        i.interpret(I32Const{21});
+        i.interpret(GlobalSet{0});
+
+        a.expect_eq(i.stack.size(), std::size_t{0});
+        a.require_eq(i.globals.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.globals.back()), 21);
+    });
+
     s.add_test("i32.load", [](etest::IActions &a) {
         Interpreter i;
         i.memory.resize(8);
@@ -248,6 +268,29 @@ int main() {
         i.interpret(I32Const{4});
         i.interpret(I32Load{{0, 0}});
 
+        a.require_eq(i.stack.size(), std::size_t{1});
+        a.expect_eq(std::get<std::int32_t>(i.stack.back()), 42);
+    });
+
+    s.add_test("i32.store", [](etest::IActions &a) {
+        Interpreter i;
+        i.memory.resize(8);
+
+        // Store 42 at address 4.
+        i.interpret(I32Const{4});
+        i.interpret(I32Const{42});
+        i.interpret(I32Store{{0, 0}});
+
+        a.expect_eq(i.memory[4], 42);
+        a.expect_eq(i.memory[5], 0);
+        a.expect_eq(i.memory[6], 0);
+        a.expect_eq(i.memory[7], 0);
+
+        a.expect_eq(i.stack.size(), std::size_t{0});
+
+        // and load the value again.
+        i.interpret(I32Const{4});
+        i.interpret(I32Load{{0, 0}});
         a.require_eq(i.stack.size(), std::size_t{1});
         a.expect_eq(std::get<std::int32_t>(i.stack.back()), 42);
     });
