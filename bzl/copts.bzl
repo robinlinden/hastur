@@ -20,6 +20,7 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Wshadow",
     "-Wsign-compare",
     "-Wundef",
+    "-Wunreachable-code",
 
     # Common idiom for zeroing members.
     "-Wno-missing-field-initializers",
