@@ -29,11 +29,15 @@ struct InstructionStringifyVisitor {
     void operator()(Loop const &t);
     void operator()(Branch const &t);
     void operator()(BranchIf const &t);
+    void operator()(Call const &t);
     void operator()(I32Const const &t);
     void operator()(LocalGet const &t);
     void operator()(LocalSet const &t);
     void operator()(LocalTee const &t);
+    void operator()(GlobalGet const &t);
+    void operator()(GlobalSet const &t);
     void operator()(I32Load const &t);
+    void operator()(I32Store const &t);
 
     template<typename T>
     requires std::is_empty_v<T>
@@ -64,6 +68,10 @@ void InstructionStringifyVisitor::operator()(BranchIf const &t) {
     out << BranchIf::kMnemonic << " " << std::to_string(t.label_idx);
 }
 
+void InstructionStringifyVisitor::operator()(Call const &t) {
+    out << Call::kMnemonic << ' ' << std::to_string(t.function_idx);
+}
+
 void InstructionStringifyVisitor::operator()(I32Const const &t) {
     out << I32Const::kMnemonic << " " << std::to_string(t.value);
 }
@@ -86,8 +94,26 @@ void InstructionStringifyVisitor::operator()(LocalTee const &t) {
     out << LocalTee::kMnemonic << " " << std::to_string(t.idx);
 }
 
+void InstructionStringifyVisitor::operator()(GlobalGet const &t) {
+    out << GlobalGet::kMnemonic << ' ' << std::to_string(t.global_idx);
+}
+
+void InstructionStringifyVisitor::operator()(GlobalSet const &t) {
+    out << GlobalSet::kMnemonic << ' ' << std::to_string(t.global_idx);
+}
+
 void InstructionStringifyVisitor::operator()(I32Load const &t) {
     out << I32Load::kMnemonic;
+
+    std::string memarg = to_string(t.arg, 32);
+
+    if (!memarg.empty()) {
+        out << " " << memarg;
+    }
+}
+
+void InstructionStringifyVisitor::operator()(I32Store const &t) {
+    out << I32Store::kMnemonic;
 
     std::string memarg = to_string(t.arg, 32);
 

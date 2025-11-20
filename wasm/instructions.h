@@ -39,11 +39,15 @@ struct MemArg {
     [[nodiscard]] bool operator==(MemArg const &) const = default;
 };
 
+// Parametric instructions
+struct Select;
+
 // Control instructions
 struct Block;
 struct Loop;
 struct Branch;
 struct BranchIf;
+struct Call;
 struct Return;
 struct End;
 
@@ -91,14 +95,19 @@ struct I32Extend16Signed;
 struct LocalGet;
 struct LocalSet;
 struct LocalTee;
+struct GlobalGet;
+struct GlobalSet;
 
 // Memory instructions
 struct I32Load;
+struct I32Store;
 
-using Instruction = std::variant<Block,
+using Instruction = std::variant<Select,
+        Block,
         Loop,
         Branch,
         BranchIf,
+        Call,
         Return,
         End,
         I32Const,
@@ -142,7 +151,17 @@ using Instruction = std::variant<Block,
         LocalGet,
         LocalSet,
         LocalTee,
-        I32Load>;
+        GlobalGet,
+        GlobalSet,
+        I32Load,
+        I32Store>;
+
+// https://webassembly.github.io/spec/core/binary/instructions.html#parametric-instructions
+struct Select {
+    static constexpr std::uint8_t kOpcode = 0x1b;
+    static constexpr std::string_view kMnemonic = "select";
+    [[nodiscard]] bool operator==(Select const &) const = default;
+};
 
 // https://webassembly.github.io/spec/core/binary/instructions.html#control-instructions
 struct Block {
@@ -171,6 +190,13 @@ struct BranchIf {
     static constexpr std::string_view kMnemonic = "br_if";
     std::uint32_t label_idx{};
     [[nodiscard]] bool operator==(BranchIf const &) const = default;
+};
+
+struct Call {
+    static constexpr std::uint8_t kOpcode = 0x10;
+    static constexpr std::string_view kMnemonic = "call";
+    std::uint32_t function_idx{};
+    [[nodiscard]] bool operator==(Call const &) const = default;
 };
 
 struct Return {
@@ -464,12 +490,33 @@ struct LocalTee {
     [[nodiscard]] bool operator==(LocalTee const &) const = default;
 };
 
+struct GlobalGet {
+    static constexpr std::uint8_t kOpcode = 0x23;
+    static constexpr std::string_view kMnemonic = "global.get";
+    std::uint32_t global_idx{};
+    [[nodiscard]] bool operator==(GlobalGet const &) const = default;
+};
+
+struct GlobalSet {
+    static constexpr std::uint8_t kOpcode = 0x24;
+    static constexpr std::string_view kMnemonic = "global.set";
+    std::uint32_t global_idx{};
+    [[nodiscard]] bool operator==(GlobalSet const &) const = default;
+};
+
 // https://webassembly.github.io/spec/core/binary/instructions.html#memory-instructions
 struct I32Load {
     static constexpr std::uint8_t kOpcode = 0x28;
     static constexpr std::string_view kMnemonic = "i32.load";
     MemArg arg{};
     [[nodiscard]] bool operator==(I32Load const &) const = default;
+};
+
+struct I32Store {
+    static constexpr std::uint8_t kOpcode = 0x36;
+    static constexpr std::string_view kMnemonic = "i32.store";
+    MemArg arg{};
+    [[nodiscard]] bool operator==(I32Store const &) const = default;
 };
 
 } // namespace wasm::instructions

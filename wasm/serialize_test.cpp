@@ -22,6 +22,10 @@ int main() {
         a.expect_eq(to_string(Insns{End{}}), "end"); //
     });
 
+    s.add_test("select", [](etest::IActions &a) {
+        a.expect_eq(to_string(Select{}), "select"); //
+    });
+
     s.add_test("block", [](etest::IActions &a) {
         a.expect_eq(to_string(Insns{Block{.type{wasm::ValueType::Int32}}, I32Const{2}, I32Const{2}, I32Add{}, End{}}),
                 "block (result i32)\n"
@@ -96,6 +100,10 @@ int main() {
 
     s.add_test("branch_if", [](etest::IActions &a) {
         a.expect_eq(to_string(BranchIf{}), "br_if 0"); //
+    });
+
+    s.add_test("call", [](etest::IActions &a) {
+        a.expect_eq(to_string(Call{.function_idx = 5}), "call 5"); //
     });
 
     s.add_test("i32_const", [](etest::IActions &a) {
@@ -262,10 +270,24 @@ int main() {
         a.expect_eq(to_string(LocalTee{}), "local.tee 0"); //
     });
 
+    s.add_test("global_get", [](etest::IActions &a) {
+        a.expect_eq(to_string(GlobalGet{}), "global.get 0"); //
+    });
+
+    s.add_test("global_set", [](etest::IActions &a) {
+        a.expect_eq(to_string(GlobalSet{.global_idx = 13}), "global.set 13"); //
+    });
+
     s.add_test("i32_load", [](etest::IActions &a) {
         a.expect_eq(to_string(I32Load{32, 0}), "i32.load"); // natural alignment, offset 0
         a.expect_eq(to_string(I32Load{64, 0}), "i32.load align=64"); // 64-bit alignment for 32-bit load, offset 0
         a.expect_eq(to_string(I32Load{64, 3}), "i32.load offset=3 align=64"); // 64-bit alignment, offset 3
+    });
+
+    s.add_test("i32_store", [](etest::IActions &a) {
+        a.expect_eq(to_string(I32Store{32, 0}), "i32.store"); // natural alignment, offset 0
+        a.expect_eq(to_string(I32Store{64, 0}), "i32.store align=64"); // 64-bit alignment for 32-bit store, offset 0
+        a.expect_eq(to_string(I32Store{64, 3}), "i32.store offset=3 align=64"); // 64-bit alignment, offset 3
     });
 
     return s.run();
