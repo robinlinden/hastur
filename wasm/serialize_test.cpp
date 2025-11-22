@@ -18,6 +18,10 @@ int main() {
     using namespace wasm::instructions;
     using Insns = std::vector<Instruction>;
 
+    s.add_test("end, no indent", [](etest::IActions &a) {
+        a.expect_eq(to_string(Insns{End{}}), "end"); //
+    });
+
     s.add_test("block", [](etest::IActions &a) {
         a.expect_eq(to_string(Insns{Block{.type{wasm::ValueType::Int32}}, I32Const{2}, I32Const{2}, I32Add{}, End{}}),
                 "block (result i32)\n\ti32.const 2\n\ti32.const 2\n\ti32.add\nend");

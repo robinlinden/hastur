@@ -110,7 +110,7 @@ std::string to_string(std::span<Instruction const> insns) {
     InstructionStringifyVisitor v;
     for (std::size_t i = 0; i < insns.size(); ++i) {
         auto const &insn = insns[i];
-        if (std::holds_alternative<End>(insn)) {
+        if (std::holds_alternative<End>(insn) && v.indent > 0) {
             v.indent--;
         }
 
