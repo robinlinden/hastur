@@ -536,6 +536,9 @@ std::optional<std::vector<instructions::Instruction>> parse_instructions(std::is
         }
 
         switch (opcode) {
+            case Select::kOpcode:
+                instructions.emplace_back(Select{});
+                break;
             case Block::kOpcode: {
                 auto type = parse<BlockType>(is);
                 if (!type) {
@@ -570,6 +573,14 @@ std::optional<std::vector<instructions::Instruction>> parse_instructions(std::is
                     return std::nullopt;
                 }
                 instructions.emplace_back(BranchIf{*value});
+                break;
+            }
+            case Call::kOpcode: {
+                auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
+                if (!value) {
+                    return std::nullopt;
+                }
+                instructions.emplace_back(Call{*value});
                 break;
             }
             case Return::kOpcode:
@@ -726,6 +737,22 @@ std::optional<std::vector<instructions::Instruction>> parse_instructions(std::is
                 instructions.emplace_back(LocalTee{*value});
                 break;
             }
+            case GlobalGet::kOpcode: {
+                auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
+                if (!value) {
+                    return std::nullopt;
+                }
+                instructions.emplace_back(GlobalGet{*value});
+                break;
+            }
+            case GlobalSet::kOpcode: {
+                auto value = wasm::Leb128<std::uint32_t>::decode_from(is);
+                if (!value) {
+                    return std::nullopt;
+                }
+                instructions.emplace_back(GlobalSet{*value});
+                break;
+            }
             case I32Load::kOpcode: {
                 auto arg = parse<MemArg>(is);
                 if (!arg) {
@@ -733,6 +760,15 @@ std::optional<std::vector<instructions::Instruction>> parse_instructions(std::is
                 }
 
                 instructions.emplace_back(I32Load{*arg});
+                break;
+            }
+            case I32Store::kOpcode: {
+                auto arg = parse<MemArg>(is);
+                if (!arg) {
+                    return std::nullopt;
+                }
+
+                instructions.emplace_back(I32Store{*arg});
                 break;
             }
             default:

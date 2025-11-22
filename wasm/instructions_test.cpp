@@ -58,6 +58,10 @@ int main() {
     etest::Suite s{"wasm::instructions"};
     using namespace wasm::instructions;
 
+    s.add_test("select", [](etest::IActions &a) {
+        a.expect_eq(parse("\x1b\x0b"), InsnVec{Select{}, End{}}); //
+    });
+
     s.add_test("block", [](etest::IActions &a) {
         // No instructions, empty function prototype.
         a.expect_eq(parse("\x02\x40\x0b\x0b"), InsnVec{Block{.type{BlockType::Empty{}}}, End{}, End{}});
@@ -106,6 +110,16 @@ int main() {
         a.expect_eq(parse("\x0d"), std::nullopt);
         // Invalid label index.
         a.expect_eq(parse("\x0d\x80\x0b"), std::nullopt);
+    });
+
+    s.add_test("call", [](etest::IActions &a) {
+        // Valid function index.
+        a.expect_eq(parse("\x10\x0a\x0b"), InsnVec{Call{.function_idx = 0x0a}, End{}});
+
+        // Unexpected eof.
+        a.expect_eq(parse("\x10"), std::nullopt);
+        // Invalid function index.
+        a.expect_eq(parse("\x10\x80\x0b"), std::nullopt);
     });
 
     s.add_test("i32_const", [](etest::IActions &a) {
@@ -296,6 +310,26 @@ int main() {
         a.expect_eq(parse("\x22\x80\x0b"), std::nullopt);
     });
 
+    s.add_test("global_get", [](etest::IActions &a) {
+        // Valid index.
+        a.expect_eq(parse("\x23\x09\x0b"), InsnVec{GlobalGet{.global_idx = 0x09}, End{}});
+
+        // Unexpected eof.
+        a.expect_eq(parse("\x23"), std::nullopt);
+        // Invalid index.
+        a.expect_eq(parse("\x23\x80\x0b"), std::nullopt);
+    });
+
+    s.add_test("global_set", [](etest::IActions &a) {
+        // Valid index.
+        a.expect_eq(parse("\x24\x09\x0b"), InsnVec{GlobalSet{.global_idx = 0x09}, End{}});
+
+        // Unexpected eof.
+        a.expect_eq(parse("\x24"), std::nullopt);
+        // Invalid index.
+        a.expect_eq(parse("\x24\x80\x0b"), std::nullopt);
+    });
+
     s.add_test("i32_load", [](etest::IActions &a) {
         // Valid memarg.
         a.expect_eq(parse("\x28\x0a\x0c\x0b"), InsnVec{I32Load{MemArg{.align = 0x0a, .offset = 0x0c}}, End{}});
@@ -306,6 +340,18 @@ int main() {
         // Invalid memarg.
         a.expect_eq(parse("\x28\x80\x0a\x0b"), std::nullopt);
         a.expect_eq(parse("\x28\x0a\x80\x0b"), std::nullopt);
+    });
+
+    s.add_test("i32_store", [](etest::IActions &a) {
+        // Valid memarg.
+        a.expect_eq(parse("\x36\x0a\x0c\x0b"), InsnVec{I32Store{MemArg{.align = 0x0a, .offset = 0x0c}}, End{}});
+
+        // Unexpected eof.
+        a.expect_eq(parse("\x36"), std::nullopt);
+        a.expect_eq(parse("\x36\x0a"), std::nullopt);
+        // Invalid memarg.
+        a.expect_eq(parse("\x36\x80\x0a\x0b"), std::nullopt);
+        a.expect_eq(parse("\x36\x0a\x80\x0b"), std::nullopt);
     });
 
     s.add_test("unhandled opcode", [](etest::IActions &a) {

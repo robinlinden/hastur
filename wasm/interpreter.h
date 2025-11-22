@@ -77,6 +77,7 @@ public:
     using Value = std::variant<std::int32_t>;
     std::vector<Value> stack;
     std::vector<Value> locals;
+    std::vector<Value> globals;
     std::vector<std::uint8_t> memory;
     [[nodiscard]] constexpr bool operator==(Interpreter const &) const = default;
 
@@ -135,6 +136,14 @@ public:
         locals.at(v.idx) = stack.back();
     }
 
+    void interpret(instructions::GlobalGet const &v) { stack.push_back(globals.at(v.global_idx)); }
+
+    void interpret(instructions::GlobalSet const &v) {
+        assert(!stack.empty());
+        globals.at(v.global_idx) = stack.back();
+        stack.pop_back();
+    }
+
     // https://webassembly.github.io/spec/core/exec/instructions.html#memory-instructions
     void interpret(instructions::I32Load const &v) {
         // TODO(robinlinden): trap.
@@ -158,6 +167,29 @@ public:
         }
 
         stack.emplace_back(value);
+    }
+
+    void interpret(instructions::I32Store const &v) {
+        // TODO(robinlinden): trap.
+        assert(stack.size() >= 2);
+        auto [align, offset] = v.arg;
+        std::ignore = align;
+
+        auto to_store = std::get<std::int32_t>(stack.back());
+        stack.pop_back();
+        auto i = std::get<std::int32_t>(stack.back());
+        stack.pop_back();
+        auto ea = i + offset;
+
+        assert(ea + sizeof(std::int32_t) <= memory.size());
+
+        static_assert((std::endian::native == std::endian::big) || (std::endian::native == std::endian::little),
+                "Mixed endian is unsupported right now");
+        if constexpr (std::endian::native != std::endian::little) {
+            to_store = std::byteswap(to_store);
+        }
+
+        std::memcpy(memory.data() + ea, &to_store, sizeof(to_store));
     }
 };
 
