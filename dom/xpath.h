@@ -50,7 +50,9 @@ inline std::vector<T const *> nodes_by_xpath(T const &root, std::string_view xpa
             }
 
             if (xpath.starts_with(name) && xpath.size() >= name.size() + 1 && is_separator(xpath[name.size()])) {
-                for (auto const *child : dom_children(*node)) {
+                auto children = dom_children(*node);
+                next_search.reserve(next_search.size() + children.size());
+                for (auto const *child : children) {
                     next_search.push_back(child);
                 }
             }
