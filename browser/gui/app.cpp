@@ -246,6 +246,7 @@ std::vector<std::string_view> collect_image_urls(
         auto const *current = to_check.back();
         to_check.pop_back();
 
+        to_check.reserve(to_check.size() + current->children.size());
         for (auto const &child : current->children) {
             to_check.push_back(&child);
         }
