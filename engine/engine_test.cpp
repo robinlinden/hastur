@@ -391,6 +391,23 @@ int main() {
         a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}});
     });
 
+    // zstd'd and gzip'd `<p>hello`, generated with:
+    // echo -n "<p>hello" | zstd -19 - | gzip --stdout >
+    auto zstd_and_gzipped_html =
+            "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03\xd3\xd8\xaa\xff\x97\x25\xc3\x91\x81\xc1\xa6\xc0\x2e\x23\x35\x27\x27\xbf\xeb\x88\x54\x2f\x00\x65\x38\x39\x0b\x15\x00\x00\x00"s;
+    s.add_test("html, zstd-and-gzip-compressed", [zstd_and_gzipped_html](etest::IActions &a) {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "zstd, gzip"}},
+                .body{zstd_and_gzipped_html},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value()).value();
+        auto const &body = std::get<dom::Element>(page->dom.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"p", {}, {dom::Text{"hello"}}}}});
+    });
+
     // echo -n '<p>brotli!' | brotli
     std::string brotli_compressed_html = "\x8f\x04\x80\x3c\x70\x3e\x62\x72\x6f\x74\x6c\x69\x21\x03";
 

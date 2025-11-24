@@ -20,6 +20,7 @@
 #include "protocol/response.h"
 #include "style/style.h"
 #include "uri/uri.h"
+#include "util/string.h"
 
 #include <spdlog/spdlog.h>
 #include <tl/expected.hpp>
@@ -28,6 +29,7 @@
 #include <cstddef>
 #include <future>
 #include <memory>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -47,52 +49,67 @@ namespace {
         return true;
     }
 
-    auto const &encoding = it->second;
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Encoding
+    // If multiple encodings are listed, they are in the order in which they
+    // were applied, so we need to decode in the reverse order.
+    auto encodings = util::split(it->second, ",");
+    for (auto encoding_view : encodings | std::views::reverse) {
+        std::string_view encoding{encoding_view};
+        encoding = util::trim(encoding);
 
-    std::span<std::byte const> body_view{
-            reinterpret_cast<std::byte const *>(response.body.data()), response.body.size()};
+        std::span<std::byte const> body_view{
+                reinterpret_cast<std::byte const *>(response.body.data()), response.body.size()};
 
-    if (encoding == "gzip" || encoding == "x-gzip" || encoding == "deflate") {
-        auto zlib_mode = encoding == "deflate" ? archive::ZlibMode::Zlib : archive::ZlibMode::Gzip;
-        auto decoded = archive::zlib_decode(body_view, zlib_mode);
-        if (!decoded) {
-            auto const &err = decoded.error();
-            spdlog::error("Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, err.code, err.message);
-            return false;
+        if (encoding == "gzip" || encoding == "x-gzip" || encoding == "deflate") {
+            auto zlib_mode = encoding == "deflate" ? archive::ZlibMode::Zlib : archive::ZlibMode::Gzip;
+            auto decoded = archive::zlib_decode(body_view, zlib_mode);
+            if (!decoded) {
+                auto const &err = decoded.error();
+                spdlog::error("Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, err.code, err.message);
+                return false;
+            }
+
+            response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
+            continue;
         }
 
-        response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
-        return true;
-    }
+        if (encoding == "zstd") {
+            auto decoded = archive::zstd_decode(body_view);
+            if (!decoded) {
+                auto const &err = decoded.error();
+                spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
+                        encoding,
+                        uri.uri,
+                        static_cast<int>(err),
+                        to_string(err));
+                return false;
+            }
 
-    if (encoding == "zstd") {
-        auto decoded = archive::zstd_decode(body_view);
-        if (!decoded) {
-            auto const &err = decoded.error();
-            spdlog::error(
-                    "Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, static_cast<int>(err), to_string(err));
-            return false;
+            response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
+            continue;
         }
 
-        response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
-        return true;
-    }
+        if (encoding == "br") {
+            auto decoded = archive::brotli_decode(body_view);
+            if (!decoded) {
+                auto const &err = decoded.error();
+                spdlog::error("Failed {}-decoding of '{}': '{}: {}'",
+                        encoding,
+                        uri.uri,
+                        static_cast<int>(err),
+                        to_string(err));
+                return false;
+            }
 
-    if (encoding == "br") {
-        auto decoded = archive::brotli_decode(body_view);
-        if (!decoded) {
-            auto const &err = decoded.error();
-            spdlog::error(
-                    "Failed {}-decoding of '{}': '{}: {}'", encoding, uri.uri, static_cast<int>(err), to_string(err));
-            return false;
+            response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
+            continue;
         }
 
-        response.body.assign(reinterpret_cast<char const *>(decoded->data()), decoded->size());
-        return true;
+        spdlog::warn("Got unsupported encoding '{}' from '{}'", encoding, uri.uri);
+        return false;
     }
 
-    spdlog::warn("Got unsupported encoding '{}' from '{}'", encoding, uri.uri);
-    return false;
+    return true;
 }
 
 css::MediaQuery::Context to_media_context(Options opts) {
