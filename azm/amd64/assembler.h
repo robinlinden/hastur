@@ -95,6 +95,21 @@ public:
         emit(imm32);
     }
 
+    // Logical and, but with the wrong name because "and" == && in C++.
+    constexpr void land(Reg32 dst, Imm32 imm32) {
+        if (dst == Reg32::Eax) {
+            emit(0x25);
+            emit(imm32);
+            return;
+        }
+
+        emit(0x81);
+        auto idx = register_index(dst);
+        assert(idx.has_value());
+        mod_rm(0b11, 4, *idx);
+        emit(imm32);
+    }
+
     void jmp(Label &label) {
         // JMP rel32
         if (std::holds_alternative<Label::Linked>(label.v)) {
@@ -123,6 +138,21 @@ public:
         auto idx = register_index(dst);
         assert(idx.has_value());
         emit(0xb8 + idx.value());
+        emit(imm32);
+    }
+
+    // Logical or, but with the wrong name because "or" == || in C++.
+    constexpr void lor(Reg32 dst, Imm32 imm32) {
+        if (dst == Reg32::Eax) {
+            emit(0x0d);
+            emit(imm32);
+            return;
+        }
+
+        emit(0x81);
+        auto idx = register_index(dst);
+        assert(idx.has_value());
+        mod_rm(0b11, 1, *idx);
         emit(imm32);
     }
 

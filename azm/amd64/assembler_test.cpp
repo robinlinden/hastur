@@ -43,6 +43,22 @@ int main() {
         a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xc3, 0x42, 0, 0, 0});
     });
 
+    s.constexpr_test("AND reg32, imm32", [](etest::IActions &a) {
+        Assembler assembler;
+
+        // AND EAX,imm32 generates slightly shorter asm than AND w/ other registers.
+        assembler.land(Reg32::Eax, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x25, 0x42, 0, 0, 0});
+
+        // More general mod_rm-encoding for these registers.
+        assembler.land(Reg32::Ecx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xe1, 0x42, 0, 0, 0});
+        assembler.land(Reg32::Edx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xe2, 0x42, 0, 0, 0});
+        assembler.land(Reg32::Ebx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xe3, 0x42, 0, 0, 0});
+    });
+
     s.add_test("JMP, backwards", [](etest::IActions &a) {
         Assembler assembler;
 
@@ -120,6 +136,22 @@ int main() {
 
         assembler.mov(Reg32::Edx, Imm32{0x1234});
         a.expect_eq(assembler.take_assembled(), CodeVec{0xba, 0x34, 0x12, 0, 0});
+    });
+
+    s.constexpr_test("OR r32, imm32", [](etest::IActions &a) {
+        Assembler assembler;
+
+        // OR EAX,imm32 generates slightly shorter asm than OR w/ other registers.
+        assembler.lor(Reg32::Eax, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x0d, 0x42, 0, 0, 0});
+
+        // More general mod_rm-encoding for these registers.
+        assembler.lor(Reg32::Ecx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xc9, 0x42, 0, 0, 0});
+        assembler.lor(Reg32::Edx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xca, 0x42, 0, 0, 0});
+        assembler.lor(Reg32::Ebx, Imm32{0x42});
+        a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xcb, 0x42, 0, 0, 0});
     });
 
     s.constexpr_test("RET", [](etest::IActions &a) {
