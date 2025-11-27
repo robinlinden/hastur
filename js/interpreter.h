@@ -114,7 +114,10 @@ public:
         }
 
         auto const &fn = maybe_fn->second;
-        assert(fn.is_function() || fn.is_native_function());
+        if (!fn.is_function() && !fn.is_native_function()) {
+            // TODO(robinlinden): Better error value.
+            return tl::unexpected{ErrorValue{Value{}}};
+        }
 
         std::vector<Value> args;
         args.reserve(v.arguments.size());

@@ -191,6 +191,18 @@ int main() {
         a.expect_eq(result.has_value(), false);
     });
 
+    s.add_test("function call, not a function", [](etest::IActions &a) {
+        auto call = CallExpression{
+                .callee = std::make_shared<Expression>(Identifier{"not_a_function"}),
+        };
+
+        Interpreter e;
+        e.variables["not_a_function"] = Value{42.};
+
+        auto result = e.execute(call);
+        a.expect_eq(result.has_value(), false);
+    });
+
     s.add_test("function call, exception in callee", [](etest::IActions &a) {
         // foo()()
         auto call = CallExpression{
