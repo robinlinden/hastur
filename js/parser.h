@@ -36,6 +36,10 @@ public:
         std::vector<ast::Statement> program_body;
 
         while (!tokens.empty()) {
+            if (!starts_call_expr(tokens)) {
+                return std::nullopt;
+            }
+
             auto call = parse_call_expr(tokens);
             if (!call) {
                 return std::nullopt;
@@ -56,16 +60,14 @@ public:
     }
 
 private:
-    static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
-        if (tokens.size() < 3) {
-            return std::nullopt;
-        }
+    [[nodiscard]] static bool starts_call_expr(std::span<parse::Token const> tokens) {
+        // Must be at least 3 tokens: identifier, '(', [args [,]] ')'
+        return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
+                && std::holds_alternative<parse::LParen>(tokens[1]);
+    }
 
-        // functionname(
-        if (!std::holds_alternative<parse::Identifier>(tokens[0])
-                || !std::holds_alternative<parse::LParen>(tokens[1])) {
-            return std::nullopt;
-        }
+    [[nodiscard]] static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
+        assert(starts_call_expr(tokens));
 
         constexpr auto kMakeArg = [](parse::Token &token) -> std::optional<std::shared_ptr<ast::Expression>> {
             if (std::holds_alternative<parse::IntLiteral>(token)) {
