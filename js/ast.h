@@ -25,6 +25,7 @@ struct Function;
 struct BinaryExpression;
 struct BlockStatement;
 struct ReturnStatement;
+struct AssignmentExpression;
 struct CallExpression;
 struct MemberExpression;
 struct ExpressionStatement;
@@ -49,7 +50,8 @@ using Statement = std::variant<Declaration,
         IfStatement,
         WhileStatement,
         EmptyStatement>;
-using Expression = std::variant<Identifier, Literal, CallExpression, MemberExpression, BinaryExpression>;
+using Expression =
+        std::variant<Identifier, Literal, AssignmentExpression, CallExpression, MemberExpression, BinaryExpression>;
 
 struct ErrorValue;
 using ValueOrException = tl::expected<Value, ErrorValue>;
@@ -162,6 +164,11 @@ struct Function {
 struct FunctionDeclaration {
     Identifier id;
     std::shared_ptr<Function> function;
+};
+
+struct AssignmentExpression {
+    std::shared_ptr<Expression> left;
+    std::shared_ptr<Expression> right;
 };
 
 struct CallExpression {

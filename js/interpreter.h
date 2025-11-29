@@ -50,6 +50,19 @@ public:
 
     ValueOrException operator()(ExpressionStatement const &v) { return execute(v.expression); }
 
+    ValueOrException operator()(AssignmentExpression const &v) {
+        auto maybe_name = execute(*v.left);
+        assert(maybe_name);
+
+        auto name = maybe_name->as_string();
+        auto value = get_value_resolving_variables(*v.right);
+        if (!value) {
+            return value;
+        }
+
+        return variables[name] = *std::move(value);
+    }
+
     ValueOrException operator()(BinaryExpression const &v) {
         auto lhs = get_value_resolving_variables(*v.lhs);
         if (!lhs) {

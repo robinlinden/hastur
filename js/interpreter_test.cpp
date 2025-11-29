@@ -342,6 +342,29 @@ int main() {
         a.expect_eq(e.execute(if_stmt), Value{});
     });
 
+    s.add_test("assignment expression", [](etest::IActions &a) {
+        auto assign_expr = AssignmentExpression{
+                .left = std::make_shared<Expression>(Identifier{"somevar"}),
+                .right = std::make_shared<Expression>(NumericLiteral{55.}),
+        };
+
+        Interpreter e;
+        a.expect_eq(e.execute(assign_expr), Value{55.});
+        a.expect_eq(e.variables, decltype(e.variables){{"somevar", Value{55.}}});
+    });
+
+    s.add_test("assignment expression, exception in right-hand side", [](etest::IActions &a) {
+        auto assign_expr = AssignmentExpression{
+                .left = std::make_shared<Expression>(Identifier{"somevar"}),
+                .right = std::make_shared<Expression>(Identifier{"blargh"}),
+        };
+
+        Interpreter e;
+        auto result = e.execute(assign_expr);
+        a.expect_eq(result.has_value(), false);
+        a.expect(e.variables.find("somevar") == e.variables.end());
+    });
+
     s.add_test("if, exception in test", [](etest::IActions &a) {
         auto if_stmt = IfStatement{
                 .test = CallExpression{.callee = std::make_shared<Expression>(Identifier{"foo"})},
