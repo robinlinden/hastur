@@ -111,5 +111,15 @@ int main() {
         a.expect_eq(i, 14);
     });
 
+    s.add_test("a = 2; b = 3; c = a; add(a, b, c)", [](etest::IActions &a) {
+        js::ast::Interpreter e;
+        e.variables["add"] = js::ast::Value{[](auto const &args) {
+            return js::ast::Value{args.at(0).as_number() + args.at(1).as_number() + args.at(2).as_number()}; //
+        }};
+
+        auto p = js::Parser::parse("a = 2; b = 3; c = a; add(a, b, c)").value();
+        a.expect_eq(e.execute(p), js::ast::Value{7.});
+    });
+
     return s.run();
 }

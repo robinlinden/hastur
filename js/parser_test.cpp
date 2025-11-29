@@ -154,5 +154,43 @@ int main() {
         a.expect_eq(js::Parser::parse("you(fool"), std::nullopt); //
     });
 
+    s.add_test("assign expr, number", [](etest::IActions &a) {
+        auto p = js::Parser::parse("x = 42;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "x");
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*assign.right)).value, 42.);
+    });
+
+    s.add_test("assign expr, string", [](etest::IActions &a) {
+        auto p = js::Parser::parse("y = 'hello';").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "y");
+        a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(*assign.right)).value, "hello");
+    });
+
+    s.add_test("assign expr, identifier", [](etest::IActions &a) {
+        auto p = js::Parser::parse("z = foo;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "z");
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.right).name, "foo");
+    });
+
+    s.add_test("assign expr, rhs parse error", [](etest::IActions &a) {
+        auto p = js::Parser::parse("x = =");
+        a.expect_eq(p, std::nullopt);
+    });
+
     return s.run();
 }

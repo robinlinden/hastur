@@ -36,16 +36,23 @@ public:
         std::vector<ast::Statement> program_body;
 
         while (!tokens.empty()) {
-            if (!starts_call_expr(tokens)) {
+            if (starts_call_expr(tokens)) {
+                auto call = parse_call_expr(tokens);
+                if (!call) {
+                    return std::nullopt;
+                }
+
+                program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*call)});
+            } else if (starts_assign_expr(tokens)) {
+                auto assign = parse_assign_expr(tokens);
+                if (!assign) {
+                    return std::nullopt;
+                }
+
+                program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*assign)});
+            } else {
                 return std::nullopt;
             }
-
-            auto call = parse_call_expr(tokens);
-            if (!call) {
-                return std::nullopt;
-            }
-
-            program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*call)});
 
             if (!tokens.empty()) {
                 if (!std::holds_alternative<parse::Semicolon>(tokens.front())) {
@@ -137,6 +144,40 @@ private:
         return ast::CallExpression{
                 .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
                 .arguments{std::move(args)},
+        };
+    }
+
+    [[nodiscard]] static bool starts_assign_expr(std::span<parse::Token const> tokens) {
+        // Must be at least 3 tokens: identifier, '=', value
+        return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
+                && std::holds_alternative<parse::Equals>(tokens[1]);
+    }
+
+    [[nodiscard]] static std::optional<ast::AssignmentExpression> parse_assign_expr(std::span<parse::Token> &tokens) {
+        assert(starts_assign_expr(tokens));
+
+        auto &var_name = std::get<parse::Identifier>(tokens[0]);
+        auto &value_token = tokens[2];
+
+        std::shared_ptr<ast::Expression> value_expr;
+        if (std::holds_alternative<parse::IntLiteral>(value_token)) {
+            value_expr = std::make_shared<ast::Expression>(
+                    ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(value_token).value)});
+        } else if (std::holds_alternative<parse::StringLiteral>(value_token)) {
+            value_expr = std::make_shared<ast::Expression>(
+                    ast::StringLiteral{std::move(std::get<parse::StringLiteral>(value_token).value)});
+        } else if (std::holds_alternative<parse::Identifier>(value_token)) {
+            value_expr = std::make_shared<ast::Expression>(
+                    ast::Identifier{std::move(std::get<parse::Identifier>(value_token).name)});
+        } else {
+            return std::nullopt;
+        }
+
+        tokens = tokens.subspan(3);
+
+        return ast::AssignmentExpression{
+                .left = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(var_name.name)}),
+                .right = std::move(value_expr),
         };
     }
 };
