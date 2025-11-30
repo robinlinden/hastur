@@ -1,6 +1,21 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
+# spdlog/sinks/dist_sink.h:25:5: error: instantiation of function
+# 'spdlog::sinks::base_sink<std::mutex>::base_sink' required here, but no
+# definition is available [-Werror,-Wundefined-func-template]
+#    25 |     dist_sink() = default;
+#       |     ^
+LINUX_COPTS = [
+    "-Wno-undefined-func-template",
+]
+
+GUI_COPTS = HASTUR_COPTS + select({
+    "@platforms//os:linux": LINUX_COPTS,
+    "@platforms//os:macos": LINUX_COPTS,
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "app",
     srcs = ["app.cpp"],
@@ -41,7 +56,7 @@ cc_library(
 cc_binary(
     name = "gui",
     srcs = ["main.cpp"],
-    copts = HASTUR_COPTS,
+    copts = GUI_COPTS,
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [

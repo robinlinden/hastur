@@ -30,6 +30,7 @@ HASTUR_LINUX_WARNING_FLAGS = [
 
 HASTUR_CLANG_WARNING_FLAGS = HASTUR_LINUX_WARNING_FLAGS + [
     "-Wused-but-marked-unused",
+    "-Wundefined-func-template",
     "-Wundefined-reinterpret-cast",
 ]
 
