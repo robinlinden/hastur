@@ -1,10 +1,24 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
-# asio leaks this into our code.
+# asio/ip/resolver_base.hpp:68:5: error: declaration shadows a variable in
+# namespace 'asio::ip' [-Werror,-Wshadow]
+#    68 |     v4_mapped = ASIO_OS_DEF(AI_V4MAPPED),
+#       |     ^
+#
+# asio/execution/outstanding_work.hpp:358:32: error: out-of-line definition of
+# constexpr static data member is redundant in C++17 and is deprecated
+# [-Werror,-Wdeprecated-redundant-constexpr-static-def]
+#   358 | const T outstanding_work_t<I>::static_query_v;
+#       |                                ^
+LINUX_COPTS = [
+    "-Wno-deprecated",
+    "-Wno-shadow",
+]
+
 NET_COPTS = HASTUR_COPTS + select({
-    "@platforms//os:linux": ["-Wno-shadow"],
-    "@platforms//os:macos": ["-Wno-shadow"],
+    "@platforms//os:linux": LINUX_COPTS,
+    "@platforms//os:macos": LINUX_COPTS,
     "//conditions:default": [],
 })
 

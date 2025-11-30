@@ -22,6 +22,7 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Wundef",
     "-Wunreachable-code",
     "-Wuninitialized",
+    "-Wdeprecated",
     "-Wunused",
 
     # Common idiom for zeroing members.
