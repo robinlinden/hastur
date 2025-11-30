@@ -9,7 +9,6 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Wextra",
     "-pedantic-errors",
     "-Werror",
-    "-fno-common",
     "-Wctad-maybe-unsupported",
     "-Wdouble-promotion",
     "-Wformat=2",
