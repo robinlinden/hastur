@@ -24,11 +24,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_apple
-RULES_APPLE_VERSION = "4.2.0"
+RULES_APPLE_VERSION = "4.3.2"
 
 archive_override(
     module_name = "rules_apple",
-    integrity = "sha256-74pXRLL//0n0dkcib2nw8GUiyi6Kb6Gq9dZdUxSBPDQ=",
+    integrity = "sha256-8rQRf+F7Dx+KN2nm12DUM/y/l6i2/xeXB37BBsz74vI=",
     url = "https://github.com/bazelbuild/rules_apple/releases/download/{0}/rules_apple.{0}.tar.gz".format(RULES_APPLE_VERSION),
 )
 
@@ -54,8 +54,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-hls9M0vQ92lYdzdEdBDYBC1qlRNMxFvlOAgF/brNcVI=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.0.3"),
+    integrity = "sha256-Thooolwu+lNQDJKNIs7/vFBd2VszWi0CWDaik7WSIS8=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.1.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -91,11 +91,11 @@ pip.parse(
 use_repo(pip, "pypi")
 
 # https://github.com/bazelbuild/rules_swift
-RULES_SWIFT_VERSION = "3.3.0"
+RULES_SWIFT_VERSION = "3.4.0"
 
 archive_override(
     module_name = "rules_swift",
-    integrity = "sha256-lBNu3xzNx7m7aP+F4Ab+aY6hYaAvvuVbof60znFSLPs=",
+    integrity = "sha256-EyGb3hdFlMevVAPH8/QcN9GmIEEpSg/RTAg0ykcvqNw=",
     url = "https://github.com/bazelbuild/rules_swift/releases/download/{0}/rules_swift.{0}.tar.gz".format(RULES_SWIFT_VERSION),
 )
 
@@ -156,8 +156,8 @@ archive_override(
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    integrity = "sha256-5spTdAcDpwmgF79EQfJgAHpgdXQa9l2ht5vDGtqaVwo=",
-    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.1.8"),
+    integrity = "sha256-4STROYYIW8ChW+LIXBQVurVwhEK3jSSf4iv430OlNA0=",
+    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.2.0"),
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -205,11 +205,11 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/supply-chain
-PACKAGE_METADATA_VERSION = "0.0.6"
+PACKAGE_METADATA_VERSION = "0.0.7"
 
 archive_override(
     module_name = "package_metadata",
-    integrity = "sha256-W9DMdZTqUo/Sj5jYJFfxV4J9SMwg4HvP27VgcvNcj2c=",
+    integrity = "sha256-jyfcc5Pj873Hk73EujbWemPCLMnTjMZdMgRlSXTqRWM=",
     strip_prefix = "supply-chain-%s/metadata" % PACKAGE_METADATA_VERSION,
     url = "https://github.com/bazel-contrib/supply-chain/releases/download/v{0}/supply-chain-v{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
 )
