@@ -439,12 +439,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20251110.0"
+BORINGSSL_VERSION = "0.20251124.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-HTsz5Ki5Nctygl2LkR8MkNEjogtCUVRQMO8G3rZEFMk=",
+    integrity = "sha256-1H+JuJS/U0yCBx10JsWr8eW9BE/uJC3vU81dPQ9lbAk=",
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -606,13 +606,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.4"
+IMGUI_VERSION = "1.92.5"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-DhddTZQRElMlSbQYztC9VGq+kCTsubX0MfimeiGXsLo=",
+    integrity = "sha256-DrUP6a66GlH5a1hDx/Ywoy7S6TYtaTxhuH5PqHDPgm0=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -691,13 +691,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
-LIBPNG_VERSION = "1.6.50"
+LIBPNG_VERSION = "1.6.51"
 
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-cRWOU8/fKHe8mbyrM2QdeN8/SObg2q0DCv6cuMAxqkY=",
+    integrity = "sha256-sYckhMHFxwrMecuxX7Nm35VPqNXay+f3KdhYkC0Xkzw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -759,14 +759,14 @@ EOF""",
     url = "https://github.com/gabime/spdlog/archive/v%s.tar.gz" % SPDLOG_VERSION,
 )
 
-# HEAD, last updated at 2025-10-05.
+# HEAD, last updated at 2025-12-02.
 # https://github.com/nothings/stb
-STB_VERSION = "fede005abaf93d9d7f3a679d1999b2db341b360f"
+STB_VERSION = "f1c79c02822848a9bed4315b12c8c8f3761e1296"
 
 archive_override(
     module_name = "stb",
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-PEXpqxI5MydK14Lhn8QClES/4m4KXupIPDCoK4gLikI=",
+    integrity = "sha256-o5sPLZbZtkFxrB/XMpW3xYZvkE5lOzedqIbQUKaQDbk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "stb")
@@ -809,12 +809,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.332"
+VULKAN_TAG = "1.4.335"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-K5iUga+zAbEB+onl4qDnKjpV4jbvaawT+gUis6K8jaA=",
+    integrity = "sha256-juOb7ldb3Mweys0L2ybxgYQd4110CaPspGjGtiLaovE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -830,7 +830,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-7ifFvFJyAjz2rP7+7wCeaNmzVxSeGZ1luEyaRHvC7A0=",
+    integrity = "sha256-YYgIt+j25st2X3xQvW43EHAeTG2Vg83TgiS8U46Ku5I=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
