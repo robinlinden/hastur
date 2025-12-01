@@ -1358,6 +1358,19 @@ int main() {
                 });
     });
 
+    s.add_test("parser: nested rule, colon in child selector", [](etest::IActions &a) {
+        a.expect_eq(css::parse("foo { bar:baz { font-size: 3em; } }").rules, //
+                std::vector{
+                        css::Rule{
+                                .selectors = {{"foo bar:baz"}},
+                                .declarations{
+                                        {css::PropertyId::FontSize, "3em"},
+                                },
+                        },
+                        css::Rule{.selectors = {{"foo"}}},
+                });
+    });
+
     s.add_test("parser: nested rule, nesting selector", [](etest::IActions &a) {
         a.expect_eq(css::parse("p { color: green; &:hover { font-size: 3px; } font-size: 5px; }").rules, //
                 std::vector{

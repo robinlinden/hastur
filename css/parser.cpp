@@ -307,6 +307,35 @@ constexpr std::optional<std::string_view> Parser::consume_while(std::predicate<c
     return input_.substr(start, pos_ - start);
 }
 
+constexpr std::optional<std::string> Parser::consume_while_ignoring_comments(std::predicate<char> auto const &pred) {
+    std::string res;
+
+    std::size_t start = pos_;
+    while (!is_eof()) {
+        if (starts_with("/*")) {
+            res += input_.substr(start, pos_ - start);
+            advance(2);
+            consume_while([&](char) { return peek(2) != "*/"; });
+            advance(2);
+            start = pos_;
+            continue;
+        }
+
+        if (!pred(input_[pos_])) {
+            break;
+        }
+
+        ++pos_;
+    }
+
+    if (is_eof()) {
+        return std::nullopt;
+    }
+
+    res += input_.substr(start, pos_ - start);
+    return res;
+}
+
 StyleSheet Parser::parse_rules() {
     StyleSheet style;
     bool in_media_query{false};
@@ -511,33 +540,32 @@ bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &acti
     skip_whitespace_and_comments();
 
     while (peek() != '}') {
-        // TODO(robinlinden): This doesn't get along with nested rules like
-        // `foo { bar:baz { font-size: 3em; } }`
-        // due to the assumption that "ascii:" always is a CSS property name.
-        auto nested_rule_or_declaration_name = consume_while([](char c) { return c != ':' && c != '{'; });
-        if (!nested_rule_or_declaration_name || nested_rule_or_declaration_name->empty()) {
+        auto declaration_or_child_selector =
+                consume_while_ignoring_comments([](char c) { return c != ';' && c != '{' && c != '}'; });
+        if (!declaration_or_child_selector || declaration_or_child_selector->empty()) {
             return false;
         }
 
-        // If a name starts w/ any of these, it's likely a nested rule w/ : as
-        // part of the selector, e.g. &:hover { ... }. This isn't great, but
-        // we're dropping this parser in favour of the css2 one soon(tm).
-        if (peek() == '{' || std::string_view{".#>&[|+~:"}.contains(nested_rule_or_declaration_name->front())) {
-            pos_ -= nested_rule_or_declaration_name->size();
+        if (peek() == '{') {
+            pos_ -= declaration_or_child_selector->size();
             if (!parse_rule(style, active_media_query, &rule)) {
-                spdlog::warn("Unable to parse nested rule: '{}'", *nested_rule_or_declaration_name);
+                spdlog::warn("Unable to parse nested rule: '{}'", *declaration_or_child_selector);
             }
             skip_whitespace_and_comments();
             continue;
         }
 
-        auto decl = parse_declaration(*nested_rule_or_declaration_name);
+        assert(peek() == ';' || peek() == '}');
+        auto decl = parse_declaration(*declaration_or_child_selector);
         if (!decl) {
             return false;
         }
 
+        if (peek() == ';') {
+            consume_char(); // ;
+        }
+
         auto [name, value] = *decl;
-        value = util::trim(value);
         if (name.starts_with("--")) {
             rule.custom_properties.insert_or_assign(std::string{name}, value);
         } else if (auto name_start_byte = name.front(); name_start_byte == '-') {
@@ -561,16 +589,15 @@ bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &acti
     return true;
 }
 
-std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration(std::string_view name) {
-    consume_char(); // :
-    skip_whitespace_and_comments();
-    auto value = consume_while([](char c) { return c != ';' && c != '}'; });
-    if (!value) {
+std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration(std::string_view declaration) {
+    auto sep = declaration.find(':');
+    if (sep == std::string_view::npos) {
         return std::nullopt;
     }
 
-    skip_if_neq('}'); // ;
-    return std::pair{name, *value};
+    auto name = util::trim(declaration.substr(0, sep));
+    auto value = util::trim(declaration.substr(sep + 1));
+    return std::pair{name, value};
 }
 
 void Parser::add_declaration(Declarations &declarations, std::string_view name, std::string_view value) {

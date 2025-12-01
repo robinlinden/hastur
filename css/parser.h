@@ -41,6 +41,7 @@ private:
     constexpr std::optional<char> consume_char();
 
     constexpr std::optional<std::string_view> consume_while(std::predicate<char> auto const &);
+    constexpr std::optional<std::string> consume_while_ignoring_comments(std::predicate<char> auto const &);
 
     constexpr void skip_whitespace();
 
@@ -51,7 +52,7 @@ private:
 
     [[nodiscard]] bool parse_rule(
             StyleSheet &, std::optional<MediaQuery> const &active_media_query, Rule const *parent);
-    std::optional<std::pair<std::string_view, std::string_view>> parse_declaration(std::string_view name);
+    static std::optional<std::pair<std::string_view, std::string_view>> parse_declaration(std::string_view declaration);
 
     static void add_declaration(Declarations &, std::string_view name, std::string_view value);
 
