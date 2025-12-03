@@ -121,5 +121,16 @@ int main() {
         a.expect_eq(e.execute(p), js::ast::Value{7.});
     });
 
+    s.add_test("expressions as fn args", [](etest::IActions &a) {
+        js::ast::Interpreter e;
+        e.variables["add"] = js::ast::Value{[](auto const &args) {
+            return js::ast::Value{args.at(0).as_number() + args.at(1).as_number()}; //
+        }};
+
+        auto p = js::Parser::parse("add(lol = 2, add(5, 10))").value();
+        a.expect_eq(e.execute(p), js::ast::Value{17.});
+        a.expect_eq(e.variables.at("lol").as_number(), 2.);
+    });
+
     return s.run();
 }

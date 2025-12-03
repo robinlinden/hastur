@@ -56,13 +56,34 @@ public:
     }
 
 private:
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Expression> parse_expression(std::span<parse::Token> &tokens) {
+        if (tokens.empty()) {
+            return std::nullopt;
+        }
+
         if (starts_call_expr(tokens)) {
             return parse_call_expr(tokens);
         }
 
         if (starts_assign_expr(tokens)) {
             return parse_assign_expr(tokens);
+        }
+
+        auto &token = tokens.front();
+        if (std::holds_alternative<parse::IntLiteral>(token)) {
+            tokens = tokens.subspan(1);
+            return ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(token).value)};
+        }
+
+        if (std::holds_alternative<parse::StringLiteral>(token)) {
+            tokens = tokens.subspan(1);
+            return ast::StringLiteral{std::move(std::get<parse::StringLiteral>(token).value)};
+        }
+
+        if (std::holds_alternative<parse::Identifier>(token)) {
+            tokens = tokens.subspan(1);
+            return ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
         }
 
         return std::nullopt;
@@ -74,70 +95,45 @@ private:
                 && std::holds_alternative<parse::LParen>(tokens[1]);
     }
 
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
         assert(starts_call_expr(tokens));
 
-        constexpr auto kMakeArg = [](parse::Token &token) -> std::optional<ast::Expression> {
-            if (std::holds_alternative<parse::IntLiteral>(token)) {
-                return ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(token).value)};
-            }
-
-            if (std::holds_alternative<parse::StringLiteral>(token)) {
-                return ast::StringLiteral{std::move(std::get<parse::StringLiteral>(token).value)};
-            }
-
-            if (std::holds_alternative<parse::Identifier>(token)) {
-                return ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
-            }
-
-            return std::nullopt;
-        };
-
         auto &fn_name = std::get<parse::Identifier>(tokens[0]);
+        tokens = tokens.subspan(2); // identifier '('
         std::vector<ast::Expression> args;
 
+        if (std::holds_alternative<parse::RParen>(tokens.front())) {
+            tokens = tokens.subspan(1); // ')'
+            return ast::CallExpression{
+                    .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
+            };
+        }
+
         // arg1, arg2, arg3)
-        bool found_rparen{false};
-        for (auto it = tokens.begin() + 2; it != tokens.end(); ++it) {
-            if (std::holds_alternative<parse::RParen>(*it)) {
-                // We reached the end of the arguments.
-                found_rparen = true;
-                break;
-            }
-
-            auto const parsing_first_arg = args.empty();
-            if (!parsing_first_arg && !std::holds_alternative<parse::Comma>(*it)) {
-                // We expected a comma, but didn't find one.
-                return std::nullopt;
-            }
-
-            if (!parsing_first_arg) {
-                // Skip the comma.
-                ++it;
-                if (it == tokens.end()) {
-                    // We reached the end of the input, but expected more arguments.
-                    return std::nullopt;
-                }
-            }
-
-            auto arg = kMakeArg(*it);
+        while (true) {
+            auto arg = parse_expression(tokens);
             if (!arg) {
                 return std::nullopt;
             }
 
             args.push_back(std::move(*arg));
+
+            if (tokens.empty()) {
+                return std::nullopt;
+            }
+
+            if (std::holds_alternative<parse::RParen>(tokens.front())) {
+                tokens = tokens.subspan(1);
+                break;
+            }
+
+            if (!std::holds_alternative<parse::Comma>(tokens.front())) {
+                return std::nullopt;
+            }
+
+            tokens = tokens.subspan(1); // ','
         }
-
-        if (!found_rparen) {
-            return std::nullopt;
-        }
-
-        // Each arg has a comma, except the last one.
-        auto const arg_token_count = args.empty() ? 0 : args.size() * 2 - 1;
-        auto const function_token_count = 3 + arg_token_count; // fn_name + ( + args + )
-        assert(tokens.size() >= function_token_count);
-
-        tokens = tokens.subspan(function_token_count);
 
         return ast::CallExpression{
                 .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
