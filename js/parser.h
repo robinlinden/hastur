@@ -36,23 +36,12 @@ public:
         std::vector<ast::Statement> program_body;
 
         while (!tokens.empty()) {
-            if (starts_call_expr(tokens)) {
-                auto call = parse_call_expr(tokens);
-                if (!call) {
-                    return std::nullopt;
-                }
-
-                program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*call)});
-            } else if (starts_assign_expr(tokens)) {
-                auto assign = parse_assign_expr(tokens);
-                if (!assign) {
-                    return std::nullopt;
-                }
-
-                program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*assign)});
-            } else {
+            auto expr = parse_expression(tokens);
+            if (!expr) {
                 return std::nullopt;
             }
+
+            program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*expr)});
 
             if (!tokens.empty()) {
                 if (!std::holds_alternative<parse::Semicolon>(tokens.front())) {
@@ -67,6 +56,18 @@ public:
     }
 
 private:
+    [[nodiscard]] static std::optional<ast::Expression> parse_expression(std::span<parse::Token> &tokens) {
+        if (starts_call_expr(tokens)) {
+            return parse_call_expr(tokens);
+        }
+
+        if (starts_assign_expr(tokens)) {
+            return parse_assign_expr(tokens);
+        }
+
+        return std::nullopt;
+    }
+
     [[nodiscard]] static bool starts_call_expr(std::span<parse::Token const> tokens) {
         // Must be at least 3 tokens: identifier, '(', [args [,]] ')'
         return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
