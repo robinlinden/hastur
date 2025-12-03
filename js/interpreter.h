@@ -135,7 +135,7 @@ public:
         std::vector<Value> args;
         args.reserve(v.arguments.size());
         for (auto const &arg : v.arguments) {
-            auto arg_value = get_value_resolving_variables(*arg);
+            auto arg_value = get_value_resolving_variables(arg);
             if (!arg_value) {
                 return arg_value;
             }

@@ -136,8 +136,8 @@ int main() {
         auto call = CallExpression{
                 .callee = std::make_shared<Expression>(Identifier{"func"}),
                 .arguments{
-                        std::make_shared<Expression>(NumericLiteral{13.}),
-                        std::make_shared<Expression>(NumericLiteral{4.}),
+                        NumericLiteral{13.},
+                        NumericLiteral{4.},
                 },
         };
 
@@ -153,8 +153,8 @@ int main() {
         call = CallExpression{
                 .callee = std::make_shared<Expression>(Identifier{"func"}),
                 .arguments{
-                        std::make_shared<Expression>(Identifier{"a"}),
-                        std::make_shared<Expression>(NumericLiteral{4.}),
+                        Identifier{"a"},
+                        NumericLiteral{4.},
                 },
         };
 
@@ -219,9 +219,7 @@ int main() {
     s.add_test("function call, exception in argument", [](etest::IActions &a) {
         auto call = CallExpression{
                 .callee = std::make_shared<Expression>(Identifier{"func"}),
-                .arguments{
-                        std::make_shared<Expression>(Identifier{"will_throw"}),
-                },
+                .arguments{Identifier{"will_throw"}},
         };
 
         Interpreter e;
@@ -402,7 +400,7 @@ int main() {
 
         auto call = CallExpression{
                 .callee = std::make_shared<Expression>(Identifier{"set_string_and_get_42"}),
-                .arguments{std::make_shared<Expression>(StringLiteral{"did it!"})},
+                .arguments{StringLiteral{"did it!"}},
         };
 
         a.expect_eq(e.execute(call), Value{42});

@@ -77,27 +77,24 @@ private:
     [[nodiscard]] static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
         assert(starts_call_expr(tokens));
 
-        constexpr auto kMakeArg = [](parse::Token &token) -> std::optional<std::shared_ptr<ast::Expression>> {
+        constexpr auto kMakeArg = [](parse::Token &token) -> std::optional<ast::Expression> {
             if (std::holds_alternative<parse::IntLiteral>(token)) {
-                return std::make_shared<ast::Expression>(
-                        ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(token).value)});
+                return ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(token).value)};
             }
 
             if (std::holds_alternative<parse::StringLiteral>(token)) {
-                return std::make_shared<ast::Expression>(
-                        ast::StringLiteral{std::move(std::get<parse::StringLiteral>(token).value)});
+                return ast::StringLiteral{std::move(std::get<parse::StringLiteral>(token).value)};
             }
 
             if (std::holds_alternative<parse::Identifier>(token)) {
-                return std::make_shared<ast::Expression>(
-                        ast::Identifier{std::move(std::get<parse::Identifier>(token).name)});
+                return ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
             }
 
             return std::nullopt;
         };
 
         auto &fn_name = std::get<parse::Identifier>(tokens[0]);
-        std::vector<std::shared_ptr<ast::Expression>> args;
+        std::vector<ast::Expression> args;
 
         // arg1, arg2, arg3)
         bool found_rparen{false};

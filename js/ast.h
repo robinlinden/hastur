@@ -173,7 +173,7 @@ struct AssignmentExpression {
 
 struct CallExpression {
     std::shared_ptr<Expression> callee;
-    std::vector<std::shared_ptr<Expression>> arguments;
+    std::vector<Expression> arguments;
 };
 
 struct MemberExpression {

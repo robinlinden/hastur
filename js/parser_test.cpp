@@ -104,8 +104,8 @@ int main() {
         auto &call = std::get<js::ast::CallExpression>(expr);
         a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "foo");
         a.expect_eq(call.arguments.size(), std::size_t{2});
-        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*call.arguments.at(0))).value, 1.);
-        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*call.arguments.at(1))).value, 2.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(call.arguments.at(0))).value, 1.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(call.arguments.at(1))).value, 2.);
     });
 
     s.add_test("foo(1 2)", [](etest::IActions &a) {
@@ -122,7 +122,7 @@ int main() {
         auto &call = std::get<js::ast::CallExpression>(expr);
         a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "foo");
         a.expect_eq(call.arguments.size(), std::size_t{1});
-        a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(*call.arguments.at(0))).value, "bar");
+        a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(call.arguments.at(0))).value, "bar");
     });
 
     s.add_test("foo(1, 'bar')", [](etest::IActions &a) {
@@ -134,8 +134,8 @@ int main() {
         auto &call = std::get<js::ast::CallExpression>(expr);
         a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "foo");
         a.expect_eq(call.arguments.size(), std::size_t{2});
-        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*call.arguments.at(0))).value, 1.);
-        a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(*call.arguments.at(1))).value, "bar");
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(call.arguments.at(0))).value, 1.);
+        a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(call.arguments.at(1))).value, "bar");
     });
 
     s.add_test("foo(hello)", [](etest::IActions &a) {
@@ -147,7 +147,7 @@ int main() {
         auto &call = std::get<js::ast::CallExpression>(expr);
         a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "foo");
         a.expect_eq(call.arguments.size(), std::size_t{1});
-        a.expect_eq(std::get<js::ast::Identifier>(*call.arguments[0]).name, "hello");
+        a.expect_eq(std::get<js::ast::Identifier>(call.arguments[0]).name, "hello");
     });
 
     s.add_test("you(fool", [](etest::IActions &a) {
