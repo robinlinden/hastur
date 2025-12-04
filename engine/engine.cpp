@@ -15,7 +15,7 @@
 #include "dom/xpath.h"
 #include "html/parse.h"
 #include "html/parse_error.h"
-#include "js/tokenizer.h"
+#include "js/parser.h"
 #include "layout/layout.h"
 #include "protocol/response.h"
 #include "style/style.h"
@@ -157,9 +157,9 @@ tl::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri::
 
                         assert(e.children.size() == 1 && std::holds_alternative<dom::Text>(e.children[0]));
                         auto const &script_text = std::get<dom::Text>(e.children[0]);
-                        auto tokens = js::parse::tokenize(script_text.text);
-                        if (!tokens.has_value()) {
-                            spdlog::warn("Failed to tokenize JavaScript in <script> tag:\n{}", script_text.text);
+                        auto ast = js::Parser::parse(script_text.text);
+                        if (!ast.has_value()) {
+                            spdlog::warn("Failed to parse JavaScript in <script> tag:\n{}", script_text.text);
                         }
                     }},
                     .on_error = [](html::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); },
