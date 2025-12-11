@@ -192,5 +192,35 @@ int main() {
         a.expect_eq(p, std::nullopt);
     });
 
+    s.add_test("assign expr, function call", [](etest::IActions &a) {
+        auto p = js::Parser::parse("a = func(1, 2);").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "a");
+
+        auto &call = std::get<js::ast::CallExpression>(*assign.right);
+        a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "func");
+        a.expect_eq(call.arguments.size(), std::size_t{2});
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(call.arguments.at(0))).value, 1.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(call.arguments.at(1))).value, 2.);
+    });
+
+    s.add_test("assign expr, chained assignment", [](etest::IActions &a) {
+        auto p = js::Parser::parse("x = y = 5;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &first_assign = std::get<js::ast::AssignmentExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*first_assign.left).name, "x");
+
+        auto &second_assign = std::get<js::ast::AssignmentExpression>(*first_assign.right);
+        a.expect_eq(std::get<js::ast::Identifier>(*second_assign.left).name, "y");
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*second_assign.right)).value, 5.);
+    });
+
     return s.run();
 }

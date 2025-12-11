@@ -147,31 +147,20 @@ private:
                 && std::holds_alternative<parse::Equals>(tokens[1]);
     }
 
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::AssignmentExpression> parse_assign_expr(std::span<parse::Token> &tokens) {
         assert(starts_assign_expr(tokens));
 
         auto &var_name = std::get<parse::Identifier>(tokens[0]);
-        auto &value_token = tokens[2];
-
-        std::shared_ptr<ast::Expression> value_expr;
-        if (std::holds_alternative<parse::IntLiteral>(value_token)) {
-            value_expr = std::make_shared<ast::Expression>(
-                    ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(value_token).value)});
-        } else if (std::holds_alternative<parse::StringLiteral>(value_token)) {
-            value_expr = std::make_shared<ast::Expression>(
-                    ast::StringLiteral{std::move(std::get<parse::StringLiteral>(value_token).value)});
-        } else if (std::holds_alternative<parse::Identifier>(value_token)) {
-            value_expr = std::make_shared<ast::Expression>(
-                    ast::Identifier{std::move(std::get<parse::Identifier>(value_token).name)});
-        } else {
+        tokens = tokens.subspan(2);
+        auto value_expr = parse_expression(tokens);
+        if (!value_expr) {
             return std::nullopt;
         }
 
-        tokens = tokens.subspan(3);
-
         return ast::AssignmentExpression{
                 .left = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(var_name.name)}),
-                .right = std::move(value_expr),
+                .right = std::make_shared<ast::Expression>(std::move(*value_expr)),
         };
     }
 };
