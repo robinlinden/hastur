@@ -132,5 +132,19 @@ int main() {
         a.expect_eq(e.variables.at("lol").as_number(), 2.);
     });
 
+    s.add_test("member expr", [](etest::IActions &a) {
+        js::ast::Interpreter e;
+        e.variables["obj"] = js::ast::Value{js::ast::Object{
+                {"prop", js::ast::Value{123}},
+        }};
+
+        auto p1 = js::Parser::parse("obj.prop").value();
+        a.expect_eq(e.execute(p1), js::ast::Value{123});
+
+        auto p2 = js::Parser::parse("a = obj.prop").value();
+        a.expect_eq(e.execute(p2), js::ast::Value{123});
+        a.expect_eq(e.variables.at("a").as_number(), 123.);
+    });
+
     return s.run();
 }
