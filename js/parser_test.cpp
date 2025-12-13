@@ -222,5 +222,16 @@ int main() {
         a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*second_assign.right)).value, 5.);
     });
 
+    s.add_test("member expr", [](etest::IActions &a) {
+        auto p = js::Parser::parse("obj.prop;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &member = std::get<js::ast::MemberExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*member.object).name, "obj");
+        a.expect_eq(member.property.name, "prop");
+    });
+
     return s.run();
 }

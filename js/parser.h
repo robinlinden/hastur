@@ -62,6 +62,10 @@ private:
             return std::nullopt;
         }
 
+        if (starts_member_expr(tokens)) {
+            return parse_member_expr(tokens);
+        }
+
         if (starts_call_expr(tokens)) {
             return parse_call_expr(tokens);
         }
@@ -161,6 +165,28 @@ private:
         return ast::AssignmentExpression{
                 .left = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(var_name.name)}),
                 .right = std::make_shared<ast::Expression>(std::move(*value_expr)),
+        };
+    }
+
+    [[nodiscard]] static bool starts_member_expr(std::span<parse::Token const> tokens) {
+        // Must be at least 3 tokens: identifier, '.', identifier
+        return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
+                && std::holds_alternative<parse::Period>(tokens[1])
+                && std::holds_alternative<parse::Identifier>(tokens[2]);
+    }
+
+    [[nodiscard]] static std::optional<ast::MemberExpression> parse_member_expr(std::span<parse::Token> &tokens) {
+        assert(tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
+                && std::holds_alternative<parse::Period>(tokens[1])
+                && std::holds_alternative<parse::Identifier>(tokens[2]));
+
+        auto &object_name = std::get<parse::Identifier>(tokens[0]);
+        auto &property_name = std::get<parse::Identifier>(tokens[2]);
+        tokens = tokens.subspan(3);
+
+        return ast::MemberExpression{
+                .object = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(object_name.name)}),
+                .property = ast::Identifier{.name = std::move(property_name.name)},
         };
     }
 };
