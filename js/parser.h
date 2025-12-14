@@ -36,12 +36,12 @@ public:
         std::vector<ast::Statement> program_body;
 
         while (!tokens.empty()) {
-            auto expr = parse_expression(tokens);
-            if (!expr) {
+            auto stmt = parse_statement(tokens);
+            if (!stmt) {
                 return std::nullopt;
             }
 
-            program_body.emplace_back(ast::ExpressionStatement{.expression = std::move(*expr)});
+            program_body.emplace_back(std::move(*stmt));
 
             if (!tokens.empty()) {
                 if (!std::holds_alternative<parse::Semicolon>(tokens.front())) {
@@ -56,6 +56,15 @@ public:
     }
 
 private:
+    [[nodiscard]] static std::optional<ast::Statement> parse_statement(std::span<parse::Token> &tokens) {
+        auto expr = parse_expression(tokens);
+        if (!expr) {
+            return std::nullopt;
+        }
+
+        return ast::ExpressionStatement{.expression = std::move(*expr)};
+    }
+
     // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Expression> parse_expression(std::span<parse::Token> &tokens) {
         if (tokens.empty()) {
