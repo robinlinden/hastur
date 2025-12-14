@@ -56,13 +56,117 @@ public:
     }
 
 private:
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Statement> parse_statement(std::span<parse::Token> &tokens) {
+        if (std::holds_alternative<parse::Function>(tokens.front())) {
+            return parse_function_declaration(tokens);
+        }
+
         auto expr = parse_expression(tokens);
         if (!expr) {
             return std::nullopt;
         }
 
         return ast::ExpressionStatement{.expression = std::move(*expr)};
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
+    [[nodiscard]] static std::optional<ast::FunctionDeclaration> parse_function_declaration(
+            std::span<parse::Token> &tokens) {
+        assert(std::holds_alternative<parse::Function>(tokens.front()));
+        tokens = tokens.subspan(1); // 'function'
+
+        if (tokens.empty() || !std::holds_alternative<parse::Identifier>(tokens.front())) {
+            return std::nullopt;
+        }
+
+        auto &fn_name = std::get<parse::Identifier>(tokens.front());
+        tokens = tokens.subspan(1); // identifier
+
+        if (tokens.empty() || !std::holds_alternative<parse::LParen>(tokens.front())) {
+            return std::nullopt;
+        }
+
+        tokens = tokens.subspan(1); // '('
+        if (tokens.empty()) {
+            return std::nullopt;
+        }
+
+        std::vector<ast::Pattern> params;
+        while (std::holds_alternative<parse::Identifier>(tokens.front())) {
+            auto *param_name = std::get_if<parse::Identifier>(&tokens.front());
+            assert(param_name != nullptr);
+
+            params.emplace_back(ast::Identifier{.name = std::move(param_name->name)});
+            tokens = tokens.subspan(1); // identifier
+            if (tokens.empty()) {
+                return std::nullopt;
+            }
+
+            if (std::holds_alternative<parse::RParen>(tokens.front())) {
+                break;
+            }
+
+            if (!std::holds_alternative<parse::Comma>(tokens.front())) {
+                return std::nullopt;
+            }
+
+            tokens = tokens.subspan(1); // ','
+            if (tokens.empty()) {
+                return std::nullopt;
+            }
+        }
+
+        if (!std::holds_alternative<parse::RParen>(tokens.front())) {
+            return std::nullopt;
+        }
+
+        tokens = tokens.subspan(1); // ')'
+
+        if (tokens.empty() || !std::holds_alternative<parse::LBrace>(tokens.front())) {
+            return std::nullopt;
+        }
+
+        tokens = tokens.subspan(1); // '{'
+        if (tokens.empty()) {
+            return std::nullopt;
+        }
+
+        ast::FunctionBody body;
+        while (!std::holds_alternative<parse::RBrace>(tokens.front())) {
+            auto stmt = parse_statement(tokens);
+            if (!stmt) {
+                return std::nullopt;
+            }
+
+            body.body.push_back(std::move(*stmt));
+
+            if (tokens.empty()) {
+                return std::nullopt;
+            }
+
+            if (std::holds_alternative<parse::Semicolon>(tokens.front())) {
+                tokens = tokens.subspan(1); // ';'
+                if (tokens.empty()) {
+                    return std::nullopt;
+                }
+            } else if (!std::holds_alternative<parse::RBrace>(tokens.front())) {
+                return std::nullopt;
+            }
+        }
+
+        assert(std::holds_alternative<parse::RBrace>(tokens.front()));
+        tokens = tokens.subspan(1); // '}'
+
+        auto function = std::make_shared<ast::Function>(ast::Function{
+                .params{std::move(params)},
+                .body{std::move(body)},
+        });
+
+        return ast::FunctionDeclaration{
+                .id = ast::Identifier{.name = std::move(fn_name.name)},
+                .function = std::move(function),
+        };
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)

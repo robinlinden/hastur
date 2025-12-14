@@ -233,5 +233,72 @@ int main() {
         a.expect_eq(member.property.name, "prop");
     });
 
+    s.add_test("function declaration, bad", [](etest::IActions &a) {
+        a.expect_eq(js::Parser::parse("function").has_value(), false);
+        a.expect_eq(js::Parser::parse("function 37").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo!").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(!").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo()").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() !").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() {").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() {!").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() { function }").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() { 42").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() { 42;").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo() { a b }").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(~) {}").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(a b) {}").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(a").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(a,").has_value(), false);
+        a.expect_eq(js::Parser::parse("function foo(a, 42").has_value(), false);
+    });
+
+    s.add_test("function declaration, empty", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function foo() {}").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &decl = std::get<js::ast::Declaration>(statement);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(decl);
+        a.expect_eq(func_decl.id.name, "foo");
+        a.expect_eq(func_decl.function->params.size(), std::size_t{0});
+        a.expect_eq(func_decl.function->body.body.size(), std::size_t{0});
+    });
+
+    s.add_test("function declaration, trailing comma in params", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function foo(a, b,) {}").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &decl = std::get<js::ast::Declaration>(statement);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(decl);
+        a.expect_eq(func_decl.id.name, "foo");
+        a.expect_eq(func_decl.function->params.size(), std::size_t{2});
+        a.expect_eq(std::get<js::ast::Identifier>(func_decl.function->params.at(0)).name, "a");
+        a.expect_eq(std::get<js::ast::Identifier>(func_decl.function->params.at(1)).name, "b");
+        a.expect_eq(func_decl.function->body.body.size(), std::size_t{0});
+    });
+
+    s.add_test("function declaration, with params and body", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function set(a, b) { a = b; }").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &decl = std::get<js::ast::Declaration>(statement);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(decl);
+        a.expect_eq(func_decl.id.name, "set");
+        a.expect_eq(func_decl.function->params.size(), std::size_t{2});
+        a.expect_eq(std::get<js::ast::Identifier>(func_decl.function->params.at(0)).name, "a");
+        a.expect_eq(std::get<js::ast::Identifier>(func_decl.function->params.at(1)).name, "b");
+        a.expect_eq(func_decl.function->body.body.size(), std::size_t{1});
+        auto &body_statement = func_decl.function->body.body.at(0);
+        auto &body_expr = std::get<js::ast::ExpressionStatement>(body_statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(body_expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "a");
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.right).name, "b");
+    });
+
     return s.run();
 }
