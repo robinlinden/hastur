@@ -46,7 +46,8 @@ int main() {
     });
 
     s.add_test("identifier", [](etest::IActions &a) {
-        expect_tokens(a, "hello", {Identifier{"hello"}}); //
+        expect_tokens(a, "hello", {Identifier{"hello"}});
+        expect_tokens(a, "underscores_and_numb3r5_are_f1n3", {Identifier{"underscores_and_numb3r5_are_f1n3"}});
     });
 
     s.add_test("identifiers w/ whitespace", [](etest::IActions &a) {
