@@ -92,7 +92,7 @@ public:
             return tokenize_int_literal(*current);
         }
 
-        if (!is_alpha(*current)) {
+        if (!is_ident_start(*current)) {
             return std::nullopt;
         }
 
@@ -332,6 +332,7 @@ private:
 
     static constexpr bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
     static constexpr bool is_numeric(char c) { return (c >= '0' && c <= '9'); }
+    static constexpr bool is_ident_start(char c) { return is_alpha(c) || c == '_'; }
     static constexpr bool is_ident_continuation(char c) { return is_alpha(c) || is_numeric(c) || c == '_'; }
     static constexpr bool is_whitespace(std::optional<char> c) {
         if (!c) {
