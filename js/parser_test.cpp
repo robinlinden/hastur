@@ -300,5 +300,30 @@ int main() {
         a.expect_eq(std::get<js::ast::Identifier>(*assign.right).name, "b");
     });
 
+    s.add_test("return statement", [](etest::IActions &a) {
+        auto p = js::Parser::parse("return 42;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &ret = std::get<js::ast::ReturnStatement>(statement);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*ret.argument)).value, 42.);
+
+        a.expect_eq(js::Parser::parse("return"), std::nullopt);
+        a.expect_eq(js::Parser::parse("return )"), std::nullopt);
+    });
+
+    s.add_test("return statement, void", [](etest::IActions &a) {
+        auto p = js::Parser::parse("return;").value();
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &ret = std::get<js::ast::ReturnStatement>(statement);
+        a.expect_eq(ret.argument.has_value(), false);
+    });
+
+    s.add_test("return statement, bad", [](etest::IActions &a) {
+        auto p = js::Parser::parse("return ~");
+        a.expect_eq(p, std::nullopt);
+    });
+
     return s.run();
 }

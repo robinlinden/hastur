@@ -8,6 +8,7 @@
 
 #include "etest/etest2.h"
 
+#include <cstddef>
 #include <format>
 #include <optional>
 
@@ -144,6 +145,31 @@ int main() {
         auto p2 = js::Parser::parse("a = obj.prop").value();
         a.expect_eq(e.execute(p2), js::ast::Value{123});
         a.expect_eq(e.variables.at("a").as_number(), 123.);
+    });
+
+    s.add_test("function declaration and call, bonus garbage after return", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function get_3() { return 3; foo(); }; get_3()").value();
+        js::ast::Interpreter e;
+        a.expect_eq(e.execute(p), js::ast::Value{3.});
+    });
+
+    s.add_test("function declaration and call, void return", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function get_nothing() { return; foo(); }; get_nothing()").value();
+        js::ast::Interpreter e;
+        a.expect_eq(e.execute(p), js::ast::Value{});
+    });
+
+    s.add_test("function declaration and call, with args", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function add(a, b, c) { return native_add(a, b, c); }; add(37, 3, 2)").value();
+        js::ast::Interpreter e;
+        e.variables["native_add"] = js::ast::Value{[&](auto const &args) {
+            a.expect_eq(args.size(), std::size_t{3});
+            a.expect_eq(args.at(0).as_number(), 37.);
+            a.expect_eq(args.at(1).as_number(), 3.);
+            a.expect_eq(args.at(2).as_number(), 2.);
+            return js::ast::Value{args.at(0).as_number() + args.at(1).as_number() + args.at(2).as_number()};
+        }};
+        a.expect_eq(e.execute(p), js::ast::Value{42.});
     });
 
     return s.run();

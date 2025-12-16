@@ -62,6 +62,24 @@ private:
             return parse_function_declaration(tokens);
         }
 
+        if (std::holds_alternative<parse::Return>(tokens.front())) {
+            tokens = tokens.subspan(1); // 'return'
+            if (tokens.empty()) {
+                return std::nullopt;
+            }
+
+            if (std::holds_alternative<parse::Semicolon>(tokens.front())) {
+                return ast::ReturnStatement{.argument = std::nullopt};
+            }
+
+            std::optional<ast::Expression> argument = parse_expression(tokens);
+            if (!argument) {
+                return std::nullopt;
+            }
+
+            return ast::ReturnStatement{.argument = std::move(argument)};
+        }
+
         auto expr = parse_expression(tokens);
         if (!expr) {
             return std::nullopt;
