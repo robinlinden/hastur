@@ -285,9 +285,7 @@ App::App(std::string browser_title, std::string start_page_hint)
               }},
       browser_title_{std::move(browser_title)},
       window_{sf::VideoMode({kDefaultResolutionX, kDefaultResolutionY}), browser_title_},
-      url_buf_{std::move(start_page_hint)},
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-      canvas_{std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()))} {
+      url_buf_{std::move(start_page_hint)} {
     window_.setIcon({16, 16}, kBrowserIcon.data());
     if (!ImGui::SFML::Init(window_)) {
         spdlog::critical("imgui-sfml initialization failed");
@@ -302,6 +300,7 @@ App::App(std::string browser_title, std::string start_page_hint)
         ImGui::GetIO().IniFilename = nullptr;
     }
 
+    select_canvas(Canvas::Sfml);
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
     ensure_has_scheme(url_buf_);
@@ -960,17 +959,25 @@ void App::show_render_surface() {
 }
 
 void App::select_canvas(Canvas canvas) {
-    reset_scroll();
     selected_canvas_ = canvas;
     if (canvas == Canvas::Sfml) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-        canvas_ = std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()));
+        auto c = gfx::SfmlCanvas::create(window_, static_cast<type::SfmlType &>(engine_.font_system()));
+        if (c) {
+            canvas_ = std::make_unique<gfx::SfmlCanvas>(std::move(*c));
+        } else {
+            spdlog::error("Failed to create SFML canvas, falling back to OpenGL canvas");
+            selected_canvas_ = Canvas::OpenGL;
+            canvas_ = std::make_unique<gfx::OpenGLCanvas>();
+        }
     } else {
         canvas_ = std::make_unique<gfx::OpenGLCanvas>();
     }
+
     canvas_->set_scale(scale_);
     auto [width, height] = window_.getSize();
     canvas_->set_viewport_size(width, height);
+    scroll_offset_y_ = 0;
 }
 
 void App::start_loading_images() {
