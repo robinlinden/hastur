@@ -128,6 +128,17 @@ int main() {
         expect_tokens(a, "\"\"", {StringLiteral{}});
         expect_tokens(a, "'asdf", std::nullopt);
         expect_tokens(a, "\"asdf", std::nullopt);
+        expect_tokens(a, R"('he\)", std::nullopt);
+        expect_tokens(a, R"('he\&')", std::nullopt);
+        expect_tokens(a, R"('he\\llo')", {StringLiteral{R"(he\llo)"}});
+        expect_tokens(a, R"('he\'llo')", {StringLiteral{"he'llo"}});
+        expect_tokens(a, R"("he\"llo")", {StringLiteral{"he\"llo"}});
+        expect_tokens(a, R"('line1\bline2')", {StringLiteral{"line1\bline2"}});
+        expect_tokens(a, R"('line1\fline2')", {StringLiteral{"line1\fline2"}});
+        expect_tokens(a, R"('line1\nline2')", {StringLiteral{"line1\nline2"}});
+        expect_tokens(a, R"('line1\rline2')", {StringLiteral{"line1\rline2"}});
+        expect_tokens(a, R"('line1\tline2')", {StringLiteral{"line1\tline2"}});
+        expect_tokens(a, R"('line1\vline2')", {StringLiteral{"line1\vline2"}});
     });
 
     s.add_test("reserved words", [](etest::IActions &a) {

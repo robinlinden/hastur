@@ -295,7 +295,7 @@ private:
     }
 
     // https://tc39.es/ecma262/#prod-StringLiteral
-    // TODO(robinlinden): All special cases.
+    // TODO(robinlinden): More special cases.
     std::optional<Token> tokenize_string_literal(char quote) {
         auto token = std::make_optional<StringLiteral>();
         std::string &str = token->value;
@@ -310,7 +310,48 @@ private:
                 return token;
             }
 
+            if (*current == '\\') {
+                auto escaped = consume_escape_sequence();
+                if (!escaped) {
+                    return std::nullopt;
+                }
+
+                str += *escaped;
+                continue;
+            }
+
             str += *current;
+        }
+    }
+
+    [[nodiscard]] std::optional<std::string> consume_escape_sequence() {
+        auto current = consume();
+        if (!current) {
+            return std::nullopt;
+        }
+
+        // https://tc39.es/ecma262/#prod-SingleEscapeCharacter
+        switch (*current) {
+            case '\'':
+                return "\'";
+            case '"':
+                return "\"";
+            case '\\':
+                return "\\";
+            case 'b':
+                return "\b";
+            case 'f':
+                return "\f";
+            case 'n':
+                return "\n";
+            case 'r':
+                return "\r";
+            case 't':
+                return "\t";
+            case 'v':
+                return "\v";
+            default:
+                return std::nullopt;
         }
     }
 
