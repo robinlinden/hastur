@@ -43,7 +43,17 @@ public:
     ValueOrException operator()(NumericLiteral const &v) { return Value{v.value}; }
     ValueOrException operator()(StringLiteral const &v) { return Value{v.value}; }
     ValueOrException operator()(Expression const &v) { return std::visit(*this, v); }
-    ValueOrException operator()(Identifier const &v) { return Value{v.name}; }
+
+    ValueOrException operator()(Identifier const &v) {
+        auto var = variables.find(v.name);
+        if (var == variables.end()) {
+            // TODO(robinlinden): Better error value.
+            return tl::unexpected{ErrorValue{Value{}}};
+        }
+
+        return var->second;
+    }
+
     ValueOrException operator()(Pattern const &v) { return std::visit(*this, v); }
     ValueOrException operator()(Declaration const &v) { return std::visit(*this, v); }
     ValueOrException operator()(Statement const &v) { return std::visit(*this, v); }
@@ -51,25 +61,27 @@ public:
     ValueOrException operator()(ExpressionStatement const &v) { return execute(v.expression); }
 
     ValueOrException operator()(AssignmentExpression const &v) {
-        auto maybe_name = execute(*v.left);
-        assert(maybe_name);
+        auto *maybe_id = std::get_if<Identifier>(&*v.left);
+        if (maybe_id == nullptr) {
+            // TODO(robinlinden): Better error value.
+            return tl::unexpected{ErrorValue{Value{}}};
+        }
 
-        auto name = maybe_name->as_string();
-        auto value = get_value_resolving_variables(*v.right);
+        auto value = execute(*v.right);
         if (!value) {
             return value;
         }
 
-        return variables[name] = *std::move(value);
+        return variables[maybe_id->name] = *std::move(value);
     }
 
     ValueOrException operator()(BinaryExpression const &v) {
-        auto lhs = get_value_resolving_variables(*v.lhs);
+        auto lhs = execute(*v.lhs);
         if (!lhs) {
             return lhs;
         }
 
-        auto rhs = get_value_resolving_variables(*v.rhs);
+        auto rhs = execute(*v.rhs);
         if (!rhs) {
             return rhs;
         }
@@ -94,16 +106,13 @@ public:
     }
 
     ValueOrException operator()(VariableDeclarator const &v) {
-        auto maybe_name = execute(v.id);
-        assert(maybe_name);
-
-        auto name = maybe_name->as_string();
+        auto name = get_identifier_name(v.id);
         ValueOrException init_value = v.init ? execute(*v.init) : Value{};
         if (!init_value) {
             return init_value;
         }
 
-        variables[name] = *std::move(init_value);
+        variables[std::move(name)] = *std::move(init_value);
         return Value{};
     }
 
@@ -120,14 +129,7 @@ public:
             return callee;
         }
 
-        auto maybe_fn = variables.find(callee->as_string());
-        if (maybe_fn == variables.end()) {
-            // TODO(robinlinden): Better error value.
-            return tl::unexpected{ErrorValue{Value{}}};
-        }
-
-        auto const &fn = maybe_fn->second;
-        if (!fn.is_function() && !fn.is_native_function()) {
+        if (!callee->is_function() && !callee->is_native_function()) {
             // TODO(robinlinden): Better error value.
             return tl::unexpected{ErrorValue{Value{}}};
         }
@@ -135,7 +137,7 @@ public:
         std::vector<Value> args;
         args.reserve(v.arguments.size());
         for (auto const &arg : v.arguments) {
-            auto arg_value = get_value_resolving_variables(arg);
+            auto arg_value = execute(arg);
             if (!arg_value) {
                 return arg_value;
             }
@@ -145,24 +147,23 @@ public:
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
         scope.variables["arguments"] = Value{std::move(args)};
-        if (fn.is_function()) {
-            return scope.execute(*fn.as_function());
+        if (callee->is_function()) {
+            return scope.execute(*callee->as_function());
         }
 
-        return scope.execute(fn.as_native_function());
+        return scope.execute(callee->as_native_function());
     }
 
     ValueOrException operator()(MemberExpression const &v) {
-        auto object = get_value_resolving_variables(*v.object);
+        auto object = execute(*v.object);
         if (!object) {
             return object;
         }
 
-        auto property = execute(v.property);
-        assert(property);
+        auto property = get_identifier_name(v.property);
 
         auto const &obj = object->as_object();
-        auto it = obj.find(property->as_string());
+        auto it = obj.find(property);
         if (it == obj.end()) {
             // TODO(robinlinden): Better error value.
             return tl::unexpected{ErrorValue{Value{}}};
@@ -174,10 +175,7 @@ public:
     ValueOrException operator()(Function const &v) {
         auto const &args = variables.at("arguments").as_vector();
         for (std::size_t i = 0; i < v.params.size(); ++i) {
-            auto maybe_id = execute(v.params[i]);
-            assert(maybe_id);
-
-            auto id = maybe_id->as_string();
+            auto id = get_identifier_name(v.params[i]);
             variables[std::move(id)] = i < args.size() ? args[i] : Value{};
         }
 
@@ -267,23 +265,7 @@ public:
     std::optional<Value> returning;
 
 private:
-    // TODO(robinlinden): This should be done in a more generic fashion.
-    ValueOrException get_value_resolving_variables(Expression const &expr) {
-        if (std::holds_alternative<Identifier>(expr)) {
-            auto id = execute(expr);
-            assert(id);
-
-            auto var_it = variables.find(id->as_string());
-            if (var_it == variables.end()) {
-                // TODO(robinlinden): Better error value.
-                return tl::unexpected{ErrorValue{Value{}}};
-            }
-
-            return var_it->second;
-        }
-
-        return execute(expr);
-    }
+    static std::string const &get_identifier_name(Pattern const &p) { return std::get<Identifier>(p).name; }
 };
 
 } // namespace js::ast

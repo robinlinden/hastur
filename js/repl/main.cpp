@@ -49,9 +49,7 @@ std::string to_string(js::ast::Value const &value) {
 // TODO(robinlinden): Make the repl nicer:
 // * Handle multi-line input.
 // * Better error reporting.
-// * Print values of variables instead of variable names.
 // * Command history.
-// *
 int main() {
     js::ast::Interpreter interpreter;
     std::string input;

@@ -527,5 +527,12 @@ int main() {
         a.expect_eq(result.has_value(), false);
     });
 
+    s.add_test("identifier", [](etest::IActions &a) {
+        Interpreter e;
+        e.variables["myvar"] = Value{123.};
+        a.expect_eq(e.execute(Identifier{"myvar"}), Value{123.});
+        a.expect_eq(e.execute(Identifier{"nonexistent"}).has_value(), false);
+    });
+
     return s.run();
 }
