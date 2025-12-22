@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <string_view>
 
 namespace {
 
@@ -44,6 +45,26 @@ std::string to_string(js::ast::Value const &value) {
     return "<unhandled>";
 }
 
+class Repl {
+public:
+    [[nodiscard]] std::string interpret(std::string_view input) {
+        auto ast = js::Parser::parse(input);
+        if (!ast) {
+            return "Parse error.";
+        }
+
+        auto result = interpreter_.execute(*ast);
+        if (!result) {
+            return "Error during execution.";
+        }
+
+        return to_string(*result);
+    }
+
+private:
+    js::ast::Interpreter interpreter_;
+};
+
 } // namespace
 
 // TODO(robinlinden): Make the repl nicer:
@@ -51,7 +72,7 @@ std::string to_string(js::ast::Value const &value) {
 // * Better error reporting.
 // * Command history.
 int main() {
-    js::ast::Interpreter interpreter;
+    Repl repl;
     std::string input;
 
     std::cout << "'/quit' to quit.\n";
@@ -68,18 +89,6 @@ int main() {
             continue;
         }
 
-        auto ast = js::Parser::parse(input);
-        if (!ast) {
-            std::cout << "Parse error.\n";
-            continue;
-        }
-
-        auto result = interpreter.execute(*ast);
-        if (!result) {
-            std::cout << "Error during execution.\n";
-            continue;
-        }
-
-        std::cout << to_string(*result) << '\n';
+        std::cout << repl.interpret(input) << '\n';
     }
 }
