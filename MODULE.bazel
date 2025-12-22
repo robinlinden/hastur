@@ -39,11 +39,6 @@ bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
     integrity = "sha256-ov394qubIXa9ajOvyhRFgDkCPtsd0uc+aCOBCAnfQCc=",
-    patch_cmds = [
-        # Work around warning about overriding the /std-flag.
-        # `cl : Command line warning D9025 : overriding '/std:c++17' with '/std:c++latest'`
-        """sed -i'' -e "s|/std:c++17|/std:c++latest|" cc/private/toolchain/windows_cc_toolchain_config.bzl""",
-    ],
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )

@@ -52,6 +52,7 @@ build:windows --action_env=LOCALAPPDATA # Quirk for running vswhere, remove when
 build:windows --action_env=ProgramData # Quirk for running vswhere, remove when icu no-longer needed
 build:windows      --cxxopt='/std:c++latest'
 build:windows --host_cxxopt='/std:c++latest'
+build:windows --features=-default_cpp_std --host_features=-default_cpp_std
 build:windows      --cxxopt='/GR-' # Disable rtti.
 build:windows --host_cxxopt='/GR-'
 build:windows      --copt='/Zc:__cplusplus' # Report the real supported C++ version, not just C++98.
