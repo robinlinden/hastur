@@ -6,5 +6,8 @@ cc_binary(
     srcs = ["main.cpp"],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["//js"],
+    deps = [
+        "//js",
+        "//util:arg_parser",
+    ],
 )

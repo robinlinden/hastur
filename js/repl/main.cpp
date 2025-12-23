@@ -6,6 +6,8 @@
 #include "js/interpreter.h"
 #include "js/parser.h"
 
+#include "util/arg_parser.h"
+
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -71,8 +73,19 @@ private:
 // * Handle multi-line input.
 // * Better error reporting.
 // * Command history.
-int main() {
+int main(int argc, char **argv) {
+    std::string run_arg;
+    if (auto res = util::ArgParser{}.argument("--run", run_arg).parse(argc, argv); !res) {
+        std::cerr << "Error parsing arguments: " << res.error().message << '\n';
+        return 1;
+    }
+
     Repl repl;
+    if (!run_arg.empty()) {
+        std::cout << repl.interpret(run_arg) << '\n';
+        return 0;
+    }
+
     std::string input;
 
     std::cout << "'/quit' to quit.\n";
