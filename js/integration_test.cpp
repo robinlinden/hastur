@@ -172,5 +172,11 @@ int main() {
         a.expect_eq(e.execute(p), js::ast::Value{42.});
     });
 
+    s.add_test("string literal member expr", [](etest::IActions &a) {
+        auto p = js::Parser::parse("'foo'.length").value();
+        // TODO(robinlinden): a.expect_eq(js::ast::Interpreter{}.execute(p), js::ast::Value{3});
+        a.expect_eq(js::ast::Interpreter{}.execute(p).has_value(), false);
+    });
+
     return s.run();
 }

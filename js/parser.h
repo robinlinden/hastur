@@ -208,25 +208,19 @@ private:
             return std::nullopt;
         }
 
-        if (tokens.empty()) {
-            return std::nullopt;
-        }
-
-        assert(expr.has_value());
-
-        if (std::holds_alternative<parse::Period>(tokens.front())) {
-            tokens = tokens.subspan(1); // '.'
-            return parse_member_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
-        }
-
-        if (std::holds_alternative<parse::LParen>(tokens.front())) {
-            tokens = tokens.subspan(1); // '('
-            return parse_call_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
-        }
-
-        if (std::holds_alternative<parse::Equals>(tokens.front())) {
-            tokens = tokens.subspan(1); // '='
-            return parse_assign_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+        while (!tokens.empty() && expr.has_value()) {
+            if (std::holds_alternative<parse::Period>(tokens.front())) {
+                tokens = tokens.subspan(1); // '.'
+                expr = parse_member_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+            } else if (std::holds_alternative<parse::LParen>(tokens.front())) {
+                tokens = tokens.subspan(1); // '('
+                expr = parse_call_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+            } else if (std::holds_alternative<parse::Equals>(tokens.front())) {
+                tokens = tokens.subspan(1); // '='
+                expr = parse_assign_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+            } else {
+                return expr;
+            }
         }
 
         return expr;

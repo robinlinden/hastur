@@ -233,6 +233,75 @@ int main() {
         a.expect_eq(member.property.name, "prop");
     });
 
+    s.add_test("member expr chaining", [](etest::IActions &a) {
+        auto p = js::Parser::parse("obj.foo.bar;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &first_member = std::get<js::ast::MemberExpression>(expr);
+        auto &second_member = std::get<js::ast::MemberExpression>(*first_member.object);
+        a.expect_eq(std::get<js::ast::Identifier>(*second_member.object).name, "obj");
+        a.expect_eq(second_member.property.name, "foo");
+        a.expect_eq(first_member.property.name, "bar");
+    });
+
+    s.add_test("member expr assign", [](etest::IActions &a) {
+        auto p = js::Parser::parse("obj.prop = 5;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        auto &member = std::get<js::ast::MemberExpression>(*assign.left);
+        auto &value = std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*assign.right));
+        a.expect_eq(value.value, 5.);
+        a.expect_eq(std::get<js::ast::Identifier>(*member.object).name, "obj");
+        a.expect_eq(member.property.name, "prop");
+    });
+
+    s.add_test("assign member expr", [](etest::IActions &a) {
+        auto p = js::Parser::parse("obj = other.prop;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "obj");
+        auto &member = std::get<js::ast::MemberExpression>(*assign.right);
+        a.expect_eq(std::get<js::ast::Identifier>(*member.object).name, "other");
+        a.expect_eq(member.property.name, "prop");
+    });
+
+    s.add_test("call member expr", [](etest::IActions &a) {
+        auto p = js::Parser::parse("obj.method();").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &call = std::get<js::ast::CallExpression>(expr);
+        auto &member = std::get<js::ast::MemberExpression>(*call.callee);
+        a.expect_eq(std::get<js::ast::Identifier>(*member.object).name, "obj");
+        a.expect_eq(member.property.name, "method");
+        a.expect_eq(call.arguments.size(), std::size_t{0});
+    });
+
+    s.add_test("call assign member expr", [](etest::IActions &a) {
+        auto p = js::Parser::parse("obj.method = func();").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr);
+        auto &member = std::get<js::ast::MemberExpression>(*assign.left);
+        a.expect_eq(std::get<js::ast::Identifier>(*member.object).name, "obj");
+        a.expect_eq(member.property.name, "method");
+
+        auto &call = std::get<js::ast::CallExpression>(*assign.right);
+        a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "func");
+        a.expect_eq(call.arguments.size(), std::size_t{0});
+    });
+
     s.add_test("function declaration, bad", [](etest::IActions &a) {
         a.expect_eq(js::Parser::parse("function").has_value(), false);
         a.expect_eq(js::Parser::parse("function 37").has_value(), false);
