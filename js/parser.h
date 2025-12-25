@@ -193,58 +193,58 @@ private:
             return std::nullopt;
         }
 
-        if (starts_member_expr(tokens)) {
-            return parse_member_expr(tokens);
-        }
+        std::optional<ast::Expression> expr;
 
-        if (starts_call_expr(tokens)) {
-            return parse_call_expr(tokens);
-        }
-
-        if (starts_assign_expr(tokens)) {
-            return parse_assign_expr(tokens);
-        }
-
-        auto &token = tokens.front();
-        if (std::holds_alternative<parse::IntLiteral>(token)) {
+        if (auto &token = tokens.front(); std::holds_alternative<parse::IntLiteral>(token)) {
             tokens = tokens.subspan(1);
-            return ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(token).value)};
-        }
-
-        if (std::holds_alternative<parse::StringLiteral>(token)) {
+            expr = ast::NumericLiteral{static_cast<double>(std::get<parse::IntLiteral>(token).value)};
+        } else if (std::holds_alternative<parse::StringLiteral>(token)) {
             tokens = tokens.subspan(1);
-            return ast::StringLiteral{std::move(std::get<parse::StringLiteral>(token).value)};
-        }
-
-        if (std::holds_alternative<parse::Identifier>(token)) {
+            expr = ast::StringLiteral{std::move(std::get<parse::StringLiteral>(token).value)};
+        } else if (std::holds_alternative<parse::Identifier>(token)) {
             tokens = tokens.subspan(1);
-            return ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
+            expr = ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
+        } else {
+            return std::nullopt;
         }
 
-        return std::nullopt;
-    }
+        if (tokens.empty()) {
+            return std::nullopt;
+        }
 
-    [[nodiscard]] static bool starts_call_expr(std::span<parse::Token const> tokens) {
-        // Must be at least 3 tokens: identifier, '(', [args [,]] ')'
-        return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
-                && std::holds_alternative<parse::LParen>(tokens[1]);
+        assert(expr.has_value());
+
+        if (std::holds_alternative<parse::Period>(tokens.front())) {
+            tokens = tokens.subspan(1); // '.'
+            return parse_member_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+        }
+
+        if (std::holds_alternative<parse::LParen>(tokens.front())) {
+            tokens = tokens.subspan(1); // '('
+            return parse_call_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+        }
+
+        if (std::holds_alternative<parse::Equals>(tokens.front())) {
+            tokens = tokens.subspan(1); // '='
+            return parse_assign_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+        }
+
+        return expr;
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    [[nodiscard]] static std::optional<ast::CallExpression> parse_call_expr(std::span<parse::Token> &tokens) {
-        assert(starts_call_expr(tokens));
-
-        auto &fn_name = std::get<parse::Identifier>(tokens[0]);
-        tokens = tokens.subspan(2); // identifier '('
-        std::vector<ast::Expression> args;
+    [[nodiscard]] static std::optional<ast::CallExpression> parse_call_expr(
+            std::shared_ptr<ast::Expression> callee, std::span<parse::Token> &tokens) {
+        if (tokens.empty()) {
+            return std::nullopt;
+        }
 
         if (std::holds_alternative<parse::RParen>(tokens.front())) {
             tokens = tokens.subspan(1); // ')'
-            return ast::CallExpression{
-                    .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
-            };
+            return ast::CallExpression{.callee = std::move(callee)};
         }
 
+        std::vector<ast::Expression> args;
         // arg1, arg2, arg3)
         while (true) {
             auto arg = parse_expression(tokens);
@@ -271,52 +271,36 @@ private:
         }
 
         return ast::CallExpression{
-                .callee = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(fn_name.name)}),
+                .callee = std::move(callee),
                 .arguments{std::move(args)},
         };
     }
 
-    [[nodiscard]] static bool starts_assign_expr(std::span<parse::Token const> tokens) {
-        // Must be at least 3 tokens: identifier, '=', value
-        return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
-                && std::holds_alternative<parse::Equals>(tokens[1]);
-    }
-
     // NOLINTNEXTLINE(misc-no-recursion)
-    [[nodiscard]] static std::optional<ast::AssignmentExpression> parse_assign_expr(std::span<parse::Token> &tokens) {
-        assert(starts_assign_expr(tokens));
-
-        auto &var_name = std::get<parse::Identifier>(tokens[0]);
-        tokens = tokens.subspan(2);
+    [[nodiscard]] static std::optional<ast::AssignmentExpression> parse_assign_expr(
+            std::shared_ptr<ast::Expression> lhs, std::span<parse::Token> &tokens) {
         auto value_expr = parse_expression(tokens);
         if (!value_expr) {
             return std::nullopt;
         }
 
         return ast::AssignmentExpression{
-                .left = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(var_name.name)}),
+                .left = std::move(lhs),
                 .right = std::make_shared<ast::Expression>(std::move(*value_expr)),
         };
     }
 
-    [[nodiscard]] static bool starts_member_expr(std::span<parse::Token const> tokens) {
-        // Must be at least 3 tokens: identifier, '.', identifier
-        return tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
-                && std::holds_alternative<parse::Period>(tokens[1])
-                && std::holds_alternative<parse::Identifier>(tokens[2]);
-    }
+    [[nodiscard]] static std::optional<ast::MemberExpression> parse_member_expr(
+            std::shared_ptr<ast::Expression> object, std::span<parse::Token> &tokens) {
+        if (tokens.empty() || !std::holds_alternative<parse::Identifier>(tokens.front())) {
+            return std::nullopt;
+        }
 
-    [[nodiscard]] static std::optional<ast::MemberExpression> parse_member_expr(std::span<parse::Token> &tokens) {
-        assert(tokens.size() >= 3 && std::holds_alternative<parse::Identifier>(tokens[0])
-                && std::holds_alternative<parse::Period>(tokens[1])
-                && std::holds_alternative<parse::Identifier>(tokens[2]));
-
-        auto &object_name = std::get<parse::Identifier>(tokens[0]);
-        auto &property_name = std::get<parse::Identifier>(tokens[2]);
-        tokens = tokens.subspan(3);
+        auto &property_name = std::get<parse::Identifier>(tokens.front());
+        tokens = tokens.subspan(1);
 
         return ast::MemberExpression{
-                .object = std::make_shared<ast::Expression>(ast::Identifier{.name = std::move(object_name.name)}),
+                .object = std::move(object),
                 .property = ast::Identifier{.name = std::move(property_name.name)},
         };
     }
