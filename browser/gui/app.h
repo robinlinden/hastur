@@ -49,6 +49,7 @@ public:
     ~App();
 
     void set_scale(unsigned scale);
+    void set_js_enabled(bool);
     void step();
     int run();
 
