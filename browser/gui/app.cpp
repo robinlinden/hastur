@@ -325,6 +325,13 @@ void App::set_scale(unsigned scale) {
     }
 }
 
+void App::set_js_enabled(bool enabled) {
+    enable_js_ = enabled;
+    if (maybe_page_) {
+        reload();
+    }
+}
+
 void App::step() {
     while (auto event = window_.pollEvent()) {
         // ImGui needs a few iterations to do what it wants to do. This was

@@ -32,10 +32,12 @@ int main(int argc, char **argv) {
     std::string page{"about:blank"};
     unsigned scale{os::active_window_scale_factor()};
     bool exit_after_load{false};
+    bool enable_js{false};
 
     auto res = util::ArgParser{}
                        .argument("--scale", scale)
                        .argument("--exit-after-load", exit_after_load)
+                       .argument("--enable-js", enable_js)
                        .positional(page)
                        .parse(argc, argv);
     if (!res.has_value()) {
@@ -50,6 +52,7 @@ int main(int argc, char **argv) {
 
     browser::gui::App app{kBrowserTitle, std::move(page)};
     app.set_scale(scale);
+    app.set_js_enabled(enable_js);
 
     if (!exit_after_load) {
         return app.run();
