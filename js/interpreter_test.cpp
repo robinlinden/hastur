@@ -241,6 +241,19 @@ int main() {
         a.expect_eq(e.execute(member_expr), Value{5.});
     });
 
+    s.add_test("member expression on string literal", [](etest::IActions &a) {
+        Interpreter e;
+        e.variables["obj"] = Value{"foo"};
+
+        auto member_expr = MemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"obj"}),
+                .property = Identifier{"length"},
+        };
+
+        // TODO(robinlinden): a.expect_eq(e.execute(member_expr), Value{3});
+        a.expect_eq(e.execute(member_expr).has_value(), false);
+    });
+
     s.add_test("member expression, object not found", [](etest::IActions &a) {
         auto member_expr = MemberExpression{
                 .object = std::make_shared<Expression>(Identifier{"does_not_exist"}),

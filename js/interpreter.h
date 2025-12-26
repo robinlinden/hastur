@@ -160,6 +160,11 @@ public:
             return object;
         }
 
+        // TODO(robinlinden): "foo".length and similar should be allowed.
+        if (!object->is_object()) {
+            return tl::unexpected{ErrorValue{Value{}}};
+        }
+
         auto property = get_identifier_name(v.property);
 
         auto const &obj = object->as_object();
