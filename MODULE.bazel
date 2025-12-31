@@ -134,8 +134,8 @@ archive_override(
 # https://github.com/bazelbuild/bazel-skylib
 archive_override(
     module_name = "bazel_skylib",
-    integrity = "sha256-bnjw5X3iaAH29WT6fEpI3Is2hz5BYlepK7sJN+6shEY=",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.8.2"),
+    integrity = "sha256-O1tJAGGB9fj/Ym743c6qlem7itKU97XXsR6p992vjFk=",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.9.0"),
 )
 
 # https://github.com/bazelbuild/rules_android
@@ -151,8 +151,8 @@ archive_override(
 # https://github.com/bazelbuild/rules_kotlin
 archive_override(
     module_name = "rules_kotlin",
-    integrity = "sha256-UMm3KUtzofUPyzs0nKDt/YUu4QFuKEudVp7wv/4OsQU=",
-    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.2.1"),
+    integrity = "sha256-QR2yavs0ksyDUbW1NJkxUir+LFTyZRttEncwoSVtD2A=",
+    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.2.2"),
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -163,18 +163,18 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/bazel-worker-api
-BAZEL_WORKER_API_VERSION = "0.0.8"
+BAZEL_WORKER_API_VERSION = "0.0.9"
 
 archive_override(
     module_name = "bazel_worker_api",
-    integrity = "sha256-pYyMHlOux9ZkmBaLBSW/2HrdTTz9GOPtA9W+2SndaPw=",
+    integrity = "sha256-90DceKBOsznmIV/UOy4L1xU7OgyxSSb2phROg7syGQ4=",
     strip_prefix = "bazel-worker-api-%s/proto" % BAZEL_WORKER_API_VERSION,
     url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
 
 archive_override(
     module_name = "bazel_worker_java",
-    integrity = "sha256-pYyMHlOux9ZkmBaLBSW/2HrdTTz9GOPtA9W+2SndaPw=",
+    integrity = "sha256-90DceKBOsznmIV/UOy4L1xU7OgyxSSb2phROg7syGQ4=",
     strip_prefix = "bazel-worker-api-%s/java" % BAZEL_WORKER_API_VERSION,
     url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
@@ -351,11 +351,11 @@ archive_override(
 )
 
 # https://github.com/apple/swift-argument-parser
-SWIFT_ARGUMENT_PARSER_VERSION = "1.6.2"
+SWIFT_ARGUMENT_PARSER_VERSION = "1.7.0"
 
 archive_override(
     module_name = "swift_argument_parser",
-    integrity = "sha256-KYr8NJyy+L9ubJmF5MtZUo1XQlQTCJJC2JNEmrrUx/U=",
+    integrity = "sha256-hOaF8MpNBppgGTyeR3tuxaRAFtx4nbAeCxfDi0AKki4=",
     # Missing build file, but that's fine as it's unused and only required to
     # satisfy some dark corner of Bazel.
     patch_cmds = [
