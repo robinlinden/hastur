@@ -33,12 +33,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.14"
+RULES_CC_VERSION = "0.2.16"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-ov394qubIXa9ajOvyhRFgDkCPtsd0uc+aCOBCAnfQCc=",
+    integrity = "sha256-RYtlgne6UbRzDqeiAg798cbcrffTDecuN/Qwgnf6jAE=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -804,12 +804,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.335"
+VULKAN_TAG = "1.4.336"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-juOb7ldb3Mweys0L2ybxgYQd4110CaPspGjGtiLaovE=",
+    integrity = "sha256-qwfSEZyPCXZbpwRGPcsUI44czUCDs6/GoppGP6HNCSM=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -825,7 +825,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-YYgIt+j25st2X3xQvW43EHAeTG2Vg83TgiS8U46Ku5I=",
+    integrity = "sha256-aJtUhEplRdq+JLlh2rRwUegmdYhodRAEuKR/fBBWpIc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
