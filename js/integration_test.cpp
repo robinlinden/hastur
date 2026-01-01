@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -176,6 +176,12 @@ int main() {
         auto p = js::Parser::parse("'foo'.length").value();
         // TODO(robinlinden): a.expect_eq(js::ast::Interpreter{}.execute(p), js::ast::Value{3});
         a.expect_eq(js::ast::Interpreter{}.execute(p).has_value(), false);
+    });
+
+    s.add_test("function expression and call", [](etest::IActions &a) {
+        auto p = js::Parser::parse("a = function(a, b) { return b; }; a(40, 2)").value();
+        js::ast::Interpreter e;
+        a.expect_eq(e.execute(p), js::ast::Value{2.});
     });
 
     return s.run();

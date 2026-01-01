@@ -215,6 +215,21 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
+    [[nodiscard]] static std::optional<ast::FunctionExpression> parse_function_expression(
+            std::span<parse::Token> &tokens) {
+        auto maybe_fn = parse_function(tokens);
+        if (!maybe_fn) {
+            return std::nullopt;
+        }
+
+        auto &[fn_name, function] = *maybe_fn;
+        return ast::FunctionExpression{
+                .id = std::move(fn_name),
+                .function = std::move(function),
+        };
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Expression> parse_expression(std::span<parse::Token> &tokens) {
         if (tokens.empty()) {
             return std::nullopt;
@@ -231,6 +246,8 @@ private:
         } else if (std::holds_alternative<parse::Identifier>(token)) {
             tokens = tokens.subspan(1);
             expr = ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
+        } else if (std::holds_alternative<parse::Function>(tokens.front())) {
+            expr = parse_function_expression(tokens);
         } else {
             return std::nullopt;
         }

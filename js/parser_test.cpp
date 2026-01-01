@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -392,6 +392,46 @@ int main() {
     s.add_test("return statement, bad", [](etest::IActions &a) {
         auto p = js::Parser::parse("return ~");
         a.expect_eq(p, std::nullopt);
+    });
+
+    s.add_test("function expression", [](etest::IActions &a) {
+        auto p = js::Parser::parse("func = function() { return 37; };").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr_stmt = std::get<js::ast::ExpressionStatement>(statement);
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr_stmt.expression);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "func");
+
+        auto &func_expr = std::get<js::ast::FunctionExpression>(*assign.right);
+        a.expect_eq(func_expr.id.has_value(), false);
+        a.expect_eq(func_expr.function->params.size(), std::size_t{0});
+        a.expect_eq(func_expr.function->body.body.size(), std::size_t{1});
+        auto &body_statement = func_expr.function->body.body.at(0);
+        auto &ret = std::get<js::ast::ReturnStatement>(body_statement);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*ret.argument)).value, 37.);
+    });
+
+    s.add_test("function expression, named", [](etest::IActions &a) {
+        auto p = js::Parser::parse("func = function inner() { return 37; };").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr_stmt = std::get<js::ast::ExpressionStatement>(statement);
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr_stmt.expression);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "func");
+
+        auto &func_expr = std::get<js::ast::FunctionExpression>(*assign.right);
+        a.expect_eq(func_expr.id.value().name, "inner");
+        a.expect_eq(func_expr.function->params.size(), std::size_t{0});
+        a.expect_eq(func_expr.function->body.body.size(), std::size_t{1});
+        auto &body_statement = func_expr.function->body.body.at(0);
+        auto &ret = std::get<js::ast::ReturnStatement>(body_statement);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*ret.argument)).value, 37.);
+    });
+
+    s.add_test("function expression, bad", [](etest::IActions &a) {
+        a.expect_eq(js::Parser::parse("func = function 37").has_value(), false); //
     });
 
     return s.run();
