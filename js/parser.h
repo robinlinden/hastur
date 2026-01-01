@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -88,18 +88,30 @@ private:
         return ast::ExpressionStatement{.expression = std::move(*expr)};
     }
 
+    // Either a FunctionExpression or a FunctionDeclaration. The name is
+    // optional for FunctionExpressions.
+    struct Function {
+        std::optional<ast::Identifier> name;
+        std::shared_ptr<ast::Function> function;
+    };
+
     // NOLINTNEXTLINE(misc-no-recursion)
-    [[nodiscard]] static std::optional<ast::FunctionDeclaration> parse_function_declaration(
-            std::span<parse::Token> &tokens) {
+    [[nodiscard]] static std::optional<Function> parse_function(std::span<parse::Token> &tokens) {
         assert(std::holds_alternative<parse::Function>(tokens.front()));
         tokens = tokens.subspan(1); // 'function'
 
-        if (tokens.empty() || !std::holds_alternative<parse::Identifier>(tokens.front())) {
+        if (tokens.empty()) {
             return std::nullopt;
         }
 
-        auto &fn_name = std::get<parse::Identifier>(tokens.front());
-        tokens = tokens.subspan(1); // identifier
+        std::optional<ast::Identifier> fn_name;
+        if (std::holds_alternative<parse::Identifier>(tokens.front())) {
+            fn_name = ast::Identifier{
+                    .name = std::move(std::get<parse::Identifier>(tokens.front()).name),
+            };
+
+            tokens = tokens.subspan(1); // identifier
+        }
 
         if (tokens.empty() || !std::holds_alternative<parse::LParen>(tokens.front())) {
             return std::nullopt;
@@ -181,8 +193,23 @@ private:
                 .body{std::move(body)},
         });
 
+        return Function{
+                .name = std::move(fn_name),
+                .function = std::move(function),
+        };
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
+    [[nodiscard]] static std::optional<ast::FunctionDeclaration> parse_function_declaration(
+            std::span<parse::Token> &tokens) {
+        auto maybe_fn = parse_function(tokens);
+        if (!maybe_fn || !maybe_fn->name.has_value()) {
+            return std::nullopt;
+        }
+
+        auto &[fn_name, function] = *maybe_fn;
         return ast::FunctionDeclaration{
-                .id = ast::Identifier{.name = std::move(fn_name.name)},
+                .id = std::move(*fn_name),
                 .function = std::move(function),
         };
     }
