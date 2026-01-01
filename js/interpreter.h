@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -120,6 +120,8 @@ public:
         variables[v.id.name] = Value{v.function};
         return Value{};
     }
+
+    ValueOrException operator()(FunctionExpression const &v) { return Value{v.function}; }
 
     ValueOrException operator()(CallExpression const &v) {
         Interpreter scope{*this};

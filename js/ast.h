@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -30,6 +30,7 @@ struct CallExpression;
 struct MemberExpression;
 struct ExpressionStatement;
 struct FunctionDeclaration;
+struct FunctionExpression;
 struct Identifier;
 struct IfStatement;
 struct NumericLiteral;
@@ -50,8 +51,13 @@ using Statement = std::variant<Declaration,
         IfStatement,
         WhileStatement,
         EmptyStatement>;
-using Expression =
-        std::variant<Identifier, Literal, AssignmentExpression, CallExpression, MemberExpression, BinaryExpression>;
+using Expression = std::variant<Identifier,
+        Literal,
+        AssignmentExpression,
+        CallExpression,
+        MemberExpression,
+        BinaryExpression,
+        FunctionExpression>;
 
 struct ErrorValue;
 using ValueOrException = tl::expected<Value, ErrorValue>;
@@ -163,6 +169,11 @@ struct Function {
 
 struct FunctionDeclaration {
     Identifier id;
+    std::shared_ptr<Function> function;
+};
+
+struct FunctionExpression {
+    std::optional<Identifier> id;
     std::shared_ptr<Function> function;
 };
 

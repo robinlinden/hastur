@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -545,6 +545,16 @@ int main() {
         e.variables["myvar"] = Value{123.};
         a.expect_eq(e.execute(Identifier{"myvar"}), Value{123.});
         a.expect_eq(e.execute(Identifier{"nonexistent"}).has_value(), false);
+    });
+
+    s.add_test("function expression", [](etest::IActions &a) {
+        auto func_expr = FunctionExpression{
+                .function = std::make_shared<Function>(Function{
+                        .body{{ReturnStatement{NumericLiteral{77.}}}},
+                }),
+        };
+
+        a.expect_eq(Interpreter{}.execute(func_expr), Value{func_expr.function});
     });
 
     return s.run();
