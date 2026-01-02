@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -96,6 +96,8 @@ int main() {
     });
 
     s.add_test("utf8_to_utf32", [](etest::IActions &a) {
+        a.expect_eq(utf8_to_utf32(""), std::uint32_t{0});
+
         a.expect_eq(utf8_to_utf32("/"sv), 0x002ful);
 
         a.expect_eq(utf8_to_utf32("Д"sv), 0x0414ul);
@@ -114,9 +116,20 @@ int main() {
         a.expect_eq(utf8_length("🤖🤖🤖"sv), 3ul);
         a.expect_eq(utf8_length("🆒🆒🆒🆒🆒🆒🆒!"sv), 8ul);
 
-        // First byte suggests a 2-byte char, but we don't supply the 2nd byte
-        std::string invalid{static_cast<char>(0b11000000)};
-        a.expect_eq(utf8_length(invalid), std::nullopt);
+        // Incomplete 2-byte character. (U+00A3)
+        a.expect_eq(utf8_length("\xc2\xa3"), 1ul);
+        a.expect_eq(utf8_length("\xc2"), std::nullopt);
+
+        // Incomplete 3-byte character. (U+20AC)
+        a.expect_eq(utf8_length("\xe2\x82\xac"), 1ul);
+        a.expect_eq(utf8_length("\xe2\x82"), std::nullopt);
+
+        // Incomplete 4-byte character. (U+1F192)
+        a.expect_eq(utf8_length("\xf0\x9f\x86\x92"), 1ul);
+        a.expect_eq(utf8_length("\xf0\x9f\x86"), std::nullopt);
+
+        // Initial byte implies 5-byte character, which is invalid.
+        a.expect_eq(utf8_length("\xfa\xaa\xaa\xaa\xaa"), 0);
     });
 
     s.add_test("CodePointView", [](etest::IActions &a) {
@@ -142,6 +155,16 @@ int main() {
 
         // BUGINESE END OF SECTION
         a.expect_eq(into_code_points("\xe1\xa8\x9f"sv), std::vector<std::uint32_t>{0x1a1f});
+
+        {
+            // Postfix increment.
+            unicode::CodePointView postfix_inc{"ab"};
+            auto it = postfix_inc.begin();
+            a.expect_eq(*it, std::uint32_t{'a'});
+            a.expect_eq(*(it++), std::uint32_t{'a'});
+            a.expect_eq(*it, std::uint32_t{'b'});
+            a.expect_eq(++it, postfix_inc.end());
+        }
     });
 
     s.add_test("utf16_surrogate_pair_to_code_point", [](etest::IActions &a) {
