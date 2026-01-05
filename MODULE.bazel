@@ -396,6 +396,10 @@ archive_override(
         # .h can also appear as a c_source_extension with the new syntax-checking Bazel does.
         # See: https://github.com/hedronvision/bazel-compile-commands-extractor/pull/219
         """sed -i'' -e "s/('.c', '.i')/('.c', '.i', '.h')/" refresh.template.py""",
+        # Fix use of autoloaded Bazel rules.
+        """sed -i'' -e '2i\\\nbazel_dep(name = "rules_python")\\\n' MODULE.bazel""",
+        """sed -i'' -e '59i\\\nload("@rules_python//python:defs.bzl", "py_binary")\\\n' refresh_compile_commands.bzl""",
+        """sed -i'' -e 's/native.py_binary(/py_binary(/' refresh_compile_commands.bzl""",
     ],
     strip_prefix = "bazel-compile-commands-extractor-4f28899228fb3ad0126897876f147ca15026151e",
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
