@@ -405,14 +405,16 @@ archive_override(
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
 )
 
-# HEAD as of 2025-01-26.
+# HEAD as of 2026-01-05.
 # https://github.com/erenon/bazel_clang_tidy
+BAZEL_CLANG_TIDY_VERSION = "da986512bf1a46831d886fd090393b93b8967a5d"
+
 bazel_dep(name = "bazel_clang_tidy", dev_dependency = True)  # MIT
 archive_override(
     module_name = "bazel_clang_tidy",
-    integrity = "sha256-cjoiSKMv0j33LPlj9Kf0BEBYy9wJoa1+jvZ/0WwHM0Y=",
-    strip_prefix = "bazel_clang_tidy-db677011c7363509a288a9fb3bf0a50830bbf791",
-    url = "https://github.com/erenon/bazel_clang_tidy/archive/db677011c7363509a288a9fb3bf0a50830bbf791.tar.gz",
+    integrity = "sha256-WkayQxTZZiU6BVCPgCq0sDQoNrcPeGQa/vbM/UQRIS8=",
+    strip_prefix = "bazel_clang_tidy-%s" % BAZEL_CLANG_TIDY_VERSION,
+    url = "https://github.com/erenon/bazel_clang_tidy/archive/%s.tar.gz" % BAZEL_CLANG_TIDY_VERSION,
 )
 
 # Third-party
