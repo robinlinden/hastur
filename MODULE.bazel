@@ -61,6 +61,9 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
+# TODO(robinlinden): 1.8.0 fails w/
+# Error in extract: Cannot write outside of the repository directory for path
+# external/rules_python++pip+pypi_312_glad2/site-packages
 RULES_PYTHON_VERSION = "1.7.0"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
@@ -569,13 +572,13 @@ EOF""",
 )
 
 # https://github.com/unicode-org/icu
-ICU_VERSION = "78.1"
+ICU_VERSION = "78.2"
 
 bazel_dep(name = "icu")  # Unicode-DFS-2016
 archive_override(
     module_name = "icu",
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-Yhf1jKObIxJ2Bc/Gx+DTR1/ksNYxVwETg9cWy0FheIY=",
+    integrity = "sha256-Pploe1xDXUsgljDi0uu3mQbJhGheeGNQeLZy4DyJ3zU=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
@@ -692,13 +695,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
-LIBPNG_VERSION = "1.6.53"
+LIBPNG_VERSION = "1.6.54"
 
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-sgzucX4RQW0vlszH0YT2NzDKjLLwO/0MTtd/vJCcC/8=",
+    integrity = "sha256-un784TdAkHmYnfRmdwbDOb6/uxDp9BNHRxgBKhPIzUw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -741,13 +744,13 @@ EOF""",
 )
 
 # https://github.com/gabime/spdlog
-SPDLOG_VERSION = "1.16.0"
+SPDLOG_VERSION = "1.17.0"
 
 bazel_dep(name = "spdlog")  # MIT
 archive_override(
     module_name = "spdlog",
     build_file = "//third_party:spdlog.BUILD",
-    integrity = "sha256-h0F1PkiKeN0NACTJgOH7W1yFiIRH4wnZy52Um9tSqj4=",
+    integrity = "sha256-2IYpVcbXTlhGs/WAsWBdJCixHZekENhuL7E+hXzTp0Q=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
@@ -810,12 +813,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.336"
+VULKAN_TAG = "1.4.338"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-qwfSEZyPCXZbpwRGPcsUI44czUCDs6/GoppGP6HNCSM=",
+    integrity = "sha256-irsYdzpB42PRU15Qz2UlmOpr4ht7Oq7ZwrOd81gltnk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -831,7 +834,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-aJtUhEplRdq+JLlh2rRwUegmdYhodRAEuKR/fBBWpIc=",
+    integrity = "sha256-CIRf0H83GsSYg1IueSq6T/F9OezBVCOYnjsEgzb2paE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -843,13 +846,13 @@ EOF""",
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# HEAD, last updated at 2025-04-17.
+# HEAD, last updated at 2026-01-18.
 # https://github.com/web-platform-tests/wpt/blob/master/url/resources/urltestdata.json
-WPT_REVISION = "048018b5af85f8d47b8a704b48cf6f9c0a461876"
+WPT_REVISION = "81a2aed262a6e82824afa19509583a736da580ed"
 
 http_file(
     name = "wpt_urltestdata",
-    integrity = "sha256-V4MdYOxP+cF7e1eftgpS3yWpXgcgjKGeM9tfbmjXpuc=",
+    integrity = "sha256-H0f6ASDrBRdvHv2UTgHJ8s6LgizklbjV5hkG0THLN7k=",
     url = "https://raw.githubusercontent.com/web-platform-tests/wpt/%s/url/resources/urltestdata.json" % WPT_REVISION,
 )
 
