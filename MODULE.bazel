@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-0daNp0thI/nKtRzHbuUBXci8OA3BerO1y2iR8+Ryy/8=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.0.0"),
+    integrity = "sha256-8LMBhbEUD5LyTqljvfeDr2/JBdbm5vVn32loFhaE7D8=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.1.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -86,11 +86,11 @@ pip.parse(
 use_repo(pip, "pypi")
 
 # https://github.com/bazelbuild/rules_swift
-RULES_SWIFT_VERSION = "3.4.1"
+RULES_SWIFT_VERSION = "3.4.2"
 
 archive_override(
     module_name = "rules_swift",
-    integrity = "sha256-YwnSJkdMa5KT95DT2kPTsE3Apxt1uH3zEHhxoOpZ1fY=",
+    integrity = "sha256-A6XCqTOY8vxNbd+3bPgM2VdIPsKG009QzCLNoAKqtEU=",
     url = "https://github.com/bazelbuild/rules_swift/releases/download/{0}/rules_swift.{0}.tar.gz".format(RULES_SWIFT_VERSION),
 )
 
@@ -139,11 +139,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_android
-RULES_ANDROID_VERSION = "0.6.5"
+RULES_ANDROID_VERSION = "0.7.1"
 
 archive_override(
     module_name = "rules_android",
-    integrity = "sha256-WlGCx0go2lMWUiGYc5UmTUpc7owQwXF4oNXhI7vRYjw=",
+    integrity = "sha256-fEW2qqg3+28vI60ROHY4ywD6n4OaBOxWTKrHClQ6nNU=",
     strip_prefix = "rules_android-%s" % RULES_ANDROID_VERSION,
     url = "https://github.com/bazelbuild/rules_android/releases/download/v{0}/rules_android-v{0}.tar.gz".format(RULES_ANDROID_VERSION),
 )
@@ -183,11 +183,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.38.0"
+BAZEL_FEATURES_VERSION = "1.39.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-BycdD2sSYzd3tpAgxMsetnsZOcDPhLs5RNyFzCUMDAE=",
+    integrity = "sha256-WrGpDQn9dFVeDfIoCa1Ylifd/yY8/4JTWBWqgMo+NWI=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -275,11 +275,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "33.2"
+PROTOBUF_VERSION = "33.4"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-a2WZtUyI11kEt0cfXKNKcl+gr5LhNN0aMtWzlapLTKg=",
+    integrity = "sha256-vGcKTjSZLBdRN93aJOdlYruSj4SdcSoOPC+y4ZJJvqE=",
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
