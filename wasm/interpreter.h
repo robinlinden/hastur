@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,6 +6,8 @@
 #define WASM_INTERPRETER_H_
 
 #include "wasm/instructions.h"
+
+#include <tl/expected.hpp>
 
 #include <bit>
 #include <cassert>
@@ -72,6 +74,10 @@ struct InterpreterInfo<instructions::I32ExclusiveOr> {
 
 } // namespace detail
 
+enum class Trap : std::uint8_t {
+    UnhandledInstruction,
+};
+
 class Interpreter {
 public:
     using Value = std::variant<std::int32_t>;
@@ -81,26 +87,24 @@ public:
     std::vector<std::uint8_t> memory;
     [[nodiscard]] constexpr bool operator==(Interpreter const &) const = default;
 
-    std::optional<Value> run(std::span<instructions::Instruction const> const &insns) {
-        for (auto const &insn : insns) {
-            std::visit([this](auto const &i) { this->interpret(i); }, insn);
-        }
-
-        return stack.empty() ? std::nullopt : std::optional{stack.back()};
-    }
+    tl::expected<std::optional<Value>, Trap> run(std::span<instructions::Instruction const> const &);
 
     template<typename T>
-    void interpret(T const &) {
+    tl::expected<void, Trap> interpret(T const &) {
         std::cerr << "Unhandled instruction: " << T::kMnemonic << '\n';
+        return tl::unexpected{Trap::UnhandledInstruction};
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
     // t.const c
-    void interpret(instructions::I32Const const &v) { stack.emplace_back(v.value); }
+    tl::expected<void, Trap> interpret(instructions::I32Const const &v) {
+        stack.emplace_back(v.value);
+        return {};
+    }
 
     template<typename T>
     requires(T::kNumericType == instructions::NumericType::Relop)
-    void interpret(T const &) {
+    tl::expected<void, Trap> interpret(T const &) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
         auto rhs = std::get<typename T::NumType>(stack.back());
@@ -108,11 +112,12 @@ public:
         auto lhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
         stack.emplace_back(typename detail::InterpreterInfo<T>::Operation{}(lhs, rhs) ? 1 : 0);
+        return {};
     }
 
     template<typename T>
     requires(T::kNumericType == instructions::NumericType::Binop)
-    void interpret(T const &) {
+    tl::expected<void, Trap> interpret(T const &) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
         auto rhs = std::get<typename T::NumType>(stack.back());
@@ -120,32 +125,42 @@ public:
         auto lhs = std::get<typename T::NumType>(stack.back());
         stack.pop_back();
         stack.emplace_back(typename detail::InterpreterInfo<T>::Operation{}(lhs, rhs));
+        return {};
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#variable-instructions
-    void interpret(instructions::LocalGet const &v) { stack.push_back(locals.at(v.idx)); }
+    tl::expected<void, Trap> interpret(instructions::LocalGet const &v) {
+        stack.push_back(locals.at(v.idx));
+        return {};
+    }
 
-    void interpret(instructions::LocalSet const &v) {
+    tl::expected<void, Trap> interpret(instructions::LocalSet const &v) {
         assert(!stack.empty());
         locals.at(v.idx) = stack.back();
         stack.pop_back();
+        return {};
     }
 
-    void interpret(instructions::LocalTee const &v) {
+    tl::expected<void, Trap> interpret(instructions::LocalTee const &v) {
         assert(!stack.empty());
         locals.at(v.idx) = stack.back();
+        return {};
     }
 
-    void interpret(instructions::GlobalGet const &v) { stack.push_back(globals.at(v.global_idx)); }
+    tl::expected<void, Trap> interpret(instructions::GlobalGet const &v) {
+        stack.push_back(globals.at(v.global_idx));
+        return {};
+    }
 
-    void interpret(instructions::GlobalSet const &v) {
+    tl::expected<void, Trap> interpret(instructions::GlobalSet const &v) {
         assert(!stack.empty());
         globals.at(v.global_idx) = stack.back();
         stack.pop_back();
+        return {};
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#memory-instructions
-    void interpret(instructions::I32Load const &v) {
+    tl::expected<void, Trap> interpret(instructions::I32Load const &v) {
         // TODO(robinlinden): trap.
         assert(!stack.empty());
         auto [align, offset] = v.arg;
@@ -167,9 +182,10 @@ public:
         }
 
         stack.emplace_back(value);
+        return {};
     }
 
-    void interpret(instructions::I32Store const &v) {
+    tl::expected<void, Trap> interpret(instructions::I32Store const &v) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
         auto [align, offset] = v.arg;
@@ -190,8 +206,25 @@ public:
         }
 
         std::memcpy(memory.data() + ea, &to_store, sizeof(to_store));
+        return {};
     }
 };
+
+inline tl::expected<std::optional<Interpreter::Value>, Trap> Interpreter::run(
+        std::span<instructions::Instruction const> const &insns) {
+    for (auto const &insn : insns) {
+        auto res = std::visit(
+                [this](auto const &i) -> tl::expected<void, Trap> {
+                    return this->interpret(i); //
+                },
+                insn);
+        if (!res) {
+            return tl::unexpected{res.error()};
+        }
+    }
+
+    return stack.empty() ? std::nullopt : std::optional{stack.back()};
+}
 
 } // namespace wasm
 
