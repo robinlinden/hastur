@@ -210,6 +210,10 @@ int main() {
 
         auto res = i.run({{I32Const{4}, I32Load{{0, 0}}}});
         a.expect_eq(res, wasm::Interpreter::Value{42});
+
+        // Out-of-bounds read.
+        res = i.run({{I32Const{4}, I32Load{{0, 100}}}});
+        a.expect_eq(res, tl::unexpected{wasm::Trap::MemoryAccessOutOfBounds});
     });
 
     s.add_test("i32.store", [](etest::IActions &a) {
@@ -230,6 +234,10 @@ int main() {
         // and load the value again.
         res = i.run({{I32Const{4}, I32Load{{0, 0}}}});
         a.expect_eq(res, wasm::Interpreter::Value{42});
+
+        // Out-of-bounds write.
+        res = i.run({{I32Const{5}, I32Const{42}, I32Store{{0, 0}}}});
+        a.expect_eq(res, tl::unexpected{wasm::Trap::MemoryAccessOutOfBounds});
     });
 
     return s.run();

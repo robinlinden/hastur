@@ -75,6 +75,7 @@ struct InterpreterInfo<instructions::I32ExclusiveOr> {
 } // namespace detail
 
 enum class Trap : std::uint8_t {
+    MemoryAccessOutOfBounds,
     UnhandledInstruction,
 };
 
@@ -161,7 +162,6 @@ public:
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#memory-instructions
     tl::expected<void, Trap> interpret(instructions::I32Load const &v) {
-        // TODO(robinlinden): trap.
         assert(!stack.empty());
         auto [align, offset] = v.arg;
         std::ignore = align;
@@ -170,7 +170,9 @@ public:
         stack.pop_back();
         auto ea = i + offset;
 
-        assert(ea + sizeof(std::int32_t) <= memory.size());
+        if (ea + sizeof(std::int32_t) > memory.size()) {
+            return tl::unexpected{Trap::MemoryAccessOutOfBounds};
+        }
 
         std::int32_t value{};
         std::memcpy(&value, memory.data() + ea, sizeof(value));
@@ -186,7 +188,6 @@ public:
     }
 
     tl::expected<void, Trap> interpret(instructions::I32Store const &v) {
-        // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
         auto [align, offset] = v.arg;
         std::ignore = align;
@@ -197,7 +198,9 @@ public:
         stack.pop_back();
         auto ea = i + offset;
 
-        assert(ea + sizeof(std::int32_t) <= memory.size());
+        if (ea + sizeof(std::int32_t) > memory.size()) {
+            return tl::unexpected{Trap::MemoryAccessOutOfBounds};
+        }
 
         static_assert((std::endian::native == std::endian::big) || (std::endian::native == std::endian::little),
                 "Mixed endian is unsupported right now");
