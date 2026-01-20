@@ -466,9 +466,13 @@ archive_override(
     integrity = "sha256-gWyW6Ojxk7QBUdrX6P83sSIdAZ28ucNc0/rb/mR33+w=",
     patch_cmds = [
         """sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel""",
+        # Add missing loads required for building w/ Bazel 9.
+        # See: https://github.com/google/brotli/pull/1412
         """cat <<EOF >MODULE.bazel
 module(name = "brotli")
+bazel_dep(name = "rules_cc")
 EOF""",
+        """sed -i'' -e '3i\\\nload("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")\\\n' BUILD.bazel""",
     ],
     strip_prefix = "brotli-%s" % BROTLI_VERSION,
     url = "https://github.com/google/brotli/archive/refs/tags/v%s.tar.gz" % BROTLI_VERSION,
