@@ -7,7 +7,6 @@ common --lockfile_mode=off
 common --registry=file://this/does/not/exist
 
 build --enable_platform_specific_config
-coverage --combined_report=lcov
 coverage --instrumentation_filter=-'_fuzz_test'
 test --test_output=errors
 test --test_summary=terse
@@ -19,7 +18,6 @@ build --sandbox_default_allow_network=false
 # =========================================================
 # See: https://docs.bazel.build/versions/main/backward-compatibility.html
 
-build --incompatible_autoload_externally=
 build --incompatible_config_setting_private_default_visibility
 
 # Third-party configuration

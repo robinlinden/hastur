@@ -280,6 +280,7 @@ archive_override(
     patch_args = ["-p1"],
     patches = [
         "//third_party/hermetic_cc_toolchain:zig-14.patch",
+        "//third_party/hermetic_cc_toolchain:bazel-9.patch",
         # https://github.com/uber/hermetic_cc_toolchain/pull/239
         "//third_party/hermetic_cc_toolchain:external_include_paths.patch",
     ],
@@ -311,14 +312,14 @@ archive_override(
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
 )
 
-# HEAD as of 2026-01-05.
+# HEAD as of 2026-01-22.
 # https://github.com/erenon/bazel_clang_tidy
-BAZEL_CLANG_TIDY_VERSION = "da986512bf1a46831d886fd090393b93b8967a5d"
+BAZEL_CLANG_TIDY_VERSION = "9e54bbb15d1939a9d030c52f3032886a0b278f98"
 
 bazel_dep(name = "bazel_clang_tidy", dev_dependency = True)  # MIT
 archive_override(
     module_name = "bazel_clang_tidy",
-    integrity = "sha256-WkayQxTZZiU6BVCPgCq0sDQoNrcPeGQa/vbM/UQRIS8=",
+    integrity = "sha256-CIeoQ/Pnjs1o+hHzBTxvBKl7Q3vgm5iEgkXfCBkt9yo=",
     strip_prefix = "bazel_clang_tidy-%s" % BAZEL_CLANG_TIDY_VERSION,
     url = "https://github.com/erenon/bazel_clang_tidy/archive/%s.tar.gz" % BAZEL_CLANG_TIDY_VERSION,
 )
