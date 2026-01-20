@@ -88,7 +88,7 @@ public:
     std::vector<std::uint8_t> memory;
     [[nodiscard]] constexpr bool operator==(Interpreter const &) const = default;
 
-    tl::expected<std::optional<Value>, Trap> run(std::span<instructions::Instruction const> const &);
+    tl::expected<std::optional<Value>, Trap> run(std::span<instructions::Instruction const>);
 
     template<typename T>
     tl::expected<void, Trap> interpret(T const &) {
@@ -214,7 +214,7 @@ public:
 };
 
 inline tl::expected<std::optional<Interpreter::Value>, Trap> Interpreter::run(
-        std::span<instructions::Instruction const> const &insns) {
+        std::span<instructions::Instruction const> insns) {
     for (auto const &insn : insns) {
         auto res = std::visit(
                 [this](auto const &i) -> tl::expected<void, Trap> {
