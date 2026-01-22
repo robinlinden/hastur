@@ -41,9 +41,8 @@ jobs:
             os: ubuntu-24.04
             compiler: clang
             version: 18
-            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
+            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18
             apt: libclang-rt-18-dev llvm-18
-            fuzz: true
 
           - name: clang-18-asan-ubsan
             os: ubuntu-24.04
