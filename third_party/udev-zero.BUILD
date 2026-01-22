@@ -14,7 +14,6 @@ cc_library(
         "*.h",
     ]),
     hdrs = [":generate_public_header"],
-    includes = ["."],
     target_compatible_with = ["@platforms//os:linux"],
     visibility = ["//visibility:public"],
 )

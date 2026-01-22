@@ -8,7 +8,6 @@ cc_library(
         exclude = ["src/fmt.cc"],
     ),
     hdrs = glob(["include/**/*.h"]),
-    includes = ["include/"],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
 )

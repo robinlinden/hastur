@@ -21,7 +21,6 @@ cc_library(
         "src/*.h",
     ]),
     hdrs = [":xcursor_hdrs"],
-    includes = ["."],
     visibility = ["//visibility:public"],
     deps = ["@xrender"],
 )

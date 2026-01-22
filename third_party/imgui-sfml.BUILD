@@ -5,7 +5,6 @@ cc_library(
     srcs = ["imgui-SFML.cpp"],
     hdrs = glob(["*.h"]),
     defines = ["IMGUI_SFML_SHARED_LIB=0"],
-    includes = ["."],
     visibility = ["//visibility:public"],
     deps = [
         "@glad2",

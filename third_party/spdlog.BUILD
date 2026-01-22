@@ -14,7 +14,6 @@ cc_library(
         # libc++18 doesn't set __cpp_lib_format >= 202207L which is required for this.
         # "SPDLOG_USE_STD_FORMAT",
     ],
-    includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": ["-lpthread"],
         "@platforms//os:macos": ["-lpthread"],

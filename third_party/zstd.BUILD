@@ -24,7 +24,6 @@ cc_library(
         "@platforms//os:windows": [],
         "//conditions:default": ["-pthread"],
     }),
-    includes = ["lib"],
     linkopts = select({
         "@platforms//os:windows": [],
         "//conditions:default": ["-pthread"],
@@ -42,5 +41,6 @@ cc_library(
         ],
         "//conditions:default": ["ZSTD_MULTITHREAD"],
     }),
+    strip_include_prefix = "lib",
     visibility = ["//visibility:public"],
 )

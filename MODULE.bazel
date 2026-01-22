@@ -379,7 +379,11 @@ archive_override(
     module_name = "hermetic_cc_toolchain",
     integrity = "sha256-NkZViF5a9azQKymeTq8ROhMX3WViUySbN7fJ8FvyO3k=",
     patch_args = ["-p1"],
-    patches = ["//third_party/hermetic_cc_toolchain:zig-14.patch"],
+    patches = [
+        "//third_party/hermetic_cc_toolchain:zig-14.patch",
+        # https://github.com/uber/hermetic_cc_toolchain/pull/239
+        "//third_party/hermetic_cc_toolchain:external_include_paths.patch",
+    ],
     url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("4.0.1"),
 )
 

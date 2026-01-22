@@ -30,6 +30,13 @@ build --@rules_python//python/config_settings:bootstrap_impl=script
 # Compiler configuration
 # =========================================================
 
+# Disable warnings from 3rd-party headers. We have to do some of this manually
+# when using --features=external_include_paths as Bazel doesn't add the required
+# flags on its own and just fails to build things (when using MSVC).
+# `cl : Command line warning D9007 : '/external:I' requires '/external:W'; option ignored`
+build:windows --copt='-external:W0' --host_copt='-external:W0'
+build --features=external_include_paths --host_features=external_include_paths
+
 # Bazel + Clang supports this really cool features where it checks that you're
 # not relying on transitive dependencies, so let's enable that!
 build:linux --features=layering_check

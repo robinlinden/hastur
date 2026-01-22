@@ -196,7 +196,6 @@ cc_library(
     copts = ["-Iexternal/sfml+/src/"],
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
-    includes = ["include/"],
     linkopts = select({
         "@platforms//os:linux": ["-lX11"],
         "@platforms//os:macos": [],

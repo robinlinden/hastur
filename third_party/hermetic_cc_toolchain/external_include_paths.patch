@@ -1,0 +1,51 @@
+From 15fed7550da47ed290ff899dc05f03ff9c910627 Mon Sep 17 00:00:00 2001
+From: Robin Linden <dev@robinlinden.eu>
+Date: Fri, 23 Jan 2026 00:38:42 +0100
+Subject: [PATCH] Add support for the external_include_paths feature
+
+---
+ toolchain/zig_cc_toolchain.bzl | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/toolchain/zig_cc_toolchain.bzl b/toolchain/zig_cc_toolchain.bzl
+index 72fa0c2..82d23f4 100644
+--- a/toolchain/zig_cc_toolchain.bzl
++++ b/toolchain/zig_cc_toolchain.bzl
+@@ -161,11 +161,37 @@ def _zig_cc_toolchain_config_impl(ctx):
+         ],
+     )
+ 
++    # https://github.com/bazelbuild/rules_cc/blob/6fd317b2ae0534a29db7085605b0262849e62f93/cc/private/toolchain/unix_cc_toolchain_config.bzl#L1099
++    external_include_paths_feature = feature(
++        name = "external_include_paths",
++        flag_sets = [
++            flag_set(
++                actions = compile_and_link_actions + [
++                    # This is the subset of rest_compile_actions that was also
++                    # included in rules_cc's external_include_paths feature.
++                    ACTION_NAMES.preprocess_assemble,
++                    ACTION_NAMES.linkstamp_compile,
++                    ACTION_NAMES.cpp_header_parsing,
++                    ACTION_NAMES.cpp_module_compile,
++                    ACTION_NAMES.clif_match,
++                ],
++                flag_groups = [
++                    flag_group(
++                        flags = ["-isystem", "%{external_include_paths}"],
++                        iterate_over = "external_include_paths",
++                        expand_if_available = "external_include_paths",
++                    ),
++                ],
++            ),
++        ],
++    )
++
+     features = [
+         compile_and_link_flags,
+         default_linker_flags,
+         supports_dynamic_linker,
+         strip_debug_symbols_feature,
++        external_include_paths_feature,
+     ] + _compilation_mode_features(ctx)
+ 
+     artifact_name_patterns = [
