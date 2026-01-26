@@ -84,6 +84,11 @@ build:libc++ --host_linkopt=-stdlib=libc++
 build:libc++      --copt=-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 build:libc++ --host_copt=-D_LIBCPP_REMOVE_TRANSITIVE_INCLUDES
 
+# Produce time trace files for performance analysis with e.g.
+# https://www.speedscope.app/ or https://github.com/aras-p/ClangBuildAnalyzer
+build:time-trace --copt=-ftime-trace --host_copt=-ftime-trace
+build:time-trace --spawn_strategy=standalone
+
 # Sanitizer flags listed at:
 # * https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 # * https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#flags
