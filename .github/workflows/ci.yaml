@@ -334,7 +334,7 @@ jobs:
       - run: bazel run browser -- --exit-after-load http://localhost:12345/example.html
 
   pre-commit:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
@@ -342,7 +342,7 @@ jobs:
       - run: pre-commit run --all-files
 
   clang-format:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
@@ -387,7 +387,7 @@ jobs:
       - run: bazel build ... --config libc++ --config clang-tidy --keep_going
 
   buildifier:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
@@ -399,7 +399,7 @@ jobs:
         run: ./buildifier --lint=warn --warnings=all -mode diff $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl" -or -iname "*.bazel")
 
   prettier:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
@@ -410,7 +410,7 @@ jobs:
       - run: git diff --exit-code
 
   shfmt:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
@@ -419,7 +419,7 @@ jobs:
       - run: git diff --exit-code
 
   gitlint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
