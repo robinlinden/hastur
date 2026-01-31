@@ -381,6 +381,7 @@ archive_override(
     patch_args = ["-p1"],
     patches = [
         "//third_party/hermetic_cc_toolchain:zig-14.patch",
+        "//third_party/hermetic_cc_toolchain:bazel-9.patch",
         # https://github.com/uber/hermetic_cc_toolchain/pull/239
         "//third_party/hermetic_cc_toolchain:external_include_paths.patch",
     ],
@@ -412,14 +413,14 @@ archive_override(
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
 )
 
-# HEAD as of 2026-01-05.
+# HEAD as of 2026-01-22.
 # https://github.com/erenon/bazel_clang_tidy
-BAZEL_CLANG_TIDY_VERSION = "da986512bf1a46831d886fd090393b93b8967a5d"
+BAZEL_CLANG_TIDY_VERSION = "9e54bbb15d1939a9d030c52f3032886a0b278f98"
 
 bazel_dep(name = "bazel_clang_tidy", dev_dependency = True)  # MIT
 archive_override(
     module_name = "bazel_clang_tidy",
-    integrity = "sha256-WkayQxTZZiU6BVCPgCq0sDQoNrcPeGQa/vbM/UQRIS8=",
+    integrity = "sha256-CIeoQ/Pnjs1o+hHzBTxvBKl7Q3vgm5iEgkXfCBkt9yo=",
     strip_prefix = "bazel_clang_tidy-%s" % BAZEL_CLANG_TIDY_VERSION,
     url = "https://github.com/erenon/bazel_clang_tidy/archive/%s.tar.gz" % BAZEL_CLANG_TIDY_VERSION,
 )
@@ -466,9 +467,13 @@ archive_override(
     integrity = "sha256-gWyW6Ojxk7QBUdrX6P83sSIdAZ28ucNc0/rb/mR33+w=",
     patch_cmds = [
         """sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel""",
+        # Add missing loads required for building w/ Bazel 9.
+        # See: https://github.com/google/brotli/pull/1412
         """cat <<EOF >MODULE.bazel
 module(name = "brotli")
+bazel_dep(name = "rules_cc")
 EOF""",
+        """sed -i'' -e '3i\\\nload("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")\\\n' BUILD.bazel""",
     ],
     strip_prefix = "brotli-%s" % BROTLI_VERSION,
     url = "https://github.com/google/brotli/archive/refs/tags/v%s.tar.gz" % BROTLI_VERSION,
