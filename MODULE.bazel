@@ -666,6 +666,24 @@ EOF""",
     url = "https://github.com/SFML/imgui-sfml/archive/%s.tar.gz" % IMGUI_SFML_VERSION,
 )
 
+# https://github.com/nst/JSONTestSuite
+# HEAD, last updated 2026-02-22.
+JSON_TEST_SUITE_VERSION = "1ef36fa01286573e846ac449e8683f8833c5b26a"
+
+bazel_dep(name = "json-test-suite")  # MIT
+archive_override(
+    module_name = "json-test-suite",
+    build_file = "//third_party:json-test-suite.BUILD",
+    integrity = "sha256-Mqsvs3zCZnnb2RZNu3BTvO8QE0ZD1TywzvRd52gNzcw=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "json-test-suite")
+EOF""",
+    ],
+    strip_prefix = "JSONTestSuite-%s" % JSON_TEST_SUITE_VERSION,
+    url = "https://github.com/nst/JSONTestSuite/archive/%s.tar.gz" % JSON_TEST_SUITE_VERSION,
+)
+
 # https://github.com/martinus/nanobench
 bazel_dep(name = "nanobench")  # MIT
 archive_override(
