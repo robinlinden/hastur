@@ -95,7 +95,7 @@ Checks: >
 
 WarningsAsErrors: "*"
 
-HeaderFilterRegex: "\\./(archive|azm|browser|css|css2|dom|engine|etest|geom|gfx|html|idna|img|js|json|layout|net|os|protocol|render|style|tui|type|unicode|uri|url|util|wasm)/"
+HeaderFilterRegex: ".*"
 
 CheckOptions:
   # bugprone-suspicious-stringview-data-usage
