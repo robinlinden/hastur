@@ -102,6 +102,7 @@ struct InBody {
 
 struct Text {
     std::optional<InsertionMode> process(IActions &, Token const &);
+    bool ignore_next_lf{};
 };
 
 struct InTable {

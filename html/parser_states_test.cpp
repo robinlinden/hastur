@@ -723,6 +723,18 @@ void in_body_tests(etest::Suite &s) {
                         },
                 });
     });
+
+    s.add_test("InBody: textarea lf", [](etest::IActions &a) {
+        auto res = parse("<textarea>\nhello</textarea>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body,
+                dom::Element{
+                        .name{"body"},
+                        .children{
+                                dom::Element{"textarea", {}, {dom::Text{"hello"}}},
+                        },
+                });
+    });
 }
 
 void in_table_tests(etest::Suite &s) {

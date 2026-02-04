@@ -1253,16 +1253,10 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
 
     if (start != nullptr && start->tag_name == "textarea") {
         a.insert_element_for(*start);
-
-        // TODO(robinlinden): 2. If the next token is a U+000A LINE FEED (LF)
-        // character token, then ignore that token and move on to the next one.
-        // (Newlines at the start of textarea elements are ignored as an
-        // authoring convenience.)
-
         a.set_tokenizer_state(State::Rcdata);
         a.store_original_insertion_mode(a.current_insertion_mode());
         a.set_frameset_ok(false);
-        return Text{};
+        return Text{.ignore_next_lf = true};
     }
 
     if (start != nullptr && start->tag_name == "xmp") {
@@ -1340,8 +1334,13 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
 // Incomplete.
 std::optional<InsertionMode> Text::process(IActions &a, Token const &token) {
+    bool ignore_lf = std::exchange(ignore_next_lf, false);
     if (auto const *character = std::get_if<CharacterToken>(&token)) {
         assert(character->data != '\0');
+        if (ignore_lf && character->data == '\n') {
+            return {};
+        }
+
         a.insert_character(*character);
         return {};
     }
