@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -938,6 +938,28 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     if (start != nullptr && std::ranges::contains(kClosesPElements, start->tag_name)) {
         if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
+        }
+
+        a.insert_element_for(*start);
+        return {};
+    }
+
+    static constexpr auto kHeadingTags = std::to_array<std::string_view>({
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+    });
+    if (start != nullptr && std::ranges::contains(kHeadingTags, start->tag_name)) {
+        if (has_element_in_button_scope(a, "p")) {
+            close_a_p_element();
+        }
+
+        if (std::ranges::contains(kHeadingTags, a.current_node_name())) {
+            // Parse error.
+            a.pop_current_node();
         }
 
         a.insert_element_for(*start);

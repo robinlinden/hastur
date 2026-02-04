@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -683,6 +683,32 @@ void in_body_tests(etest::Suite &s) {
                                 .name{"marquee"},
                                 .children{dom::Element{"a", {}, {dom::Text{"hello"}}}},
                         }},
+                });
+    });
+
+    s.add_test("InBody: h2 inside h1", [](etest::IActions &a) {
+        auto res = parse("<h1><h2></h1>!", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body,
+                dom::Element{
+                        .name{"body"},
+                        .children{
+                                dom::Element{"h1"},
+                                dom::Element{.name{"h2"}, .children{dom::Text{"!"}}},
+                        },
+                });
+    });
+
+    s.add_test("InBody: h1 kills p", [](etest::IActions &a) {
+        auto res = parse("<p><h1>hi", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body,
+                dom::Element{
+                        .name{"body"},
+                        .children{
+                                dom::Element{"p"},
+                                dom::Element{"h1", {}, {dom::Text{"hi"}}},
+                        },
                 });
     });
 }
