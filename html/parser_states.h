@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -97,6 +97,7 @@ struct AfterHead {
 
 struct InBody {
     std::optional<InsertionMode> process(IActions &, Token const &);
+    bool ignore_next_lf{};
 };
 
 struct Text {

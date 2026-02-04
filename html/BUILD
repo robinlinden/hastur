@@ -92,6 +92,7 @@ genrule(
         "//conditions:default": [],
     }),
 ) for test in [
+    "blocks",
     "comments01",
     "doctype01",
     "entities01",
@@ -128,7 +129,6 @@ genrule(
 ) for test in [
     "adoption01",
     "adoption02",
-    "blocks",
     "domjs-unsafe",
     "foreign-fragment",
     "html5test-com",

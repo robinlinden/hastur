@@ -753,7 +753,12 @@ std::optional<InsertionMode> AfterHead::process(IActions &a, Token const &token)
 
     a.insert_element_for({.tag_name = "body"});
     auto mode_override = current_insertion_mode_override(a, InBody{});
-    return InBody{}.process(mode_override, token).value_or(InBody{});
+    // TODO(robinlinden): Nicer fsm-management. We need to do it this way right
+    // now in case the tag alters the state of the insertion mode, e.g. if we
+    // get a <pre> tag before the <body> tag.
+    auto in_body = InBody{};
+    auto new_state = in_body.process(mode_override, token);
+    return new_state.value_or(in_body);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
@@ -770,6 +775,11 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     };
 
     auto const *character = std::get_if<CharacterToken>(&token);
+
+    if (std::exchange(ignore_next_lf, false) && character != nullptr && character->data == '\n') {
+        return {};
+    }
+
     if (character != nullptr && character->data == '\0') {
         // Parse error.
         return {};
@@ -963,6 +973,21 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         }
 
         a.insert_element_for(*start);
+        return {};
+    }
+
+    static constexpr auto kPreLikeElements = std::to_array<std::string_view>({
+            "pre",
+            "listing",
+    });
+    if (start != nullptr && std::ranges::contains(kPreLikeElements, start->tag_name)) {
+        if (has_element_in_button_scope(a, "p")) {
+            close_a_p_element();
+        }
+
+        a.insert_element_for(*start);
+        a.set_frameset_ok(false);
+        ignore_next_lf = true;
         return {};
     }
 

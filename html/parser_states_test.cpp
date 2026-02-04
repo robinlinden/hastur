@@ -711,6 +711,18 @@ void in_body_tests(etest::Suite &s) {
                         },
                 });
     });
+
+    s.add_test("InBody: pre lf", [](etest::IActions &a) {
+        auto res = parse("<pre>\nhello", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body,
+                dom::Element{
+                        .name{"body"},
+                        .children{
+                                dom::Element{"pre", {}, {dom::Text{"hello"}}},
+                        },
+                });
+    });
 }
 
 void in_table_tests(etest::Suite &s) {
