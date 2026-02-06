@@ -29,5 +29,6 @@ cc_library(
     size = "small",
     srcs = [src],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     deps = [":etest"],
 ) for src in glob(["*_failure_test.cpp"])]

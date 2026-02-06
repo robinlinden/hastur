@@ -25,6 +25,7 @@ cc_library(
     testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [
         ":protocol",

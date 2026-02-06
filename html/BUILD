@@ -85,12 +85,7 @@ genrule(
         ":html5lib_tree_construction_test_runner",
         "@html5lib-tests//:tree-construction/%s.dat" % test,
     ],
-    target_compatible_with = select({
-        # TODO(robinlinden): Investigate why we fail to open the test files when
-        # running as a wasi binary.
-        "@platforms//os:wasi": ["@platforms//:incompatible"],
-        "//conditions:default": [],
-    }),
+    tags = ["no-cross"],
 ) for test in [
     "blocks",
     "comments01",
@@ -122,10 +117,7 @@ genrule(
         ":html5lib_tree_construction_test_runner",
         "@html5lib-tests//:tree-construction/%s.dat" % test,
     ],
-    target_compatible_with = select({
-        "@platforms//os:wasi": ["@platforms//:incompatible"],
-        "//conditions:default": [],
-    }),
+    tags = ["no-cross"],
 ) for test in [
     "adoption01",
     "adoption02",
@@ -184,12 +176,7 @@ genrule(
         ":html5lib_tokenizer_test_runner",
         test,
     ],
-    target_compatible_with = select({
-        # TODO(robinlinden): Investigate why we fail to open the test files when
-        # running as a wasi binary.
-        "@platforms//os:wasi": ["@platforms//:incompatible"],
-        "//conditions:default": [],
-    }),
+    tags = ["no-cross"],
 ) for test in [
     "@html5lib-tests//:tokenizer/contentModelFlags.test",
     "@html5lib-tests//:tokenizer/domjs.test",
@@ -212,6 +199,7 @@ genrule(
     testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":html"],
 ) for src in glob(["*_fuzz_test.cpp"])]

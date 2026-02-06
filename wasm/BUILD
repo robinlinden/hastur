@@ -43,6 +43,7 @@ cc_library(
         include = [src.removesuffix(".cpp") + "_corpus/*"],
         allow_empty = True,
     ),
+    tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":wasm"],
 ) for src in glob(["*_fuzz_test.cpp"])]

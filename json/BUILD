@@ -36,6 +36,7 @@ cc_library(
     testonly = True,
     srcs = [src],
     copts = HASTUR_COPTS,
+    tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":%s" % src.removesuffix("_fuzz_test.cpp")],
 ) for src in glob(["*_fuzz_test.cpp"])]
