@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,11 +14,13 @@ def _xfail_test(
         size = None,
         data = [],
         args = [],
+        tags = [],
         **kwargs):
     binary_rule(
         name = name + "_bin",
         visibility = ["//visibility:private"],
         testonly = True,
+        tags = tags,
         **kwargs
     )
 
@@ -28,6 +30,7 @@ def _xfail_test(
         srcs = ["//bzl:xfail_test_runner"],
         data = [":%s_bin" % name] + data,
         args = ["$(location :%s_bin)" % name] + args,
+        tags = tags,
     )
 
 def cc_xfail_test(**kwargs):
