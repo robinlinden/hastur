@@ -16,7 +16,7 @@ echo "Running test ${TEST_BINARY}" "$@" >&2
 RESULT="$?"
 set -e
 
-if [ "${RESULT}" -eq 0 ]; then
+if [ "${RESULT}" -ne 1 ]; then
   echo "Test succeeded when it should have exploded" >&2
   exit 1
 fi
