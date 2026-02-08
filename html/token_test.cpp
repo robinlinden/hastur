@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -37,8 +37,9 @@ int main() {
     });
 
     s.add_test("to_string(Character)", [](etest::IActions &a) {
-        a.expect_eq(to_string(CharacterToken{'a'}), "Character a");
-        a.expect_eq(to_string(CharacterToken{'?'}), "Character ?");
+        a.expect_eq(to_string(CharacterToken{'a'}), "Character 'a'");
+        a.expect_eq(to_string(CharacterToken{'?'}), "Character '?'");
+        a.expect_eq(to_string(CharacterToken{'\n'}), "Character 0x0A");
     });
 
     s.add_test("to_string(EndOfFile)", [](etest::IActions &a) {
