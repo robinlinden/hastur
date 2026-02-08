@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -73,6 +73,18 @@ int main() {
     es.add_test("is_hex_digit", [](etest::IActions &a) {
         a.expect(is_hex_digit('f'));
         a.expect(!is_hex_digit('!'));
+    });
+
+    es.add_test("is_punctuation", [](etest::IActions &a) {
+        a.expect(is_punctuation('!'));
+        a.expect(!is_punctuation('a'));
+    });
+
+    es.add_test("is_printable", [](etest::IActions &a) {
+        a.expect(is_printable('a'));
+        a.expect(is_printable(' '));
+        a.expect(is_printable('!'));
+        a.expect(!is_printable('\n'));
     });
 
     es.add_test("lowercased(char)", [](etest::IActions &a) {

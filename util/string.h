@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
 //
@@ -67,6 +67,14 @@ constexpr bool is_hex_digit(char c) {
 
 constexpr bool is_octal_digit(char c) {
     return c >= '0' && c <= '7';
+}
+
+constexpr bool is_punctuation(char c) {
+    return std::ranges::contains(R"(!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~)", c);
+}
+
+constexpr bool is_printable(char c) {
+    return is_alphanumeric(c) || c == ' ' || is_punctuation(c);
 }
 
 constexpr char lowercased(char c) {
