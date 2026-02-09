@@ -137,13 +137,13 @@ build:clang-coverage
 build:clang-coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
 build:clang-coverage --experimental_generate_llvm_lcov
 
-build:clang18-coverage --config=clang-coverage
-build:clang18-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-18
-build:clang18-coverage --action_env=GCOV=llvm-profdata-18
-
 build:clang19-coverage --config=clang-coverage
 build:clang19-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-19
 build:clang19-coverage --action_env=GCOV=llvm-profdata-19
+
+build:clang21-coverage --config=clang-coverage
+build:clang21-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-21
+build:clang21-coverage --action_env=GCOV=llvm-profdata-21
 
 build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
 build:clang-tidy --output_groups=report
