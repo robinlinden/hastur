@@ -44,6 +44,8 @@ jobs:
             bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18
             apt: libclang-rt-18-dev llvm-18
 
+          # TODO(robinlinden): icu breaks w/ Clang 19 + asan/ubsan:
+          # external/icu+/_objs/common/udata.o:udata.cpp:function openCommonData(char const*, int, UErrorCode*):(.text._ZL14openCommonDataPKciP10UErrorCode+0x4a0): error: undefined reference to 'icudt78_dat'
           - name: clang-18-asan-ubsan
             os: ubuntu-24.04
             compiler: clang
@@ -69,10 +71,10 @@ jobs:
             bazel: --config clang-amd64
             skip-compiler-install: true
 
-          - name: clang-21
+          - name: clang-19
             os: ubuntu-24.04
             compiler: clang
-            version: 21
+            version: 19
 
           - name: clang-21-libc++
             os: ubuntu-24.04
@@ -157,8 +159,8 @@ jobs:
           - compiler: gcc
             version: 13
           - compiler: clang
-            version: 19
-            bazel: --config=clang19-coverage
+            version: 21
+            bazel: --config=clang21-coverage
     steps:
       - uses: actions/checkout@v6
         with:
@@ -185,11 +187,11 @@ jobs:
         if: startsWith(matrix.compiler, 'clang')
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
           sudo apt-get update
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
-          echo "CC=clang-19" >> $GITHUB_ENV
-          echo "CXX=clang++-19" >> $GITHUB_ENV
+          echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
         env:
@@ -200,7 +202,7 @@ jobs:
         # and if triggering one is possible at all, that's a bug, so let's
         # disable them completely in the coverage build.
         run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG
-      # clang 19 coverage has a lot of problems w/ boringssl:
+      # clang 21 coverage has a lot of problems w/ boringssl:
       # lcov: ERROR: "external/boringssl/crypto/conf/internal.h":30:  function conf.c:lh_CONF_VALUE_insert found on line but no corresponding 'line' coverage data point.  Cannot derive function end line.
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
