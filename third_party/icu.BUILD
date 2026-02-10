@@ -39,6 +39,23 @@ cc_library(
     defines = [
         "U_STATIC_IMPLEMENTATION",
         "U_CHARSET_IS_UTF8=1",
+
+        # Disable as much as we can. We only care about the IDNA bits.
+        # These are all from icu4c/source/common/unicode/uconfig.h.
+        "UCONFIG_NO_BREAK_ITERATION=1",
+        "UCONFIG_NO_COLLATION=1",
+        "UCONFIG_NO_FILE_IO=1",
+        "UCONFIG_NO_FILTERED_BREAK_ITERATION=1",
+        "UCONFIG_NO_FORMATTING=1",
+        "UCONFIG_NO_MF2=1",
+        "UCONFIG_NO_REGULAR_EXPRESSIONS=1",
+        "UCONFIG_NO_SERVICE=1",
+        "UCONFIG_NO_TRANSLITERATION=1",
+        "UCONFIG_ONLY_HTML_CONVERSION=1",
+        "U_ENABLE_DYLOAD=0",
+        "U_NO_DEFAULT_INCLUDE_UTF_HEADERS=1",
+        "U_OVERRIDE_CXX_ALLOCATION=0",
+        # Except for this one, this is from docs/userguide/icu4c/build.md.
         "U_HIDE_OBSOLETE_UTF_OLD_H=1",
     ],
     linkopts = select({
