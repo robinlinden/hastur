@@ -30,18 +30,10 @@ int main() {
     });
 
     s.add_test("foo()", [](etest::IActions &a) {
-        auto p = js::Parser::parse("foo()").value();
-
-        a.expect_eq(p.body.size(), std::size_t{1});
-        auto &statement = p.body.at(0);
-        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
-        auto &call = std::get<js::ast::CallExpression>(expr);
-        a.expect_eq(std::get<js::ast::Identifier>(*call.callee).name, "foo");
-        a.expect_eq(call.arguments.size(), std::size_t{0});
+        auto p = js::Parser::parse("foo()");
+        a.expect_eq(p, std::nullopt);
     });
 
-    // Same as above, but with a semicolon. We can't just compare the asts due
-    // to it containing shared_ptrs.
     s.add_test("foo();", [](etest::IActions &a) {
         auto p = js::Parser::parse("foo();").value();
 
@@ -53,8 +45,8 @@ int main() {
         a.expect_eq(call.arguments.size(), std::size_t{0});
     });
 
-    s.add_test("foo(); bar()", [](etest::IActions &a) {
-        auto p = js::Parser::parse("foo(); bar()").value();
+    s.add_test("foo(); bar();", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo(); bar();").value();
 
         a.expect_eq(p.body.size(), std::size_t{2});
         auto &first_statement = p.body.at(0);
@@ -95,8 +87,8 @@ int main() {
         a.expect_eq(p, std::nullopt);
     });
 
-    s.add_test("foo(1, 2)", [](etest::IActions &a) {
-        auto p = js::Parser::parse("foo(1, 2)").value();
+    s.add_test("foo(1, 2);", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo(1, 2);").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -113,8 +105,8 @@ int main() {
         a.expect_eq(p, std::nullopt);
     });
 
-    s.add_test("foo('bar')", [](etest::IActions &a) {
-        auto p = js::Parser::parse("foo('bar')").value();
+    s.add_test("foo('bar');", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo('bar');").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -125,8 +117,8 @@ int main() {
         a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(call.arguments.at(0))).value, "bar");
     });
 
-    s.add_test("foo(1, 'bar')", [](etest::IActions &a) {
-        auto p = js::Parser::parse("foo(1, 'bar')").value();
+    s.add_test("foo(1, 'bar');", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo(1, 'bar');").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -138,8 +130,8 @@ int main() {
         a.expect_eq(std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(call.arguments.at(1))).value, "bar");
     });
 
-    s.add_test("foo(hello)", [](etest::IActions &a) {
-        auto p = js::Parser::parse("foo(hello)").value();
+    s.add_test("foo(hello);", [](etest::IActions &a) {
+        auto p = js::Parser::parse("foo(hello);").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -325,7 +317,7 @@ int main() {
     });
 
     s.add_test("function declaration, empty", [](etest::IActions &a) {
-        auto p = js::Parser::parse("function foo() {}").value();
+        auto p = js::Parser::parse("function foo() {};").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -337,7 +329,7 @@ int main() {
     });
 
     s.add_test("function declaration, trailing comma in params", [](etest::IActions &a) {
-        auto p = js::Parser::parse("function foo(a, b,) {}").value();
+        auto p = js::Parser::parse("function foo(a, b,) {};").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -351,7 +343,7 @@ int main() {
     });
 
     s.add_test("function declaration, with params and body", [](etest::IActions &a) {
-        auto p = js::Parser::parse("function set(a, b) { a = b; }").value();
+        auto p = js::Parser::parse("function set(a, b) { a = b; };").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);

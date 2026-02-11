@@ -43,13 +43,12 @@ public:
 
             program_body.emplace_back(std::move(*stmt));
 
-            if (!tokens.empty()) {
-                if (!std::holds_alternative<parse::Semicolon>(tokens.front())) {
-                    return std::nullopt;
-                }
-
-                tokens = tokens.subspan(1);
+            // TODO(robinlinden): Automatic semicolon insertion.
+            if (tokens.empty() || !std::holds_alternative<parse::Semicolon>(tokens.front())) {
+                return std::nullopt;
             }
+
+            tokens = tokens.subspan(1);
         }
 
         return ast::Program{.body = std::move(program_body)};
