@@ -58,7 +58,8 @@ public:
 
 private:
     [[nodiscard]] static bool needs_semicolon(ast::Statement const &stmt) {
-        return !std::holds_alternative<ast::EmptyStatement>(stmt);
+        return !std::holds_alternative<ast::EmptyStatement>(stmt)
+                && !std::holds_alternative<ast::FunctionDeclaration>(stmt);
     }
 
     [[nodiscard]] static bool next_is_semicolon(std::span<parse::Token> tokens) {

@@ -143,6 +143,12 @@ int main() {
         a.expect_eq(e.execute(p), js::ast::Value{3.});
     });
 
+    s.add_test("function declaration and call, no semicolon after", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function get_3() { return 3; } get_3();").value();
+        js::ast::Interpreter e;
+        a.expect_eq(e.execute(p), js::ast::Value{3.});
+    });
+
     s.add_test("function declaration and call, void return", [](etest::IActions &a) {
         auto p = js::Parser::parse("function get_nothing() { return; foo(); }; get_nothing();").value();
         js::ast::Interpreter e;

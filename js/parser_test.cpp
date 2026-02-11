@@ -318,7 +318,7 @@ int main() {
     });
 
     s.add_test("function declaration, empty", [](etest::IActions &a) {
-        auto p = js::Parser::parse("function foo() {};").value();
+        auto p = js::Parser::parse("function foo() {}").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -328,8 +328,22 @@ int main() {
         a.expect_eq(func_decl.function->body.body.size(), std::size_t{0});
     });
 
+    s.add_test("function declaration, empty statement after", [](etest::IActions &a) {
+        auto p = js::Parser::parse("function foo() {};").value();
+
+        a.expect_eq(p.body.size(), std::size_t{2});
+        auto &statement = p.body.at(0);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(statement);
+        a.expect_eq(func_decl.id.name, "foo");
+        a.expect_eq(func_decl.function->params.size(), std::size_t{0});
+        a.expect_eq(func_decl.function->body.body.size(), std::size_t{0});
+
+        auto &second_statement = p.body.at(1);
+        a.expect(std::holds_alternative<js::ast::EmptyStatement>(second_statement));
+    });
+
     s.add_test("function declaration, trailing comma in params", [](etest::IActions &a) {
-        auto p = js::Parser::parse("function foo(a, b,) {};").value();
+        auto p = js::Parser::parse("function foo(a, b,) {}").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
@@ -342,7 +356,7 @@ int main() {
     });
 
     s.add_test("function declaration, with params and body", [](etest::IActions &a) {
-        auto p = js::Parser::parse("function set(a, b) { a = b; };").value();
+        auto p = js::Parser::parse("function set(a, b) { a = b; }").value();
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
