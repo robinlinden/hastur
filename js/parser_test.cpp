@@ -321,8 +321,7 @@ int main() {
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
-        auto &decl = std::get<js::ast::Declaration>(statement);
-        auto &func_decl = std::get<js::ast::FunctionDeclaration>(decl);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(statement);
         a.expect_eq(func_decl.id.name, "foo");
         a.expect_eq(func_decl.function->params.size(), std::size_t{0});
         a.expect_eq(func_decl.function->body.body.size(), std::size_t{0});
@@ -333,8 +332,7 @@ int main() {
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
-        auto &decl = std::get<js::ast::Declaration>(statement);
-        auto &func_decl = std::get<js::ast::FunctionDeclaration>(decl);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(statement);
         a.expect_eq(func_decl.id.name, "foo");
         a.expect_eq(func_decl.function->params.size(), std::size_t{2});
         a.expect_eq(std::get<js::ast::Identifier>(func_decl.function->params.at(0)).name, "a");
@@ -347,8 +345,7 @@ int main() {
 
         a.expect_eq(p.body.size(), std::size_t{1});
         auto &statement = p.body.at(0);
-        auto &decl = std::get<js::ast::Declaration>(statement);
-        auto &func_decl = std::get<js::ast::FunctionDeclaration>(decl);
+        auto &func_decl = std::get<js::ast::FunctionDeclaration>(statement);
         a.expect_eq(func_decl.id.name, "set");
         a.expect_eq(func_decl.function->params.size(), std::size_t{2});
         a.expect_eq(std::get<js::ast::Identifier>(func_decl.function->params.at(0)).name, "a");

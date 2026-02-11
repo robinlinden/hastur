@@ -41,10 +41,10 @@ struct VariableDeclarator;
 struct EmptyStatement;
 struct WhileStatement;
 
-using Declaration = std::variant<FunctionDeclaration, VariableDeclaration>;
 using Literal = std::variant<NumericLiteral, StringLiteral>;
 using Pattern = std::variant<Identifier>;
-using Statement = std::variant<Declaration,
+using Statement = std::variant<FunctionDeclaration,
+        VariableDeclaration,
         ExpressionStatement,
         BlockStatement,
         ReturnStatement,

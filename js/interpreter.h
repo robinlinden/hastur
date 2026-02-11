@@ -55,7 +55,6 @@ public:
     }
 
     ValueOrException operator()(Pattern const &v) { return std::visit(*this, v); }
-    ValueOrException operator()(Declaration const &v) { return std::visit(*this, v); }
     ValueOrException operator()(Statement const &v) { return std::visit(*this, v); }
 
     ValueOrException operator()(ExpressionStatement const &v) { return execute(v.expression); }
