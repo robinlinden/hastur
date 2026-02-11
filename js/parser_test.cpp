@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <variant>
 
 int main() {
     etest::Suite s{};
@@ -421,6 +422,17 @@ int main() {
 
     s.add_test("function expression, bad", [](etest::IActions &a) {
         a.expect_eq(js::Parser::parse("func = function 37").has_value(), false); //
+    });
+
+    s.add_test("empty statement", [](etest::IActions &a) {
+        auto p = js::Parser::parse(";;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{2});
+        auto &first_statement = p.body.at(0);
+        a.expect(std::holds_alternative<js::ast::EmptyStatement>(first_statement));
+
+        auto &second_statement = p.body.at(1);
+        a.expect(std::holds_alternative<js::ast::EmptyStatement>(second_statement));
     });
 
     return s.run();

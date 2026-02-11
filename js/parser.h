@@ -44,19 +44,34 @@ public:
             program_body.emplace_back(std::move(*stmt));
 
             // TODO(robinlinden): Automatic semicolon insertion.
-            if (tokens.empty() || !std::holds_alternative<parse::Semicolon>(tokens.front())) {
-                return std::nullopt;
-            }
+            if (needs_semicolon(program_body.back())) {
+                if (!next_is_semicolon(tokens)) {
+                    return std::nullopt;
+                }
 
-            tokens = tokens.subspan(1);
+                tokens = tokens.subspan(1);
+            }
         }
 
         return ast::Program{.body = std::move(program_body)};
     }
 
 private:
+    [[nodiscard]] static bool needs_semicolon(ast::Statement const &stmt) {
+        return !std::holds_alternative<ast::EmptyStatement>(stmt);
+    }
+
+    [[nodiscard]] static bool next_is_semicolon(std::span<parse::Token> tokens) {
+        return !tokens.empty() && std::holds_alternative<parse::Semicolon>(tokens.front());
+    }
+
     // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Statement> parse_statement(std::span<parse::Token> &tokens) {
+        if (std::holds_alternative<parse::Semicolon>(tokens.front())) {
+            tokens = tokens.subspan(1); // ';'
+            return ast::EmptyStatement{};
+        }
+
         if (std::holds_alternative<parse::Function>(tokens.front())) {
             return parse_function_declaration(tokens);
         }
