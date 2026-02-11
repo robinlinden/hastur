@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,8 @@
 
 #include "js/token.h"
 
+#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -97,156 +99,54 @@ public:
         }
 
         auto current_word = consume_word(*current);
-        if (current_word == "await") {
-            return Await{};
-        }
 
-        if (current_word == "break") {
-            return Break{};
-        }
+        // The factory nonsense is to allow this to be constexpr even though
+        // Token can contain non-constexpr data.
+        using FactoryFn = Token (*)();
+        static constexpr auto kReservedWords = std::to_array<std::pair<std::string_view, FactoryFn>>({
+                {"await", make<Await>},
+                {"break", make<Break>},
+                {"case", make<Case>},
+                {"catch", make<Catch>},
+                {"class", make<Class>},
+                {"const", make<Const>},
+                {"continue", make<Continue>},
+                {"debugger", make<Debugger>},
+                {"default", make<Default>},
+                {"delete", make<Delete>},
+                {"do", make<Do>},
+                {"else", make<Else>},
+                {"enum", make<Enum>},
+                {"export", make<Export>},
+                {"extends", make<Extends>},
+                {"false", make<False>},
+                {"finally", make<Finally>},
+                {"for", make<For>},
+                {"function", make<Function>},
+                {"if", make<If>},
+                {"import", make<Import>},
+                {"in", make<In>},
+                {"instanceof", make<InstanceOf>},
+                {"new", make<New>},
+                {"null", make<Null>},
+                {"return", make<Return>},
+                {"super", make<Super>},
+                {"switch", make<Switch>},
+                {"this", make<This>},
+                {"throw", make<Throw>},
+                {"true", make<True>},
+                {"try", make<Try>},
+                {"typeof", make<TypeOf>},
+                {"var", make<Var>},
+                {"void", make<Void>},
+                {"while", make<While>},
+                {"with", make<With>},
+                {"yield", make<Yield>},
+        });
 
-        if (current_word == "case") {
-            return Case{};
-        }
-
-        if (current_word == "catch") {
-            return Catch{};
-        }
-
-        if (current_word == "class") {
-            return Class{};
-        }
-
-        if (current_word == "const") {
-            return Const{};
-        }
-
-        if (current_word == "continue") {
-            return Continue{};
-        }
-
-        if (current_word == "debugger") {
-            return Debugger{};
-        }
-
-        if (current_word == "default") {
-            return Default{};
-        }
-
-        if (current_word == "delete") {
-            return Delete{};
-        }
-
-        if (current_word == "do") {
-            return Do{};
-        }
-
-        if (current_word == "else") {
-            return Else{};
-        }
-
-        if (current_word == "enum") {
-            return Enum{};
-        }
-
-        if (current_word == "export") {
-            return Export{};
-        }
-
-        if (current_word == "extends") {
-            return Extends{};
-        }
-
-        if (current_word == "false") {
-            return False{};
-        }
-
-        if (current_word == "finally") {
-            return Finally{};
-        }
-
-        if (current_word == "for") {
-            return For{};
-        }
-
-        if (current_word == "function") {
-            return Function{};
-        }
-
-        if (current_word == "if") {
-            return If{};
-        }
-
-        if (current_word == "import") {
-            return Import{};
-        }
-
-        if (current_word == "in") {
-            return In{};
-        }
-
-        if (current_word == "instanceof") {
-            return InstanceOf{};
-        }
-
-        if (current_word == "new") {
-            return New{};
-        }
-
-        if (current_word == "null") {
-            return Null{};
-        }
-
-        if (current_word == "return") {
-            return Return{};
-        }
-
-        if (current_word == "super") {
-            return Super{};
-        }
-
-        if (current_word == "switch") {
-            return Switch{};
-        }
-
-        if (current_word == "this") {
-            return This{};
-        }
-
-        if (current_word == "throw") {
-            return Throw{};
-        }
-
-        if (current_word == "true") {
-            return True{};
-        }
-
-        if (current_word == "try") {
-            return Try{};
-        }
-
-        if (current_word == "typeof") {
-            return TypeOf{};
-        }
-
-        if (current_word == "var") {
-            return Var{};
-        }
-
-        if (current_word == "void") {
-            return Void{};
-        }
-
-        if (current_word == "while") {
-            return While{};
-        }
-
-        if (current_word == "with") {
-            return With{};
-        }
-
-        if (current_word == "yield") {
-            return Yield{};
+        if (auto it = std::ranges::find(kReservedWords, current_word, &decltype(kReservedWords)::value_type::first);
+                it != end(kReservedWords)) {
+            return it->second();
         }
 
         return Identifier{.name = std::move(current_word)};
@@ -255,6 +155,11 @@ public:
 private:
     std::string_view input_;
     std::size_t pos_{};
+
+    template<typename T>
+    static Token make() {
+        return T{};
+    }
 
     std::optional<char> peek() const {
         if ((pos_) < input_.size()) {
