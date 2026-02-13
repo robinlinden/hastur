@@ -49,8 +49,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-bvJtT5eOi0z1zh1HUy1wy2LNGEMSJ6HIAHyPeEMkPAY=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.3.0"),
+    integrity = "sha256-RA7fqAmNALFmpac9IV8yFKZQbbAeHsRa/uNWtmecVZM=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.5.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -161,23 +161,23 @@ archive_override(
 # https://github.com/bazelbuild/stardoc
 archive_override(
     module_name = "stardoc",
-    integrity = "sha256-ypM/OfKm4K05L6kf1mJUWvy9NsBcYjZVODhdNaAyMJY=",
-    url = "https://github.com/bazelbuild/stardoc/releases/download/{0}/stardoc-{0}.tar.gz".format("0.8.0"),
+    integrity = "sha256-q2t0ezFkUQVH92lsbgaSGWbM7H4I2bgexgEzw7CdXl4=",
+    url = "https://github.com/bazelbuild/stardoc/releases/download/{0}/stardoc-{0}.tar.gz".format("0.8.1"),
 )
 
 # https://github.com/bazelbuild/bazel-worker-api
-BAZEL_WORKER_API_VERSION = "0.0.9"
+BAZEL_WORKER_API_VERSION = "0.0.10"
 
 archive_override(
     module_name = "bazel_worker_api",
-    integrity = "sha256-90DceKBOsznmIV/UOy4L1xU7OgyxSSb2phROg7syGQ4=",
+    integrity = "sha256-BHb+JyUc0yNLaXN/i8Ixz+mRK+zdYg4H4tc8h7zH5Ao=",
     strip_prefix = "bazel-worker-api-%s/proto" % BAZEL_WORKER_API_VERSION,
     url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
 
 archive_override(
     module_name = "bazel_worker_java",
-    integrity = "sha256-90DceKBOsznmIV/UOy4L1xU7OgyxSSb2phROg7syGQ4=",
+    integrity = "sha256-BHb+JyUc0yNLaXN/i8Ixz+mRK+zdYg4H4tc8h7zH5Ao=",
     strip_prefix = "bazel-worker-api-%s/java" % BAZEL_WORKER_API_VERSION,
     url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
@@ -186,11 +186,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.39.0"
+BAZEL_FEATURES_VERSION = "1.41.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-WrGpDQn9dFVeDfIoCa1Ylifd/yY8/4JTWBWqgMo+NWI=",
+    integrity = "sha256-lmwhHsQsTesq9MbdaUhAgQC3UvYXU8lwVb2sm/tcwMc=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -215,16 +215,16 @@ archive_override(
 # https://github.com/bazel-contrib/rules_go
 archive_override(
     module_name = "rules_go",
-    integrity = "sha256-aK9Uy5f73uXl6P6NIQ0VpRj51iq/1xYgw+r/Oyal/4Y=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.59.0"),
+    integrity = "sha256-htPcj1nSU1JPkzqvLzwFiWywtgX8NbRgwLSwOZlhJMY=",
+    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.60.0"),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
-RULES_JVM_EXTERNAL_VERSION = "6.9"
+RULES_JVM_EXTERNAL_VERSION = "6.10"
 
 archive_override(
     module_name = "rules_jvm_external",
-    integrity = "sha256-PEHq5CJqff3OeyE7xUFVe4R1yS2nHiIz7HwwZjAkOmU=",
+    integrity = "sha256-5fg7jyZ40rJkQeXq/vsbBhgmYIQXuNJOXo4V5YXqsbo=",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_VERSION,
     url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
@@ -261,11 +261,11 @@ archive_override(
 )
 
 # https://github.com/fmeum/buildozer
-BUILDOZER_VERSION = "8.2.1"
+BUILDOZER_VERSION = "8.5.1"
 
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-qguc6LLFdWL7OXk1Bm2fatLqzOEggu1Av5wAVNiJnec=",
+    integrity = "sha256-vQeG4Pi2rtjDWJi0wG9kuoU9YdfINh7bWo1Dxuo39cY=",
     strip_prefix = "buildozer-%s" % BUILDOZER_VERSION,
     url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format(BUILDOZER_VERSION),
 )
@@ -281,31 +281,31 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "33.4"
+PROTOBUF_VERSION = "33.5"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-vGcKTjSZLBdRN93aJOdlYruSj4SdcSoOPC+y4ZJJvqE=",
+    integrity = "sha256-xsfCf63BnUCrLqoj/zXev+AfZJSoNFVZubsoXOQUTdE=",
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
 
 # https://github.com/abseil/abseil-cpp
-ABSEIL_CPP_VERSION = "20250814.1"
+ABSEIL_CPP_VERSION = "20260107.1"
 
 archive_override(
     module_name = "abseil-cpp",
-    integrity = "sha256-FpL3fRc5us8/lDNxiLeFg88JurfkINLcbFYFpPhnhaE=",
+    integrity = "sha256-QxTip8usicrCWi8jIocPND2BV5dWzv9/QxgDwskJAZU=",
     strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
     url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
 )
 
 # https://github.com/abseil/abseil-py
-ABSEIL_PY_VERSION = "2.3.1"
+ABSEIL_PY_VERSION = "2.4.0"
 
 archive_override(
     module_name = "abseil-py",
-    integrity = "sha256-zG2HZMC912zBMI79t1A10CFEeXQnGoPv+n8mFlRO49o=",
+    integrity = "sha256-GQQY6lcaoJoNkbCOP3GiWYM3gh3Ow/JIcvRKFA6Eme4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "abseil-py")
