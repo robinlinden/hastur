@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-8LMBhbEUD5LyTqljvfeDr2/JBdbm5vVn32loFhaE7D8=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.1.0"),
+    integrity = "sha256-zSuIluCmEAoaexTNar4idSArWg+LHhVI7XH7gbjBkYI=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.2.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -61,15 +61,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-# TODO(robinlinden): 1.8.0 fails w/
-# Error in extract: Cannot write outside of the repository directory for path
-# external/rules_python++pip+pypi_312_glad2/site-packages
-RULES_PYTHON_VERSION = "1.7.0"
+RULES_PYTHON_VERSION = "1.8.4"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-9gnzQdbpCQuYGz9FMk0FqBn9elpWQ0+EnHYZcc4sR9o=",
+    integrity = "sha256-yF1ds40+rAYWehOxDJ26VLADqYbNTx68AIBrdOfBLwY=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -450,12 +447,16 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20251124.0"
+BORINGSSL_VERSION = "0.20260211.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-1H+JuJS/U0yCBx10JsWr8eW9BE/uJC3vU81dPQ9lbAk=",
+    integrity = "sha256-UuLZZ1nUg+OE45ZKJRN4HqBctrLWd/H49aQEmuowU10=",
+    patch_cmds = [
+        # We don't run boringssl's benchmarks, so let's avoid this dependency.
+        "sed -i'' -e /google_benchmark/d MODULE.bazel",
+    ],
     strip_prefix = "boringssl-%s" % BORINGSSL_VERSION,
     url = "https://github.com/google/boringssl/releases/download/{0}/boringssl-{0}.tar.gz".format(BORINGSSL_VERSION),
 )
@@ -842,12 +843,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.338"
+VULKAN_TAG = "1.4.343"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-irsYdzpB42PRU15Qz2UlmOpr4ht7Oq7ZwrOd81gltnk=",
+    integrity = "sha256-aVbZDccHdeHc1MRzKUq9nFRTA0q1udiQb0Vrg2ZKFnk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -863,7 +864,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-CIRf0H83GsSYg1IueSq6T/F9OezBVCOYnjsEgzb2paE=",
+    integrity = "sha256-NhDLPOEQqTYQC7xIuFQ9vX/YXn9p9bBTXyO3lNXkbfc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
