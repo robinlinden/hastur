@@ -138,45 +138,11 @@ archive_override(
     url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.9.0"),
 )
 
-# https://github.com/bazelbuild/rules_android
-RULES_ANDROID_VERSION = "0.7.1"
-
-archive_override(
-    module_name = "rules_android",
-    integrity = "sha256-fEW2qqg3+28vI60ROHY4ywD6n4OaBOxWTKrHClQ6nNU=",
-    strip_prefix = "rules_android-%s" % RULES_ANDROID_VERSION,
-    url = "https://github.com/bazelbuild/rules_android/releases/download/v{0}/rules_android-v{0}.tar.gz".format(RULES_ANDROID_VERSION),
-)
-
-# https://github.com/bazelbuild/rules_kotlin
-archive_override(
-    module_name = "rules_kotlin",
-    integrity = "sha256-QR2yavs0ksyDUbW1NJkxUir+LFTyZRttEncwoSVtD2A=",
-    url = "https://github.com/bazelbuild/rules_kotlin/releases/download/v{0}/rules_kotlin-v{0}.tar.gz".format("2.2.2"),
-)
-
 # https://github.com/bazelbuild/stardoc
 archive_override(
     module_name = "stardoc",
     integrity = "sha256-q2t0ezFkUQVH92lsbgaSGWbM7H4I2bgexgEzw7CdXl4=",
     url = "https://github.com/bazelbuild/stardoc/releases/download/{0}/stardoc-{0}.tar.gz".format("0.8.1"),
-)
-
-# https://github.com/bazelbuild/bazel-worker-api
-BAZEL_WORKER_API_VERSION = "0.0.10"
-
-archive_override(
-    module_name = "bazel_worker_api",
-    integrity = "sha256-BHb+JyUc0yNLaXN/i8Ixz+mRK+zdYg4H4tc8h7zH5Ao=",
-    strip_prefix = "bazel-worker-api-%s/proto" % BAZEL_WORKER_API_VERSION,
-    url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
-)
-
-archive_override(
-    module_name = "bazel_worker_java",
-    integrity = "sha256-BHb+JyUc0yNLaXN/i8Ixz+mRK+zdYg4H4tc8h7zH5Ao=",
-    strip_prefix = "bazel-worker-api-%s/java" % BAZEL_WORKER_API_VERSION,
-    url = "https://github.com/bazelbuild/bazel-worker-api/releases/download/v{0}/bazel-worker-api-v{0}.tar.gz".format(BAZEL_WORKER_API_VERSION),
 )
 
 # Bazel contrib
@@ -192,13 +158,6 @@ archive_override(
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
 
-# https://github.com/bazel-contrib/bazel-gazelle
-archive_override(
-    module_name = "gazelle",
-    integrity = "sha256-Z1EU2LQz0Kn1TYEXGDO+luvEETEVZkt5Hm8gTVjpNEY=",
-    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{0}/bazel-gazelle-v{0}.tar.gz".format("0.47.0"),
-)
-
 # https://github.com/bazel-contrib/supply-chain
 PACKAGE_METADATA_VERSION = "0.0.7"
 
@@ -209,19 +168,17 @@ archive_override(
     url = "https://github.com/bazel-contrib/supply-chain/releases/download/v{0}/supply-chain-v{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
 )
 
-# https://github.com/bazel-contrib/rules_go
-archive_override(
-    module_name = "rules_go",
-    integrity = "sha256-htPcj1nSU1JPkzqvLzwFiWywtgX8NbRgwLSwOZlhJMY=",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/v{0}/rules_go-v{0}.zip".format("0.60.0"),
-)
-
 # https://github.com/bazel-contrib/rules_jvm_external
 RULES_JVM_EXTERNAL_VERSION = "6.10"
 
 archive_override(
     module_name = "rules_jvm_external",
     integrity = "sha256-5fg7jyZ40rJkQeXq/vsbBhgmYIQXuNJOXo4V5YXqsbo=",
+    patch_cmds = [
+        # Avoid what transitive deps we can.
+        "sed -i'' -e /rules_android/d MODULE.bazel",
+        "sed -i'' -e /rules_kotlin/d MODULE.bazel",
+    ],
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_VERSION,
     url = "https://github.com/bazel-contrib/rules_jvm_external/releases/download/{0}/rules_jvm_external-{0}.tar.gz".format(RULES_JVM_EXTERNAL_VERSION),
 )
@@ -246,16 +203,6 @@ use_repo(llvm, "llvm_toolchain")
 
 # Other Bazel-required dependencies
 # =========================================================
-
-# https://github.com/robolectric/robolectric-bazel
-RULES_ROBOLECTRIC_VERSION = "4.15.1"
-
-archive_override(
-    module_name = "rules_robolectric",
-    integrity = "sha256-cOyAPJORXVtQn4bGPVDzgbQatw63DiYIbvw9g7behSk=",
-    strip_prefix = "robolectric-bazel-%s" % RULES_ROBOLECTRIC_VERSION,
-    url = "https://github.com/robolectric/robolectric-bazel/releases/download/{0}/robolectric-bazel-{0}.tar.gz".format(RULES_ROBOLECTRIC_VERSION),
-)
 
 # https://github.com/fmeum/buildozer
 BUILDOZER_VERSION = "8.5.1"
@@ -283,6 +230,10 @@ PROTOBUF_VERSION = "33.5"
 archive_override(
     module_name = "protobuf",
     integrity = "sha256-xsfCf63BnUCrLqoj/zXev+AfZJSoNFVZubsoXOQUTdE=",
+    patch_cmds = [
+        # Avoid what transitive deps we can.
+        "sed -i'' -e /rules_kotlin/d MODULE.bazel",
+    ],
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
     url = "https://github.com/protocolbuffers/protobuf/releases/download/v{0}/protobuf-{0}.tar.gz".format(PROTOBUF_VERSION),
 )
@@ -295,21 +246,6 @@ archive_override(
     integrity = "sha256-QxTip8usicrCWi8jIocPND2BV5dWzv9/QxgDwskJAZU=",
     strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
     url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
-)
-
-# https://github.com/abseil/abseil-py
-ABSEIL_PY_VERSION = "2.4.0"
-
-archive_override(
-    module_name = "abseil-py",
-    integrity = "sha256-GQQY6lcaoJoNkbCOP3GiWYM3gh3Ow/JIcvRKFA6Eme4=",
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "abseil-py")
-EOF""",
-    ],
-    strip_prefix = "abseil-py-%s" % ABSEIL_PY_VERSION,
-    url = "https://github.com/abseil/abseil-py/archive/v%s.tar.gz" % ABSEIL_PY_VERSION,
 )
 
 # https://github.com/open-source-parsers/jsoncpp
