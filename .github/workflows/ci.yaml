@@ -202,6 +202,7 @@ jobs:
         # and if triggering one is possible at all, that's a bug, so let's
         # disable them completely in the coverage build.
         run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG
+      - run: du -h bazel-out/_coverage/*.dat
       - run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
