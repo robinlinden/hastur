@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -127,6 +127,23 @@ public:
             }
 
             html.attributes[attr.name] = attr.value;
+        }
+    }
+
+    void merge_into_body_node(std::span<Attribute const> attrs) override {
+        auto it = std::ranges::find_if(document_.html().children, [](auto const &node) {
+            return std::holds_alternative<dom::Element>(node) && std::get<dom::Element>(node).name == "body";
+        });
+
+        assert(it != document_.html().children.end());
+
+        auto &body = std::get<dom::Element>(*it);
+        for (auto const &attr : attrs) {
+            if (body.attributes.contains(attr.name)) {
+                continue;
+            }
+
+            body.attributes[attr.name] = attr.value;
         }
     }
 
