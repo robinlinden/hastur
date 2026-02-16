@@ -41,8 +41,10 @@ public:
     virtual void store_original_insertion_mode(InsertionMode) = 0;
     virtual InsertionMode original_insertion_mode() = 0;
     virtual void set_frameset_ok(bool) = 0;
+    virtual bool frameset_ok() const = 0;
     virtual void push_head_as_current_open_element() = 0;
     virtual void remove_from_open_elements(std::string_view element_name) = 0;
+    virtual void remove_from_its_parent_node(std::string_view element_name) = 0;
     virtual void reconstruct_active_formatting_elements() = 0;
     virtual void push_current_element_onto_active_formatting_elements() = 0;
     virtual void push_formatting_marker() = 0;

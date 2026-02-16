@@ -50,9 +50,13 @@ public:
     InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
     InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
     void set_frameset_ok(bool ok) override { wrapped_.set_frameset_ok(ok); }
+    bool frameset_ok() const override { return wrapped_.frameset_ok(); }
     void push_head_as_current_open_element() override { wrapped_.push_head_as_current_open_element(); }
     void remove_from_open_elements(std::string_view element_name) override {
         wrapped_.remove_from_open_elements(element_name);
+    }
+    void remove_from_its_parent_node(std::string_view element_name) override {
+        wrapped_.remove_from_its_parent_node(element_name);
     }
     void reconstruct_active_formatting_elements() override { wrapped_.reconstruct_active_formatting_elements(); }
     void push_current_element_onto_active_formatting_elements() override {
@@ -858,6 +862,28 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         a.set_frameset_ok(false);
         a.merge_into_body_node(start->attributes);
         return {};
+    }
+
+    if (start != nullptr && start->tag_name == "frameset") {
+        // Parse error.
+
+        auto open_elements = a.names_of_open_elements();
+        if (open_elements.size() < 2 || *std::next(open_elements.rbegin()) != "body"
+                || std::ranges::contains(open_elements, "template")) {
+            // Ignore the token.
+            return {};
+        }
+
+        if (!a.frameset_ok()) {
+            // Ignore the token.
+            return {};
+        }
+
+        // This has the side-effect of removing all children of <body> and
+        // popping the open-element stack to the <html> element.
+        a.remove_from_its_parent_node("body");
+        a.insert_element_for(*start);
+        return InFrameset{};
     }
 
     // TODO(robinlinden): Most things.

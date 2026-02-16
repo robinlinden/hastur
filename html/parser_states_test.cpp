@@ -741,6 +741,34 @@ void in_body_tests(etest::Suite &s) {
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body", {{"foo", "bar"}, {"hello", "goodbye"}}});
     });
+
+    s.add_test("InBody: frameset", [](etest::IActions &a) {
+        auto res = parse("<frameset>", {});
+        auto const &html = res.document.html();
+        a.expect_eq(html,
+                dom::Element{
+                        "html",
+                        {},
+                        {dom::Element{"head"}, dom::Element{"frameset"}},
+                });
+    });
+
+    s.add_test("InBody: frameset eats everything on the stack", [](etest::IActions &a) {
+        auto res = parse("<source><frameset>", {});
+        auto const &html = res.document.html();
+        a.expect_eq(html,
+                dom::Element{
+                        "html",
+                        {},
+                        {dom::Element{"head"}, dom::Element{"frameset"}},
+                });
+    });
+
+    s.add_test("InBody: frameset, but ignored", [](etest::IActions &a) {
+        auto res = parse("<body><frameset>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body"});
+    });
 }
 
 void in_table_tests(etest::Suite &s) {
