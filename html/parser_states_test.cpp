@@ -735,6 +735,12 @@ void in_body_tests(etest::Suite &s) {
                         },
                 });
     });
+
+    s.add_test("InBody: repeat <body>", [](etest::IActions &a) {
+        auto res = parse("<body foo=bar><body foo=baz hello=goodbye>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {{"foo", "bar"}, {"hello", "goodbye"}}});
+    });
 }
 
 void in_table_tests(etest::Suite &s) {

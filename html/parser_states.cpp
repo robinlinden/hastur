@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <iterator>
 #include <optional>
 #include <span>
 #include <string>
@@ -39,6 +40,9 @@ public:
     std::string_view current_node_name() const override { return wrapped_.current_node_name(); }
     void merge_into_html_node(std::span<Attribute const> attributes) override {
         wrapped_.merge_into_html_node(attributes);
+    }
+    void merge_into_body_node(std::span<Attribute const> attributes) override {
+        wrapped_.merge_into_body_node(attributes);
     }
     void insert_character(CharacterToken const &token) override { wrapped_.insert_character(token); }
     void set_tokenizer_state(State state) override { wrapped_.set_tokenizer_state(state); }
@@ -839,6 +843,21 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "template") {
         return InHead{}.process(a, token);
+    }
+
+    if (start != nullptr && start->tag_name == "body") {
+        // Parse error.
+
+        auto open_elements = a.names_of_open_elements();
+        if (open_elements.size() < 2 || *std::next(open_elements.rbegin()) != "body"
+                || std::ranges::contains(open_elements, "template")) {
+            // Ignore the token.
+            return {};
+        }
+
+        a.set_frameset_ok(false);
+        a.merge_into_body_node(start->attributes);
+        return {};
     }
 
     // TODO(robinlinden): Most things.
