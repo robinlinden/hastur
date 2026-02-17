@@ -32,12 +32,25 @@ int main(int argc, char **argv) {
 
     type::SfmlType type;
 
-    auto canvas = [&]() -> std::unique_ptr<gfx::ICanvas> {
+    auto maybe_canvas = [&]() -> std::optional<std::unique_ptr<gfx::ICanvas>> {
         if (argc == 2 && argv[1] == "--sf"sv) {
-            return std::make_unique<gfx::SfmlCanvas>(window, type);
+            auto c = gfx::SfmlCanvas::create(window, type);
+            if (!c) {
+                std::cerr << "Failed to create SFML canvas\n";
+                return std::nullopt;
+            }
+
+            return std::make_unique<gfx::SfmlCanvas>(std::move(*c));
         }
         return std::make_unique<gfx::OpenGLCanvas>();
     }();
+
+    if (!maybe_canvas) {
+        std::cerr << "Failed to create canvas\n";
+        return 1;
+    }
+
+    auto &canvas = *maybe_canvas;
 
     canvas->set_viewport_size(window.getSize().x, window.getSize().y);
 
