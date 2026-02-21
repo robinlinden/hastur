@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <iterator>
 #include <optional>
 #include <span>
 #include <string>
@@ -40,15 +41,22 @@ public:
     void merge_into_html_node(std::span<Attribute const> attributes) override {
         wrapped_.merge_into_html_node(attributes);
     }
+    void merge_into_body_node(std::span<Attribute const> attributes) override {
+        wrapped_.merge_into_body_node(attributes);
+    }
     void insert_character(CharacterToken const &token) override { wrapped_.insert_character(token); }
     void set_tokenizer_state(State state) override { wrapped_.set_tokenizer_state(state); }
     void store_original_insertion_mode(InsertionMode mode) override { wrapped_.store_original_insertion_mode(mode); }
     InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
     InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
     void set_frameset_ok(bool ok) override { wrapped_.set_frameset_ok(ok); }
+    bool frameset_ok() const override { return wrapped_.frameset_ok(); }
     void push_head_as_current_open_element() override { wrapped_.push_head_as_current_open_element(); }
     void remove_from_open_elements(std::string_view element_name) override {
         wrapped_.remove_from_open_elements(element_name);
+    }
+    void remove_from_its_parent_node(std::string_view element_name) override {
+        wrapped_.remove_from_its_parent_node(element_name);
     }
     void reconstruct_active_formatting_elements() override { wrapped_.reconstruct_active_formatting_elements(); }
     void push_current_element_onto_active_formatting_elements() override {
@@ -839,6 +847,43 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "template") {
         return InHead{}.process(a, token);
+    }
+
+    if (start != nullptr && start->tag_name == "body") {
+        // Parse error.
+
+        auto open_elements = a.names_of_open_elements();
+        if (open_elements.size() < 2 || *std::next(open_elements.rbegin()) != "body"
+                || std::ranges::contains(open_elements, "template")) {
+            // Ignore the token.
+            return {};
+        }
+
+        a.set_frameset_ok(false);
+        a.merge_into_body_node(start->attributes);
+        return {};
+    }
+
+    if (start != nullptr && start->tag_name == "frameset") {
+        // Parse error.
+
+        auto open_elements = a.names_of_open_elements();
+        if (open_elements.size() < 2 || *std::next(open_elements.rbegin()) != "body"
+                || std::ranges::contains(open_elements, "template")) {
+            // Ignore the token.
+            return {};
+        }
+
+        if (!a.frameset_ok()) {
+            // Ignore the token.
+            return {};
+        }
+
+        // This has the side-effect of removing all children of <body> and
+        // popping the open-element stack to the <html> element.
+        a.remove_from_its_parent_node("body");
+        a.insert_element_for(*start);
+        return InFrameset{};
     }
 
     // TODO(robinlinden): Most things.

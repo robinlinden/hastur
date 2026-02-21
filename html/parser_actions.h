@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -130,6 +130,23 @@ public:
         }
     }
 
+    void merge_into_body_node(std::span<Attribute const> attrs) override {
+        auto it = std::ranges::find_if(document_.html().children, [](auto const &node) {
+            return std::holds_alternative<dom::Element>(node) && std::get<dom::Element>(node).name == "body";
+        });
+
+        assert(it != document_.html().children.end());
+
+        auto &body = std::get<dom::Element>(*it);
+        for (auto const &attr : attrs) {
+            if (body.attributes.contains(attr.name)) {
+                continue;
+            }
+
+            body.attributes[attr.name] = attr.value;
+        }
+    }
+
     void insert_character(CharacterToken const &character) override {
         auto &current_element = open_elements_.back();
         if (current_element->children.empty() || !std::holds_alternative<dom::Text>(current_element->children.back())) {
@@ -147,9 +164,8 @@ public:
 
     InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
 
-    void set_frameset_ok(bool) override {
-        // TODO(robinlinden): Implement.
-    }
+    void set_frameset_ok(bool ok) override { is_frameset_ok_ = ok; }
+    bool frameset_ok() const override { return is_frameset_ok_; }
 
     void push_head_as_current_open_element() override {
         auto head = std::ranges::find_if(document_.html().children, [](auto const &node) {
@@ -169,6 +185,22 @@ public:
 
         assert(it != open_elements_.end());
         open_elements_.erase(it);
+    }
+
+    // TODO(robinlinden): This assumes that the element is both unique and in
+    // scope. This is always true right now, but will it always be?
+    void remove_from_its_parent_node(std::string_view element_name) override {
+        while (current_node_name() != element_name) {
+            pop_current_node();
+            assert(!open_elements_.empty());
+        }
+
+        pop_current_node();
+        assert(!open_elements_.empty());
+        std::erase_if(open_elements_.back()->children, [element_name](auto const &child) {
+            auto const *element = std::get_if<dom::Element>(&child);
+            return element != nullptr && element->name == element_name;
+        });
     }
 
     void reconstruct_active_formatting_elements() override {
@@ -216,6 +248,7 @@ private:
     dom::Document &document_;
     Tokenizer &tokenizer_;
     bool scripting_;
+    bool is_frameset_ok_{true};
     CommentMode comment_mode_;
     InsertionMode original_insertion_mode_;
     InsertionMode &current_insertion_mode_;
