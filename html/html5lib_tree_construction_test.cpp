@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,6 +7,7 @@
 #include "dom/dom.h"
 #include "etest/etest2.h"
 
+#include <cassert>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -98,7 +99,12 @@ std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) 
         }
 
         // Remove the trailing newlines.
-        test.input.pop_back();
+        if (!test.input.empty()) {
+            assert(test.input.back() == '\n');
+            test.input.pop_back();
+        }
+
+        assert(test.expected_result.back() == '\n');
         test.expected_result.pop_back();
     }
 
