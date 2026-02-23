@@ -29,6 +29,11 @@ RULES_APPLE_VERSION = "4.3.3"
 archive_override(
     module_name = "rules_apple",
     integrity = "sha256-+tYjtNDb54g//8laMnXqq/0TvZM2/KZ4jLQL7pbl8TE=",
+    patch_cmds = [
+        # Avoid what transitive deps we can.
+        """sed -i'' -e '/ name = "rules_swift"/a \\
+dev_dependency = True,' MODULE.bazel""",
+    ],
     url = "https://github.com/bazelbuild/rules_apple/releases/download/{0}/rules_apple.{0}.tar.gz".format(RULES_APPLE_VERSION),
 )
 
@@ -84,15 +89,6 @@ pip.parse(
     requirements_lock = "//third_party:requirements.txt",
 )
 use_repo(pip, "pypi")
-
-# https://github.com/bazelbuild/rules_swift
-RULES_SWIFT_VERSION = "3.4.2"
-
-archive_override(
-    module_name = "rules_swift",
-    integrity = "sha256-A6XCqTOY8vxNbd+3bPgM2VdIPsKG009QzCLNoAKqtEU=",
-    url = "https://github.com/bazelbuild/rules_swift/releases/download/{0}/rules_swift.{0}.tar.gz".format(RULES_SWIFT_VERSION),
-)
 
 # https://github.com/bazel-contrib/rules_fuzzing
 RULES_FUZZING_VERSION = "0.6.0"
@@ -259,51 +255,18 @@ archive_override(
     url = "https://github.com/open-source-parsers/jsoncpp/archive/%s.tar.gz" % JSONCPP_VERSION,
 )
 
-# https://github.com/nlohmann/json
-NLOHMANN_JSON_VERSION = "3.12.0"
-
-archive_override(
-    module_name = "nlohmann_json",
-    integrity = "sha256-S5LrDAbRBoP3RHzpQGy5fNS0U74Y1yeTIPey8CXBAYc=",
-    strip_prefix = "json-%s" % NLOHMANN_JSON_VERSION,
-    url = "https://github.com/nlohmann/json/archive/refs/tags/v%s.tar.gz" % NLOHMANN_JSON_VERSION,
-)
-
 # https://github.com/google/re2
 RE2_VERSION = "2025-11-05"
 
 archive_override(
     module_name = "re2",
     integrity = "sha256-h/YCnS9t6KoCNlQkCgOtqQ6HbOmkZ24ljdAepMJv/Wc=",
+    patch_cmds = [
+        # Avoid what transitive deps we can.
+        "sed -i'' -e /pybind11_bazel/d MODULE.bazel",
+    ],
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
-)
-
-# https://github.com/pybind/pybind11_bazel
-PYBIND11_BAZEL_VERSION = "3.0.0"
-
-archive_override(
-    module_name = "pybind11_bazel",
-    integrity = "sha256-DS8PvRhMzZS4UpQ/kSw96H5f9jJbqcN+r+f0eTAmP9w=",
-    strip_prefix = "pybind11_bazel-%s" % PYBIND11_BAZEL_VERSION,
-    url = "https://github.com/pybind/pybind11_bazel/releases/download/v{0}/pybind11_bazel-{0}.tar.gz".format(PYBIND11_BAZEL_VERSION),
-)
-
-# https://github.com/apple/swift-argument-parser
-SWIFT_ARGUMENT_PARSER_VERSION = "1.7.0"
-
-archive_override(
-    module_name = "swift_argument_parser",
-    integrity = "sha256-hOaF8MpNBppgGTyeR3tuxaRAFtx4nbAeCxfDi0AKki4=",
-    # Missing build file, but that's fine as it's unused and only required to
-    # satisfy some dark corner of Bazel.
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "swift_argument_parser")
-EOF""",
-    ],
-    strip_prefix = "swift-argument-parser-%s" % SWIFT_ARGUMENT_PARSER_VERSION,
-    url = "https://github.com/apple/swift-argument-parser/archive/refs/tags/%s.tar.gz" % SWIFT_ARGUMENT_PARSER_VERSION,
 )
 
 # Third-party Bazel
