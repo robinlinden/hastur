@@ -314,38 +314,6 @@ void generate_implied_end_tags(IActions &a, std::optional<std::string_view> exce
     }
 }
 
-// https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
-InsertionMode appropriate_insertion_mode(IActions &a) {
-    auto open_elements = a.names_of_open_elements();
-    for (auto node : open_elements) {
-        // TODO(robinlinden): Lots of table nonsense.
-        if (node == "table") {
-            return InTable{};
-        }
-
-        // TODO(robinlinden): Template nonsense. :(
-
-        if (node == "head") {
-            return InHead{};
-        }
-
-        if (node == "body") {
-            return InBody{};
-        }
-
-        if (node == "frameset") {
-            return InFrameset{};
-        }
-
-        if (node == "html") {
-            // TODO(robinlinden): head element pointer.
-            return AfterHead{};
-        }
-    }
-
-    return InBody{};
-}
-
 template<auto const &scope_elements>
 bool has_element_in_scope_impl(IActions const &a, std::string_view element_name) {
     for (auto const element : a.names_of_open_elements()) {
@@ -429,6 +397,38 @@ bool has_element_in_table_scope(IActions const &a, std::string_view element_name
     return has_element_in_scope_impl<kScopeElements>(a, element_name);
 }
 } // namespace
+
+// https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
+InsertionMode appropriate_insertion_mode(IActions &a) {
+    auto open_elements = a.names_of_open_elements();
+    for (auto node : open_elements) {
+        // TODO(robinlinden): Lots of table nonsense.
+        if (node == "table") {
+            return InTable{};
+        }
+
+        // TODO(robinlinden): Template nonsense. :(
+
+        if (node == "head") {
+            return InHead{};
+        }
+
+        if (node == "body") {
+            return InBody{};
+        }
+
+        if (node == "frameset") {
+            return InFrameset{};
+        }
+
+        if (node == "html") {
+            // TODO(robinlinden): head element pointer.
+            return AfterHead{};
+        }
+    }
+
+    return InBody{};
+}
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
 // Incomplete.

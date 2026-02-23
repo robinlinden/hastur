@@ -71,6 +71,8 @@ struct InSelectInTable {};
 struct InTemplate {};
 struct AfterAfterFrameset {};
 
+[[nodiscard]] InsertionMode appropriate_insertion_mode(IActions &);
+
 struct Initial {
     std::optional<InsertionMode> process(IActions &, Token const &);
 };
