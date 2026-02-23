@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -23,6 +23,9 @@ inline dom::Document parse(
         std::function<void(ParseError)> const &on_error = [](auto) {}) {
     return parse(input, opts, Callbacks{.on_error = on_error});
 }
+
+[[nodiscard]] dom::DocumentFragment parse_fragment(
+        dom::Element const &context, std::string_view input, ParserOptions const &, Callbacks const &);
 
 } // namespace html
 

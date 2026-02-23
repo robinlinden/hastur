@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +14,8 @@
 
 #include "dom/dom.h"
 
+#include <algorithm>
+#include <array>
 #include <functional>
 #include <string_view>
 #include <utility>
@@ -28,6 +30,48 @@ public:
             std::string_view input, ParserOptions const &opts, Callbacks const &cbs) {
         Parser parser{input, opts, cbs};
         return parser.run();
+    }
+
+    [[nodiscard]] static dom::DocumentFragment parse_fragment(
+            dom::Element const &context, std::string_view input, ParserOptions const &opts, Callbacks const &cbs) {
+        // TODO(robinlinden): Quirks nonsense.
+        // TODO(robinlinden): Shadow roots bits.
+        Parser parser{input, opts, cbs};
+
+        static constexpr auto kRcdataElements = std::to_array<std::string_view>({"title", "textarea"});
+        static constexpr auto kRawtextElements =
+                std::to_array<std::string_view>({"style", "xmp", "iframe", "noembed", "noframes"});
+
+        if (std::ranges::contains(kRcdataElements, context.name)) {
+            parser.tokenizer_.set_state(State::Rcdata);
+        } else if (std::ranges::contains(kRawtextElements, context.name)) {
+            parser.tokenizer_.set_state(State::Rawtext);
+        } else if (context.name == "script") {
+            parser.tokenizer_.set_state(State::ScriptData);
+        } else if (context.name == "noscript") {
+            if (opts.scripting) {
+                parser.tokenizer_.set_state(State::Rawtext);
+            }
+        } else if (context.name == "plaintext") {
+            parser.tokenizer_.set_state(State::Plaintext);
+        }
+
+        auto &html = parser.doc_.html();
+        html.name = "html";
+        parser.open_elements_.push_back(&html);
+
+        // TODO(robinlinden): Template stuff.
+
+        parser.actions_.set_fragment_parsing_context(context.name);
+        parser.insertion_mode_ = appropriate_insertion_mode(parser.actions_);
+
+        // TODO(robinlinden): Form whatever.
+
+        auto res = parser.run();
+
+        return dom::DocumentFragment{
+                .children = std::move(res.html().children),
+        };
     }
 
 private:

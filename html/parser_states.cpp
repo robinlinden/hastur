@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cstddef>
 #include <iterator>
 #include <optional>
 #include <span>
@@ -68,6 +69,10 @@ public:
     }
     std::vector<std::string_view> names_of_open_elements() const override { return wrapped_.names_of_open_elements(); }
     void set_foster_parenting(bool foster) override { wrapped_.set_foster_parenting(foster); }
+    bool head_element_set() const override { return wrapped_.head_element_set(); }
+    std::optional<std::string_view> fragment_parsing_context() const override {
+        return wrapped_.fragment_parsing_context();
+    }
 
 private:
     IActions &wrapped_;
@@ -401,7 +406,14 @@ bool has_element_in_table_scope(IActions const &a, std::string_view element_name
 // https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
 InsertionMode appropriate_insertion_mode(IActions &a) {
     auto open_elements = a.names_of_open_elements();
-    for (auto node : open_elements) {
+    auto parsing_context = a.fragment_parsing_context();
+    for (std::size_t i = 0; i < open_elements.size(); ++i) {
+        auto node = open_elements[i];
+        bool last = i == open_elements.size() - 1;
+        if (last && parsing_context.has_value()) {
+            node = *parsing_context;
+        }
+
         // TODO(robinlinden): Lots of table nonsense.
         if (node == "table") {
             return InTable{};
@@ -409,7 +421,7 @@ InsertionMode appropriate_insertion_mode(IActions &a) {
 
         // TODO(robinlinden): Template nonsense. :(
 
-        if (node == "head") {
+        if (node == "head" && !last) {
             return InHead{};
         }
 
@@ -422,7 +434,10 @@ InsertionMode appropriate_insertion_mode(IActions &a) {
         }
 
         if (node == "html") {
-            // TODO(robinlinden): head element pointer.
+            if (!a.head_element_set()) {
+                return BeforeHead{};
+            }
+
             return AfterHead{};
         }
     }
@@ -1677,6 +1692,11 @@ std::optional<InsertionMode> InFrameset::process(IActions &a, Token const &token
     }
 
     if (auto const *end = std::get_if<EndTagToken>(&token); end != nullptr && end->tag_name == "frameset") {
+        if (a.current_node_name() == "html") {
+            // Parse error.
+            return {};
+        }
+
         // TODO(robinlinden): Fragment-parsing.
         a.pop_current_node();
         if (a.current_node_name() != "frameset") {

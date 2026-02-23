@@ -10,6 +10,7 @@
 #include "html/tokenizer.h"
 
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -50,6 +51,8 @@ public:
     virtual void push_formatting_marker() = 0;
     virtual void clear_formatting_elements_up_to_last_marker() = 0;
     virtual void set_foster_parenting(bool) = 0;
+    virtual bool head_element_set() const = 0;
+    virtual std::optional<std::string_view> fragment_parsing_context() const = 0;
 
     // The most recently opened element is the first element in the list.
     // TODO(robinlinden): This is very unintuitive. The most recently opened element should be last.

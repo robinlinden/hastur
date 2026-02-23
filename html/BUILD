@@ -97,6 +97,7 @@ genrule(
     "noscript01",
     "quirks01",
     "scriptdata01",
+    "tests4",
     "tests5",
     # There is no tests13.
     "tests14",
@@ -139,7 +140,6 @@ genrule(
     "tests1",
     "tests2",
     "tests3",
-    "tests4",
     "tests6",
     "tests7",
     "tests8",

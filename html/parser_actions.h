@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -231,6 +232,15 @@ public:
         // TODO(robinlinden): Implement.
     }
 
+    bool head_element_set() const override {
+        return std::ranges::any_of(document_.html().children, [](auto const &node) {
+            return std::holds_alternative<dom::Element>(node) && std::get<dom::Element>(node).name == "head";
+        });
+    }
+
+    void set_fragment_parsing_context(std::string_view context) { fragment_parsing_context_ = context; }
+    std::optional<std::string_view> fragment_parsing_context() const override { return fragment_parsing_context_; }
+
 private:
     void insert(dom::Element element) {
         if (element.name == "html") {
@@ -254,6 +264,7 @@ private:
     InsertionMode &current_insertion_mode_;
     std::vector<dom::Element *> &open_elements_;
     std::function<void(dom::Element const &)> const &on_element_closed_;
+    std::optional<std::string_view> fragment_parsing_context_;
 };
 
 } // namespace html

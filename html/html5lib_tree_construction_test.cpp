@@ -44,6 +44,7 @@ struct TestCase {
     std::string input;
     std::string expected_result;
     std::optional<Scripting> scripting{std::nullopt};
+    std::optional<dom::Element> context{std::nullopt};
 };
 
 std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) {
@@ -84,8 +85,22 @@ std::optional<std::vector<TestCase>> parse_test_cases(std::istream &test_bytes) 
         }
 
         if (line == "#document-fragment") {
-            std::cerr << "Document fragment tests aren't supported yet.\n";
-            return std::nullopt;
+            if (!std::getline(test_bytes, line)) {
+                std::cerr << "Expected context element after '#document-fragment'.\n";
+                return std::nullopt;
+            }
+
+            if (line.contains(' ')) {
+                std::cerr << "Non-html context elements are not supported yet.\n";
+                return std::nullopt;
+            }
+
+            test.context = dom::Element{.name = line};
+
+            if (!std::getline(test_bytes, line) || line != "#document") {
+                std::cerr << "Expected '#document' after '#document-fragment'.\n";
+                return std::nullopt;
+            }
         }
 
         if (line != "#document") {
@@ -141,11 +156,25 @@ int main(int argc, char **argv) {
 
         s.add_test(test.input, [=](etest::IActions &a) {
             if (test.scripting.value_or(Scripting::No) == Scripting::No) {
+                if (test.context.has_value()) {
+                    auto document = html::parse_fragment(
+                            *test.context, test.input, {.scripting = false, .include_comments = true}, {});
+                    a.expect_eq(to_string(document), test.expected_result);
+                    return;
+                }
+
                 auto document = html::parse(test.input, {.scripting = false, .include_comments = true});
                 a.expect_eq(to_string(document), test.expected_result);
             }
 
             if (test.scripting.value_or(Scripting::Yes) == Scripting::Yes) {
+                if (test.context.has_value()) {
+                    auto document = html::parse_fragment(
+                            *test.context, test.input, {.scripting = true, .include_comments = true}, {});
+                    a.expect_eq(to_string(document), test.expected_result);
+                    return;
+                }
+
                 auto document = html::parse(test.input, {.scripting = true, .include_comments = true});
                 a.expect_eq(to_string(document), test.expected_result);
             }
