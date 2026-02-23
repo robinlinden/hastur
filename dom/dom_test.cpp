@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -148,6 +148,29 @@ int main() {
 |   <body>
 |     <!-- This is a comment inside body -->
 |     "goodbye")";
+        a.expect_eq(to_string(document), expected);
+    });
+
+    s.add_test("to_string(DocumentFragment)", [](etest::IActions &a) {
+        auto document = dom::DocumentFragment{
+                .children{{
+                        dom::Element{
+                                .name{"head"},
+                                .children{{dom::Element{.name{"title"}, .children{dom::Text{"hello"}}}}},
+                        },
+                        dom::Element{
+                                .name{"body"},
+                                .children{dom::Text{"goodbye"}},
+                        },
+                }},
+        };
+
+        std::string_view expected = R"(#document
+| <head>
+|   <title>
+|     "hello"
+| <body>
+|   "goodbye")";
         a.expect_eq(to_string(document), expected);
     });
 

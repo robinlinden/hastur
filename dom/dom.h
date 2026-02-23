@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -58,6 +58,12 @@ struct Document {
     [[nodiscard]] bool operator==(Document const &) const = default;
 };
 
+// TODO(robinlinden): We can probably merge the document types.
+struct DocumentFragment {
+    std::vector<Node> children;
+    [[nodiscard]] bool operator==(DocumentFragment const &) const = default;
+};
+
 inline std::string_view dom_name(Element const &e) {
     return e.name;
 }
@@ -76,6 +82,7 @@ inline std::vector<Element const *> dom_children(Element const &e) {
 // https://github.com/html5lib/html5lib-tests/blob/a9f44960a9fedf265093d22b2aa3c7ca123727b9/tree-construction/README.md
 std::string to_string(Document const &);
 std::string to_string(Node const &);
+std::string to_string(DocumentFragment const &);
 
 } // namespace dom
 
