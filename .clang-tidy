@@ -7,20 +7,15 @@
 #
 # -bugprone-narrowing-conversions: Very noisy for not much gain.
 #
-# -cert-err58-cpp: False positives on lots of lambdas.
-#  /usr/lib/llvm-21/bin/../include/c++/v1/__type_traits/invoke.h:116:19: error: initialization of '__is_nothrow_invocable_impl<true, (lambda at ./util/string.h:97:37) &, char &, char &>' with static storage duration may throw an exception that cannot be caught [cert-err58-cpp,-warnings-as-errors]
-#  116 | inline const bool __is_nothrow_invocable_impl<true, _Args...> = noexcept(__builtin_invoke(std::declval<_Args>()...));
-#      |                   ^
-#./util/string.h:97:37: note: possibly throwing function declared here
-#   97 |     return std::ranges::equal(a, b, [](auto c1, auto c2) { return lowercased(c1) == lowercased(c2); });
-#      |                                     ^
-#
 # TODO(robinlinden): Enable again once this is fixed in libfmt or we're std::format instead.
 # -clang-analyzer-optin.cplusplus.UninitializedObject: Unusable together with
 # libfmt due to warnings about uninitialized fields triggering everywhere string
 # formatting is used. Last tested with 11.1.4.
 #
 # -cppcoreguidelines-[...]: TODO(robinlinden): Investigate.
+#
+# -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access: Warns on things that
+# are trivially proven to be safe, so useless for us right now.
 #
 # -google-build-using-namespace: We use `using namespace` in tests and for std::literals.
 #
@@ -56,7 +51,6 @@ UseColor: true
 
 Checks: >
   bugprone-*,
-  cert-*,
   clang-analyzer-*,
   concurrency-*,
   cppcoreguidelines-*,
@@ -69,12 +63,12 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
-  -cert-err58-cpp,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
@@ -97,6 +91,7 @@ Checks: >
 
 WarningsAsErrors: "*"
 
+# TODO(robinlinden) ".*" is the default starting w/ clang-tidy-22, so delete this sometime soon.
 HeaderFilterRegex: ".*"
 
 CheckOptions:

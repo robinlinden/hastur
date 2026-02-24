@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -38,11 +38,11 @@ std::optional<JpegTurbo> JpegTurbo::from(std::span<std::byte const> data) {
     d_info.err = jpeg_std_error(&err.err_mgr);
     err.err_mgr.error_exit = [](j_common_ptr cinfo) {
         auto *eh = reinterpret_cast<ErrorHandler *>(cinfo->client_data);
-        // NOLINTNEXTLINE(cert-err52-cpp): libjpeg-turbo offers us this or aborting.
+        // NOLINTNEXTLINE(modernize-avoid-setjmp-longjmp): libjpeg-turbo offers us this or aborting.
         std::longjmp(eh->setjmp_buffer, 1);
     };
 
-    // NOLINTNEXTLINE(cert-err52-cpp): libjpeg-turbo offers us this or aborting.
+    // NOLINTNEXTLINE(modernize-avoid-setjmp-longjmp): libjpeg-turbo offers us this or aborting.
     if (setjmp(err.setjmp_buffer)) {
         jpeg_destroy_decompress(&d_info);
         return {};

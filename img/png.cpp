@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -56,7 +56,7 @@ std::optional<Png> Png::from(std::istream &is) {
     // See: https://learn.microsoft.com/en-us/cpp/cpp/using-setjmp-longjmp?view=msvc-170
 #pragma warning(disable : 4611)
 #endif
-    // NOLINTNEXTLINE(cert-err52-cpp): libpng offers us this or aborting.
+    // NOLINTNEXTLINE(modernize-avoid-setjmp-longjmp): libpng offers us this or aborting.
     if (setjmp(png_jmpbuf(png))) {
         png_destroy_read_struct(&png, &info, nullptr);
         return std::nullopt;

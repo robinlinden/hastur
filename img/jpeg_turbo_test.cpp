@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,8 +14,8 @@
 #include <tuple>
 
 namespace {
-// NOLINTNEXTLINE(cert-err58-cpp): Why would this throw?
-std::span<std::byte const> const jpg_bytes(reinterpret_cast<std::byte const *>(kTinyJpg.data()), kTinyJpg.size());
+// NOLINTNEXTLINE(bugprone-throwing-static-initialization): Why would this throw?
+std::span<std::byte const> const jpg_bytes(std::as_bytes(std::span{kTinyJpg}));
 } // namespace
 
 int main() {
