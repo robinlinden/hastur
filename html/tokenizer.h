@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,7 +21,7 @@ namespace html {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#tokenization
 enum class State : std::uint8_t {
-    Data = 1, // So the state enum values match the number in the spec.
+    Data,
     Rcdata,
     Rawtext,
     ScriptData,
