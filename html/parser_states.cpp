@@ -1245,8 +1245,7 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
             "wbr",
     });
     auto is_bad_br_end_tag = end != nullptr && end->tag_name == "br";
-    if ((start != nullptr && std::ranges::contains(kImmediatelyPoppedElements, start->tag_name))
-            || (is_bad_br_end_tag)) {
+    if ((start != nullptr && std::ranges::contains(kImmediatelyPoppedElements, start->tag_name)) || is_bad_br_end_tag) {
         if (is_bad_br_end_tag) {
             // Parse error.
             a.reconstruct_active_formatting_elements();
