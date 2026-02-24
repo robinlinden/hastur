@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-zSuIluCmEAoaexTNar4idSArWg+LHhVI7XH7gbjBkYI=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.2.0"),
+    integrity = "sha256-c3U8REMycsZTznELtfWV3pnyQ7OIWHbQSnjCyjupAhk=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.3.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -54,8 +54,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-RA7fqAmNALFmpac9IV8yFKZQbbAeHsRa/uNWtmecVZM=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.5.0"),
+    integrity = "sha256-ON6zFhiGmpyTVYPifATl4fX8H+ML7N2cyVtEQvcyBi4=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.6.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
