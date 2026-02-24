@@ -38,12 +38,12 @@ dev_dependency = True,' MODULE.bazel""",
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.16"
+RULES_CC_VERSION = "0.2.17"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-RYtlgne6UbRzDqeiAg798cbcrffTDecuN/Qwgnf6jAE=",
+    integrity = "sha256-KD+hzarxcjN4mHSc9Lmx716iadpZVAlU5R+6DnuPJ3o=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -66,12 +66,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "1.8.4"
+RULES_PYTHON_VERSION = "1.8.5"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-yF1ds40+rAYWehOxDJ26VLADqYbNTx68AIBrdOfBLwY=",
+    integrity = "sha256-iWSqHnUl/qUkS6c3RYaUoFetob6WqSmYpByqGYNWLQA=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -521,13 +521,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.5"
+IMGUI_VERSION = "1.92.6"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-DrUP6a66GlH5a1hDx/Ywoy7S6TYtaTxhuH5PqHDPgm0=",
+    integrity = "sha256-WxfAH2lUW95zKxSTbYnOD1CK24PotW+oJEg3GEUXK8M=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -742,12 +742,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.343"
+VULKAN_TAG = "1.4.344"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-aVbZDccHdeHc1MRzKUq9nFRTA0q1udiQb0Vrg2ZKFnk=",
+    integrity = "sha256-iLhrRB7tkx+0y6WVr/RvuxQXfXInTBVUQR1rvSEX6G8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -763,7 +763,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-NhDLPOEQqTYQC7xIuFQ9vX/YXn9p9bBTXyO3lNXkbfc=",
+    integrity = "sha256-So3pHsaM+PEfrCl7eZa3zfmIUuMuhdZ1SJzoD8AivSQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -869,7 +869,7 @@ EOF""",
 )
 
 # https://github.com/madler/zlib
-ZLIB_VERSION = "1.3.1.2"
+ZLIB_VERSION = "1.3.2"
 
 bazel_dep(name = "zlib")  # Zlib
 archive_override(
@@ -877,7 +877,7 @@ archive_override(
     # The official zlib BUILD file doesn't define things like ZLIB_CONST, so
     # it's not very nice to use.
     build_file = "//third_party:zlib.BUILD",
-    integrity = "sha256-+/HIR2E2aT5sPx+ibm2MTyyLWlxENAwE3zSdrQLu0J4=",
+    integrity = "sha256-uZoLhsC6k2DsfnjE8eQ7HL3x5pNsj6D2g1wM1pSklaE=",
     strip_prefix = "zlib-%s" % ZLIB_VERSION,
     url = "https://github.com/madler/zlib/archive/v%s.tar.gz" % ZLIB_VERSION,
 )
