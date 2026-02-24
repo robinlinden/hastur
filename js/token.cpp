@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +8,7 @@
 #include <variant>
 
 namespace js::parse {
+namespace {
 
 struct StringifyVisitor {
     std::string operator()(IntLiteral const &t) { return "IntLiteral " + std::to_string(t.value); }
@@ -68,6 +69,8 @@ struct StringifyVisitor {
     std::string operator()(With const &) { return "With"; }
     std::string operator()(Yield const &) { return "Yield"; }
 };
+
+} // namespace
 
 std::string to_string(Token const &token) {
     return std::visit(StringifyVisitor{}, token);

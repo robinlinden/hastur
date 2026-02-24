@@ -373,7 +373,7 @@ int main() {
         Interpreter e;
         auto result = e.execute(assign_expr);
         a.expect_eq(result.has_value(), false);
-        a.expect(e.variables.find("somevar") == e.variables.end());
+        a.expect_eq(e.variables.contains("somevar"), false);
     });
 
     s.add_test("if, exception in test", [](etest::IActions &a) {
