@@ -193,10 +193,10 @@ jobs:
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
+#      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
+#        env:
+#          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+#        if: env.BUILDBUDDY_API_KEY != ''
       - name: Coverage
         # asserts are only marked as partially covered as we don't trigger them,
         # and if triggering one is possible at all, that's a bug, so let's
