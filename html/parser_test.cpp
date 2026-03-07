@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -428,13 +428,6 @@ int main() {
 
     s.add_test("errors", [](etest::IActions &a) {
         auto errors = std::vector<html::ParseError>{};
-        std::ignore = html::parse("<!--", {}, [&](html::ParseError e) { errors.push_back(e); });
-
-        a.expect_eq(errors, std::vector{html::ParseError::EofInComment});
-    });
-
-    s.add_test("errors, new api", [](etest::IActions &a) {
-        auto errors = std::vector<html::ParseError>{};
         html::Callbacks cbs{
                 .on_error = [&](html::ParseError e) { errors.push_back(e); },
         };
@@ -444,7 +437,7 @@ int main() {
         a.expect_eq(errors, std::vector{html::ParseError::EofInComment});
     });
 
-    s.add_test("errors, new api, no cb set", [](etest::IActions &) {
+    s.add_test("errors, no cb set", [](etest::IActions &) {
         html::Callbacks cbs{};
         std::ignore = html::parse("<!--", {}, cbs);
     });
