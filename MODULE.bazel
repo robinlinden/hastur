@@ -145,11 +145,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.41.0"
+BAZEL_FEATURES_VERSION = "1.43.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-lmwhHsQsTesq9MbdaUhAgQC3UvYXU8lwVb2sm/tcwMc=",
+    integrity = "sha256-wmtOac8C/qJFEaEI0VgYi52BdEJjEarFnOgDp40Qdkg=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
