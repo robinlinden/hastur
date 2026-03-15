@@ -1358,6 +1358,36 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
+    if (start != nullptr && start->tag_name == "option") {
+        if (has_element_in_scope(a, "select")) {
+            generate_implied_end_tags(a, "optgroup");
+            if (has_element_in_scope(a, "option")) {
+                // Parse error.
+            }
+        } else if (a.current_node_name() == "option") {
+            a.pop_current_node();
+        }
+
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        return {};
+    }
+
+    if (start != nullptr && start->tag_name == "optgroup") {
+        if (has_element_in_scope(a, "select")) {
+            generate_implied_end_tags(a, std::nullopt);
+            if (has_element_in_scope(a, "option") || has_element_in_scope(a, "optgroup")) {
+                // Parse error.
+            }
+        } else if (a.current_node_name() == "option") {
+            a.pop_current_node();
+        }
+
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        return {};
+    }
+
     // TODO(robinlinden): Most things.
 
     if (start != nullptr) {
