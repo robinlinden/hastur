@@ -1262,7 +1262,10 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     }
 
     if (start != nullptr && start->tag_name == "input") {
-        // TODO(robinlinden): Fragment-parsing case.
+        if (a.fragment_parsing_context() == "select") {
+            // Parse error.
+            return {};
+        }
 
         if (has_element_in_scope(a, "select")) {
             // Parse error.
@@ -1335,6 +1338,24 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
 
     if (start != nullptr && ((start->tag_name == "noembed") || (start->tag_name == "noscript" && a.scripting()))) {
         return generic_raw_text_parse(a, *start);
+    }
+
+    if (start != nullptr && start->tag_name == "select") {
+        if (a.fragment_parsing_context() == "select") {
+            // Parse error.
+            return {};
+        }
+
+        if (has_element_in_scope(a, "select")) {
+            // Parse error.
+            pop_past(a, "select");
+            return {};
+        }
+
+        a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
+        a.set_frameset_ok(false);
+        return {};
     }
 
     // TODO(robinlinden): Most things.
