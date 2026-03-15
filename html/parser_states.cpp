@@ -1297,8 +1297,6 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
-    // TODO(robinlinden): Most things.
-
     if (start != nullptr && start->tag_name == "hr") {
         if (has_element_in_button_scope(a, "p")) {
             close_a_p_element();
@@ -1311,7 +1309,11 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
-    // TODO(robinlinden): Most things.
+    if (start != nullptr && start->tag_name == "image") {
+        auto fixed_token = *start;
+        fixed_token.tag_name = "img";
+        return process(a, fixed_token);
+    }
 
     if (start != nullptr && start->tag_name == "textarea") {
         a.insert_element_for(*start);
