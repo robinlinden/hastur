@@ -1390,6 +1390,30 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
+    if (start != nullptr && (start->tag_name == "rb" || start->tag_name == "rtc")) {
+        if (has_element_in_scope(a, "ruby")) {
+            generate_implied_end_tags(a, std::nullopt);
+            if (a.current_node_name() != "ruby") {
+                // Parse error.
+            }
+        }
+
+        a.insert_element_for(*start);
+        return {};
+    }
+
+    if (start != nullptr && (start->tag_name == "rp" || start->tag_name == "rt")) {
+        if (has_element_in_scope(a, "ruby")) {
+            generate_implied_end_tags(a, "rtc");
+            if (a.current_node_name() != "ruby" && a.current_node_name() != "rtc") {
+                // Parse error.
+            }
+        }
+
+        a.insert_element_for(*start);
+        return {};
+    }
+
     // TODO(robinlinden): Most things.
 
     if (start != nullptr) {
