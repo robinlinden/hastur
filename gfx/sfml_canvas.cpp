@@ -34,7 +34,6 @@
 #include <span>
 #include <string>
 #include <string_view>
-#include <tuple>
 
 namespace gfx {
 namespace {
@@ -92,9 +91,13 @@ sf::Text::Style to_sfml(FontStyle style) {
 
 } // namespace
 
-SfmlCanvas::SfmlCanvas(sf::RenderTarget &target, type::SfmlType &type) : target_{target}, type_{type} {
-    // TODO(robinlinden): Error-handling.
-    std::ignore = border_shader_.loadFromMemory(kBasicVertexShader, kRectFragmentShader);
+std::optional<SfmlCanvas> SfmlCanvas::create(sf::RenderTarget &target, type::SfmlType &type) {
+    sf::Shader border_shader;
+    if (!border_shader.loadFromMemory(kBasicVertexShader, kRectFragmentShader)) {
+        return std::nullopt;
+    }
+
+    return SfmlCanvas{target, type, std::move(border_shader)};
 }
 
 void SfmlCanvas::set_viewport_size(int width, int height) {
