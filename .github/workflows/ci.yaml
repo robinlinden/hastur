@@ -207,7 +207,7 @@ jobs:
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
-          pipx install codecov-cli==11.2.6
+          pipx install codecov-cli==11.2.7
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
@@ -243,7 +243,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v41.0.3
+      WASMTIME_VERSION: v42.0.1
     steps:
       - uses: actions/checkout@v6
       - name: Set up wasmtime
@@ -416,7 +416,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_amd64 && chmod +x shfmt
+      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.0/shfmt_v3.13.0_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
 
