@@ -23,20 +23,6 @@ archive_override(
     url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("1.0.0"),
 )
 
-# https://github.com/bazelbuild/rules_apple
-RULES_APPLE_VERSION = "4.3.3"
-
-archive_override(
-    module_name = "rules_apple",
-    integrity = "sha256-+tYjtNDb54g//8laMnXqq/0TvZM2/KZ4jLQL7pbl8TE=",
-    patch_cmds = [
-        # Avoid what transitive deps we can.
-        """sed -i'' -e '/ name = "rules_swift"/a \\
-dev_dependency = True,' MODULE.bazel""",
-    ],
-    url = "https://github.com/bazelbuild/rules_apple/releases/download/{0}/rules_apple.{0}.tar.gz".format(RULES_APPLE_VERSION),
-)
-
 # https://github.com/bazelbuild/rules_cc
 RULES_CC_VERSION = "0.2.17"
 
@@ -54,8 +40,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-ON6zFhiGmpyTVYPifATl4fX8H+ML7N2cyVtEQvcyBi4=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.6.0"),
+    integrity = "sha256-neTheMLE+Y0yqv5RlMPytxeuEEBcqhG9y0YKwqb2FRY=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.6.1"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -145,11 +131,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.41.0"
+BAZEL_FEATURES_VERSION = "1.43.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-lmwhHsQsTesq9MbdaUhAgQC3UvYXU8lwVb2sm/tcwMc=",
+    integrity = "sha256-wmtOac8C/qJFEaEI0VgYi52BdEJjEarFnOgDp40Qdkg=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -221,11 +207,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "33.5"
+PROTOBUF_VERSION = "34.0"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-xsfCf63BnUCrLqoj/zXev+AfZJSoNFVZubsoXOQUTdE=",
+    integrity = "sha256-5UCq5w07T3WIRliHaMnjkJD6uIC8MjOh9CqKuNN4Hv0=",
     patch_cmds = [
         # Avoid what transitive deps we can.
         "sed -i'' -e /rules_kotlin/d MODULE.bazel",
