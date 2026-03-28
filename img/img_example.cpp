@@ -125,7 +125,13 @@ int main(int argc, char **argv) {
     }
 
     type::SfmlType type;
-    gfx::SfmlCanvas canvas{window, type};
+    auto maybe_canvas = gfx::SfmlCanvas::create(window, type);
+    if (!maybe_canvas) {
+        std::cerr << "Failed to create canvas\n";
+        return 1;
+    }
+
+    auto &canvas = *maybe_canvas;
 
     bool running = true;
     while (running) {
