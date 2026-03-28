@@ -140,16 +140,6 @@ archive_override(
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
 
-# https://github.com/bazel-contrib/supply-chain
-PACKAGE_METADATA_VERSION = "0.0.7"
-
-archive_override(
-    module_name = "package_metadata",
-    integrity = "sha256-jyfcc5Pj873Hk73EujbWemPCLMnTjMZdMgRlSXTqRWM=",
-    strip_prefix = "supply-chain-%s/metadata" % PACKAGE_METADATA_VERSION,
-    url = "https://github.com/bazel-contrib/supply-chain/releases/download/v{0}/supply-chain-v{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
-)
-
 # https://github.com/bazel-contrib/rules_jvm_external
 RULES_JVM_EXTERNAL_VERSION = "6.10"
 
@@ -158,6 +148,7 @@ archive_override(
     integrity = "sha256-5fg7jyZ40rJkQeXq/vsbBhgmYIQXuNJOXo4V5YXqsbo=",
     patch_cmds = [
         # Avoid what transitive deps we can.
+        "sed -i'' -e /package_metadata/d MODULE.bazel",
         "sed -i'' -e /rules_android/d MODULE.bazel",
         "sed -i'' -e /rules_kotlin/d MODULE.bazel",
     ],
@@ -214,6 +205,7 @@ archive_override(
     integrity = "sha256-5UCq5w07T3WIRliHaMnjkJD6uIC8MjOh9CqKuNN4Hv0=",
     patch_cmds = [
         # Avoid what transitive deps we can.
+        "sed -i'' -e /jsoncpp/d MODULE.bazel",
         "sed -i'' -e /rules_kotlin/d MODULE.bazel",
     ],
     strip_prefix = "protobuf-%s" % PROTOBUF_VERSION,
@@ -228,17 +220,6 @@ archive_override(
     integrity = "sha256-QxTip8usicrCWi8jIocPND2BV5dWzv9/QxgDwskJAZU=",
     strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
     url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
-)
-
-# https://github.com/open-source-parsers/jsoncpp
-# 1.9.6 + Bazel module support.
-JSONCPP_VERSION = "037752d9a1e48c8b7e5a62ee895a352166df03e3"
-
-archive_override(
-    module_name = "jsoncpp",
-    integrity = "sha256-xkiG0GJ54QhZBO3LXqnfMc5QgVwX85uD/9GqGc78RTw=",
-    strip_prefix = "jsoncpp-%s" % JSONCPP_VERSION,
-    url = "https://github.com/open-source-parsers/jsoncpp/archive/%s.tar.gz" % JSONCPP_VERSION,
 )
 
 # https://github.com/google/re2
