@@ -27,8 +27,9 @@ jobs:
             os: ubuntu-24.04
             compiler: gcc
             version: 14
-            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
-            apt: valgrind
+            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind --config honggfuzz
+            apt: valgrind libunwind-dev
+            fuzz: true
 
           - name: gcc-15
             os: ubuntu-24.04
