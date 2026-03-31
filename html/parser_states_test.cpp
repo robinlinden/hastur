@@ -769,6 +769,18 @@ void in_body_tests(etest::Suite &s) {
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body"});
     });
+
+    s.add_test("InBody: </dd>", [](etest::IActions &a) {
+        auto res = parse("<body><dd><a></dd>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"dd", {}, {dom::Element{"a"}}}}});
+    });
+
+    s.add_test("InBody: </dt>, no tag in scope", [](etest::IActions &a) {
+        auto res = parse("<body></dt>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body"});
+    });
 }
 
 void in_table_tests(etest::Suite &s) {
