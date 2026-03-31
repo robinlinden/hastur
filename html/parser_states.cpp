@@ -1082,7 +1082,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
-    if (start != nullptr && (start->tag_name == "dd" || start->tag_name == "dt")) {
+    static constexpr auto kDescriptionContentTags = std::to_array<std::string_view>({"dd", "dt"});
+    if (start != nullptr && std::ranges::contains(kDescriptionContentTags, start->tag_name)) {
         a.set_frameset_ok(false);
 
         auto open_elements = a.names_of_open_elements();
@@ -1171,6 +1172,22 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         }
 
         pop_past(a, "li");
+    }
+
+    if (end != nullptr && std::ranges::contains(kDescriptionContentTags, end->tag_name)) {
+        if (!has_element_in_scope(a, end->tag_name)) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, end->tag_name);
+
+        if (a.current_node_name() != end->tag_name) {
+            // Parse error.
+        }
+
+        pop_past(a, end->tag_name);
+        return {};
     }
 
     // TODO(robinlinden): Most things.
