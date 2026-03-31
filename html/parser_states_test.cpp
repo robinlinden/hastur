@@ -694,7 +694,8 @@ void in_body_tests(etest::Suite &s) {
                         .name{"body"},
                         .children{
                                 dom::Element{"h1"},
-                                dom::Element{.name{"h2"}, .children{dom::Text{"!"}}},
+                                dom::Element{"h2"},
+                                dom::Text{"!"},
                         },
                 });
     });
