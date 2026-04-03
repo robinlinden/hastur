@@ -51,23 +51,6 @@ The following assumes that you either have Bazel or Bazelisk under the name
 
 `bazel run @hedron_compile_commands//:refresh_all`
 
-### Misc
-
-#### clangd on Windows
-
-If using clangd on Windows, you need work around [clangd not supporting
-/std:c++latest][clangd-on-windows] by setting up a `.clangd` configuration
-containing
-
-```
-CompileFlags:
-  Add: ["-std:c++latest"]
-```
-
-to force its inclusion and avoid your editor displaying errors for every newish
-C++ feature.
-
 [bazel]: https://bazel.build
 [bazelisk]: https://github.com/bazelbuild/bazelisk
-[clangd-on-windows]: https://github.com/clangd/clangd/issues/527
 [codecov]: https://app.codecov.io/gh/robinlinden/hastur
