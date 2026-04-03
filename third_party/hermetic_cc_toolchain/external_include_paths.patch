@@ -1,4 +1,4 @@
-From 15fed7550da47ed290ff899dc05f03ff9c910627 Mon Sep 17 00:00:00 2001
+From 0caf2cf231488de11e5dad80e43575956f60f933 Mon Sep 17 00:00:00 2001
 From: Robin Linden <dev@robinlinden.eu>
 Date: Fri, 23 Jan 2026 00:38:42 +0100
 Subject: [PATCH] Add support for the external_include_paths feature
@@ -8,10 +8,10 @@ Subject: [PATCH] Add support for the external_include_paths feature
  1 file changed, 26 insertions(+)
 
 diff --git a/toolchain/zig_cc_toolchain.bzl b/toolchain/zig_cc_toolchain.bzl
-index 72fa0c2..82d23f4 100644
+index 50ac971..2f57ba5 100644
 --- a/toolchain/zig_cc_toolchain.bzl
 +++ b/toolchain/zig_cc_toolchain.bzl
-@@ -161,11 +161,37 @@ def _zig_cc_toolchain_config_impl(ctx):
+@@ -177,12 +177,38 @@ def _zig_cc_toolchain_config_impl(ctx):
          ],
      )
  
@@ -45,6 +45,7 @@ index 72fa0c2..82d23f4 100644
          default_linker_flags,
          supports_dynamic_linker,
          strip_debug_symbols_feature,
+         soname_feature,
 +        external_include_paths_feature,
      ] + _compilation_mode_features(ctx)
  

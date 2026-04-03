@@ -43,6 +43,11 @@ cc_binary(
     testonly = True,
     srcs = ["html5lib_tree_construction_test.cpp"],
     copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # Contains filesystem I/O. Our current wasm/wasi-setup doesn't like that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":html",
         "//dom",
@@ -55,6 +60,11 @@ cc_binary(
     testonly = True,
     srcs = ["html5lib_tokenizer_test.cpp"],
     copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # Contains filesystem I/O. Our current wasm/wasi-setup doesn't like that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":html",
         "//etest",

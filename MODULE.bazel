@@ -239,18 +239,23 @@ archive_override(
 # Third-party Bazel
 # =========================================================
 
+# HEAD, last updated at 2026-04-03.
 # https://github.com/uber/hermetic_cc_toolchain
+HERMETIC_CC_TOOLCHAIN_VERSION = "89a07f91c82b4a7c4d441b5bda72200e1ba5d2a2"
+
 bazel_dep(name = "hermetic_cc_toolchain", dev_dependency = True)  # MIT
 archive_override(
     module_name = "hermetic_cc_toolchain",
-    integrity = "sha256-NkZViF5a9azQKymeTq8ROhMX3WViUySbN7fJ8FvyO3k=",
+    integrity = "sha256-KjkzIwuMg+HLzl4HLQUogJ+VCmkwyTFwq6CYmtX2RhE=",
     patch_args = ["-p1"],
     patches = [
-        "//third_party/hermetic_cc_toolchain:zig-14.patch",
+        "//third_party/hermetic_cc_toolchain:zig-15.patch",
         # https://github.com/uber/hermetic_cc_toolchain/pull/239
         "//third_party/hermetic_cc_toolchain:external_include_paths.patch",
     ],
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("4.0.1"),
+    # url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v{0}/hermetic_cc_toolchain-v{0}.tar.gz".format("4.0.1"),
+    strip_prefix = "hermetic_cc_toolchain-%s" % HERMETIC_CC_TOOLCHAIN_VERSION,
+    url = "https://github.com/uber/hermetic_cc_toolchain/archive/%s.tar.gz" % HERMETIC_CC_TOOLCHAIN_VERSION,
 )
 
 zig_toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")

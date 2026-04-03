@@ -5,6 +5,11 @@ cc_binary(
     name = "unicode_data_processor",
     srcs = ["unicode_data_processor.cpp"],
     copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # Contains filesystem I/O. Our current wasm/wasi-setup doesn't like that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     deps = ["//util:string"],
 )
 

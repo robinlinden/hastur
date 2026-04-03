@@ -52,5 +52,10 @@ cc_binary(
     name = "wasm_example",
     srcs = ["wasm_example.cpp"],
     copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # Contains filesystem I/O. Our current wasm/wasi-setup doesn't like that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     deps = [":wasm"],
 )

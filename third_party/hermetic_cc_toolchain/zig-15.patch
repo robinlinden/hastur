@@ -1,0 +1,223 @@
+Generated-From: https://github.com/uber/hermetic_cc_toolchain/pull/247
+Generated-On: 2026-04-03
+
+From 8d4455b7c20f2e14756e48ea4e1d1f3e73f1d4f2 Mon Sep 17 00:00:00 2001
+From: Nicolas Mattia <nicolas@nmattia.com>
+Date: Fri, 13 Mar 2026 13:23:43 +0100
+Subject: [PATCH] Update to Zig 15.2
+
+---
+ toolchain/defs.bzl            | 31 ++++++++++++++++---------------
+ toolchain/private/defs.bzl    |  8 ++++----
+ toolchain/private/zig_sdk.bzl | 14 +++++++-------
+ toolchain/zig-wrapper.zig     | 23 +++++++++++------------
+ tools/releaser/main.go        |  4 ++--
+ 5 files changed, 40 insertions(+), 40 deletions(-)
+
+diff --git a/toolchain/defs.bzl b/toolchain/defs.bzl
+index 5af06cb..4c63c2e 100644
+--- a/toolchain/defs.bzl
++++ b/toolchain/defs.bzl
+@@ -21,22 +21,22 @@ _DEFAULT_INCLUDE_DIRECTORIES = [
+ ]
+ 
+ _HOST_PLATFORM_EXT = {
+-    "linux-aarch64": "tar.xz",
+-    "linux-x86_64": "tar.xz",
+-    "macos-aarch64": "tar.xz",
+-    "macos-x86_64": "tar.xz",
+-    "windows-x86_64": "zip",
+-    "windows-aarch64": "zip",
++    "aarch64-linux": "tar.xz",
++    "x86_64-linux": "tar.xz",
++    "aarch64-macos": "tar.xz",
++    "x86_64-macos": "tar.xz",
++    "x86_64-windows": "zip",
++    "aarch64-windows": "zip",
+ }
+ 
+ # map bazel's host_platform to zig's -target= and -mcpu=
+ _TARGET_MCPU = {
+-    "linux-aarch64": ("aarch64-linux-musl", "baseline"),
+-    "linux-x86_64": ("x86_64-linux-musl", "baseline"),
+-    "macos-aarch64": ("aarch64-macos-none", "apple_a14"),
+-    "macos-x86_64": ("x86_64-macos-none", "baseline"),
+-    "windows-x86_64": ("x86_64-windows-gnu", "baseline"),
+-    "windows-aarch64": ("aarch64-windows-gnu", "baseline"),
++    "aarch64-linux": ("aarch64-linux-musl", "baseline"),
++    "x86_64-linux": ("x86_64-linux-musl", "baseline"),
++    "aarch64-macos": ("aarch64-macos-none", "apple_a14"),
++    "x86_64-macos": ("x86_64-macos-none", "baseline"),
++    "x86_64-windows": ("x86_64-windows-gnu", "baseline"),
++    "aarch64-windows": ("aarch64-windows-gnu", "baseline"),
+ }
+ 
+ _compile_failed = """
+@@ -144,8 +144,8 @@ def _zig_repository_impl(repository_ctx):
+     exec_os = transform_os_name(exec_os)
+     host_os = transform_os_name(host_os)
+ 
+-    host_platform = "{}-{}".format(host_os, host_arch)
+-    exec_platform = "{}-{}".format(exec_os, exec_arch)
++    host_platform = "{}-{}".format(host_arch, host_os)
++    exec_platform = "{}-{}".format(exec_arch, exec_os)
+ 
+     zig_sha256 = repository_ctx.attr.host_platform_sha256[host_platform]
+     zig_ext = repository_ctx.attr.host_platform_ext[host_platform]
+@@ -339,8 +339,9 @@ def declare_files(os):
+                 "lib/libunwind/**",
+                 "lib/compiler_rt/**",
+                 "lib/std/**",
+-                "lib/tsan/**",
++                "lib/libtsan/**",
+                 "lib/*.zig",
++                "lib/c/*.zig",  # stdlib and helpers are in there
+                 "lib/*.h",
+             ]),
+         )
+diff --git a/toolchain/private/defs.bzl b/toolchain/private/defs.bzl
+index 1db7aad..ce85d00 100644
+--- a/toolchain/private/defs.bzl
++++ b/toolchain/private/defs.bzl
+@@ -151,18 +151,17 @@ def _target_linux_gnu(gocpu, zigcpu, glibc_version):
+         gotarget = "linux_{}_{}".format(gocpu, glibc_suffix),
+         zigtarget = "{}-linux-{}".format(zigcpu, glibc_suffix),
+         includes = [
+-                       "libc/include/{}-linux-gnu".format(zigcpu),
+                        "libc/include/generic-glibc",
+                    ] +
+                    # x86_64-linux-any is x86_64-linux and x86-linux combined.
+-                   (["libc/include/x86-linux-any"] if zigcpu == "x86_64" else []) +
+-                   (["libc/include/{}-linux-any".format(zigcpu)] if zigcpu != "x86_64" else []) + [
++                   (["libc/include/x86-linux-any", "libc/include/x86-linux-gnu"] if zigcpu == "x86_64" else []) +
++                   (["libc/include/{}-linux-any".format(zigcpu), "libc/include/{}-linux-gnu".format(zigcpu)] if zigcpu != "x86_64" else []) + [
+             "libc/include/any-linux-any",
+         ] + _INCLUDE_TAIL,
+         linkopts = [],
+         dynamic_library_linkopts = [],
+         supports_dynamic_linker = True,
+-        copts = [],
++        copts = ["-D_GNU_SOURCE"],
+         libc = "glibc",
+         bazel_target_cpu = "k8",
+         constraint_values = [
+@@ -209,6 +208,7 @@ def _target_wasm():
+         includes = [
+             "libc/include/wasm-wasi-musl",
+             "libc/wasi",
++            "libc/include/generic-musl",
+         ] + _INCLUDE_TAIL,
+         linkopts = [],
+         dynamic_library_linkopts = [],
+diff --git a/toolchain/private/zig_sdk.bzl b/toolchain/private/zig_sdk.bzl
+index a328df5..42a2903 100644
+--- a/toolchain/private/zig_sdk.bzl
++++ b/toolchain/private/zig_sdk.bzl
+@@ -1,12 +1,12 @@
+-VERSION = "0.12.0"
++VERSION = "0.15.2"
+ 
+ HOST_PLATFORM_SHA256 = {
+-    "linux-aarch64": "754f1029484079b7e0ca3b913a0a2f2a6afd5a28990cb224fe8845e72f09de63",
+-    "linux-x86_64": "c7ae866b8a76a568e2d5cfd31fe89cdb629bdd161fdd5018b29a4a0a17045cad",
+-    "macos-aarch64": "294e224c14fd0822cfb15a35cf39aa14bd9967867999bf8bdfe3db7ddec2a27f",
+-    "macos-x86_64": "4d411bf413e7667821324da248e8589278180dbc197f4f282b7dbb599a689311",
+-    "windows-aarch64": "04c6b92689241ca7a8a59b5f12d2ca2820c09d5043c3c4808b7e93e41c7bf97b",
+-    "windows-x86_64": "2199eb4c2000ddb1fba85ba78f1fcf9c1fb8b3e57658f6a627a8e513131893f5",
++    "aarch64-linux": "958ed7d1e00d0ea76590d27666efbf7a932281b3d7ba0c6b01b0ff26498f667f",
++    "x86_64-linux": "02aa270f183da276e5b5920b1dac44a63f1a49e55050ebde3aecc9eb82f93239",
++    "aarch64-macos": "3cc2bab367e185cdfb27501c4b30b1b0653c28d9f73df8dc91488e66ece5fa6b",
++    "x86_64-macos": "375b6909fc1495d16fc2c7db9538f707456bfc3373b14ee83fdd3e22b3d43f7f",
++    "aarch64-windows": "b926465f8872bf983422257cd9ec248bb2b270996fbe8d57872cca13b56fc370",
++    "x86_64-windows": "3a0ed1e8799a2f8ce2a6e6290a9ff22e6906f8227865911fb7ddedc3cc14cb0c",
+ }
+ 
+ # Official recommended version. Should use this when we have a usable release.
+diff --git a/toolchain/zig-wrapper.zig b/toolchain/zig-wrapper.zig
+index 5584f44..2aa5ffa 100644
+--- a/toolchain/zig-wrapper.zig
++++ b/toolchain/zig-wrapper.zig
+@@ -55,8 +55,8 @@ const std = @import("std");
+ const fs = std.fs;
+ const mem = std.mem;
+ const process = std.process;
+-const ChildProcess = std.ChildProcess;
+-const ArrayListUnmanaged = std.ArrayListUnmanaged;
++const Child = std.process.Child;
++const ArrayList = std.ArrayList;
+ const sep = fs.path.sep_str;
+ 
+ const EXE = switch (builtin.target.os.tag) {
+@@ -83,7 +83,7 @@ const Action = enum {
+ };
+ 
+ const ExecParams = struct {
+-    args: ArrayListUnmanaged([]const u8),
++    args: ArrayList([]const u8),
+     env: process.EnvMap,
+ };
+ 
+@@ -93,7 +93,7 @@ const ParseResults = union(Action) {
+ };
+ 
+ // sub-commands in the same folder as `zig-wrapper`
+-const sub_commands_target = std.ComptimeStringMap(void, .{
++const sub_commands_target = std.StaticStringMap(void).initComptime(.{
+     .{"ar"},
+     .{"ld.lld"},
+     .{"lld-link"},
+@@ -138,13 +138,12 @@ pub fn main() u8 {
+ }
+ 
+ fn spawnWindows(arena: mem.Allocator, params: ExecParams) u8 {
+-    var proc = ChildProcess.init(params.args.items, arena);
++    var proc = Child.init(params.args.items, arena);
+     proc.env_map = &params.env;
+-    const ret = proc.spawnAndWait() catch |err|
+-        return fatal(
+-        "error spawning {s}: {s}\n",
+-        .{ params.args.items[0], @errorName(err) },
+-    );
++    proc.spawn() catch |err|
++        return fatal("error spawning {s}: {s}\n", .{ params.args.items[0], @errorName(err) });
++    const ret = proc.wait() catch |err|
++        return fatal("error waiting {s}: {s}\n", .{ params.args.items[0], @errorName(err) });
+ 
+     switch (ret) {
+         .Exited => |code| return code,
+@@ -222,7 +221,7 @@ fn parseArgs(
+     try env.put("ZIG_GLOBAL_CACHE_DIR", CACHE_DIR);
+ 
+     // args is the path to the zig binary and args to it.
+-    var args = ArrayListUnmanaged([]const u8){};
++    var args = ArrayList([]const u8){};
+     try args.appendSlice(arena, &[_][]const u8{zig_exe});
+ 
+     switch (run_mode) {
+@@ -282,7 +281,7 @@ fn getRunMode(self_exe: []const u8, self_base_noexe: []const u8) error{BadParent
+     // strings `is.it.x86_64?-stallinux,macos-`; we are trying to aid users
+     // that run things from the wrong directory, not trying to punish the ones
+     // having fun.
+-    var it = mem.split(u8, triple, "-");
++    var it = mem.splitScalar(u8, triple, '-');
+ 
+     const arch = it.next() orelse return error.BadParent;
+     if (mem.indexOf(u8, "aarch64,x86_64,wasm32", arch) == null)
+diff --git a/tools/releaser/main.go b/tools/releaser/main.go
+index 63bc4db..3ed9ccb 100644
+--- a/tools/releaser/main.go
++++ b/tools/releaser/main.go
+@@ -472,11 +472,11 @@ func checkZigMirrored(repoRoot string) error {
+ 		return nil
+ 	}
+ 
+-	// spot-checking only windows-x86_64, because:
++	// spot-checking only x86_64-windows, because:
+ 	// - to check all platforms, we should parse much more of zig_sdk.bzl.
+ 	// - so we'd rather pick a single platform and test it.
+ 	// - because windows coverage is smallest, let's take the windows platform.
+-	url := strings.Replace(upstream.urlTemplate, "{host_platform}", "windows-x86_64", 1)
++	url := strings.Replace(upstream.urlTemplate, "{host_platform}", "x86_64-windows", 1)
+ 	url = strings.ReplaceAll(url, "{version}", upstream.version)
+ 	url = strings.Replace(url, "{_ext}", "zip", 1)
+ 
