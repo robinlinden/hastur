@@ -198,13 +198,14 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "34.0"
+PROTOBUF_VERSION = "34.1"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-5UCq5w07T3WIRliHaMnjkJD6uIC8MjOh9CqKuNN4Hv0=",
+    integrity = "sha256-5Ob/EHYM90ei3s0YZ3QfVhsha9YMxAOMh1ZHE6baGEg=",
     patch_cmds = [
         # Avoid what transitive deps we can.
+        "sed -i'' -e /aspect_bazel_lib/d MODULE.bazel",
         "sed -i'' -e /jsoncpp/d MODULE.bazel",
         "sed -i'' -e /rules_kotlin/d MODULE.bazel",
     ],
@@ -283,14 +284,14 @@ archive_override(
     url = "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/4f28899228fb3ad0126897876f147ca15026151e.tar.gz",
 )
 
-# HEAD as of 2026-01-05.
+# HEAD as of 2026-01-22.
 # https://github.com/erenon/bazel_clang_tidy
-BAZEL_CLANG_TIDY_VERSION = "da986512bf1a46831d886fd090393b93b8967a5d"
+BAZEL_CLANG_TIDY_VERSION = "9e54bbb15d1939a9d030c52f3032886a0b278f98"
 
 bazel_dep(name = "bazel_clang_tidy", dev_dependency = True)  # MIT
 archive_override(
     module_name = "bazel_clang_tidy",
-    integrity = "sha256-WkayQxTZZiU6BVCPgCq0sDQoNrcPeGQa/vbM/UQRIS8=",
+    integrity = "sha256-CIeoQ/Pnjs1o+hHzBTxvBKl7Q3vgm5iEgkXfCBkt9yo=",
     strip_prefix = "bazel_clang_tidy-%s" % BAZEL_CLANG_TIDY_VERSION,
     url = "https://github.com/erenon/bazel_clang_tidy/archive/%s.tar.gz" % BAZEL_CLANG_TIDY_VERSION,
 )
