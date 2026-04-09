@@ -66,11 +66,6 @@ jobs:
             compiler: clang
             version: 20
 
-          - name: clang-20-libc++
-            os: ubuntu-24.04
-            bazel: --config clang-amd64
-            skip-compiler-install: true
-
           - name: clang-19
             os: ubuntu-24.04
             compiler: clang
@@ -109,12 +104,10 @@ jobs:
           sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
       - uses: actions/checkout@v6
       - name: Install
-        if: ${{ !matrix.skip-compiler-install }}
         run: |
           sudo apt-get update
           sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
       - name: Install
-        if: ${{ matrix.skip-compiler-install }}
         run: |
           sudo apt-get update
           sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
