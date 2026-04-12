@@ -153,7 +153,7 @@ jobs:
             version: 13
           - compiler: clang
             version: 21
-            bazel: --config=clang21-coverage
+            bazel: --config=clang21-coverage --config=libc++
     steps:
       - uses: actions/checkout@v6
         with:
@@ -182,7 +182,7 @@ jobs:
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
           sudo apt-get update
-          sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
+          sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }} libc++-${{ matrix.version }}-dev
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
