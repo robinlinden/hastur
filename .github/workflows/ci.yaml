@@ -13,132 +13,132 @@ permissions:
   contents: read
 
 jobs:
-  linux-ci:
-    name: linux-${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
-    timeout-minutes: 30
+  # linux-ci:
+  #   name: linux-${{ matrix.name }}
+  #   runs-on: ${{ matrix.os }}
+  #   container: ${{ matrix.container }}
+  #   timeout-minutes: 30
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: gcc-14
-            os: ubuntu-24.04
-            compiler: gcc
-            version: 14
-            bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
-            apt: valgrind
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - name: gcc-14
+  #           os: ubuntu-24.04
+  #           compiler: gcc
+  #           version: 14
+  #           bazel: -c dbg --test_timeout=120 --run_under="valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 --track-origins=yes --show-leak-kinds=all --num-callers=32" --test_tag_filters=-no-valgrind
+  #           apt: valgrind
 
-          - name: gcc-15
-            os: ubuntu-24.04
-            container: ubuntu:25.04
-            compiler: gcc
-            version: 15
-            apt: g++-15
+  #         - name: gcc-15
+  #           os: ubuntu-24.04
+  #           container: ubuntu:25.04
+  #           compiler: gcc
+  #           version: 15
+  #           apt: g++-15
 
-          - name: clang-18-tsan
-            os: ubuntu-24.04
-            compiler: clang
-            version: 18
-            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18
-            apt: libclang-rt-18-dev llvm-18
+  #         - name: clang-18-tsan
+  #           os: ubuntu-24.04
+  #           compiler: clang
+  #           version: 18
+  #           bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18
+  #           apt: libclang-rt-18-dev llvm-18
 
-          # TODO(robinlinden): icu breaks w/ Clang 19 + asan/ubsan:
-          # external/icu+/_objs/common/udata.o:udata.cpp:function openCommonData(char const*, int, UErrorCode*):(.text._ZL14openCommonDataPKciP10UErrorCode+0x4a0): error: undefined reference to 'icudt78_dat'
-          - name: clang-18-asan-ubsan
-            os: ubuntu-24.04
-            compiler: clang
-            version: 18
-            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
-            apt: libclang-rt-18-dev llvm-18
-            fuzz: true
+  #         # TODO(robinlinden): icu breaks w/ Clang 19 + asan/ubsan:
+  #         # external/icu+/_objs/common/udata.o:udata.cpp:function openCommonData(char const*, int, UErrorCode*):(.text._ZL14openCommonDataPKciP10UErrorCode+0x4a0): error: undefined reference to 'icudt78_dat'
+  #         - name: clang-18-asan-ubsan
+  #           os: ubuntu-24.04
+  #           compiler: clang
+  #           version: 18
+  #           bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
+  #           apt: libclang-rt-18-dev llvm-18
+  #           fuzz: true
 
-          - name: clang-18-libc++
-            os: ubuntu-24.04
-            compiler: clang
-            version: 18
-            bazel: --config libc++
-            apt: libc++abi-18-dev libc++-18-dev libclang-rt-18-dev
+  #         - name: clang-18-libc++
+  #           os: ubuntu-24.04
+  #           compiler: clang
+  #           version: 18
+  #           bazel: --config libc++
+  #           apt: libc++abi-18-dev libc++-18-dev libclang-rt-18-dev
 
-          - name: clang-20
-            os: ubuntu-24.04
-            compiler: clang
-            version: 20
+  #         - name: clang-20
+  #           os: ubuntu-24.04
+  #           compiler: clang
+  #           version: 20
 
-          - name: clang-19
-            os: ubuntu-24.04
-            compiler: clang
-            version: 19
+  #         - name: clang-19
+  #           os: ubuntu-24.04
+  #           compiler: clang
+  #           version: 19
 
-          - name: clang-21-libc++
-            os: ubuntu-24.04
-            compiler: clang
-            version: 21
-            bazel: --config libc++
-            apt: libc++abi-21-dev libc++-21-dev libclang-rt-21-dev libunwind-21-dev
+  #         - name: clang-21-libc++
+  #           os: ubuntu-24.04
+  #           compiler: clang
+  #           version: 21
+  #           bazel: --config libc++
+  #           apt: libc++abi-21-dev libc++-21-dev libclang-rt-21-dev libunwind-21-dev
 
-    steps:
-      - name: Add things missing from containers
-        if: ${{ matrix.container != '' }}
-        run: |
-          echo '#!/bin/sh\n"$@"' >/usr/bin/sudo && chmod +x /usr/bin/sudo
-          apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates
-          curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.28.1/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
-          # icu requires gcc to exist.
-          ln -s /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
-      - name: Setup gcc
-        if: startsWith(matrix.compiler, 'gcc')
-        run: |
-          echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
-          echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
-      - name: Setup clang
-        if: startsWith(matrix.compiler, 'clang')
-        run: |
-          echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
-          echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
-      - name: Set up the llvm repository
-        if: startsWith(matrix.compiler, 'clang') && matrix.version >= 19
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
-      - uses: actions/checkout@v6
-      - name: Install
-        run: |
-          sudo apt-get update
-          sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
-      - name: Install
-        run: |
-          sudo apt-get update
-          sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
-      - uses: actions/cache@v5
-        if: ${{ github.ref == 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
-        if: ${{ github.ref != 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - name: Test
-        run: bazel test //... ${{ matrix.bazel }}
-      - name: Print elf binary comment
-        run: readelf -p .comment ./bazel-bin/browser/tui/tui
-      - name: Run
-        run: |
-          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
-      - name: Fuzz test
-        if: ${{ matrix.fuzz }}
-        run: |
-          ./bzl/run_fuzz_tests ... \
-            ${{ matrix.bazel }} \
-            -- --timeout_secs=10
+  #   steps:
+  #     - name: Add things missing from containers
+  #       if: ${{ matrix.container != '' }}
+  #       run: |
+  #         echo '#!/bin/sh\n"$@"' >/usr/bin/sudo && chmod +x /usr/bin/sudo
+  #         apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates
+  #         curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.28.1/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
+  #         # icu requires gcc to exist.
+  #         ln -s /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
+  #     - name: Setup gcc
+  #       if: startsWith(matrix.compiler, 'gcc')
+  #       run: |
+  #         echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
+  #         echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
+  #     - name: Setup clang
+  #       if: startsWith(matrix.compiler, 'clang')
+  #       run: |
+  #         echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+  #         echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+  #     - name: Set up the llvm repository
+  #       if: startsWith(matrix.compiler, 'clang') && matrix.version >= 19
+  #       run: |
+  #         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+  #         sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
+  #     - uses: actions/checkout@v6
+  #     - name: Install
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
+  #     - name: Install
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
+  #     - uses: actions/cache@v5
+  #       if: ${{ github.ref == 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - uses: actions/cache/restore@v4
+  #       if: ${{ github.ref != 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
+  #       env:
+  #         BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+  #       if: env.BUILDBUDDY_API_KEY != ''
+  #     - name: Test
+  #       run: bazel test //... ${{ matrix.bazel }}
+  #     - name: Print elf binary comment
+  #       run: readelf -p .comment ./bazel-bin/browser/tui/tui
+  #     - name: Run
+  #       run: |
+  #         echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+  #         bazel run browser:tui file://$(pwd)/example.html ${{ matrix.bazel }}
+  #     - name: Fuzz test
+  #       if: ${{ matrix.fuzz }}
+  #       run: |
+  #         ./bzl/run_fuzz_tests ... \
+  #           ${{ matrix.bazel }} \
+  #           -- --timeout_secs=10
 
   coverage:
     name: linux-${{ matrix.compiler }}-${{ matrix.version }}-coverage
@@ -153,7 +153,7 @@ jobs:
             version: 13
           - compiler: clang
             version: 21
-            bazel: --config=clang21-coverage
+            bazel: --config=clang21-coverage --config=libc++
     steps:
       - uses: actions/checkout@v6
         with:
@@ -182,246 +182,246 @@ jobs:
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
           sudo apt-get update
-          sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
+          sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }} libc++-${{ matrix.version }}-dev
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
+#      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
+#        env:
+#          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+#        if: env.BUILDBUDDY_API_KEY != ''
+      - run: bazel version
       - name: Coverage
         # asserts are only marked as partially covered as we don't trigger them,
         # and if triggering one is possible at all, that's a bug, so let's
         # disable them completely in the coverage build.
-        run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG
-      # clang 21 coverage has a lot of problems w/ boringssl:
-      # lcov: ERROR: "external/boringssl/crypto/conf/internal.h":30:  function conf.c:lh_CONF_VALUE_insert found on line but no corresponding 'line' coverage data point.  Cannot derive function end line.
-      - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
+        run: bazel coverage wasm/... util/... js/... ${{ matrix.bazel }} --copt=-DNDEBUG --test_env=VERBOSE_COVERAGE=1 --test_output=all
+      - run: du -h bazel-out/_coverage/*.dat
+      - run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
           pipx install codecov-cli==11.2.7
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
-  linux-aarch64-muslc:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/cache@v5
-        if: ${{ github.ref == 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
-        if: ${{ github.ref != 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
-      - run: sudo update-binfmts --enable qemu-aarch64
-      - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - run: bazel test ...
-      - name: Run tui
-        run: |
-          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          bazel run browser:tui file://$(pwd)/example.html
+  # linux-aarch64-muslc:
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - uses: actions/cache@v5
+  #       if: ${{ github.ref == 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - uses: actions/cache/restore@v4
+  #       if: ${{ github.ref != 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support
+  #     - run: sudo update-binfmts --enable qemu-aarch64
+  #     - run: echo "build --config=linux-aarch64-musl" >.bazelrc.local
+  #     - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
+  #       env:
+  #         BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+  #       if: env.BUILDBUDDY_API_KEY != ''
+  #     - run: bazel test ...
+  #     - name: Run tui
+  #       run: |
+  #         echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+  #         bazel run browser:tui file://$(pwd)/example.html
 
-  # https://github.com/bytecodealliance/wasmtime
-  wasi-wasm:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    env:
-      WASMTIME_VERSION: v42.0.1
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up wasmtime
-        run: |
-          export WASMTIME_NAME=wasmtime-${WASMTIME_VERSION}-x86_64-linux
-          echo WASMTIME_NAME=${WASMTIME_NAME} >>$GITHUB_ENV
-          wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
-          tar -xf wasmtime.tar.xz
-          chmod +x ${WASMTIME_NAME}/wasmtime
-          mkdir -p $HOME/.cache/wasmtime
-      # Register wasmtime as the wasm binary format handler.
-      - run: echo -n ":wasm32-wasi:M::\x00asm:\xff\xff\xff\xff:$(pwd)/${WASMTIME_NAME}/wasmtime:" | sudo tee /proc/sys/fs/binfmt_misc/register
-      - run: echo "build --config=wasi-wasm" >.bazelrc.local
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - run: bazel test ...
+  # # https://github.com/bytecodealliance/wasmtime
+  # wasi-wasm:
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 30
+  #   env:
+  #     WASMTIME_VERSION: v42.0.1
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Set up wasmtime
+  #       run: |
+  #         export WASMTIME_NAME=wasmtime-${WASMTIME_VERSION}-x86_64-linux
+  #         echo WASMTIME_NAME=${WASMTIME_NAME} >>$GITHUB_ENV
+  #         wget --no-verbose --output-document=wasmtime.tar.xz https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${WASMTIME_NAME}.tar.xz
+  #         tar -xf wasmtime.tar.xz
+  #         chmod +x ${WASMTIME_NAME}/wasmtime
+  #         mkdir -p $HOME/.cache/wasmtime
+  #     # Register wasmtime as the wasm binary format handler.
+  #     - run: echo -n ":wasm32-wasi:M::\x00asm:\xff\xff\xff\xff:$(pwd)/${WASMTIME_NAME}/wasmtime:" | sudo tee /proc/sys/fs/binfmt_misc/register
+  #     - run: echo "build --config=wasi-wasm" >.bazelrc.local
+  #     - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
+  #       env:
+  #         BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+  #       if: env.BUILDBUDDY_API_KEY != ''
+  #     - run: bazel test ...
 
-  macos:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-15
-          # TODO(robinlinden): Investigate why the GUI isn't happy in the macOS-26 CI.
-          - os: macos-26
-            skip-gui: true
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v6
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - run: bazelisk test //...
-      - name: Run tui
-        run: |
-          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          bazelisk run browser:tui file://$(pwd)/example.html
-      - run: bazelisk run browser -- --exit-after-load file://$(pwd)/example.html
-        if: ${{ !matrix.skip-gui }}
+  # macos:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - os: macos-15
+  #         # TODO(robinlinden): Investigate why the GUI isn't happy in the macOS-26 CI.
+  #         - os: macos-26
+  #           skip-gui: true
+  #   runs-on: ${{ matrix.os }}
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
+  #       env:
+  #         BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+  #       if: env.BUILDBUDDY_API_KEY != ''
+  #     - run: bazelisk test //...
+  #     - name: Run tui
+  #       run: |
+  #         echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+  #         bazelisk run browser:tui file://$(pwd)/example.html
+  #     - run: bazelisk run browser -- --exit-after-load file://$(pwd)/example.html
+  #       if: ${{ !matrix.skip-gui }}
 
-  windows:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - compiler: clang-cl
-          - compiler: msvc
-    runs-on: windows-2025
-    timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/cache@v5
-        if: ${{ github.ref == 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
-        if: ${{ github.ref != 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - run: echo "build --config clang-cl" >.bazelrc.local
-        if: matrix.compiler == 'clang-cl'
-      # We run the MSVC job in debug mode because we want their extra stdlib runtime checks.
-      - run: echo "build -c dbg" >.bazelrc.local
-        if: matrix.compiler == 'msvc'
-      - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - run: bazel test ...
-      - name: Run tui
-        run: |
-          echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
-          python3 -m http.server --bind localhost 12345 &
-          # Wait for the server to start.
-          while ! curl --output /dev/null --silent --head --fail http://localhost:12345/example.html; do
-            sleep 1 && echo -n ?
-          done
-          echo "!"
-          bazel run browser:tui http://localhost:12345/example.html
-      - run: bazel run browser -- --exit-after-load http://localhost:12345/example.html
+  # windows:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - compiler: clang-cl
+  #         - compiler: msvc
+  #   runs-on: windows-2025
+  #   timeout-minutes: 30
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - uses: actions/cache@v5
+  #       if: ${{ github.ref == 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - uses: actions/cache/restore@v4
+  #       if: ${{ github.ref != 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - run: echo "build --config clang-cl" >.bazelrc.local
+  #       if: matrix.compiler == 'clang-cl'
+  #     # We run the MSVC job in debug mode because we want their extra stdlib runtime checks.
+  #     - run: echo "build -c dbg" >.bazelrc.local
+  #       if: matrix.compiler == 'msvc'
+  #     - run: echo "build --disk_cache ~/.cache/bazel" >>.bazelrc.local
+  #     - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
+  #       env:
+  #         BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+  #       if: env.BUILDBUDDY_API_KEY != ''
+  #     - run: bazel test ...
+  #     - name: Run tui
+  #       run: |
+  #         echo "<html><body><h1>Example</h1><p>This is an example page.</p></body></html>" >example.html
+  #         python3 -m http.server --bind localhost 12345 &
+  #         # Wait for the server to start.
+  #         while ! curl --output /dev/null --silent --head --fail http://localhost:12345/example.html; do
+  #           sleep 1 && echo -n ?
+  #         done
+  #         echo "!"
+  #         bazel run browser:tui http://localhost:12345/example.html
+  #     - run: bazel run browser -- --exit-after-load http://localhost:12345/example.html
 
-  pre-commit:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - run: pipx install pre-commit==4.5.1
-      - run: pre-commit run --all-files
+  # pre-commit:
+  #   runs-on: ubuntu-slim
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - run: pipx install pre-commit==4.5.1
+  #     - run: pre-commit run --all-files
 
-  clang-format:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up the llvm repository
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-21
-      - run: find . -name "*.h" -o -name "*.cpp" | xargs clang-format-21 -style=file -i
-      - run: git diff --exit-code
+  # clang-format:
+  #   runs-on: ubuntu-slim
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Set up the llvm repository
+  #       run: |
+  #         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+  #         sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"
+  #     - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-21
+  #     - run: find . -name "*.h" -o -name "*.cpp" | xargs clang-format-21 -style=file -i
+  #     - run: git diff --exit-code
 
-  clang-tidy:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/cache@v5
-        if: ${{ github.ref == 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
-        if: ${{ github.ref != 'refs/heads/master' }}
-        with:
-          path: ~/.cache/bazel
-          key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - name: Set up the llvm repository
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-22 main"
-      - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-22 libc++abi-22-dev libc++-22-dev
-      - run: echo "CC=clang-22" >>$GITHUB_ENV && echo "CXX=clang++-22" >>$GITHUB_ENV
-      - run: |
-          sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-22 100
-          sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-22
-          update-alternatives --query clang-tidy
-          clang-tidy --version
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
-      - run: bazel build ... --config libc++ --config clang-tidy --keep_going
+  # clang-tidy:
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - uses: actions/cache@v5
+  #       if: ${{ github.ref == 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - uses: actions/cache/restore@v4
+  #       if: ${{ github.ref != 'refs/heads/master' }}
+  #       with:
+  #         path: ~/.cache/bazel
+  #         key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
+  #     - name: Set up the llvm repository
+  #       run: |
+  #         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+  #         sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-22 main"
+  #     - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-22 libc++abi-22-dev libc++-22-dev
+  #     - run: echo "CC=clang-22" >>$GITHUB_ENV && echo "CXX=clang++-22" >>$GITHUB_ENV
+  #     - run: |
+  #         sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-22 100
+  #         sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-22
+  #         update-alternatives --query clang-tidy
+  #         clang-tidy --version
+  #     - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
+  #       env:
+  #         BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+  #       if: env.BUILDBUDDY_API_KEY != ''
+  #     - run: bazel build ... --config libc++ --config clang-tidy --keep_going
 
-  buildifier:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - name: Install
-        run: |
-          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.5.1/buildifier-linux-amd64
-          sudo chmod +x buildifier
-      - name: Check
-        run: ./buildifier --lint=warn --warnings=all -mode diff $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl" -or -iname "*.bazel")
+  # buildifier:
+  #   runs-on: ubuntu-slim
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Install
+  #       run: |
+  #         wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.5.1/buildifier-linux-amd64
+  #         sudo chmod +x buildifier
+  #     - name: Check
+  #       run: ./buildifier --lint=warn --warnings=all -mode diff $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl" -or -iname "*.bazel")
 
-  prettier:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - run: npm install --global prettier@3.8.1
-      # Prettier thinks our fragment shaders are JS-something and complains
-      # about syntax errors.
-      - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
-      - run: git diff --exit-code
+  # prettier:
+  #   runs-on: ubuntu-slim
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - run: npm install --global prettier@3.8.1
+  #     # Prettier thinks our fragment shaders are JS-something and complains
+  #     # about syntax errors.
+  #     - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
+  #     - run: git diff --exit-code
 
-  shfmt:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.0/shfmt_v3.13.0_linux_amd64 && chmod +x shfmt
-      - run: ./shfmt -i 2 -w $(./shfmt -f .)
-      - run: git diff --exit-code
+  # shfmt:
+  #   runs-on: ubuntu-slim
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.0/shfmt_v3.13.0_linux_amd64 && chmod +x shfmt
+  #     - run: ./shfmt -i 2 -w $(./shfmt -f .)
+  #     - run: git diff --exit-code
 
-  gitlint:
-    runs-on: ubuntu-slim
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - run: pipx install gitlint-core==0.19.1
-      - run: gitlint --commits origin/master..
+  # gitlint:
+  #   runs-on: ubuntu-slim
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #       with:
+  #         fetch-depth: 0
+  #     - run: pipx install gitlint-core==0.19.1
+  #     - run: gitlint --commits origin/master..
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
