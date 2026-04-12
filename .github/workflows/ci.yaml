@@ -202,11 +202,7 @@ jobs:
         # asserts are only marked as partially covered as we don't trigger them,
         # and if triggering one is possible at all, that's a bug, so let's
         # disable them completely in the coverage build.
-        run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG
-      - run: du -h bazel-out/_coverage/*.dat
-      - run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG
-      - run: du -h bazel-out/_coverage/*.dat
-      - run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG --nocache_test_results
+        run: bazel coverage wasm/... util/... js/... ${{ matrix.bazel }} --copt=-DNDEBUG --test_env=VERBOSE_COVERAGE=1 --test_output=all
       - run: du -h bazel-out/_coverage/*.dat
       - run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
