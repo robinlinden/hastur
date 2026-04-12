@@ -141,6 +141,7 @@ build:clang19-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-19
 build:clang19-coverage --action_env=BAZEL_LLVM_PROFDATA=llvm-profdata-19
 
 build:clang21-coverage --config=clang-coverage
+build:clang21-coverage --action_env=GCOV=llvm-cov-21
 build:clang21-coverage --action_env=BAZEL_LLVM_COV=llvm-cov-21
 build:clang21-coverage --action_env=BAZEL_LLVM_PROFDATA=llvm-profdata-21
 
