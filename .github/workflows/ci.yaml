@@ -197,6 +197,7 @@ jobs:
 #        env:
 #          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
 #        if: env.BUILDBUDDY_API_KEY != ''
+      - run: bazel version
       - name: Coverage
         # asserts are only marked as partially covered as we don't trigger them,
         # and if triggering one is possible at all, that's a bug, so let's
