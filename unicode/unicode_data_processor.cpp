@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -50,10 +50,10 @@ constexpr auto kDecompositions = std::to_array<Decomposition>({
 )";
 
     for (std::string line{}; std::getline(table, line);) {
-        // Filter out lines not containing decomposition info.
         auto fields = util::split(line, ";");
-        if (fields.size() < 6) {
-            continue;
+        if (fields.size() != 15) {
+            std::cerr << "Invalid row '" << line << "' in '" << argv[1] << "'.\n";
+            return 1;
         }
 
         // Filter out non-canonical decompositions.
