@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "unicode/normalization.h"
 
-#include "unicode/unicode_data.h"
+#include "unicode/decomposition_data.h"
 #include "unicode/util.h"
 
 #include <algorithm>

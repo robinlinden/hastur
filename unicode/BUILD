@@ -2,8 +2,8 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
 
 cc_binary(
-    name = "unicode_data_processor",
-    srcs = ["unicode_data_processor.cpp"],
+    name = "decomposition_data_processor",
+    srcs = ["decomposition_data_processor.cpp"],
     copts = HASTUR_COPTS,
     target_compatible_with = select({
         # Contains filesystem I/O. Our current wasm/wasi-setup doesn't like that.
@@ -14,18 +14,18 @@ cc_binary(
 )
 
 genrule(
-    name = "generate_unicode_data",
+    name = "generate_decomposition_data",
     srcs = ["@ucd//:UnicodeData.txt"],
-    outs = ["unicode_data.h"],
-    cmd = "$(location :unicode_data_processor) $(location @ucd//:UnicodeData.txt) >$@",
-    tools = [":unicode_data_processor"],
+    outs = ["decomposition_data.h"],
+    cmd = "$(location :decomposition_data_processor) $(location @ucd//:UnicodeData.txt) >$@",
+    tools = [":decomposition_data_processor"],
 )
 
 cc_library(
     name = "normalization",
     srcs = [
         "normalization.cpp",
-        ":generate_unicode_data",
+        ":generate_decomposition_data",
     ],
     hdrs = ["normalization.h"],
     copts = HASTUR_COPTS,

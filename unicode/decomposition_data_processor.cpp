@@ -26,14 +26,14 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    std::cout << R"(// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+    std::cout << R"(// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 // This file is generated. Do not touch it.
 
-#ifndef UNICODE_UNICODE_DATA_H_
-#define UNICODE_UNICODE_DATA_H_
+#ifndef UNICODE_DECOMPOSITION_DATA_H_
+#define UNICODE_DECOMPOSITION_DATA_H_
 
 #include <array>
 #include <string_view>
