@@ -1,8 +1,12 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "unicode/normalization.h"
+
+// TODO(robinlinden): This is just to check that this compiles for now, but
+// it'll be used soon.
+#include "unicode/canonical_combining_class_data.h" // IWYU pragma: keep
 
 #include "etest/etest2.h"
 
