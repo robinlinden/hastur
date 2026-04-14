@@ -97,9 +97,9 @@ bool last_mapping_was(auto const &mappings, std::optional<T> mapping = std::null
 };
 
 struct Idna {
-    // List of each code point starting a new mapping. I.e. if code point 1
+    // List of each code point ending a mapping. I.e. if code point 1
     // and 2 are disallowed, and 3 is valid, this list will be
-    // `[(1, Disallowed), (3, Valid)]`.
+    // `[(2, Disallowed), (3, Valid)]`.
     std::vector<std::pair<std::uint32_t, Mapping>> mappings;
 
     // https://www.unicode.org/reports/tr46/#Table_Data_File_Fields
