@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -13,7 +13,7 @@ namespace unicode {
 class Normalization {
 public:
     // Normalizes the input into its canonical decomposition, NFD.
-    static std::string decompose(std::string_view);
+    static std::string nfd(std::string_view);
 };
 
 } // namespace unicode

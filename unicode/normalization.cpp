@@ -4,15 +4,18 @@
 
 #include "unicode/normalization.h"
 
+#include "unicode/canonical_combining_class_data.h"
 #include "unicode/decomposition_data.h"
 #include "unicode/util.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace unicode {
 namespace {
@@ -35,13 +38,51 @@ void decompose_to(std::ostream &os, char32_t code_point) {
     }
 }
 
+std::uint8_t canonical_combining_class(char32_t code_point) {
+    auto cls = std::ranges::lower_bound(generated::kCanonicalCombiningClasses,
+            code_point,
+            {},
+            &decltype(generated::kCanonicalCombiningClasses)::value_type::first);
+
+    // TODO(robinlinden): Generate better mapping table.
+    if (cls->first != code_point) {
+        cls -= 1;
+    }
+
+    return cls->second;
+}
+
 } // namespace
 
-std::string Normalization::decompose(std::string_view input) {
+// TODO(robinlinden): This is very inefficient. Make it less silly.
+std::string Normalization::nfd(std::string_view input) {
     std::stringstream ss;
 
     for (auto const code_point : CodePointView{input}) {
         decompose_to(ss, code_point);
+    }
+
+    auto decomposed = std::exchange(ss, {}).str();
+    std::vector<decltype(generated::kCanonicalCombiningClasses)::value_type> might_need_rearrangement;
+    for (auto const code_point : CodePointView{decomposed}) {
+        if (auto cls = canonical_combining_class(code_point); cls != 0) {
+            might_need_rearrangement.emplace_back(code_point, cls);
+        } else {
+            std::ranges::stable_sort(
+                    might_need_rearrangement, {}, &decltype(generated::kCanonicalCombiningClasses)::value_type::second);
+            for (auto [c, _] : might_need_rearrangement) {
+                decompose_to(ss, c);
+            }
+
+            decompose_to(ss, code_point);
+            might_need_rearrangement.clear();
+        }
+    }
+
+    std::ranges::stable_sort(
+            might_need_rearrangement, {}, &decltype(generated::kCanonicalCombiningClasses)::value_type::second);
+    for (auto [c, _] : might_need_rearrangement) {
+        decompose_to(ss, c);
     }
 
     return std::move(ss).str();

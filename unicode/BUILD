@@ -49,6 +49,7 @@ cc_library(
     name = "normalization",
     srcs = [
         "normalization.cpp",
+        ":generate_canonical_combining_class_data",
         ":generate_decomposition_data",
     ],
     hdrs = ["normalization.h"],
@@ -67,10 +68,7 @@ cc_library(
 [cc_test(
     name = src.removesuffix(".cpp"),
     size = "small",
-    srcs = [
-        src,
-        ":generate_canonical_combining_class_data",
-    ],
+    srcs = [src],
     copts = HASTUR_COPTS,
     deps = [
         ":normalization",
