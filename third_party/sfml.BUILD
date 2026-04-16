@@ -180,6 +180,7 @@ objc_library(
     }),
     deps = [
         ":system",
+        ":system_private_hdrs",
     ],
 )
 
