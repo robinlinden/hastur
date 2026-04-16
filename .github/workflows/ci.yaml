@@ -198,9 +198,10 @@ jobs:
       # clang 21 coverage has a lot of problems w/ boringssl:
       # lcov: ERROR: "external/boringssl/crypto/conf/internal.h":30:  function conf.c:lh_CONF_VALUE_insert found on line but no corresponding 'line' coverage data point.  Cannot derive function end line.
       - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
+      # codecov-cli is from https://github.com/getsentry/prevent-cli
       - name: Upload
         run: |
-          pipx install codecov-cli==11.2.7
+          pipx install codecov-cli==11.2.8
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
@@ -236,7 +237,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v42.0.1
+      WASMTIME_VERSION: v43.0.1
     steps:
       - uses: actions/checkout@v6
       - name: Set up wasmtime
@@ -398,7 +399,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - run: npm install --global prettier@3.8.1
+      - run: npm install --global prettier@3.8.3
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
       - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
@@ -409,7 +410,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.0/shfmt_v3.13.0_linux_amd64 && chmod +x shfmt
+      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
 
