@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-c3U8REMycsZTznELtfWV3pnyQ7OIWHbQSnjCyjupAhk=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.3.0"),
+    integrity = "sha256-pdqkcC56NX9CO4NmZoDTqXu4qyEmqsW9nBiVAz8ZpVo=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.5.3"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -103,12 +103,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_shell
-RULES_SHELL_VERSION = "0.7.0"
+RULES_SHELL_VERSION = "0.8.0"
 
 bazel_dep(name = "rules_shell")  # Apache-2.0
 archive_override(
     module_name = "rules_shell",
-    integrity = "sha256-4X9ycyYYplNlWbMBXb4ZDvWS97m6gZaf9LynZsRRs6U=",
+    integrity = "sha256-IHIfY5CIecCD+Uhp5hjqjU/17bkf+acqLr7jV/28NS0=",
     strip_prefix = "rules_shell-%s" % RULES_SHELL_VERSION,
     url = "https://github.com/bazelbuild/rules_shell/releases/download/v{0}/rules_shell-v{0}.tar.gz".format(RULES_SHELL_VERSION),
 )
@@ -131,11 +131,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.43.0"
+BAZEL_FEATURES_VERSION = "1.45.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-wmtOac8C/qJFEaEI0VgYi52BdEJjEarFnOgDp40Qdkg=",
+    integrity = "sha256-rf2zz/qzqZpjNj2ETVWagZZdK2GmBi3VGj0keNQWdo8=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -180,13 +180,14 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "34.0"
+PROTOBUF_VERSION = "34.1"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-5UCq5w07T3WIRliHaMnjkJD6uIC8MjOh9CqKuNN4Hv0=",
+    integrity = "sha256-5Ob/EHYM90ei3s0YZ3QfVhsha9YMxAOMh1ZHE6baGEg=",
     patch_cmds = [
         # Avoid what transitive deps we can.
+        "sed -i'' -e /aspect_bazel_lib/d MODULE.bazel",
         "sed -i'' -e /jsoncpp/d MODULE.bazel",
         "sed -i'' -e /rules_kotlin/d MODULE.bazel",
     ],
@@ -300,12 +301,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260211.0"
+BORINGSSL_VERSION = "0.20260413.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-UuLZZ1nUg+OE45ZKJRN4HqBctrLWd/H49aQEmuowU10=",
+    integrity = "sha256-NWD33T8I4WufhNh3pb4h7GIHFWR4MAlXGvX8xvrXNNI=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -475,13 +476,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.6"
+IMGUI_VERSION = "1.92.7"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-WxfAH2lUW95zKxSTbYnOD1CK24PotW+oJEg3GEUXK8M=",
+    integrity = "sha256-shsUzh723U2F+lT2j4RJqb6U87RTq6f+TqKpdk5Dpe8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -558,13 +559,13 @@ EOF""",
 )
 
 # https://github.com/libjpeg-turbo/libjpeg-turbo
-LIBJPEG_TURBO_VERSION = "3.1.3"
+LIBJPEG_TURBO_VERSION = "3.1.4.1"
 
 bazel_dep(name = "libjpeg-turbo")  # BSD-3-Clause AND IJG
 archive_override(
     module_name = "libjpeg-turbo",
     build_file = "//third_party:libjpeg-turbo.BUILD",
-    integrity = "sha256-B1kguCaDSsTd+XZhzHNJEEeFWFmv/WcdUgecaGfBxsA=",
+    integrity = "sha256-7K6ACOLMmt4vLBu51ebU+3PnxDOGagVr2CmAdBVxoCI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libjpeg-turbo")
@@ -598,6 +599,8 @@ EOF""",
 )
 
 # https://github.com/SFML/SFML
+# SFML 3.1.0 and newer added dependencies on things like icu and glib (via harfbuzz),
+# so we're staying on 3.0.2 for a bit.
 SFML_VERSION = "3.0.2"
 
 bazel_dep(name = "sfml")  # Zlib
@@ -696,12 +699,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.344"
+VULKAN_TAG = "1.4.349"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-iLhrRB7tkx+0y6WVr/RvuxQXfXInTBVUQR1rvSEX6G8=",
+    integrity = "sha256-17hHEvhGlle6o3pDbRoj778KY1T8iDW2dY7wNuFdzBQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -717,7 +720,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-So3pHsaM+PEfrCl7eZa3zfmIUuMuhdZ1SJzoD8AivSQ=",
+    integrity = "sha256-U7XWE2o7MQPTq1EXD6TRA7cQ2KoiHwBuMAmFqQB0RwA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -729,13 +732,13 @@ EOF""",
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# HEAD, last updated at 2026-03-17.
+# HEAD, last updated at 2026-04-16.
 # https://github.com/web-platform-tests/wpt/blob/master/url/resources/urltestdata.json
-WPT_REVISION = "c928b19ab04a4525807238e9299c23f3a1cca582"
+WPT_REVISION = "d61231d9ceef372cc66d64ac19c467c2506a8814"
 
 http_file(
     name = "wpt_urltestdata",
-    integrity = "sha256-QS80OEyeI4CognZQcLuK8tYQymPtsamVHkBflGyz4mg=",
+    integrity = "sha256-H75kzQrtva2lnAfg2Z8faoVwQ3Wd2u6GDY4vaD2INno=",
     url = "https://raw.githubusercontent.com/web-platform-tests/wpt/%s/url/resources/urltestdata.json" % WPT_REVISION,
 )
 
