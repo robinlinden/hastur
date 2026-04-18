@@ -4,6 +4,9 @@
 
 #include "unicode/normalization.h"
 
+// TODO(robinlinden): Start using this.
+#include "unicode/composition_exclusion_data.h" // IWYU pragma: keep
+
 #include "unicode/canonical_combining_class_data.h"
 #include "unicode/decomposition_data.h"
 #include "unicode/util.h"

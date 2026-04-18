@@ -671,7 +671,12 @@ EOF""",
 bazel_dep(name = "ucd")
 archive_override(
     module_name = "ucd",
-    build_file_content = """exports_files(["UnicodeData.txt"])""",
+    build_file_content = """
+exports_files([
+    "CompositionExclusions.txt",
+    "UnicodeData.txt",
+])
+""",
     integrity = "sha256-IGbRkJsuqTkWzgktocDuSAjqPvhAfJS08U9bfrJj0o4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
