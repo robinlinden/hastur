@@ -26,6 +26,32 @@ genrule(
 )
 
 cc_binary(
+    name = "composition_exclusion_data_processor",
+    srcs = [
+        "composition_exclusion_data_processor.cpp",
+        ":generate_canonical_combining_class_data",
+    ],
+    copts = HASTUR_COPTS,
+    target_compatible_with = select({
+        # Contains filesystem I/O. Our current wasm/wasi-setup doesn't like that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = ["//util:string"],
+)
+
+genrule(
+    name = "generate_composition_exclusion_data",
+    srcs = [
+        "@ucd//:CompositionExclusions.txt",
+        "@ucd//:UnicodeData.txt",
+    ],
+    outs = ["composition_exclusion_data.h"],
+    cmd = "$(location :composition_exclusion_data_processor) $(location @ucd//:CompositionExclusions.txt) $(location @ucd//:UnicodeData.txt) >$@",
+    tools = [":composition_exclusion_data_processor"],
+)
+
+cc_binary(
     name = "decomposition_data_processor",
     srcs = ["decomposition_data_processor.cpp"],
     copts = HASTUR_COPTS,
@@ -50,6 +76,7 @@ cc_library(
     srcs = [
         "normalization.cpp",
         ":generate_canonical_combining_class_data",
+        ":generate_composition_exclusion_data",
         ":generate_decomposition_data",
     ],
     hdrs = ["normalization.h"],
