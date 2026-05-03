@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -50,15 +50,15 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    browser::gui::App app{kBrowserTitle, std::move(page)};
-    app.set_scale(scale);
-    app.set_js_enabled(enable_js);
+    auto app = browser::gui::App::create(kBrowserTitle, std::move(page));
+    app->set_scale(scale);
+    app->set_js_enabled(enable_js);
 
     if (!exit_after_load) {
-        return app.run();
+        return app->run();
     }
 
-    app.step();
+    app->step();
     spdlog::info("Page loaded, exiting...");
     return 0;
 }

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -273,21 +273,9 @@ std::vector<std::string_view> collect_image_urls(
 } // namespace
 
 App::App(std::string browser_title, std::string start_page_hint)
-    : engine_{create_protocol_handler(),
-              create_font_system(),
-              [this](std::string_view url) -> std::optional<layout::Size> {
-                  auto it = images_.find(url);
-                  if (it == end(images_)) {
-                      return std::nullopt;
-                  }
-
-                  return layout::Size{static_cast<int>(it->second.width), static_cast<int>(it->second.height)};
-              }},
-      browser_title_{std::move(browser_title)},
+    : browser_title_{std::move(browser_title)},
       window_{sf::VideoMode({kDefaultResolutionX, kDefaultResolutionY}), browser_title_},
-      url_buf_{std::move(start_page_hint)},
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-      canvas_{std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()))} {
+      url_buf_{std::move(start_page_hint)} {
     window_.setIcon({16, 16}, kBrowserIcon.data());
     if (!ImGui::SFML::Init(window_)) {
         spdlog::critical("imgui-sfml initialization failed");
@@ -301,6 +289,23 @@ App::App(std::string browser_title, std::string start_page_hint)
         // re-enable IO.
         ImGui::GetIO().IniFilename = nullptr;
     }
+}
+
+// This part of the initialization might use the `this`-ptr, so it gets to live
+// separately from the c-tor.
+void App::init() {
+    engine_ = std::make_unique<engine::Engine>(create_protocol_handler(),
+            create_font_system(),
+            [this](std::string_view url) -> std::optional<layout::Size> {
+                auto it = images_.find(url);
+                if (it == end(images_)) {
+                    return std::nullopt;
+                }
+
+                return layout::Size{static_cast<int>(it->second.width), static_cast<int>(it->second.height)};
+            });
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+    canvas_ = std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_->font_system()));
 
     canvas_->set_viewport_size(window_.getSize().x, window_.getSize().y);
 
@@ -397,12 +402,12 @@ void App::step() {
     while (ongoing_loads_.size() < kMaxConcurrentImageLoads && !pending_loads_.empty()) {
         auto [uri, id] = std::move(pending_loads_.back());
         pending_loads_.pop_back();
-        ongoing_loads_.push_back(load_image(engine_, std::move(uri), std::move(id)));
+        ongoing_loads_.push_back(load_image(*engine_, std::move(uri), std::move(id)));
     }
 
     if (should_relayout) {
         assert(maybe_page_);
-        engine_.relayout(page(), make_options());
+        engine_->relayout(page(), make_options());
         on_layout_updated();
         process_iterations_ = 5;
     }
@@ -490,7 +495,7 @@ void App::handle_event(sf::Event const &event) {
     } else if (auto const *resized = event.getIf<sf::Event::Resized>()) {
         canvas_->set_viewport_size(resized->size.x, resized->size.y);
         if (maybe_page_) {
-            engine_.relayout(**maybe_page_, make_options());
+            engine_->relayout(**maybe_page_, make_options());
             on_layout_updated();
         }
     } else if (auto const *key_pressed = event.getIf<sf::Event::KeyPressed>()) {
@@ -643,7 +648,7 @@ void App::navigate() {
     ongoing_loads_.clear();
     pending_loads_.clear();
     images_.clear();
-    maybe_page_ = engine_.navigate(*std::move(uri), make_options());
+    maybe_page_ = engine_->navigate(*std::move(uri), make_options());
 
     // Make sure the displayed url is still correct if we followed any redirects.
     if (maybe_page_) {
@@ -738,7 +743,7 @@ void App::on_page_loaded() {
             continue;
         }
 
-        auto icon = engine_.load(*uri).response;
+        auto icon = engine_->load(*uri).response;
         sf::Image favicon;
         if (!icon.has_value()) {
             spdlog::warn("Error loading favicon from '{}': {}", uri->uri, to_string(icon.error().err));
@@ -905,7 +910,7 @@ void App::run_debug_widget() {
             pending_loads_.clear();
             images_.clear();
             if (maybe_page_) {
-                engine_.relayout(page(), make_options());
+                engine_->relayout(page(), make_options());
                 on_layout_updated();
             }
         }
@@ -971,7 +976,7 @@ void App::select_canvas(Canvas canvas) {
     selected_canvas_ = canvas;
     if (canvas == Canvas::Sfml) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-        canvas_ = std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_.font_system()));
+        canvas_ = std::make_unique<gfx::SfmlCanvas>(window_, static_cast<type::SfmlType &>(engine_->font_system()));
     } else {
         canvas_ = std::make_unique<gfx::OpenGLCanvas>();
     }
@@ -997,7 +1002,7 @@ void App::start_loading_images() {
                 continue;
             }
 
-            ongoing_loads_.push_back(load_image(engine_, std::move(*uri), std::string{url}));
+            ongoing_loads_.push_back(load_image(*engine_, std::move(*uri), std::string{url}));
         }
     }
 }

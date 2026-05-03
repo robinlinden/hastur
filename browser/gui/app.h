@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -45,7 +45,12 @@ struct Image {
 
 class App final {
 public:
-    App(std::string browser_title, std::string start_page_hint);
+    static std::unique_ptr<App> create(std::string browser_title, std::string start_page_hint) {
+        auto app = std::unique_ptr<App>{new App(std::move(browser_title), std::move(start_page_hint))};
+        app->init();
+        return app;
+    }
+
     ~App();
 
     void set_scale(unsigned scale);
@@ -54,7 +59,10 @@ public:
     int run();
 
 private:
-    engine::Engine engine_;
+    App(std::string browser_title, std::string start_page_hint);
+    void init();
+
+    std::unique_ptr<engine::Engine> engine_;
     tl::expected<std::unique_ptr<engine::PageState>, engine::NavigationError> maybe_page_{
             tl::unexpected<engine::NavigationError>{{}}};
 
