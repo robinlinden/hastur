@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+# SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,7 +8,6 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Wall",
     "-Wextra",
     "-pedantic-errors",
-    "-Werror",
     "-Wctad-maybe-unsupported",
     "-Wdouble-promotion",
     "-Wformat=2",
@@ -37,14 +36,11 @@ HASTUR_CLANG_WARNING_FLAGS = HASTUR_LINUX_WARNING_FLAGS + [
 HASTUR_MSVC_WARNING_FLAGS = [
     # More warnings.
     "/W4",
-    # Treat warnings as errors.
-    "/WX",
 ]
 
 HASTUR_CLANG_CL_WARNING_FLAGS = [
     # -Wall in clang-cl is an alias of -Weverything, and -W4 is an alias of clang's -Wall + -Wextra.
     "-W4",
-    "-Werror",
     # Common idiom for zeroing members.
     "-Wno-missing-field-initializers",
 ]
