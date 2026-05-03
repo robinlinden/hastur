@@ -37,6 +37,13 @@ jobs:
             version: 15
             apt: g++-15
 
+          - name: gcc-16
+            os: ubuntu-24.04
+            container: ubuntu:26.04
+            compiler: gcc
+            version: 16
+            apt: g++-16
+
           - name: clang-18-tsan
             os: ubuntu-24.04
             compiler: clang
