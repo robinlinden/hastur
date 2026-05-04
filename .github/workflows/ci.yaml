@@ -160,7 +160,7 @@ jobs:
             version: 13
           - compiler: clang
             version: 21
-            bazel: --config=clang21-coverage
+            bazel: --config=clang21-coverage --config=libc++
     steps:
       - uses: actions/checkout@v6
         with:
@@ -189,23 +189,22 @@ jobs:
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
           sudo apt-get update
-          sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
+          sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }} libc++-${{ matrix.version }}-dev
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
       - run: sudo apt-get install libx11-dev libxi-dev
-      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
+#      - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
+#        env:
+#          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+#        if: env.BUILDBUDDY_API_KEY != ''
+      - run: bazel version
       - name: Coverage
         # asserts are only marked as partially covered as we don't trigger them,
         # and if triggering one is possible at all, that's a bug, so let's
         # disable them completely in the coverage build.
-        run: bazel coverage ... ${{ matrix.bazel }} --copt=-DNDEBUG
-      # clang 21 coverage has a lot of problems w/ boringssl:
-      # lcov: ERROR: "external/boringssl/crypto/conf/internal.h":30:  function conf.c:lh_CONF_VALUE_insert found on line but no corresponding 'line' coverage data point.  Cannot derive function end line.
-      - run: lcov --ignore-errors inconsistent --summary bazel-out/_coverage/_coverage_report.dat
-      # codecov-cli is from https://github.com/getsentry/prevent-cli
+        run: bazel coverage wasm/... util/... js/... ${{ matrix.bazel }} --copt=-DNDEBUG --test_env=VERBOSE_COVERAGE=1 --test_output=all
+      - run: du -h bazel-out/_coverage/*.dat
+      - run: lcov --summary bazel-out/_coverage/_coverage_report.dat
       - name: Upload
         run: |
           pipx install codecov-cli==11.2.8
