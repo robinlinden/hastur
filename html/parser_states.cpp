@@ -91,6 +91,14 @@ void pop_past(IActions &a, std::string_view element_name) {
     a.pop_current_node();
 }
 
+void pop_past_one_of(IActions &a, auto element_names) {
+    while (!std::ranges::contains(element_names, a.current_node_name())) {
+        a.pop_current_node();
+    }
+
+    a.pop_current_node();
+}
+
 // A character token that is one of U+0009 CHARACTER TABULATION, U+000A LINE
 // FEED (LF), U+000C FORM FEED (FF), U+000D CARRIAGE RETURN (CR), or U+0020
 // SPACE.
@@ -1082,7 +1090,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         return {};
     }
 
-    if (start != nullptr && (start->tag_name == "dd" || start->tag_name == "dt")) {
+    static constexpr auto kDescriptionContentTags = std::to_array<std::string_view>({"dd", "dt"});
+    if (start != nullptr && std::ranges::contains(kDescriptionContentTags, start->tag_name)) {
         a.set_frameset_ok(false);
 
         auto open_elements = a.names_of_open_elements();
@@ -1171,6 +1180,42 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
         }
 
         pop_past(a, "li");
+    }
+
+    if (end != nullptr && std::ranges::contains(kDescriptionContentTags, end->tag_name)) {
+        if (!has_element_in_scope(a, end->tag_name)) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, end->tag_name);
+
+        if (a.current_node_name() != end->tag_name) {
+            // Parse error.
+        }
+
+        pop_past(a, end->tag_name);
+        return {};
+    }
+
+    if (end != nullptr && std::ranges::contains(kHeadingTags, end->tag_name)) {
+        auto const is_in_scope = [&a](std::string_view e) {
+            return has_element_in_scope(a, e);
+        };
+
+        if (!std::ranges::any_of(kHeadingTags, is_in_scope)) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, std::nullopt);
+
+        if (a.current_node_name() != end->tag_name) {
+            // Parse error.
+        }
+
+        pop_past_one_of(a, std::span{kHeadingTags});
+        return {};
     }
 
     // TODO(robinlinden): Most things.

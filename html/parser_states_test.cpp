@@ -694,7 +694,8 @@ void in_body_tests(etest::Suite &s) {
                         .name{"body"},
                         .children{
                                 dom::Element{"h1"},
-                                dom::Element{.name{"h2"}, .children{dom::Text{"!"}}},
+                                dom::Element{"h2"},
+                                dom::Text{"!"},
                         },
                 });
     });
@@ -766,6 +767,18 @@ void in_body_tests(etest::Suite &s) {
 
     s.add_test("InBody: frameset, but ignored", [](etest::IActions &a) {
         auto res = parse("<body><frameset>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body"});
+    });
+
+    s.add_test("InBody: </dd>", [](etest::IActions &a) {
+        auto res = parse("<body><dd><a></dd>", {});
+        auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"dd", {}, {dom::Element{"a"}}}}});
+    });
+
+    s.add_test("InBody: </dt>, no tag in scope", [](etest::IActions &a) {
+        auto res = parse("<body></dt>", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
         a.expect_eq(body, dom::Element{"body"});
     });
