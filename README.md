@@ -49,7 +49,7 @@ The following assumes that you either have Bazel or Bazelisk under the name
 
 #### Generate json compilation database
 
-`bazel run @hedron_compile_commands//:refresh_all`
+Follow the instructions at [robinlinden/bazel-compile-commands](https://github.com/robinlinden/bazel-compile-commands).
 
 [bazel]: https://bazel.build
 [bazelisk]: https://github.com/bazelbuild/bazelisk
