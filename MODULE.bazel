@@ -11,25 +11,25 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-pdqkcC56NX9CO4NmZoDTqXu4qyEmqsW9nBiVAz8ZpVo=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.5.3"),
+    integrity = "sha256-BjZ8UXjjZf+dnfSKso5rCAw0Sgb1LLARV9+IFznSyxQ=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.5.4"),
 )
 
 # https://github.com/bazelbuild/platforms
 bazel_dep(name = "platforms")  # Apache-2.0
 archive_override(
     module_name = "platforms",
-    integrity = "sha256-M4TrHDB2JwT7445EAgThFBVAhsj8iowuPihEECjAGag=",
-    url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("1.0.0"),
+    integrity = "sha256-261KI6vMphceR7ee3FO9akEGejt1+eixBGVrRZ/yUEY=",
+    url = "https://github.com/bazelbuild/platforms/releases/download/{0}/platforms-{0}.tar.gz".format("1.1.0"),
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.17"
+RULES_CC_VERSION = "0.2.18"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-KD+hzarxcjN4mHSc9Lmx716iadpZVAlU5R+6DnuPJ3o=",
+    integrity = "sha256-HeW0dyH84K8N1FOzBxIo/fxEvRgZmCaz8LA7Qjqun2U=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -52,6 +52,9 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
+# @rules_python doesn't work w/ our cross-compilation setup starting w/ 2.0.0.
+# Probably fixable w/ the right configuration nonsense, but nothing about this
+# is mentioned in the breaking change documentation.
 RULES_PYTHON_VERSION = "1.9.0"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
@@ -77,12 +80,12 @@ pip.parse(
 use_repo(pip, "pypi")
 
 # https://github.com/bazel-contrib/rules_fuzzing
-RULES_FUZZING_VERSION = "0.6.0"
+RULES_FUZZING_VERSION = "0.8.0"
 
 bazel_dep(name = "rules_fuzzing")  # Apache-2.0
 archive_override(
     module_name = "rules_fuzzing",
-    integrity = "sha256-hQiXmJ68BlZ+oGyVnrSmEp+lCe0tu9DRR9YtK5hnFKk=",
+    integrity = "sha256-fROnjp7bH2MJOt7HXhbEfiuXU4K4kR/FO3LyNV/NChY=",
     strip_prefix = "rules_fuzzing-%s" % RULES_FUZZING_VERSION,
     url = "https://github.com/bazel-contrib/rules_fuzzing/archive/refs/tags/v{0}.tar.gz".format(RULES_FUZZING_VERSION),
 )
@@ -292,12 +295,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260413.0"
+BORINGSSL_VERSION = "0.20260508.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-NWD33T8I4WufhNh3pb4h7GIHFWR4MAlXGvX8xvrXNNI=",
+    integrity = "sha256-3jNx0/4IWv00d4pMmI+3hAucksshUE5nTzPr79mO3AA=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -307,24 +310,19 @@ archive_override(
 )
 
 # https://github.com/google/brotli
-BROTLI_VERSION = "1.2.0"
+# HEAD, last updated at 2026-05-07.
+# v1.2.0 + fixes for Bazel 9.
+BROTLI_VERSION = "af041f55e7bfa3e1bc502f234538e1d6dd6282bd"
 
 bazel_dep(name = "brotli")  # MIT
 archive_override(
     module_name = "brotli",
-    integrity = "sha256-gWyW6Ojxk7QBUdrX6P83sSIdAZ28ucNc0/rb/mR33+w=",
+    integrity = "sha256-QmR5n7aXhPpgSY2KoYN3V/1D1NtngrFN1LQOHn7+Er8=",
     patch_cmds = [
         """sed -i'' -e 's/package(/package(features=["-layering_check"],/' BUILD.bazel""",
-        # Add missing loads required for building w/ Bazel 9.
-        # See: https://github.com/google/brotli/pull/1412
-        """cat <<EOF >MODULE.bazel
-module(name = "brotli")
-bazel_dep(name = "rules_cc")
-EOF""",
-        """sed -i'' -e '3i\\\nload("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")\\\n' BUILD.bazel""",
     ],
     strip_prefix = "brotli-%s" % BROTLI_VERSION,
-    url = "https://github.com/google/brotli/archive/refs/tags/v%s.tar.gz" % BROTLI_VERSION,
+    url = "https://github.com/google/brotli/archive/%s.tar.gz" % BROTLI_VERSION,
 )
 
 # https://github.com/tartanllama/expected
@@ -371,13 +369,13 @@ EOF""",
 )
 
 # https://github.com/freetype/freetype
-FREETYPE_VERSION = "VER-2-14-2"
+FREETYPE_VERSION = "VER-2-14-3"
 
 bazel_dep(name = "freetype2")  # FTL
 archive_override(
     module_name = "freetype2",
     build_file = "//third_party:freetype2.BUILD",
-    integrity = "sha256-v7HqvXgz7gtVn0UKmp3jMzfom38tagOlVsCKX7nwYH4=",
+    integrity = "sha256-3EneawGiZu70h2pN002YQsR10+KP8u/2O9L7dgq1YmE=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "freetype2")
@@ -410,15 +408,15 @@ local_path_override(
     path = "third_party/glad2",
 )
 
-# HEAD, last updated at 2025-10-05.
+# HEAD, last updated at 2026-05-09.
 # https://github.com/html5lib/html5lib-tests/
-HTML5LIB_TESTS_VERSION = "f994590f528ac8b6073665791ddb1ed85c66dfb2"
+HTML5LIB_TESTS_VERSION = "85c968aca811edcb5eb6020b5b9184b2c42a86ab"
 
 bazel_dep(name = "html5lib-tests")
 archive_override(
     module_name = "html5lib-tests",  # MIT
     build_file = "//third_party:html5lib-tests.BUILD",
-    integrity = "sha256-Mm3mJftYKVzHglTgw+oyyN2jtSfp/nhcxZ3g1EJXYW4=",
+    integrity = "sha256-r1dKyHvdYQtfYyXM6UBx2VU/fvQTZCtekZVmluSyFWw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "html5lib-tests")
@@ -570,13 +568,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
-LIBPNG_VERSION = "1.6.55"
+LIBPNG_VERSION = "1.6.58"
 
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-caLFsSGPYMTG0vGVTH6yATIVbK6QvbkLVmwk2wAngqY=",
+    integrity = "sha256-qdTfRj02puX5wpvW9JZzEtF+mWwYVPNRH4M5JOsZk88=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -695,12 +693,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.349"
+VULKAN_TAG = "1.4.350"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-17hHEvhGlle6o3pDbRoj778KY1T8iDW2dY7wNuFdzBQ=",
+    integrity = "sha256-bdEF5cx92rbnthGuLBhydA0XJ1V8yL+drxPW3h5LOZk=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -716,7 +714,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-U7XWE2o7MQPTq1EXD6TRA7cQ2KoiHwBuMAmFqQB0RwA=",
+    integrity = "sha256-zwHTYBQvKRrKs4JWvWWtMUndqmzfl2944PfSs0RFrA0=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -728,13 +726,13 @@ EOF""",
     url = "https://github.com/KhronosGroup/Vulkan-Hpp/archive/v%s.tar.gz" % VULKAN_TAG,
 )
 
-# HEAD, last updated at 2026-04-16.
+# HEAD, last updated at 2026-05-08.
 # https://github.com/web-platform-tests/wpt/blob/master/url/resources/urltestdata.json
-WPT_REVISION = "d61231d9ceef372cc66d64ac19c467c2506a8814"
+WPT_REVISION = "258f285de043b79e44324228c0fd800b38d21879"
 
 http_file(
     name = "wpt_urltestdata",
-    integrity = "sha256-H75kzQrtva2lnAfg2Z8faoVwQ3Wd2u6GDY4vaD2INno=",
+    integrity = "sha256-zcy90kZI+LaTXyJx9PXqKFvwNq0aincn53p20Ch6oBk=",
     url = "https://raw.githubusercontent.com/web-platform-tests/wpt/%s/url/resources/urltestdata.json" % WPT_REVISION,
 )
 
