@@ -91,7 +91,7 @@ jobs:
         run: |
           echo '#!/bin/sh\n"$@"' >/usr/bin/sudo && chmod +x /usr/bin/sudo
           apt-get update && apt-get install --assume-yes --no-install-recommends curl ca-certificates
-          curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.28.1/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
+          curl --location --output /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.29.0/bazelisk-linux-amd64 && chmod +x /usr/bin/bazel
           # icu requires gcc to exist.
           ln -s /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
       - name: Setup gcc
@@ -244,7 +244,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v43.0.1
+      WASMTIME_VERSION: v44.0.1
     steps:
       - uses: actions/checkout@v6
       - name: Set up wasmtime
@@ -341,7 +341,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - run: pipx install pre-commit==4.5.1
+      - run: pipx install pre-commit==4.6.0
       - run: pre-commit run --all-files
 
   clang-format:
