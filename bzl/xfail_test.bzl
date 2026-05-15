@@ -4,11 +4,9 @@
 
 """Starlark rules for creating xfail tests."""
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
-def _xfail_test(
+def xfail_test(
         binary_rule,
         name,
         size = None,
@@ -32,9 +30,3 @@ def _xfail_test(
         args = ["$(location :%s_bin)" % name] + args,
         tags = tags,
     )
-
-def cc_xfail_test(**kwargs):
-    _xfail_test(binary_rule = cc_binary, **kwargs)
-
-def sh_xfail_test(**kwargs):
-    _xfail_test(binary_rule = sh_binary, **kwargs)

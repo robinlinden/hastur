@@ -2,7 +2,7 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
-load("//bzl:defs.bzl", "sh_xfail_test")
+load("//bzl:sh_xfail_test.bzl", "sh_xfail_test")
 
 cc_library(
     name = "html",

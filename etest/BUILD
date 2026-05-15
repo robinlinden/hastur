@@ -1,6 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("//bzl:cc_xfail_test.bzl", "cc_xfail_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
-load("//bzl:defs.bzl", "cc_xfail_test")
 
 cc_library(
     name = "etest",
