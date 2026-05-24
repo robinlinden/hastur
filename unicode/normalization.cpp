@@ -29,7 +29,7 @@ void decompose_to(std::ostream &os, char32_t code_point) {
             generated::kDecompositions, code_point, {}, &decltype(generated::kDecompositions)::value_type::code_point);
 
     // This code point does not decompose.
-    if (maybe_decomposition->code_point != code_point) {
+    if (maybe_decomposition == generated::kDecompositions.end() || maybe_decomposition->code_point != code_point) {
         os << to_utf8(code_point);
         return;
     }
@@ -46,6 +46,10 @@ std::uint8_t canonical_combining_class(char32_t code_point) {
             code_point,
             {},
             &decltype(generated::kCanonicalCombiningClasses)::value_type::first);
+
+    if (cls == generated::kCanonicalCombiningClasses.end()) {
+        return generated::kCanonicalCombiningClasses.back().second;
+    }
 
     // TODO(robinlinden): Generate better mapping table.
     if (cls->first != code_point) {

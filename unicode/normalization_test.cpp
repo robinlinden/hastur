@@ -9,6 +9,12 @@
 int main() {
     etest::Suite s{};
 
+    s.add_test("nfd: very high value", [](etest::IActions &a) {
+        // Just a random high value that doesn't decompose. This is to test the
+        // edge case w/ a value above the last item in the decomposition table.
+        a.expect_eq(unicode::Normalization::nfd("\xF0\xB2\xA4\xB1"), "\xF0\xB2\xA4\xB1");
+    });
+
     s.add_test("nfd: ascii, unchanged", [](etest::IActions &a) {
         a.expect_eq(unicode::Normalization::nfd("abc123xyz"), "abc123xyz"); //
     });
