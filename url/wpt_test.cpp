@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -42,16 +42,17 @@ int main(int argc, char **argv) {
 
     etest::Suite s{};
 
-    s.add_test("Web Platform Tests", [&](etest::IActions &a) {
-        url::UrlParser p;
+    for (auto const &entry : arr.values) {
+        // Skip strings, those are just comments
+        if (std::holds_alternative<std::string>(entry)) {
+            continue;
+        }
 
-        for (auto const &entry : arr.values) {
-            // Skip strings, those are just comments
-            if (std::holds_alternative<std::string>(entry)) {
-                continue;
-            }
+        auto const &obj = std::get<json::Object>(entry);
 
-            auto const &obj = std::get<json::Object>(entry);
+        s.add_test(std::get<std::string>(obj.at("input")), [obj](etest::IActions &a) {
+            url::UrlParser p;
+
             bool should_fail = false;
 
             // Check if test expects failure
@@ -77,14 +78,14 @@ int main(int argc, char **argv) {
                 a.expect(url.has_value(), "Parsing input URL:(" + std::string{input} + ") failed");
 
                 if (!url.has_value()) {
-                    continue;
+                    return;
                 }
             } else {
                 a.require(!url.has_value(),
                         "Parsing input URL:(" + std::string{input} + ") succeeded when it was supposed to fail");
 
                 // If this test was an expected failure, test ends here
-                continue;
+                return;
             }
 
             // Check URL fields against test
@@ -127,8 +128,8 @@ int main(int argc, char **argv) {
             std::string_view hash = std::get<std::string>(obj.at("hash"));
             a.expect_eq(url->fragment.has_value() && !url->fragment->empty() ? std::string{"#"} + *url->fragment : "",
                     hash);
-        }
-    });
+        });
+    }
 
     int ret = s.run();
 
