@@ -53,13 +53,6 @@ int main(int argc, char **argv) {
         s.add_test(std::get<std::string>(obj.at("input")), [obj](etest::IActions &a) {
             url::UrlParser p;
 
-            bool should_fail = false;
-
-            // Check if test expects failure
-            if (obj.contains("failure")) {
-                should_fail = true;
-            }
-
             // Get input URL
             std::string_view input = std::get<std::string>(obj.at("input"));
 
@@ -74,19 +67,15 @@ int main(int argc, char **argv) {
             // Parse input URL
             std::optional<url::Url> url = p.parse(std::string{input}, base_test);
 
-            if (!should_fail) {
-                a.expect(url.has_value(), "Parsing input URL:(" + std::string{input} + ") failed");
-
-                if (!url.has_value()) {
-                    return;
-                }
-            } else {
-                a.require(!url.has_value(),
+            if (bool should_fail = obj.contains("failure"); should_fail) {
+                a.expect(!url.has_value(),
                         "Parsing input URL:(" + std::string{input} + ") succeeded when it was supposed to fail");
 
                 // If this test was an expected failure, test ends here
                 return;
             }
+
+            a.require(url.has_value(), "Parsing input URL:(" + std::string{input} + ") failed");
 
             // Check URL fields against test
 
