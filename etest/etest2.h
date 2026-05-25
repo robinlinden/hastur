@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef ETEST_ETEST2_H_
 #define ETEST_ETEST2_H_
 
+#include <algorithm>
 #include <concepts>
 #include <exception>
 #include <functional>
@@ -130,6 +131,7 @@ public:
     explicit Suite(std::optional<std::string> name = std::nullopt) : name_(std::move(name)) {}
 
     void add_test(std::string name, std::function<void(IActions &)> test) {
+        std::ranges::replace_if(name, is_ctrl, ' ');
         tests_.push_back({std::move(name), std::move(test)});
     }
 
@@ -155,6 +157,7 @@ public:
     }
 
     void disabled_test(std::string name, std::function<void(IActions &)> test) {
+        std::ranges::replace_if(name, is_ctrl, ' ');
         disabled_tests_.push_back({std::move(name), std::move(test)});
     }
 
@@ -164,6 +167,8 @@ private:
     std::optional<std::string> name_;
     std::vector<Test> tests_;
     std::vector<Test> disabled_tests_;
+
+    static constexpr bool is_ctrl(unsigned char c) { return c < 0x20 || c == 0x7F; };
 };
 
 } // namespace etest
