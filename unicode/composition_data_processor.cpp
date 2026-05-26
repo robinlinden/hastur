@@ -15,8 +15,10 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <vector>
 
 namespace {
+
 std::uint32_t code_point_from_hex(std::string_view s) {
     std::uint32_t cp{};
     auto res = std::from_chars(s.data(), s.data() + s.size(), cp, 16);
@@ -27,6 +29,13 @@ std::uint32_t code_point_from_hex(std::string_view s) {
 
     return cp;
 }
+
+struct Composition {
+    std::uint32_t first{};
+    std::uint32_t second{};
+    std::uint32_t composed{};
+};
+
 } // namespace
 
 // https://www.unicode.org/reports/tr44/#UnicodeData.txt
@@ -66,6 +75,10 @@ struct Composition {
 constexpr auto kCompositions = std::to_array<Composition>({
 )";
 
+    // First gather all compositions, then sort them by the first code point.
+    // This allows us to use std::lower_bound for the first code point.
+    std::vector<Composition> compositions;
+
     for (std::string line{}; std::getline(table, line);) {
         auto fields = util::split(line, ";");
         if (fields.size() != 15) {
@@ -91,7 +104,18 @@ constexpr auto kCompositions = std::to_array<Composition>({
             return 1;
         }
 
-        std::cout << "        {0x" << decompositions[0] << ", 0x" << decompositions[1] << ", 0x" << fields[0] << "},\n";
+        compositions.push_back({
+                code_point_from_hex(decompositions[0]),
+                code_point_from_hex(decompositions[1]),
+                code_point,
+        });
+    }
+
+    std::ranges::sort(compositions, {}, &Composition::first);
+
+    for (auto const &composition : compositions) {
+        std::cout << "        {0x" << std::hex << composition.first << ", 0x" << composition.second << ", 0x"
+                  << composition.composed << "},\n";
     }
 
     std::cout << "});\n\n"
