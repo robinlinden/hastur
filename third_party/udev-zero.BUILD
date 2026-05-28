@@ -14,6 +14,7 @@ cc_library(
         "*.h",
     ]),
     hdrs = [":generate_public_header"],
+    local_defines = ["USB_IDS_PATH=\\\"/usr/share/hwdata/usb.ids\\\""],
     target_compatible_with = ["@platforms//os:linux"],
     visibility = ["//visibility:public"],
 )

@@ -304,12 +304,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260508.0"
+BORINGSSL_VERSION = "0.20260526.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-3jNx0/4IWv00d4pMmI+3hAucksshUE5nTzPr79mO3AA=",
+    integrity = "sha256-bJTxFTcpePRQXfgoBSIRHAPy7E773y3McTy4zx+pqqs=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -474,13 +474,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.7"
+IMGUI_VERSION = "1.92.8"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-shsUzh723U2F+lT2j4RJqb6U87RTq6f+TqKpdk5Dpe8=",
+    integrity = "sha256-/ssz0zkw4S/1OjQGTp06Bsj3w+BECPFM02yA4/qshjs=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -685,9 +685,12 @@ EOF""",
 )
 
 # https://github.com/illiliti/libudev-zero
+UDEV_ZERO_VERSION = "1.0.4"
+
 archive_override(
     module_name = "udev-zero",
     build_file = "//third_party:udev-zero.BUILD",
+    integrity = "sha256-EBSM/WBH04e/ceynLNGcF3CEIk2WQ0oRjY3vbgo9YxY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "udev-zero")
@@ -695,19 +698,18 @@ bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",
     ],
-    sha256 = "0bd89b657d62d019598e6c7ed726ff8fed80e8ba092a83b484d66afb80b77da5",
-    strip_prefix = "libudev-zero-1.0.3",
-    url = "https://github.com/illiliti/libudev-zero/archive/1.0.3.tar.gz",
+    strip_prefix = "libudev-zero-%s" % UDEV_ZERO_VERSION,
+    url = "https://github.com/illiliti/libudev-zero/archive/%s.tar.gz" % UDEV_ZERO_VERSION,
 )
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.350"
+VULKAN_TAG = "1.4.352"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-bdEF5cx92rbnthGuLBhydA0XJ1V8yL+drxPW3h5LOZk=",
+    integrity = "sha256-SFCQnSKoqXZ8J9rqK5cuSdfCmFYFc9W2Ih7lDbm/Sds=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -723,7 +725,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-zwHTYBQvKRrKs4JWvWWtMUndqmzfl2944PfSs0RFrA0=",
+    integrity = "sha256-1FNszKFCUpXCF6D99JOCZmgCrcj+A2LRuUlvdA3N+/Y=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
