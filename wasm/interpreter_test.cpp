@@ -22,7 +22,7 @@ int main() {
 
     s.add_test("unhandled instruction", [](etest::IActions &a) {
         Interpreter i;
-        a.expect_eq(i.interpret(wasm::instructions::End{}), tl::unexpected{wasm::Trap::UnhandledInstruction});
+        a.expect_eq(i.interpret(wasm::instructions::Select{}), tl::unexpected{wasm::Trap::UnhandledInstruction});
         a.expect_eq(i, Interpreter{});
     });
 
@@ -42,6 +42,20 @@ int main() {
                 LocalSet{0},
         }});
         a.expect_eq(result, std::nullopt);
+    });
+
+    s.add_test("An End instruction terminates execution and returns the top-of-stack value.", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{42}, End{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+    });
+
+    s.add_test("An End instruction with an empty stack produces no result.", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#blocks
+        // Void function body (arity 0): empty stack after end means no result.
+        Interpreter i;
+        auto res = i.run({{End{}}});
+        a.expect_eq(res, std::nullopt);
     });
 
     s.add_test("i32.const", [](etest::IActions &a) {
