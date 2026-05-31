@@ -14,6 +14,9 @@ class Normalization {
 public:
     // Normalizes the input into its canonical decomposition, NFD.
     static std::string nfd(std::string_view);
+
+    // Normalizes the input into its canonical composition, NFC.
+    static std::string nfc(std::string_view);
 };
 
 } // namespace unicode

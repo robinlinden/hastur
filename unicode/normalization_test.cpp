@@ -42,5 +42,26 @@ int main() {
         a.expect_eq(unicode::Normalization::nfd("q\xCC\x82\xCC\xA3"), "q\xCC\xA3\xCC\x82");
     });
 
+    s.add_test("nfc: ascii, unchanged", [](etest::IActions &a) {
+        a.expect_eq(unicode::Normalization::nfc("abc123xyz"), "abc123xyz"); //
+    });
+
+    s.add_test("nfc: needs composition", [](etest::IActions &a) {
+        // A + COMBINING RING ABOVE
+        a.expect_eq(unicode::Normalization::nfc("A\xCC\x8A"), "Å");
+        a.expect_eq(unicode::Normalization::nfc("a\xCC\x8A"), "å");
+
+        // s + COMBINING DOT BELOW + COMBINING DOT ABOVE
+        a.expect_eq(unicode::Normalization::nfc("s\xCC\xA3\xCC\x87"), "ṩ");
+    });
+
+    s.add_test("nfc: ascii mixed w/ composable", [](etest::IActions &a) {
+        // s + COMBINING DOT BELOW + COMBINING DOT ABOVE
+        a.expect_eq(unicode::Normalization::nfc("123"
+                                                "s\xCC\xA3\xCC\x87"
+                                                "567"),
+                "123ṩ567");
+    });
+
     return s.run();
 }
