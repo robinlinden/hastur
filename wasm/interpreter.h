@@ -96,6 +96,11 @@ public:
         return tl::unexpected{Trap::UnhandledInstruction};
     }
 
+    // https://webassembly.github.io/spec/core/exec/instructions.html#blocks
+    // In the flat execution model (no nested blocks), end is the function body terminator.
+    // run() already returns stack.back() after the loop, so this is a no-op.
+    tl::expected<void, Trap> interpret(instructions::End const &) { return {}; }
+
     // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
     // t.const c
     tl::expected<void, Trap> interpret(instructions::I32Const const &v) {
