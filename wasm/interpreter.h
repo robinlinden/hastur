@@ -86,6 +86,7 @@ public:
     std::vector<Value> locals;
     std::vector<Value> globals;
     std::vector<std::uint8_t> memory;
+    bool returning{false};
     [[nodiscard]] constexpr bool operator==(Interpreter const &) const = default;
 
     tl::expected<std::optional<Value>, Trap> run(std::span<instructions::Instruction const>);
@@ -100,6 +101,14 @@ public:
     // In the flat execution model (no nested blocks), end is the function body terminator.
     // run() already returns stack.back() after the loop, so this is a no-op.
     tl::expected<void, Trap> interpret(instructions::End const &) { return {}; }
+
+    // https://webassembly.github.io/spec/core/exec/instructions.html#returning-from-a-function
+    // (frame_n { f }  val'*  val^n  return  instr*)  →  val^n
+    // Sets the returning flag so run() stops executing further instructions.
+    tl::expected<void, Trap> interpret(instructions::Return const &) {
+        returning = true;
+        return {};
+    }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
     // t.const c
@@ -220,6 +229,7 @@ public:
 
 inline tl::expected<std::optional<Interpreter::Value>, Trap> Interpreter::run(
         std::span<instructions::Instruction const> insns) {
+    returning = false;
     for (auto const &insn : insns) {
         auto res = std::visit(
                 [this](auto const &i) -> tl::expected<void, Trap> {
@@ -229,7 +239,11 @@ inline tl::expected<std::optional<Interpreter::Value>, Trap> Interpreter::run(
         if (!res) {
             return tl::unexpected{res.error()};
         }
+        if (returning) {
+            break;
+        }
     }
+    returning = false;
 
     return stack.empty() ? std::nullopt : std::optional{stack.back()};
 }

@@ -58,6 +58,20 @@ int main() {
         a.expect_eq(res, std::nullopt);
     });
 
+    s.add_test("A Return instruction exits the function and returns the top-of-stack value.", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#returning-from-a-function
+        Interpreter i;
+        auto res = i.run({{I32Const{42}, Return{}, I32Const{99}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+    });
+
+    s.add_test("A Return instruction with an empty stack produces no result.", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#returning-from-a-function
+        Interpreter i;
+        auto res = i.run({{Return{}}});
+        a.expect_eq(res, std::nullopt);
+    });
+
     s.add_test("i32.const", [](etest::IActions &a) {
         Interpreter i;
         auto res = i.run({{I32Const{42}}});
