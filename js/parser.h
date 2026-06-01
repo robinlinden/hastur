@@ -245,6 +245,59 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
+    [[nodiscard]] static std::optional<ast::ObjectExpression> parse_object_expression(std::span<parse::Token> &tokens) {
+        if (!std::holds_alternative<parse::LBrace>(tokens.front())) {
+            return std::nullopt;
+        }
+
+        tokens = tokens.subspan(1); // '{'
+
+        if (tokens.empty()) {
+            return std::nullopt;
+        }
+
+        std::vector<std::pair<ast::Identifier, ast::Expression>> properties;
+
+        while (!std::holds_alternative<parse::RBrace>(tokens.front())) {
+            auto *key = std::get_if<parse::Identifier>(&tokens.front());
+            if (key == nullptr) {
+                return std::nullopt;
+            }
+
+            tokens = tokens.subspan(1); // identifier
+
+            if (!std::holds_alternative<parse::Colon>(tokens.front())) {
+                return std::nullopt;
+            }
+
+            tokens = tokens.subspan(1); // ':'
+
+            auto value = parse_expression(tokens);
+            if (!value) {
+                return std::nullopt;
+            }
+
+            properties.emplace_back(ast::Identifier{.name = std::move(key->name)}, std::move(*value));
+
+            if (tokens.empty()) {
+                return std::nullopt;
+            }
+
+            if (std::holds_alternative<parse::Comma>(tokens.front())) {
+                tokens = tokens.subspan(1); // ','
+
+                if (tokens.empty()) {
+                    return std::nullopt;
+                }
+            }
+        }
+
+        tokens = tokens.subspan(1); // '}'
+
+        return ast::ObjectExpression{.properties{std::move(properties)}};
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Expression> parse_expression(std::span<parse::Token> &tokens) {
         if (tokens.empty()) {
             return std::nullopt;
@@ -263,6 +316,8 @@ private:
             expr = ast::Identifier{std::move(std::get<parse::Identifier>(token).name)};
         } else if (std::holds_alternative<parse::Function>(tokens.front())) {
             expr = parse_function_expression(tokens);
+        } else if (std::holds_alternative<parse::LBrace>(tokens.front())) {
+            expr = parse_object_expression(tokens);
         } else {
             return std::nullopt;
         }

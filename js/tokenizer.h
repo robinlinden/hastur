@@ -76,6 +76,8 @@ public:
                 return Comma{};
             case '.':
                 return Period{};
+            case ':':
+                return Colon{};
             case '=':
                 return Equals{};
             case '+':

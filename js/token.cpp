@@ -24,6 +24,7 @@ struct StringifyVisitor {
     std::string operator()(Semicolon const &) { return "Semicolon"; }
     std::string operator()(Comma const &) { return "Comma"; }
     std::string operator()(Period const &) { return "Period"; }
+    std::string operator()(Colon const &) { return "Colon"; }
     std::string operator()(Equals const &) { return "Equals"; }
     std::string operator()(Plus const &) { return "Plus"; }
     std::string operator()(Asterisk const &) { return "Asterisk"; }

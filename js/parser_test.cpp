@@ -449,5 +449,72 @@ int main() {
         a.expect(std::holds_alternative<js::ast::EmptyStatement>(second_statement));
     });
 
+    s.add_test("object expression, empty", [](etest::IActions &a) {
+        auto p = js::Parser::parse("a = {};").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr_stmt = std::get<js::ast::ExpressionStatement>(statement);
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr_stmt.expression);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "a");
+
+        auto &obj_expr = std::get<js::ast::ObjectExpression>(*assign.right);
+        a.expect_eq(obj_expr.properties.size(), std::size_t{0});
+    });
+
+    s.add_test("object expression, with properties", [](etest::IActions &a) {
+        auto p = js::Parser::parse("a = { a: 1, b: 'hello', };").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr_stmt = std::get<js::ast::ExpressionStatement>(statement);
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr_stmt.expression);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "a");
+
+        auto &obj_expr = std::get<js::ast::ObjectExpression>(*assign.right);
+        a.expect_eq(obj_expr.properties.size(), std::size_t{2});
+
+        auto &first_property = obj_expr.properties.at(0);
+        a.expect_eq(first_property.first.name, "a");
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(first_property.second)).value, 1.);
+
+        auto &second_property = obj_expr.properties.at(1);
+        a.expect_eq(second_property.first.name, "b");
+        a.expect_eq(
+                std::get<js::ast::StringLiteral>(std::get<js::ast::Literal>(second_property.second)).value, "hello");
+    });
+
+    s.add_test("object expression, nested objects", [](etest::IActions &a) {
+        auto p = js::Parser::parse("a = { a: { b: 2 } };").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &expr_stmt = std::get<js::ast::ExpressionStatement>(statement);
+        auto &assign = std::get<js::ast::AssignmentExpression>(expr_stmt.expression);
+        a.expect_eq(std::get<js::ast::Identifier>(*assign.left).name, "a");
+
+        auto &obj_expr = std::get<js::ast::ObjectExpression>(*assign.right);
+        a.expect_eq(obj_expr.properties.size(), std::size_t{1});
+
+        auto &first_property = obj_expr.properties.at(0);
+        a.expect_eq(first_property.first.name, "a");
+
+        auto &nested_obj_expr = std::get<js::ast::ObjectExpression>(first_property.second);
+        a.expect_eq(nested_obj_expr.properties.size(), std::size_t{1});
+
+        auto &nested_property = nested_obj_expr.properties.at(0);
+        a.expect_eq(nested_property.first.name, "b");
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(nested_property.second)).value, 2.);
+    });
+
+    s.add_test("object expression, bad", [](etest::IActions &a) {
+        a.expect_eq(js::Parser::parse("a = {").has_value(), false);
+        a.expect_eq(js::Parser::parse("a = { a: 1").has_value(), false);
+        a.expect_eq(js::Parser::parse("a = { a: 1,").has_value(), false);
+        a.expect_eq(js::Parser::parse("a = { a: 1, b }").has_value(), false);
+        a.expect_eq(js::Parser::parse("a = { a: 1, : 2 }").has_value(), false);
+        a.expect_eq(js::Parser::parse("a = { a: 1, b: }").has_value(), false);
+    });
+
     return s.run();
 }

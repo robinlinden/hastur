@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -89,7 +89,7 @@ int main() {
 
     s.add_test("braces", [](etest::IActions &a) {
         expect_tokens(a, "{}", {LBrace{}, RBrace{}});
-        expect_tokens(a, "{ }", {LBrace{}, RBrace{}});
+        expect_tokens(a, "{ : }", {LBrace{}, Colon{}, RBrace{}});
         expect_tokens(a, "{ hello }", {LBrace{}, Identifier{"hello"}, RBrace{}});
         expect_tokens(a, "{ hello; }", {LBrace{}, Identifier{"hello"}, Semicolon{}, RBrace{}});
     });
