@@ -122,6 +122,20 @@ public:
 
     ValueOrException operator()(FunctionExpression const &v) { return Value{v.function}; }
 
+    ValueOrException operator()(ObjectExpression const &v) {
+        Object obj;
+        for (auto const &prop : v.properties) {
+            auto value = execute(prop.second);
+            if (!value) {
+                return value;
+            }
+
+            obj[prop.first.name] = *std::move(value);
+        }
+
+        return Value{std::move(obj)};
+    }
+
     ValueOrException operator()(CallExpression const &v) {
         Interpreter scope{*this};
 

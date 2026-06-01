@@ -557,5 +557,36 @@ int main() {
         a.expect_eq(Interpreter{}.execute(func_expr), Value{func_expr.function});
     });
 
+    s.add_test("object expression", [](etest::IActions &a) {
+        auto obj_expr = ObjectExpression{
+                .properties{
+                        {Identifier{"hello"}, NumericLiteral{5.}},
+                        {Identifier{"world"}, StringLiteral{"hi"}},
+                },
+        };
+
+        a.expect_eq(Interpreter{}.execute(obj_expr),
+                Value{Object{
+                        {"hello", Value{5.}},
+                        {"world", Value{"hi"}},
+                }});
+    });
+
+    s.add_test("object expression, exception in property value", [](etest::IActions &a) {
+        auto obj_expr = ObjectExpression{
+                .properties{
+                        {
+                                Identifier{"hello"},
+                                CallExpression{
+                                        .callee = std::make_shared<Expression>(Identifier{"foo"}),
+                                },
+                        },
+                },
+        };
+
+        auto result = Interpreter{}.execute(obj_expr);
+        a.expect_eq(result.has_value(), false);
+    });
+
     return s.run();
 }

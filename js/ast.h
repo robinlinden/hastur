@@ -31,6 +31,7 @@ struct MemberExpression;
 struct ExpressionStatement;
 struct FunctionDeclaration;
 struct FunctionExpression;
+struct ObjectExpression;
 struct Identifier;
 struct IfStatement;
 struct NumericLiteral;
@@ -57,7 +58,8 @@ using Expression = std::variant<Identifier,
         CallExpression,
         MemberExpression,
         BinaryExpression,
-        FunctionExpression>;
+        FunctionExpression,
+        ObjectExpression>;
 
 struct ErrorValue;
 using ValueOrException = tl::expected<Value, ErrorValue>;
@@ -175,6 +177,10 @@ struct FunctionDeclaration {
 struct FunctionExpression {
     std::optional<Identifier> id;
     std::shared_ptr<Function> function;
+};
+
+struct ObjectExpression {
+    std::vector<std::pair<Identifier, Expression>> properties;
 };
 
 struct AssignmentExpression {
