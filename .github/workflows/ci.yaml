@@ -73,6 +73,11 @@ jobs:
             compiler: clang
             version: 20
 
+          - name: clang-22
+            os: ubuntu-24.04
+            compiler: clang
+            version: 22
+
           - name: clang-19
             os: ubuntu-24.04
             compiler: clang
