@@ -419,6 +419,28 @@ local_path_override(
     path = "third_party/glad2",
 )
 
+# https://github.com/glfw/glfw
+GLFW_VERSION = "3.4"
+
+bazel_dep(name = "glfw")  # Zlib
+archive_override(
+    module_name = "glfw",
+    build_file = "//third_party:glfw.BUILD",
+    integrity = "sha256-tewASycS/Qjohh3CcUKPBId1IAot9xnM9XUUO6dJo+k=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "glfw")
+bazel_dep(name = "platforms")
+bazel_dep(name = "rules_cc")
+bazel_dep(name = "xcursor")
+bazel_dep(name = "xext")
+bazel_dep(name = "xrandr")
+EOF""",
+    ],
+    strip_prefix = "glfw-%s" % GLFW_VERSION,
+    url = "https://github.com/glfw/glfw/releases/download/{0}/glfw-{0}.zip".format(GLFW_VERSION),
+)
+
 # HEAD, last updated at 2026-05-09.
 # https://github.com/html5lib/html5lib-tests/
 HTML5LIB_TESTS_VERSION = "85c968aca811edcb5eb6020b5b9184b2c42a86ab"

@@ -159,6 +159,8 @@ objc_library(
     copts = [
         "-Iexternal/sfml+/src/",
         "-frtti",
+        "-ObjC++",
+        "-std=c++2b",
     ],
     defines = SFML_DEFINES,
     implementation_deps = [":sf_glad"],
