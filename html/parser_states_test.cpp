@@ -798,10 +798,9 @@ void in_table_tests(etest::Suite &s) {
     });
 
     s.add_test("InTable: </body>", [](etest::IActions &a) {
-        // This will break once we implement more table parsing.
         auto res = parse("<table></html><tbody>", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
-        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table", {}, {dom::Element{"tbody"}}}}});
     });
 
     s.add_test("InTable: <style>", [](etest::IActions &a) {

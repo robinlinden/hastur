@@ -1544,6 +1544,7 @@ std::optional<InsertionMode> Text::process(IActions &a, Token const &token) {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
 // Incomplete.
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
     static constexpr auto kClearToTableContext = [](IActions &ac) {
         static constexpr auto kTableContextTags = std::to_array<std::string_view>({"table", "template", "html"});
@@ -1576,8 +1577,15 @@ std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
     // TODO(robinlinden): Everything.
 
     auto const *start = std::get_if<StartTagToken>(&token);
-    static constexpr auto kTableElements = std::to_array<std::string_view>({"td", "th", "tr"});
+    static constexpr auto kTableElements = std::to_array<std::string_view>({"tbody", "tfoot", "thead"});
     if (start != nullptr && std::ranges::contains(kTableElements, start->tag_name)) {
+        kClearToTableContext(a);
+        a.insert_element_for(*start);
+        return InTableBody{};
+    }
+
+    static constexpr auto kWorseTableElements = std::to_array<std::string_view>({"td", "th", "tr"});
+    if (start != nullptr && std::ranges::contains(kWorseTableElements, start->tag_name)) {
         kClearToTableContext(a);
         a.insert_element_for(StartTagToken{.tag_name = "tbody"});
         return InTableBody{}.process(a, token).value_or(InTableBody{});
@@ -1646,7 +1654,7 @@ std::optional<InsertionMode> InTableText::process(IActions &a, Token const &toke
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intbody
-// Incomplete.
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InTableBody::process(IActions &a, Token const &token) {
     static constexpr auto kClearToTableBodyContext = [](IActions &ac) {
         static constexpr auto kTableBodyContextTags =
@@ -1656,9 +1664,13 @@ std::optional<InsertionMode> InTableBody::process(IActions &a, Token const &toke
         }
     };
 
-    // TODO(robinlinden): Everything.
-
     auto const *start = std::get_if<StartTagToken>(&token);
+    if (start != nullptr && start->tag_name == "tr") {
+        kClearToTableBodyContext(a);
+        a.insert_element_for(*start);
+        return InRow{};
+    }
+
     static constexpr auto kInTableRowElements = std::to_array<std::string_view>({"th", "td"});
     if (start != nullptr && std::ranges::contains(kInTableRowElements, start->tag_name)) {
         // Parse error.
@@ -1667,8 +1679,44 @@ std::optional<InsertionMode> InTableBody::process(IActions &a, Token const &toke
         return InRow{}.process(a, token).value_or(InRow{});
     }
 
-    // TODO(robinlinden): Everything.
-    return {};
+    auto const *end = std::get_if<EndTagToken>(&token);
+    if (end != nullptr
+            && std::ranges::contains(std::to_array<std::string_view>({"tbody", "tfoot", "thead"}), end->tag_name)) {
+        if (!has_element_in_table_scope(a, end->tag_name)) {
+            // Parse error.
+            return {};
+        }
+
+        kClearToTableBodyContext(a);
+        a.pop_current_node();
+        return InTable{};
+    }
+
+    if ((start != nullptr
+                && std::ranges::contains(
+                        std::to_array<std::string_view>({"caption", "col", "colgroup", "tbody", "tfoot", "thead"}),
+                        start->tag_name))
+            || (end != nullptr && end->tag_name == "table")) {
+        if (!has_element_in_table_scope(a, "tbody") && !has_element_in_table_scope(a, "tfoot")
+                && !has_element_in_table_scope(a, "thead")) {
+            // Parse error.
+            return {};
+        }
+
+        kClearToTableBodyContext(a);
+        a.pop_current_node();
+        auto override = current_insertion_mode_override(a, InTable{});
+        return InTable{}.process(override, token).value_or(InTable{});
+    }
+
+    static constexpr auto kIgnoredEndTags =
+            std::to_array<std::string_view>({"body", "caption", "col", "colgroup", "html", "td", "th", "tr"});
+    if (end != nullptr && std::ranges::contains(kIgnoredEndTags, end->tag_name)) {
+        // Parse error.
+        return {};
+    }
+
+    return InTable{}.process(a, token);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intr
