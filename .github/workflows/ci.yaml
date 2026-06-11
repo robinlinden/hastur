@@ -276,7 +276,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15
           # TODO(robinlinden): Investigate why the GUI isn't happy in the macOS-26 CI.
           - os: macos-26
             skip-gui: true
