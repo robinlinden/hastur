@@ -72,6 +72,41 @@ int main() {
         a.expect_eq(res, std::nullopt);
     });
 
+    s.add_test("call: function invocation", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#function-calls
+        Interpreter i;
+        i.functions = {{{I32Const{42}, End{}}, 0}};
+        auto res = i.run({{Call{0}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+    });
+
+    s.add_test("call: callee gets isolated locals", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#function-calls
+        // Callee writes to local 0; caller's local 0 must be unchanged after the call.
+        Interpreter i;
+        i.locals = {wasm::Interpreter::Value{99}};
+        i.functions = {{{I32Const{42}, LocalSet{0}, LocalGet{0}, End{}}, 1}};
+        auto res = i.run({{Call{0}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+        a.expect_eq(i.locals[0], wasm::Interpreter::Value{99});
+    });
+
+    s.add_test("call: caller resumes after callee returns", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#function-calls
+        Interpreter i;
+        i.functions = {{{I32Const{41}, End{}}, 0}};
+        auto res = i.run({{Call{0}, I32Const{1}, I32Add{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+    });
+
+    s.add_test("call: trap in callee propagates to caller", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#function-calls
+        Interpreter i;
+        i.functions = {{{Select{}}, 0}};
+        auto res = i.run({{Call{0}}});
+        a.expect_eq(res, tl::unexpected{wasm::Trap::UnhandledInstruction});
+    });
+
     s.add_test("i32.const", [](etest::IActions &a) {
         Interpreter i;
         auto res = i.run({{I32Const{42}}});

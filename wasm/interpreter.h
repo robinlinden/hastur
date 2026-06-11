@@ -18,6 +18,7 @@
 #include <optional>
 #include <span>
 #include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -107,10 +108,18 @@ enum class Trap : std::uint8_t {
 class Interpreter {
 public:
     using Value = std::variant<std::int32_t, std::int64_t, float>;
+
+    struct Function {
+        std::vector<instructions::Instruction> body;
+        std::uint32_t local_count{};
+        [[nodiscard]] bool operator==(Function const &) const = default;
+    };
+
     std::vector<Value> stack;
     std::vector<Value> locals;
     std::vector<Value> globals;
     std::vector<std::uint8_t> memory;
+    std::vector<Function> functions;
     bool returning{false};
     [[nodiscard]] constexpr bool operator==(Interpreter const &) const = default;
 
@@ -132,6 +141,31 @@ public:
     // Sets the returning flag so run() stops executing further instructions.
     tl::expected<void, Trap> interpret(instructions::Return const &) {
         returning = true;
+        return {};
+    }
+
+    // https://webassembly.github.io/spec/core/exec/instructions.html#function-calls
+    // Invoke function[idx] in its own isolated frame; push its result (if any) onto our stack.
+    tl::expected<void, Trap> interpret(instructions::Call const &call) {
+        assert(call.function_idx < functions.size());
+        auto const &fn = functions[call.function_idx];
+
+        auto saved_locals = std::exchange(locals, std::vector<Value>(fn.local_count));
+        auto saved_returning = std::exchange(returning, false);
+
+        auto result = run(fn.body);
+
+        // Restore caller frame.
+        locals = std::move(saved_locals);
+        returning = saved_returning;
+
+        if (!result) {
+            return tl::unexpected{result.error()};
+        }
+        auto &retval = result.value();
+        if (retval.has_value()) {
+            stack.push_back(*retval);
+        }
         return {};
     }
 
