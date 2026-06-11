@@ -12,7 +12,6 @@ cc_library(
     copts = HASTUR_COPTS,
     implementation_deps = [
         "//unicode:util",
-        "//util:from_chars",
         "//util:string",
     ],
     visibility = ["//visibility:public"],
