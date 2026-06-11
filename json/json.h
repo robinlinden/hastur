@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,7 +6,6 @@
 #define JSON_JSON_H_
 
 #include "unicode/util.h"
-#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <tl/expected.hpp>
@@ -300,7 +299,7 @@ private:
         }
 
         double value{};
-        if (auto [p, ec] = util::from_chars(number.data(), number.data() + number.size(), value);
+        if (auto [p, ec] = std::from_chars(number.data(), number.data() + number.size(), value);
                 ec != std::errc{} || p != number.data() + number.size()) {
             return tl::unexpected{Error::InvalidNumber};
         }

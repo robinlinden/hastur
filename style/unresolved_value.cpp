@@ -1,13 +1,12 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "style/unresolved_value.h"
 
-#include "util/from_chars.h"
-
 #include <spdlog/spdlog.h>
 
+#include <charconv>
 #include <iterator>
 #include <optional>
 #include <source_location>
@@ -33,7 +32,7 @@ std::optional<int> UnresolvedValue::try_resolve(int font_size,
     }
 
     float res{};
-    auto parse_result = util::from_chars(raw.data(), raw.data() + raw.size(), res);
+    auto parse_result = std::from_chars(raw.data(), raw.data() + raw.size(), res);
     if (parse_result.ec != std::errc{}) {
         spdlog::warn("{}({}:{}): Unable to parse property '{}' in to_px",
                 caller.file_name(),
