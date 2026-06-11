@@ -78,6 +78,20 @@ int main() {
         a.expect_eq(res, wasm::Interpreter::Value{42});
     });
 
+    s.add_test("i64.const: push value", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{42}}}});
+        a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{42}});
+    });
+
+    s.add_test("i64.const: value exceeds i32 range", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{3'000'000'000}}}});
+        a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{3'000'000'000}});
+    });
+
     s.add_test("i32.lt_s", [](etest::IActions &a) {
         Interpreter i;
         // Less.

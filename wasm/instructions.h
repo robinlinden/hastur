@@ -53,6 +53,7 @@ struct End;
 
 // Numeric instructions
 struct I32Const;
+struct I64Const;
 struct I32EqualZero;
 struct I32Equal;
 struct I32NotEqual;
@@ -140,6 +141,7 @@ using Instruction = std::variant<Select,
         I32ShiftRightUnsigned,
         I32RotateLeft,
         I32RotateRight,
+        I64Const,
         I32WrapI64,
         I32TruncateF32Signed,
         I32TruncateF32Unsigned,
@@ -217,6 +219,13 @@ struct I32Const {
     static constexpr std::string_view kMnemonic = "i32.const";
     std::int32_t value{};
     [[nodiscard]] bool operator==(I32Const const &) const = default;
+};
+
+struct I64Const {
+    static constexpr std::uint8_t kOpcode = 0x42;
+    static constexpr std::string_view kMnemonic = "i64.const";
+    std::int64_t value{};
+    [[nodiscard]] bool operator==(I64Const const &) const = default;
 };
 
 struct I32EqualZero {

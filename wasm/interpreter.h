@@ -81,7 +81,7 @@ enum class Trap : std::uint8_t {
 
 class Interpreter {
 public:
-    using Value = std::variant<std::int32_t>;
+    using Value = std::variant<std::int32_t, std::int64_t>;
     std::vector<Value> stack;
     std::vector<Value> locals;
     std::vector<Value> globals;
@@ -113,6 +113,11 @@ public:
     // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
     // t.const c
     tl::expected<void, Trap> interpret(instructions::I32Const const &v) {
+        stack.emplace_back(v.value);
+        return {};
+    }
+
+    tl::expected<void, Trap> interpret(instructions::I64Const const &v) {
         stack.emplace_back(v.value);
         return {};
     }
