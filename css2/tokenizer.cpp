@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -8,7 +8,6 @@
 #include "css2/token.h"
 
 #include "unicode/util.h"
-#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <algorithm>
@@ -431,14 +430,14 @@ std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
     //
     // The spec doesn't mention precision of this, so let's clamp it to the
     // int32_t range for now.
-    util::from_chars_result fc_res{};
+    std::from_chars_result fc_res{};
     if (auto *int_res = std::get_if<std::int32_t>(&result); int_res != nullptr) {
-        fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
+        fc_res = std::from_chars(repr.data(), repr.data() + repr.size(), *int_res);
         *int_res = std::clamp(
                 *int_res, std::numeric_limits<std::int32_t>::min(), std::numeric_limits<std::int32_t>::max());
     } else {
         auto &dbl_res = std::get<double>(result);
-        fc_res = util::from_chars(repr.data(), repr.data() + repr.size(), dbl_res);
+        fc_res = std::from_chars(repr.data(), repr.data() + repr.size(), dbl_res);
         dbl_res = std::clamp(dbl_res,
                 static_cast<double>(std::numeric_limits<std::int32_t>::min()),
                 static_cast<double>(std::numeric_limits<std::int32_t>::max()));

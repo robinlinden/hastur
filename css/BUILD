@@ -21,7 +21,6 @@ cc_library(
     implementation_deps = ["@spdlog"],
     visibility = ["//visibility:public"],
     deps = [
-        "//util:from_chars",
         "//util:string",
     ],
 )

@@ -13,7 +13,6 @@ cc_library(
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     implementation_deps = [
-        "//util:from_chars",
         "@spdlog",
     ],
     visibility = ["//visibility:public"],

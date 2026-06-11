@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,7 +9,6 @@
 #include "css/property_id.h"
 #include "dom/dom.h"
 #include "gfx/color.h"
-#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -149,7 +148,7 @@ std::optional<gfx::Color> try_from_rgba(std::string_view text) {
     }
 
     float a{-1.f};
-    if (util::from_chars(rgba[3].data(), rgba[3].data() + rgba[3].size(), a).ptr != rgba[3].data() + rgba[3].size()) {
+    if (std::from_chars(rgba[3].data(), rgba[3].data() + rgba[3].size(), a).ptr != rgba[3].data() + rgba[3].size()) {
         return std::nullopt;
     }
 
@@ -191,7 +190,7 @@ std::string_view get_parent_raw_property(style::StyledNode const &node, css::Pro
 
 std::optional<std::pair<float, std::string_view>> split_into_value_and_unit(std::string_view property) {
     float res{};
-    auto parse_result = util::from_chars(property.data(), property.data() + property.size(), res);
+    auto parse_result = std::from_chars(property.data(), property.data() + property.size(), res);
     if (parse_result.ec != std::errc{}) {
         spdlog::warn("Unable to split '{}' in split_into_value_and_unit", property);
         return std::nullopt;
@@ -228,8 +227,8 @@ int UnresolvedLineHeight::resolve(int font_size, ResolutionInfo context, std::op
     }
 
     float maybe_line_height{};
-    auto res = util::from_chars(
-            line_height.raw.data(), line_height.raw.data() + line_height.raw.size(), maybe_line_height);
+    auto res =
+            std::from_chars(line_height.raw.data(), line_height.raw.data() + line_height.raw.size(), maybe_line_height);
     if (res.ec == std::errc{} && line_height.raw.data() + line_height.raw.size() == res.ptr) {
         return static_cast<int>(font_size * maybe_line_height);
     }

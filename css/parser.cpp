@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -10,7 +10,6 @@
 #include "css/rule.h"
 #include "css/style_sheet.h"
 
-#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <spdlog/spdlog.h>
@@ -139,7 +138,7 @@ bool is_length_or_percentage(std::string_view str) {
     });
 
     double d{};
-    auto res = util::from_chars(str.data(), str.data() + str.size(), d);
+    auto res = std::from_chars(str.data(), str.data() + str.size(), d);
     if (res.ec != std::errc{}) {
         return false;
     }

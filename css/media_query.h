@@ -1,11 +1,10 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef CSS_MEDIA_QUERY_H_
 #define CSS_MEDIA_QUERY_H_
 
-#include "util/from_chars.h"
 #include "util/string.h"
 
 #include <algorithm>
@@ -378,7 +377,7 @@ private:
         feature_name.remove_suffix(suffix.size());
 
         float value{};
-        auto value_parse_res = util::from_chars(value_str.data(), value_str.data() + value_str.size(), value);
+        auto value_parse_res = std::from_chars(value_str.data(), value_str.data() + value_str.size(), value);
         if (value_parse_res.ec != std::errc{}) {
             return std::nullopt;
         }
