@@ -59,12 +59,12 @@ jobs:
             apt: libclang-rt-18-dev llvm-18
             fuzz: true
 
-          - name: clang-18-libc++
+          - name: clang-20-libc++
             os: ubuntu-24.04
             compiler: clang
-            version: 18
+            version: 20
             bazel: --config libc++
-            apt: libc++abi-18-dev libc++-18-dev libclang-rt-18-dev
+            apt: libc++abi-20-dev libc++-20-dev libclang-rt-20-dev
 
           - name: clang-20
             os: ubuntu-26.04
