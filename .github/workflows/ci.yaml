@@ -31,15 +31,13 @@ jobs:
             apt: valgrind
 
           - name: gcc-15
-            os: ubuntu-24.04
-            container: ubuntu:25.04
+            os: ubuntu-26.04
             compiler: gcc
             version: 15
             apt: g++-15
 
           - name: gcc-16
-            os: ubuntu-24.04
-            container: ubuntu:26.04
+            os: ubuntu-26.04
             compiler: gcc
             version: 16
             apt: g++-16
@@ -69,22 +67,22 @@ jobs:
             apt: libc++abi-18-dev libc++-18-dev libclang-rt-18-dev
 
           - name: clang-20
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             compiler: clang
             version: 20
 
           - name: clang-22
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             compiler: clang
             version: 22
 
           - name: clang-19
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             compiler: clang
             version: 19
 
           - name: clang-21-libc++
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             compiler: clang
             version: 21
             bazel: --config libc++
@@ -109,11 +107,6 @@ jobs:
         run: |
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
-      - name: Set up the llvm repository
-        if: startsWith(matrix.compiler, 'clang') && matrix.version >= 19
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
       - uses: actions/checkout@v6
       - name: Install
         run: |
@@ -368,7 +361,7 @@ jobs:
       - run: git diff --exit-code
 
   clang-tidy:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
@@ -382,10 +375,6 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - name: Set up the llvm repository
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-22 main"
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-tidy-22 libc++abi-22-dev libc++-22-dev
       - run: echo "CC=clang-22" >>$GITHUB_ENV && echo "CXX=clang++-22" >>$GITHUB_ENV
       - run: |
