@@ -21,6 +21,7 @@ build --sandbox_default_allow_network=false
 
 build --incompatible_autoload_externally=
 build --incompatible_config_setting_private_default_visibility
+build --incompatible_remote_local_fallback_for_remote_cache
 
 # Third-party configuration
 # =========================================================
@@ -153,6 +154,7 @@ build:buildbuddy-cache-common --config=buildbuddy-bes
 build:buildbuddy-cache-common --remote_cache=grpcs://remote.buildbuddy.io
 build:buildbuddy-cache-common --remote_timeout=3600
 build:buildbuddy-cache-common --remote_cache_compression
+build:buildbuddy-cache-common --remote_local_fallback
 build:buildbuddy-cache-common --experimental_remote_cache_compression_threshold=100
 build:buildbuddy-cache-common --nolegacy_important_outputs
 build:buildbuddy-cache-common --noslim_profile
