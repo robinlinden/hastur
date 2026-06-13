@@ -329,7 +329,10 @@ jobs:
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >>.bazelrc.local
         env:
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
-        if: env.BUILDBUDDY_API_KEY != ''
+        # TODO(robinlinden): Bazel's fallback to local when the remote cache is
+        # broken seems to be broken, and the remote cache seems to be very
+        # broken in the clang-cl job.
+        if: env.BUILDBUDDY_API_KEY != '' && matrix.compiler != 'clang-cl'
       - run: bazel test ...
       - name: Run tui
         run: |
