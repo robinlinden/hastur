@@ -1720,7 +1720,7 @@ std::optional<InsertionMode> InTableBody::process(IActions &a, Token const &toke
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intr
-// Incomplete.
+// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InRow::process(IActions &a, Token const &token) {
     static constexpr auto kClearToTableRowContext = [](IActions &ac) {
         static constexpr auto kTableRowContextTags = std::to_array<std::string_view>({"tr", "template", "html"});
@@ -1737,8 +1737,58 @@ std::optional<InsertionMode> InRow::process(IActions &a, Token const &token) {
         return InCell{};
     }
 
-    // TODO(robinlinden): Everything.
-    return {};
+    auto const *end = std::get_if<EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "tr") {
+        if (!has_element_in_table_scope(a, "tr")) {
+            // Parse error.
+            return {};
+        }
+
+        kClearToTableRowContext(a);
+        a.pop_current_node();
+        return InTableBody{};
+    }
+
+    static constexpr auto kTableBodyStartTags =
+            std::to_array<std::string_view>({"caption", "col", "colgroup", "tbody", "tfoot", "thead", "tr"});
+    if ((start != nullptr && std::ranges::contains(kTableBodyStartTags, start->tag_name))
+            || (end != nullptr && end->tag_name == "table")) {
+        if (!has_element_in_table_scope(a, "tr")) {
+            // Parse error.
+            return {};
+        }
+
+        kClearToTableRowContext(a);
+        a.pop_current_node();
+        auto override = current_insertion_mode_override(a, InTableBody{});
+        return InTableBody{}.process(override, token).value_or(InTableBody{});
+    }
+
+    if (end != nullptr
+            && std::ranges::contains(std::to_array<std::string_view>({"tbody", "tfoot", "thead"}), end->tag_name)) {
+        if (!has_element_in_table_scope(a, end->tag_name)) {
+            // Parse error.
+            return {};
+        }
+
+        if (!has_element_in_table_scope(a, "tr")) {
+            return {};
+        }
+
+        kClearToTableRowContext(a);
+        a.pop_current_node();
+        auto override = current_insertion_mode_override(a, InTableBody{});
+        return InTableBody{}.process(override, token).value_or(InTableBody{});
+    }
+
+    static constexpr auto kIgnoredEndTags =
+            std::to_array<std::string_view>({"body", "caption", "col", "colgroup", "html", "td", "th"});
+    if (end != nullptr && std::ranges::contains(kIgnoredEndTags, end->tag_name)) {
+        // Parse error.
+        return {};
+    }
+
+    return InTable{}.process(a, token);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intd
