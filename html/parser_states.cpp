@@ -1854,8 +1854,7 @@ std::optional<InsertionMode> InCell::process(IActions &a, Token const &token) {
         return InRow{}.process(override, token).value_or(InRow{});
     }
 
-    InBody{}.process(a, token);
-    return {};
+    return InBody{}.process(a, token);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
