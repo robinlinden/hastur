@@ -422,7 +422,20 @@ InsertionMode appropriate_insertion_mode(IActions &a) {
             node = *parsing_context;
         }
 
-        // TODO(robinlinden): Lots of table nonsense.
+        if ((node == "td" || node == "th") && !last) {
+            return InCell{};
+        }
+
+        if (node == "tr") {
+            return InRow{};
+        }
+
+        if (node == "tbody" || node == "thead" || node == "tfoot") {
+            return InTableBody{};
+        }
+
+        // TODO(robinlinden): caption, colgroup
+
         if (node == "table") {
             return InTable{};
         }
