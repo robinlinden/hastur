@@ -36,11 +36,11 @@ jobs:
             version: 15
             apt: g++-15
 
-          - name: gcc-16
-            os: ubuntu-26.04
+          - name: gcc-13
+            os: ubuntu-24.04
             compiler: gcc
-            version: 16
-            apt: g++-16
+            version: 13
+            apt: g++-13
 
           - name: clang-18-tsan
             os: ubuntu-24.04
@@ -147,7 +147,7 @@ jobs:
 
   coverage:
     name: linux-${{ matrix.compiler }}-${{ matrix.version }}-coverage
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
 
     strategy:
@@ -155,7 +155,7 @@ jobs:
       matrix:
         include:
           - compiler: gcc
-            version: 13
+            version: 16
           # TODO(robinlinden): Bazel 9.0.0 breaks LLVM coverage. Investigate and fix.
           # Last tested w/ Bazel 9.1.0.
           # - compiler: clang
@@ -186,8 +186,6 @@ jobs:
       - name: Setup (clang)
         if: startsWith(matrix.compiler, 'clang')
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-${{ matrix.version }} main"
           sudo apt-get update
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
