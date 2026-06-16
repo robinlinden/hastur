@@ -49,8 +49,8 @@ using InsertionMode = std::variant<Initial,
         Text,
         InTable,
         InTableText,
-        // InCaption,
-        // InColumnGroup,
+        InCaption,
+        InColumnGroup,
         InTableBody,
         InRow,
         InCell,
@@ -64,8 +64,6 @@ using InsertionMode = std::variant<Initial,
         // AfterAfterFrameset
         >;
 
-struct InCaption {};
-struct InColumnGroup {};
 struct InSelect {};
 struct InSelectInTable {};
 struct InTemplate {};
@@ -114,6 +112,14 @@ struct InTable {
 struct InTableText {
     std::optional<InsertionMode> process(IActions &, Token const &);
     std::vector<CharacterToken> pending_character_tokens;
+};
+
+struct InCaption {
+    std::optional<InsertionMode> process(IActions &, Token const &);
+};
+
+struct InColumnGroup {
+    std::optional<InsertionMode> process(IActions &, Token const &);
 };
 
 struct InTableBody {

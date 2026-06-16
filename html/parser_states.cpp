@@ -434,7 +434,13 @@ InsertionMode appropriate_insertion_mode(IActions &a) {
             return InTableBody{};
         }
 
-        // TODO(robinlinden): caption, colgroup
+        if (node == "caption") {
+            return InCaption{};
+        }
+
+        if (node == "colgroup") {
+            return InColumnGroup{};
+        }
 
         if (node == "table") {
             return InTable{};
@@ -1587,9 +1593,27 @@ std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
         return {};
     }
 
-    // TODO(robinlinden): Everything.
-
     auto const *start = std::get_if<StartTagToken>(&token);
+    if (start != nullptr && start->tag_name == "caption") {
+        kClearToTableContext(a);
+        a.push_formatting_marker();
+        a.insert_element_for(*start);
+        return InCaption{};
+    }
+
+    if (start != nullptr && start->tag_name == "colgroup") {
+        kClearToTableContext(a);
+        a.insert_element_for(*start);
+        return InColumnGroup{};
+    }
+
+    if (start != nullptr && start->tag_name == "col") {
+        kClearToTableContext(a);
+        a.insert_element_for(StartTagToken{"colgroup"});
+        auto mode_override = current_insertion_mode_override(a, InColumnGroup{});
+        return InColumnGroup{}.process(mode_override, token);
+    }
+
     static constexpr auto kTableElements = std::to_array<std::string_view>({"tbody", "tfoot", "thead"});
     if (start != nullptr && std::ranges::contains(kTableElements, start->tag_name)) {
         kClearToTableContext(a);
@@ -1664,6 +1688,138 @@ std::optional<InsertionMode> InTableText::process(IActions &a, Token const &toke
 
     auto mode = a.original_insertion_mode();
     return std::visit([&](auto &m) { return m.process(a, token).value_or(m); }, mode);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incaption
+std::optional<InsertionMode> InCaption::process(IActions &a, Token const &token) {
+    auto const *end = std::get_if<EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "caption") {
+        if (!has_element_in_table_scope(a, "caption")) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, std::nullopt);
+        if (a.current_node_name() != "caption") {
+            // Parse error.
+        }
+
+        pop_past(a, "caption");
+        a.clear_formatting_elements_up_to_last_marker();
+        return InTable{};
+    }
+
+    auto const *start = std::get_if<StartTagToken>(&token);
+    static constexpr auto kInCaptionStartTags = std::to_array<std::string_view>({
+            "caption",
+            "col",
+            "colgroup",
+            "tbody",
+            "td",
+            "tfoot",
+            "th",
+            "thead",
+            "tr",
+    });
+    if ((start != nullptr && std::ranges::contains(kInCaptionStartTags, start->tag_name))
+            || (end != nullptr && end->tag_name == "table")) {
+        if (!has_element_in_table_scope(a, "caption")) {
+            // Parse error.
+            return {};
+        }
+
+        generate_implied_end_tags(a, std::nullopt);
+        if (a.current_node_name() != "caption") {
+            // Parse error.
+        }
+
+        pop_past(a, "caption");
+        a.clear_formatting_elements_up_to_last_marker();
+        auto mode_override = current_insertion_mode_override(a, InTable{});
+        return InTable{}.process(mode_override, token).value_or(InTable{});
+    }
+
+    static constexpr auto kIgnoredEndTags = std::to_array<std::string_view>({
+            "body",
+            "col",
+            "colgroup",
+            "html",
+            "tbody",
+            "td",
+            "tfoot",
+            "th",
+            "thead",
+            "tr",
+    });
+    if (end != nullptr && std::ranges::contains(kIgnoredEndTags, end->tag_name)) {
+        // Parse error.
+        return {};
+    }
+
+    return InBody{}.process(a, token);
+}
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incolgroup
+// NOLINTNEXTLINE(misc-no-recursion)
+std::optional<InsertionMode> InColumnGroup::process(IActions &a, Token const &token) {
+    if (is_boring_whitespace(token)) {
+        a.insert_character(std::get<CharacterToken>(token));
+        return {};
+    }
+
+    if (auto const *comment = std::get_if<CommentToken>(&token); comment != nullptr) {
+        a.insert_element_for(*comment);
+        return {};
+    }
+
+    if (std::holds_alternative<DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
+    auto const *start = std::get_if<StartTagToken>(&token);
+    if (start != nullptr && start->tag_name == "html") {
+        return InBody{}.process(a, token);
+    }
+
+    if (start != nullptr && start->tag_name == "col") {
+        a.insert_element_for(*start);
+        a.pop_current_node();
+        return {};
+    }
+
+    auto const *end = std::get_if<EndTagToken>(&token);
+    if (end != nullptr && end->tag_name == "colgroup") {
+        if (a.current_node_name() != "colgroup") {
+            // Parse error.
+            return {};
+        }
+
+        a.pop_current_node();
+        return InTable{};
+    }
+
+    if (end != nullptr && end->tag_name == "col") {
+        // Parse error.
+        return {};
+    }
+
+    if ((start != nullptr && start->tag_name == "template") || (end != nullptr && end->tag_name == "template")) {
+        return InHead{}.process(a, token);
+    }
+
+    if (std::holds_alternative<EndOfFileToken>(token)) {
+        return InBody{}.process(a, token);
+    }
+
+    if (a.current_node_name() != "colgroup") {
+        // Parse error.
+        return {};
+    }
+
+    a.pop_current_node();
+    auto mode_override = current_insertion_mode_override(a, InTable{});
+    return InTable{}.process(mode_override, token);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intbody
