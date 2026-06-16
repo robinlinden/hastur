@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -14,6 +14,7 @@ namespace idna {
 class Uts46 {
 public:
     static std::optional<std::string> map(std::string_view);
+    static std::optional<std::string> to_unicode(std::string_view);
 };
 
 } // namespace idna

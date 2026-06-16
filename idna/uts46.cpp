@@ -1,14 +1,18 @@
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "idna/uts46.h"
 
 #include "idna/idna_data.h"
+#include "idna/punycode.h"
 
+#include "unicode/normalization.h"
 #include "unicode/util.h"
+#include "util/string.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -54,6 +58,55 @@ std::optional<std::string> Uts46::map(std::string_view input) {
     }
 
     return result;
+}
+
+// https://www.unicode.org/reports/tr46/#ToUnicode
+std::optional<std::string> Uts46::to_unicode(std::string_view domain_name) {
+    // 1. Map.
+    auto processed = map(domain_name);
+    if (!processed) {
+        return std::nullopt;
+    }
+
+    // 2. Normalize.
+    processed = unicode::Normalization::nfc(*processed);
+
+    // 3. Break.
+    auto labels = util::split(*processed, ".");
+
+    // 4. Convert/Validate.
+    std::string res;
+    for (std::size_t i = 0; i < labels.size(); ++i) {
+        auto &label = labels[i];
+        if (label.starts_with("xn--")) {
+            if (!std::ranges::all_of(label, &unicode::is_ascii)) {
+                return std::nullopt;
+            }
+
+            auto decoded = Punycode::to_utf8(label.substr(4));
+            if (!decoded || decoded->empty() || std::ranges::all_of(*decoded, &unicode::is_ascii)) {
+                return std::nullopt;
+            }
+
+            // TODO(robinlinden): validate.
+
+            res += *decoded;
+            if (i + 1 < labels.size()) {
+                res += ".";
+            }
+
+            continue;
+        }
+
+        // TODO(robinlinden): validate.
+
+        res += label;
+        if (i + 1 < labels.size()) {
+            res += ".";
+        }
+    }
+
+    return res;
 }
 
 } // namespace idna

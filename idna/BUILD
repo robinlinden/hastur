@@ -29,7 +29,11 @@ cc_library(
     ],
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["//unicode:util"],
+    deps = [
+        "//unicode:normalization",
+        "//unicode:util",
+        "//util:string",
+    ],
 )
 
 [cc_test(
@@ -42,4 +46,26 @@ cc_library(
         "//etest",
         "//unicode:util",
     ],
-) for src in glob(["*_test.cpp"])]
+) for src in glob(
+    include = ["*_test.cpp"],
+    exclude = ["uts46_conformance_test.cpp"],
+)]
+
+cc_test(
+    name = "uts46_conformance_test",
+    size = "small",
+    srcs = ["uts46_conformance_test.cpp"],
+    args = ["$(location @uts46_conformance_test_data//file)"],
+    copts = HASTUR_COPTS,
+    data = ["@uts46_conformance_test_data//file"],
+    target_compatible_with = select({
+        # We read from a file, and our current wasm/wasi-setup doesn't like that.
+        "@platforms//os:wasi": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":idna",
+        "//etest",
+        "//util:string",
+    ],
+)

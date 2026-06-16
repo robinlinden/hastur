@@ -497,6 +497,12 @@ http_file(
     url = "https://www.unicode.org/Public/17.0.0/idna/IdnaMappingTable.txt",
 )
 
+http_file(
+    name = "uts46_conformance_test_data",
+    integrity = "sha256-vrXQviDolhibAyCagv3DTwY1FQK71LjiUjWD/ClU2c8=",
+    url = "https://www.unicode.org/Public/17.0.0/idna/IdnaTestV2.txt",
+)
+
 # https://github.com/ocornut/imgui
 IMGUI_VERSION = "1.92.8"
 
