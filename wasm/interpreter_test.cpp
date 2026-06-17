@@ -92,6 +92,20 @@ int main() {
         a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{3'000'000'000}});
     });
 
+    s.add_test("f32.const: push value", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{F32Const{3.14f}}});
+        a.expect_eq(res, wasm::Interpreter::Value{3.14f});
+    });
+
+    s.add_test("f32.const: negative value", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{F32Const{-1.5f}}});
+        a.expect_eq(res, wasm::Interpreter::Value{-1.5f});
+    });
+
     s.add_test("i64.add", [](etest::IActions &a) {
         // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
         Interpreter i;

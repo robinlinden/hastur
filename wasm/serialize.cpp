@@ -32,6 +32,7 @@ struct InstructionStringifyVisitor {
     void operator()(Call const &t);
     void operator()(I32Const const &t);
     void operator()(I64Const const &t);
+    void operator()(F32Const const &t);
     void operator()(LocalGet const &t);
     void operator()(LocalSet const &t);
     void operator()(LocalTee const &t);
@@ -79,6 +80,10 @@ void InstructionStringifyVisitor::operator()(I32Const const &t) {
 
 void InstructionStringifyVisitor::operator()(I64Const const &t) {
     out << I64Const::kMnemonic << " " << std::to_string(t.value);
+}
+
+void InstructionStringifyVisitor::operator()(F32Const const &t) {
+    out << F32Const::kMnemonic << " " << std::to_string(t.value);
 }
 
 template<typename T>

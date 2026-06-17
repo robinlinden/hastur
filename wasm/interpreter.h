@@ -106,7 +106,7 @@ enum class Trap : std::uint8_t {
 
 class Interpreter {
 public:
-    using Value = std::variant<std::int32_t, std::int64_t>;
+    using Value = std::variant<std::int32_t, std::int64_t, float>;
     std::vector<Value> stack;
     std::vector<Value> locals;
     std::vector<Value> globals;
@@ -143,6 +143,11 @@ public:
     }
 
     tl::expected<void, Trap> interpret(instructions::I64Const const &v) {
+        stack.emplace_back(v.value);
+        return {};
+    }
+
+    tl::expected<void, Trap> interpret(instructions::F32Const const &v) {
         stack.emplace_back(v.value);
         return {};
     }
