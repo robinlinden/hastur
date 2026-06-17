@@ -54,6 +54,11 @@ struct End;
 // Numeric instructions
 struct I32Const;
 struct I64Const;
+struct I64Equal;
+struct I64LessThanSigned;
+struct I64Add;
+struct I64Subtract;
+struct I64Multiply;
 struct I32EqualZero;
 struct I32Equal;
 struct I32NotEqual;
@@ -142,6 +147,11 @@ using Instruction = std::variant<Select,
         I32RotateLeft,
         I32RotateRight,
         I64Const,
+        I64Equal,
+        I64LessThanSigned,
+        I64Add,
+        I64Subtract,
+        I64Multiply,
         I32WrapI64,
         I32TruncateF32Signed,
         I32TruncateF32Unsigned,
@@ -226,6 +236,51 @@ struct I64Const {
     static constexpr std::string_view kMnemonic = "i64.const";
     std::int64_t value{};
     [[nodiscard]] bool operator==(I64Const const &) const = default;
+};
+
+struct I64Equal {
+    static constexpr std::uint8_t kOpcode = 0x51;
+    static constexpr std::string_view kMnemonic = "i64.eq";
+
+    static constexpr NumericType kNumericType = NumericType::Relop;
+    using NumType = std::int64_t;
+    [[nodiscard]] bool operator==(I64Equal const &) const = default;
+};
+
+struct I64LessThanSigned {
+    static constexpr std::uint8_t kOpcode = 0x53;
+    static constexpr std::string_view kMnemonic = "i64.lt_s";
+
+    static constexpr NumericType kNumericType = NumericType::Relop;
+    using NumType = std::int64_t;
+    [[nodiscard]] bool operator==(I64LessThanSigned const &) const = default;
+};
+
+struct I64Add {
+    static constexpr std::uint8_t kOpcode = 0x7c;
+    static constexpr std::string_view kMnemonic = "i64.add";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int64_t;
+    [[nodiscard]] bool operator==(I64Add const &) const = default;
+};
+
+struct I64Subtract {
+    static constexpr std::uint8_t kOpcode = 0x7d;
+    static constexpr std::string_view kMnemonic = "i64.sub";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int64_t;
+    [[nodiscard]] bool operator==(I64Subtract const &) const = default;
+};
+
+struct I64Multiply {
+    static constexpr std::uint8_t kOpcode = 0x7e;
+    static constexpr std::string_view kMnemonic = "i64.mul";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int64_t;
+    [[nodiscard]] bool operator==(I64Multiply const &) const = default;
 };
 
 struct I32EqualZero {

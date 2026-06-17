@@ -92,6 +92,41 @@ int main() {
         a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{3'000'000'000}});
     });
 
+    s.add_test("i64.add", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{2'000'000'000}}, I64Const{std::int64_t{2'000'000'000}}, I64Add{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{4'000'000'000}});
+    });
+
+    s.add_test("i64.sub", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{10}}, I64Const{std::int64_t{3}}, I64Subtract{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{7}});
+    });
+
+    s.add_test("i64.mul", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{3'000'000}}, I64Const{std::int64_t{3'000'000}}, I64Multiply{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{std::int64_t{9'000'000'000'000}});
+    });
+
+    s.add_test("i64.eq", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{42}}, I64Const{std::int64_t{42}}, I64Equal{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{1});
+    });
+
+    s.add_test("i64.lt_s", [](etest::IActions &a) {
+        // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+        Interpreter i;
+        auto res = i.run({{I64Const{std::int64_t{1}}, I64Const{std::int64_t{2}}, I64LessThanSigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{1});
+    });
+
     s.add_test("i32.lt_s", [](etest::IActions &a) {
         Interpreter i;
         // Less.

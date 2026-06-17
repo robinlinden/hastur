@@ -72,6 +72,31 @@ struct InterpreterInfo<instructions::I32ExclusiveOr> {
     using Operation = std::bit_xor<std::int32_t>;
 };
 
+template<>
+struct InterpreterInfo<instructions::I64Equal> {
+    using Operation = std::equal_to<std::int64_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I64LessThanSigned> {
+    using Operation = std::less<std::int64_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I64Add> {
+    using Operation = std::plus<std::int64_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I64Subtract> {
+    using Operation = std::minus<std::int64_t>;
+};
+
+template<>
+struct InterpreterInfo<instructions::I64Multiply> {
+    using Operation = std::multiplies<std::int64_t>;
+};
+
 } // namespace detail
 
 enum class Trap : std::uint8_t {
