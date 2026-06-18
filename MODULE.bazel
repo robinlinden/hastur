@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-BjZ8UXjjZf+dnfSKso5rCAw0Sgb1LLARV9+IFznSyxQ=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.5.4"),
+    integrity = "sha256-BNgM6ecLF8YMbdbrfopecwO6voF7Rv2d0VMKEDypk8U=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.6.1"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -24,12 +24,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.18"
+RULES_CC_VERSION = "0.2.19"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-HeW0dyH84K8N1FOzBxIo/fxEvRgZmCaz8LA7Qjqun2U=",
+    integrity = "sha256-NRJI9r5B0YaU1NfDkKrr2fhl7qcqR1iyydeCrnRMl/Q=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -306,12 +306,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260526.0"
+BORINGSSL_VERSION = "0.20260616.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-bJTxFTcpePRQXfgoBSIRHAPy7E773y3McTy4zx+pqqs=",
+    integrity = "sha256-0cWZSF/RkZ116iklr1//gcHVshqy8NQf7h94ix2RcVk=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -363,12 +363,12 @@ http_file(
 )
 
 # https://github.com/fmtlib/fmt
-FMT_VERSION = "12.1.0"
+FMT_VERSION = "12.2.0"
 
 archive_override(
     module_name = "fmt",
     build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-aV/Rl/pa/4/Ge18rvBEEkKh1zfekFoashRL7SA+orac=",
+    integrity = "sha256-ovSo1RF4+VTkwzkAf3ft12ugyy42+HpI5aVAPZvlh48=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "fmt")
@@ -401,12 +401,12 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-FTXUI_VERSION = "6.1.9"
+FTXUI_VERSION = "7.0.0"
 
 bazel_dep(name = "ftxui")  # MIT
 archive_override(
     module_name = "ftxui",
-    integrity = "sha256-hoZw5FHDi9w60j0IZ5ZUPN5KhF/QQgFIsZjf9cvggoU=",
+    integrity = "sha256-AwSXn+aAygf4Yh1oYF1x6lB7+5iDmPyg5cCuV8rRljg=",
     url = "https://github.com/ArthurSonzogni/FTXUI/releases/download/v%s/source.tar.gz" % FTXUI_VERSION,
 )
 
