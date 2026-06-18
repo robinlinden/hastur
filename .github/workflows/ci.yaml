@@ -107,7 +107,7 @@ jobs:
         run: |
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install
         run: |
           sudo apt-get update
@@ -121,7 +121,7 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -162,7 +162,7 @@ jobs:
           #   version: 21
           #   bazel: --config=clang21-coverage
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/cache@v5
@@ -170,7 +170,7 @@ jobs:
         with:
           path: ~/.cache/bazel
           key: coverage-${{ matrix.compiler }}-${{ matrix.version }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -215,13 +215,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/cache@v5
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -244,9 +244,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v45.0.0
+      WASMTIME_VERSION: v45.0.2
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up wasmtime
         run: |
           export WASMTIME_NAME=wasmtime-${WASMTIME_VERSION}-x86_64-linux
@@ -275,7 +275,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
         env:
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
@@ -301,13 +301,13 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/cache@v5
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -342,7 +342,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: pipx install pre-commit==4.6.0
       - run: pre-commit run --all-files
 
@@ -350,7 +350,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up the llvm repository
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -363,13 +363,13 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/cache@v5
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -391,7 +391,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install
         run: |
           wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.5.1/buildifier-linux-amd64
@@ -403,8 +403,8 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - run: npm install --global prettier@3.8.3
+      - uses: actions/checkout@v7
+      - run: npm install --global prettier@3.8.4
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
       - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
@@ -414,7 +414,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
@@ -423,7 +423,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - run: pipx install gitlint-core==0.19.1
