@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -146,8 +146,9 @@ int Suite::run(RunOptions const &opts) {
         std::cout << std::flush;
     }
 
+    std::cout << '\n' << tests_to_run.size() - failed_tests.size() << " passing test(s)\n";
+
     if (!failed_tests.empty()) {
-        std::cout << '\n' << tests_to_run.size() - failed_tests.size() << " passing test(s)\n";
         std::cout << failure_color << failed_tests.size() << " failing test(s):" << ansi::kReset << "\n";
         for (auto const *test : failed_tests) {
             std::cout << "  " << test->name << '\n';
