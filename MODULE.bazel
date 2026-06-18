@@ -143,11 +143,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.47.1"
+BAZEL_FEATURES_VERSION = "1.49.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-anJ6eMATSxuRLJfAk34clW81d1k0rj4fSvQVb41dH/Q=",
+    integrity = "sha256-rdV+LghkYwdYBeFTw34Du3TEc3dz/Fh5M2czrwjm8IY=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -202,11 +202,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "35.0"
+PROTOBUF_VERSION = "35.1"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-j5B7rKSzSjtIVBA7pYEeQY+24v8R/g2N+egoCxHXmSY=",
+    integrity = "sha256-8LaDjnUiqNqWEm1IcGjJWbxiSSY2jzAkrI/QOr0KGsQ=",
     patch_cmds = [
         # Avoid what transitive deps we can.
         "sed -i'' -e /aspect_bazel_lib/d MODULE.bazel",
