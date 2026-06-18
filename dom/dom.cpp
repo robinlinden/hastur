@@ -61,9 +61,6 @@ void print_node(dom::Node const &node, std::ostream &os, int initial_depth = 0) 
 std::string to_string(Document const &document) {
     std::stringstream ss;
     ss << "#document";
-    for (auto const &comment : document.pre_html_node_comments) {
-        ss << "\n| <!-- " << comment.text << " -->";
-    }
 
     if (!document.doctype.empty()) {
         ss << "\n| <!DOCTYPE " << document.doctype;
@@ -71,6 +68,10 @@ std::string to_string(Document const &document) {
             ss << " \"" << document.public_identifier << "\" \"" << document.system_identifier << '"';
         }
         ss << '>';
+    }
+
+    for (auto const &comment : document.pre_html_node_comments) {
+        ss << "\n| <!-- " << comment.text << " -->";
     }
 
     print_node(document.html_node, ss, 1);

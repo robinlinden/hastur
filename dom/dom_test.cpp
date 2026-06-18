@@ -138,9 +138,9 @@ int main() {
         };
 
         std::string_view expected = R"(#document
+| <!DOCTYPE html5 "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 | <!-- This is a comment before the html node -->
 | <!-- this is too! -->
-| <!DOCTYPE html5 "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 | <html>
 |   <head>
 |     <title>
