@@ -71,7 +71,7 @@ public:
             std::optional<std::string_view> log_message, std::source_location const &) noexcept = 0;
 
     // Weak test requirement. Allows the test to continue even if the check fails.
-    void expect(bool expectation,
+    constexpr void expect(bool expectation,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) noexcept {
         if (expectation) {
@@ -82,7 +82,7 @@ public:
     }
 
     // Hard test requirement. Stops the test (using an exception) if the check fails.
-    void require(bool requirement,
+    constexpr void require(bool requirement,
             std::optional<std::string_view> log_message = std::nullopt,
             std::source_location const &loc = std::source_location::current()) {
         if (requirement) {
