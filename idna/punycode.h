@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +8,9 @@
 #include "unicode/util.h"
 
 #include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>
@@ -84,6 +87,87 @@ public:
         return unicode_to_utf8(output);
     }
 
+    static constexpr std::optional<std::string> to_punycode(std::string_view utf8_text) {
+        auto code_points = utf8_to_unicode(utf8_text);
+        return to_punycode(code_points);
+    }
+
+    // https://datatracker.ietf.org/doc/html/rfc3492#section-6.3
+    static constexpr std::optional<std::string> to_punycode(std::u32string_view input) {
+        std::string out;
+
+        char32_t n = kInitialN;
+        int delta = 0;
+        int bias = kInitialBias;
+        std::size_t h = 0;
+
+        for (std::uint32_t c : input) {
+            if (unicode::is_ascii(c)) {
+                ++h;
+                out.push_back(static_cast<char>(c));
+            }
+        }
+
+        std::size_t b = h;
+        if (b > 0) {
+            out.push_back(kDelimiter);
+        }
+
+        while (h < input.size()) {
+            char32_t m = kHighestBasicCodePoint;
+            for (auto code_point : input) {
+                if (code_point >= n && code_point < m) {
+                    m = code_point;
+                }
+            }
+
+            // TODO(robinlinden): Fail on overflow.
+            delta += (m - n) * static_cast<int>(h + 1);
+            n = m;
+
+            for (auto c : input) {
+                if (c < n) {
+                    // TODO(robinlinden): Fail on overflow.
+                    ++delta;
+                }
+
+                if (c == n) {
+                    int q = delta;
+                    for (int k = kBase;; k += kBase) {
+                        int t = [&] {
+                            if (k <= bias) {
+                                return kTMin;
+                            }
+
+                            if (k >= bias + kTMax) {
+                                return kTMax;
+                            }
+
+                            return k - bias;
+                        }();
+
+                        if (q < t) {
+                            break;
+                        }
+
+                        out.push_back(digit_to_char(t + ((q - t) % (kBase - t))));
+                        q = (q - t) / (kBase - t);
+                    }
+
+                    out.push_back(digit_to_char(q));
+                    bias = adapt(delta, static_cast<int>(h + 1), h == b);
+                    delta = 0;
+                    ++h;
+                }
+            }
+
+            ++delta;
+            ++n;
+        }
+
+        return out;
+    }
+
 private:
     // Parameter values for Punycode
     // https://datatracker.ietf.org/doc/html/rfc3492#section-5
@@ -94,6 +178,8 @@ private:
     static constexpr int kDamp = 700;
     static constexpr int kInitialBias = 72;
     static constexpr int kInitialN = 128;
+
+    static constexpr char32_t kHighestBasicCodePoint = 0x10FFFF;
 
     static constexpr bool is_basic_code_point(char32_t cp) { return cp < 0x80; }
 
@@ -115,6 +201,15 @@ private:
         return std::nullopt;
     }
 
+    static constexpr char digit_to_char(std::uint32_t digit) {
+        if (digit < 26) {
+            return static_cast<char>(digit + 'a');
+        }
+
+        assert(unicode::is_ascii(digit + '0' - 26));
+        return static_cast<char>(digit + '0' - 26);
+    }
+
     // https://datatracker.ietf.org/doc/html/rfc3492#section-6.1
     static constexpr int adapt(int delta, int numpoints, bool firsttime) {
         delta = firsttime ? delta / kDamp : delta / 2;
@@ -133,6 +228,16 @@ private:
         std::string result;
         for (auto const code_point : code_points) {
             result += unicode::to_utf8(code_point);
+        }
+
+        return result;
+    }
+
+    static constexpr std::u32string utf8_to_unicode(std::string_view utf8_text) {
+        std::u32string result;
+        auto u32_view = unicode::CodePointView{utf8_text};
+        for (auto const code_point : u32_view) {
+            result += char32_t{code_point};
         }
 
         return result;
