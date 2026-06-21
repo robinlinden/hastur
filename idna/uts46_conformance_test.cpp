@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -40,8 +41,8 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        auto src = util::trim(cols[0]);
-        auto to_unicode_res = util::trim(cols[1]);
+        auto src = std::string{util::trim(cols[0])};
+        auto to_unicode_res = std::string{util::trim(cols[1])};
         if (to_unicode_res.empty()) {
             to_unicode_res = src;
         } else if (to_unicode_res == "\"\"") {
@@ -59,14 +60,29 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        s.add_test(std::string{src}, [s = std::string{src}, r = std::string{to_unicode_res}](etest::IActions &a) {
+        auto to_ascii_res = std::string{util::trim(cols[3])};
+        if (to_ascii_res.empty()) {
+            to_ascii_res = to_unicode_res;
+        }
+
+        auto test = [s = src, ures = std::move(to_unicode_res), ares = std::move(to_ascii_res)](etest::IActions &a) {
             auto processed = idna::Uts46::to_unicode(s);
             if (!processed) {
                 return;
             }
-            a.expect_eq(
-                    r, processed, std::format("'{}' !=\n'{}', actually:\n'{}'", s, r, processed.value_or("<invalid>")));
-        });
+
+            a.expect_eq(ures,
+                    processed,
+                    std::format("'{}' !=\n'{}', actually:\n'{}'", s, ures, processed.value_or("<invalid>")));
+
+            processed = idna::Uts46::to_ascii(s);
+
+            a.expect_eq(ares,
+                    processed,
+                    std::format("'{}' !=\n'{}', actually:\n'{}'", s, ares, processed.value_or("<invalid>")));
+        };
+
+        s.add_test(std::move(src), std::move(test));
     }
 
     return s.run();

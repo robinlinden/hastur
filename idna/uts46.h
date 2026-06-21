@@ -15,6 +15,7 @@ class Uts46 {
 public:
     static std::optional<std::string> map(std::string_view);
     static std::optional<std::string> to_unicode(std::string_view);
+    static std::optional<std::string> to_ascii(std::string_view);
 };
 
 } // namespace idna
