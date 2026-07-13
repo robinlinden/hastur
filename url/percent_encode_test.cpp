@@ -52,7 +52,7 @@ int main() {
 
         a.expect_eq(percent_encode('a', PercentEncodeSet::component), "a");
         a.expect_eq(percent_encode(' ', PercentEncodeSet::component), "%20");
-        a.expect_eq(percent_encode(' ', PercentEncodeSet::component, true), "+");
+        a.expect_eq(percent_encode(' ', PercentEncodeSet::application_x_www_form_urlencoded), "+");
         a.expect_eq(percent_encode('%', PercentEncodeSet::component), "%25");
         a.expect_eq(percent_encode('\x7f', PercentEncodeSet::component), "%7F");
         a.expect_eq(percent_encode('\x80', PercentEncodeSet::component), "%80");
