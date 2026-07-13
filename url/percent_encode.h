@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -46,6 +46,10 @@ struct PercentEncodeSet {
     }
 
     static constexpr bool component(char c) { return userinfo(c) || (c >= '$' && c <= '&') || c == '+' || c == ','; }
+
+    static constexpr bool application_x_www_form_urlencoded(char c) {
+        return component(c) || c == '!' || (c >= '\'' && c <= ')') || c == '~';
+    }
 };
 
 // https://url.spec.whatwg.org/#string-percent-encode-after-encoding
