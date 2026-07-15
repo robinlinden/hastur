@@ -362,23 +362,6 @@ http_file(
     url = "https://github.com/googlefonts/opensans/raw/bd7e37632246368c60fdcbd374dbf9bad11969b6/fonts/ttf/OpenSans-Regular.ttf",
 )
 
-# https://github.com/fmtlib/fmt
-FMT_VERSION = "12.2.0"
-
-archive_override(
-    module_name = "fmt",
-    build_file = "//third_party:fmt.BUILD",
-    integrity = "sha256-ovSo1RF4+VTkwzkAf3ft12ugyy42+HpI5aVAPZvlh48=",
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "fmt")
-bazel_dep(name = "rules_cc")
-EOF""",
-    ],
-    strip_prefix = "fmt-%s" % FMT_VERSION,
-    url = "https://github.com/fmtlib/fmt/releases/download/{0}/fmt-{0}.zip".format(FMT_VERSION),
-)
-
 # https://github.com/freetype/freetype
 FREETYPE_VERSION = "VER-2-14-3"
 
