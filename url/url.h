@@ -214,8 +214,8 @@ constexpr std::string_view to_string(ValidationError e) {
 
 std::string_view description(ValidationError);
 
-// This parser is current with the WHATWG URL specification as of 2026-03-31,
-// https://github.com/whatwg/url/commit/dc66b3bba025b76ecba0f5f2a323a600c0c74a84
+// This parser is current with the WHATWG URL specification as of 2026-06-30,
+// https://github.com/whatwg/url/commit/37afb50be866ce38c7efd8f86deb5b6c0b7440ac
 class UrlParser final {
 public:
     std::optional<Url> parse(std::string input, std::optional<Url> base = std::nullopt);
