@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -93,7 +93,7 @@ int main() {
     });
 
     s.add_test("Validation error: description", [](etest::IActions &a) {
-        a.expect(!description(url::ValidationError::DomainInvalidCodePoint).empty()); //
+        a.expect(!description(url::ValidationError::HostInvalidCodePoint).empty()); //
     });
 
     s.add_test("URL parsing: port and path", [](etest::IActions &a) {

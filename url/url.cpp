@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -78,7 +78,6 @@ constexpr std::uint16_t special_scheme_port(std::string_view scheme) {
 constexpr auto kValidationErrorStr = std::to_array<std::pair<ValidationError, std::string_view>>({
         {ValidationError::DomainToAscii, "Unicode ToASCII records an error or returns the empty string"},
         {ValidationError::DomainToUnicode, "Unicode ToUnicode records an error"},
-        {ValidationError::DomainInvalidCodePoint, "The input's host contains a forbidden domain code point"},
         {ValidationError::HostInvalidCodePoint,
                 "An opaque host (in a URL that is not special) contains a forbidden host code point"},
         {ValidationError::IPv4EmptyPart, "An IPv4 address ends with a U+002E (.)"},
@@ -1198,50 +1197,80 @@ void UrlParser::state_fragment() {
 
 // https://url.spec.whatwg.org/#concept-domain-to-ascii
 std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, bool be_strict) const {
-    std::string ascii_domain;
-    icu::StringByteSink<std::string> tmp{&ascii_domain};
+    static constexpr auto kRun = [](std::string_view d, bool strict) -> std::optional<std::string> {
+        std::optional<std::string> ascii_domain = std::string{};
+        icu::StringByteSink<std::string> tmp{&*ascii_domain};
 
-    icu::IDNAInfo inf;
-    UErrorCode err = U_ZERO_ERROR;
+        icu::IDNAInfo inf;
+        UErrorCode err = U_ZERO_ERROR;
 
-    std::uint32_t opts = UIDNA_NONTRANSITIONAL_TO_ASCII | UIDNA_CHECK_BIDI | UIDNA_CHECK_CONTEXTJ;
+        std::uint32_t opts = UIDNA_NONTRANSITIONAL_TO_ASCII | UIDNA_CHECK_BIDI | UIDNA_CHECK_CONTEXTJ;
 
-    if (be_strict) {
-        opts |= UIDNA_USE_STD3_RULES;
-    }
+        if (strict) {
+            opts |= UIDNA_USE_STD3_RULES;
+        }
 
-    auto uts = std::unique_ptr<icu::IDNA>{icu::IDNA::createUTS46Instance(opts, err)};
+        auto uts = std::unique_ptr<icu::IDNA>{icu::IDNA::createUTS46Instance(opts, err)};
 
-    if (U_FAILURE(err) != 0) {
-        std::cerr << "Failed to create UTS46 instance: " << u_errorName(err) << '\n' << std::flush;
-        return std::nullopt;
-    }
+        if (U_FAILURE(err) != 0) {
+            std::cerr << "Failed to create UTS46 instance: " << u_errorName(err) << '\n' << std::flush;
+            return std::nullopt;
+        }
 
-    err = U_ZERO_ERROR;
+        err = U_ZERO_ERROR;
 
-    uts->nameToASCII_UTF8(domain, tmp, inf, err);
+        uts->nameToASCII_UTF8(d, tmp, inf, err);
 
-    std::uint32_t proc_err = inf.getErrors();
+        std::uint32_t proc_err = inf.getErrors();
 
-    // icu doesn't offer a flag to disable VerifyDnsLength or CheckHyphens, so just ignore those failures
-    proc_err &= ~UIDNA_ERROR_LEADING_HYPHEN;
-    proc_err &= ~UIDNA_ERROR_TRAILING_HYPHEN;
-    proc_err &= ~UIDNA_ERROR_HYPHEN_3_4;
+        // icu doesn't offer a flag to disable VerifyDnsLength or CheckHyphens, so just ignore those failures
+        proc_err &= ~UIDNA_ERROR_LEADING_HYPHEN;
+        proc_err &= ~UIDNA_ERROR_TRAILING_HYPHEN;
+        proc_err &= ~UIDNA_ERROR_HYPHEN_3_4;
 
-    if (!be_strict) {
-        proc_err &= ~UIDNA_ERROR_EMPTY_LABEL;
-        proc_err &= ~UIDNA_ERROR_LABEL_TOO_LONG;
-        proc_err &= ~UIDNA_ERROR_DOMAIN_NAME_TOO_LONG;
-    }
+        if (!strict) {
+            proc_err &= ~UIDNA_ERROR_EMPTY_LABEL;
+            proc_err &= ~UIDNA_ERROR_LABEL_TOO_LONG;
+            proc_err &= ~UIDNA_ERROR_DOMAIN_NAME_TOO_LONG;
+        }
+
+        bool const is_failure = U_FAILURE(err) != 0 || proc_err != 0;
+        return is_failure ? std::nullopt : ascii_domain;
+    };
+
+    auto const strict_result = kRun(domain, true);
 
     // If domain or any label is empty, proc_err should contain UIDNA_ERROR_EMPTY_LABEL
-    if ((U_FAILURE(err) != 0) || proc_err != 0 || ascii_domain.empty()) {
+    if (!strict_result.has_value()) {
         validation_error(ValidationError::DomainToAscii);
+    }
 
+    if (!strict_result.has_value() && be_strict) {
         return std::nullopt;
     }
 
-    return ascii_domain;
+    std::optional<std::string> result;
+
+    if (util::is_ascii(domain)) {
+        result = util::lowercased(std::string{domain});
+    } else {
+        result = kRun(domain, false);
+        if (!result.has_value()) {
+            return std::nullopt;
+        }
+    }
+
+    assert(result.has_value());
+
+    if (result->empty()) {
+        return std::nullopt;
+    }
+
+    if (contains_forbidden_domain_code_point(*result)) {
+        return std::nullopt;
+    }
+
+    return result;
 }
 
 // https://url.spec.whatwg.org/#start-with-a-windows-drive-letter
@@ -1317,11 +1346,6 @@ std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_opaque
     std::optional<std::string> ascii_domain = domain_to_ascii(domain, false);
 
     if (!ascii_domain.has_value()) {
-        return std::nullopt;
-    }
-
-    if (contains_forbidden_domain_code_point(*ascii_domain)) {
-        validation_error(ValidationError::DomainInvalidCodePoint);
         return std::nullopt;
     }
 
