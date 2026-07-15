@@ -668,7 +668,6 @@ archive_override(
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "spdlog")
-bazel_dep(name = "fmt")
 bazel_dep(name = "platforms")
 bazel_dep(name = "rules_cc")
 EOF""",

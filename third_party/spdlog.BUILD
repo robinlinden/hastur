@@ -11,8 +11,7 @@ cc_library(
         "SPDLOG_COMPILED_LIB",
         "SPDLOG_FMT_EXTERNAL",
         "SPDLOG_NO_EXCEPTIONS",
-        # libc++18 doesn't set __cpp_lib_format >= 202207L which is required for this.
-        # "SPDLOG_USE_STD_FORMAT",
+        "SPDLOG_USE_STD_FORMAT",
     ],
     linkopts = select({
         "@platforms//os:linux": ["-lpthread"],
@@ -25,5 +24,4 @@ cc_library(
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
-    deps = ["@fmt"],
 )
