@@ -24,12 +24,17 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.19"
+RULES_CC_VERSION = "0.2.22"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-NRJI9r5B0YaU1NfDkKrr2fhl7qcqR1iyydeCrnRMl/Q=",
+    integrity = "sha256-gcEKlaXCLYOCdu6Q1xJjXWBCQZ/fyl74gygia2Mh5Ts=",
+    patch_cmds = [
+        # Fix rules_cc passing the deprecated and removed /DEBUG:FASTLINK flag to MSVC.
+        # https://github.com/bazelbuild/rules_cc/issues/558
+        """sed -i'' -e 's|/DEBUG:FASTLINK|/DEBUG:FULL|' cc/private/toolchain/windows_cc_configure.bzl""",
+    ],
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -143,11 +148,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.49.0"
+BAZEL_FEATURES_VERSION = "1.50.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-rdV+LghkYwdYBeFTw34Du3TEc3dz/Fh5M2czrwjm8IY=",
+    integrity = "sha256-CUNn5zLs4j8zTq+ECJpyC4YdBTvuumpqaDVtOu4dwys=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
