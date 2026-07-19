@@ -1216,10 +1216,24 @@ std::optional<std::string> UrlParser::domain_to_ascii(std::string_view domain, b
         proc_err &= ~UIDNA_ERROR_DOMAIN_NAME_TOO_LONG;
     }
 
-    // If domain or any label is empty, proc_err should contain UIDNA_ERROR_EMPTY_LABEL
-    if ((U_FAILURE(err) != 0) || proc_err != 0 || ascii_domain.empty()) {
-        validation_error(ValidationError::DomainToAscii);
+    bool const is_failure = U_FAILURE(err) != 0 || proc_err != 0;
 
+    // If domain or any label is empty, proc_err should contain UIDNA_ERROR_EMPTY_LABEL
+    if (is_failure) {
+        validation_error(ValidationError::DomainToAscii);
+    }
+
+    if (is_failure && be_strict) {
+        return std::nullopt;
+    }
+
+    if (util::is_ascii(domain)) {
+        ascii_domain = util::lowercased(std::string{domain});
+    } else if (is_failure) {
+        return std::nullopt;
+    }
+
+    if (ascii_domain.empty()) {
         return std::nullopt;
     }
 

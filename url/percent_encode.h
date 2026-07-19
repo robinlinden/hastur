@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -46,10 +46,15 @@ struct PercentEncodeSet {
     }
 
     static constexpr bool component(char c) { return userinfo(c) || (c >= '$' && c <= '&') || c == '+' || c == ','; }
+
+    static constexpr bool application_x_www_form_urlencoded(char c) {
+        return component(c) || c == '!' || (c >= '\'' && c <= ')') || c == '~';
+    }
 };
 
 // https://url.spec.whatwg.org/#string-percent-encode-after-encoding
-inline std::string percent_encode(char input, std::predicate<char> auto in_encode_set, bool space_as_plus = false) {
+inline std::string percent_encode(char input, std::predicate<char> auto in_encode_set) {
+    bool space_as_plus = in_encode_set == PercentEncodeSet::application_x_www_form_urlencoded;
     if (space_as_plus && input == ' ') {
         return std::string{'+'};
     }
@@ -61,12 +66,11 @@ inline std::string percent_encode(char input, std::predicate<char> auto in_encod
     return std::string{input};
 }
 
-inline std::string percent_encode(
-        std::string_view input, std::predicate<char> auto in_encode_set, bool space_as_plus = false) {
+inline std::string percent_encode(std::string_view input, std::predicate<char> auto in_encode_set) {
     std::stringstream out;
 
     for (char i : input) {
-        out << percent_encode(i, in_encode_set, space_as_plus);
+        out << percent_encode(i, in_encode_set);
     }
 
     return std::move(out).str();
