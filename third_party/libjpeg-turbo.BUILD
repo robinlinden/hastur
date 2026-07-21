@@ -124,12 +124,14 @@ expand_template(
         "#cmakedefine D_ARITH_CODING_SUPPORTED 1": "#define D_ARITH_CODING_SUPPORTED 1",
         "#cmakedefine HAVE_BUILTIN_CTZL": "// HAVE_BUILTIN_CTZL",
         "#cmakedefine HAVE_INTRIN_H": "// HAVE_INTRIN_H",
+        "#cmakedefine WITH_PROFILE": "// WITH_PROFILE",
         "#cmakedefine WITH_SIMD 1": "// WITH_SIMD",
         "@CMAKE_PROJECT_NAME@": "libjpeg-turbo",
         "@HIDDEN@": "",
         "@INLINE@": "inline",
+        "@SIMD_ARCHITECTURE@": "none",
         "@SIZE_T@": "8",  # TODO(robinlinden): Support other values for sizeof(size_t).
-        "@VERSION@": "3.1.0",
+        "@VERSION@": "3.2.0",
     },
     template = "src/jconfigint.h.in",
 )

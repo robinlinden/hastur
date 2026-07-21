@@ -11,8 +11,8 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-BNgM6ecLF8YMbdbrfopecwO6voF7Rv2d0VMKEDypk8U=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.6.1"),
+    integrity = "sha256-/o5e0PEhSFIExmnbh7w1J2pqPMhS2KM4QNZPqHTX/0M=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.7.0"),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -311,12 +311,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260616.0"
+BORINGSSL_VERSION = "0.20260713.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-0cWZSF/RkZ116iklr1//gcHVshqy8NQf7h94ix2RcVk=",
+    integrity = "sha256-gXaFPp1cDxrxUnBYfzxXcXGmD929DukD93Y2Y8BNuUk=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -389,12 +389,12 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-FTXUI_VERSION = "7.0.0"
+FTXUI_VERSION = "7.0.1"
 
 bazel_dep(name = "ftxui")  # MIT
 archive_override(
     module_name = "ftxui",
-    integrity = "sha256-AwSXn+aAygf4Yh1oYF1x6lB7+5iDmPyg5cCuV8rRljg=",
+    integrity = "sha256-00qCDs8hVKZ/0RwUqYooB+s7RSIo+n7KlYN45o1L4d4=",
     url = "https://github.com/ArthurSonzogni/FTXUI/releases/download/v%s/source.tar.gz" % FTXUI_VERSION,
 )
 
@@ -575,13 +575,13 @@ EOF""",
 )
 
 # https://github.com/libjpeg-turbo/libjpeg-turbo
-LIBJPEG_TURBO_VERSION = "3.1.4.1"
+LIBJPEG_TURBO_VERSION = "3.2.0"
 
 bazel_dep(name = "libjpeg-turbo")  # BSD-3-Clause AND IJG
 archive_override(
     module_name = "libjpeg-turbo",
     build_file = "//third_party:libjpeg-turbo.BUILD",
-    integrity = "sha256-7K6ACOLMmt4vLBu51ebU+3PnxDOGagVr2CmAdBVxoCI=",
+    integrity = "sha256-bzAJLO+fuDl3lkZgj07hSuPLrJicR/oF6EGwhB8Jh44=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libjpeg-turbo")
@@ -721,12 +721,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.352"
+VULKAN_TAG = "1.4.357"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-SFCQnSKoqXZ8J9rqK5cuSdfCmFYFc9W2Ih7lDbm/Sds=",
+    integrity = "sha256-fcDbzx1J3T19o3YcJRxgl9+6rEdTIaSoqZJp09Wr7Nw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -742,7 +742,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-1FNszKFCUpXCF6D99JOCZmgCrcj+A2LRuUlvdA3N+/Y=",
+    integrity = "sha256-4rG1GW6VDAgt5NYA2/i5l8hzTGBft0w0za484+YCi3k=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
