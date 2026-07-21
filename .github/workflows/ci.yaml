@@ -208,7 +208,7 @@ jobs:
       # codecov-cli is from https://github.com/getsentry/prevent-cli
       - name: Upload
         run: |
-          pipx install codecov-cli==11.2.8
+          pipx install codecov-cli==11.3.1
           codecovcli upload-process --fail-on-error --file bazel-out/_coverage/_coverage_report.dat
 
   linux-aarch64-muslc:
@@ -244,7 +244,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v45.0.2
+      WASMTIME_VERSION: v47.0.2
     steps:
       - uses: actions/checkout@v7
       - name: Set up wasmtime
@@ -343,7 +343,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: pipx install pre-commit==4.6.0
+      - run: pipx install pre-commit==4.6.1
       - run: pre-commit run --all-files
 
   clang-format:
@@ -404,7 +404,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: npm install --global prettier@3.8.4
+      - run: npm install --global prettier@3.9.6
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
       - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
