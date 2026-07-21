@@ -45,8 +45,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-neTheMLE+Y0yqv5RlMPytxeuEEBcqhG9y0YKwqb2FRY=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.6.1"),
+    integrity = "sha256-aHlMo0TByvE9ymX5DAZmCCMBP6CAkxJm4mJRA5BKZk4=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.7.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -111,11 +111,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_rust
-RULES_RUST_VERSION = "0.70.0"
+RULES_RUST_VERSION = "0.71.3"
 
 archive_override(
     module_name = "rules_rust",
-    integrity = "sha256-X/2f8fby8U8gV7fLqpGl5qzZpMve1ayB2tm+s2hZYB4=",
+    integrity = "sha256-h8txtdi9xcNfgjdTBYX+R9CEsxKDucJx+OPvezmkTQM=",
     url = "https://github.com/bazelbuild/rules_rust/releases/download/{0}/rules_rust-{0}.tar.gz".format(RULES_RUST_VERSION),
 )
 
@@ -133,8 +133,8 @@ archive_override(
 # https://github.com/bazelbuild/bazel-skylib
 archive_override(
     module_name = "bazel_skylib",
-    integrity = "sha256-O1tJAGGB9fj/Ym743c6qlem7itKU97XXsR6p992vjFk=",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.9.0"),
+    integrity = "sha256-N837xvrv6pT3s3dgowXJjAiYERbCvJ6CHjtCMiH62Mg=",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.9.2"),
 )
 
 # https://github.com/bazelbuild/stardoc
@@ -148,11 +148,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.50.0"
+BAZEL_FEATURES_VERSION = "1.51.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-CUNn5zLs4j8zTq+ECJpyC4YdBTvuumpqaDVtOu4dwys=",
+    integrity = "sha256-VFC/ssi0vJYcdTaIOPhhVvVjzJre8b59UE/FYZ1U2qs=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
