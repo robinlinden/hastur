@@ -5,9 +5,8 @@
 #ifndef JS_AST_H_
 #define JS_AST_H_
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <functional>
 #include <map>
 #include <memory>
@@ -62,7 +61,7 @@ using Expression = std::variant<Identifier,
         ObjectExpression>;
 
 struct ErrorValue;
-using ValueOrException = tl::expected<Value, ErrorValue>;
+using ValueOrException = std::expected<Value, ErrorValue>;
 
 struct NativeFunction {
     std::function<ValueOrException(std::vector<Value> const &)> f;

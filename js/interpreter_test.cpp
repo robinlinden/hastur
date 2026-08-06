@@ -8,9 +8,8 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <cstddef>
+#include <expected>
 #include <memory>
 #include <string>
 #include <utility>
@@ -423,7 +422,7 @@ int main() {
     s.add_test("native function, exception from native code", [](etest::IActions &a) {
         Interpreter e;
         e.variables["will_throw"] = Value{NativeFunction{[](auto const &) {
-            return tl::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}}; //
+            return std::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}}; //
         }}};
 
         auto call = CallExpression{
@@ -431,7 +430,7 @@ int main() {
         };
 
         auto result = e.execute(call);
-        a.expect_eq(result, tl::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}});
+        a.expect_eq(result, std::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}});
     });
 
     s.add_test("empty statement", [](etest::IActions &a) {

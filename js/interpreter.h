@@ -7,11 +7,10 @@
 
 #include "js/ast.h"
 
-#include <tl/expected.hpp>
-
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
+#include <expected>
 #include <functional>
 #include <map>
 #include <optional>
@@ -48,7 +47,7 @@ public:
         auto var = variables.find(v.name);
         if (var == variables.end()) {
             // TODO(robinlinden): Better error value.
-            return tl::unexpected{ErrorValue{Value{}}};
+            return std::unexpected{ErrorValue{Value{}}};
         }
 
         return var->second;
@@ -63,7 +62,7 @@ public:
         auto *maybe_id = std::get_if<Identifier>(&*v.left);
         if (maybe_id == nullptr) {
             // TODO(robinlinden): Better error value.
-            return tl::unexpected{ErrorValue{Value{}}};
+            return std::unexpected{ErrorValue{Value{}}};
         }
 
         auto value = execute(*v.right);
@@ -146,7 +145,7 @@ public:
 
         if (!callee->is_function() && !callee->is_native_function()) {
             // TODO(robinlinden): Better error value.
-            return tl::unexpected{ErrorValue{Value{}}};
+            return std::unexpected{ErrorValue{Value{}}};
         }
 
         std::vector<Value> args;
@@ -177,7 +176,7 @@ public:
 
         // TODO(robinlinden): "foo".length and similar should be allowed.
         if (!object->is_object()) {
-            return tl::unexpected{ErrorValue{Value{}}};
+            return std::unexpected{ErrorValue{Value{}}};
         }
 
         auto property = get_identifier_name(v.property);
@@ -186,7 +185,7 @@ public:
         auto it = obj.find(property);
         if (it == obj.end()) {
             // TODO(robinlinden): Better error value.
-            return tl::unexpected{ErrorValue{Value{}}};
+            return std::unexpected{ErrorValue{Value{}}};
         }
 
         return it->second;

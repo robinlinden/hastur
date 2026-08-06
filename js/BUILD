@@ -11,7 +11,6 @@ cc_library(
     hdrs = glob(["*.h"]),
     copts = HASTUR_COPTS,
     visibility = ["//visibility:public"],
-    deps = ["@expected"],
 )
 
 [cc_test(
@@ -22,7 +21,6 @@ cc_library(
     deps = [
         ":js",
         "//etest",
-        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],
