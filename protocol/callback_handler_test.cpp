@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,7 +8,7 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
+#include <expected>
 
 int main() {
     using namespace protocol;
@@ -19,7 +19,7 @@ int main() {
         CallbackHandler handler{{}};
 
         auto res = handler.handle(uri::Uri::parse("about:nonexistent").value());
-        a.expect_eq(res, tl::unexpected{protocol::Error{protocol::ErrorCode::Unresolved}});
+        a.expect_eq(res, std::unexpected{protocol::Error{protocol::ErrorCode::Unresolved}});
     });
 
     s.add_test("Found", [](etest::IActions &a) {

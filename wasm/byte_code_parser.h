@@ -1,12 +1,11 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "wasm/wasm.h"
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <iosfwd>
 #include <string_view>
 
@@ -77,8 +76,8 @@ constexpr std::string_view to_string(ModuleParseError e) {
 
 class ByteCodeParser {
 public:
-    static tl::expected<Module, ModuleParseError> parse_module(std::istream &);
-    static tl::expected<Module, ModuleParseError> parse_module(std::istream &&is) { return parse_module(is); }
+    static std::expected<Module, ModuleParseError> parse_module(std::istream &);
+    static std::expected<Module, ModuleParseError> parse_module(std::istream &&is) { return parse_module(is); }
 };
 
 } // namespace wasm

@@ -9,7 +9,6 @@ cc_library(
     copts = HASTUR_COPTS,
     implementation_deps = ["@zlib"],
     visibility = ["//visibility:public"],
-    deps = ["@expected"],
 )
 
 cc_library(
@@ -19,7 +18,6 @@ cc_library(
     copts = HASTUR_COPTS,
     implementation_deps = ["@zstd"],
     visibility = ["//visibility:public"],
-    deps = ["@expected"],
 )
 
 cc_library(
@@ -33,7 +31,6 @@ cc_library(
         "@brotli//:brotlidec",
     ],
     visibility = ["//visibility:public"],
-    deps = ["@expected"],
 )
 
 # TODO(robinlinden): Separate APIs for gzip and zlib.
@@ -50,7 +47,6 @@ alias(
     deps = [
         ":%s" % src.removesuffix("_test.cpp"),
         "//etest",
-        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

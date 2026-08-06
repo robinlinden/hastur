@@ -1,15 +1,14 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef UTIL_ARG_PARSER_H_
 #define UTIL_ARG_PARSER_H_
 
-#include <tl/expected.hpp>
-
 #include <charconv>
 #include <concepts>
 #include <cstdint>
+#include <expected>
 #include <format>
 #include <functional>
 #include <map>
@@ -67,12 +66,12 @@ public:
         return *this;
     }
 
-    [[nodiscard]] tl::expected<void, ArgParseError> parse(int argc, char const *const *argv) {
+    [[nodiscard]] std::expected<void, ArgParseError> parse(int argc, char const *const *argv) {
         for (int i = 1; i < argc; ++i) {
             auto arg = std::string_view{argv[i]};
             if (long_.contains(arg)) {
                 if (i + 1 == argc) {
-                    return tl::unexpected(ArgParseError{
+                    return std::unexpected(ArgParseError{
                             ArgParseError::Code::MissingArgument,
                             std::format("Missing argument for {}", arg),
                     });
@@ -80,7 +79,7 @@ public:
 
                 auto argarg = std::string_view{argv[i + 1]};
                 if (long_.at(arg)(argarg) != Status::Success) {
-                    return tl::unexpected(ArgParseError{
+                    return std::unexpected(ArgParseError{
                             ArgParseError::Code::InvalidArgument,
                             std::format("Invalid argument for {}: {}", arg, argarg),
                     });
@@ -101,7 +100,7 @@ public:
                 continue;
             }
 
-            return tl::unexpected(ArgParseError{
+            return std::unexpected(ArgParseError{
                     ArgParseError::Code::UnhandledArgument,
                     std::format("Unhandled argument: {}", arg),
             });

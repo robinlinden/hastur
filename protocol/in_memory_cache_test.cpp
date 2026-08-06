@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,8 +10,7 @@
 #include "etest/etest2.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <functional>
 #include <future>
 #include <memory>
@@ -25,7 +24,7 @@ namespace {
 class FakeProtocolHandler final : public protocol::IProtocolHandler {
 public:
     explicit FakeProtocolHandler(std::function<Response()> on_handle) : on_handle_{std::move(on_handle)} {}
-    tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &) override { return on_handle_(); }
+    std::expected<protocol::Response, protocol::Error> handle(uri::Uri const &) override { return on_handle_(); }
 
 private:
     std::function<Response()> on_handle_;

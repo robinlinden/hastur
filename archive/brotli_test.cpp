@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,11 +7,10 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <span>
 #include <string>
 #include <string_view>
@@ -28,7 +27,7 @@ int main() {
     using namespace archive;
 
     s.add_test("empty input",
-            [](etest::IActions &a) { a.expect_eq(brotli_decode({}), tl::unexpected{BrotliError::InputEmpty}); });
+            [](etest::IActions &a) { a.expect_eq(brotli_decode({}), std::unexpected{BrotliError::InputEmpty}); });
 
     s.add_test("trivial decode", [](etest::IActions &a) {
         constexpr auto kCompress = std::to_array<std::uint8_t>(
@@ -49,7 +48,7 @@ int main() {
 
         decoder.set_max_output_length(14);
         auto ret = decoder.decode(as_bytes(kCompress));
-        a.expect_eq(ret, tl::unexpected{BrotliError::MaximumOutputLengthExceeded});
+        a.expect_eq(ret, std::unexpected{BrotliError::MaximumOutputLengthExceeded});
 
         decoder.set_max_output_length(15);
         ret = decoder.decode(as_bytes(kCompress));
@@ -93,7 +92,7 @@ int main() {
 
         auto ret = brotli_decode(as_bytes(kCompress));
 
-        a.expect_eq(ret, tl::unexpected{BrotliError::InputCorrupt});
+        a.expect_eq(ret, std::unexpected{BrotliError::InputCorrupt});
     });
 
     s.add_test("junk input", [](etest::IActions &a) {
@@ -102,7 +101,7 @@ int main() {
 
         auto ret = brotli_decode(as_bytes(kCompress));
 
-        a.expect_eq(ret, tl::unexpected{BrotliError::InputCorrupt});
+        a.expect_eq(ret, std::unexpected{BrotliError::InputCorrupt});
     });
 
     s.add_test("zero-sized output", [](etest::IActions &a) {

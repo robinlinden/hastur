@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,8 +10,7 @@
 
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <optional>
 #include <string>
 #include <utility>
@@ -22,7 +21,7 @@ class HttpsHandler final : public IProtocolHandler {
 public:
     explicit HttpsHandler(std::optional<std::string> user_agent) : user_agent_{std::move(user_agent)} {}
 
-    [[nodiscard]] tl::expected<Response, Error> handle(uri::Uri const &) override;
+    [[nodiscard]] std::expected<Response, Error> handle(uri::Uri const &) override;
 
 private:
     std::optional<std::string> user_agent_;

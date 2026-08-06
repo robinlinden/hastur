@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "archive/zstd.h"
 
-#include <tl/expected.hpp>
 #include <zstd.h>
 
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
+#include <expected>
 #include <memory>
 #include <span>
 #include <string_view>
@@ -39,15 +39,15 @@ std::string_view to_string(ZstdError err) {
     return "Unknown error";
 }
 
-tl::expected<std::vector<std::byte>, ZstdError> ZstdDecoder::decode(std::span<std::byte const> const input) const {
+std::expected<std::vector<std::byte>, ZstdError> ZstdDecoder::decode(std::span<std::byte const> const input) const {
     if (input.empty()) {
-        return tl::unexpected{ZstdError::InputEmpty};
+        return std::unexpected{ZstdError::InputEmpty};
     }
 
     std::unique_ptr<ZSTD_DCtx, decltype(&ZSTD_freeDCtx)> dctx(ZSTD_createDCtx(), &ZSTD_freeDCtx);
 
     if (dctx == nullptr) {
-        return tl::unexpected{ZstdError::DecompressionContext};
+        return std::unexpected{ZstdError::DecompressionContext};
     }
 
     std::size_t const chunk_size = ZSTD_DStreamOutSize();
@@ -70,11 +70,11 @@ tl::expected<std::vector<std::byte>, ZstdError> ZstdDecoder::decode(std::span<st
         std::size_t const ret = ZSTD_decompressStream(dctx.get(), &out_buf, &in_buf);
 
         if (ZSTD_isError(ret) != 0u) {
-            return tl::unexpected{ZstdError::ZstdInternalError};
+            return std::unexpected{ZstdError::ZstdInternalError};
         }
 
         if (chunk_size * (count - 1) + out_buf.pos > max_output_length_) {
-            return tl::unexpected{ZstdError::MaximumOutputLengthExceeded};
+            return std::unexpected{ZstdError::MaximumOutputLengthExceeded};
         }
 
         last_ret = ret;
@@ -82,7 +82,7 @@ tl::expected<std::vector<std::byte>, ZstdError> ZstdDecoder::decode(std::span<st
     }
 
     if (last_ret != 0) {
-        return tl::unexpected{ZstdError::DecodeEarlyTermination};
+        return std::unexpected{ZstdError::DecodeEarlyTermination};
     }
 
     std::size_t out_size = 0;

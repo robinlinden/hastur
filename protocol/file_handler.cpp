@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -9,8 +9,7 @@
 
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -23,7 +22,7 @@
 namespace protocol {
 namespace {
 
-tl::expected<Response, Error> handle_folder_request(std::filesystem::path const &path) {
+std::expected<Response, Error> handle_folder_request(std::filesystem::path const &path) {
     Response response{};
 
     // TODO(robinlinden): Only show '..' if we can navigate up. Will be more
@@ -51,16 +50,16 @@ tl::expected<Response, Error> handle_folder_request(std::filesystem::path const 
 
 } // namespace
 
-tl::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
+std::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
     auto path = std::filesystem::path(uri.path);
     std::error_code ec;
     auto type = status(path, ec).type();
     if (ec && ec != std::errc::no_such_file_or_directory) {
-        return tl::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
+        return std::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
     }
 
     if (type == std::filesystem::file_type::not_found) {
-        return tl::unexpected{protocol::Error{ErrorCode::Unresolved}};
+        return std::unexpected{protocol::Error{ErrorCode::Unresolved}};
     }
 
     if (type == std::filesystem::file_type::directory) {
@@ -68,7 +67,7 @@ tl::expected<Response, Error> FileHandler::handle(uri::Uri const &uri) {
     }
 
     if (type != std::filesystem::file_type::regular) {
-        return tl::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
+        return std::unexpected{protocol::Error{ErrorCode::InvalidResponse}};
     }
 
     auto file = std::ifstream(path, std::ios::in | std::ios::binary);

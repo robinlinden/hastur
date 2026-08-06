@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -19,6 +19,7 @@
 
 #include <tl/expected.hpp>
 
+#include <expected>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -67,7 +68,7 @@ public:
     void relayout(PageState &, Options);
 
     struct [[nodiscard]] LoadResult {
-        tl::expected<protocol::Response, protocol::Error> response;
+        std::expected<protocol::Response, protocol::Error> response;
         uri::Uri uri_after_redirects;
     };
     LoadResult load(uri::Uri);

@@ -15,7 +15,6 @@ cc_library(
     deps = [
         "//uri",
         "//util:string",
-        "@expected",
     ],
 )
 
@@ -43,7 +42,6 @@ cc_library(
         "//etest",
         "//net:test",
         "//uri",
-        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

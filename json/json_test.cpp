@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,10 +6,9 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <algorithm>
 #include <cstddef>
+#include <expected>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -37,22 +36,22 @@ int main() {
     });
 
     s.add_test("bad input", [](etest::IActions &a) {
-        a.expect_eq(json::parse(""), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(","), tl::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse(""), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(","), std::unexpected{Error::UnexpectedCharacter});
     });
 
     s.add_test("string", [](etest::IActions &a) {
         a.expect_eq(json::parse(R"("hello")"), json::Value{"hello"});
         a.expect_eq(json::parse(R"(     "hello"     )"), json::Value{"hello"});
         a.expect_eq(json::parse("\t\n\r \"hello\"\t\n\r "), json::Value{"hello"});
-        a.expect_eq(json::parse(R"("hello",)"), tl::unexpected{Error::TrailingGarbage});
+        a.expect_eq(json::parse(R"("hello",)"), std::unexpected{Error::TrailingGarbage});
         a.expect_eq(json::parse(R"("")"), json::Value{""});
-        a.expect_eq(json::parse(R"("hello)"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(R"(")"), tl::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"("hello)"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"(")"), std::unexpected{Error::UnexpectedEof});
 
         // Control characters (where a control character is <= 0x1f) are disallowed.
-        a.expect_eq(json::parse("\"\x00\""sv), tl::unexpected{Error::UnexpectedControlCharacter});
-        a.expect_eq(json::parse("\"\x1f\""), tl::unexpected{Error::UnexpectedControlCharacter});
+        a.expect_eq(json::parse("\"\x00\""sv), std::unexpected{Error::UnexpectedControlCharacter});
+        a.expect_eq(json::parse("\"\x1f\""), std::unexpected{Error::UnexpectedControlCharacter});
         a.expect_eq(json::parse("\"\x7f\""), json::Value{"\x7f"});
     });
 
@@ -68,44 +67,44 @@ int main() {
         a.expect_eq(json::parse(R"("hello\u0041")"), json::Value{"helloA"});
         a.expect_eq(json::parse(R"("hello\u004120")"), json::Value{"helloA20"});
 
-        a.expect_eq(json::parse(R"("hello\u")"), tl::unexpected{Error::InvalidEscape});
-        a.expect_eq(json::parse(R"("hello\u123)"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(R"("hello\u004")"), tl::unexpected{Error::InvalidEscape});
-        a.expect_eq(json::parse(R"("hello\u004G")"), tl::unexpected{Error::InvalidEscape});
+        a.expect_eq(json::parse(R"("hello\u")"), std::unexpected{Error::InvalidEscape});
+        a.expect_eq(json::parse(R"("hello\u123)"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"("hello\u004")"), std::unexpected{Error::InvalidEscape});
+        a.expect_eq(json::parse(R"("hello\u004G")"), std::unexpected{Error::InvalidEscape});
 
-        a.expect_eq(json::parse(R"("hello\p")"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse(R"("hello\)"), tl::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"("hello\p")"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse(R"("hello\)"), std::unexpected{Error::UnexpectedEof});
 
         // Surrogates.
         a.expect_eq(json::parse(R"("\uD852\uDF62")"), json::Value{"𤭢"});
-        a.expect_eq(json::parse(R"("\uD852\u0041")"), tl::unexpected{Error::UnpairedSurrogate});
-        a.expect_eq(json::parse(R"("\uD83D")"), tl::unexpected{Error::UnpairedSurrogate});
-        a.expect_eq(json::parse(R"("\uDE00")"), tl::unexpected{Error::InvalidEscape});
+        a.expect_eq(json::parse(R"("\uD852\u0041")"), std::unexpected{Error::UnpairedSurrogate});
+        a.expect_eq(json::parse(R"("\uD83D")"), std::unexpected{Error::UnpairedSurrogate});
+        a.expect_eq(json::parse(R"("\uDE00")"), std::unexpected{Error::InvalidEscape});
     });
 
     s.add_test("true", [](etest::IActions &a) {
         a.expect_eq(json::parse("true"), json::Value{true});
-        a.expect_eq(json::parse("tru0"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("tr00"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("t000"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("true!"), tl::unexpected{Error::TrailingGarbage});
+        a.expect_eq(json::parse("tru0"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("tr00"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("t000"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("true!"), std::unexpected{Error::TrailingGarbage});
     });
 
     s.add_test("false", [](etest::IActions &a) {
         a.expect_eq(json::parse("false"), json::Value{false});
-        a.expect_eq(json::parse("fals0"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("fal00"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("fa000"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("f0000"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("false!"), tl::unexpected{Error::TrailingGarbage});
+        a.expect_eq(json::parse("fals0"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("fal00"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("fa000"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("f0000"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("false!"), std::unexpected{Error::TrailingGarbage});
     });
 
     s.add_test("null", [](etest::IActions &a) {
         a.expect_eq(json::parse("null"), json::Value{json::Null{}});
-        a.expect_eq(json::parse("nul0"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("nu00"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("n000"), tl::unexpected{Error::InvalidKeyword});
-        a.expect_eq(json::parse("null!"), tl::unexpected{Error::TrailingGarbage});
+        a.expect_eq(json::parse("nul0"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("nu00"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("n000"), std::unexpected{Error::InvalidKeyword});
+        a.expect_eq(json::parse("null!"), std::unexpected{Error::TrailingGarbage});
     });
 
     s.add_test("array", [](etest::IActions &a) {
@@ -117,11 +116,11 @@ int main() {
                         {Value{json::Null{}}, Value{true}, Value{"hello"}, Value{false}, Value{json::Array{}}},
                 }});
 
-        a.expect_eq(json::parse("["), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("[blah"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("[null a"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("[null"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("[null,"), tl::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("["), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("[blah"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("[null a"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("[null"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("[null,"), std::unexpected{Error::UnexpectedEof});
     });
 
     s.add_test("object", [](etest::IActions &a) {
@@ -136,16 +135,16 @@ int main() {
         a.expect_eq(json::parse(R"({"key": {"key": "value"}})"),
                 Value{json::Object{{{"key", Value{json::Object{{{"key", Value{"value"}}}}}}}}});
 
-        a.expect_eq(json::parse("{"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("{blah"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("{null"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse(R"({"key")"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(R"({"key"!)"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse(R"({"key":)"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(R"({"key":asdf)"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse(R"({"key":true)"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(R"({"key":true,)"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse(R"({"key":true a)"), tl::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("{"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("{blah"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("{null"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse(R"({"key")"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"({"key"!)"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse(R"({"key":)"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"({"key":asdf)"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse(R"({"key":true)"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"({"key":true,)"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse(R"({"key":true a)"), std::unexpected{Error::UnexpectedCharacter});
         a.expect_eq(json::parse(R"({"key":true})"), Value{json::Object{{{"key", Value{true}}}}});
     });
 
@@ -172,13 +171,13 @@ int main() {
         a.expect_eq(json::parse("0.123e-4"), Value{0.123e-4});
         a.expect_eq(json::parse("0.123e+4"), Value{0.123e+4});
 
-        a.expect_eq(json::parse("0.123e456"), tl::unexpected{Error::InvalidNumber}); // out-of-range
-        a.expect_eq(json::parse("1234e456"), tl::unexpected{Error::InvalidNumber}); // out-of-range
-        a.expect_eq(json::parse("123."), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("123e"), tl::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("123ey"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("-a"), tl::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("1.f"), tl::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("0.123e456"), std::unexpected{Error::InvalidNumber}); // out-of-range
+        a.expect_eq(json::parse("1234e456"), std::unexpected{Error::InvalidNumber}); // out-of-range
+        a.expect_eq(json::parse("123."), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("123e"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("123ey"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("-a"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("1.f"), std::unexpected{Error::UnexpectedCharacter});
     });
 
     s.add_test("deeply nested object", [](etest::IActions &a) {
@@ -225,7 +224,7 @@ int main() {
             to_parse += "}";
         }
 
-        a.expect_eq(json::Parser{to_parse}.parse(), tl::unexpected{Error::NestingLimitReached});
+        a.expect_eq(json::Parser{to_parse}.parse(), std::unexpected{Error::NestingLimitReached});
     });
 
     s.add_test("deeply nested array", [](etest::IActions &a) {
@@ -271,7 +270,7 @@ int main() {
             to_parse += "]";
         }
 
-        a.expect_eq(json::Parser{to_parse}.parse(), tl::unexpected{Error::NestingLimitReached});
+        a.expect_eq(json::Parser{to_parse}.parse(), std::unexpected{Error::NestingLimitReached});
     });
 
     return s.run();

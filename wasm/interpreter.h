@@ -7,12 +7,11 @@
 
 #include "wasm/instructions.h"
 
-#include <tl/expected.hpp>
-
 #include <bit>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <expected>
 #include <functional>
 #include <iostream>
 #include <optional>
@@ -123,30 +122,30 @@ public:
     bool returning{false};
     [[nodiscard]] constexpr bool operator==(Interpreter const &) const = default;
 
-    tl::expected<std::optional<Value>, Trap> run(std::span<instructions::Instruction const>);
+    std::expected<std::optional<Value>, Trap> run(std::span<instructions::Instruction const>);
 
     template<typename T>
-    tl::expected<void, Trap> interpret(T const &) {
+    std::expected<void, Trap> interpret(T const &) {
         std::cerr << "Unhandled instruction: " << T::kMnemonic << '\n';
-        return tl::unexpected{Trap::UnhandledInstruction};
+        return std::unexpected{Trap::UnhandledInstruction};
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#blocks
     // In the flat execution model (no nested blocks), end is the function body terminator.
     // run() already returns stack.back() after the loop, so this is a no-op.
-    tl::expected<void, Trap> interpret(instructions::End const &) { return {}; }
+    std::expected<void, Trap> interpret(instructions::End const &) { return {}; }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#returning-from-a-function
     // (frame_n { f }  val'*  val^n  return  instr*)  →  val^n
     // Sets the returning flag so run() stops executing further instructions.
-    tl::expected<void, Trap> interpret(instructions::Return const &) {
+    std::expected<void, Trap> interpret(instructions::Return const &) {
         returning = true;
         return {};
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#function-calls
     // Invoke function[idx] in its own isolated frame; push its result (if any) onto our stack.
-    tl::expected<void, Trap> interpret(instructions::Call const &call) {
+    std::expected<void, Trap> interpret(instructions::Call const &call) {
         assert(call.function_idx < functions.size());
         auto const &fn = functions[call.function_idx];
 
@@ -160,7 +159,7 @@ public:
         returning = saved_returning;
 
         if (!result) {
-            return tl::unexpected{result.error()};
+            return std::unexpected{result.error()};
         }
         auto &retval = result.value();
         if (retval.has_value()) {
@@ -171,24 +170,24 @@ public:
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
     // t.const c
-    tl::expected<void, Trap> interpret(instructions::I32Const const &v) {
+    std::expected<void, Trap> interpret(instructions::I32Const const &v) {
         stack.emplace_back(v.value);
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::I64Const const &v) {
+    std::expected<void, Trap> interpret(instructions::I64Const const &v) {
         stack.emplace_back(v.value);
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::F32Const const &v) {
+    std::expected<void, Trap> interpret(instructions::F32Const const &v) {
         stack.emplace_back(v.value);
         return {};
     }
 
     template<typename T>
     requires(T::kNumericType == instructions::NumericType::Relop)
-    tl::expected<void, Trap> interpret(T const &) {
+    std::expected<void, Trap> interpret(T const &) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
         auto rhs = std::get<typename T::NumType>(stack.back());
@@ -201,7 +200,7 @@ public:
 
     template<typename T>
     requires(T::kNumericType == instructions::NumericType::Binop)
-    tl::expected<void, Trap> interpret(T const &) {
+    std::expected<void, Trap> interpret(T const &) {
         // TODO(robinlinden): trap.
         assert(stack.size() >= 2);
         auto rhs = std::get<typename T::NumType>(stack.back());
@@ -213,30 +212,30 @@ public:
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#variable-instructions
-    tl::expected<void, Trap> interpret(instructions::LocalGet const &v) {
+    std::expected<void, Trap> interpret(instructions::LocalGet const &v) {
         stack.push_back(locals.at(v.idx));
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::LocalSet const &v) {
+    std::expected<void, Trap> interpret(instructions::LocalSet const &v) {
         assert(!stack.empty());
         locals.at(v.idx) = stack.back();
         stack.pop_back();
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::LocalTee const &v) {
+    std::expected<void, Trap> interpret(instructions::LocalTee const &v) {
         assert(!stack.empty());
         locals.at(v.idx) = stack.back();
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::GlobalGet const &v) {
+    std::expected<void, Trap> interpret(instructions::GlobalGet const &v) {
         stack.push_back(globals.at(v.global_idx));
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::GlobalSet const &v) {
+    std::expected<void, Trap> interpret(instructions::GlobalSet const &v) {
         assert(!stack.empty());
         globals.at(v.global_idx) = stack.back();
         stack.pop_back();
@@ -244,7 +243,7 @@ public:
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#memory-instructions
-    tl::expected<void, Trap> interpret(instructions::I32Load const &v) {
+    std::expected<void, Trap> interpret(instructions::I32Load const &v) {
         assert(!stack.empty());
         auto [align, offset] = v.arg;
         std::ignore = align;
@@ -254,7 +253,7 @@ public:
         auto ea = i + offset;
 
         if (ea + sizeof(std::int32_t) > memory.size()) {
-            return tl::unexpected{Trap::MemoryAccessOutOfBounds};
+            return std::unexpected{Trap::MemoryAccessOutOfBounds};
         }
 
         std::int32_t value{};
@@ -270,7 +269,7 @@ public:
         return {};
     }
 
-    tl::expected<void, Trap> interpret(instructions::I32Store const &v) {
+    std::expected<void, Trap> interpret(instructions::I32Store const &v) {
         assert(stack.size() >= 2);
         auto [align, offset] = v.arg;
         std::ignore = align;
@@ -282,7 +281,7 @@ public:
         auto ea = i + offset;
 
         if (ea + sizeof(std::int32_t) > memory.size()) {
-            return tl::unexpected{Trap::MemoryAccessOutOfBounds};
+            return std::unexpected{Trap::MemoryAccessOutOfBounds};
         }
 
         static_assert((std::endian::native == std::endian::big) || (std::endian::native == std::endian::little),
@@ -296,17 +295,17 @@ public:
     }
 };
 
-inline tl::expected<std::optional<Interpreter::Value>, Trap> Interpreter::run(
+inline std::expected<std::optional<Interpreter::Value>, Trap> Interpreter::run(
         std::span<instructions::Instruction const> insns) {
     returning = false;
     for (auto const &insn : insns) {
         auto res = std::visit(
-                [this](auto const &i) -> tl::expected<void, Trap> {
+                [this](auto const &i) -> std::expected<void, Trap> {
                     return this->interpret(i); //
                 },
                 insn);
         if (!res) {
-            return tl::unexpected{res.error()};
+            return std::unexpected{res.error()};
         }
         if (returning) {
             break;

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <expected>
 #include <future>
 #include <memory>
 #include <ranges>
@@ -270,7 +271,7 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         auto location = response->headers.find("Location");
         if (location == response->headers.end()) {
             return {
-                    .response = tl::unexpected{protocol::Error{
+                    .response = std::unexpected{protocol::Error{
                             protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
                     .uri_after_redirects = std::move(uri),
             };
@@ -281,7 +282,7 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         auto new_uri = uri::Uri::parse(location->second, uri);
         if (!new_uri) {
             return {
-                    .response = tl::unexpected{protocol::Error{
+                    .response = std::unexpected{protocol::Error{
                             protocol::ErrorCode::InvalidResponse, std::move(response->status_line)}},
                     .uri_after_redirects = std::move(uri),
             };
@@ -291,7 +292,7 @@ Engine::LoadResult Engine::load(uri::Uri uri) {
         response = protocol_handler_->handle(uri);
         if (redirect_count > kMaxRedirects) {
             return {
-                    .response = tl::unexpected{protocol::Error{
+                    .response = std::unexpected{protocol::Error{
                             protocol::ErrorCode::RedirectLimit, std::move(response->status_line)}},
                     .uri_after_redirects = std::move(uri),
             };

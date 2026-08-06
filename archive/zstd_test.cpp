@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,11 +7,10 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <span>
 #include <string>
 #include <string_view>
@@ -78,7 +77,7 @@ int main() {
 
         decoder.set_max_output_length(21);
         auto ret = decoder.decode(as_bytes(kSuccessTestString));
-        a.expect_eq(ret, tl::unexpected{ZstdError::MaximumOutputLengthExceeded});
+        a.expect_eq(ret, std::unexpected{ZstdError::MaximumOutputLengthExceeded});
 
         decoder.set_max_output_length(22);
         ret = decoder.decode(as_bytes(kSuccessTestString));

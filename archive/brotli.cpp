@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "archive/brotli.h"
 
 #include <brotli/decode.h>
-#include <tl/expected.hpp>
 
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <memory>
 #include <span>
 #include <string_view>
@@ -34,16 +34,16 @@ std::string_view to_string(BrotliError err) {
     return "Unknown error";
 }
 
-tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::span<std::byte const> const input) const {
+std::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::span<std::byte const> const input) const {
     if (input.empty()) {
-        return tl::unexpected{BrotliError::InputEmpty};
+        return std::unexpected{BrotliError::InputEmpty};
     }
 
     std::unique_ptr<BrotliDecoderState, decltype(&BrotliDecoderDestroyInstance)> br_state(
             BrotliDecoderCreateInstance(nullptr, nullptr, nullptr), BrotliDecoderDestroyInstance);
 
     if (br_state == nullptr) {
-        return tl::unexpected{BrotliError::DecoderState};
+        return std::unexpected{BrotliError::DecoderState};
     }
 
     std::size_t constexpr kChunkSize = 131072; // Matches the zstd chunk size
@@ -66,7 +66,7 @@ tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::spa
         // Because we provide the whole input up-front, there's no reason we
         // would ever block on needing more input, except for corrupt data
         if (res == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT) {
-            return tl::unexpected{BrotliError::InputCorrupt};
+            return std::unexpected{BrotliError::InputCorrupt};
         }
 
         if (res == BROTLI_DECODER_RESULT_ERROR) {
@@ -90,14 +90,14 @@ tl::expected<std::vector<std::byte>, BrotliError> BrotliDecoder::decode(std::spa
                 case BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
                 case BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
                 case BROTLI_DECODER_ERROR_FORMAT_DISTANCE:
-                    return tl::unexpected{BrotliError::InputCorrupt};
+                    return std::unexpected{BrotliError::InputCorrupt};
                 default:
-                    return tl::unexpected{BrotliError::BrotliInternalError};
+                    return std::unexpected{BrotliError::BrotliInternalError};
             }
         }
 
         if (out.size() + intermediate_buf.size() - avail_out >= max_output_length_) {
-            return tl::unexpected{BrotliError::MaximumOutputLengthExceeded};
+            return std::unexpected{BrotliError::MaximumOutputLengthExceeded};
         }
 
         // TODO(zero-one): Replace with insert_range() when support is better. Requires P1206.

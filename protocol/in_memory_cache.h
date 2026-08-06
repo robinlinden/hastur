@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,8 +10,7 @@
 
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -24,7 +23,7 @@ class InMemoryCache : public IProtocolHandler {
 public:
     explicit InMemoryCache(std::unique_ptr<IProtocolHandler> handler) : handler_{std::move(handler)} {}
 
-    [[nodiscard]] tl::expected<Response, Error> handle(uri::Uri const &uri) override {
+    [[nodiscard]] std::expected<Response, Error> handle(uri::Uri const &uri) override {
         {
             std::scoped_lock<std::mutex> lock{cache_mutex_};
             if (auto it = cache_.find(uri); it != cend(cache_)) {
@@ -48,7 +47,7 @@ public:
 private:
     std::unique_ptr<IProtocolHandler> handler_;
     std::mutex cache_mutex_;
-    std::map<uri::Uri, tl::expected<Response, Error>> cache_;
+    std::map<uri::Uri, std::expected<Response, Error>> cache_;
 };
 
 } // namespace protocol

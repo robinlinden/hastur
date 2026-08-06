@@ -15,7 +15,6 @@ cc_library(
     copts = HASTUR_COPTS,
     implementation_deps = ["//util:variant"],
     visibility = ["//visibility:public"],
-    deps = ["@expected"],
 )
 
 [cc_test(
@@ -26,7 +25,6 @@ cc_library(
     deps = [
         ":wasm",
         "//etest",
-        "@expected",
     ],
 ) for src in glob(
     include = ["*_test.cpp"],

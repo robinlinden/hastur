@@ -1,13 +1,12 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #ifndef IMG_QOI_H_
 #define IMG_QOI_H_
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <iosfwd>
 #include <vector>
 
@@ -26,8 +25,8 @@ enum class QoiError : std::uint8_t {
 // https://qoiformat.org/
 class Qoi {
 public:
-    static tl::expected<Qoi, QoiError> from(std::istream &&is) { return from(is); }
-    static tl::expected<Qoi, QoiError> from(std::istream &is);
+    static std::expected<Qoi, QoiError> from(std::istream &&is) { return from(is); }
+    static std::expected<Qoi, QoiError> from(std::istream &is);
 
     std::uint32_t width{};
     std::uint32_t height{};

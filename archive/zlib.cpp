@@ -1,14 +1,14 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "archive/zlib.h"
 
-#include <tl/expected.hpp>
 #include <zconf.h>
 #include <zlib.h>
 
 #include <cstddef>
+#include <expected>
 #include <span>
 #include <string>
 #include <utility>
@@ -16,7 +16,7 @@
 
 namespace archive {
 
-tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
+std::expected<std::vector<std::byte>, ZlibError> zlib_decode(
         std::span<std::byte const> data, ZlibMode mode, std::size_t max_output_length) {
     z_stream s{
             .next_in = reinterpret_cast<Bytef const *>(data.data()),
@@ -43,7 +43,7 @@ tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
     }();
     constexpr int kWindowBits = 15;
     if (auto error = inflateInit2(&s, kWindowBits + zlib_mode); error != Z_OK) {
-        return tl::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
+        return std::unexpected{ZlibError{.message = "inflateInit2", .code = error}};
     }
 
     std::vector<std::byte> out;
@@ -60,13 +60,13 @@ tl::expected<std::vector<std::byte>, ZlibError> zlib_decode(
                 msg = s.msg;
             }
             inflateEnd(&s);
-            return tl::unexpected{ZlibError{.message = std::move(msg), .code = ret}};
+            return std::unexpected{ZlibError{.message = std::move(msg), .code = ret}};
         }
 
         uInt inflated_bytes = static_cast<uInt>(buf.size()) - s.avail_out;
         if (out.size() + inflated_bytes > max_output_length) {
             inflateEnd(&s);
-            return tl::unexpected{ZlibError{.message = "Output too large", .code = Z_BUF_ERROR}};
+            return std::unexpected{ZlibError{.message = "Output too large", .code = Z_BUF_ERROR}};
         }
 
         auto const *buf_ptr = reinterpret_cast<std::byte const *>(buf.data());

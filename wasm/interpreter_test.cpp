@@ -8,10 +8,9 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <optional>
 #include <span>
 
@@ -22,7 +21,7 @@ int main() {
 
     s.add_test("unhandled instruction", [](etest::IActions &a) {
         Interpreter i;
-        a.expect_eq(i.interpret(wasm::instructions::Select{}), tl::unexpected{wasm::Trap::UnhandledInstruction});
+        a.expect_eq(i.interpret(wasm::instructions::Select{}), std::unexpected{wasm::Trap::UnhandledInstruction});
         a.expect_eq(i, Interpreter{});
     });
 
@@ -104,7 +103,7 @@ int main() {
         Interpreter i;
         i.functions = {{{Select{}}, 0}};
         auto res = i.run({{Call{0}}});
-        a.expect_eq(res, tl::unexpected{wasm::Trap::UnhandledInstruction});
+        a.expect_eq(res, std::unexpected{wasm::Trap::UnhandledInstruction});
     });
 
     s.add_test("i32.const", [](etest::IActions &a) {
@@ -339,7 +338,7 @@ int main() {
 
         // Out-of-bounds read.
         res = i.run({{I32Const{4}, I32Load{{0, 100}}}});
-        a.expect_eq(res, tl::unexpected{wasm::Trap::MemoryAccessOutOfBounds});
+        a.expect_eq(res, std::unexpected{wasm::Trap::MemoryAccessOutOfBounds});
     });
 
     s.add_test("i32.store", [](etest::IActions &a) {
@@ -363,7 +362,7 @@ int main() {
 
         // Out-of-bounds write.
         res = i.run({{I32Const{5}, I32Const{42}, I32Store{{0, 0}}}});
-        a.expect_eq(res, tl::unexpected{wasm::Trap::MemoryAccessOutOfBounds});
+        a.expect_eq(res, std::unexpected{wasm::Trap::MemoryAccessOutOfBounds});
     });
 
     return s.run();

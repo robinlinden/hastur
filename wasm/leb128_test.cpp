@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,9 +6,8 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <cstdint>
+#include <expected>
 #include <limits>
 #include <optional>
 #include <source_location>
@@ -33,7 +32,7 @@ void expect_decode_failure(etest::IActions &a,
         Leb128ParseError error,
         std::source_location loc = std::source_location::current()) {
     a.expect_eq(Leb128<T>::decode_from(std::stringstream{std::move(bytes)}),
-            tl::unexpected{error},
+            std::unexpected{error},
             std::nullopt,
             std::move(loc));
 };

@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024-2025 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,12 +10,11 @@
 #include "wasm/types.h"
 #include "wasm/wasm.h"
 
-#include <tl/expected.hpp>
-
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <string_view>
 #include <utility>
 #include <variant>
@@ -129,12 +128,12 @@ struct InstValidator {
     std::vector<ControlFrame> control_stack;
 
     void push_val(ValueOrUnknown const &);
-    [[nodiscard]] tl::expected<ValueOrUnknown, ValidationError> pop_val();
-    [[nodiscard]] tl::expected<ValueOrUnknown, ValidationError> pop_val_expect(ValueOrUnknown const &);
+    [[nodiscard]] std::expected<ValueOrUnknown, ValidationError> pop_val();
+    [[nodiscard]] std::expected<ValueOrUnknown, ValidationError> pop_val_expect(ValueOrUnknown const &);
     void push_vals(std::vector<ValueType> const &);
-    [[nodiscard]] tl::expected<std::vector<ValueOrUnknown>, ValidationError> pop_vals(std::vector<ValueType> const &);
+    [[nodiscard]] std::expected<std::vector<ValueOrUnknown>, ValidationError> pop_vals(std::vector<ValueType> const &);
     void push_ctrl(Instruction, std::vector<ValueType>, std::vector<ValueType>);
-    [[nodiscard]] tl::expected<ControlFrame, ValidationError> pop_ctrl();
+    [[nodiscard]] std::expected<ControlFrame, ValidationError> pop_ctrl();
     std::vector<ValueType> const &label_types(ControlFrame const &);
     void mark_unreachable();
 };
@@ -143,7 +142,7 @@ void InstValidator::push_val(ValueOrUnknown const &val) {
     value_stack.push_back(val);
 }
 
-tl::expected<ValueOrUnknown, ValidationError> InstValidator::pop_val() {
+std::expected<ValueOrUnknown, ValidationError> InstValidator::pop_val() {
     assert(!control_stack.empty());
 
     if (value_stack.size() == control_stack.back().stack_height && control_stack.back().unreachable) {
@@ -151,7 +150,7 @@ tl::expected<ValueOrUnknown, ValidationError> InstValidator::pop_val() {
     }
 
     if (value_stack.size() == control_stack.back().stack_height) {
-        return tl::unexpected{ValidationError::ValueStackUnderflow};
+        return std::unexpected{ValidationError::ValueStackUnderflow};
     }
 
     assert(!value_stack.empty());
@@ -163,15 +162,15 @@ tl::expected<ValueOrUnknown, ValidationError> InstValidator::pop_val() {
     return val;
 }
 
-tl::expected<ValueOrUnknown, ValidationError> InstValidator::pop_val_expect(ValueOrUnknown const &expected) {
+std::expected<ValueOrUnknown, ValidationError> InstValidator::pop_val_expect(ValueOrUnknown const &expected) {
     auto actual = pop_val();
 
     if (!actual.has_value()) {
-        return tl::unexpected{actual.error()};
+        return std::unexpected{actual.error()};
     }
 
     if (actual != expected && !std::holds_alternative<Unknown>(*actual) && !std::holds_alternative<Unknown>(expected)) {
-        return tl::unexpected{ValidationError::ValueStackUnexpected};
+        return std::unexpected{ValidationError::ValueStackUnexpected};
     }
 
     return actual;
@@ -185,7 +184,8 @@ void InstValidator::push_vals(std::vector<ValueType> const &vals) {
     }
 }
 
-tl::expected<std::vector<ValueOrUnknown>, ValidationError> InstValidator::pop_vals(std::vector<ValueType> const &vals) {
+std::expected<std::vector<ValueOrUnknown>, ValidationError> InstValidator::pop_vals(
+        std::vector<ValueType> const &vals) {
     std::vector<ValueOrUnknown> popped;
 
     // TODO(dzero): switch to std::ranges::reverse_view once we drop older toolchains
@@ -194,7 +194,7 @@ tl::expected<std::vector<ValueOrUnknown>, ValidationError> InstValidator::pop_va
         auto maybe_val = pop_val_expect(*it);
 
         if (!maybe_val.has_value()) {
-            return tl::unexpected{maybe_val.error()};
+            return std::unexpected{maybe_val.error()};
         }
 
         popped.insert(popped.begin(), *maybe_val);
@@ -211,9 +211,9 @@ void InstValidator::push_ctrl(Instruction i, std::vector<ValueType> params, std:
     control_stack.emplace_back(i, std::move(params), std::move(results), value_stack.size(), false);
 }
 
-tl::expected<ControlFrame, ValidationError> InstValidator::pop_ctrl() {
+std::expected<ControlFrame, ValidationError> InstValidator::pop_ctrl() {
     if (control_stack.empty()) {
-        return tl::unexpected{ValidationError::ControlStackEmpty};
+        return std::unexpected{ValidationError::ControlStackEmpty};
     }
 
     auto frame = control_stack.back();
@@ -222,12 +222,12 @@ tl::expected<ControlFrame, ValidationError> InstValidator::pop_ctrl() {
         auto maybe_vals = pop_vals(frame.results);
 
         if (!maybe_vals.has_value()) {
-            return tl::unexpected{maybe_vals.error()};
+            return std::unexpected{maybe_vals.error()};
         }
     }
 
     if (value_stack.size() != frame.stack_height) {
-        return tl::unexpected{ValidationError::ValueStackHeightMismatch};
+        return std::unexpected{ValidationError::ValueStackHeightMismatch};
     }
 
     control_stack.pop_back();
@@ -249,7 +249,7 @@ void InstValidator::mark_unreachable() {
     control_stack.back().unreachable = true;
 }
 
-tl::expected<void, ValidationError> validate_constant_expression(
+std::expected<void, ValidationError> validate_constant_expression(
         std::vector<Instruction> const &expr, ValueType result) {
     if (expr.empty()) {
         return {};
@@ -269,7 +269,7 @@ tl::expected<void, ValidationError> validate_constant_expression(
     auto maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
     if (!maybe_vals.has_value()) {
-        return tl::unexpected{maybe_vals.error()};
+        return std::unexpected{maybe_vals.error()};
     }
 
     return {};
@@ -277,7 +277,7 @@ tl::expected<void, ValidationError> validate_constant_expression(
 
 // TODO(dzero): Serialize operand stack and control stack as part of the ValidationError to make debugging easier
 // https://webassembly.github.io/spec/core/valid/instructions.html#instruction-sequences
-tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
+std::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
         Module const &m,
         FunctionSection const &fs,
         TypeSection const &ts,
@@ -308,7 +308,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             auto maybe_val = v.pop_val_expect(ValueType::Int64);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             v.push_val(ValueType::Int32);
@@ -316,7 +316,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             auto maybe_val = v.pop_val_expect(ValueType::Float32);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             v.push_val(ValueType::Int32);
@@ -324,7 +324,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             auto maybe_val = v.pop_val_expect(ValueType::Float64);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             v.push_val(ValueType::Int32);
@@ -335,7 +335,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             auto maybe_val = v.pop_val_expect(ValueType::Int32);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             v.push_val(ValueType::Int32);
@@ -369,13 +369,13 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             auto maybe_val = v.pop_val_expect(ValueType::Int32);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             maybe_val = v.pop_val_expect(ValueType::Int32);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             v.push_val(ValueType::Int32);
@@ -383,25 +383,25 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
         // https://webassembly.github.io/spec/core/valid/instructions.html#variable-instructions
         else if (auto const *lg = std::get_if<LocalGet>(&inst)) {
             if (lg->idx >= func_code.locals.size()) {
-                return tl::unexpected{ValidationError::LocalUndefined};
+                return std::unexpected{ValidationError::LocalUndefined};
             }
 
             v.push_val(func_code.locals[lg->idx].type);
         } else if (auto const *ls = std::get_if<LocalSet>(&inst)) {
             if (ls->idx >= func_code.locals.size()) {
-                return tl::unexpected{ValidationError::LocalUndefined};
+                return std::unexpected{ValidationError::LocalUndefined};
             }
 
             if (auto pop_res = v.pop_val_expect(func_code.locals[ls->idx].type); !pop_res.has_value()) {
-                return tl::unexpected{pop_res.error()};
+                return std::unexpected{pop_res.error()};
             }
         } else if (auto const *lt = std::get_if<LocalTee>(&inst)) {
             if (lt->idx >= func_code.locals.size()) {
-                return tl::unexpected{ValidationError::LocalUndefined};
+                return std::unexpected{ValidationError::LocalUndefined};
             }
 
             if (auto pop_res = v.pop_val_expect(func_code.locals[lt->idx].type); !pop_res.has_value()) {
-                return tl::unexpected{pop_res.error()};
+                return std::unexpected{pop_res.error()};
             }
 
             v.push_val(func_code.locals[lt->idx].type);
@@ -409,21 +409,21 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
         // https://webassembly.github.io/spec/core/valid/instructions.html#memory-instructions
         else if (auto const *i32l = std::get_if<I32Load>(&inst)) {
             if (!m.memory_section.has_value()) {
-                return tl::unexpected{ValidationError::MemorySectionUndefined};
+                return std::unexpected{ValidationError::MemorySectionUndefined};
             }
 
             if (m.memory_section->memories.empty()) {
-                return tl::unexpected{ValidationError::MemoryEmpty};
+                return std::unexpected{ValidationError::MemoryEmpty};
             }
 
             if (i32l->arg.align > (32 / 8)) {
-                return tl::unexpected{ValidationError::MemoryBadAlignment};
+                return std::unexpected{ValidationError::MemoryBadAlignment};
             }
 
             auto maybe_val = v.pop_val_expect(ValueType::Int32);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             v.push_val(ValueType::Int32);
@@ -431,7 +431,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
         // https://webassembly.github.io/spec/core/valid/instructions.html#control-instructions
         else if (auto const *block = std::get_if<Block>(&inst)) {
             if (!is_valid(block->type, m)) {
-                return tl::unexpected{ValidationError::BlockTypeInvalid};
+                return std::unexpected{ValidationError::BlockTypeInvalid};
             }
 
             std::vector<ValueType> params;
@@ -449,7 +449,7 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             v.push_ctrl(Block{}, std::move(params), std::move(results));
         } else if (auto const *loop = std::get_if<Loop>(&inst)) {
             if (!is_valid(loop->type, m)) {
-                return tl::unexpected{ValidationError::BlockTypeInvalid};
+                return std::unexpected{ValidationError::BlockTypeInvalid};
             }
 
             std::vector<ValueType> params;
@@ -466,42 +466,42 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
 
             v.push_ctrl(Loop{}, std::move(params), std::move(results));
         } else if (std::holds_alternative<End>(inst)) {
-            tl::expected<ControlFrame, ValidationError> maybe_frame = v.pop_ctrl();
+            std::expected<ControlFrame, ValidationError> maybe_frame = v.pop_ctrl();
 
             if (!maybe_frame.has_value()) {
-                return tl::unexpected{maybe_frame.error()};
+                return std::unexpected{maybe_frame.error()};
             }
 
             v.push_vals(maybe_frame->results);
         } else if (auto const *branch = std::get_if<Branch>(&inst)) {
             if (v.control_stack.size() <= branch->label_idx) {
-                return tl::unexpected{ValidationError::LabelInvalid};
+                return std::unexpected{ValidationError::LabelInvalid};
             }
 
             auto maybe_vals =
                     v.pop_vals(v.label_types(v.control_stack[v.control_stack.size() - (branch->label_idx + 1)]));
 
             if (!maybe_vals.has_value()) {
-                return tl::unexpected{maybe_vals.error()};
+                return std::unexpected{maybe_vals.error()};
             }
 
             v.mark_unreachable();
         } else if (auto const *branch_if = std::get_if<BranchIf>(&inst)) {
             if (v.control_stack.size() <= branch_if->label_idx) {
-                return tl::unexpected{ValidationError::LabelInvalid};
+                return std::unexpected{ValidationError::LabelInvalid};
             }
 
             auto maybe_val = v.pop_val_expect(ValueType::Int32);
 
             if (!maybe_val.has_value()) {
-                return tl::unexpected{maybe_val.error()};
+                return std::unexpected{maybe_val.error()};
             }
 
             auto maybe_vals =
                     v.pop_vals(v.label_types(v.control_stack[v.control_stack.size() - (branch_if->label_idx + 1)]));
 
             if (!maybe_vals.has_value()) {
-                return tl::unexpected{maybe_vals.error()};
+                return std::unexpected{maybe_vals.error()};
             }
 
             v.push_vals(v.label_types(v.control_stack[v.control_stack.size() - (branch_if->label_idx + 1)]));
@@ -509,12 +509,12 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             auto maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
             if (!maybe_vals.has_value()) {
-                return tl::unexpected{maybe_vals.error()};
+                return std::unexpected{maybe_vals.error()};
             }
 
             v.mark_unreachable();
         } else {
-            return tl::unexpected{ValidationError::UnknownInstruction};
+            return std::unexpected{ValidationError::UnknownInstruction};
         }
     }
 
@@ -525,29 +525,29 @@ tl::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
         auto maybe_vals = v.pop_vals(v.label_types(v.control_stack[0]));
 
         if (!maybe_vals.has_value()) {
-            return tl::unexpected{maybe_vals.error()};
+            return std::unexpected{maybe_vals.error()};
         }
     }
 
     return {};
 }
 
-tl::expected<void, ValidationError> validate_functions(Module const &m, FunctionSection const &fs) {
+std::expected<void, ValidationError> validate_functions(Module const &m, FunctionSection const &fs) {
     if (!m.type_section.has_value()) {
-        return tl::unexpected{ValidationError::TypeSectionUndefined};
+        return std::unexpected{ValidationError::TypeSectionUndefined};
     }
 
     if (!m.code_section.has_value()) {
-        return tl::unexpected{ValidationError::CodeSectionUndefined};
+        return std::unexpected{ValidationError::CodeSectionUndefined};
     }
 
     for (std::uint32_t i = 0; i < fs.type_indices.size(); i++) {
         if (fs.type_indices[i] >= m.type_section->types.size()) {
-            return tl::unexpected{ValidationError::FuncTypeInvalid};
+            return std::unexpected{ValidationError::FuncTypeInvalid};
         }
 
         if (i >= m.code_section->entries.size()) {
-            return tl::unexpected{ValidationError::FuncUndefinedCode};
+            return std::unexpected{ValidationError::FuncUndefinedCode};
         }
 
         auto const ret = validate_function(i, m, fs, *m.type_section, *m.code_section);
@@ -613,7 +613,7 @@ std::string_view to_string(ValidationError err) {
 }
 
 // https://webassembly.github.io/spec/core/valid/modules.html#modules
-tl::expected<void, ValidationError> validate(Module const &m) {
+std::expected<void, ValidationError> validate(Module const &m) {
     // https://webassembly.github.io/spec/core/valid/modules.html#functions
     if (m.function_section.has_value()) {
         auto const ret = validate_functions(m, *m.function_section);
@@ -627,7 +627,7 @@ tl::expected<void, ValidationError> validate(Module const &m) {
     if (m.table_section.has_value()) {
         for (auto const &t : m.table_section->tables) {
             if (!is_valid(t)) {
-                return tl::unexpected{ValidationError::TableInvalid};
+                return std::unexpected{ValidationError::TableInvalid};
             }
         }
     }
@@ -636,7 +636,7 @@ tl::expected<void, ValidationError> validate(Module const &m) {
     if (m.memory_section.has_value()) {
         for (auto const &mem : m.memory_section->memories) {
             if (!is_valid(mem)) {
-                return tl::unexpected{ValidationError::MemoryInvalid};
+                return std::unexpected{ValidationError::MemoryInvalid};
             }
         }
     }
@@ -645,7 +645,7 @@ tl::expected<void, ValidationError> validate(Module const &m) {
     if (m.global_section.has_value()) {
         for (auto const &global : m.global_section->globals) {
             if (!is_constant_expression(global.init)) {
-                return tl::unexpected{ValidationError::GlobalNotConstant};
+                return std::unexpected{ValidationError::GlobalNotConstant};
             }
 
             auto const ret = validate_constant_expression(global.init, global.type.type);
@@ -662,7 +662,7 @@ tl::expected<void, ValidationError> validate(Module const &m) {
             // Passive data is valid by default, so we only check active
             if (auto const *dat = std::get_if<DataSection::ActiveData>(&data)) {
                 if (!is_constant_expression(dat->offset)) {
-                    return tl::unexpected{ValidationError::DataOffsetNotConstant};
+                    return std::unexpected{ValidationError::DataOffsetNotConstant};
                 }
 
                 auto const ret = validate_constant_expression(dat->offset, ValueType::Int32);
@@ -672,11 +672,11 @@ tl::expected<void, ValidationError> validate(Module const &m) {
                 }
 
                 if (!m.memory_section.has_value()) {
-                    return tl::unexpected{ValidationError::MemorySectionUndefined};
+                    return std::unexpected{ValidationError::MemorySectionUndefined};
                 }
 
                 if (dat->memory_idx >= m.memory_section->memories.size()) {
-                    return tl::unexpected{ValidationError::DataMemoryIdxInvalid};
+                    return std::unexpected{ValidationError::DataMemoryIdxInvalid};
                 }
             }
         }

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,8 +9,7 @@
 #include "protocol/response.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
+#include <expected>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -24,7 +23,7 @@ class CallbackHandler : public protocol::IProtocolHandler {
 public:
     explicit CallbackHandler(Handlers pages) : pages_(std::move(pages)) {}
 
-    [[nodiscard]] tl::expected<protocol::Response, protocol::Error> handle(uri::Uri const &uri) override {
+    [[nodiscard]] std::expected<protocol::Response, protocol::Error> handle(uri::Uri const &uri) override {
         auto it = pages_.find(uri.path);
         if (it != pages_.end()) {
             return protocol::Response{
@@ -34,7 +33,7 @@ public:
             };
         }
 
-        return tl::unexpected{protocol::Error{protocol::ErrorCode::Unresolved}};
+        return std::unexpected{protocol::Error{protocol::ErrorCode::Unresolved}};
     }
 
 private:

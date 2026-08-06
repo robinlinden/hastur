@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2024 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,9 +11,8 @@
 
 #include "etest/etest2.h"
 
-#include <tl/expected.hpp>
-
 #include <cstddef>
+#include <expected>
 #include <string>
 #include <vector>
 
@@ -40,7 +39,7 @@ int main() {
     s.add_test("Function: invalid trivial sequence", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {I32Const{42}, I32Add{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: block with valid body", [=](etest::IActions &a) mutable {
@@ -60,21 +59,21 @@ int main() {
     s.add_test("Function: block with invalid body", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, I32Const{42}, I32Add{}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: block returning with unclean stack", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
                 Block{.type = {ValueType::Int32}}, I32Const{42}, I32Const{42}, I32Const{42}, I32Add{}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackHeightMismatch});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackHeightMismatch});
     });
 
     s.add_test("Function: block with valid body and invalid return value", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
                 Block{.type = {ValueType::Int64}}, I32Const{42}, I32Const{42}, I32Add{}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnexpected});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnexpected});
     });
 
     s.add_test("Function: block ending with branch", [=](etest::IActions &a) mutable {
@@ -95,7 +94,7 @@ int main() {
         m.code_section->entries[0].code = {
                 Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 4}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::LabelInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::LabelInvalid});
     });
 
     s.add_test("Function: block with branch, dead code", [=](etest::IActions &a) mutable {
@@ -109,25 +108,25 @@ int main() {
         m.code_section->entries[0].code = {
                 Block{.type = {ValueType::Int64}}, I32Const{42}, Branch{.label_idx = 0}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnexpected});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnexpected});
     });
 
     s.add_test("Function: block with branch, invalid label", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, Branch{.label_idx = 4}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::LabelInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::LabelInvalid});
     });
 
     s.add_test("Function: block with type use, missing type section", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {Block{.type = {TypeIdx{1}}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::BlockTypeInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::BlockTypeInvalid});
     });
 
     s.add_test("Function: getting undefined local", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {Block{.type = {ValueType::Int32}}, LocalGet{0}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::LocalUndefined});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::LocalUndefined});
     });
 
     s.add_test("Function: valid return", [=](etest::IActions &a) mutable {
@@ -140,41 +139,41 @@ int main() {
         m.code_section->entries[0].code = {
                 Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 0}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: invalid return, explicit", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {
                 Loop{.type = {BlockType::Empty{}}}, I32Const{1}, BranchIf{.label_idx = 0}, End{}, Return{}, End{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: load, no memory section defined", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {I32Const{0}, I32Load{}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemorySectionUndefined});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::MemorySectionUndefined});
     });
 
     s.add_test("Function: load, memory empty", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {I32Const{0}, I32Load{}};
         m.memory_section = MemorySection{};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryEmpty});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::MemoryEmpty});
     });
 
     s.add_test("Function: load, bad alignment", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {I32Const{0}, I32Load{.arg = {.align = 5}}};
         m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryBadAlignment});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::MemoryBadAlignment});
     });
 
     s.add_test("Function: load, missing arg", [=](etest::IActions &a) mutable {
         m.code_section->entries[0].code = {I32Load{}};
         m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: valid load", [=](etest::IActions &a) mutable {
@@ -195,7 +194,7 @@ int main() {
         m.code_section->entries[0].code = {LocalSet{.idx = 0}, LocalGet{.idx = 0}};
         m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("Function: localtee, valid", [=](etest::IActions &a) mutable {
@@ -209,7 +208,7 @@ int main() {
         m.code_section->entries[0].code = {LocalTee{.idx = 0}};
         m.code_section->entries[0].locals = {{.count = 1, .type = ValueType::Int32}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::ValueStackUnderflow});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::ValueStackUnderflow});
     });
 
     s.add_test("to_string(ValidationError): Every error has a message", [](etest::IActions &a) {
@@ -236,7 +235,7 @@ int main() {
 
     s.add_test("Table: invalid table, min size > max", [=](etest::IActions &a) mutable {
         m.table_section = {{{ValueType::FunctionReference, {1, 0}}}};
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::TableInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::TableInvalid});
     });
 
     s.add_test("Memory: valid memory", [=](etest::IActions &a) mutable {
@@ -246,12 +245,12 @@ int main() {
 
     s.add_test("Memory: invalid memory, min size > max", [=](etest::IActions &a) mutable {
         m.memory_section = {{{1, 0}}};
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::MemoryInvalid});
     });
 
     s.add_test("Memory: invalid memory, max size > 2^16", [=](etest::IActions &a) mutable {
         m.memory_section = {{{0, 1UL << 17}}};
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemoryInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::MemoryInvalid});
     });
 
     s.add_test("Global: empty global", [=](etest::IActions &a) mutable {
@@ -278,7 +277,7 @@ int main() {
                         .type = GlobalType{.type = ValueType::Int32, .mutability = GlobalType::Mutability::Const},
                         .init = {I32Const{42}, I32Const{42}, I32Add{}}}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::GlobalNotConstant});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::GlobalNotConstant});
     });
 
     s.add_test("Data: passive data", [=](etest::IActions &a) mutable {
@@ -297,14 +296,14 @@ int main() {
     s.add_test("Data: active data, undefined memory section", [=](etest::IActions &a) mutable {
         m.data_section = {{DataSection::ActiveData{0, {I32Const{42}}, {std::byte{0x42}}}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::MemorySectionUndefined});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::MemorySectionUndefined});
     });
 
     s.add_test("Data: active data, non-constant offset", [=](etest::IActions &a) mutable {
         m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
         m.data_section = {{DataSection::ActiveData{0, {I32Const{42}, I32Const{42}, I32Add{}}, {std::byte{0x42}}}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::DataOffsetNotConstant});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::DataOffsetNotConstant});
     });
 
     // TODO(dzero): Uncomment this test when we've implemented I64 instructions
@@ -312,14 +311,14 @@ int main() {
     //    m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
     //    m.data_section = {{DataSection::ActiveData{0, {I64Const{42}}, {std::byte{0x42}}}}};
 
-    //    a.expect_eq(validate(m), tl::unexpected{ValidationError::DataOffsetNotConstant});
+    //    a.expect_eq(validate(m), std::unexpected{ValidationError::DataOffsetNotConstant});
     //});
 
     s.add_test("Data: active data, invalid memory index", [=](etest::IActions &a) mutable {
         m.memory_section = MemorySection{.memories = {MemType{.min = 42}}};
         m.data_section = {{DataSection::ActiveData{1, {I32Const{42}}, {std::byte{0x42}}}}};
 
-        a.expect_eq(validate(m), tl::unexpected{ValidationError::DataMemoryIdxInvalid});
+        a.expect_eq(validate(m), std::unexpected{ValidationError::DataMemoryIdxInvalid});
     });
 
     return s.run();
