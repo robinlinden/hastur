@@ -43,7 +43,6 @@ cc_library(
         "//url:percent_encode",
         "//util:history",
         "//util:string",
-        "@expected",
         "@imgui",
         "@imgui-sfml",
         "@sfml//:graphics",

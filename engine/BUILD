@@ -25,7 +25,6 @@ cc_library(
         "//type",
         "//type:naive",
         "//uri",
-        "@expected",
     ],
 )
 
@@ -45,6 +44,5 @@ cc_test(
         "//type",
         "//type:naive",
         "//uri",
-        "@expected",
     ],
 )

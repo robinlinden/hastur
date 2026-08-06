@@ -18,9 +18,9 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Cursor.hpp>
 #include <SFML/Window/Event.hpp>
-#include <tl/expected.hpp>
 
 #include <cstdint>
+#include <expected>
 #include <functional>
 #include <future>
 #include <map>
@@ -63,8 +63,8 @@ private:
     void init();
 
     std::unique_ptr<engine::Engine> engine_;
-    tl::expected<std::unique_ptr<engine::PageState>, engine::NavigationError> maybe_page_{
-            tl::unexpected<engine::NavigationError>{{}}};
+    std::expected<std::unique_ptr<engine::PageState>, engine::NavigationError> maybe_page_{
+            std::unexpected{engine::NavigationError{}}};
 
     std::string browser_title_;
     std::optional<sf::Cursor> cursor_;

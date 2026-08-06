@@ -17,8 +17,6 @@
 #include "type/type.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
 #include <algorithm>
 #include <array>
 #include <expected>
@@ -435,7 +433,7 @@ int main() {
         engine::Engine e{std::make_unique<FakeProtocolHandler>(responses)};
         auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
         a.expect_eq(page,
-                tl::unexpected{engine::NavigationError{
+                std::unexpected{engine::NavigationError{
                         .uri = uri::Uri::parse("hax://example.com").value(),
                         .response =
                                 protocol::Error{

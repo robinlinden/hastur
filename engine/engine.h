@@ -17,8 +17,6 @@
 #include "type/type.h"
 #include "uri/uri.h"
 
-#include <tl/expected.hpp>
-
 #include <expected>
 #include <functional>
 #include <memory>
@@ -63,7 +61,7 @@ public:
         : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)},
           get_intrensic_size_for_resource_at_url_(std::move(get_intrensic_size_for_resource_at_url)) {}
 
-    [[nodiscard]] tl::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
+    [[nodiscard]] std::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
 
     void relayout(PageState &, Options);
 
