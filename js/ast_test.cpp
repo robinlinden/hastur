@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -45,6 +45,15 @@ int main() {
 
         a.expect_eq(obj.at("hello").as_number(), 5.);
         a.expect_eq(obj.at("f").as_native_function().f({Value{5.}})->as_number(), 5. * 2);
+    });
+
+    s.add_test("Value: copyable and movable", [](etest::IActions &a) {
+        Value v1{5.};
+        Value v2{v1};
+        a.expect_eq(v1, v2);
+
+        Value v3{std::move(v1)};
+        a.expect_eq(v2, v3);
     });
 
     return s.run();

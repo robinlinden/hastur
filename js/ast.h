@@ -83,6 +83,13 @@ public:
     explicit Value(NativeFunction value) : value_{std::move(value)} {}
     explicit Value(decltype(NativeFunction::f) f) : value_{NativeFunction{std::move(f)}} {}
 
+    // Until LWG4025 is implemented, we need to explicitly default these to
+    // allow Value to be used in std::expected
+    Value(Value &&) noexcept = default;
+    Value &operator=(Value &&) noexcept = default;
+    Value(Value const &) = default;
+    Value &operator=(Value const &) = default;
+
     bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
     bool is_number() const { return std::holds_alternative<double>(value_); }
     bool is_string() const { return std::holds_alternative<std::string>(value_); }
