@@ -2,6 +2,9 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
+# TODO(robinlinden): icu breaks w/ Clang 19 + asan/ubsan, so asan is disabled here for now.
+# external/icu+/_objs/common/udata.o:udata.cpp:function openCommonData(char const*, int, UErrorCode*):(.text._ZL14openCommonDataPKciP10UErrorCode+0x4a0): error: undefined reference to 'icudt78_dat'
+
 cc_library(
     name = "rtti_hack",
     srcs = ["rtti_hack.cpp"],
@@ -10,6 +13,7 @@ cc_library(
         "@platforms//os:windows": ["/GR"],
         "//conditions:default": ["-frtti"],
     }),
+    tags = ["no-asan"],
     deps = ["@icu//:common"],
 )
 
@@ -67,7 +71,10 @@ cc_library(
         "@icu//:common",
         "@icu//:icudata",
     ],
-    tags = ["no-cross"],
+    tags = [
+        "no-asan",
+        "no-cross",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -76,7 +83,10 @@ cc_test(
     size = "small",
     srcs = ["url_test.cpp"],
     copts = HASTUR_COPTS,
-    tags = ["no-cross"],
+    tags = [
+        "no-asan",
+        "no-cross",
+    ],
     deps = [
         ":url",
         "//etest",
@@ -91,7 +101,10 @@ cc_test(
     args = ["$(location @wpt_urltestdata//file)"],
     copts = HASTUR_COPTS,
     data = ["@wpt_urltestdata//file"],
-    tags = ["no-cross"],
+    tags = [
+        "no-asan",
+        "no-cross",
+    ],
     deps = [
         ":url",
         "//etest",
@@ -107,7 +120,10 @@ cc_fuzz_test(
     srcs = ["url_fuzz_test.cpp"],
     copts = HASTUR_COPTS,
     corpus = glob(["url_fuzz_test_corpus/**"]),
-    tags = ["no-cross"],
+    tags = [
+        "no-asan",
+        "no-cross",
+    ],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
     deps = [":url"],
 )

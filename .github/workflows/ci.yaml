@@ -42,22 +42,23 @@ jobs:
             version: 16
             apt: g++-16
 
-          - name: clang-18-tsan
-            os: ubuntu-24.04
+          - name: clang-19-tsan
+            os: ubuntu-26.04
             compiler: clang
-            version: 18
-            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18
-            apt: libclang-rt-18-dev llvm-18
+            version: 19
+            bazel: -c dbg --config tsan --test_env=TSAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-19
+            apt: libclang-rt-19-dev llvm-19
 
           # TODO(robinlinden): icu breaks w/ Clang 19 + asan/ubsan:
           # external/icu+/_objs/common/udata.o:udata.cpp:function openCommonData(char const*, int, UErrorCode*):(.text._ZL14openCommonDataPKciP10UErrorCode+0x4a0): error: undefined reference to 'icudt78_dat'
-          - name: clang-18-asan-ubsan
-            os: ubuntu-24.04
+          - name: clang-19-asan-ubsan
+            os: ubuntu-26.04
             compiler: clang
-            version: 18
-            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-18 --config libfuzzer
-            apt: libclang-rt-18-dev llvm-18
+            version: 19
+            bazel: -c dbg --config asan --config ubsan --test_env=ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-19 --config libfuzzer --build_tag_filters=-no-asan --test_tag_filters=-no-asan
+            apt: libclang-rt-19-dev llvm-19
             fuzz: true
+            fuzz-tag: -no-asan
 
           - name: clang-20-libc++
             os: ubuntu-24.04
@@ -75,11 +76,6 @@ jobs:
             os: ubuntu-26.04
             compiler: clang
             version: 22
-
-          - name: clang-19
-            os: ubuntu-26.04
-            compiler: clang
-            version: 19
 
           - name: clang-21-libc++
             os: ubuntu-26.04
@@ -144,6 +140,8 @@ jobs:
           ./bzl/run_fuzz_tests ... \
             ${{ matrix.bazel }} \
             -- --timeout_secs=10
+        env:
+          FUZZ_TAG: ${{ matrix.fuzz-tag }}
 
   coverage:
     name: linux-${{ matrix.compiler }}-${{ matrix.version }}-coverage
