@@ -171,10 +171,12 @@ build:buildbuddy-cache-upload --remote_upload_local_results
 # zig-cross uses the host compiler for tooling used in genrules, so no
 # BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1 here.
 
-# See: https://github.com/uber/hermetic_cc_toolchain/issues/134
-build:zig-cross --sandbox_add_mount_pair=/tmp
-# build:zig-cross --sandbox_add_mount_pair=/var/tmp  # macOS
-# build:zig-cross --sandbox_add_mount_pair=C:\Temp  # Windows
+# See:
+# * https://github.com/uber/hermetic_cc_toolchain/issues/134
+# * https://github.com/uber/hermetic_cc_toolchain/issues/83
+build:zig-cross --sandbox_add_mount_pair=/home
+# build:zig-cross --sandbox_add_mount_pair=/Users  # macOS
+# build:zig-cross --sandbox_add_mount_pair=C:\Users  # Windows
 build:zig-cross --dynamic_mode=off
 # TODO(robinlinden): Make this transitive so we can tag the no-cross targets
 #                    instead of everything depending on no-cross targets.
