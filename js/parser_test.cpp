@@ -509,6 +509,7 @@ int main() {
 
     s.add_test("object expression, bad", [](etest::IActions &a) {
         a.expect_eq(js::Parser::parse("a = {").has_value(), false);
+        a.expect_eq(js::Parser::parse("a = { a").has_value(), false);
         a.expect_eq(js::Parser::parse("a = { a: 1").has_value(), false);
         a.expect_eq(js::Parser::parse("a = { a: 1,").has_value(), false);
         a.expect_eq(js::Parser::parse("a = { a: 1, b }").has_value(), false);

@@ -266,7 +266,7 @@ private:
 
             tokens = tokens.subspan(1); // identifier
 
-            if (!std::holds_alternative<parse::Colon>(tokens.front())) {
+            if (tokens.empty() || !std::holds_alternative<parse::Colon>(tokens.front())) {
                 return std::nullopt;
             }
 
