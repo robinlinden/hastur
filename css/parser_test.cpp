@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -1483,6 +1483,13 @@ int main() {
                         css::Rule{{"p"}, {{css::PropertyId::FontSize, "3px"}}},
                         css::Rule{{"a"}, {{css::PropertyId::Color, "green"}}},
                 });
+    });
+
+    s.add_test("parser: no declaration name", [](etest::IActions &a) {
+        // We currently don't try very hard to recover from rule-parsing
+        // failures, so we never get to the second rule here.
+        auto rules = css::parse("p { : 3px; } a { color: green; }").rules;
+        a.expect_eq(rules, std::vector<css::Rule>{});
     });
 
     return s.run();

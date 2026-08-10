@@ -420,6 +420,7 @@ StyleSheet Parser::parse_rules() {
         }
 
         if (!parse_rule(style, media_query, nullptr)) {
+            // TODO(robinlinden): There are non-eof cases where we end up here.
             spdlog::error("Eof while parsing rule");
             return style;
         }
@@ -590,7 +591,7 @@ bool Parser::parse_rule(StyleSheet &style, std::optional<MediaQuery> const &acti
 
 std::optional<std::pair<std::string_view, std::string_view>> Parser::parse_declaration(std::string_view declaration) {
     auto sep = declaration.find(':');
-    if (sep == std::string_view::npos) {
+    if (sep == 0 || sep == std::string_view::npos) {
         return std::nullopt;
     }
 
