@@ -60,12 +60,12 @@ archive_override(
 # @rules_python doesn't work w/ our cross-compilation setup starting w/ 2.0.0.
 # Probably fixable w/ the right configuration nonsense, but nothing about this
 # is mentioned in the breaking change documentation.
-RULES_PYTHON_VERSION = "1.9.0"
+RULES_PYTHON_VERSION = "1.9.2"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-CYuhNXjnlsAMhTohYfOCZH8y65p3CZ4ciLxSmTM9DW4=",
+    integrity = "sha256-mIgOKULmb74jICvUF0wImlSiA8MvwcvBxsht+fl61+M=",
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -308,12 +308,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260713.0"
+BORINGSSL_VERSION = "0.20260803.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-gXaFPp1cDxrxUnBYfzxXcXGmD929DukD93Y2Y8BNuUk=",
+    integrity = "sha256-WFyReC/AZRum8jdrZyrNwwQ3cF2KULSWfCDmKT4xiWk=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -368,12 +368,12 @@ EOF""",
 )
 
 # https://github.com/ArthurSonzogni/FTXUI
-FTXUI_VERSION = "7.0.1"
+FTXUI_VERSION = "7.0.3"
 
 bazel_dep(name = "ftxui")  # MIT
 archive_override(
     module_name = "ftxui",
-    integrity = "sha256-00qCDs8hVKZ/0RwUqYooB+s7RSIo+n7KlYN45o1L4d4=",
+    integrity = "sha256-vlBtZHv27tLnkn+Z6ggLzM/wk42aNWF3VhYdW3bfi4o=",
     url = "https://github.com/ArthurSonzogni/FTXUI/releases/download/v%s/source.tar.gz" % FTXUI_VERSION,
 )
 
@@ -471,13 +471,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.8"
+IMGUI_VERSION = "1.92.9b"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-/ssz0zkw4S/1OjQGTp06Bsj3w+BECPFM02yA4/qshjs=",
+    integrity = "sha256-IdigpWXoXc6UPjddsAgSwvPwqyHz8PeWTjZKY0Itf5k=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -681,12 +681,12 @@ EOF""",
 )
 
 # https://github.com/illiliti/libudev-zero
-UDEV_ZERO_VERSION = "1.0.4"
+UDEV_ZERO_VERSION = "1.0.5"
 
 archive_override(
     module_name = "udev-zero",
     build_file = "//third_party:udev-zero.BUILD",
-    integrity = "sha256-EBSM/WBH04e/ceynLNGcF3CEIk2WQ0oRjY3vbgo9YxY=",
+    integrity = "sha256-v0Ny953b5rDiZqPSmU/6xwGKft9Ph2Mq7LUXZWXZYTg=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "udev-zero")
@@ -700,12 +700,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.357"
+VULKAN_TAG = "1.4.359"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-fcDbzx1J3T19o3YcJRxgl9+6rEdTIaSoqZJp09Wr7Nw=",
+    integrity = "sha256-9lXM0wmNHZmcQt/PPHSRxuNvsCyIbv7OLSRw96O1d1I=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -721,7 +721,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-4rG1GW6VDAgt5NYA2/i5l8hzTGBft0w0za484+YCi3k=",
+    integrity = "sha256-LhUWHFWtnCaYZ6TaLyTQl/nLnT0+0z/ZB/XgyLZOpSI=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
