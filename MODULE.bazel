@@ -8,11 +8,13 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 # =========================================================
 
 # https://github.com/bazelbuild/apple_support
+APPLE_SUPPORT_VERSION = "2.8.0"
+
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-/o5e0PEhSFIExmnbh7w1J2pqPMhS2KM4QNZPqHTX/0M=",
-    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format("2.7.0"),
+    integrity = "sha256-eDDkgBA6JslieulZM637F/HwUiqUgvzDjqDlIJPbmxk=",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format(APPLE_SUPPORT_VERSION),
 )
 
 # https://github.com/bazelbuild/platforms
@@ -45,8 +47,8 @@ use_repo(cc_configure, "local_config_cc")
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",
-    integrity = "sha256-aHlMo0TByvE9ymX5DAZmCCMBP6CAkxJm4mJRA5BKZk4=",
-    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.7.0"),
+    integrity = "sha256-iFNwSNfQdYn/STnJmIkwDHBj5DSA3dPPqU1sLMiZqi4=",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/{0}/rules_java-{0}.tar.gz".format("9.8.0"),
 )
 
 # https://github.com/bazelbuild/rules_license
@@ -111,11 +113,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_rust
-RULES_RUST_VERSION = "0.71.3"
+RULES_RUST_VERSION = "0.73.0"
 
 archive_override(
     module_name = "rules_rust",
-    integrity = "sha256-h8txtdi9xcNfgjdTBYX+R9CEsxKDucJx+OPvezmkTQM=",
+    integrity = "sha256-LQyLlnthnVcXvoIQ9SokxapiTjIpo43EBxcS2x3VIvI=",
     url = "https://github.com/bazelbuild/rules_rust/releases/download/{0}/rules_rust-{0}.tar.gz".format(RULES_RUST_VERSION),
 )
 
@@ -158,21 +160,21 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/supply-chain
-PACKAGE_METADATA_VERSION = "0.0.11"
+PACKAGE_METADATA_VERSION = "0.0.13"
 
 archive_override(
     module_name = "package_metadata",
-    integrity = "sha256-KoJg6aI+UXZ1qj+3sPxaI2Jk2/VTCUCL993numziKA4=",
+    integrity = "sha256-dVvWyKN1GYLiVV2WyRPsBwlUyp0B+TVWM5IlXaTrrXI=",
     strip_prefix = "package_metadata-%s/metadata" % PACKAGE_METADATA_VERSION,
     url = "https://github.com/bazel-contrib/supply-chain/releases/download/package_metadata-{0}/package_metadata-{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
-RULES_JVM_EXTERNAL_VERSION = "7.0"
+RULES_JVM_EXTERNAL_VERSION = "7.1"
 
 archive_override(
     module_name = "rules_jvm_external",
-    integrity = "sha256-pBlpkJqTd1z/+oD7kEV9gHYowfmMci97x9yoVXXYaNQ=",
+    integrity = "sha256-JWF5DzLCKXWtBoWPPEC/6XL8D/nn8ooJSEi89NRuc8U=",
     patch_cmds = [
         # Avoid what transitive deps we can.
         "sed -i'' -e /rules_android/d MODULE.bazel",
@@ -197,11 +199,11 @@ archive_override(
 )
 
 # https://github.com/google/googletest
-GOOGLETEST_VERSION = "1.17.0"
+GOOGLETEST_VERSION = "1.18.0"
 
 archive_override(
     module_name = "googletest",
-    integrity = "sha256-Zfq3AdmCnTjLd8FKzcQx0hCL/b+JeeQOuK5Wft8Qsnw=",
+    integrity = "sha256-bjGRwUVUaLP8NaQX+1ZcHFBxruG35/heMM9IqY032LU=",
     strip_prefix = "googletest-%s" % GOOGLETEST_VERSION,
     url = "https://github.com/google/googletest/releases/download/v{0}/googletest-{0}.tar.gz".format(GOOGLETEST_VERSION),
 )
