@@ -242,7 +242,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v47.0.2
+      WASMTIME_VERSION: v47.0.3
     steps:
       - uses: actions/checkout@v7
       - name: Set up wasmtime
@@ -341,7 +341,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: pipx install pre-commit==4.6.1
+      - run: pipx install pre-commit==4.6.2
       - run: pre-commit run --all-files
 
   clang-format:
