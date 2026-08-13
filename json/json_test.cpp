@@ -19,6 +19,7 @@ int main() {
     using json::Value;
     etest::Suite s{};
 
+    // std::to_string isn't constexpr.
     s.add_test("to_string(Error)", [](etest::IActions &a) {
         static constexpr auto kFirstError = Error::InvalidEscape;
         static constexpr auto kLastError = Error::UnpairedSurrogate;
@@ -35,12 +36,12 @@ int main() {
         a.expect_eq(json::to_string(static_cast<Error>(error + 1)), "Unknown error");
     });
 
-    s.add_test("bad input", [](etest::IActions &a) {
+    s.constexpr_test("bad input", [](etest::IActions &a) {
         a.expect_eq(json::parse(""), std::unexpected{Error::UnexpectedEof});
         a.expect_eq(json::parse(","), std::unexpected{Error::UnexpectedCharacter});
     });
 
-    s.add_test("string", [](etest::IActions &a) {
+    s.constexpr_test("string", [](etest::IActions &a) {
         a.expect_eq(json::parse(R"("hello")"), json::Value{"hello"});
         a.expect_eq(json::parse(R"(     "hello"     )"), json::Value{"hello"});
         a.expect_eq(json::parse("\t\n\r \"hello\"\t\n\r "), json::Value{"hello"});
@@ -55,7 +56,7 @@ int main() {
         a.expect_eq(json::parse("\"\x7f\""), json::Value{"\x7f"});
     });
 
-    s.add_test("string, escapes", [](etest::IActions &a) {
+    s.constexpr_test("string, escapes", [](etest::IActions &a) {
         a.expect_eq(json::parse(R"("hello\n")"), json::Value{"hello\n"});
         a.expect_eq(json::parse(R"("hello\"")"), json::Value{"hello\""});
         a.expect_eq(json::parse(R"("hello\\")"), json::Value{"hello\\"});
@@ -82,7 +83,7 @@ int main() {
         a.expect_eq(json::parse(R"("\uDE00")"), std::unexpected{Error::InvalidEscape});
     });
 
-    s.add_test("true", [](etest::IActions &a) {
+    s.constexpr_test("true", [](etest::IActions &a) {
         a.expect_eq(json::parse("true"), json::Value{true});
         a.expect_eq(json::parse("tru0"), std::unexpected{Error::InvalidKeyword});
         a.expect_eq(json::parse("tr00"), std::unexpected{Error::InvalidKeyword});
@@ -90,7 +91,7 @@ int main() {
         a.expect_eq(json::parse("true!"), std::unexpected{Error::TrailingGarbage});
     });
 
-    s.add_test("false", [](etest::IActions &a) {
+    s.constexpr_test("false", [](etest::IActions &a) {
         a.expect_eq(json::parse("false"), json::Value{false});
         a.expect_eq(json::parse("fals0"), std::unexpected{Error::InvalidKeyword});
         a.expect_eq(json::parse("fal00"), std::unexpected{Error::InvalidKeyword});
@@ -99,7 +100,7 @@ int main() {
         a.expect_eq(json::parse("false!"), std::unexpected{Error::TrailingGarbage});
     });
 
-    s.add_test("null", [](etest::IActions &a) {
+    s.constexpr_test("null", [](etest::IActions &a) {
         a.expect_eq(json::parse("null"), json::Value{json::Null{}});
         a.expect_eq(json::parse("nul0"), std::unexpected{Error::InvalidKeyword});
         a.expect_eq(json::parse("nu00"), std::unexpected{Error::InvalidKeyword});
@@ -107,7 +108,7 @@ int main() {
         a.expect_eq(json::parse("null!"), std::unexpected{Error::TrailingGarbage});
     });
 
-    s.add_test("array", [](etest::IActions &a) {
+    s.constexpr_test("array", [](etest::IActions &a) {
         a.expect_eq(json::parse("[]"), Value{json::Array{}});
         a.expect_eq(json::parse("[ ]"), Value{json::Array{}});
         a.expect_eq(json::parse(R"(["1"])"), Value{json::Array{{Value{"1"}}}});
@@ -123,7 +124,7 @@ int main() {
         a.expect_eq(json::parse("[null,"), std::unexpected{Error::UnexpectedEof});
     });
 
-    s.add_test("object", [](etest::IActions &a) {
+    s.constexpr_test("object", [](etest::IActions &a) {
         a.expect_eq(json::parse("{}"), Value{json::Object{}});
         a.expect_eq(json::parse("{ }"), Value{json::Object{}});
         a.expect_eq(json::parse(R"({"key": "value"})"), Value{json::Object{{{"key", Value{"value"}}}}});
@@ -131,9 +132,6 @@ int main() {
                 Value{json::Object{{{"key", Value{"value"}}, {"key2", Value{"value2"}}}}});
         a.expect_eq(json::parse(R"({"key": true, "key2": "value2", "key3": false})"),
                 Value{json::Object{{{"key", Value{true}}, {"key2", Value{"value2"}}, {"key3", Value{false}}}}});
-
-        a.expect_eq(json::parse(R"({"key": {"key": "value"}})"),
-                Value{json::Object{{{"key", Value{json::Object{{{"key", Value{"value"}}}}}}}}});
 
         a.expect_eq(json::parse("{"), std::unexpected{Error::UnexpectedEof});
         a.expect_eq(json::parse("{blah"), std::unexpected{Error::UnexpectedCharacter});
@@ -148,7 +146,27 @@ int main() {
         a.expect_eq(json::parse(R"({"key":true})"), Value{json::Object{{{"key", Value{true}}}}});
     });
 
-    s.add_test("object helpers", [](etest::IActions &a) {
+    // MSVC has an issue with constexpr std::expected.
+    // etest/etest2.h(154): error C2131: expression did not evaluate to a constant
+    // MSVC\14.51.36231\include\expected(661): note: failure was
+    // caused by a read of an uninitialized symbol
+    // MSVC\14.51.36231\include\expected(661): note: see usage of
+    // 'std::expected<json::Value,json::Error>::_Has_value'
+    // ...
+    // json/json.h(191): note: while evaluating function
+    // 'std::expected<json::Value,json::Error> json::Parser::parse_object(int)'
+    // json/json.h(327): note: while evaluating function
+    // 'std::expected<json::Value,json::Error>::operator bool(void) noexcept const'
+#ifndef _MSC_VER
+    s.constexpr_test("object, msvc-workaround", [](etest::IActions &a) {
+#else
+    s.add_test("object, msvc-workaround", [](etest::IActions &a) {
+#endif
+        a.expect_eq(json::parse(R"({"key": {"key": "value"}})"),
+                Value{json::Object{{{"key", Value{json::Object{{{"key", Value{"value"}}}}}}}}});
+    });
+
+    s.constexpr_test("object helpers", [](etest::IActions &a) {
         json::Object o{{{"key", Value{"value"}}}};
 
         a.expect(o.contains("key"));
@@ -157,14 +175,24 @@ int main() {
         a.expect_eq(o.find("blah"), std::ranges::find(o.values, "end", &decltype(o.values)::value_type::first));
     });
 
-    s.add_test("numbers", [](etest::IActions &a) {
+    s.constexpr_test("numbers: integrals", [](etest::IActions &a) {
         a.expect_eq(json::parse("0"), Value{0});
         a.expect_eq(json::parse("1"), Value{1});
         a.expect_eq(json::parse("123"), Value{123});
-        a.expect_eq(json::parse("123.456"), Value{123.456});
         a.expect_eq(json::parse("-0"), Value{-0});
         a.expect_eq(json::parse("-1"), Value{-1});
         a.expect_eq(json::parse("-123"), Value{-123});
+
+        a.expect_eq(json::parse("123."), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("123e"), std::unexpected{Error::UnexpectedEof});
+        a.expect_eq(json::parse("123ey"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("-a"), std::unexpected{Error::UnexpectedCharacter});
+        a.expect_eq(json::parse("1.f"), std::unexpected{Error::UnexpectedCharacter});
+    });
+
+    // std::from_chars<double> used in the floating point parser isn't constexpr.
+    s.add_test("numbers: floats", [](etest::IActions &a) {
+        a.expect_eq(json::parse("123.456"), Value{123.456});
         a.expect_eq(json::parse("-123.456"), Value{-123.456});
         a.expect_eq(json::parse("0.123"), Value{0.123});
         a.expect_eq(json::parse("0.123e4"), Value{0.123e4});
@@ -173,13 +201,10 @@ int main() {
 
         a.expect_eq(json::parse("0.123e456"), std::unexpected{Error::InvalidNumber}); // out-of-range
         a.expect_eq(json::parse("1234e456"), std::unexpected{Error::InvalidNumber}); // out-of-range
-        a.expect_eq(json::parse("123."), std::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("123e"), std::unexpected{Error::UnexpectedEof});
-        a.expect_eq(json::parse("123ey"), std::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("-a"), std::unexpected{Error::UnexpectedCharacter});
-        a.expect_eq(json::parse("1.f"), std::unexpected{Error::UnexpectedCharacter});
     });
 
+    // The constexpr bits in e.g. MSVC are only happy with recursion up to a
+    // point, and we exceed that point when kMaxDepth >= 30.
     s.add_test("deeply nested object", [](etest::IActions &a) {
         static constexpr auto kMaxDepth = 256;
         std::string to_parse;
