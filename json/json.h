@@ -73,12 +73,12 @@ using Value = std::variant<Null, bool, std::string, std::int64_t, double, Array,
 
 struct Array {
     std::vector<Value> values;
-    inline bool operator==(Array const &) const;
+    constexpr bool operator==(Array const &) const;
 };
 
 struct Object {
     std::vector<std::pair<std::string, Value>> values;
-    inline bool operator==(Object const &) const;
+    constexpr bool operator==(Object const &) const;
 
     [[nodiscard]] constexpr Value const &at(std::string_view key) const {
         auto it = std::ranges::find(values, key, &decltype(values)::value_type::first);
@@ -93,14 +93,8 @@ struct Object {
     [[nodiscard]] constexpr bool contains(std::string_view key) const { return find(key) != values.end(); }
 };
 
-// TODO(robinlinden): Clang 17 and 18 crash if these are = default. Clang 19 is fine.
-inline bool Array::operator==(Array const &v) const {
-    return values == v.values;
-}
-
-inline bool Object::operator==(Object const &v) const {
-    return values == v.values;
-}
+constexpr bool Array::operator==(Array const &) const = default;
+constexpr bool Object::operator==(Object const &) const = default;
 
 // TODO(robinlinden): Make things more constexpr once we've dropped libc++ 17, 18.
 // https://www.json.org/json-en.html
