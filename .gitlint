@@ -1,5 +1,6 @@
 [general]
 ignore=body-is-missing
+regex-style-search=true
 
 # TODO(robinlinden): Better way of documenting and setting this up.
 # Each commit must start with the main area it affects.
