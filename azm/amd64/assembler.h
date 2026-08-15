@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -40,7 +40,6 @@ constexpr std::optional<std::uint8_t> register_index(Reg32 reg) {
     return std::nullopt;
 }
 
-// TODO(robinlinden): Clang (both w/ libc++ and libstdc++) doesn't like constexpr std::variant before clang-19.
 struct Label {
     struct Linked {
         std::size_t offset{};
@@ -49,8 +48,8 @@ struct Label {
         std::vector<std::size_t> patch_offsets;
     };
 
-    static Label linked(std::size_t jmp_target_offset) { return {Linked{jmp_target_offset}}; }
-    static Label unlinked() { return {Unlinked{}}; }
+    static constexpr Label linked(std::size_t jmp_target_offset) { return {Linked{jmp_target_offset}}; }
+    static constexpr Label unlinked() { return {Unlinked{}}; }
 
     std::variant<Linked, Unlinked> v;
 };
@@ -60,10 +59,10 @@ class Assembler {
 public:
     [[nodiscard]] constexpr std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
 
-    Label label() const { return Label::linked(assembled_.size()); }
-    Label unlinked_label() const { return Label::unlinked(); }
+    constexpr Label label() const { return Label::linked(assembled_.size()); }
+    constexpr Label unlinked_label() const { return Label::unlinked(); }
 
-    void link(Label &label) {
+    constexpr void link(Label &label) {
         assert(std::holds_alternative<Label::Unlinked>(label.v));
         constexpr int kInstructionSize = 4;
         std::size_t const jmp_target_offset = assembled_.size();
@@ -110,7 +109,7 @@ public:
         emit(imm32);
     }
 
-    void jmp(Label &label) {
+    constexpr void jmp(Label &label) {
         // JMP rel32
         if (std::holds_alternative<Label::Linked>(label.v)) {
             auto const &linked = std::get<Label::Linked>(label.v);

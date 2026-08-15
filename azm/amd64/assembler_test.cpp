@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -59,7 +59,7 @@ int main() {
         a.expect_eq(assembler.take_assembled(), CodeVec{0x81, 0xe3, 0x42, 0, 0, 0});
     });
 
-    s.add_test("JMP, backwards", [](etest::IActions &a) {
+    s.constexpr_test("JMP, backwards", [](etest::IActions &a) {
         Assembler assembler;
 
         auto slot1 = assembler.label();
@@ -82,7 +82,7 @@ int main() {
                 });
     });
 
-    s.add_test("JMP, forwards", [](etest::IActions &a) {
+    s.constexpr_test("JMP, forwards", [](etest::IActions &a) {
         Assembler assembler;
 
         auto slot1 = assembler.unlinked_label();
@@ -111,7 +111,7 @@ int main() {
                 });
     });
 
-    s.add_test("JMP, short backwards", [](etest::IActions &a) {
+    s.constexpr_test("JMP, short backwards", [](etest::IActions &a) {
         Assembler assembler;
 
         auto slot1 = assembler.label();
