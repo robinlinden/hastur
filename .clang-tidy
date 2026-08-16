@@ -7,11 +7,6 @@
 #
 # -bugprone-narrowing-conversions: Very noisy for not much gain.
 #
-# TODO(robinlinden): Enable again once this is fixed in libfmt or we're std::format instead.
-# -clang-analyzer-optin.cplusplus.UninitializedObject: Unusable together with
-# libfmt due to warnings about uninitialized fields triggering everywhere string
-# formatting is used. Last tested with 11.1.4.
-#
 # -cppcoreguidelines-[...]: TODO(robinlinden): Investigate.
 #
 # -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access: Warns on things that
@@ -63,7 +58,6 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-exception-escape,
   -bugprone-narrowing-conversions,
-  -clang-analyzer-optin.cplusplus.UninitializedObject,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-narrowing-conversions,
