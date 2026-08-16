@@ -112,6 +112,7 @@ genrule(
     "tests5",
     # There is no tests13.
     "tests14",
+    "tests23",
     "tests24",
     "tests25",
 ]]
@@ -165,7 +166,6 @@ genrule(
     "tests20",
     "tests21",
     "tests22",
-    "tests23",
     "tests26",
     "tests_innerHTML_1",
     "tricky01",

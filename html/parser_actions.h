@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <iterator>
@@ -204,20 +205,99 @@ public:
         });
     }
 
+    // https://html.spec.whatwg.org/#the-list-of-active-formatting-elements
     void reconstruct_active_formatting_elements() override {
-        // TODO(robinlinden): Implement.
+        if (active_formatting_elements_.empty()) {
+            return;
+        }
+
+        auto const &last = active_formatting_elements_.back();
+        if (last.is_marker() || std::ranges::contains(open_elements_, last.element)) {
+            return;
+        }
+
+        // Find the index to start creating elements from.
+        std::size_t entry_index = active_formatting_elements_.size() - 1;
+
+        while (true) {
+            if (entry_index == 0) {
+                break;
+            }
+
+            auto const &prev = active_formatting_elements_[entry_index - 1];
+            if (!prev.is_marker() && !std::ranges::contains(open_elements_, prev.element)) {
+                --entry_index;
+                continue;
+            }
+
+            break;
+        }
+
+        // If we rewound to an entry that is neither a marker nor in the stack,
+        // entry_index now points to the first entry that needs creating.
+        for (std::size_t i = entry_index; i < active_formatting_elements_.size(); ++i) {
+            auto &entry = active_formatting_elements_[i];
+            assert(!entry.is_marker());
+            insert(dom::Element{entry.name, entry.attributes});
+
+            // The inserted element is now the current open element.
+            entry.element = open_elements_.back();
+        }
     }
 
+    // https://html.spec.whatwg.org/#the-list-of-active-formatting-elements
     void push_current_element_onto_active_formatting_elements() override {
-        // TODO(robinlinden): Implement.
+        assert(!open_elements_.empty());
+        auto *el = open_elements_.back();
+        ActiveFormattingElement afe{
+                .element = el,
+                .name = el->name,
+                .attributes = el->attributes,
+        };
+
+        std::size_t start_index = 0;
+        for (std::size_t i = active_formatting_elements_.size(); i-- > 0;) {
+            if (active_formatting_elements_[i].is_marker()) {
+                start_index = i + 1;
+                break;
+            }
+        }
+
+        int same_count = 0;
+        for (std::size_t i = start_index; i < active_formatting_elements_.size(); ++i) {
+            auto const &e = active_formatting_elements_[i];
+            assert(!e.is_marker());
+            if (e.name == afe.name && e.attributes == afe.attributes) {
+                ++same_count;
+            }
+        }
+
+        if (same_count >= 3) {
+            for (std::size_t i = start_index; i < active_formatting_elements_.size(); ++i) {
+                auto const &e = active_formatting_elements_[i];
+                assert(!e.is_marker());
+                if (e.name == afe.name && e.attributes == afe.attributes) {
+                    active_formatting_elements_.erase(active_formatting_elements_.begin() + i);
+                    break;
+                }
+            }
+        }
+
+        active_formatting_elements_.push_back(std::move(afe));
     }
 
-    void push_formatting_marker() override {
-        // TODO(robinlinden): Implement.
-    }
+    // https://html.spec.whatwg.org/#the-list-of-active-formatting-elements
+    void push_formatting_marker() override { active_formatting_elements_.emplace_back(); }
 
+    // https://html.spec.whatwg.org/#the-list-of-active-formatting-elements
     void clear_formatting_elements_up_to_last_marker() override {
-        // TODO(robinlinden): Implement.
+        while (!active_formatting_elements_.empty()) {
+            auto e = active_formatting_elements_.back();
+            active_formatting_elements_.pop_back();
+            if (e.is_marker()) {
+                break;
+            }
+        }
     }
 
     std::vector<std::string_view> names_of_open_elements() const override {
@@ -265,6 +345,16 @@ private:
     std::vector<dom::Element *> &open_elements_;
     std::function<void(dom::Element const &)> const &on_element_closed_;
     std::optional<std::string_view> fragment_parsing_context_;
+
+    struct ActiveFormattingElement {
+        dom::Element *element{nullptr};
+        std::string name;
+        dom::AttrMap attributes;
+
+        [[nodiscard]] constexpr bool is_marker() const { return element == nullptr; }
+    };
+
+    std::vector<ActiveFormattingElement> active_formatting_elements_;
 };
 
 } // namespace html
