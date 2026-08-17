@@ -48,8 +48,7 @@ ParseResult parse(std::string_view html, ParseOptions const &opts) {
             res.document,
             tokenizer,
             opts.scripting,
-            // TODO(robinlinden): Update tests to be happy with comments.
-            html::CommentMode::Discard,
+            html::CommentMode::Keep,
             mode,
             open_elements,
             on_element_closed,
@@ -170,7 +169,15 @@ void before_head_tests(etest::Suite &s) {
     s.add_test("BeforeHead: comment", [](etest::IActions &a) {
         auto res = parse("<html><!-- comment --><head foo='bar'>", {});
         a.expect_eq(res.document.html(),
-                dom::Element{"html", {}, {dom::Element{"head", {{"foo", "bar"}}}, dom::Element{"body"}}});
+                dom::Element{
+                        "html",
+                        {},
+                        {
+                                dom::Comment{" comment "},
+                                dom::Element{"head", {{"foo", "bar"}}},
+                                dom::Element{"body"},
+                        },
+                });
     });
 
     s.add_test("BeforeHead: doctype", [](etest::IActions &a) {
@@ -214,7 +221,14 @@ void in_head_tests(etest::Suite &s) {
     s.add_test("InHead: comment", [](etest::IActions &a) {
         auto res = parse("<html><head><!-- comment --><meta>", {});
         a.expect_eq(res.document.html(),
-                dom::Element{"html", {}, {dom::Element{"head", {}, {dom::Element{"meta"}}}, dom::Element{"body"}}});
+                dom::Element{
+                        "html",
+                        {},
+                        {
+                                dom::Element{"head", {}, {dom::Comment{" comment "}, dom::Element{"meta"}}},
+                                dom::Element{"body"},
+                        },
+                });
     });
 
     s.add_test("InHead: doctype", [](etest::IActions &a) {
@@ -359,7 +373,8 @@ void after_head_tests(etest::Suite &s) {
 
     s.add_test("AfterHead: comment", [](etest::IActions &a) {
         auto res = parse("<head></head><!-- comment -->", {});
-        a.expect_eq(res.document.html(), dom::Element{"html", {}, {dom::Element{"head"}, dom::Element{"body"}}});
+        a.expect_eq(res.document.html(),
+                dom::Element{"html", {}, {dom::Element{"head"}, dom::Comment{" comment "}, dom::Element{"body"}}});
     });
 
     s.add_test("AfterHead: doctype", [](etest::IActions &a) {
@@ -459,7 +474,7 @@ void in_body_tests(etest::Suite &s) {
     s.add_test("InBody: comment", [](etest::IActions &a) {
         auto res = parse("<body><!-- comment -->", {});
         auto const &actual_body = std::get<dom::Element>(res.document.html().children.at(1));
-        a.expect_eq(actual_body, dom::Element{"body"});
+        a.expect_eq(actual_body, dom::Element{"body", {}, {dom::Comment{" comment "}}});
     });
 
     s.add_test("InBody: doctype", [](etest::IActions &a) {
@@ -788,7 +803,7 @@ void in_table_tests(etest::Suite &s) {
     s.add_test("InTable: comment", [](etest::IActions &a) {
         auto res = parse("<table><!-- comment -->", {});
         auto const &body = std::get<dom::Element>(res.document.html().children.at(1));
-        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table"}}});
+        a.expect_eq(body, dom::Element{"body", {}, {dom::Element{"table", {}, {dom::Comment{" comment "}}}}});
     });
 
     s.add_test("InTable: doctype", [](etest::IActions &a) {
@@ -956,7 +971,7 @@ void in_frameset_tests(etest::Suite &s) {
         dom::Element expected{
                 "html",
                 {},
-                {dom::Element{"head"}, dom::Element{"frameset"}},
+                {dom::Element{"head"}, dom::Element{"frameset", {}, {dom::Comment{" comment "}}}},
         };
         a.expect_eq(res.document.html(), expected);
     });
