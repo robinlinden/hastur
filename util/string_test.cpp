@@ -87,6 +87,16 @@ int main() {
         a.expect(!is_printable('\n'));
     });
 
+    es.add_test("is_ascii(char)", [](etest::IActions &a) {
+        a.expect(is_ascii('a'));
+        a.expect(!is_ascii('\x80'));
+    });
+
+    es.add_test("is_ascii(std::string_view)", [](etest::IActions &a) {
+        a.expect(is_ascii("Hello there!"sv));
+        a.expect(!is_ascii("Hello there!\x80"sv));
+    });
+
     es.add_test("lowercased(char)", [](etest::IActions &a) {
         a.expect_eq(lowercased('A'), 'a');
         a.expect_eq(lowercased('a'), 'a');

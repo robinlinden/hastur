@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -214,8 +214,8 @@ constexpr std::string_view to_string(ValidationError e) {
 
 std::string_view description(ValidationError);
 
-// This parser is current with the WHATWG URL specification as of 2025-09-20,
-// https://github.com/whatwg/url/commit/05a5d834deba31622390ee05a3dcbc22496b7bb5
+// This parser is current with the WHATWG URL specification as of 2026-06-30,
+// https://github.com/whatwg/url/commit/37afb50be866ce38c7efd8f86deb5b6c0b7440ac
 class UrlParser final {
 public:
     std::optional<Url> parse(std::string input, std::optional<Url> base = std::nullopt);
