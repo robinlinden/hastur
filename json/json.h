@@ -73,12 +73,12 @@ using Value = std::variant<Null, bool, std::string, std::int64_t, double, Array,
 
 struct Array {
     std::vector<Value> values;
-    inline bool operator==(Array const &) const;
+    constexpr bool operator==(Array const &) const;
 };
 
 struct Object {
     std::vector<std::pair<std::string, Value>> values;
-    inline bool operator==(Object const &) const;
+    constexpr bool operator==(Object const &) const;
 
     [[nodiscard]] constexpr Value const &at(std::string_view key) const {
         auto it = std::ranges::find(values, key, &decltype(values)::value_type::first);
@@ -93,22 +93,15 @@ struct Object {
     [[nodiscard]] constexpr bool contains(std::string_view key) const { return find(key) != values.end(); }
 };
 
-// TODO(robinlinden): Clang 17 and 18 crash if these are = default. Clang 19 is fine.
-inline bool Array::operator==(Array const &v) const {
-    return values == v.values;
-}
+constexpr bool Array::operator==(Array const &) const = default;
+constexpr bool Object::operator==(Object const &) const = default;
 
-inline bool Object::operator==(Object const &v) const {
-    return values == v.values;
-}
-
-// TODO(robinlinden): Make things more constexpr once we've dropped libc++ 17, 18.
 // https://www.json.org/json-en.html
 class Parser {
 public:
     explicit constexpr Parser(std::string_view json) : json_{json} {}
 
-    std::expected<Value, Error> parse() {
+    constexpr std::expected<Value, Error> parse() {
         static constexpr auto kRecursionLimit = 257;
         auto v = parse_value(kRecursionLimit);
         if (!v) {
@@ -129,7 +122,7 @@ private:
 
     constexpr bool is_eof() const { return pos_ >= json_.size(); }
 
-    constexpr bool is_whitespace(char c) const {
+    static constexpr bool is_whitespace(char c) {
         switch (c) {
             case 0x09: // '\t'
             case 0x0A: // '\n'
@@ -143,7 +136,7 @@ private:
 
     static constexpr bool is_control(unsigned char c) { return c < 0x20; }
 
-    constexpr bool is_whitespace(std::optional<char> c) const { return c && is_whitespace(*c); }
+    static constexpr bool is_whitespace(std::optional<char> c) { return c && is_whitespace(*c); }
 
     constexpr std::optional<char> peek() const {
         if (is_eof()) {
@@ -168,7 +161,7 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::expected<Value, Error> parse_value(int recursion_limit) {
+    constexpr std::expected<Value, Error> parse_value(int recursion_limit) {
         if (recursion_limit <= 0) {
             return std::unexpected{Error::NestingLimitReached};
         }
@@ -201,7 +194,7 @@ private:
         }
     }
 
-    std::expected<Value, Error> parse_number() {
+    constexpr std::expected<Value, Error> parse_number() {
         std::string number;
         if (auto c = peek(); c == '-') {
             number.push_back('-');
@@ -307,7 +300,7 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::expected<Value, Error> parse_object(int recursion_limit) {
+    constexpr std::expected<Value, Error> parse_object(int recursion_limit) {
         std::ignore = consume(); // '{'
         skip_whitespace();
 
@@ -358,7 +351,7 @@ private:
     }
 
     // NOLINTNEXTLINE(misc-no-recursion)
-    std::expected<Value, Error> parse_array(int recursion_limit) {
+    constexpr std::expected<Value, Error> parse_array(int recursion_limit) {
         std::ignore = consume(); // '['
         skip_whitespace();
 
@@ -396,7 +389,7 @@ private:
         }
     }
 
-    std::expected<Value, Error> parse_true() {
+    constexpr std::expected<Value, Error> parse_true() {
         std::ignore = consume(); // 't'
         auto r = consume();
         auto u = consume();
@@ -408,7 +401,7 @@ private:
         return Value{true};
     }
 
-    std::expected<Value, Error> parse_false() {
+    constexpr std::expected<Value, Error> parse_false() {
         std::ignore = consume(); // 'f'
         auto a = consume();
         auto l = consume();
@@ -421,7 +414,7 @@ private:
         return Value{false};
     }
 
-    std::expected<Value, Error> parse_null() {
+    constexpr std::expected<Value, Error> parse_null() {
         std::ignore = consume(); // 'n'
         auto u = consume();
         auto l1 = consume();
@@ -433,7 +426,7 @@ private:
         return Value{Null{}};
     }
 
-    std::expected<Value, Error> parse_string() {
+    constexpr std::expected<Value, Error> parse_string() {
         std::string value;
         if (consume() != '"') {
             if (is_eof()) {
@@ -539,7 +532,7 @@ private:
     }
 
     // This *only* parses the 4 hex digits after the \u.
-    std::expected<std::uint16_t, Error> parse_utf16_escaped_hex() {
+    constexpr std::expected<std::uint16_t, Error> parse_utf16_escaped_hex() {
         std::string hex;
         for (int i = 0; i < 4; ++i) {
             auto hex_digit = consume();
@@ -563,7 +556,7 @@ private:
     }
 };
 
-inline std::expected<Value, Error> parse(std::string_view json) {
+constexpr std::expected<Value, Error> parse(std::string_view json) {
     return Parser{json}.parse();
 }
 
