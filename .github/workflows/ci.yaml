@@ -157,8 +157,8 @@ jobs:
           # TODO(robinlinden): Bazel 9.0.0 breaks LLVM coverage. Investigate and fix.
           # Last tested w/ Bazel 9.1.0.
           - compiler: clang
-            version: 21
-            bazel: --config=clang21-coverage
+            version: 22
+            bazel: --config=clang22-coverage
     steps:
       - uses: actions/checkout@v7
         with:
