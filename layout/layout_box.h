@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -30,11 +30,11 @@ struct LayoutBox {
     // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] bool operator==(LayoutBox const &) const = default;
 
-    bool is_anonymous_block() const { return node == nullptr; }
-    std::optional<std::string_view> text() const;
+    [[nodiscard]] bool is_anonymous_block() const { return node == nullptr; }
+    [[nodiscard]] std::optional<std::string_view> text() const;
 
     template<css::PropertyId T>
-    auto get_property() const {
+    [[nodiscard]] auto get_property() const {
         if (is_anonymous_block()) {
             if (css::is_inherited(T)) {
                 // TODO(robinlinden): Sad roundabout way of getting the parent.

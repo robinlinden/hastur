@@ -152,18 +152,18 @@ private:
     void emit(ParseError);
     void emit(Token &&);
     std::optional<char> consume_next_input_character();
-    std::optional<char> peek_next_input_character() const;
-    bool is_eof() const;
+    [[nodiscard]] std::optional<char> peek_next_input_character() const;
+    [[nodiscard]] bool is_eof() const;
 
     std::vector<Attribute> &attributes_for_current_element();
     void start_attribute_in_current_tag_token(Attribute);
     Attribute &current_attribute();
     void reconsume_in(State);
 
-    bool consumed_as_part_of_an_attribute() const;
+    [[nodiscard]] bool consumed_as_part_of_an_attribute() const;
     void flush_code_points_consumed_as_a_character_reference();
     void emit_temporary_buffer_as_character_tokens();
-    bool is_appropriate_end_tag_token(Token const &) const;
+    [[nodiscard]] bool is_appropriate_end_tag_token(Token const &) const;
     void emit_replacement_character();
 };
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -114,7 +114,8 @@ enum class WhiteSpace : std::uint8_t {
 struct UnresolvedBorderWidth {
     UnresolvedValue width{};
 
-    int resolve(int font_size, ResolutionInfo, std::optional<int> percent_relative_to = std::nullopt) const;
+    [[nodiscard]] int resolve(
+            int font_size, ResolutionInfo, std::optional<int> percent_relative_to = std::nullopt) const;
 };
 
 struct UnresolvedLineHeight {
@@ -133,10 +134,10 @@ struct StyledNode {
     StyledNode const *parent{nullptr};
     std::vector<std::pair<std::string, std::string>> custom_properties;
 
-    std::string_view get_raw_property(css::PropertyId) const;
+    [[nodiscard]] std::string_view get_raw_property(css::PropertyId) const;
 
     template<css::PropertyId T>
-    auto get_property() const {
+    [[nodiscard]] auto get_property() const {
         if constexpr (T == css::PropertyId::BackgroundColor || T == css::PropertyId::BorderBottomColor
                 || T == css::PropertyId::BorderLeftColor || T == css::PropertyId::BorderRightColor
                 || T == css::PropertyId::BorderTopColor || T == css::PropertyId::OutlineColor
@@ -195,20 +196,20 @@ struct StyledNode {
     }
 
 private:
-    std::optional<std::string_view> resolve_variable(std::string_view) const;
+    [[nodiscard]] std::optional<std::string_view> resolve_variable(std::string_view) const;
 
-    BorderStyle get_border_style_property(css::PropertyId) const;
-    gfx::Color get_color_property(css::PropertyId) const;
-    std::optional<Display> get_display_property() const;
-    std::optional<Float> get_float_property() const;
-    FontStyle get_font_style_property() const;
-    int get_font_size_property() const;
-    std::optional<FontWeight> get_font_weight_property() const;
-    TextAlign get_text_align_property() const;
-    std::vector<TextDecorationLine> get_text_decoration_line_property() const;
-    std::optional<TextTransform> get_text_transform_property() const;
-    std::optional<WhiteSpace> get_white_space_property() const;
-    std::pair<int, int> get_border_radius_property(css::PropertyId) const;
+    [[nodiscard]] BorderStyle get_border_style_property(css::PropertyId) const;
+    [[nodiscard]] gfx::Color get_color_property(css::PropertyId) const;
+    [[nodiscard]] std::optional<Display> get_display_property() const;
+    [[nodiscard]] std::optional<Float> get_float_property() const;
+    [[nodiscard]] FontStyle get_font_style_property() const;
+    [[nodiscard]] int get_font_size_property() const;
+    [[nodiscard]] std::optional<FontWeight> get_font_weight_property() const;
+    [[nodiscard]] TextAlign get_text_align_property() const;
+    [[nodiscard]] std::vector<TextDecorationLine> get_text_decoration_line_property() const;
+    [[nodiscard]] std::optional<TextTransform> get_text_transform_property() const;
+    [[nodiscard]] std::optional<WhiteSpace> get_white_space_property() const;
+    [[nodiscard]] std::pair<int, int> get_border_radius_property(css::PropertyId) const;
 };
 
 // NOLINTBEGIN(misc-no-recursion)

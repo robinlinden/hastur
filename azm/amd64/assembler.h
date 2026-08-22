@@ -59,8 +59,8 @@ class Assembler {
 public:
     [[nodiscard]] constexpr std::vector<std::uint8_t> take_assembled() { return std::exchange(assembled_, {}); }
 
-    constexpr Label label() const { return Label::linked(assembled_.size()); }
-    constexpr Label unlinked_label() const { return Label::unlinked(); }
+    [[nodiscard]] constexpr Label label() const { return Label::linked(assembled_.size()); }
+    [[nodiscard]] constexpr Label unlinked_label() const { return Label::unlinked(); }
 
     constexpr void link(Label &label) {
         assert(std::holds_alternative<Label::Unlinked>(label.v));

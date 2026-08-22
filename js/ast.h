@@ -89,22 +89,24 @@ public:
     Value(Value const &) = default;
     Value &operator=(Value const &) = default;
 
-    bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
-    bool is_number() const { return std::holds_alternative<double>(value_); }
-    bool is_string() const { return std::holds_alternative<std::string>(value_); }
-    bool is_function() const { return std::holds_alternative<std::shared_ptr<Function>>(value_); }
-    bool is_vector() const { return std::holds_alternative<std::vector<Value>>(value_); }
-    bool is_object() const { return std::holds_alternative<Object>(value_); }
-    bool is_native_function() const { return std::holds_alternative<NativeFunction>(value_); }
+    [[nodiscard]] bool is_undefined() const { return std::holds_alternative<Undefined>(value_); }
+    [[nodiscard]] bool is_number() const { return std::holds_alternative<double>(value_); }
+    [[nodiscard]] bool is_string() const { return std::holds_alternative<std::string>(value_); }
+    [[nodiscard]] bool is_function() const { return std::holds_alternative<std::shared_ptr<Function>>(value_); }
+    [[nodiscard]] bool is_vector() const { return std::holds_alternative<std::vector<Value>>(value_); }
+    [[nodiscard]] bool is_object() const { return std::holds_alternative<Object>(value_); }
+    [[nodiscard]] bool is_native_function() const { return std::holds_alternative<NativeFunction>(value_); }
 
-    double as_number() const { return std::get<double>(value_); }
-    std::string const &as_string() const { return std::get<std::string>(value_); }
-    std::shared_ptr<Function const> as_function() const { return std::get<std::shared_ptr<Function>>(value_); }
-    std::vector<Value> const &as_vector() const { return std::get<std::vector<Value>>(value_); }
-    Object const &as_object() const { return std::get<Object>(value_); }
-    NativeFunction const &as_native_function() const { return std::get<NativeFunction>(value_); }
+    [[nodiscard]] double as_number() const { return std::get<double>(value_); }
+    [[nodiscard]] std::string const &as_string() const { return std::get<std::string>(value_); }
+    [[nodiscard]] std::shared_ptr<Function const> as_function() const {
+        return std::get<std::shared_ptr<Function>>(value_);
+    }
+    [[nodiscard]] std::vector<Value> const &as_vector() const { return std::get<std::vector<Value>>(value_); }
+    [[nodiscard]] Object const &as_object() const { return std::get<Object>(value_); }
+    [[nodiscard]] NativeFunction const &as_native_function() const { return std::get<NativeFunction>(value_); }
 
-    bool as_bool() const {
+    [[nodiscard]] bool as_bool() const {
         // TODO(robinlinden): false, 0n, null, NaN, objects with an [[IsHTMLDDA]] internal slot.
         // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
         bool is_false = *this == Value{0} || *this == Value{-0} || *this == Value{""} || *this == Value{};

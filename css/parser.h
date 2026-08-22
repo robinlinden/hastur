@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2021 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -32,10 +32,10 @@ private:
     std::size_t pos_{};
 
     // Parse helpers.
-    constexpr bool is_eof() const { return pos_ >= input_.size(); }
-    constexpr std::optional<char> peek() const;
-    constexpr std::optional<std::string_view> peek(std::size_t) const;
-    constexpr bool starts_with(std::string_view) const;
+    [[nodiscard]] constexpr bool is_eof() const { return pos_ >= input_.size(); }
+    [[nodiscard]] constexpr std::optional<char> peek() const;
+    [[nodiscard]] constexpr std::optional<std::string_view> peek(std::size_t) const;
+    [[nodiscard]] constexpr bool starts_with(std::string_view) const;
     constexpr void advance(std::size_t n) { pos_ += n; }
     constexpr void skip_if_neq(char);
     constexpr std::optional<char> consume_char();

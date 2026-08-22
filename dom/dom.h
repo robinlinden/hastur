@@ -53,7 +53,7 @@ struct Document {
         LimitedQuirks,
     } mode{};
 
-    Element const &html() const { return std::get<Element>(html_node); }
+    [[nodiscard]] Element const &html() const { return std::get<Element>(html_node); }
     Element &html() { return std::get<Element>(html_node); }
     [[nodiscard]] bool operator==(Document const &) const = default;
 };

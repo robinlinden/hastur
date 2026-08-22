@@ -27,7 +27,7 @@ std::string_view to_string(BrotliError);
 
 class BrotliDecoder {
 public:
-    std::expected<std::vector<std::byte>, BrotliError> decode(std::span<std::byte const>) const;
+    [[nodiscard]] std::expected<std::vector<std::byte>, BrotliError> decode(std::span<std::byte const>) const;
 
     void set_max_output_length(std::size_t length) { max_output_length_ = length; }
 

@@ -106,7 +106,7 @@ using Query = std::variant<And,
 
 struct False {
     [[nodiscard]] bool operator==(False const &) const = default;
-    constexpr bool evaluate(Context const &) const { return false; }
+    [[nodiscard]] constexpr bool evaluate(Context const &) const { return false; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
@@ -114,7 +114,7 @@ struct ForcedColorsMode {
     ForcedColors forced_colors{ForcedColors::None};
     [[nodiscard]] bool operator==(ForcedColorsMode const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.forced_colors == forced_colors; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const { return ctx.forced_colors == forced_colors; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/hover
@@ -122,7 +122,7 @@ struct HoverType {
     Hover hover{};
     [[nodiscard]] bool operator==(HoverType const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.hover == hover; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const { return ctx.hover == hover; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/height
@@ -131,7 +131,9 @@ struct Height {
     int max{std::numeric_limits<int>::max()};
     [[nodiscard]] bool operator==(Height const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return min <= ctx.window_height && ctx.window_height <= max; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const {
+        return min <= ctx.window_height && ctx.window_height <= max;
+    }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation
@@ -139,7 +141,7 @@ struct IsInOrientation {
     Orientation orientation{};
     [[nodiscard]] bool operator==(IsInOrientation const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.orientation == orientation; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const { return ctx.orientation == orientation; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/pointer
@@ -147,7 +149,7 @@ struct PointerType {
     Pointer pointer{};
     [[nodiscard]] bool operator==(PointerType const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.pointer == pointer; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const { return ctx.pointer == pointer; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
@@ -155,19 +157,21 @@ struct PrefersColorScheme {
     ColorScheme color_scheme{};
     [[nodiscard]] bool operator==(PrefersColorScheme const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.color_scheme == color_scheme; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const { return ctx.color_scheme == color_scheme; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
 struct PrefersReducedMotion {
     [[nodiscard]] bool operator==(PrefersReducedMotion const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.reduce_motion == ReduceMotion::Reduce; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const {
+        return ctx.reduce_motion == ReduceMotion::Reduce;
+    }
 };
 
 struct True {
     [[nodiscard]] bool operator==(True const &) const = default;
-    constexpr bool evaluate(Context const &) const { return true; }
+    [[nodiscard]] constexpr bool evaluate(Context const &) const { return true; }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/CSS/@media#media_types
@@ -175,7 +179,7 @@ struct Type {
     MediaType type{};
     [[nodiscard]] bool operator==(Type const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return ctx.media_type == type; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const { return ctx.media_type == type; }
 };
 
 struct Width {
@@ -183,14 +187,16 @@ struct Width {
     int max{std::numeric_limits<int>::max()};
     [[nodiscard]] bool operator==(Width const &) const = default;
 
-    constexpr bool evaluate(Context const &ctx) const { return min <= ctx.window_width && ctx.window_width <= max; }
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const {
+        return min <= ctx.window_width && ctx.window_width <= max;
+    }
 };
 
 struct And {
     std::vector<MediaQuery> queries;
     [[nodiscard]] bool operator==(And const &other) const = default;
 
-    constexpr bool evaluate(Context const &) const;
+    [[nodiscard]] constexpr bool evaluate(Context const &) const;
 };
 
 } // namespace detail
@@ -224,7 +230,7 @@ public:
         return parse_impl(s);
     }
 
-    constexpr bool evaluate(Context const &ctx) const {
+    [[nodiscard]] constexpr bool evaluate(Context const &ctx) const {
         return std::visit([&](auto const &q) { return q.evaluate(ctx); }, query);
     }
 

@@ -127,9 +127,9 @@ private:
     std::string_view json_;
     std::size_t pos_{0};
 
-    constexpr bool is_eof() const { return pos_ >= json_.size(); }
+    [[nodiscard]] constexpr bool is_eof() const { return pos_ >= json_.size(); }
 
-    constexpr bool is_whitespace(char c) const {
+    [[nodiscard]] constexpr bool is_whitespace(char c) const {
         switch (c) {
             case 0x09: // '\t'
             case 0x0A: // '\n'
@@ -143,9 +143,9 @@ private:
 
     static constexpr bool is_control(unsigned char c) { return c < 0x20; }
 
-    constexpr bool is_whitespace(std::optional<char> c) const { return c && is_whitespace(*c); }
+    [[nodiscard]] constexpr bool is_whitespace(std::optional<char> c) const { return c && is_whitespace(*c); }
 
-    constexpr std::optional<char> peek() const {
+    [[nodiscard]] constexpr std::optional<char> peek() const {
         if (is_eof()) {
             return std::nullopt;
         }
