@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2022-2023 David Zero <zero-one@zer0-one.net>
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -29,7 +29,7 @@ struct Host {
 
     std::variant<std::string, std::uint32_t, std::array<std::uint16_t, 8>> data;
 
-    std::string serialize() const;
+    [[nodiscard]] std::string serialize() const;
 
     bool operator==(Host const &) const = default;
 };
@@ -43,8 +43,8 @@ struct Origin {
     // to all non-opaque origins.
     bool opaque = false;
 
-    std::string serialize() const;
-    std::variant<std::monostate, std::string, Host> effective_domain() const;
+    [[nodiscard]] std::string serialize() const;
+    [[nodiscard]] std::variant<std::monostate, std::string, Host> effective_domain() const;
 
     // https://html.spec.whatwg.org/multipage/browsers.html#same-origin
     bool operator==(Origin const &b) const {
@@ -62,7 +62,7 @@ struct Origin {
     }
 
     // https://html.spec.whatwg.org/multipage/browsers.html#same-origin-domain
-    constexpr bool is_same_origin_domain(Origin const &b) const {
+    [[nodiscard]] constexpr bool is_same_origin_domain(Origin const &b) const {
         if (opaque && b.opaque) {
             return true;
         }
@@ -96,13 +96,13 @@ struct Url {
     std::optional<std::string> query;
     std::optional<std::string> fragment;
 
-    std::string serialize(bool exclude_fragment = false, bool rfc3986_norm = false) const;
-    std::string serialize_path() const;
+    [[nodiscard]] std::string serialize(bool exclude_fragment = false, bool rfc3986_norm = false) const;
+    [[nodiscard]] std::string serialize_path() const;
 
-    Origin origin() const;
+    [[nodiscard]] Origin origin() const;
 
-    constexpr bool includes_credentials() const { return !user.empty() || !passwd.empty(); }
-    constexpr bool has_opaque_path() const { return std::holds_alternative<std::string>(path); }
+    [[nodiscard]] constexpr bool includes_credentials() const { return !user.empty() || !passwd.empty(); }
+    [[nodiscard]] constexpr bool has_opaque_path() const { return std::holds_alternative<std::string>(path); }
 
     // https://url.spec.whatwg.org/#url-equivalence
     bool operator==(Url const &b) const { return serialize() == b.serialize(); }
@@ -250,7 +250,7 @@ private:
     };
 
     // Parse helpers
-    constexpr std::optional<char> peek() const {
+    [[nodiscard]] constexpr std::optional<char> peek() const {
         if (is_eof()) {
             return std::nullopt;
         }
@@ -258,11 +258,11 @@ private:
         return input_[pos_];
     }
 
-    constexpr std::string_view remaining_from(std::size_t skip) const {
+    [[nodiscard]] constexpr std::string_view remaining_from(std::size_t skip) const {
         return pos_ + skip >= input_.size() ? "" : input_.substr(pos_ + skip);
     }
 
-    constexpr bool is_eof() const { return pos_ >= input_.size(); }
+    [[nodiscard]] constexpr bool is_eof() const { return pos_ >= input_.size(); }
 
     constexpr void advance(std::size_t n) { pos_ += n; }
 
@@ -305,19 +305,19 @@ private:
     void validation_error(ValidationError) const;
 
     // Host parsing
-    std::optional<Host> parse_host(std::string_view input, bool is_opaque = false) const;
-    bool ends_in_number(std::string_view) const;
-    std::optional<std::uint32_t> parse_ipv4(std::string_view) const;
-    std::optional<std::tuple<std::uint64_t, bool>> parse_ipv4_number(std::string_view) const;
-    std::optional<std::array<std::uint16_t, 8>> parse_ipv6(std::string_view) const;
-    std::optional<std::string> parse_opaque_host(std::string_view) const;
-    bool is_url_codepoint(std::uint32_t) const;
+    [[nodiscard]] std::optional<Host> parse_host(std::string_view input, bool is_opaque = false) const;
+    [[nodiscard]] bool ends_in_number(std::string_view) const;
+    [[nodiscard]] std::optional<std::uint32_t> parse_ipv4(std::string_view) const;
+    [[nodiscard]] std::optional<std::tuple<std::uint64_t, bool>> parse_ipv4_number(std::string_view) const;
+    [[nodiscard]] std::optional<std::array<std::uint16_t, 8>> parse_ipv6(std::string_view) const;
+    [[nodiscard]] std::optional<std::string> parse_opaque_host(std::string_view) const;
+    [[nodiscard]] bool is_url_codepoint(std::uint32_t) const;
 
     // IDNA
-    std::optional<std::string> domain_to_ascii(std::string_view domain, bool be_strict) const;
+    [[nodiscard]] std::optional<std::string> domain_to_ascii(std::string_view domain, bool be_strict) const;
 
     // Misc
-    bool starts_with_windows_drive_letter(std::string_view) const;
+    [[nodiscard]] bool starts_with_windows_drive_letter(std::string_view) const;
     void shorten_url_path(Url &) const;
 
     // Parser state

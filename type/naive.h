@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -15,14 +15,14 @@ namespace type {
 
 class NaiveFont : public IFont {
 public:
-    Size measure(std::string_view text, Px font_size, Weight) const override {
+    [[nodiscard]] Size measure(std::string_view text, Px font_size, Weight) const override {
         return Size{static_cast<int>(text.size()) * font_size.v / 2, font_size.v};
     }
 };
 
 class NaiveType : public IType {
 public:
-    std::optional<std::shared_ptr<IFont const>> font(std::string_view) const override { return font_; }
+    [[nodiscard]] std::optional<std::shared_ptr<IFont const>> font(std::string_view) const override { return font_; }
 
 private:
     std::shared_ptr<NaiveFont> font_{std::make_shared<NaiveFont>()};

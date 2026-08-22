@@ -173,7 +173,7 @@ public:
         token_iter_ = cbegin(tokens_);
     }
 
-    std::optional<std::string_view> get() const {
+    [[nodiscard]] std::optional<std::string_view> get() const {
         if (empty()) {
             return std::nullopt;
         }
@@ -181,7 +181,7 @@ public:
         return *token_iter_;
     }
 
-    std::optional<std::string_view> peek() const {
+    [[nodiscard]] std::optional<std::string_view> peek() const {
         if (empty() || ((token_iter_ + 1) == cend(tokens_))) {
             return std::nullopt;
         }
@@ -196,9 +196,9 @@ public:
         return *this;
     }
 
-    bool empty() const { return token_iter_ == cend(tokens_); }
+    [[nodiscard]] bool empty() const { return token_iter_ == cend(tokens_); }
 
-    std::size_t size() const { return tokens_.size(); }
+    [[nodiscard]] std::size_t size() const { return tokens_.size(); }
 
 private:
     std::vector<std::string_view> tokens_;

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,13 +21,13 @@ struct UnresolvedValue {
     std::string_view raw;
     [[nodiscard]] bool operator==(UnresolvedValue const &) const = default;
 
-    constexpr bool is_auto() const { return raw == "auto"; }
-    constexpr bool is_none() const { return raw == "none"; }
-    int resolve(int font_size,
+    [[nodiscard]] constexpr bool is_auto() const { return raw == "auto"; }
+    [[nodiscard]] constexpr bool is_none() const { return raw == "none"; }
+    [[nodiscard]] int resolve(int font_size,
             ResolutionInfo,
             std::optional<int> percent_relative_to = std::nullopt,
             std::source_location const &caller = std::source_location::current()) const;
-    std::optional<int> try_resolve(int font_size,
+    [[nodiscard]] std::optional<int> try_resolve(int font_size,
             ResolutionInfo,
             std::optional<int> percent_relative_to = std::nullopt,
             std::source_location const &caller = std::source_location::current()) const;

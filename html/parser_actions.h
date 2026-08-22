@@ -66,7 +66,7 @@ public:
         }();
     }
 
-    QuirksMode quirks_mode() const override {
+    [[nodiscard]] QuirksMode quirks_mode() const override {
         switch (document_.mode) {
             case dom::Document::Mode::NoQuirks:
                 return QuirksMode::NoQuirks;
@@ -78,7 +78,7 @@ public:
         return QuirksMode::LimitedQuirks;
     }
 
-    bool scripting() const override { return scripting_; }
+    [[nodiscard]] bool scripting() const override { return scripting_; }
 
     void insert_element_for(StartTagToken const &token) override {
         auto into_dom_attributes = [](std::vector<Attribute> const &attributes) -> dom::AttrMap {
@@ -119,7 +119,7 @@ public:
         }
     }
 
-    std::string_view current_node_name() const override { return open_elements_.back()->name; }
+    [[nodiscard]] std::string_view current_node_name() const override { return open_elements_.back()->name; }
 
     void merge_into_html_node(std::span<Attribute const> attrs) override {
         auto &html = document_.html();
@@ -164,10 +164,10 @@ public:
 
     InsertionMode original_insertion_mode() override { return std::move(original_insertion_mode_); }
 
-    InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
+    [[nodiscard]] InsertionMode current_insertion_mode() const override { return current_insertion_mode_; }
 
     void set_frameset_ok(bool ok) override { is_frameset_ok_ = ok; }
-    bool frameset_ok() const override { return is_frameset_ok_; }
+    [[nodiscard]] bool frameset_ok() const override { return is_frameset_ok_; }
 
     void push_head_as_current_open_element() override {
         auto head = std::ranges::find_if(document_.html().children, [](auto const &node) {
@@ -300,7 +300,7 @@ public:
         }
     }
 
-    std::vector<std::string_view> names_of_open_elements() const override {
+    [[nodiscard]] std::vector<std::string_view> names_of_open_elements() const override {
         std::vector<std::string_view> names;
         names.reserve(open_elements_.size());
         std::ranges::transform(open_elements_, std::back_inserter(names), &dom::Element::name);
@@ -312,14 +312,16 @@ public:
         // TODO(robinlinden): Implement.
     }
 
-    bool head_element_set() const override {
+    [[nodiscard]] bool head_element_set() const override {
         return std::ranges::any_of(document_.html().children, [](auto const &node) {
             return std::holds_alternative<dom::Element>(node) && std::get<dom::Element>(node).name == "head";
         });
     }
 
     void set_fragment_parsing_context(std::string_view context) { fragment_parsing_context_ = context; }
-    std::optional<std::string_view> fragment_parsing_context() const override { return fragment_parsing_context_; }
+    [[nodiscard]] std::optional<std::string_view> fragment_parsing_context() const override {
+        return fragment_parsing_context_;
+    }
 
 private:
     void insert(dom::Element element) {
