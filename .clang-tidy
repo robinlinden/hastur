@@ -85,9 +85,6 @@ Checks: >
 
 WarningsAsErrors: "*"
 
-# TODO(robinlinden) ".*" is the default starting w/ clang-tidy-22, so delete this sometime soon.
-HeaderFilterRegex: ".*"
-
 CheckOptions:
   # bugprone-suspicious-stringview-data-usage
   - key: bugprone-suspicious-stringview-data-usage.AllowedCallees
