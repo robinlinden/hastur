@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -47,7 +47,7 @@ public:
         return std::nullopt;
     }
 
-    constexpr std::optional<T> previous() const {
+    [[nodiscard]] constexpr std::optional<T> previous() const {
         if (auto previous_index = current_index_ - 1; previous_index >= 0) {
             return entries_[previous_index];
         }
@@ -55,7 +55,7 @@ public:
         return std::nullopt;
     }
 
-    constexpr std::optional<T> current() const {
+    [[nodiscard]] constexpr std::optional<T> current() const {
         if (current_index_ >= 0 && static_cast<std::size_t>(current_index_) < entries_.size()) {
             return entries_[current_index_];
         }
@@ -63,7 +63,7 @@ public:
         return std::nullopt;
     }
 
-    constexpr std::optional<T> next() const {
+    [[nodiscard]] constexpr std::optional<T> next() const {
         if (auto next_index = static_cast<std::size_t>(current_index_) + 1; next_index < entries_.size()) {
             return entries_[next_index];
         }
@@ -71,7 +71,7 @@ public:
         return std::nullopt;
     }
 
-    constexpr std::vector<T> const &entries() const { return entries_; }
+    [[nodiscard]] constexpr std::vector<T> const &entries() const { return entries_; }
 
 private:
     int current_index_{-1};

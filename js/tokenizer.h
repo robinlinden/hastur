@@ -163,7 +163,7 @@ private:
         return T{};
     }
 
-    std::optional<char> peek() const {
+    [[nodiscard]] std::optional<char> peek() const {
         if ((pos_) < input_.size()) {
             return input_[pos_];
         }

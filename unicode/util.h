@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -211,8 +211,8 @@ class CodePointView {
 public:
     constexpr explicit CodePointView(std::string_view utf8_data) : view_{utf8_data} {}
 
-    constexpr CodePointIterator begin() const { return CodePointIterator{view_.begin()}; }
-    constexpr CodePointIterator end() const { return CodePointIterator{view_.end()}; }
+    [[nodiscard]] constexpr CodePointIterator begin() const { return CodePointIterator{view_.begin()}; }
+    [[nodiscard]] constexpr CodePointIterator end() const { return CodePointIterator{view_.end()}; }
 
 private:
     std::string_view view_;
@@ -245,7 +245,7 @@ private:
 
         std::string_view::const_iterator it_;
 
-        constexpr int current_code_point_length() const {
+        [[nodiscard]] constexpr int current_code_point_length() const {
             auto const current = *it_;
 
             if ((current & kFourByteMask) == kFourByteMask) {

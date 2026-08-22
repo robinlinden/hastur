@@ -33,12 +33,12 @@ public:
 
     void set_doctype_from(DoctypeToken const &dt) override { wrapped_.set_doctype_from(dt); }
     void set_quirks_mode(QuirksMode quirks) override { wrapped_.set_quirks_mode(quirks); }
-    QuirksMode quirks_mode() const override { return wrapped_.quirks_mode(); }
-    bool scripting() const override { return wrapped_.scripting(); }
+    [[nodiscard]] QuirksMode quirks_mode() const override { return wrapped_.quirks_mode(); }
+    [[nodiscard]] bool scripting() const override { return wrapped_.scripting(); }
     void insert_element_for(StartTagToken const &token) override { wrapped_.insert_element_for(token); }
     void insert_element_for(CommentToken const &token) override { wrapped_.insert_element_for(token); }
     void pop_current_node() override { wrapped_.pop_current_node(); }
-    std::string_view current_node_name() const override { return wrapped_.current_node_name(); }
+    [[nodiscard]] std::string_view current_node_name() const override { return wrapped_.current_node_name(); }
     void merge_into_html_node(std::span<Attribute const> attributes) override {
         wrapped_.merge_into_html_node(attributes);
     }
@@ -49,9 +49,9 @@ public:
     void set_tokenizer_state(State state) override { wrapped_.set_tokenizer_state(state); }
     void store_original_insertion_mode(InsertionMode mode) override { wrapped_.store_original_insertion_mode(mode); }
     InsertionMode original_insertion_mode() override { return wrapped_.original_insertion_mode(); }
-    InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
+    [[nodiscard]] InsertionMode current_insertion_mode() const override { return current_insertion_mode_override_; }
     void set_frameset_ok(bool ok) override { wrapped_.set_frameset_ok(ok); }
-    bool frameset_ok() const override { return wrapped_.frameset_ok(); }
+    [[nodiscard]] bool frameset_ok() const override { return wrapped_.frameset_ok(); }
     void push_head_as_current_open_element() override { wrapped_.push_head_as_current_open_element(); }
     void remove_from_open_elements(std::string_view element_name) override {
         wrapped_.remove_from_open_elements(element_name);
@@ -67,10 +67,12 @@ public:
     void clear_formatting_elements_up_to_last_marker() override {
         wrapped_.clear_formatting_elements_up_to_last_marker();
     }
-    std::vector<std::string_view> names_of_open_elements() const override { return wrapped_.names_of_open_elements(); }
+    [[nodiscard]] std::vector<std::string_view> names_of_open_elements() const override {
+        return wrapped_.names_of_open_elements();
+    }
     void set_foster_parenting(bool foster) override { wrapped_.set_foster_parenting(foster); }
-    bool head_element_set() const override { return wrapped_.head_element_set(); }
-    std::optional<std::string_view> fragment_parsing_context() const override {
+    [[nodiscard]] bool head_element_set() const override { return wrapped_.head_element_set(); }
+    [[nodiscard]] std::optional<std::string_view> fragment_parsing_context() const override {
         return wrapped_.fragment_parsing_context();
     }
 

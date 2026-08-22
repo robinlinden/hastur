@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -18,11 +18,11 @@ struct BoxModel {
 
     [[nodiscard]] bool operator==(BoxModel const &) const = default;
 
-    constexpr geom::Rect padding_box() const { return content.expanded(padding); }
-    constexpr geom::Rect border_box() const { return padding_box().expanded(border); }
-    constexpr geom::Rect margin_box() const { return border_box().expanded(margin); }
+    [[nodiscard]] constexpr geom::Rect padding_box() const { return content.expanded(padding); }
+    [[nodiscard]] constexpr geom::Rect border_box() const { return padding_box().expanded(border); }
+    [[nodiscard]] constexpr geom::Rect margin_box() const { return border_box().expanded(margin); }
 
-    constexpr bool contains(geom::Position p) const { return border_box().contains(p); }
+    [[nodiscard]] constexpr bool contains(geom::Position p) const { return border_box().contains(p); }
 };
 
 } // namespace layout

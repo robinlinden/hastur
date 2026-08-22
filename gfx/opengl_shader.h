@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -33,7 +33,7 @@ public:
     void set_uniform(char const *name, std::span<float const, 2>);
     void set_uniform(char const *name, std::span<float const, 4>);
 
-    std::uint32_t id() const { return program_; }
+    [[nodiscard]] std::uint32_t id() const { return program_; }
 
 private:
     explicit OpenGLShader(std::uint32_t program) : program_{program} {}

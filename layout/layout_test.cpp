@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -30,7 +30,9 @@ namespace {
 
 class NoType : public type::IType {
 public:
-    std::optional<std::shared_ptr<type::IFont const>> font(std::string_view) const override { return std::nullopt; }
+    [[nodiscard]] std::optional<std::shared_ptr<type::IFont const>> font(std::string_view) const override {
+        return std::nullopt;
+    }
 };
 
 // Until we have a nicer tree-creation abstraction for the tests, this needs to

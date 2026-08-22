@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -68,7 +68,8 @@ private:
     void calculate_non_inline_height(LayoutBox &, int font_size) const;
     void calculate_padding(LayoutBox &, int font_size) const;
     void calculate_border(LayoutBox &, int font_size) const;
-    std::optional<std::shared_ptr<type::IFont const>> find_font(std::span<std::string_view const> font_families) const;
+    [[nodiscard]] std::optional<std::shared_ptr<type::IFont const>> find_font(
+            std::span<std::string_view const> font_families) const;
 };
 
 bool last_node_was_anonymous(LayoutBox const &box) {
