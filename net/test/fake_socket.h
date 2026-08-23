@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2021-2022 Mikael Larsson <c.mikael.larsson@gmail.com>
-// SPDX-FileCopyrightText: 2023-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace net {
 
@@ -24,7 +25,7 @@ struct FakeSocket {
         return write_data.size();
     }
 
-    constexpr std::string read_all() const { return read_data; }
+    constexpr std::string read_all() { return std::exchange(read_data, {}); }
 
     constexpr std::string read_until(std::string_view d) {
         delimiter = d;
