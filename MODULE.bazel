@@ -8,12 +8,12 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 # =========================================================
 
 # https://github.com/bazelbuild/apple_support
-APPLE_SUPPORT_VERSION = "2.8.0"
+APPLE_SUPPORT_VERSION = "2.8.1"
 
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-eDDkgBA6JslieulZM637F/HwUiqUgvzDjqDlIJPbmxk=",
+    integrity = "sha256-s1e8qK7zC3G5EOJR7S7AYT76c980jDdxFdPWAiJZmo8=",
     url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format(APPLE_SUPPORT_VERSION),
 )
 
@@ -209,11 +209,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "35.1"
+PROTOBUF_VERSION = "36.0"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-8LaDjnUiqNqWEm1IcGjJWbxiSSY2jzAkrI/QOr0KGsQ=",
+    integrity = "sha256-OZkxx5P0rG24EEWwCwbdB8h3tIruzzbHl/ZcVB+1M+c=",
     patch_cmds = [
         # Avoid what transitive deps we can.
         "sed -i'' -e /aspect_bazel_lib/d MODULE.bazel",
@@ -225,11 +225,12 @@ archive_override(
 )
 
 # https://github.com/abseil/abseil-cpp
-ABSEIL_CPP_VERSION = "20260107.1"
+# 20260817.0 and newer adds a pretty annoying dependency on https://github.com/abseil/gloop/
+ABSEIL_CPP_VERSION = "20260526.0"
 
 archive_override(
     module_name = "abseil-cpp",
-    integrity = "sha256-QxTip8usicrCWi8jIocPND2BV5dWzv9/QxgDwskJAZU=",
+    integrity = "sha256-bhruU1RzQUFkv4Pk68QCQN7HGkcB+KZC2QbpW+oa6gw=",
     strip_prefix = "abseil-cpp-%s" % ABSEIL_CPP_VERSION,
     url = "https://github.com/abseil/abseil-cpp/releases/download/{0}/abseil-cpp-{0}.tar.gz".format(ABSEIL_CPP_VERSION),
 )
