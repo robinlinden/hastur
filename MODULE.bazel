@@ -292,13 +292,13 @@ archive_override(
 # =========================================================
 
 # https://github.com/chriskohlhoff/asio
-ASIO_VERSION = "1-38-0"
+ASIO_VERSION = "1-38-2"
 
 bazel_dep(name = "asio")  # BSL-1.0
 archive_override(
     module_name = "asio",
     build_file = "//third_party:asio.BUILD",
-    integrity = "sha256-XPeO3kVv0TuV/mknEfT2ib4myCbx9VQceh3zqjK9nb0=",
+    integrity = "sha256-nyZI+kg+WKa/hI2XDuDqZQyhntd2nfpSDtT3uNJ68ds=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "asio")
@@ -311,12 +311,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260803.0"
+BORINGSSL_VERSION = "0.20260813.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-WFyReC/AZRum8jdrZyrNwwQ3cF2KULSWfCDmKT4xiWk=",
+    integrity = "sha256-N+I8uaX6VPAbB8rdZTzrwdGyNZRUOabDNP6ljqR7Wwo=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -538,22 +538,22 @@ EOF""",
 )
 
 # https://github.com/martinus/nanobench
+# 4.5.0 and newer leak memory which breaks our valgrind CI.
+NANOBENCH_VERSION = "4.4.0"
+
 bazel_dep(name = "nanobench")  # MIT
 archive_override(
     module_name = "nanobench",
     build_file = "//third_party:nanobench.BUILD",
-    integrity = "sha256-U6WpE/ppXCNUZmG/LNIrKZ4Qo+mU2e2X2vibXK2g2nA=",
+    integrity = "sha256-uQ70gWMfvtIHLJF1lTEbZ7jlgCF6ztQQos2wo3Zq8Tc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "nanobench")
 bazel_dep(name = "rules_cc")
 EOF""",
-        # nanobench's use of std::locale segfaults w/ -fno-rtti in combination w/ libstdc++.
-        # See: https://github.com/martinus/nanobench/issues/122
-        "sed -i'' -e /std::locale\\(/d src/include/nanobench.h",
     ],
-    strip_prefix = "nanobench-4.3.11",
-    url = "https://github.com/martinus/nanobench/archive/refs/tags/v4.3.11.tar.gz",
+    strip_prefix = "nanobench-%s" % NANOBENCH_VERSION,
+    url = "https://github.com/martinus/nanobench/archive/refs/tags/v%s.tar.gz" % NANOBENCH_VERSION,
 )
 
 # https://github.com/libjpeg-turbo/libjpeg-turbo
@@ -703,12 +703,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.359"
+VULKAN_TAG = "1.4.360"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-9lXM0wmNHZmcQt/PPHSRxuNvsCyIbv7OLSRw96O1d1I=",
+    integrity = "sha256-jwEkfHu+PR6z/uYOGYELFQNIa0NCU11eaJ2UC02UFNo=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -724,7 +724,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-LhUWHFWtnCaYZ6TaLyTQl/nLnT0+0z/ZB/XgyLZOpSI=",
+    integrity = "sha256-kv9Qjd5kBPNuinwXyYKWYJZFSwReElw0NUcDWH8ahWY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
