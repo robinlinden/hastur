@@ -328,8 +328,24 @@ int main() {
         a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
         i.stack.clear();
 
-        // INT32_MIN % -1 is 0 per spec (no trap, unlike div_s).
+        // INT32_MIN % -1 is 0 per spec.
         res = i.run({{I32Const{std::numeric_limits<std::int32_t>::min()}, I32Const{-1}, I32RemainderSigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{0});
+    });
+
+    s.add_test("i32.rem_u", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{7}, I32Const{3}, I32RemainderUnsigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{1});
+        i.stack.clear();
+
+        // Trap on divide by zero.
+        res = i.run({{I32Const{1}, I32Const{0}, I32RemainderUnsigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        i.stack.clear();
+
+        // -1 as signed is 0xFFFF'FFFF unsigned; 0xFFFF'FFFF % 3 = 0.
+        res = i.run({{I32Const{-1}, I32Const{3}, I32RemainderUnsigned{}}});
         a.expect_eq(res, wasm::Interpreter::Value{0});
     });
 
