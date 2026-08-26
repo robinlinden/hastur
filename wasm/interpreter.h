@@ -321,6 +321,19 @@ public:
         return {};
     }
 
+    std::expected<void, Trap> interpret(instructions::I32RemainderUnsigned const &) {
+        assert(stack.size() >= 2);
+        auto rhs = static_cast<std::uint32_t>(std::get<std::int32_t>(stack.back()));
+        stack.pop_back();
+        auto lhs = static_cast<std::uint32_t>(std::get<std::int32_t>(stack.back()));
+        stack.pop_back();
+        if (rhs == 0) {
+            return std::unexpected{Trap::IntegerDivisionByZero};
+        }
+        stack.emplace_back(static_cast<std::int32_t>(lhs % rhs));
+        return {};
+    }
+
     std::expected<void, Trap> interpret(instructions::I32Store const &v) {
         assert(stack.size() >= 2);
         auto [align, offset] = v.arg;
