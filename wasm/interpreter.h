@@ -14,6 +14,7 @@
 #include <expected>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <optional>
 #include <span>
 #include <tuple>
@@ -105,6 +106,7 @@ struct InterpreterInfo<instructions::I64Multiply> {
 } // namespace detail
 
 enum class Trap : std::uint8_t {
+    IntegerDivisionByZero,
     MemoryAccessOutOfBounds,
     UnhandledInstruction,
 };
@@ -271,6 +273,20 @@ public:
         }
 
         stack.emplace_back(value);
+        return {};
+    }
+
+    // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+    std::expected<void, Trap> interpret(instructions::I32DivideSigned const &) {
+        assert(stack.size() >= 2);
+        auto rhs = std::get<std::int32_t>(stack.back());
+        stack.pop_back();
+        auto lhs = std::get<std::int32_t>(stack.back());
+        stack.pop_back();
+        if (rhs == 0 || (lhs == std::numeric_limits<std::int32_t>::min() && rhs == -1)) {
+            return std::unexpected{Trap::IntegerDivisionByZero};
+        }
+        stack.emplace_back(lhs / rhs);
         return {};
     }
 
