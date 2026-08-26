@@ -290,6 +290,37 @@ public:
         return {};
     }
 
+    std::expected<void, Trap> interpret(instructions::I32DivideUnsigned const &) {
+        assert(stack.size() >= 2);
+        auto rhs = static_cast<std::uint32_t>(std::get<std::int32_t>(stack.back()));
+        stack.pop_back();
+        auto lhs = static_cast<std::uint32_t>(std::get<std::int32_t>(stack.back()));
+        stack.pop_back();
+        if (rhs == 0) {
+            return std::unexpected{Trap::IntegerDivisionByZero};
+        }
+        stack.emplace_back(static_cast<std::int32_t>(lhs / rhs));
+        return {};
+    }
+
+    std::expected<void, Trap> interpret(instructions::I32RemainderSigned const &) {
+        assert(stack.size() >= 2);
+        auto rhs = std::get<std::int32_t>(stack.back());
+        stack.pop_back();
+        auto lhs = std::get<std::int32_t>(stack.back());
+        stack.pop_back();
+        if (rhs == 0) {
+            return std::unexpected{Trap::IntegerDivisionByZero};
+        }
+        // Smallest int32 % -1 should result in 0. (avoids crash)
+        if (lhs == std::numeric_limits<std::int32_t>::min() && rhs == -1) {
+            stack.emplace_back(std::int32_t{0});
+            return {};
+        }
+        stack.emplace_back(lhs % rhs);
+        return {};
+    }
+
     std::expected<void, Trap> interpret(instructions::I32Store const &v) {
         assert(stack.size() >= 2);
         auto [align, offset] = v.arg;
