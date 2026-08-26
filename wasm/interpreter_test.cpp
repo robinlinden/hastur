@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <limits>
 #include <optional>
 #include <span>
 
@@ -271,6 +272,17 @@ int main() {
         Interpreter i;
         auto res = i.run({{I32Const{0b1100}, I32Const{0b1010}, I32ExclusiveOr{}}});
         a.expect_eq(res, wasm::Interpreter::Value{0b0110});
+    });
+
+    s.add_test("i32.mul", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{2}, I32Const{21}, I32Multiply{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+        i.stack.clear();
+
+        // Overflow wraps mod 2^32.
+        res = i.run({{I32Const{std::numeric_limits<std::int32_t>::max()}, I32Const{2}, I32Multiply{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{-2});
     });
 
     s.add_test("local.get", [](etest::IActions &a) {

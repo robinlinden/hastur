@@ -409,6 +409,9 @@ struct I32Subtract {
 struct I32Multiply {
     static constexpr std::uint8_t kOpcode = 0x6c;
     static constexpr std::string_view kMnemonic = "i32.mul";
+
+    static constexpr NumericType kNumericType = NumericType::Binop;
+    using NumType = std::int32_t;
     [[nodiscard]] bool operator==(I32Multiply const &) const = default;
 };
 

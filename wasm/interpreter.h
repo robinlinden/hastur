@@ -58,6 +58,11 @@ struct InterpreterInfo<instructions::I32Subtract> {
 };
 
 template<>
+struct InterpreterInfo<instructions::I32Multiply> {
+    using Operation = std::multiplies<std::int32_t>;
+};
+
+template<>
 struct InterpreterInfo<instructions::I32And> {
     using Operation = std::bit_and<std::int32_t>;
 };
