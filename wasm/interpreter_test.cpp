@@ -285,6 +285,22 @@ int main() {
         a.expect_eq(res, wasm::Interpreter::Value{-2});
     });
 
+    s.add_test("i32.div_s", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{42}, I32Const{6}, I32DivideSigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{7});
+        i.stack.clear();
+
+        // Trap on divide by zero.
+        res = i.run({{I32Const{1}, I32Const{0}, I32DivideSigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        i.stack.clear();
+
+        // Trap on INT32_MIN / -1 (overflow).
+        res = i.run({{I32Const{std::numeric_limits<std::int32_t>::min()}, I32Const{-1}, I32DivideSigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+    });
+
     s.add_test("local.get", [](etest::IActions &a) {
         Interpreter i;
         i.locals.emplace_back(42);
