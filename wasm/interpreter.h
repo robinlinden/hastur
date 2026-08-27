@@ -59,11 +59,6 @@ struct InterpreterInfo<instructions::I32Subtract> {
 };
 
 template<>
-struct InterpreterInfo<instructions::I32Multiply> {
-    using Operation = std::multiplies<std::int32_t>;
-};
-
-template<>
 struct InterpreterInfo<instructions::I32And> {
     using Operation = std::bit_and<std::int32_t>;
 };
@@ -277,6 +272,16 @@ public:
     }
 
     // https://webassembly.github.io/spec/core/exec/instructions.html#numeric-instructions
+    std::expected<void, Trap> interpret(instructions::I32Multiply const &) {
+        assert(stack.size() >= 2);
+        auto rhs = static_cast<std::uint32_t>(std::get<std::int32_t>(stack.back()));
+        stack.pop_back();
+        auto lhs = static_cast<std::uint32_t>(std::get<std::int32_t>(stack.back()));
+        stack.pop_back();
+        stack.emplace_back(static_cast<std::int32_t>(lhs * rhs));
+        return {};
+    }
+
     std::expected<void, Trap> interpret(instructions::I32DivideSigned const &) {
         assert(stack.size() >= 2);
         auto rhs = std::get<std::int32_t>(stack.back());
