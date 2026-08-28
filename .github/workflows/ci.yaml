@@ -84,6 +84,18 @@ jobs:
             bazel: --config libc++
             apt: libc++abi-21-dev libc++-21-dev libclang-rt-21-dev libunwind-21-dev
 
+          - name: clang-23
+            os: ubuntu-26.04
+            compiler: clang
+            version: 23
+
+          - name: clang-23-libc++
+            os: ubuntu-26.04
+            compiler: clang
+            version: 23
+            bazel: --config libc++
+            apt: libc++abi-23-dev libc++-23-dev libclang-rt-23-dev libunwind-23-dev
+
     steps:
       - name: Add things missing from containers
         if: ${{ matrix.container != '' }}
@@ -103,6 +115,11 @@ jobs:
         run: |
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+      - name: Set up the llvm repository
+        if: startsWith(matrix.compiler, 'clang') && matrix.version >= 23
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/llvm-snapshot.gpg
+          sudo apt-add-repository "deb http://apt.llvm.org/resolute/ llvm-toolchain-resolute-${{ matrix.version }} main"
       - uses: actions/checkout@v7
       - name: Install
         run: |
