@@ -39,15 +39,9 @@ std::optional<std::vector<instructions::Instruction>> parse_instructions(std::is
 
 template<typename T>
 std::optional<std::vector<T>> parse_vector(std::istream &);
-template<typename T>
-std::optional<std::vector<T>> parse_vector(std::istream &&);
 
 template<typename T>
 std::optional<T> parse(std::istream &) = delete;
-template<typename T>
-std::optional<T> parse(std::istream &&is) {
-    return parse<T>(is);
-}
 
 // https://webassembly.github.io/spec/core/binary/values.html#names
 template<>
@@ -434,11 +428,6 @@ std::optional<std::vector<T>> parse_vector(std::istream &is) {
     }
 
     return items;
-}
-
-template<typename T>
-std::optional<std::vector<T>> parse_vector(std::istream &&is) {
-    return parse_vector<T>(is);
 }
 
 std::optional<TypeSection> parse_type_section(std::istream &is) {
