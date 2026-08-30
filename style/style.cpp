@@ -42,16 +42,16 @@ bool contains_class(std::string_view classes, std::string_view needle_class) {
 
 // TODO(robinlinden): This needs to match more things.
 // NOLINTNEXTLINE(misc-no-recursion)
-bool is_match(style::StyledNode const &node, std::string_view selector) {
+bool is_match(style::StyledNode const &node, std::string_view selector_str) {
     auto const &element = std::get<dom::Element>(node.node);
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
-    auto [selector_, psuedo_class] = util::split_once(selector, ':');
+    auto [selector, psuedo_class] = util::split_once(selector_str, ':');
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Child_combinator
-    if (selector_.contains('>')) {
+    if (selector.contains('>')) {
         // TODO(robinlinden): std::views::reverse and friends when we drop Clang 14 and 15.
-        auto parts = util::split(selector_, ">");
-        selector_ = util::trim(parts.back());
+        auto parts = util::split(selector, ">");
+        selector = util::trim(parts.back());
         parts.pop_back();
         std::ranges::reverse(parts);
 
@@ -74,10 +74,10 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Descendant_combinator
-    if (selector_.contains(' ')) {
+    if (selector.contains(' ')) {
         // TODO(robinlinden): std::views::reverse and friends when we drop Clang 14 and 15.
-        auto parts = util::split(selector_, " ");
-        selector_ = util::trim(parts.back());
+        auto parts = util::split(selector, " ");
+        selector = util::trim(parts.back());
         parts.pop_back();
         std::ranges::reverse(parts);
 
@@ -111,7 +111,7 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
                 return false;
             }
 
-            if (selector_.empty()) {
+            if (selector.empty()) {
                 return true;
             }
         } else if (psuedo_class == "root") {
@@ -120,7 +120,7 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
                 return false;
             }
 
-            if (selector_.empty()) {
+            if (selector.empty()) {
                 return true;
             }
         } else if (psuedo_class.starts_with("is(")) {
@@ -143,29 +143,29 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
             return false;
         }
 
-        if (selector_.empty()) {
+        if (selector.empty()) {
             return true;
         }
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Universal_selectors
-    if (selector_ == "*") {
+    if (selector == "*") {
         return true;
     }
 
-    if (element.name == selector_) {
+    if (element.name == selector) {
         return true;
     }
 
-    auto class_position = selector_.find('.');
+    auto class_position = selector.find('.');
     if (class_position != std::string_view::npos) {
         auto class_attr = element.attributes.find("class");
         if (class_attr == element.attributes.end()) {
             return false;
         }
 
-        auto class_string = selector_.substr(class_position);
-        if (class_position != 0 && selector_.substr(0, class_position) != element.name) {
+        auto class_string = selector.substr(class_position);
+        if (class_position != 0 && selector.substr(0, class_position) != element.name) {
             return false;
         }
 
@@ -179,16 +179,16 @@ bool is_match(style::StyledNode const &node, std::string_view selector) {
         return true;
     }
 
-    if (selector_.starts_with('#')) {
+    if (selector.starts_with('#')) {
         auto it = element.attributes.find("id");
-        selector_.remove_prefix(1);
-        return it != element.attributes.end() && it->second == selector_;
+        selector.remove_prefix(1);
+        return it != element.attributes.end() && it->second == selector;
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors
-    if (selector_.starts_with('[') && selector_.contains(']')) {
-        selector_.remove_prefix(1);
-        auto [attr, rest] = util::split_once(selector_, ']');
+    if (selector.starts_with('[') && selector.contains(']')) {
+        selector.remove_prefix(1);
+        auto [attr, rest] = util::split_once(selector, ']');
         if (!rest.empty() && !is_match(node, rest)) {
             return false;
         }
