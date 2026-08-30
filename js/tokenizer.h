@@ -164,7 +164,7 @@ private:
     }
 
     [[nodiscard]] std::optional<char> peek() const {
-        if ((pos_) < input_.size()) {
+        if (pos_ < input_.size()) {
             return input_[pos_];
         }
         return std::nullopt;

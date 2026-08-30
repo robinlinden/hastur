@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2024-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -106,7 +106,7 @@ std::vector<html::Token> to_html2_tokens(json::Array const &tokens) {
             auto public_id = kGetOptionalStr((*++it));
             auto system_id = kGetOptionalStr((*++it));
             // The json has "correctness" instead of "force quirks", so we negate it.
-            auto force_quirks = !(std::get<bool>(*++it));
+            auto force_quirks = !std::get<bool>(*++it);
             result.emplace_back(html::DoctypeToken{
                     std::move(name),
                     std::move(public_id),

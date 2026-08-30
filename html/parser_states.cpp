@@ -336,6 +336,9 @@ bool has_element_in_scope_impl(IActions const &a, std::string_view element_name)
             return true;
         }
 
+        // clang-tidy 23 tells us to remove the parentheses around
+        // `scope_element` below. Pretty sure that's a clang-tidy bug.
+        // NOLINTNEXTLINE(readability-redundant-parentheses)
         if (std::ranges::contains(scope_elements, element)) {
             return false;
         }
@@ -536,7 +539,7 @@ std::optional<InsertionMode> BeforeHtml::process(IActions &a, Token const &token
 
     static constexpr auto kAcceptableEndTags = std::to_array<std::string_view>({"head", "body", "html", "br"});
     if (auto const *end = std::get_if<EndTagToken>(&token);
-            end != nullptr && (std::ranges::contains(kAcceptableEndTags, end->tag_name))) {
+            end != nullptr && std::ranges::contains(kAcceptableEndTags, end->tag_name)) {
         // Fall through to "anything else."
     } else if (end != nullptr) {
         // Parse error.

@@ -435,9 +435,9 @@ std::expected<void, ValidationError> validate_function(std::uint32_t func_idx,
             std::vector<ValueType> params;
             std::vector<ValueType> results;
 
-            if (auto const *vt = std::get_if<ValueType>(&(block->type.value))) {
+            if (auto const *vt = std::get_if<ValueType>(&block->type.value)) {
                 results.push_back(*vt);
-            } else if (auto const *idx = std::get_if<TypeIdx>(&(block->type.value))) {
+            } else if (auto const *idx = std::get_if<TypeIdx>(&block->type.value)) {
                 params = ts.types[*idx].parameters;
                 results = ts.types[*idx].results;
             }
