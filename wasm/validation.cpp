@@ -50,10 +50,8 @@ constexpr bool is_valid(Limits const &l, std::uint64_t k) {
         return false;
     }
 
-    if (l.max.has_value()) {
-        if (l.max > k || l.max < l.min) {
-            return false;
-        }
+    if (l.max.has_value() && (l.max > k || l.max < l.min)) {
+        return false;
     }
 
     return true;

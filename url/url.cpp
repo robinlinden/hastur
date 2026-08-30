@@ -1340,10 +1340,8 @@ bool UrlParser::ends_in_number(std::string_view input) const {
     }
 
     // If last part is non-empty and contains only ASCII digits, return true
-    if (!parts.back().empty()) {
-        if (std::ranges::all_of(parts.back(), util::is_digit)) {
-            return true;
-        }
+    if (!parts.back().empty() && std::ranges::all_of(parts.back(), util::is_digit)) {
+        return true;
     }
 
     // If parsing last part as an IPv4 number does not return failure, then return true

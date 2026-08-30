@@ -52,10 +52,8 @@ struct Origin {
             return true;
         }
 
-        if (!opaque && !b.opaque) {
-            if (scheme == b.scheme && host == b.host && port == b.port) {
-                return true;
-            }
+        if (!opaque && !b.opaque && scheme == b.scheme && host == b.host && port == b.port) {
+            return true;
         }
 
         return false;
