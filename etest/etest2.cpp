@@ -127,9 +127,6 @@ int Suite::run(RunOptions const &opts) {
         } catch (std::exception const &e) {
             a.assertion_failures += 1;
             a.test_log << "Unhandled exception in test body: " << e.what() << '\n';
-        } catch (...) {
-            a.assertion_failures += 1;
-            a.test_log << "Unhandled unknown exception in test body.\n";
         }
 #else
         test.body(a);
