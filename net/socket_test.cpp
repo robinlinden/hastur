@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -43,7 +43,7 @@ private:
         std::promise<std::uint16_t> port_promise;
         port_future_ = port_promise.get_future();
 
-        server_thread_ = std::thread{[payload = std::move(input), port = std::move(port_promise)]() mutable {
+        server_thread_ = std::thread{[payload = std::move(input), port = std::move(port_promise)] mutable {
             asio::io_context io_context;
             constexpr int kAnyPort = 0;
             asio::ip::tcp::acceptor a{io_context, asio::ip::tcp::endpoint{asio::ip::address_v4::loopback(), kAnyPort}};

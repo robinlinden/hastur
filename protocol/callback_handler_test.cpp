@@ -25,7 +25,7 @@ int main() {
     s.add_test("Found", [](etest::IActions &a) {
         CallbackHandler handler{Handlers{{
                 "blank",
-                []() { return "nothing to see here"; },
+                [] { return "nothing to see here"; },
         }}};
 
         auto res = handler.handle(uri::Uri::parse("about:blank").value());

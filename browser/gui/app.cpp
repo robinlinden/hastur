@@ -81,7 +81,7 @@ auto constexpr kMaxConcurrentImageLoads = 5;
 auto constexpr kMouseWheelScrollFactor = 10;
 
 std::future<ResourceResult> load_image(engine::Engine &e, uri::Uri uri, std::string id) {
-    return std::async(std::launch::async, [&e, uri = std::move(uri), resource_id = std::move(id)]() mutable {
+    return std::async(std::launch::async, [&e, uri = std::move(uri), resource_id = std::move(id)] mutable {
         spdlog::info("Loading image from '{}'", uri.uri);
         auto start_time = std::chrono::steady_clock::now();
         auto res = e.load(uri);
@@ -442,7 +442,7 @@ std::unique_ptr<protocol::IProtocolHandler> App::create_protocol_handler() const
     auto about_handler = std::make_unique<protocol::CallbackHandler>(protocol::Handlers{
             {
                     "blank",
-                    []() {
+                    [] {
                         return R"(<!DOCTYPE html>
 <html>
 <head>
@@ -459,7 +459,7 @@ std::unique_ptr<protocol::IProtocolHandler> App::create_protocol_handler() const
             },
             {
                     "history",
-                    [this]() {
+                    [this] {
                         std::ostringstream ss{R"(<!DOCTYPE html>
 <html>
 <head>

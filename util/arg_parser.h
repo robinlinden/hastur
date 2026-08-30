@@ -47,7 +47,7 @@ public:
     }
 
     [[nodiscard]] ArgParser &argument(std::string_view arg, bool &was_passed) {
-        store_true_[arg] = [&was_passed]() {
+        store_true_[arg] = [&was_passed] {
             was_passed = true;
         };
         return *this;

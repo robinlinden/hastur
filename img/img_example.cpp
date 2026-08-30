@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2023-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    auto maybe_img = [&]() -> std::optional<Image> {
+    auto maybe_img = [&] -> std::optional<Image> {
         if (auto png = img::Png::from(fs)) {
             return *png;
         }

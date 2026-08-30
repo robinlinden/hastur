@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
     type::SfmlType type;
 
-    auto canvas = [&]() -> std::unique_ptr<gfx::ICanvas> {
+    auto canvas = [&] -> std::unique_ptr<gfx::ICanvas> {
         if (argc == 2 && argv[1] == "--sf"sv) {
             return std::make_unique<gfx::SfmlCanvas>(window, type);
         }
