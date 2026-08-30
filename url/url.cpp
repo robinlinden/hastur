@@ -140,7 +140,7 @@ std::string Origin::serialize() const {
     result += host.serialize();
 
     if (port.has_value()) {
-        result += ":";
+        result += ':';
 
         result += std::to_string(*port);
     }
@@ -192,7 +192,7 @@ std::string blob_url_create(Origin const &origin) {
     }
 
     result += serialized;
-    result += "/";
+    result += '/';
     result += util::new_uuid();
 
     return result;
@@ -240,7 +240,7 @@ std::string Url::serialize(bool exclude_fragment, bool rfc3986_norm) const {
                 output += ":" + passwd;
             }
 
-            output += "@";
+            output += '@';
         }
 
         output += host->serialize();
@@ -1263,8 +1263,8 @@ void UrlParser::shorten_url_path(Url &url) const {
 
 // https://url.spec.whatwg.org/#concept-host-parser
 std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_opaque) const {
-    if (input.starts_with("[")) {
-        if (!input.ends_with("]")) {
+    if (input.starts_with('[')) {
+        if (!input.ends_with(']')) {
             validation_error(ValidationError::IPv6Unclosed);
 
             return std::nullopt;
@@ -1428,7 +1428,7 @@ std::optional<std::tuple<std::uint64_t, bool>> UrlParser::parse_ipv4_number(std:
         input.remove_prefix(2);
 
         r = 16;
-    } else if (input.size() >= 2 && input.starts_with("0")) {
+    } else if (input.size() >= 2 && input.starts_with('0')) {
         v_err = true;
 
         input.remove_prefix(1);
@@ -1476,7 +1476,7 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
     std::size_t pointer = 0;
 
     if (!input.empty() && input[pointer] == ':') {
-        if (!input.substr(1).starts_with(":")) {
+        if (!input.substr(1).starts_with(':')) {
             validation_error(ValidationError::IPv6InvalidCompression);
 
             return std::nullopt;

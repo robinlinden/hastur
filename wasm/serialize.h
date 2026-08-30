@@ -50,11 +50,11 @@ constexpr std::string to_string(BlockType const &bt) {
     if (auto const *v = std::get_if<ValueType>(&bt.value)) {
         out += "(result ";
         out += wasm::to_string(*v);
-        out += ")";
+        out += ')';
     } else if (auto const *t = std::get_if<TypeIdx>(&bt.value)) {
         out += "(type ";
         out += std::to_string(*t);
-        out += ")";
+        out += ')';
     } else {
         assert(std::holds_alternative<BlockType::Empty>(bt.value));
     }
@@ -77,7 +77,7 @@ constexpr std::string to_string(MemArg const &ma, std::optional<std::uint32_t> n
     }
 
     if (ma.offset != 0) {
-        out += " ";
+        out += ' ';
     }
 
     out += "align=";

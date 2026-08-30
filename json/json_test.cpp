@@ -215,7 +215,7 @@ int main() {
         to_parse += R"("b")";
 
         for (int i = 0; i < kMaxDepth; ++i) {
-            to_parse += "}";
+            to_parse += '}';
         }
 
         auto json = json::parse(to_parse).value();
@@ -246,7 +246,7 @@ int main() {
         to_parse += R"("b")";
 
         for (int i = 0; i < kMaxDepth; ++i) {
-            to_parse += "}";
+            to_parse += '}';
         }
 
         a.expect_eq(json::Parser{to_parse}.parse(), std::unexpected{Error::NestingLimitReached});
@@ -256,13 +256,13 @@ int main() {
         static constexpr auto kMaxDepth = 256;
         std::string to_parse;
         for (int i = 0; i < kMaxDepth; ++i) {
-            to_parse += "[";
+            to_parse += '[';
         }
 
         to_parse += R"("b")";
 
         for (int i = 0; i < kMaxDepth; ++i) {
-            to_parse += "]";
+            to_parse += ']';
         }
 
         auto json = json::parse(to_parse).value();
@@ -286,13 +286,13 @@ int main() {
         static constexpr auto kMaxDepth = 300;
         std::string to_parse;
         for (int i = 0; i < kMaxDepth; ++i) {
-            to_parse += "[";
+            to_parse += '[';
         }
 
         to_parse += R"("b")";
 
         for (int i = 0; i < kMaxDepth; ++i) {
-            to_parse += "]";
+            to_parse += ']';
         }
 
         a.expect_eq(json::Parser{to_parse}.parse(), std::unexpected{Error::NestingLimitReached});

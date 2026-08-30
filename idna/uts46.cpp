@@ -52,7 +52,7 @@ std::optional<std::string> process(std::string_view domain_name) {
 
             res += *decoded;
             if (i + 1 < labels.size()) {
-                res += ".";
+                res += '.';
             }
 
             continue;
@@ -62,7 +62,7 @@ std::optional<std::string> process(std::string_view domain_name) {
 
         res += label;
         if (i + 1 < labels.size()) {
-            res += ".";
+            res += '.';
         }
     }
 
@@ -143,7 +143,7 @@ std::optional<std::string> Uts46::to_ascii(std::string_view domain_name) {
         }
 
         if (i + 1 < labels.size()) {
-            res += ".";
+            res += '.';
         }
     }
 
