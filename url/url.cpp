@@ -790,7 +790,7 @@ void UrlParser::state_host() {
             return;
         }
 
-        url_.host = host;
+        url_.host = std::move(host);
 
         buffer_.clear();
 
@@ -820,7 +820,7 @@ void UrlParser::state_host() {
             return;
         }
 
-        url_.host = host;
+        url_.host = std::move(host);
 
         buffer_.clear();
 
@@ -996,7 +996,7 @@ void UrlParser::state_file_host() {
                 *h = "";
             }
 
-            url_.host = host;
+            url_.host = std::move(host);
 
             if (state_override_.has_value()) {
                 state_ = ParserState::Terminate;
