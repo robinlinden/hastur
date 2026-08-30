@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -569,15 +569,14 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                switch (*c) {
-                    case '-':
-                        state_ = State::ScriptDataEscapeStartDash;
-                        emit(CharacterToken{*c});
-                        continue;
-                    default:
-                        reconsume_in(State::ScriptData);
-                        continue;
+                if (*c == '-') {
+                    state_ = State::ScriptDataEscapeStartDash;
+                    emit(CharacterToken{*c});
+                    continue;
                 }
+
+                reconsume_in(State::ScriptData);
+                continue;
             }
 
             // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-dash-state
@@ -588,15 +587,14 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                switch (*c) {
-                    case '-':
-                        state_ = State::ScriptDataEscapedDashDash;
-                        emit(CharacterToken{*c});
-                        continue;
-                    default:
-                        reconsume_in(State::ScriptData);
-                        continue;
+                if (*c == '-') {
+                    state_ = State::ScriptDataEscapedDashDash;
+                    emit(CharacterToken{*c});
+                    continue;
                 }
+
+                reconsume_in(State::ScriptData);
+                continue;
             }
 
             // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-state
@@ -1240,21 +1238,20 @@ void Tokenizer::run() {
                     return;
                 }
 
-                switch (*c) {
-                    case '>':
-                        if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
-                            start_tag->self_closing = true;
-                        } else {
-                            self_closing_end_tag_detected_ = true;
-                        }
-                        state_ = State::Data;
-                        emit(std::move(current_token_));
-                        continue;
-                    default:
-                        emit(ParseError::UnexpectedSolidusInTag);
-                        reconsume_in(State::BeforeAttributeName);
-                        continue;
+                if (*c == '>') {
+                    if (auto *start_tag = std::get_if<StartTagToken>(&current_token_)) {
+                        start_tag->self_closing = true;
+                    } else {
+                        self_closing_end_tag_detected_ = true;
+                    }
+                    state_ = State::Data;
+                    emit(std::move(current_token_));
+                    continue;
                 }
+
+                emit(ParseError::UnexpectedSolidusInTag);
+                reconsume_in(State::BeforeAttributeName);
+                continue;
             }
 
             // https://html.spec.whatwg.org/#bogus-comment-state
@@ -1421,14 +1418,13 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                switch (*c) {
-                    case '-':
-                        state_ = State::CommentLessThanSignBangDash;
-                        continue;
-                    default:
-                        reconsume_in(State::Comment);
-                        continue;
+                if (*c == '-') {
+                    state_ = State::CommentLessThanSignBangDash;
+                    continue;
                 }
+
+                reconsume_in(State::Comment);
+                continue;
             }
 
             // https://html.spec.whatwg.org/#comment-less-than-sign-bang-dash-state
@@ -1439,14 +1435,13 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                switch (*c) {
-                    case '-':
-                        state_ = State::CommentLessThanSignBangDashDash;
-                        continue;
-                    default:
-                        reconsume_in(State::CommentEndDash);
-                        continue;
+                if (*c == '-') {
+                    state_ = State::CommentLessThanSignBangDashDash;
+                    continue;
                 }
+
+                reconsume_in(State::CommentEndDash);
+                continue;
             }
 
             // https://html.spec.whatwg.org/#comment-less-than-sign-bang-dash-dash-state
@@ -1457,15 +1452,14 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                switch (*c) {
-                    case '>':
-                        reconsume_in(State::CommentEnd);
-                        continue;
-                    default:
-                        emit(ParseError::NestedComment);
-                        reconsume_in(State::CommentEnd);
-                        continue;
+                if (*c == '>') {
+                    reconsume_in(State::CommentEnd);
+                    continue;
                 }
+
+                emit(ParseError::NestedComment);
+                reconsume_in(State::CommentEnd);
+                continue;
             }
 
             // https://html.spec.whatwg.org/#comment-end-dash-state
@@ -1478,15 +1472,14 @@ void Tokenizer::run() {
                     return;
                 }
 
-                switch (*c) {
-                    case '-':
-                        state_ = State::CommentEnd;
-                        continue;
-                    default:
-                        std::get<CommentToken>(current_token_).data.append("-");
-                        reconsume_in(State::Comment);
-                        continue;
+                if (*c == '-') {
+                    state_ = State::CommentEnd;
+                    continue;
                 }
+
+                std::get<CommentToken>(current_token_).data.append("-");
+                reconsume_in(State::Comment);
+                continue;
             }
 
             // https://html.spec.whatwg.org/#comment-end-state
@@ -2150,14 +2143,13 @@ void Tokenizer::run() {
                     return;
                 }
 
-                switch (*c) {
-                    case ']':
-                        state_ = State::CdataSectionBracket;
-                        continue;
-                    default:
-                        emit(CharacterToken{*c});
-                        continue;
+                if (*c == ']') {
+                    state_ = State::CdataSectionBracket;
+                    continue;
                 }
+
+                emit(CharacterToken{*c});
+                continue;
             }
 
             // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-bracket-state
@@ -2208,16 +2200,15 @@ void Tokenizer::run() {
                     continue;
                 }
 
-                switch (*c) {
-                    case '#':
-                        temporary_buffer_.append(1, *c);
-                        state_ = State::NumericCharacterReference;
-                        continue;
-                    default:
-                        flush_code_points_consumed_as_a_character_reference();
-                        reconsume_in(return_state_);
-                        continue;
+                if (*c == '#') {
+                    temporary_buffer_.append(1, *c);
+                    state_ = State::NumericCharacterReference;
+                    continue;
                 }
+
+                flush_code_points_consumed_as_a_character_reference();
+                reconsume_in(return_state_);
+                continue;
             }
 
             // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
