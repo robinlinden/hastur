@@ -32,7 +32,10 @@ cc_fuzz_test(
     copts = HASTUR_COPTS,
     tags = ["no-cross"],
     target_compatible_with = HASTUR_FUZZ_PLATFORMS,
-    deps = [":css"],
+    deps = [
+        ":css",
+        "@spdlog",
+    ],
 )
 
 [cc_test(
