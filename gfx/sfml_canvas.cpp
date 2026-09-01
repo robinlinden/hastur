@@ -23,11 +23,10 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/System/String.hpp>
-#include <spdlog/spdlog.h>
+#include <SFML/System/Vector2.hpp>
 
 #include <cassert>
 #include <cstddef>
-#include <exception>
 #include <memory>
 #include <optional>
 #include <span>
@@ -178,11 +177,10 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, PixelData const &pixel_data
 
     // Textures need to be kept around while they're displayed. This will be
     // cleared when the canvas is cleared.
-    sf::Texture &texture = textures_.emplace_back();
-    if (!texture.resize({static_cast<unsigned>(rect.width), static_cast<unsigned>(rect.height)})) {
-        spdlog::critical("Failed to resize texture");
-        std::terminate();
-    }
+    sf::Texture &texture = textures_.emplace_back(sf::Vector2u{
+            static_cast<unsigned>(rect.width),
+            static_cast<unsigned>(rect.height),
+    });
 
     texture.update(pixel_data.rgba_data.data());
     sf::Sprite sprite{texture};

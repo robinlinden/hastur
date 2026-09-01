@@ -62,10 +62,7 @@ cc_library(
     ],
     hdrs = ["sfml_canvas.h"],
     copts = HASTUR_COPTS,
-    implementation_deps = [
-        "@sfml//:system",
-        "@spdlog",
-    ],
+    implementation_deps = ["@sfml//:system"],
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [
