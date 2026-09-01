@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
                 kHotPink);
         auto px = std::to_array<std::uint8_t>(
                 {100, 100, 100, 0xff, 200, 200, 200, 0xff, 50, 50, 50, 0xff, 200, 0, 0, 0xff});
-        canvas->draw_pixels({1, 1, 2, 2}, px);
+        canvas->draw_pixels({1, 1, 2, 2}, {.width = 2, .height = 2, .rgba_data = px});
 
         window.display();
     }

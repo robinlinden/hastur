@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -112,10 +112,9 @@ void render_element(gfx::ICanvas &painter, layout::LayoutBox const &layout) {
 }
 
 void render_image(gfx::ICanvas &painter, layout::LayoutBox const &layout, ImageView const &image) {
-    // TODO(robinlinden): Handle image scaling. image.{width,height} are unused
-    // right now, but should be used to scale the image to work with the content
-    // size.
-    painter.draw_pixels(layout.dimensions.content, image.rgba_data);
+    // TODO(robinlinden): Handle image scaling.
+    painter.draw_pixels(
+            layout.dimensions.content, {.width = image.width, .height = image.height, .rgba_data = image.rgba_data});
 }
 
 std::optional<std::string_view> get_image_id(layout::LayoutBox const &layout) {

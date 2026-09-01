@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -40,6 +40,12 @@ struct Corners {
     [[nodiscard]] bool operator==(Corners const &) const = default;
 };
 
+struct PixelData {
+    std::uint32_t width{};
+    std::uint32_t height{};
+    std::span<std::uint8_t const> rgba_data;
+};
+
 class ICanvas {
 public:
     virtual ~ICanvas() = default;
@@ -51,7 +57,7 @@ public:
     virtual void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) = 0;
     virtual void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) = 0;
     virtual void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) = 0;
-    virtual void draw_pixels(geom::Rect const &, std::span<std::uint8_t const> rgba_data) = 0;
+    virtual void draw_pixels(geom::Rect const &, PixelData const &) = 0;
 };
 
 } // namespace gfx

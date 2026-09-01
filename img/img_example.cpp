@@ -8,6 +8,7 @@
 #include "img/qoi.h"
 
 #include "gfx/color.h"
+#include "gfx/icanvas.h"
 #include "gfx/sfml_canvas.h"
 #include "type/sfml.h"
 
@@ -107,9 +108,9 @@ int main(int argc, char **argv) {
         std::cerr << "Only --metadata is supported for this file-type\n";
         return 1;
     }
-    auto const &bytes = *maybe_pixel_data;
+    auto pixel_data = gfx::PixelData{.width = width, .height = height, .rgba_data = *maybe_pixel_data};
 
-    if (bytes.size() != (static_cast<std::size_t>(width) * height * 4)) {
+    if (pixel_data.rgba_data.size() != (static_cast<std::size_t>(width) * height * 4)) {
         std::cerr << "Unsupported pixel format, expected 32-bit rgba pixels\n";
         return 1;
     }
@@ -138,7 +139,7 @@ int main(int argc, char **argv) {
         }
 
         canvas.clear(gfx::Color{});
-        canvas.draw_pixels({0, 0, static_cast<int>(width), static_cast<int>(height)}, bytes);
+        canvas.draw_pixels({0, 0, static_cast<int>(width), static_cast<int>(height)}, pixel_data);
         window.display();
     }
 }

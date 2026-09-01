@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -15,7 +15,6 @@
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
-#include <cstdint>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -43,7 +42,7 @@ public:
     void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override;
     void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) override;
     void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) override;
-    void draw_pixels(geom::Rect const &, std::span<std::uint8_t const> rgba_data) override;
+    void draw_pixels(geom::Rect const &, PixelData const &) override;
 
 private:
     sf::RenderTarget &target_;

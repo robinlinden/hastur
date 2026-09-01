@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -13,7 +13,6 @@
 
 #include "geom/geom.h"
 
-#include <cstdint>
 #include <span>
 #include <string_view>
 
@@ -35,7 +34,7 @@ public:
     void draw_rect(geom::Rect const &, Color const &, Borders const &, Corners const &) override;
     void draw_text(geom::Position, std::string_view, std::span<Font const>, FontSize, FontStyle, Color) override {}
     void draw_text(geom::Position, std::string_view, Font, FontSize, FontStyle, Color) override {}
-    void draw_pixels(geom::Rect const &, std::span<std::uint8_t const>) override {}
+    void draw_pixels(geom::Rect const &, PixelData const &) override {}
 
 private:
     OpenGLShader border_shader_;

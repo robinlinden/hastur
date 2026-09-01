@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 // SPDX-FileCopyrightText: 2022 Mikael Larsson <c.mikael.larsson@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
@@ -27,7 +27,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <cstdint>
 #include <exception>
 #include <memory>
 #include <optional>
@@ -35,6 +34,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 namespace gfx {
 namespace {
@@ -166,8 +166,12 @@ void SfmlCanvas::draw_text(
     draw_text(p, text, std::span<gfx::Font const>{{font}}, size, style, color);
 }
 
-void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) {
-    assert(rgba_data.size() == static_cast<std::size_t>(rect.width * rect.height * 4));
+void SfmlCanvas::draw_pixels(geom::Rect const &rect, PixelData const &pixel_data) {
+    assert(pixel_data.rgba_data.size() == static_cast<std::size_t>(pixel_data.width * pixel_data.height * 4));
+
+    // TODO(robinlinden): Handle scaling.
+    assert(std::cmp_equal(rect.width, pixel_data.width));
+    assert(std::cmp_equal(rect.height, pixel_data.height));
 
     auto translated = rect.translated(tx_, ty_);
     auto scaled = translated.scaled(scale_);
@@ -180,7 +184,7 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, std::span<std::uint8_t cons
         std::terminate();
     }
 
-    texture.update(rgba_data.data());
+    texture.update(pixel_data.rgba_data.data());
     sf::Sprite sprite{texture};
     sprite.setPosition({static_cast<float>(scaled.x), static_cast<float>(scaled.y)});
     sprite.setScale({static_cast<float>(scale_), static_cast<float>(scale_)});

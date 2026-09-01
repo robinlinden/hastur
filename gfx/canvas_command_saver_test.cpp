@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -97,8 +97,11 @@ int main() {
 
     s.add_test("CanvasCommandSaver::draw_pixels", [](etest::IActions &a) {
         CanvasCommandSaver saver;
-        saver.draw_pixels({1, 2, 3, 4}, {{0x12, 0x34, 0x56, 0x78}});
-        a.expect_eq(saver.take_commands(), CanvasCommands{DrawPixelsCmd{{1, 2, 3, 4}, {0x12, 0x34, 0x56, 0x78}}});
+        saver.draw_pixels({1, 2, 3, 4}, {1, 1, {{0x12, 0x34, 0x56, 0x78}}});
+        a.expect_eq(saver.take_commands(),
+                CanvasCommands{
+                        DrawPixelsCmd{{1, 2, 3, 4}, OwnedPixelData::from({1, 1, {{0x12, 0x34, 0x56, 0x78}}})},
+                });
     });
 
     s.add_test("replay_commands", [](etest::IActions &a) {
@@ -114,7 +117,7 @@ int main() {
         saver.draw_text({10, 10}, "beep beep boop!"sv, {"helvetica"}, {42}, {.italic = true}, {3, 2, 1});
         saver.draw_text({1, 5}, "hello?"sv, {{{"font1"}, {"font2"}}}, {42}, {}, {1, 2, 3});
         saver.clear(gfx::Color{1, 2, 3});
-        saver.draw_pixels({1, 2, 3, 4}, {{0x12, 0x34, 0x56, 0x78}});
+        saver.draw_pixels({1, 2, 3, 4}, {1, 1, {{0x12, 0x34, 0x56, 0x78}}});
         auto cmds = saver.take_commands();
 
         CanvasCommandSaver replayed;

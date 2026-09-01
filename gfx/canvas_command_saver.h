@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2022-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -80,9 +80,33 @@ struct DrawTextCmd {
     [[nodiscard]] bool operator==(DrawTextCmd const &) const = default;
 };
 
+struct OwnedPixelData {
+    std::uint32_t width{};
+    std::uint32_t height{};
+    std::vector<std::uint8_t> rgba_data;
+
+    static OwnedPixelData from(PixelData const &pixel_data) {
+        return OwnedPixelData{
+                .width = pixel_data.width,
+                .height = pixel_data.height,
+                .rgba_data{pixel_data.rgba_data.begin(), pixel_data.rgba_data.end()},
+        };
+    }
+
+    [[nodiscard]] PixelData view() const {
+        return PixelData{
+                .width = width,
+                .height = height,
+                .rgba_data{rgba_data.data(), rgba_data.size()},
+        };
+    }
+
+    [[nodiscard]] bool operator==(OwnedPixelData const &) const = default;
+};
+
 struct DrawPixelsCmd {
     geom::Rect rect{};
-    std::vector<std::uint8_t> rgba_data;
+    OwnedPixelData pixel_data;
 
     [[nodiscard]] bool operator==(DrawPixelsCmd const &) const = default;
 };
@@ -130,8 +154,8 @@ public:
         cmds_.emplace_back(DrawTextCmd{position, std::string{text}, std::string{font.font}, size.px, style, color});
     }
 
-    void draw_pixels(geom::Rect const &rect, std::span<std::uint8_t const> rgba_data) override {
-        cmds_.emplace_back(DrawPixelsCmd{rect, {rgba_data.begin(), rgba_data.end()}});
+    void draw_pixels(geom::Rect const &rect, PixelData const &pixel_data) override {
+        cmds_.emplace_back(DrawPixelsCmd{rect, OwnedPixelData::from(pixel_data)});
     }
 
     //
@@ -165,7 +189,7 @@ public:
         canvas_.draw_text(cmd.position, cmd.text, {cmd.font}, {cmd.size}, cmd.style, cmd.color);
     }
 
-    void operator()(DrawPixelsCmd const &cmd) { canvas_.draw_pixels(cmd.rect, cmd.rgba_data); }
+    void operator()(DrawPixelsCmd const &cmd) { canvas_.draw_pixels(cmd.rect, cmd.pixel_data.view()); }
 
 private:
     ICanvas &canvas_;
