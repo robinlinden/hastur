@@ -168,9 +168,8 @@ void SfmlCanvas::draw_text(
 void SfmlCanvas::draw_pixels(geom::Rect const &rect, PixelData const &pixel_data) {
     assert(pixel_data.rgba_data.size() == static_cast<std::size_t>(pixel_data.width * pixel_data.height * 4));
 
-    // TODO(robinlinden): Handle scaling.
-    assert(std::cmp_equal(rect.width, pixel_data.width));
-    assert(std::cmp_equal(rect.height, pixel_data.height));
+    // TODO(robinlinden): Handle scaling. Right now images will be rendered at
+    // their intrinsic size without caring about the target rect.
 
     auto translated = rect.translated(tx_, ty_);
     auto scaled = translated.scaled(scale_);
@@ -178,8 +177,8 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, PixelData const &pixel_data
     // Textures need to be kept around while they're displayed. This will be
     // cleared when the canvas is cleared.
     sf::Texture &texture = textures_.emplace_back(sf::Vector2u{
-            static_cast<unsigned>(rect.width),
-            static_cast<unsigned>(rect.height),
+            pixel_data.width,
+            pixel_data.height,
     });
 
     texture.update(pixel_data.rgba_data.data());
