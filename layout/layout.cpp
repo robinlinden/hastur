@@ -63,9 +63,13 @@ private:
             style::UnresolvedValue margin_left,
             style::UnresolvedValue margin_right,
             int font_size) const;
-    void calculate_width_and_margin(LayoutBox &, geom::Rect const &parent, int font_size, int last_block_width) const;
+    void calculate_width_and_margin(LayoutBox &,
+            geom::Rect const &parent,
+            int font_size,
+            int last_block_width,
+            std::optional<Size> box_intrinsic_size) const;
     void calculate_inline_height(LayoutBox &, int font_size) const;
-    void calculate_non_inline_height(LayoutBox &, int font_size) const;
+    void calculate_non_inline_height(LayoutBox &, int font_size, std::optional<Size> box_intrinsic_size) const;
     void calculate_padding(LayoutBox &, int font_size) const;
     void calculate_border(LayoutBox &, int font_size) const;
     [[nodiscard]] std::optional<std::shared_ptr<type::IFont const>> find_font(
@@ -378,18 +382,23 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds, int last_
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds, int last_block_width) const {
-    // TODO(robinlinden): Support <img> sizing. Enable block <img> in //render once done.
     assert(box.node);
     auto font_size = box.get_property<css::PropertyId::FontSize>();
     calculate_padding(box, font_size);
     calculate_border(box, font_size);
-    calculate_width_and_margin(box, bounds, font_size, last_block_width);
+
+    std::optional<Size> box_intrinsic_size;
+    if (auto src = try_get_src(box); !src.empty()) {
+        box_intrinsic_size = get_intrensic_size_for_resource_at_url_(src);
+    }
+
+    calculate_width_and_margin(box, bounds, font_size, last_block_width, box_intrinsic_size);
     calculate_position(box, bounds);
     for (auto &child : box.children) {
         layout(child, box.dimensions.content, box.dimensions.content.width);
         box.dimensions.content.height += child.dimensions.margin_box().height;
     }
-    calculate_non_inline_height(box, font_size);
+    calculate_non_inline_height(box, font_size, box_intrinsic_size);
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -498,8 +507,11 @@ void Layouter::calculate_left_and_right_margin(LayoutBox &box,
 }
 
 // https://www.w3.org/TR/CSS2/visudet.html#blockwidth
-void Layouter::calculate_width_and_margin(
-        LayoutBox &box, geom::Rect const &parent, int const font_size, int const last_block_width) const {
+void Layouter::calculate_width_and_margin(LayoutBox &box,
+        geom::Rect const &parent,
+        int const font_size,
+        int const last_block_width,
+        std::optional<Size> box_intrinsic_size) const {
     assert(box.node != nullptr);
 
     auto &margins = box.dimensions.margin;
@@ -518,9 +530,13 @@ void Layouter::calculate_width_and_margin(
     auto margin_left = box.get_property<css::PropertyId::MarginLeft>();
     auto margin_right = box.get_property<css::PropertyId::MarginRight>();
     auto width = box.get_property<css::PropertyId::Width>();
+
     std::optional<int> resolved_width;
+
     if (!width.is_auto()) {
         resolved_width = width.try_resolve(font_size, resolution_context_, last_block_width);
+    } else if (box_intrinsic_size.has_value()) {
+        resolved_width = box_intrinsic_size->width;
     }
 
     if (resolved_width) {
@@ -567,9 +583,14 @@ void Layouter::calculate_inline_height(LayoutBox &box, int const font_size) cons
     }
 }
 
-void Layouter::calculate_non_inline_height(LayoutBox &box, int const font_size) const {
+void Layouter::calculate_non_inline_height(
+        LayoutBox &box, int const font_size, std::optional<Size> box_intrinsic_size) const {
     assert(box.node != nullptr);
     auto &content = box.dimensions.content;
+
+    if (box_intrinsic_size.has_value()) {
+        content.height = box_intrinsic_size->height;
+    }
 
     // TODO(robinlinden): Handling text here might not be required.
     if (auto text = box.text()) {

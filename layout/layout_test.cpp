@@ -772,7 +772,6 @@ void img_tests(etest::Suite &s) {
         a.expect_eq(expected_layout.children.at(0).text(), "hello");
     });
 
-    // TODO(robinlinden): This test should break when we implement more of image layouting.
     s.add_test("img, alt, src", [](etest::IActions &a) {
         dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"alt", "asdf"}, {"src", "hallo"}}}}};
         auto const &body = std::get<dom::Element>(dom);
@@ -790,13 +789,39 @@ void img_tests(etest::Suite &s) {
 
         auto expected_layout = layout::LayoutBox{
                 .node = &style,
-                .dimensions{{0, 0, 100, 0}},
+                .dimensions{{0, 0, 100, 87}},
                 .children{{
                         &style.children[0],
-                        {{0, 0, 100, 0}},
-                        {},
-                        // TODO(robinlinden)
-                        // {{0, 0, 37, 87}},
+                        {{0, 0, 37, 87}},
+                }},
+        };
+
+        auto layout_root = layout::create_layout(
+                style, {.viewport_width = 100}, type::NaiveType{}, [](auto) { return layout::Size{37, 87}; });
+        a.expect_eq(expected_layout, layout_root);
+    });
+
+    s.add_test("block img, src", [](etest::IActions &a) {
+        dom::Node dom = dom::Element{"body", {}, {dom::Element{"img", {{"src", "hallo"}}}}};
+        auto const &body = std::get<dom::Element>(dom);
+        auto style = style::StyledNode{
+                .node = dom,
+                .properties{
+                        {css::PropertyId::Display, "block"},
+                        {css::PropertyId::FontSize, "10px"},
+                },
+                .children{
+                        {body.children.at(0), {{css::PropertyId::Display, "block"}}},
+                },
+        };
+        set_up_parent_ptrs(style);
+
+        auto expected_layout = layout::LayoutBox{
+                .node = &style,
+                .dimensions{{0, 0, 100, 87}},
+                .children{{
+                        &style.children[0],
+                        {{0, 0, 37, 87}},
                 }},
         };
 
