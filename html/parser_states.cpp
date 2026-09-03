@@ -1507,8 +1507,8 @@ std::optional<InsertionMode> InBody::process(IActions &a, Token const &token) {
     }
 
     if (start != nullptr) {
-        a.insert_element_for(*start);
         a.reconstruct_active_formatting_elements();
+        a.insert_element_for(*start);
         return {};
     }
 
