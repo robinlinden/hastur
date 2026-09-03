@@ -32,7 +32,7 @@ std::optional<LayoutBox> create_layout(
         style::StyledNode const &,
         LayoutInfo const &,
         type::IType const & = type::NaiveType{},
-        std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url =
+        std::function<std::optional<Size>(std::string_view)> const &get_intrinsic_size_for_resource_at_url =
                 [](std::string_view) { return std::nullopt; });
 
 } // namespace layout

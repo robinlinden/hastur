@@ -56,10 +56,10 @@ public:
     explicit Engine(
             std::unique_ptr<protocol::IProtocolHandler> protocol_handler,
             std::unique_ptr<type::IType> type = std::make_unique<type::NaiveType>(),
-            std::function<std::optional<layout::Size>(std::string_view)> get_intrensic_size_for_resource_at_url =
+            std::function<std::optional<layout::Size>(std::string_view)> get_intrinsic_size_for_resource_at_url =
                     [](std::string_view) { return std::nullopt; })
         : protocol_handler_{std::move(protocol_handler)}, type_{std::move(type)},
-          get_intrensic_size_for_resource_at_url_(std::move(get_intrensic_size_for_resource_at_url)) {}
+          get_intrinsic_size_for_resource_at_url_(std::move(get_intrinsic_size_for_resource_at_url)) {}
 
     [[nodiscard]] std::expected<std::unique_ptr<PageState>, NavigationError> navigate(uri::Uri, Options = {});
 
@@ -76,7 +76,7 @@ public:
 private:
     std::unique_ptr<protocol::IProtocolHandler> protocol_handler_;
     std::unique_ptr<type::IType> type_;
-    std::function<std::optional<layout::Size>(std::string_view)> get_intrensic_size_for_resource_at_url_;
+    std::function<std::optional<layout::Size>(std::string_view)> get_intrinsic_size_for_resource_at_url_;
 };
 
 } // namespace engine

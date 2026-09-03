@@ -43,16 +43,16 @@ class Layouter {
 public:
     Layouter(style::ResolutionInfo context,
             type::IType const &type,
-            std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url)
+            std::function<std::optional<Size>(std::string_view)> const &get_intrinsic_size_for_resource_at_url)
         : resolution_context_{context}, type_{type},
-          get_intrensic_size_for_resource_at_url_{get_intrensic_size_for_resource_at_url} {}
+          get_intrinsic_size_for_resource_at_url_{get_intrinsic_size_for_resource_at_url} {}
 
     void layout(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
 
 private:
     style::ResolutionInfo resolution_context_;
     type::IType const &type_;
-    std::function<std::optional<Size>(std::string_view)> get_intrensic_size_for_resource_at_url_;
+    std::function<std::optional<Size>(std::string_view)> get_intrinsic_size_for_resource_at_url_;
 
     void layout_inline(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
     void layout_block(LayoutBox &, geom::Rect const &bounds, int last_block_width) const;
@@ -354,7 +354,7 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds, int last_
         // https://www.w3.org/TR/CSS22/visudet.html#inline-replaced-width
         // TODO(robinlinden): Apply things like max-{width,height}.
         assert(box.children.empty()); // <img> is a void element.
-        if (auto maybe_size = get_intrensic_size_for_resource_at_url_(src); maybe_size.has_value()) {
+        if (auto maybe_size = get_intrinsic_size_for_resource_at_url_(src); maybe_size.has_value()) {
             box.dimensions.content.width = maybe_size->width;
             box.dimensions.content.height = maybe_size->height;
         }
@@ -389,7 +389,7 @@ void Layouter::layout_block(LayoutBox &box, geom::Rect const &bounds, int last_b
 
     std::optional<Size> box_intrinsic_size;
     if (auto src = try_get_src(box); !src.empty()) {
-        box_intrinsic_size = get_intrensic_size_for_resource_at_url_(src);
+        box_intrinsic_size = get_intrinsic_size_for_resource_at_url_(src);
     }
 
     calculate_width_and_margin(box, bounds, font_size, last_block_width, box_intrinsic_size);
@@ -660,9 +660,9 @@ std::optional<std::shared_ptr<type::IFont const>> Layouter::find_font(
 std::optional<LayoutBox> create_layout(style::StyledNode const &node,
         LayoutInfo const &info,
         type::IType const &type,
-        std::function<std::optional<Size>(std::string_view)> const &get_intrensic_size_for_resource_at_url) {
-    auto resource_exists = [&get_intrensic_size_for_resource_at_url](std::string_view url) {
-        return get_intrensic_size_for_resource_at_url(url).has_value();
+        std::function<std::optional<Size>(std::string_view)> const &get_intrinsic_size_for_resource_at_url) {
+    auto resource_exists = [&get_intrinsic_size_for_resource_at_url](std::string_view url) {
+        return get_intrinsic_size_for_resource_at_url(url).has_value();
     };
 
     auto tree = create_tree(node, resource_exists);
@@ -681,7 +681,7 @@ std::optional<LayoutBox> create_layout(style::StyledNode const &node,
             .viewport_height = info.viewport_height,
     };
 
-    Layouter{resolution_context, type, get_intrensic_size_for_resource_at_url}.layout(
+    Layouter{resolution_context, type, get_intrinsic_size_for_resource_at_url}.layout(
             *tree, {0, 0, info.viewport_width, 0}, info.viewport_width);
     return tree;
 }

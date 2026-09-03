@@ -239,7 +239,7 @@ std::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri:
     state->layout = layout::create_layout(*state->styled,
             {state->layout_width, state->viewport_height},
             *type_,
-            get_intrensic_size_for_resource_at_url_);
+            get_intrinsic_size_for_resource_at_url_);
 
     spdlog::info("Done navigating to {}", state->uri.uri);
     return state;
@@ -252,7 +252,7 @@ void Engine::relayout(PageState &state, Options opts) {
     state.layout = layout::create_layout(*state.styled,
             {state.layout_width, state.viewport_height},
             *type_,
-            get_intrensic_size_for_resource_at_url_);
+            get_intrinsic_size_for_resource_at_url_);
 }
 
 Engine::LoadResult Engine::load(uri::Uri uri) {
