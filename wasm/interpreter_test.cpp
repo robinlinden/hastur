@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <limits>
 #include <optional>
 #include <span>
 
@@ -271,6 +272,81 @@ int main() {
         Interpreter i;
         auto res = i.run({{I32Const{0b1100}, I32Const{0b1010}, I32ExclusiveOr{}}});
         a.expect_eq(res, wasm::Interpreter::Value{0b0110});
+    });
+
+    s.add_test("i32.mul", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{2}, I32Const{21}, I32Multiply{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{42});
+        i.stack.clear();
+
+        // Overflow wraps mod 2^32.
+        res = i.run({{I32Const{std::numeric_limits<std::int32_t>::max()}, I32Const{2}, I32Multiply{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{-2});
+    });
+
+    s.add_test("i32.div_s", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{42}, I32Const{6}, I32DivideSigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{7});
+        i.stack.clear();
+
+        // Trap on divide by zero.
+        res = i.run({{I32Const{1}, I32Const{0}, I32DivideSigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        i.stack.clear();
+
+        // Trap on INT32_MIN / -1 (overflow).
+        res = i.run({{I32Const{std::numeric_limits<std::int32_t>::min()}, I32Const{-1}, I32DivideSigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+    });
+
+    s.add_test("i32.div_u", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{42}, I32Const{6}, I32DivideUnsigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{7});
+        i.stack.clear();
+
+        // Trap on divide by zero.
+        res = i.run({{I32Const{1}, I32Const{0}, I32DivideUnsigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        i.stack.clear();
+
+        // -1 as signed is 0xFFFF'FFFF unsigned; divided by 2 gives 0x7FFF'FFFF.
+        res = i.run({{I32Const{-1}, I32Const{2}, I32DivideUnsigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{std::numeric_limits<std::int32_t>::max()});
+    });
+
+    s.add_test("i32.rem_s", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{7}, I32Const{3}, I32RemainderSigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{1});
+        i.stack.clear();
+
+        // Trap on divide by zero.
+        res = i.run({{I32Const{1}, I32Const{0}, I32RemainderSigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        i.stack.clear();
+
+        // INT32_MIN % -1 is 0 per spec.
+        res = i.run({{I32Const{std::numeric_limits<std::int32_t>::min()}, I32Const{-1}, I32RemainderSigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{0});
+    });
+
+    s.add_test("i32.rem_u", [](etest::IActions &a) {
+        Interpreter i;
+        auto res = i.run({{I32Const{7}, I32Const{3}, I32RemainderUnsigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{1});
+        i.stack.clear();
+
+        // Trap on divide by zero.
+        res = i.run({{I32Const{1}, I32Const{0}, I32RemainderUnsigned{}}});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        i.stack.clear();
+
+        // -1 as signed is 0xFFFF'FFFF unsigned; 0xFFFF'FFFF % 3 = 0.
+        res = i.run({{I32Const{-1}, I32Const{3}, I32RemainderUnsigned{}}});
+        a.expect_eq(res, wasm::Interpreter::Value{0});
     });
 
     s.add_test("local.get", [](etest::IActions &a) {
