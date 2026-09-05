@@ -355,6 +355,13 @@ void Layouter::layout_inline(LayoutBox &box, geom::Rect const &bounds, int last_
         // TODO(robinlinden): Apply things like max-{width,height}.
         assert(box.children.empty()); // <img> is a void element.
         if (auto maybe_size = get_intrinsic_size_for_resource_at_url_(src); maybe_size.has_value()) {
+            if (last_block_width < maybe_size->width) {
+                // Scale the width and height to fit, preserving the aspect ratio.
+                auto image_aspect_ratio = static_cast<double>(maybe_size->width) / maybe_size->height;
+                maybe_size->width = last_block_width;
+                maybe_size->height = static_cast<int>(last_block_width / image_aspect_ratio);
+            }
+
             box.dimensions.content.width = maybe_size->width;
             box.dimensions.content.height = maybe_size->height;
         }
@@ -589,7 +596,13 @@ void Layouter::calculate_non_inline_height(
     auto &content = box.dimensions.content;
 
     if (box_intrinsic_size.has_value()) {
-        content.height = box_intrinsic_size->height;
+        if (content.width == box_intrinsic_size->width) {
+            content.height = box_intrinsic_size->height;
+        } else {
+            // Scale the height to fit, preserving the aspect ratio.
+            auto image_aspect_ratio = static_cast<double>(box_intrinsic_size->width) / box_intrinsic_size->height;
+            content.height = static_cast<int>(content.width / image_aspect_ratio);
+        }
     }
 
     // TODO(robinlinden): Handling text here might not be required.
