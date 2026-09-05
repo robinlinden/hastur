@@ -184,7 +184,10 @@ void SfmlCanvas::draw_pixels(geom::Rect const &rect, PixelData const &pixel_data
     texture.update(pixel_data.rgba_data.data());
     sf::Sprite sprite{texture};
     sprite.setPosition({static_cast<float>(scaled.x), static_cast<float>(scaled.y)});
-    sprite.setScale({static_cast<float>(scale_), static_cast<float>(scale_)});
+    sprite.setScale({
+            rect.width / static_cast<float>(pixel_data.width) * scale_,
+            rect.height / static_cast<float>(pixel_data.height) * scale_,
+    });
     target_.draw(sprite);
 }
 
