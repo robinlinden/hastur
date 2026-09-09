@@ -298,7 +298,7 @@ int main() {
 
         // Trap on INT32_MIN / -1 (overflow).
         res = i.run({{I32Const{std::numeric_limits<std::int32_t>::min()}, I32Const{-1}, I32DivideSigned{}}});
-        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerDivisionByZero});
+        a.expect_eq(res, std::unexpected{wasm::Trap::IntegerOverflow});
     });
 
     s.add_test("i32.div_u", [](etest::IActions &a) {

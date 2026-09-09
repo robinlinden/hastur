@@ -102,6 +102,7 @@ struct InterpreterInfo<instructions::I64Multiply> {
 
 enum class Trap : std::uint8_t {
     IntegerDivisionByZero,
+    IntegerOverflow,
     MemoryAccessOutOfBounds,
     UnhandledInstruction,
 };
@@ -288,8 +289,11 @@ public:
         stack.pop_back();
         auto lhs = std::get<std::int32_t>(stack.back());
         stack.pop_back();
-        if (rhs == 0 || (lhs == std::numeric_limits<std::int32_t>::min() && rhs == -1)) {
+        if (rhs == 0) {
             return std::unexpected{Trap::IntegerDivisionByZero};
+        }
+        if (lhs == std::numeric_limits<std::int32_t>::min() && rhs == -1) {
+            return std::unexpected{Trap::IntegerOverflow};
         }
         stack.emplace_back(lhs / rhs);
         return {};
