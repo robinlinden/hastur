@@ -75,13 +75,13 @@ archive_override(
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
     is_default = True,
-    python_version = "3.12.3",
+    python_version = "3.14",
 )
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     hub_name = "pypi",
-    python_version = "3.12.3",
+    python_version = "3.14",
     requirements_lock = "//third_party:requirements.txt",
 )
 use_repo(pip, "pypi")
@@ -390,13 +390,13 @@ local_path_override(
 )
 
 # https://github.com/glfw/glfw
-GLFW_VERSION = "3.4"
+GLFW_VERSION = "3.5.1"
 
 bazel_dep(name = "glfw")  # Zlib
 archive_override(
     module_name = "glfw",
     build_file = "//third_party:glfw.BUILD",
-    integrity = "sha256-tewASycS/Qjohh3CcUKPBId1IAot9xnM9XUUO6dJo+k=",
+    integrity = "sha256-6nm8X+/8JUyHKRmAwtC86azrtoxJg7eflh3NLLimEaA=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "glfw")
@@ -703,12 +703,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.360"
+VULKAN_TAG = "1.4.361"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-jwEkfHu+PR6z/uYOGYELFQNIa0NCU11eaJ2UC02UFNo=",
+    integrity = "sha256-28s2B71OKu4Aa7ksBWRTyk7Swy+hnRrNNkSGGOVRYiQ=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -724,7 +724,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-kv9Qjd5kBPNuinwXyYKWYJZFSwReElw0NUcDWH8ahWY=",
+    integrity = "sha256-yh8slr5ZiPco4gHvo1rCpqlzW+SxNhTPptknBUizlkY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
