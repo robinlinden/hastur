@@ -36,9 +36,6 @@ archive_override(
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
 
-cc_configure = use_extension("@rules_cc//cc:extensions.bzl", "cc_configure_extension")
-use_repo(cc_configure, "local_config_cc")
-
 # https://github.com/bazelbuild/rules_java
 archive_override(
     module_name = "rules_java",

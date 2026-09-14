@@ -69,9 +69,9 @@ build:windows --host_copt='-utf-8'
 # =========================================================
 
 # https://bazel.build/configure/windows#clang
-build:clang-cl --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl
-build:clang-cl --extra_execution_platforms=//:x64_windows-clang-cl
-build:clang-cl --platforms=//:x64_windows-clang-cl
+# Undocumented right as far as I can tell, but...
+# https://github.com/bazelbuild/rules_cc/commit/1d2e4cb24d720fb86c02f080c7a8d0c447ff948b
+build:clang-cl --repo_env=USE_CLANG_CL=1
 
 build:libc++      --cxxopt=-stdlib=libc++
 build:libc++ --host_cxxopt=-stdlib=libc++
