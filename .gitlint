@@ -8,6 +8,8 @@ regex-style-search=true
 regex=^(archive|azm|browser|bzl|css|css2|dom|dom2|engine|etest|geom|gfx|html|idna|img|js|json|layout|net|os|protocol|render|style|tool|tui|type|unicode|uri|url|util|wasm|all|build|ci|deps|doc|meta)(/.*|\+.*)?:
 
 # Splitting git trailers, e.g. the references to commits in other repos, into
-# two lines is silly.
+# two lines is silly. We also don't want to enforce a line length on indented
+# lines, as they are often used for code snippets and other bits that are not
+# easily wrapped.
 [ignore-body-lines]
-regex=^See:
+regex=(^See:)|(^    )
