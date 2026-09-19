@@ -529,25 +529,6 @@ EOF""",
     url = "https://github.com/nst/JSONTestSuite/archive/%s.tar.gz" % JSON_TEST_SUITE_VERSION,
 )
 
-# https://github.com/martinus/nanobench
-# 4.5.0 and newer leak memory which breaks our valgrind CI.
-NANOBENCH_VERSION = "4.4.0"
-
-bazel_dep(name = "nanobench")  # MIT
-archive_override(
-    module_name = "nanobench",
-    build_file = "//third_party:nanobench.BUILD",
-    integrity = "sha256-uQ70gWMfvtIHLJF1lTEbZ7jlgCF6ztQQos2wo3Zq8Tc=",
-    patch_cmds = [
-        """cat <<EOF >MODULE.bazel
-module(name = "nanobench")
-bazel_dep(name = "rules_cc")
-EOF""",
-    ],
-    strip_prefix = "nanobench-%s" % NANOBENCH_VERSION,
-    url = "https://github.com/martinus/nanobench/archive/refs/tags/v%s.tar.gz" % NANOBENCH_VERSION,
-)
-
 # https://github.com/libjpeg-turbo/libjpeg-turbo
 LIBJPEG_TURBO_VERSION = "3.2.0"
 
