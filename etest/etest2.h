@@ -55,6 +55,7 @@ void print_to(std::ostream &os, std::string_view actual_op, T const &a, U const 
 
 struct RunOptions {
     bool run_disabled_tests{false};
+    bool run_benchmarks{true};
     bool enable_color_output{true};
     std::optional<unsigned> rng_seed;
     // Pattern to match test names against. Must be a valid regex compatible w/ std::regex.
@@ -126,6 +127,11 @@ struct Test {
     std::function<void(IActions &)> body;
 };
 
+struct Benchmark {
+    std::string name;
+    std::function<void()> body;
+};
+
 class Suite {
 public:
     explicit Suite(std::optional<std::string> name = std::nullopt) : name_(std::move(name)) {}
@@ -133,6 +139,11 @@ public:
     void add_test(std::string name, std::function<void(IActions &)> test) {
         std::ranges::replace_if(name, is_ctrl, ' ');
         tests_.push_back({std::move(name), std::move(test)});
+    }
+
+    void add_benchmark(std::string name, std::function<void()> benchmark) {
+        std::ranges::replace_if(name, is_ctrl, ' ');
+        benchmarks_.push_back({std::move(name), std::move(benchmark)});
     }
 
     // TODO(robinlinden): Improve error messages.
@@ -167,6 +178,7 @@ private:
     std::optional<std::string> name_;
     std::vector<Test> tests_;
     std::vector<Test> disabled_tests_;
+    std::vector<Benchmark> benchmarks_;
 
     static constexpr bool is_ctrl(unsigned char c) { return c < 0x20 || c == 0x7F; };
 };
