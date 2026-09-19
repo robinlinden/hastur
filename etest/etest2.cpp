@@ -5,6 +5,8 @@
 #include "etest/etest2.h"
 
 #include <algorithm>
+#include <chrono>
+#include <cstddef>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -12,6 +14,7 @@
 #include <optional>
 #include <random>
 #include <ranges>
+#include <ratio>
 #include <regex>
 #include <source_location>
 #include <sstream>
@@ -69,16 +72,79 @@ struct Actions : public IActions {
     std::stringstream test_log;
     int assertion_failures{0};
 };
+
+using BenchmarkClock = std::chrono::steady_clock;
+
+struct BenchmarkResult {
+    std::size_t iterations;
+    BenchmarkClock::duration elapsed;
+};
+
+BenchmarkResult run_benchmark(Benchmark const &benchmark) {
+    static constexpr auto kBenchmarkTargetTime = std::chrono::milliseconds{100};
+    std::size_t iterations = 4;
+
+    // Work out a reasonable number of iterations.
+    for (;;) {
+        auto const start = BenchmarkClock::now();
+
+        for (std::size_t i = 0; i < iterations; ++i) {
+            benchmark.body();
+        }
+
+        if (BenchmarkClock::now() - start >= kBenchmarkTargetTime) {
+            break;
+        }
+
+        iterations *= 2;
+    }
+
+    // And measure 4 realz.
+    auto const start = BenchmarkClock::now();
+
+    for (std::size_t i = 0; i < iterations; ++i) {
+        benchmark.body();
+    }
+
+    return {iterations, BenchmarkClock::now() - start};
+}
+
+struct BenchmarkDisplayOptions {
+    std::size_t name_width{};
+};
+
+void print_benchmark_result(std::ostream &os,
+        Benchmark const &benchmark,
+        BenchmarkResult const &result,
+        BenchmarkDisplayOptions const &display_opts) {
+    auto const ns =
+            std::chrono::duration<double, std::nano>{result.elapsed}.count() / static_cast<double>(result.iterations);
+
+    std::cout << std::left << std::setw(display_opts.name_width) << benchmark.name << ": ";
+
+    if (ns < 1'000'000) {
+        os << ns << " ns";
+    } else if (ns < 1'000'000'000) {
+        os << ns / 1'000 << " us";
+    } else if (ns < 1'000'000'000'000) {
+        os << ns / 1'000'000 << " ms";
+    } else {
+        os << ns / 1'000'000'000 << " s";
+    }
+
+    os << "/iteration (" << result.iterations << " iterations)\n";
+}
+
 } // namespace
 
 int Suite::run(RunOptions const &opts) {
     auto pattern = std::regex{opts.test_name_filter.data(), opts.test_name_filter.size()};
-    auto test_name_filter = [&](Test const &test) {
+    auto name_filter = [&](auto const &test) {
         return std::regex_search(test.name, pattern);
     };
 
     std::vector<Test> tests_to_run;
-    std::ranges::copy(tests_ | std::views::filter(test_name_filter), std::back_inserter(tests_to_run));
+    std::ranges::copy(tests_ | std::views::filter(name_filter), std::back_inserter(tests_to_run));
 
     std::cout << tests_.size() + disabled_tests_.size() << " test(s) registered";
     if (disabled_tests_.empty()) {
@@ -86,11 +152,15 @@ int Suite::run(RunOptions const &opts) {
     } else {
         std::cout << ", " << disabled_tests_.size() << " disabled.\n" << std::flush;
         if (opts.run_disabled_tests) {
-            std::ranges::copy(disabled_tests_ | std::views::filter(test_name_filter), std::back_inserter(tests_to_run));
+            std::ranges::copy(disabled_tests_ | std::views::filter(name_filter), std::back_inserter(tests_to_run));
         }
     }
 
-    if (tests_to_run.empty()) {
+    std::cout << benchmarks_.size() << " benchmark(s) registered.\n";
+    std::vector<Benchmark> benchmarks_to_run;
+    std::ranges::copy(benchmarks_ | std::views::filter(name_filter), std::back_inserter(benchmarks_to_run));
+
+    if (tests_to_run.empty() && benchmarks_to_run.empty()) {
         return 1;
     }
 
@@ -141,6 +211,21 @@ int Suite::run(RunOptions const &opts) {
         }
 
         std::cout << std::flush;
+    }
+
+    if (opts.run_benchmarks && !benchmarks_.empty()) {
+        auto const name_display_width = std::ranges::max_element(
+                benchmarks_to_run, [](auto const &a, auto const &b) { return a.size() < b.size(); }, &Benchmark::name)
+                                                ->name.length();
+
+        std::cout << "\nRunning " << benchmarks_to_run.size() << " benchmarks:\n";
+
+        for (auto const &benchmark : benchmarks_) {
+            auto const result = run_benchmark(benchmark);
+            print_benchmark_result(std::cout, benchmark, result, {.name_width = name_display_width});
+        }
+
+        std::cout << '\n';
     }
 
     std::cout << '\n' << tests_to_run.size() - failed_tests.size() << " passing test(s)\n";
