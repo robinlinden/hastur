@@ -47,6 +47,5 @@ cc_library(
         ":style",
         "//dom",
         "//etest",
-        "@nanobench",
     ],
 ) for src in glob(["*_bench.cpp"])]

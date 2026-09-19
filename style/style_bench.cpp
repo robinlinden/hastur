@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2025-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,8 +8,6 @@
 
 #include "dom/dom.h"
 #include "etest/etest2.h"
-
-#include <nanobench.h>
 
 #include <vector>
 
@@ -31,89 +29,77 @@ void set_up_parent_ptrs(style::StyledNode &root) {
 int main() {
     etest::Suite s;
 
-    s.add_test("is_match: class", [](etest::IActions const &) {
-        ankerl::nanobench::Bench bench;
-        bench.title("is_match: class");
+    dom::Node few_classes_dom = dom::Element{"div", {{"class", "first second"}}};
+    auto few_classes = style::StyledNode{.node = few_classes_dom};
 
-        dom::Node few_classes_dom = dom::Element{"div", {{"class", "first second"}}};
-        auto few_classes = style::StyledNode{.node = few_classes_dom};
-        bench.run("match, few classes", [&] {
-            style::is_match(few_classes, ".first.second"); //
-        });
-
-        bench.run("no match, few classes", [&] {
-            style::is_match(few_classes, ".first.second.third.fourth"); //
-        });
-
-        dom::Node many_classes_dom = dom::Element{
-                "div",
-                {{"class", "one two three four five six seven eight nine ten"}},
-        };
-        auto many_classes = style::StyledNode{.node = many_classes_dom};
-        bench.run("match, many classes", [&] {
-            style::is_match(many_classes, ".eight.two.seven.ten"); //
-        });
-
-        bench.run("no match, many classes", [&] {
-            style::is_match(many_classes, ".eight.two.seve.ten"); //
-        });
+    s.add_benchmark("is_match: class, few classes", [&] {
+        style::is_match(few_classes, ".first.second"); //
     });
 
-    s.add_test("is_match: descendant", [](etest::IActions &a) {
-        ankerl::nanobench::Bench bench;
-        bench.title("is_match: descendant");
+    s.add_benchmark("no match, few classes", [&] {
+        style::is_match(few_classes, ".first.second.third.fourth"); //
+    });
 
-        dom::Node shallow_dom = dom::Element{"div", {}, {dom::Element{"span"}}};
-        auto shallow = style::StyledNode{
-                .node = shallow_dom,
-                .children = {{std::get<dom::Element>(shallow_dom).children.back()}},
-        };
-        set_up_parent_ptrs(shallow);
+    dom::Node many_classes_dom = dom::Element{
+            "div",
+            {{"class", "one two three four five six seven eight nine ten"}},
+    };
+    auto many_classes = style::StyledNode{.node = many_classes_dom};
 
-        bench.run("match, shallow", [&] {
-            a.expect_eq(style::is_match(shallow.children.back(), "div span"), true); //
-        });
+    s.add_benchmark("match, many classes", [&] {
+        style::is_match(many_classes, ".eight.two.seven.ten"); //
+    });
 
-        bench.run("no match, shallow", [&] {
-            a.expect_eq(style::is_match(shallow.children.back(), "div span div"), false); //
-        });
+    s.add_benchmark("no match, many classes", [&] {
+        style::is_match(many_classes, ".eight.two.seve.ten"); //
+    });
 
-        dom::Node deep_dom = dom::Element{"div"};
-        style::StyledNode deep{.node = deep_dom};
-        {
-            // Since StyledNode only holds a reference to the dom node, we can
-            // reuse this one node and just make the style tree very deep.
-            auto *current = &deep;
-            for (int i = 0; i < 16; ++i) {
-                current = &current->children.emplace_back(deep_dom);
-            }
-            set_up_parent_ptrs(deep);
+    dom::Node shallow_dom = dom::Element{"div", {}, {dom::Element{"span"}}};
+    auto shallow = style::StyledNode{
+            .node = shallow_dom,
+            .children = {{std::get<dom::Element>(shallow_dom).children.back()}},
+    };
+    set_up_parent_ptrs(shallow);
+
+    s.add_benchmark("match, shallow", [&] {
+        style::is_match(shallow.children.back(), "div span"); //
+    });
+
+    s.add_benchmark("no match, shallow", [&] {
+        style::is_match(shallow.children.back(), "div span div"); //
+    });
+
+    dom::Node deep_dom = dom::Element{"div"};
+    style::StyledNode deep{.node = deep_dom};
+    {
+        // Since StyledNode only holds a reference to the dom node, we can
+        // reuse this one node and just make the style tree very deep.
+        auto *current = &deep;
+        for (int i = 0; i < 16; ++i) {
+            current = &current->children.emplace_back(deep_dom);
         }
+        set_up_parent_ptrs(deep);
+    }
 
-        bench.run("no match, 4 selectors, shallowest", [&] {
-            a.expect_eq(style::is_match(deep, "div div div div"), false); //
-        });
+    s.add_benchmark("no match, 4 selectors, shallowest", [&] {
+        style::is_match(deep, "div div div div"); //
+    });
 
-        {
-            auto const *deepest_node = &deep;
-            while (!deepest_node->children.empty()) {
-                deepest_node = &deepest_node->children.back();
-            }
+    auto const *deepest_node = &deep;
+    while (!deepest_node->children.empty()) {
+        deepest_node = &deepest_node->children.back();
+    }
 
-            bench.run("match, 4 selectors, deepest", [&] {
-                a.expect_eq(style::is_match(*deepest_node, "div div div div"), true); //
-            });
+    s.add_benchmark("match, 4 selectors, deepest", [&] {
+        style::is_match(*deepest_node, "div div div div"); //
+    });
 
-            bench.run("match, 8 selectors, deepest", [&] {
-                auto match = style::is_match(*deepest_node, "div div div div div div div div");
-                a.expect_eq(match, true);
-            });
+    s.add_benchmark("match, 8 selectors, deepest", [&] {
+        style::is_match(*deepest_node, "div div div div div div div div"); //
+    });
 
-            bench.run("no match, 8 selectors, deepest", [&] {
-                auto match = style::is_match(*deepest_node, "p div div div div div div div");
-                a.expect_eq(match, false);
-            });
-        }
+    s.add_benchmark("no match, 8 selectors, deepest", [&] {
+        style::is_match(*deepest_node, "p div div div div div div div"); //
     });
 
     return s.run();
