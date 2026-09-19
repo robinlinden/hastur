@@ -362,14 +362,10 @@ jobs:
       - run: pre-commit run --all-files
 
   clang-format:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - name: Set up the llvm repository
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends clang-format-21
       - run: find . -name "*.h" -o -name "*.cpp" | xargs clang-format-21 -style=file -i
       - run: git diff --exit-code
