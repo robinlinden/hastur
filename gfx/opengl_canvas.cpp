@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2025 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cassert>
+#include <cstddef>
 #include <string_view>
 #include <utility>
 
@@ -93,6 +94,25 @@ void OpenGLCanvas::draw_rect(
 
     glRecti(outer_rect.left(), outer_rect.top(), outer_rect.right(), outer_rect.bottom());
     border_shader_.disable();
+}
+
+void OpenGLCanvas::draw_pixels(geom::Rect const &rect, PixelData const &image_data) {
+    assert(image_data.rgba_data.size() == static_cast<std::size_t>(image_data.width * image_data.height * 4));
+
+    auto translated = rect.translated(translation_x_, translation_y_);
+    auto scaled = translated.scaled(scale_);
+
+    std::array<GLint, 4> viewport{};
+    glGetIntegerv(GL_VIEWPORT, viewport.data());
+
+    glWindowPos2i(scaled.x, viewport[3] - scaled.y);
+
+    glPixelZoom(static_cast<GLfloat>(scaled.width) / image_data.width,
+            -static_cast<GLfloat>(scaled.height) / image_data.height);
+
+    glDrawPixels(image_data.width, image_data.height, GL_RGBA, GL_UNSIGNED_BYTE, image_data.rgba_data.data());
+
+    glPixelZoom(1.0f, 1.0f);
 }
 
 } // namespace gfx
