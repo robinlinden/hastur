@@ -2,6 +2,12 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 load("//bzl:copts.bzl", "HASTUR_COPTS", "HASTUR_FUZZ_PLATFORMS")
 
+PTHREAD_OPTS = select({
+    "@platforms//os:linux": ["-pthread"],
+    "@platforms//os:macos": ["-pthread"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "protocol",
     srcs = glob(
@@ -9,8 +15,9 @@ cc_library(
         exclude = ["*_test.cpp"],
     ),
     hdrs = glob(["*.h"]),
-    copts = HASTUR_COPTS,
+    copts = HASTUR_COPTS + PTHREAD_OPTS,
     implementation_deps = ["//net"],
+    linkopts = PTHREAD_OPTS,
     visibility = ["//visibility:public"],
     deps = [
         "//uri",
@@ -36,7 +43,8 @@ cc_library(
     name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
-    copts = HASTUR_COPTS,
+    copts = HASTUR_COPTS + PTHREAD_OPTS,
+    linkopts = PTHREAD_OPTS,
     deps = [
         ":protocol",
         "//etest",

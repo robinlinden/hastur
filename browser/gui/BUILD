@@ -16,11 +16,18 @@ GUI_COPTS = HASTUR_COPTS + select({
     "//conditions:default": [],
 })
 
+PTHREAD_OPTS = select({
+    "@platforms//os:linux": ["-pthread"],
+    "@platforms//os:macos": ["-pthread"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "app",
     srcs = ["app.cpp"],
     hdrs = ["app.h"],
-    copts = HASTUR_COPTS,
+    copts = HASTUR_COPTS + PTHREAD_OPTS,
+    linkopts = PTHREAD_OPTS,
     tags = ["no-cross"],
     visibility = ["//visibility:public"],
     deps = [

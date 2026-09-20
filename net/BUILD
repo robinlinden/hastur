@@ -22,6 +22,12 @@ NET_COPTS = HASTUR_COPTS + select({
     "//conditions:default": [],
 })
 
+PTHREAD_OPTS = select({
+    "@platforms//os:linux": ["-pthread"],
+    "@platforms//os:macos": ["-pthread"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "net",
     srcs = glob(
@@ -54,7 +60,8 @@ cc_library(
     name = src.removesuffix(".cpp"),
     size = "small",
     srcs = [src],
-    copts = NET_COPTS,
+    copts = NET_COPTS + PTHREAD_OPTS,
+    linkopts = PTHREAD_OPTS,
     deps = [
         ":net",
         "//etest",

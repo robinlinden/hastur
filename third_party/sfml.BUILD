@@ -20,6 +20,12 @@ SFML_DEFINES = [
     "_UNICODE",
 ]
 
+PTHREAD_OPTS = select({
+    "@platforms//os:linux": ["-pthread"],
+    "@platforms//os:macos": ["-pthread"],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "system_private_hdrs",
     hdrs = glob(["src/SFML/System/*.hpp"]),
@@ -49,19 +55,12 @@ cc_library(
         "include/SFML/*",
         "include/SFML/System/*",
     ]),
-    # TODO(robinlinden): Make nicer.
-    copts = ["-Iexternal/sfml+/src/"],
+    # TODO(robinlinden): Make include-handling nicer.
+    copts = ["-Iexternal/sfml+/src/"] + PTHREAD_OPTS,
     defines = SFML_DEFINES,
-    linkopts = select({
-        "@platforms//os:linux": [
-            "-pthread",
-        ],
-        "@platforms//os:macos": [
-            "-pthread",
-        ],
-        "@platforms//os:windows": [
-            "-DEFAULTLIB:winmm",
-        ],
+    linkopts = PTHREAD_OPTS + select({
+        "@platforms//os:windows": ["-DEFAULTLIB:winmm"],
+        "//conditions:default": [],
     }),
     strip_include_prefix = "include/",
     visibility = ["//visibility:public"],
