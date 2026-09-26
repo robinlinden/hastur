@@ -93,6 +93,14 @@ constexpr char uppercased(char c) {
     return c - ('a' - 'A');
 }
 
+constexpr bool is_ascii(char c) {
+    return static_cast<unsigned char>(c) <= 0x7f;
+}
+
+constexpr bool is_ascii(std::string_view s) {
+    return std::ranges::all_of(s, [](char c) { return is_ascii(c); });
+}
+
 [[nodiscard]] constexpr std::string lowercased(std::string s) {
     std::ranges::for_each(s, [](char &c) { c = lowercased(c); });
     return s;
