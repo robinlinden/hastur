@@ -58,7 +58,9 @@ struct RunOptions {
     bool run_benchmarks{true};
     bool enable_color_output{true};
     std::optional<unsigned> rng_seed;
-    // Pattern to match test names against. Must be a valid regex compatible w/ std::regex.
+    // Pattern to match test names against. Must be a valid regex compatible w/
+    // std::regex. Setting the `TESTBRIDGE_TEST_ONLY` env var overrides this
+    // filter, this is done to support Bazel's `--test_filter=somefilter`.
     std::string_view test_name_filter{".*"};
 };
 

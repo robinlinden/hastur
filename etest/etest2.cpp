@@ -138,7 +138,15 @@ void print_benchmark_result(std::ostream &os,
 } // namespace
 
 int Suite::run(RunOptions const &opts) {
-    auto pattern = std::regex{opts.test_name_filter.data(), opts.test_name_filter.size()};
+    std::string_view test_name_filter;
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
+    if (auto const *bazel_test_filter = std::getenv("TESTBRIDGE_TEST_ONLY"); bazel_test_filter != nullptr) {
+        test_name_filter = bazel_test_filter;
+    } else {
+        test_name_filter = opts.test_name_filter;
+    }
+
+    auto pattern = std::regex{test_name_filter.data(), test_name_filter.size()};
     auto name_filter = [&](auto const &test) {
         return std::regex_search(test.name, pattern);
     };
