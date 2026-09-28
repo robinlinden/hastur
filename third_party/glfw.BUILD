@@ -22,7 +22,6 @@ COMMON_SRCS = [
     "src/vulkan.c",
     "src/window.c",
     "src/xkb_unicode.c",
-    "src/xkb_unicode.h",
 ]
 
 objc_library(
@@ -30,8 +29,8 @@ objc_library(
     srcs = COMMON_SRCS + [
         "src/cocoa_joystick.h",
         "src/cocoa_platform.h",
-        "src/cocoa_time.c",
-        "src/cocoa_time.h",
+        "src/macos_time.c",
+        "src/macos_time.h",
         "src/posix_module.c",
         "src/posix_poll.c",
         "src/posix_thread.c",
@@ -52,9 +51,8 @@ objc_library(
     ],
     sdk_frameworks = [
         "Cocoa",
-        "CoreFoundation",
         "IOKit",
-        "OpenGL",
+        "QuartzCore",
     ],
     target_compatible_with = ["@platforms//os:macos"],
 )
@@ -154,6 +152,7 @@ cc_library(
 cc_binary(
     name = "boing_example",
     srcs = ["examples/boing.c"],
+    visibility = ["//visibility:public"],
     deps = [
         ":glad",
         ":glfw",

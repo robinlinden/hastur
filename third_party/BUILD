@@ -35,3 +35,12 @@ alias(
     actual = "@vulkan_hpp//:dispatch_loader_dynamic_test",
     tags = ["no-clang-tidy"],
 )
+
+alias(
+    name = "glfw_boing_example",
+    actual = "@glfw//:boing_example",
+    tags = [
+        "no-clang-tidy",
+        "no-cross",
+    ],
+)

@@ -124,7 +124,7 @@ jobs:
       - name: Install
         run: |
           sudo apt-get update
-          sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev
+          sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.compiler }}-${{ matrix.version }} ${{ matrix.apt }} libx11-dev libxi-dev libxinerama-dev
       - name: Install
         run: |
           sudo apt-get update
@@ -207,7 +207,7 @@ jobs:
           sudo apt-get install --no-install-recommends lcov clang-${{ matrix.version }} libclang-rt-${{ matrix.version }}-dev llvm-${{ matrix.version }}
           echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
           echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
-      - run: sudo apt-get install libx11-dev libxi-dev
+      - run: sudo apt-get install libx11-dev libxi-dev libxinerama-dev
       - run: echo "build --config=buildbuddy-cache-upload --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" >.bazelrc.local
         env:
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
