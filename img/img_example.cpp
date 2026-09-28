@@ -9,8 +9,7 @@
 
 #include "gfx/color.h"
 #include "gfx/icanvas.h"
-#include "gfx/sfml_canvas.h"
-#include "type/sfml.h"
+#include "gfx/opengl_canvas.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
@@ -125,8 +124,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    type::SfmlType type;
-    gfx::SfmlCanvas canvas{window, type};
+    gfx::OpenGLCanvas canvas{};
 
     bool running = true;
     while (running) {
