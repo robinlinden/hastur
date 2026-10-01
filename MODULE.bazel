@@ -8,12 +8,12 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 # =========================================================
 
 # https://github.com/bazelbuild/apple_support
-APPLE_SUPPORT_VERSION = "2.8.2"
+APPLE_SUPPORT_VERSION = "2.9.1"
 
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-4WOIBrbqtW52SANHnmK/Uisxg0ecGTPPeiQoqEV1roo=",
+    integrity = "sha256-PZtKc/09WN0zA+jNlUl9xwVAeqzdQV+q9gsi3oUKdcY=",
     url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format(APPLE_SUPPORT_VERSION),
 )
 
@@ -181,11 +181,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/fmeum/buildozer
-BUILDOZER_VERSION = "8.5.1"
+BUILDOZER_VERSION = "10.1.0"
 
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-vQeG4Pi2rtjDWJi0wG9kuoU9YdfINh7bWo1Dxuo39cY=",
+    integrity = "sha256-MEt//BhD0gxD+4E3FPL6/XSx3GEmzkCIAuADpqO4/2M=",
     strip_prefix = "buildozer-%s" % BUILDOZER_VERSION,
     url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format(BUILDOZER_VERSION),
 )
@@ -201,11 +201,11 @@ archive_override(
 )
 
 # https://github.com/protocolbuffers/protobuf
-PROTOBUF_VERSION = "36.1"
+PROTOBUF_VERSION = "36.2"
 
 archive_override(
     module_name = "protobuf",
-    integrity = "sha256-3HT6WC9VnL0xYU3f77SGj0PJGdcYS95RS7R/kMYCXrg=",
+    integrity = "sha256-PZZCpmLRDmjrrl5T8U3M5RBWhCEtUHj44NR9GrOua2Q=",
     patch_cmds = [
         # Avoid what transitive deps we can.
         "sed -i'' -e /aspect_bazel_lib/d MODULE.bazel",
