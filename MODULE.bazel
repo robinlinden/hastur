@@ -303,12 +303,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260813.0"
+BORINGSSL_VERSION = "0.20260929.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-N+I8uaX6VPAbB8rdZTzrwdGyNZRUOabDNP6ljqR7Wwo=",
+    integrity = "sha256-BNqboGZOCn8CjpYcONYE8sxtrIUqhMoOUdwfoFHUyP4=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
@@ -550,13 +550,13 @@ EOF""",
 )
 
 # https://github.com/glennrp/libpng
-LIBPNG_VERSION = "1.6.58"
+LIBPNG_VERSION = "1.6.59"
 
 bazel_dep(name = "libpng")  # Libpng
 archive_override(
     module_name = "libpng",
     build_file = "//third_party:libpng.BUILD",
-    integrity = "sha256-qdTfRj02puX5wpvW9JZzEtF+mWwYVPNRH4M5JOsZk88=",
+    integrity = "sha256-JUAwKhhErSsrUBl3q+z6hQ8mX5e3jwZacSq0B0qJ9bU=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libpng")
@@ -676,12 +676,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.361"
+VULKAN_TAG = "1.4.364"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-28s2B71OKu4Aa7ksBWRTyk7Swy+hnRrNNkSGGOVRYiQ=",
+    integrity = "sha256-N+AOMGETdZOKlDdHfeeT41XlXUhsJas9/XoaEasPjwc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -697,7 +697,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-yh8slr5ZiPco4gHvo1rCpqlzW+SxNhTPptknBUizlkY=",
+    integrity = "sha256-2owHo21tE/vjGGdlpawkOrodIUSa/CCzTOoCVoWbMPY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
