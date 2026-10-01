@@ -129,12 +129,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --assume-yes --no-install-recommends ${{ matrix.apt }} libx11-dev libxi-dev
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: ${{ matrix.name }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -180,12 +180,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: coverage-${{ matrix.compiler }}-${{ matrix.version }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -231,12 +231,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: aarch64_linux_muslc-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -259,7 +259,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v47.0.3
+      WASMTIME_VERSION: v49.0.1
     steps:
       - uses: actions/checkout@v7
       - name: Set up wasmtime
@@ -317,12 +317,12 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -375,12 +375,12 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: ${{ github.ref == 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
           key: clang_tidy-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         if: ${{ github.ref != 'refs/heads/master' }}
         with:
           path: ~/.cache/bazel
@@ -409,7 +409,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Install
         run: |
-          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v8.5.1/buildifier-linux-amd64
+          wget --output-document=buildifier https://github.com/bazelbuild/buildtools/releases/download/v10.1.0/buildifier-linux-amd64
           sudo chmod +x buildifier
       - name: Check
         run: ./buildifier --lint=warn --warnings=all -mode diff $(find . -type f -iname "*.BUILD" -or -iname BUILD -or -iname "*.bzl" -or -iname "*.bazel")
@@ -419,7 +419,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: npm install --global prettier@3.9.6
+      - run: npm install --global prettier@3.9.9
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
       - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
@@ -430,7 +430,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64 && chmod +x shfmt
+      - run: wget --output-document=shfmt https://github.com/mvdan/sh/releases/download/v3.14.1/shfmt_v3.14.1_linux_amd64 && chmod +x shfmt
       - run: ./shfmt -i 2 -w $(./shfmt -f .)
       - run: git diff --exit-code
 
