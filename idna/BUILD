@@ -17,7 +17,7 @@ genrule(
     name = "generate_idna_data",
     srcs = ["@idna_mapping_table//file"],
     outs = ["idna_data.h"],
-    cmd = "$(location :idna_data_processor) $(location @idna_mapping_table//file) >$@",
+    cmd = "$(execpath :idna_data_processor) $(execpath @idna_mapping_table//file) >$@",
     tools = [":idna_data_processor"],
 )
 
@@ -55,7 +55,7 @@ cc_test(
     name = "uts46_conformance_test",
     size = "small",
     srcs = ["uts46_conformance_test.cpp"],
-    args = ["$(location @uts46_conformance_test_data//file)"],
+    args = ["$(rootpath @uts46_conformance_test_data//file)"],
     copts = HASTUR_COPTS,
     data = ["@uts46_conformance_test_data//file"],
     target_compatible_with = select({

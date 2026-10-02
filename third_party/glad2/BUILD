@@ -11,7 +11,7 @@ py_console_script_binary(
 # gl:core=3.1 is the last core profile that supports deprecated functions like
 # glMatrixMode, glColor4ub, and glRecti that we still use.
 # TODO(robinlinden): Modernize our GL setup.
-GLAD_CMD = "$(location :run_glad) --reproducible --api 'gl:core=3.1' --out-path $(RULEDIR) c --loader ;"
+GLAD_CMD = "$(execpath :run_glad) --reproducible --api 'gl:core=3.1' --out-path $(RULEDIR) c --loader ;"
 
 GLAD_HDRS = [
     "KHR/khrplatform.h",

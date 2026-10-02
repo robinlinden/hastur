@@ -21,7 +21,7 @@ genrule(
     name = "generate_canonical_combining_class_data",
     srcs = ["@ucd//:UnicodeData.txt"],
     outs = ["canonical_combining_class_data.h"],
-    cmd = "$(location :canonical_combining_class_data_processor) $(location @ucd//:UnicodeData.txt) >$@",
+    cmd = "$(execpath :canonical_combining_class_data_processor) $(execpath @ucd//:UnicodeData.txt) >$@",
     tools = [":canonical_combining_class_data_processor"],
 )
 
@@ -46,7 +46,7 @@ genrule(
     name = "generate_composition_data",
     srcs = ["@ucd//:UnicodeData.txt"],
     outs = ["composition_data.h"],
-    cmd = "$(location :composition_data_processor) $(location @ucd//:UnicodeData.txt) >$@",
+    cmd = "$(execpath :composition_data_processor) $(execpath @ucd//:UnicodeData.txt) >$@",
     tools = [":composition_data_processor"],
 )
 
@@ -72,7 +72,7 @@ genrule(
         "@ucd//:UnicodeData.txt",
     ],
     outs = ["composition_exclusion_data.h"],
-    cmd = "$(location :composition_exclusion_data_processor) $(location @ucd//:CompositionExclusions.txt) $(location @ucd//:UnicodeData.txt) >$@",
+    cmd = "$(execpath :composition_exclusion_data_processor) $(execpath @ucd//:CompositionExclusions.txt) $(execpath @ucd//:UnicodeData.txt) >$@",
     tools = [":composition_exclusion_data_processor"],
 )
 
@@ -92,7 +92,7 @@ genrule(
     name = "generate_decomposition_data",
     srcs = ["@ucd//:UnicodeData.txt"],
     outs = ["decomposition_data.h"],
-    cmd = "$(location :decomposition_data_processor) $(location @ucd//:UnicodeData.txt) >$@",
+    cmd = "$(execpath :decomposition_data_processor) $(execpath @ucd//:UnicodeData.txt) >$@",
     tools = [":decomposition_data_processor"],
 )
 

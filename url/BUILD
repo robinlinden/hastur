@@ -98,7 +98,7 @@ cc_test(
     name = "wpt_test",
     size = "small",
     srcs = ["wpt_test.cpp"],
-    args = ["$(location @wpt_urltestdata//file)"],
+    args = ["$(rootpath @wpt_urltestdata//file)"],
     copts = HASTUR_COPTS,
     data = ["@wpt_urltestdata//file"],
     tags = [

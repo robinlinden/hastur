@@ -6,7 +6,7 @@ genrule(
     name = "default_css",
     srcs = ["default.css"],
     outs = ["default_css.h"],
-    cmd = "$(location //tool:embed) --name kDefaultCss $< >$@",
+    cmd = "$(execpath //tool:embed) --name kDefaultCss $< >$@",
     tools = ["//tool:embed"],
 )
 

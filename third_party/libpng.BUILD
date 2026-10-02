@@ -36,7 +36,7 @@ cc_test(
     name = "pngtest",
     size = "small",
     srcs = ["pngtest.c"],
-    args = ["$(location :pngtest.png)"],
+    args = ["$(rootpath :pngtest.png)"],
     data = ["pngtest.png"],
     visibility = ["//visibility:public"],
     deps = [

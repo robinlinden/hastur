@@ -358,7 +358,7 @@ cc_test(
     name = "json_test_suite_test",
     size = "small",
     srcs = ["json_test_suite_test.cpp"],
-    args = ["$(location @json-test-suite//:test_parsing/%s)" % f for f in JSON_TEST_SUITE_INPUTS],
+    args = ["$(rootpath @json-test-suite//:test_parsing/%s)" % f for f in JSON_TEST_SUITE_INPUTS],
     copts = HASTUR_COPTS,
     data = ["@json-test-suite//:test_parsing/%s" % f for f in JSON_TEST_SUITE_INPUTS],
     target_compatible_with = select({

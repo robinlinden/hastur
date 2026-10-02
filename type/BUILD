@@ -32,7 +32,7 @@ genrule(
     name = "generate_fallback_font",
     srcs = ["@opensans//file"],
     outs = ["fallback_font_data.h"],
-    cmd = "$(location //tool:embed) --name kFallbackFont $< >$@",
+    cmd = "$(execpath //tool:embed) --name kFallbackFont $< >$@",
     tools = ["//tool:embed"],
 )
 

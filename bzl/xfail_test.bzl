@@ -27,6 +27,6 @@ def xfail_test(
         size = size,
         srcs = ["//bzl:xfail_test_runner"],
         data = [":%s_bin" % name] + data,
-        args = ["$(location :%s_bin)" % name] + args,
+        args = ["$(rootpath :%s_bin)" % name] + args,
         tags = tags,
     )

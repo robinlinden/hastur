@@ -88,8 +88,8 @@ genrule(
     size = "small",
     srcs = [":test_with_arg"],
     args = [
-        "$(location :html5lib_tree_construction_test_runner)",
-        "$(location @html5lib-tests//:tree-construction/%s.dat)" % test,
+        "$(rootpath :html5lib_tree_construction_test_runner)",
+        "$(rootpath @html5lib-tests//:tree-construction/%s.dat)" % test,
     ],
     data = [
         ":html5lib_tree_construction_test_runner",
@@ -124,8 +124,8 @@ genrule(
     size = "small",
     srcs = [":test_with_arg"],
     args = [
-        "$(location :html5lib_tree_construction_test_runner)",
-        "$(location @html5lib-tests//:tree-construction/%s.dat)" % test,
+        "$(rootpath :html5lib_tree_construction_test_runner)",
+        "$(rootpath @html5lib-tests//:tree-construction/%s.dat)" % test,
     ],
     data = [
         ":html5lib_tree_construction_test_runner",
@@ -179,8 +179,8 @@ genrule(
     size = "small",
     srcs = [":test_with_arg"],
     args = [
-        "$(location :html5lib_tokenizer_test_runner)",
-        "$(location {})".format(test),
+        "$(rootpath :html5lib_tokenizer_test_runner)",
+        "$(rootpath {})".format(test),
     ],
     data = [
         ":html5lib_tokenizer_test_runner",

@@ -55,7 +55,7 @@ genrule(
     name = "tiny_png",
     srcs = ["tiny.png"],
     outs = ["tiny_png.h"],
-    cmd = "$(location //tool:embed) --name kTinyPng $< >$@",
+    cmd = "$(execpath //tool:embed) --name kTinyPng $< >$@",
     tools = ["//tool:embed"],
 )
 
@@ -64,7 +64,7 @@ genrule(
     name = "tiny_jpg",
     srcs = ["tiny.jpg"],
     outs = ["tiny_jpg.h"],
-    cmd = "$(location //tool:embed) --name kTinyJpg $< >$@",
+    cmd = "$(execpath //tool:embed) --name kTinyJpg $< >$@",
     tools = ["//tool:embed"],
 )
 
