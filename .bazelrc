@@ -38,6 +38,9 @@ build --@rules_python//python/config_settings:bootstrap_impl=script
 build:windows --copt='-external:W0' --host_copt='-external:W0'
 build --features=external_include_paths --host_features=external_include_paths
 
+# Don't create _virtual_includes-folders when not needed.
+build --features=skip_virtual_includes --host_features=skip_virtual_includes
+
 # Bazel + Clang supports this really cool features where it checks that you're
 # not relying on transitive dependencies, so let's enable that!
 build:linux --features=layering_check
