@@ -23,6 +23,24 @@ build --incompatible_autoload_externally=
 build --incompatible_config_setting_private_default_visibility
 build --incompatible_remote_local_fallback_for_remote_cache
 
+# rules_python's py_console_script_binary relies on the deprecated behaviour on Windows.
+#
+# ERROR: D:/a/hastur/hastur/third_party/glad2/BUILD:23:8: Executing genrule //third_party/glad2:generate_glad failed: (Exit 1): bash.exe failed: error executing Genrule command (from genrule rule target //third_party/glad2:generate_glad) C:\Program Files\Git\usr\bin\bash.exe -c ... (remaining 1 argument skipped)
+# Traceback (most recent call last):
+#   File "c:\users\runneradmin\_bazel_runneradmin\425h7iu3\execroot\_main\bazel-out\x64_windows-opt-exec\bin\third_party\glad2\run_glad.exe.runfiles\_main\third_party\glad2\_run_glad_stage2_bootstrap.py", line 588, in <module>
+#     main()
+#     ~~~~^^
+#   File "c:\users\runneradmin\_bazel_runneradmin\425h7iu3\execroot\_main\bazel-out\x64_windows-opt-exec\bin\third_party\glad2\run_glad.exe.runfiles\_main\third_party\glad2\_run_glad_stage2_bootstrap.py", line 559, in main
+#     assert os.path.exists(main_filename), (
+#            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+# AssertionError: Cannot exec() 'c:\\users\\runneradmin\\_bazel_runneradmin\\425h7iu3\\execroot\\_main\\bazel-out\\x64_windows-opt-exec\\bin\\third_party\\glad2\\run_glad.exe.runfiles\\_main\\third_party\\glad2\\run_glad_entry_point.py': file not found.
+# ERROR: D:/a/hastur/hastur/third_party/glad2/BUILD:31:11 Compiling third_party/glad2/src/gl.c failed: (Exit 1): bash.exe failed: error executing Genrule command (from genrule rule target //third_party/glad2:generate_glad) C:\Program Files\Git\usr\bin\bash.exe -c ... (remaining 1 argument skipped)
+#
+# Last tested w/ rules_python 2.4.0.
+# build:windows --noincompatible_default_to_explicit_init_py
+# build:linux --incompatible_default_to_explicit_init_py
+# build:macos --incompatible_default_to_explicit_init_py
+
 # Third-party configuration
 # =========================================================
 
