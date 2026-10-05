@@ -3,7 +3,7 @@ load("@rules_python//python/entry_points:py_console_script_binary.bzl", "py_cons
 
 py_console_script_binary(
     name = "run_glad",
-    pkg = "@pypi//glad2",
+    pkg = "@hastur_pypi//glad2",
     script = "glad",
     tags = ["no-cross"],
 )
