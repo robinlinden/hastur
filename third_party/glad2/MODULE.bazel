@@ -7,4 +7,4 @@ bazel_dep(name = "rules_cc")
 bazel_dep(name = "rules_python")
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-use_repo(pip, "pypi")
+use_repo(pip, "hastur_pypi")
