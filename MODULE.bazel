@@ -51,15 +51,20 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-# @rules_python doesn't work w/ our cross-compilation setup starting w/ 2.0.0.
-# Probably fixable w/ the right configuration nonsense, but nothing about this
-# is mentioned in the breaking change documentation.
-RULES_PYTHON_VERSION = "1.9.2"
+RULES_PYTHON_VERSION = "2.4.0"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-mIgOKULmb74jICvUF0wImlSiA8MvwcvBxsht+fl61+M=",
+    integrity = "sha256-T05ovQ44X7hVC3LHfxH/Ucir056ocr+y9izJAyxgB1E=",
+    patch_cmds = [
+        # rules_python 2.0.0 and newer incorrectly resolve parts of the
+        # py_console_script_binary dependency graph against the target
+        # configuration, leading to Bazel failing during analysis:
+        #
+        # ERROR: /home/runner/.cache/bazel/_bazel_runner/a9f0723b1e9e47cd91eaa9d5188be59d/external/rules_python++pip+hastur_pypi/glad2/BUILD.bazel:6:12: configurable attribute "actual" in @@rules_python++pip+hastur_pypi//glad2:_no_matching_repository doesn't match this configuration: No matching wheel for current configuration's Python version and platform.
+        "sed -i'' -e '78i\\\n            cfg = \"exec\",\\\n' python/private/py_console_script_gen.bzl",
+    ],
     strip_prefix = "rules_python-%s" % RULES_PYTHON_VERSION,
     url = "https://github.com/bazelbuild/rules_python/releases/download/{0}/rules_python-{0}.tar.gz".format(RULES_PYTHON_VERSION),
 )
@@ -72,11 +77,11 @@ python.toolchain(
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
-    hub_name = "pypi",
+    hub_name = "hastur_pypi",
     python_version = "3.14",
     requirements_lock = "//third_party:requirements.txt",
 )
-use_repo(pip, "pypi")
+use_repo(pip, "hastur_pypi")
 
 # https://github.com/bazel-contrib/rules_fuzzing
 RULES_FUZZING_VERSION = "0.8.0"
@@ -129,13 +134,6 @@ archive_override(
     module_name = "bazel_skylib",
     integrity = "sha256-N837xvrv6pT3s3dgowXJjAiYERbCvJ6CHjtCMiH62Mg=",
     url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{0}/bazel-skylib-{0}.tar.gz".format("1.9.2"),
-)
-
-# https://github.com/bazelbuild/stardoc
-archive_override(
-    module_name = "stardoc",
-    integrity = "sha256-q2t0ezFkUQVH92lsbgaSGWbM7H4I2bgexgEzw7CdXl4=",
-    url = "https://github.com/bazelbuild/stardoc/releases/download/{0}/stardoc-{0}.tar.gz".format("0.8.1"),
 )
 
 # Bazel contrib
@@ -239,6 +237,16 @@ archive_override(
     ],
     strip_prefix = "re2-%s" % RE2_VERSION,
     url = "https://github.com/google/re2/releases/download/{0}/re2-{0}.tar.gz".format(RE2_VERSION),
+)
+
+# https://github.com/jvolkman/toml.bzl
+TOML_BZL_VERSION = "0.5.0"
+
+archive_override(
+    module_name = "toml.bzl",
+    integrity = "sha256-tb/dXFSIrTfWDbGI0tF7wJP3GbiLIIhs6fsJK/9rDmc=",
+    strip_prefix = "toml.bzl-%s" % TOML_BZL_VERSION,
+    url = "https://github.com/jvolkman/toml.bzl/releases/download/v{0}/toml.bzl-v{0}.tar.gz".format(TOML_BZL_VERSION),
 )
 
 # Third-party Bazel
