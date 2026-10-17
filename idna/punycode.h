@@ -224,10 +224,15 @@ private:
         return k + ((kBase - kTMin + 1) * delta) / (delta + kSkew);
     }
 
-    static constexpr std::string unicode_to_utf8(std::u32string const &code_points) {
+    static constexpr std::optional<std::string> unicode_to_utf8(std::u32string const &code_points) {
         std::string result;
         for (auto const code_point : code_points) {
-            result += unicode::to_utf8(code_point);
+            auto cp = unicode::to_utf8(code_point);
+            if (!cp.has_value()) {
+                return std::nullopt;
+            }
+
+            result += *cp;
         }
 
         return result;

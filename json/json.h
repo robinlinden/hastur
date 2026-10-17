@@ -504,9 +504,9 @@ private:
                             // The only error-checking in to_utf8 is to make sure
                             // that the code point isn't too large. Not possible
                             // when there are only 4 digits.
-                            assert(!utf8.empty());
+                            assert(utf8.has_value());
 
-                            value += utf8;
+                            value += *utf8;
                             break;
                         }
 
