@@ -12,6 +12,7 @@
 #include "util/string.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <optional>
 #include <string>
@@ -100,14 +101,18 @@ std::optional<std::string> Uts46::map(std::string_view input) {
 
         // These would be mapped in transitional processing, but we don't support that.
         if (std::holds_alternative<uts46::Deviation>(entry)) {
-            result += unicode::to_utf8(code_point);
+            auto cp = unicode::to_utf8(code_point);
+            assert(cp.has_value());
+            result += *cp;
             continue;
         }
 
         if (std::holds_alternative<uts46::Valid>(entry) //
                 || std::holds_alternative<uts46::ValidNv8>(entry) //
                 || std::holds_alternative<uts46::ValidXv8>(entry)) {
-            result += unicode::to_utf8(code_point);
+            auto cp = unicode::to_utf8(code_point);
+            assert(cp.has_value());
+            result += *cp;
             continue;
         }
     }

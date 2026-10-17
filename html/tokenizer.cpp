@@ -2236,9 +2236,14 @@ void Tokenizer::run() {
                 }
 
                 temporary_buffer_.clear();
-                temporary_buffer_.append(unicode::to_utf8(maybe_reference->first_codepoint));
+                auto cp1 = unicode::to_utf8(maybe_reference->first_codepoint);
+                assert(cp1.has_value());
+                temporary_buffer_.append(*cp1);
+
                 if (maybe_reference->second_codepoint) {
-                    temporary_buffer_.append(unicode::to_utf8(*maybe_reference->second_codepoint));
+                    auto cp2 = unicode::to_utf8(*maybe_reference->second_codepoint);
+                    assert(cp2);
+                    temporary_buffer_.append(*cp2);
                 }
 
                 flush_code_points_consumed_as_a_character_reference();
@@ -2444,7 +2449,9 @@ void Tokenizer::run() {
                     character_reference_code_ = it->second;
                 }
 
-                temporary_buffer_ = unicode::to_utf8(character_reference_code_);
+                auto char_ref = unicode::to_utf8(character_reference_code_);
+                assert(char_ref.has_value());
+                temporary_buffer_ = std::move(*char_ref);
                 flush_code_points_consumed_as_a_character_reference();
                 state_ = return_state_;
                 continue;

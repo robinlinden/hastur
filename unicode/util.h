@@ -37,30 +37,30 @@ constexpr std::optional<std::uint8_t> utf8_byte_count(std::uint32_t code_point) 
     return std::nullopt;
 }
 
-constexpr std::string to_utf8(std::uint32_t code_point) {
+constexpr std::optional<std::string> to_utf8(std::uint32_t code_point) {
     switch (utf8_byte_count(code_point).value_or(0)) {
         case 1:
-            return {static_cast<char>(code_point & 0x7F)};
+            return std::string{static_cast<char>(code_point & 0x7F)};
         case 2:
-            return {
+            return std::string{
                     static_cast<char>((code_point >> 6 & 0b0001'1111) | 0b1100'0000),
                     static_cast<char>((code_point & 0b0011'1111) | 0b1000'0000),
             };
         case 3:
-            return {
+            return std::string{
                     static_cast<char>((code_point >> 12 & 0b0000'1111) | 0b1110'0000),
                     static_cast<char>((code_point >> 6 & 0b0011'1111) | 0b1000'0000),
                     static_cast<char>((code_point & 0b0011'1111) | 0b1000'0000),
             };
         case 4:
-            return {
+            return std::string{
                     static_cast<char>((code_point >> 18 & 0b0000'0111) | 0b1111'0000),
                     static_cast<char>((code_point >> 12 & 0b0011'1111) | 0b1000'0000),
                     static_cast<char>((code_point >> 6 & 0b0011'1111) | 0b1000'0000),
                     static_cast<char>((code_point & 0b0011'1111) | 0b1000'0000),
             };
         default:
-            return std::string{};
+            return std::nullopt;
     }
 }
 
