@@ -7,6 +7,7 @@
 #include "etest/etest2.h"
 #include "unicode/util.h"
 
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -14,7 +15,9 @@ namespace {
 constexpr std::string unicode_as_utf8_string(std::vector<int> const &code_points) {
     std::string result;
     for (auto const code_point : code_points) {
-        result += unicode::to_utf8(code_point);
+        auto cp = unicode::to_utf8(code_point);
+        assert(cp.has_value());
+        result += *cp;
     }
 
     return result;

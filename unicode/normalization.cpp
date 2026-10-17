@@ -30,7 +30,9 @@ void decompose_to(std::ostream &os, char32_t code_point) {
 
     // This code point does not decompose.
     if (maybe_decomposition == generated::kDecompositions.end() || maybe_decomposition->code_point != code_point) {
-        os << to_utf8(code_point);
+        auto cp = to_utf8(code_point);
+        assert(cp.has_value());
+        os << *cp;
         return;
     }
 
@@ -142,7 +144,9 @@ std::string Normalization::nfc(std::string_view input) {
             i += 1;
         }
 
-        ss << to_utf8(code_point);
+        auto cp = to_utf8(code_point);
+        assert(cp.has_value());
+        ss << *cp;
     }
 
     return std::move(ss).str();

@@ -47,8 +47,7 @@ int main() {
 
         a.expect_eq(to_utf8(0x10348), "𐍈"sv);
 
-        // Invalid code points return "".
-        a.expect_eq(to_utf8(0x110000), ""sv);
+        a.expect_eq(to_utf8(0x110000), std::nullopt);
     });
 
     s.add_test("is_surrogate", [](etest::IActions &a) {

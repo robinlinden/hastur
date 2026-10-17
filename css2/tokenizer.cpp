@@ -454,11 +454,13 @@ std::variant<std::int32_t, double> Tokenizer::consume_number(char first_byte) {
 
 // https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point
 std::string Tokenizer::consume_an_escaped_code_point() {
-    static constexpr std::uint32_t kReplacementCharacter = 0xFFFD;
+    // https://www.compart.com/en/unicode/U+FFFD
+    static constexpr auto kReplacementCharacter = "\xEF\xBF\xBD";
+
     auto c = consume_next_input_character();
     if (!c) {
         emit(ParseError::EofInEscapeSequence);
-        return unicode::to_utf8(kReplacementCharacter);
+        return kReplacementCharacter;
     }
 
     if (util::is_hex_digit(*c)) {
@@ -484,10 +486,10 @@ std::string Tokenizer::consume_an_escaped_code_point() {
         // https://www.w3.org/TR/css-syntax-3/#maximum-allowed-code-point
         static constexpr std::uint32_t kMaximumAllowedCodePoint = 0x10FFFF;
         if (code_point == 0 || code_point > kMaximumAllowedCodePoint || unicode::is_surrogate(code_point)) {
-            code_point = kReplacementCharacter;
+            return kReplacementCharacter;
         }
 
-        return unicode::to_utf8(code_point);
+        return unicode::to_utf8(code_point).value_or(kReplacementCharacter);
     }
 
     return std::string{*c};
