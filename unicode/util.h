@@ -160,6 +160,32 @@ constexpr std::uint32_t utf8_to_utf32(std::string_view input) {
     return codepoint;
 }
 
+constexpr std::optional<std::uint8_t> utf8_character_byte_count(char first_byte) {
+    auto const b = static_cast<unsigned char>(first_byte);
+
+    if ((b & 0b1111'1000) == 0b1111'0000) {
+        if (b >= 0xF5) {
+            return std::nullopt;
+        }
+
+        return 4;
+    }
+
+    if ((b & 0b1111'0000) == 0b1110'0000) {
+        return 3;
+    }
+
+    if ((b & 0b1110'0000) == 0b1100'0000) {
+        return 2;
+    }
+
+    if ((b & 0b1000'0000) == 0) {
+        return 1;
+    }
+
+    return std::nullopt;
+}
+
 // Calculates codepoint length of a UTF-8 string.
 //
 // Note: This routine assumes that the string is valid UTF-8, otherwise we need

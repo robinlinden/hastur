@@ -131,6 +131,19 @@ int main() {
         a.expect_eq(utf8_length("\xfa\xaa\xaa\xaa\xaa"), 0);
     });
 
+    s.add_test("utf8_code_point_byte_count", [](etest::IActions &a) {
+        a.expect_eq(utf8_character_byte_count('\0'), 1);
+        a.expect_eq(utf8_character_byte_count('\x7F'), 1);
+        a.expect_eq(utf8_character_byte_count('\xC2'), 2);
+        a.expect_eq(utf8_character_byte_count('\xDF'), 2);
+        a.expect_eq(utf8_character_byte_count('\xE0'), 3);
+        a.expect_eq(utf8_character_byte_count('\xEF'), 3);
+        a.expect_eq(utf8_character_byte_count('\xF0'), 4);
+        a.expect_eq(utf8_character_byte_count('\xF4'), 4);
+        a.expect_eq(utf8_character_byte_count('\xF5'), std::nullopt);
+        a.expect_eq(utf8_character_byte_count('\xFF'), std::nullopt);
+    });
+
     s.add_test("CodePointView", [](etest::IActions &a) {
         auto into_code_points = [](std::string_view sv) {
             std::vector<std::uint32_t> code_points;
