@@ -128,7 +128,7 @@ int main() {
         a.expect_eq(utf8_length("\xf0\x9f\x86"), std::nullopt);
 
         // Initial byte implies 5-byte character, which is invalid.
-        a.expect_eq(utf8_length("\xfa\xaa\xaa\xaa\xaa"), 0);
+        a.expect_eq(utf8_length("\xfa\xaa\xaa\xaa\xaa"), std::nullopt);
     });
 
     s.add_test("utf8_code_point_byte_count", [](etest::IActions &a) {

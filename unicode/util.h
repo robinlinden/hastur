@@ -198,9 +198,15 @@ constexpr std::optional<std::size_t> utf8_length(std::string_view input) {
     std::size_t len = 0;
 
     for (std::size_t i = 0; i < input.size(); i++) {
-        if ((input[i] & 0b10000000) == 0b00000000) {
+        auto const byte_count = utf8_character_byte_count(input[i]);
+
+        if (!byte_count.has_value()) {
+            return std::nullopt;
+        }
+
+        if (*byte_count == 1) {
             len++;
-        } else if ((input[i] & 0b11100000) == 0b11000000) {
+        } else if (*byte_count == 2) {
             i++;
 
             if (input.size() <= i) {
@@ -208,7 +214,7 @@ constexpr std::optional<std::size_t> utf8_length(std::string_view input) {
             }
 
             len++;
-        } else if ((input[i] & 0b11110000) == 0b11100000) {
+        } else if (*byte_count == 3) {
             i += 2;
 
             if (input.size() <= i) {
@@ -216,7 +222,7 @@ constexpr std::optional<std::size_t> utf8_length(std::string_view input) {
             }
 
             len++;
-        } else if ((input[i] & 0b11111000) == 0b11110000) {
+        } else if (*byte_count == 4) {
             i += 3;
 
             if (input.size() <= i) {
