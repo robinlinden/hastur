@@ -121,6 +121,24 @@ constexpr auto kValidationErrorStr = std::to_array<std::pair<ValidationError, st
         {ValidationError::FileInvalidWindowsDriveLetterHost, "A file: URL's host is a Windows drive letter"},
 });
 
+constexpr bool is_forbidden_host_code_point(char c) {
+    static constexpr auto kForbiddenHostCodePoints = std::to_array<char>(
+            {'\0', '\t', '\n', '\r', ' ', '#', '/', ':', '<', '>', '?', '@', '[', '\\', ']', '^', '|'});
+    return std::ranges::contains(kForbiddenHostCodePoints, c);
+}
+
+constexpr bool contains_forbidden_host_code_point(std::string_view s) {
+    return std::ranges::any_of(s, is_forbidden_host_code_point);
+}
+
+constexpr bool is_forbidden_domain_code_point(char c) {
+    return is_forbidden_host_code_point(c) || util::is_c0(c) || c == '%' || c == '\x7F';
+}
+
+constexpr bool contains_forbidden_domain_code_point(std::string_view s) {
+    return std::ranges::any_of(s, is_forbidden_domain_code_point);
+}
+
 } // namespace
 
 void icu_cleanup() {
@@ -1302,15 +1320,9 @@ std::optional<Host> UrlParser::parse_host(std::string_view input, bool is_opaque
         return std::nullopt;
     }
 
-    static constexpr auto kForbidden = "\t\n\r #/:<>?@[\\]^|"sv;
-
-    for (std::size_t i = 0; i < ascii_domain->size(); i++) {
-        if (kForbidden.find_first_of(ascii_domain.value()[i]) != std::string::npos || ascii_domain.value()[i] <= 0x1f
-                || ascii_domain.value()[i] == '%' || ascii_domain.value()[i] == 0x7f) {
-            validation_error(ValidationError::DomainInvalidCodePoint);
-
-            return std::nullopt;
-        }
+    if (contains_forbidden_domain_code_point(*ascii_domain)) {
+        validation_error(ValidationError::DomainInvalidCodePoint);
+        return std::nullopt;
     }
 
     if (ends_in_number(*ascii_domain)) {
@@ -1649,14 +1661,9 @@ std::optional<std::array<std::uint16_t, 8>> UrlParser::parse_ipv6(std::string_vi
 
 // https://url.spec.whatwg.org/#concept-opaque-host-parser
 std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) const {
-    static constexpr auto kForbidden = "\t\n\r #/:<>?@[\\]^|\0"sv;
-
-    for (char i : input) {
-        if (kForbidden.find_first_of(i) != std::string_view::npos) {
-            validation_error(ValidationError::HostInvalidCodePoint);
-
-            return std::nullopt;
-        }
+    if (contains_forbidden_host_code_point(input)) {
+        validation_error(ValidationError::HostInvalidCodePoint);
+        return std::nullopt;
     }
 
     std::string_view tmp = input;
