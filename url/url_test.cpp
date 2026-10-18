@@ -723,6 +723,21 @@ int main() {
         a.expect_eq(errors, std::vector{url::ValidationError::MissingSchemeNonRelativeUrl});
     });
 
+    s.add_test("URL parsing: % in opaque host is not an error", [](etest::IActions &a) {
+        auto [url, errors] = parse_url("abc://%20");
+        a.expect_eq(url,
+                url::Url{
+                        .scheme = "abc",
+                        .host{
+                                url::Host{
+                                        .type = url::HostType::Opaque,
+                                        .data = "%20",
+                                },
+                        },
+                });
+        a.expect(errors.empty());
+    });
+
     s.add_test("URL normalization: uppercasing percent-encoded triplets", [](etest::IActions &a) {
         url::UrlParser p;
 

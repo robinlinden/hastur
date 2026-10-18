@@ -1664,7 +1664,7 @@ std::optional<std::string> UrlParser::parse_opaque_host(std::string_view input) 
     while (!tmp.empty()) {
         std::uint32_t cp = unicode::utf8_to_utf32(tmp);
 
-        if (!is_url_codepoint(cp)) {
+        if (!is_url_codepoint(cp) && cp != '%') {
             validation_error(ValidationError::InvalidUrlUnit);
         }
 
