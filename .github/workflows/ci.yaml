@@ -259,7 +259,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      WASMTIME_VERSION: v49.0.1
+      WASMTIME_VERSION: v49.0.4
     steps:
       - uses: actions/checkout@v7
       - name: Set up wasmtime
@@ -358,7 +358,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: pipx install pre-commit==4.6.2
+      - run: pipx install pre-commit==4.7.0
       - run: pre-commit run --all-files
 
   clang-format:
@@ -419,7 +419,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - run: npm install --global prettier@3.9.9
+      - run: npm install --global prettier@3.9.10
       # Prettier thinks our fragment shaders are JS-something and complains
       # about syntax errors.
       - run: npx prettier --ignore-path .gitignore --write . '!**/*.frag'
