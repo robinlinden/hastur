@@ -26,12 +26,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.25"
+RULES_CC_VERSION = "0.2.26"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-vXEkqETQQDtLNTvOo01siyuojcJogcJsnuZo2om3GEY=",
+    integrity = "sha256-RKjzJforXPsOyt3aQ2WzN07u+h+XMJ/bkwGrsIl9+no=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -342,13 +342,13 @@ http_file(
 )
 
 # https://github.com/freetype/freetype
-FREETYPE_VERSION = "VER-2-14-3"
+FREETYPE_VERSION = "VER-2-15-0"
 
 bazel_dep(name = "freetype2")  # FTL
 archive_override(
     module_name = "freetype2",
     build_file = "//third_party:freetype2.BUILD",
-    integrity = "sha256-3EneawGiZu70h2pN002YQsR10+KP8u/2O9L7dgq1YmE=",
+    integrity = "sha256-h8fx+Gmbkeifdz99z6UFsETh2uZ/YqVdTinDr9ysT7g=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "freetype2")
@@ -466,13 +466,13 @@ http_file(
 )
 
 # https://github.com/ocornut/imgui
-IMGUI_VERSION = "1.92.9b"
+IMGUI_VERSION = "1.93.0"
 
 bazel_dep(name = "imgui")  # MIT
 archive_override(
     module_name = "imgui",
     build_file = "//third_party:imgui.BUILD",
-    integrity = "sha256-IdigpWXoXc6UPjddsAgSwvPwqyHz8PeWTjZKY0Itf5k=",
+    integrity = "sha256-979rx25dedQNdRCWZj5sXRja8IEp3VLn97CeQlHI7u4=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "imgui")
@@ -619,14 +619,14 @@ EOF""",
     url = "https://github.com/gabime/spdlog/archive/v%s.tar.gz" % SPDLOG_VERSION,
 )
 
-# HEAD, last updated at 2026-03-17.
+# HEAD, last updated at 2026-10-19.
 # https://github.com/nothings/stb
-STB_VERSION = "e6cd9561ea6dae43d41633797745789d142b691e"
+STB_VERSION = "a7d4c2175630e1ea5b6f8dd00ab96fed0b97b96d"
 
 archive_override(
     module_name = "stb",
     build_file = "//third_party:stb.BUILD",
-    integrity = "sha256-xxSSFsv75nuvoZMlkKhfGbpO362bLsZIgkRUQW0g0iU=",
+    integrity = "sha256-rkmOEPreugwueqhsccyZicTYlSAc0muLcgYcds/eTt8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "stb")
@@ -676,12 +676,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.364"
+VULKAN_TAG = "1.4.365"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-N+AOMGETdZOKlDdHfeeT41XlXUhsJas9/XoaEasPjwc=",
+    integrity = "sha256-7YMrMpLM4yTrumUi/S0wBL8beX+km/vK0LMC/yPVarw=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -697,7 +697,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-2owHo21tE/vjGGdlpawkOrodIUSa/CCzTOoCVoWbMPY=",
+    integrity = "sha256-hRpcuycQforS8RkNWyfypcN64k+PMWlQb72lNpnLrWY=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -783,12 +783,12 @@ EOF""",
 )
 
 # https://gitlab.freedesktop.org/xorg/lib/libxrender
-XRENDER_VERSION = "0.9.12"
+XRENDER_VERSION = "0.9.13"
 
 archive_override(
     module_name = "xrender",
     build_file = "//third_party:xrender.BUILD",
-    integrity = "sha256-RwVZ354OTbyB1YVdPTZKF+EiY2AKCCFyMvix9u883b8=",
+    integrity = "sha256-Iipf46s+fYJRfVUyFJZHgqNaArrOLMluw2uSxKWqSNc=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "xrender")
