@@ -8,12 +8,12 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 # =========================================================
 
 # https://github.com/bazelbuild/apple_support
-APPLE_SUPPORT_VERSION = "2.9.1"
+APPLE_SUPPORT_VERSION = "2.10.1"
 
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-PZtKc/09WN0zA+jNlUl9xwVAeqzdQV+q9gsi3oUKdcY=",
+    integrity = "sha256-EUwVWNubVoNICWkoGm3SRGmJRRIARBOQtn2IIKwrBMM=",
     url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format(APPLE_SUPPORT_VERSION),
 )
 
@@ -142,11 +142,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.51.0"
+BAZEL_FEATURES_VERSION = "1.52.0"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-VFC/ssi0vJYcdTaIOPhhVvVjzJre8b59UE/FYZ1U2qs=",
+    integrity = "sha256-+HMkS7MqhwHQN0DYixlAdO851hVFxk7Imb7jJci3bpw=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
@@ -162,11 +162,11 @@ archive_override(
 )
 
 # https://github.com/bazel-contrib/rules_jvm_external
-RULES_JVM_EXTERNAL_VERSION = "7.1"
+RULES_JVM_EXTERNAL_VERSION = "7.2"
 
 archive_override(
     module_name = "rules_jvm_external",
-    integrity = "sha256-JWF5DzLCKXWtBoWPPEC/6XL8D/nn8ooJSEi89NRuc8U=",
+    integrity = "sha256-8UdLo2mfBKseq4k4HWTJ+QaVLFd1JOmpyLOUm4dbuqA=",
     patch_cmds = [
         # Avoid what transitive deps we can.
         "sed -i'' -e /rules_android/d MODULE.bazel",
@@ -181,11 +181,11 @@ archive_override(
 # =========================================================
 
 # https://github.com/fmeum/buildozer
-BUILDOZER_VERSION = "10.1.0"
+BUILDOZER_VERSION = "10.1.0.bcr.1"
 
 archive_override(
     module_name = "buildozer",
-    integrity = "sha256-MEt//BhD0gxD+4E3FPL6/XSx3GEmzkCIAuADpqO4/2M=",
+    integrity = "sha256-ashQ02ukggYClZURFJ+DBGwTkrz1yxiMYkz94ScsD50=",
     strip_prefix = "buildozer-%s" % BUILDOZER_VERSION,
     url = "https://github.com/fmeum/buildozer/releases/download/v{0}/buildozer-v{0}.tar.gz".format(BUILDOZER_VERSION),
 )
