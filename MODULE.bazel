@@ -280,6 +280,25 @@ archive_override(
     url = "https://github.com/erenon/bazel_clang_tidy/archive/%s.tar.gz" % BAZEL_CLANG_TIDY_VERSION,
 )
 
+# HEAD, last updated at 2026-10-20.
+# https://github.com/googleprojectzero/domato
+DOMATO_VERSION = "fadff396cc45d521cc594d3e2396e27e887b1963"
+
+bazel_dep(name = "domato", dev_dependency = True)  # Apache-2.0
+archive_override(
+    module_name = "domato",
+    build_file = "//third_party:domato.BUILD",
+    integrity = "sha256-eQqukiiSyvb7v7KQyLBBEQXuZUkL5KQnNayUwFzP6DY=",
+    patch_cmds = [
+        """cat <<EOF >MODULE.bazel
+module(name = "domato")
+bazel_dep(name = "rules_python")
+EOF""",
+    ],
+    strip_prefix = "domato-%s" % DOMATO_VERSION,
+    url = "https://github.com/googleprojectzero/domato/archive/%s.tar.gz" % DOMATO_VERSION,
+)
+
 # Third-party
 # =========================================================
 
