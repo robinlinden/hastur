@@ -294,7 +294,7 @@ archive_override(
 # https://github.com/googleprojectzero/domato
 DOMATO_VERSION = "fadff396cc45d521cc594d3e2396e27e887b1963"
 
-bazel_dep(name = "domato", dev_dependency = True)  # Apache-2.0
+bazel_dep(name = "domato")  # Apache-2.0
 archive_override(
     module_name = "domato",
     build_file = "//third_party:domato.BUILD",

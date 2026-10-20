@@ -1,5 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("//bzl:copts.bzl", "HASTUR_COPTS")
+load("//bzl:domato_fuzz.bzl", "domato_fuzz")
 
 # spdlog/sinks/dist_sink.h:25:5: error: instantiation of function
 # 'spdlog::sinks::base_sink<std::mutex>::base_sink' required here, but no
@@ -30,4 +31,9 @@ cc_binary(
         "//util:arg_parser",
         "@spdlog",
     ],
+)
+
+domato_fuzz(
+    name = "domato_fuzz",
+    tested_target = ":tui",
 )
