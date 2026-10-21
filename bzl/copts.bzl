@@ -17,6 +17,7 @@ HASTUR_LINUX_WARNING_FLAGS = [
     "-Woverloaded-virtual",
     "-Wshadow",
     "-Wsign-compare",
+    "-Wstrict-aliasing=1",
     "-Wundef",
     "-Wunreachable-code",
     "-Wuninitialized",
