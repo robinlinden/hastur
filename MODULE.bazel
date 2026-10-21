@@ -303,12 +303,12 @@ EOF""",
 )
 
 # https://github.com/google/boringssl
-BORINGSSL_VERSION = "0.20260929.0"
+BORINGSSL_VERSION = "0.20261020.0"
 
 bazel_dep(name = "boringssl")  # OpenSSL + ISC
 archive_override(
     module_name = "boringssl",
-    integrity = "sha256-BNqboGZOCn8CjpYcONYE8sxtrIUqhMoOUdwfoFHUyP4=",
+    integrity = "sha256-+0Oqx/vTI8nfofRf6SocARQkM8BbI/409h1rqLE7ZC4=",
     patch_cmds = [
         # We don't run boringssl's benchmarks, so let's avoid this dependency.
         "sed -i'' -e /google_benchmark/d MODULE.bazel",
