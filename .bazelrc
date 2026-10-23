@@ -15,6 +15,9 @@ test --test_verbose_timeout_warnings
 # tag w/ "requires-network" for opt-in network access.
 build --sandbox_default_allow_network=false
 
+# rules_python requires windows_enable_symlinks to be set.
+startup --windows_enable_symlinks
+
 # Bazel deprecations
 # =========================================================
 # See: https://docs.bazel.build/versions/main/backward-compatibility.html
