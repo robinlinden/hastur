@@ -8,6 +8,7 @@
 #include "protocol/handler_factory.h"
 #include "protocol/response.h"
 #include "uri/uri.h"
+#include "util/arg_parser.h"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/logger.h>
@@ -40,7 +41,15 @@ int main(int argc, char **argv) {
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%L%$] %v");
 
-    auto uri_str = argc > 1 ? std::string{argv[1]} : kDefaultUri;
+    bool enable_js = false;
+    std::string uri_str{kDefaultUri};
+
+    auto res = util::ArgParser{}.argument("--enable-js", enable_js).positional(uri_str).parse(argc, argv);
+    if (!res.has_value()) {
+        spdlog::error(res.error().message);
+        return 1;
+    }
+
     ensure_has_scheme(uri_str);
     auto uri = uri::Uri::parse(uri_str);
     if (!uri) {
@@ -51,7 +60,7 @@ int main(int argc, char **argv) {
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
     std::string user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0";
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
-    auto maybe_page = engine.navigate(*uri);
+    auto maybe_page = engine.navigate(*uri, {.enable_js = enable_js});
     if (!maybe_page) {
         spdlog::error(R"(Error loading "{}": {})", uri->uri, to_string(maybe_page.error().response.err));
         return 1;
