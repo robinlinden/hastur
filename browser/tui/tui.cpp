@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Robin Lindén <dev@robinlinden.eu>
+// SPDX-FileCopyrightText: 2021-2026 Robin Lindén <dev@robinlinden.eu>
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -21,8 +21,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-
-using namespace std::literals;
 
 namespace {
 constexpr char const *kDefaultUri = "http://www.example.com";
@@ -51,7 +49,7 @@ int main(int argc, char **argv) {
     }
 
     // Latest Firefox ESR user agent (on Windows). This matches what the Tor browser does.
-    auto user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"s;
+    std::string user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0";
     engine::Engine engine{protocol::HandlerFactory::create(std::move(user_agent))};
     auto maybe_page = engine.navigate(*uri);
     if (!maybe_page) {
