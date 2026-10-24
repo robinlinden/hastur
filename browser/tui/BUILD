@@ -27,6 +27,7 @@ cc_binary(
         "//protocol",
         "//tui",
         "//uri",
+        "//util:arg_parser",
         "@spdlog",
     ],
 )
