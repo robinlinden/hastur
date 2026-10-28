@@ -36,4 +36,5 @@ cc_binary(
 domato_fuzz(
     name = "domato_fuzz",
     tested_target = ":tui",
+    tested_target_args = ["--enable-js"],
 )

@@ -77,5 +77,8 @@ cc_binary(
 domato_fuzz(
     name = "domato_fuzz",
     tested_target = ":gui",
-    tested_target_args = ["--exit-after-load"],
+    tested_target_args = [
+        "--enable-js",
+        "--exit-after-load",
+    ],
 )
