@@ -101,6 +101,23 @@ int main() {
         a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(call.arguments.at(1))).value, 2.);
     });
 
+    s.add_test("add expr", [](etest::IActions &a) {
+        auto p = js::Parser::parse("1 + 2 + 3;").value();
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &addition = std::get<js::ast::BinaryExpression>(expr);
+        a.expect_eq(addition.op, js::ast::BinaryOperator::Plus);
+
+        auto &left_addition = std::get<js::ast::BinaryExpression>(*addition.lhs);
+        a.expect_eq(left_addition.op, js::ast::BinaryOperator::Plus);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*left_addition.lhs)).value, 1.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*left_addition.rhs)).value, 2.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*addition.rhs)).value, 3.);
+
+        a.expect_eq(js::Parser::parse("1 +;"), std::nullopt);
+        a.expect_eq(js::Parser::parse("1 + 2 3;"), std::nullopt);
+    });
+
     s.add_test("foo(1 2)", [](etest::IActions &a) {
         auto p = js::Parser::parse("foo(1 2)");
         a.expect_eq(p, std::nullopt);
