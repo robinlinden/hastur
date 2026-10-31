@@ -299,6 +299,35 @@ private:
 
     // NOLINTNEXTLINE(misc-no-recursion)
     [[nodiscard]] static std::optional<ast::Expression> parse_expression(std::span<parse::Token> &tokens) {
+        auto expr = parse_primary_expression(tokens);
+        if (!expr) {
+            return std::nullopt;
+        }
+
+        while (!tokens.empty() && std::holds_alternative<parse::Plus>(tokens.front())) {
+            tokens = tokens.subspan(1); // '+'
+            auto rhs = parse_primary_expression(tokens);
+            if (!rhs) {
+                return std::nullopt;
+            }
+
+            expr = ast::BinaryExpression{
+                    .op = ast::BinaryOperator::Plus,
+                    .lhs = std::make_shared<ast::Expression>(std::move(*expr)),
+                    .rhs = std::make_shared<ast::Expression>(std::move(*rhs)),
+            };
+        }
+
+        if (!tokens.empty() && std::holds_alternative<parse::Equals>(tokens.front())) {
+            tokens = tokens.subspan(1); // '='
+            return parse_assign_expr(std::make_shared<ast::Expression>(std::move(*expr)), tokens);
+        }
+
+        return expr;
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
+    [[nodiscard]] static std::optional<ast::Expression> parse_primary_expression(std::span<parse::Token> &tokens) {
         if (tokens.empty()) {
             return std::nullopt;
         }
@@ -329,9 +358,6 @@ private:
             } else if (std::holds_alternative<parse::LParen>(tokens.front())) {
                 tokens = tokens.subspan(1); // '('
                 expr = parse_call_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
-            } else if (std::holds_alternative<parse::Equals>(tokens.front())) {
-                tokens = tokens.subspan(1); // '='
-                expr = parse_assign_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
             } else {
                 return expr;
             }
