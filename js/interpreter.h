@@ -89,6 +89,15 @@ public:
                 return Value{lhs->as_number() + rhs->as_number()};
             case BinaryOperator::Minus:
                 return Value{lhs->as_number() - rhs->as_number()};
+            case BinaryOperator::Times:
+                return Value{lhs->as_number() * rhs->as_number()};
+            case BinaryOperator::Divide:
+                if (rhs->as_number() == 0) {
+                    // TODO(robinlinden): Better error value.
+                    return std::unexpected{ErrorValue{Value{}}};
+                }
+
+                return Value{lhs->as_number() / rhs->as_number()};
         }
         std::abort();
     }

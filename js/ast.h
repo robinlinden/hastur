@@ -152,6 +152,8 @@ struct Identifier {
 enum class BinaryOperator : std::uint8_t {
     Minus,
     Plus,
+    Times,
+    Divide,
 };
 
 struct BinaryExpression {

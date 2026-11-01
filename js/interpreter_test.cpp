@@ -90,6 +90,32 @@ int main() {
         a.expect_eq(e.execute(minus_expr), Value{-20.});
     });
 
+    s.add_test("binary expression, times", [](etest::IActions &a) {
+        auto times_expr = BinaryExpression{
+                .op = BinaryOperator::Times,
+                .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
+                .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
+        };
+
+        Interpreter e;
+        a.expect_eq(e.execute(times_expr), Value{341.});
+    });
+
+    s.add_test("binary expression, divide", [](etest::IActions &a) {
+        auto divide_expr = BinaryExpression{
+                .op = BinaryOperator::Divide,
+                .lhs = std::make_shared<Expression>(NumericLiteral{30.}),
+                .rhs = std::make_shared<Expression>(NumericLiteral{10.}),
+        };
+
+        Interpreter e;
+        a.expect_eq(e.execute(divide_expr), Value{3.});
+
+        divide_expr.rhs = std::make_shared<Expression>(NumericLiteral{0.});
+        auto result = e.execute(divide_expr);
+        a.expect_eq(result.has_value(), false);
+    });
+
     s.add_test("variable declaration", [](etest::IActions &a) {
         auto declaration = VariableDeclaration{{
                 VariableDeclarator{
