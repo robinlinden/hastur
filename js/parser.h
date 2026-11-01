@@ -304,23 +304,68 @@ private:
             return std::nullopt;
         }
 
-        while (!tokens.empty() && std::holds_alternative<parse::Plus>(tokens.front())) {
-            tokens = tokens.subspan(1); // '+'
-            auto rhs = parse_primary_expression(tokens);
-            if (!rhs) {
-                return std::nullopt;
-            }
-
-            expr = ast::BinaryExpression{
-                    .op = ast::BinaryOperator::Plus,
-                    .lhs = std::make_shared<ast::Expression>(std::move(*expr)),
-                    .rhs = std::make_shared<ast::Expression>(std::move(*rhs)),
-            };
+        if (!tokens.empty() && binary_operator(tokens.front())) {
+            return parse_binary_expression(tokens, std::move(*expr), 0);
         }
 
         if (!tokens.empty() && std::holds_alternative<parse::Equals>(tokens.front())) {
             tokens = tokens.subspan(1); // '='
             return parse_assign_expr(std::make_shared<ast::Expression>(std::move(*expr)), tokens);
+        }
+
+        return expr;
+    }
+
+    [[nodiscard]] static std::optional<std::pair<ast::BinaryOperator, int>> binary_operator(parse::Token const &token) {
+        if (std::holds_alternative<parse::Plus>(token)) {
+            return std::pair{ast::BinaryOperator::Plus, 1};
+        }
+
+        if (std::holds_alternative<parse::Minus>(token)) {
+            return std::pair{ast::BinaryOperator::Minus, 1};
+        }
+
+        if (std::holds_alternative<parse::Asterisk>(token)) {
+            return std::pair{ast::BinaryOperator::Times, 2};
+        }
+
+        if (std::holds_alternative<parse::Slash>(token)) {
+            return std::pair{ast::BinaryOperator::Divide, 2};
+        }
+
+        return std::nullopt;
+    }
+
+    // NOLINTNEXTLINE(misc-no-recursion)
+    [[nodiscard]] static std::optional<ast::Expression> parse_binary_expression(
+            std::span<parse::Token> &tokens, ast::Expression expr, int min_precedence) {
+        while (!tokens.empty()) {
+            auto op = binary_operator(tokens.front());
+            if (!op || op->second < min_precedence) {
+                break;
+            }
+
+            tokens = tokens.subspan(1);
+            auto rhs = parse_primary_expression(tokens);
+            if (!rhs) {
+                return std::nullopt;
+            }
+
+            if (!tokens.empty()) {
+                auto next_op = binary_operator(tokens.front());
+                if (next_op && next_op->second > op->second) {
+                    rhs = parse_binary_expression(tokens, std::move(*rhs), op->second + 1);
+                    if (!rhs) {
+                        return std::nullopt;
+                    }
+                }
+            }
+
+            expr = ast::BinaryExpression{
+                    .op = op->first,
+                    .lhs = std::make_shared<ast::Expression>(std::move(expr)),
+                    .rhs = std::make_shared<ast::Expression>(std::move(*rhs)),
+            };
         }
 
         return expr;

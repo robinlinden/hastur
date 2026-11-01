@@ -118,6 +118,28 @@ int main() {
         a.expect_eq(js::Parser::parse("1 + 2 3;"), std::nullopt);
     });
 
+    s.add_test("subtraction, multiplication, and division", [](etest::IActions &a) {
+        auto p = js::Parser::parse("8 - 3 * 2 / 1;").value();
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &subtraction = std::get<js::ast::BinaryExpression>(expr);
+        a.expect_eq(subtraction.op, js::ast::BinaryOperator::Minus);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*subtraction.lhs)).value, 8.);
+
+        auto &division = std::get<js::ast::BinaryExpression>(*subtraction.rhs);
+        a.expect_eq(division.op, js::ast::BinaryOperator::Divide);
+        auto &multiplication = std::get<js::ast::BinaryExpression>(*division.lhs);
+        a.expect_eq(multiplication.op, js::ast::BinaryOperator::Times);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*multiplication.lhs)).value, 3.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*multiplication.rhs)).value, 2.);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*division.rhs)).value, 1.);
+
+        a.expect_eq(js::Parser::parse("1 -;"), std::nullopt);
+        a.expect_eq(js::Parser::parse("1 *;"), std::nullopt);
+        a.expect_eq(js::Parser::parse("1 /;"), std::nullopt);
+        a.expect_eq(js::Parser::parse("1 + 2 *;"), std::nullopt);
+    });
+
     s.add_test("foo(1 2)", [](etest::IActions &a) {
         auto p = js::Parser::parse("foo(1 2)");
         a.expect_eq(p, std::nullopt);
