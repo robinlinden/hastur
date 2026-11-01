@@ -116,6 +116,19 @@ int main() {
         a.expect_eq(result.has_value(), false);
     });
 
+    s.add_test("binary expression, unhandled operator", [](etest::IActions &a) {
+        auto unhandled_expr = BinaryExpression{
+                // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
+                .op = static_cast<BinaryOperator>(0xFF),
+                .lhs = std::make_shared<Expression>(NumericLiteral{11.}),
+                .rhs = std::make_shared<Expression>(NumericLiteral{31.}),
+        };
+
+        Interpreter e;
+        auto result = e.execute(unhandled_expr);
+        a.expect_eq(result.has_value(), false);
+    });
+
     s.add_test("variable declaration", [](etest::IActions &a) {
         auto declaration = VariableDeclaration{{
                 VariableDeclarator{

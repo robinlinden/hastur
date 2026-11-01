@@ -9,7 +9,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <cstdlib>
 #include <expected>
 #include <functional>
 #include <map>
@@ -99,7 +98,8 @@ public:
 
                 return Value{lhs->as_number() / rhs->as_number()};
         }
-        std::abort();
+
+        return std::unexpected{ErrorValue{Value{}}};
     }
 
     ValueOrException operator()(VariableDeclaration const &v) {
