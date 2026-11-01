@@ -82,8 +82,12 @@ public:
                 return Equals{};
             case '+':
                 return Plus{};
+            case '-':
+                return Minus{};
             case '*':
                 return Asterisk{};
+            case '/':
+                return Slash{};
             case '\'':
             case '"': {
                 return tokenize_string_literal(*current);

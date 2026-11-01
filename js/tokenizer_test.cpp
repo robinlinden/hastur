@@ -103,8 +103,10 @@ int main() {
 
     s.add_test("maths", [](etest::IActions &a) {
         expect_tokens(a, "5 + 6", {IntLiteral{5}, Plus{}, IntLiteral{6}});
+        expect_tokens(a, "5 - 6", {IntLiteral{5}, Minus{}, IntLiteral{6}});
         expect_tokens(a, "5*6", {IntLiteral{5}, Asterisk{}, IntLiteral{6}});
         expect_tokens(a, "5 * 6", {IntLiteral{5}, Asterisk{}, IntLiteral{6}});
+        expect_tokens(a, "5/6", {IntLiteral{5}, Slash{}, IntLiteral{6}});
         expect_tokens(a, "5+6*7", {IntLiteral{5}, Plus{}, IntLiteral{6}, Asterisk{}, IntLiteral{7}});
     });
 
@@ -117,7 +119,7 @@ int main() {
                 "/* comment */5/* comment */ 6",
                 {Comment{" comment "}, IntLiteral{5}, Comment{" comment "}, IntLiteral{6}});
 
-        a.expect_eq(tokenize("/"), std::nullopt);
+        expect_tokens(a, "/", {Slash{}});
         expect_tokens(a, "/*asdf* ** ** ****", {Comment{"asdf* ** ** ****"}});
     });
 

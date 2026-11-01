@@ -80,8 +80,16 @@ struct Plus {
     bool operator==(Plus const &) const = default;
 };
 
+struct Minus {
+    bool operator==(Minus const &) const = default;
+};
+
 struct Asterisk {
     bool operator==(Asterisk const &) const = default;
+};
+
+struct Slash {
+    bool operator==(Slash const &) const = default;
 };
 
 struct Eof {
@@ -260,7 +268,9 @@ using Token = std::variant< //
         Colon,
         Equals,
         Plus,
+        Minus,
         Asterisk,
+        Slash,
         Eof,
         // Reserved words
         Await,

@@ -27,7 +27,9 @@ struct StringifyVisitor {
     std::string operator()(Colon const &) { return "Colon"; }
     std::string operator()(Equals const &) { return "Equals"; }
     std::string operator()(Plus const &) { return "Plus"; }
+    std::string operator()(Minus const &) { return "Minus"; }
     std::string operator()(Asterisk const &) { return "Asterisk"; }
+    std::string operator()(Slash const &) { return "Slash"; }
     std::string operator()(Eof const &) { return "Eof"; }
 
     // Reserved words
