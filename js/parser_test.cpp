@@ -278,6 +278,27 @@ int main() {
         a.expect_eq(first_member.property.name, "bar");
     });
 
+    s.add_test("computed member expr and chaining", [](etest::IActions &a) {
+        auto p = js::Parser::parse(R"(document.getElementsByTagName("body")[0].style.backgroundImage;)").value();
+        auto &statement = p.body.at(0);
+        auto &expr = std::get<js::ast::ExpressionStatement>(statement).expression;
+        auto &background_image = std::get<js::ast::MemberExpression>(expr);
+        a.expect_eq(background_image.property.name, "backgroundImage");
+
+        auto &style = std::get<js::ast::MemberExpression>(*background_image.object);
+        a.expect_eq(style.property.name, "style");
+        auto &indexed = std::get<js::ast::ComputedMemberExpression>(*style.object);
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*indexed.property)).value, 0.);
+
+        auto &call = std::get<js::ast::CallExpression>(*indexed.object);
+        auto &callee = std::get<js::ast::MemberExpression>(*call.callee);
+        a.expect_eq(std::get<js::ast::Identifier>(*callee.object).name, "document");
+        a.expect_eq(callee.property.name, "getElementsByTagName");
+
+        a.expect_eq(js::Parser::parse("obj[];"), std::nullopt);
+        a.expect_eq(js::Parser::parse("obj[0;"), std::nullopt);
+    });
+
     s.add_test("member expr assign", [](etest::IActions &a) {
         auto p = js::Parser::parse("obj.prop = 5;").value();
 

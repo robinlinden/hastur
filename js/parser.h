@@ -400,6 +400,18 @@ private:
             if (std::holds_alternative<parse::Period>(tokens.front())) {
                 tokens = tokens.subspan(1); // '.'
                 expr = parse_member_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);
+            } else if (std::holds_alternative<parse::LBracket>(tokens.front())) {
+                tokens = tokens.subspan(1); // '['
+                auto property = parse_expression(tokens);
+                if (!property || tokens.empty() || !std::holds_alternative<parse::RBracket>(tokens.front())) {
+                    return std::nullopt;
+                }
+
+                tokens = tokens.subspan(1); // ']'
+                expr = ast::ComputedMemberExpression{
+                        .object = std::make_shared<ast::Expression>(std::move(*expr)),
+                        .property = std::make_shared<ast::Expression>(std::move(*property)),
+                };
             } else if (std::holds_alternative<parse::LParen>(tokens.front())) {
                 tokens = tokens.subspan(1); // '('
                 expr = parse_call_expr(std::make_shared<ast::Expression>(*std::move(expr)), tokens);

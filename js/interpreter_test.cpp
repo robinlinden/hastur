@@ -10,9 +10,11 @@
 
 #include <cstddef>
 #include <expected>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 using namespace js::ast;
 
@@ -277,6 +279,77 @@ int main() {
         };
 
         a.expect_eq(e.execute(member_expr), Value{5.});
+    });
+
+    s.add_test("computed member expression", [](etest::IActions &a) {
+        Interpreter e;
+        e.variables["vec"] = Value{std::vector<Value>{Value{11.}, Value{31.}}};
+        e.variables["obj"] = Value{Object{{"hello", Value{42.}}}};
+        e.variables["nonsense_int_to_string_thing"] = Value{Object{{"5", Value{55.}}}};
+        e.variables["key"] = Value{"hello"};
+
+        auto vector_member = ComputedMemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"vec"}),
+                .property = std::make_shared<Expression>(NumericLiteral{1.}),
+        };
+        auto object_member = ComputedMemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"obj"}),
+                .property = std::make_shared<Expression>(Identifier{"key"}),
+        };
+        auto numeric_object_member = ComputedMemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"nonsense_int_to_string_thing"}),
+                .property = std::make_shared<Expression>(NumericLiteral{5.}),
+        };
+
+        a.expect_eq(e.execute(vector_member), Value{31.});
+        a.expect_eq(e.execute(object_member), Value{42.});
+        a.expect_eq(e.execute(numeric_object_member), Value{55.});
+    });
+
+    s.add_test("computed member expression, terrible cases", [](etest::IActions &a) {
+        Interpreter e;
+        e.variables["vec"] = Value{std::vector<Value>{Value{11.}, Value{31.}}};
+        e.variables["obj"] = Value{Object{{"nan", Value{42.}}}};
+        e.variables["five"] = Value{5.};
+        e.variables["invalid_key"] = Value{std::vector<Value>{}};
+
+        auto member = ComputedMemberExpression{
+                .object = std::make_shared<Expression>(Identifier{"vec"}),
+                .property = std::make_shared<Expression>(NumericLiteral{-1.}),
+        };
+        auto expect_error = [&](ComputedMemberExpression const &expr) {
+            a.expect_eq(e.execute(expr).has_value(), false);
+        };
+
+        expect_error(member);
+        member.property = std::make_shared<Expression>(NumericLiteral{0.5});
+        expect_error(member);
+        member.property = std::make_shared<Expression>(NumericLiteral{2.});
+        expect_error(member);
+        member.property = std::make_shared<Expression>(NumericLiteral{std::numeric_limits<double>::quiet_NaN()});
+        expect_error(member);
+        member.property = std::make_shared<Expression>(NumericLiteral{std::numeric_limits<double>::infinity()});
+        expect_error(member);
+        member.property = std::make_shared<Expression>(StringLiteral{"0"});
+        expect_error(member);
+
+        member.object = std::make_shared<Expression>(Identifier{"obj"});
+        member.property = std::make_shared<Expression>(StringLiteral{"missing"});
+        expect_error(member);
+        member.property = std::make_shared<Expression>(Identifier{"invalid_key"});
+        expect_error(member);
+        member.property = std::make_shared<Expression>(NumericLiteral{std::numeric_limits<double>::quiet_NaN()});
+        expect_error(member);
+
+        member.object = std::make_shared<Expression>(Identifier{"five"});
+        member.property = std::make_shared<Expression>(StringLiteral{"key"});
+        expect_error(member);
+
+        member.object = std::make_shared<Expression>(Identifier{"missing_object"});
+        expect_error(member);
+        member.object = std::make_shared<Expression>(Identifier{"obj"});
+        member.property = std::make_shared<Expression>(Identifier{"missing_key"});
+        expect_error(member);
     });
 
     s.add_test("member expression on string literal", [](etest::IActions &a) {

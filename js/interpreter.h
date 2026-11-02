@@ -7,13 +7,17 @@
 
 #include "js/ast.h"
 
+#include <array>
 #include <cassert>
+#include <charconv>
+#include <cmath>
 #include <cstddef>
 #include <expected>
 #include <functional>
 #include <map>
 #include <optional>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -200,6 +204,20 @@ public:
         return it->second;
     }
 
+    ValueOrException operator()(ComputedMemberExpression const &v) {
+        auto object = execute(*v.object);
+        if (!object) {
+            return object;
+        }
+
+        auto property = execute(*v.property);
+        if (!property) {
+            return property;
+        }
+
+        return get_computed_member(*object, *property);
+    }
+
     ValueOrException operator()(Function const &v) {
         auto const &args = variables.at("arguments").as_vector();
         for (std::size_t i = 0; i < v.params.size(); ++i) {
@@ -294,6 +312,49 @@ public:
 
 private:
     static std::string const &get_identifier_name(Pattern const &p) { return std::get<Identifier>(p).name; }
+
+    static ValueOrException get_computed_member(Value const &object, Value const &property) {
+        if (object.is_vector() && property.is_number()) {
+            auto index = property.as_number();
+            auto const &elements = object.as_vector();
+            if (!std::isfinite(index) || index < 0 || index >= static_cast<double>(elements.size())
+                    || std::trunc(index) != index) {
+                return std::unexpected{ErrorValue{Value{}}};
+            }
+
+            return elements[static_cast<std::size_t>(index)];
+        }
+
+        if (!object.is_object()) {
+            return std::unexpected{ErrorValue{Value{}}};
+        }
+
+        std::string property_name;
+        if (property.is_string()) {
+            property_name = property.as_string();
+        } else if (property.is_number()) {
+            auto index = property.as_number();
+            if (!std::isfinite(index)) {
+                return std::unexpected{ErrorValue{Value{}}};
+            }
+
+            std::array<char, 32> buffer{};
+            auto [end, error] = std::to_chars(buffer.data(), buffer.data() + buffer.size(), index);
+            // There's no way this could fail, since the buffer is large enough to hold any double.
+            assert(error == std::errc{});
+            property_name.assign(buffer.data(), end);
+        } else {
+            return std::unexpected{ErrorValue{Value{}}};
+        }
+
+        auto const &obj = object.as_object();
+        auto it = obj.find(property_name);
+        if (it == obj.end()) {
+            return std::unexpected{ErrorValue{Value{}}};
+        }
+
+        return it->second;
+    }
 };
 
 } // namespace js::ast

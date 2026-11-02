@@ -26,6 +26,7 @@ struct BlockStatement;
 struct ReturnStatement;
 struct AssignmentExpression;
 struct CallExpression;
+struct ComputedMemberExpression;
 struct MemberExpression;
 struct ExpressionStatement;
 struct FunctionDeclaration;
@@ -56,6 +57,7 @@ using Expression = std::variant<Identifier,
         AssignmentExpression,
         CallExpression,
         MemberExpression,
+        ComputedMemberExpression,
         BinaryExpression,
         FunctionExpression,
         ObjectExpression>;
@@ -206,6 +208,11 @@ struct CallExpression {
 struct MemberExpression {
     std::shared_ptr<Expression> object;
     Identifier property;
+};
+
+struct ComputedMemberExpression {
+    std::shared_ptr<Expression> object;
+    std::shared_ptr<Expression> property;
 };
 
 struct VariableDeclarator {
