@@ -8,12 +8,12 @@ http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_
 # =========================================================
 
 # https://github.com/bazelbuild/apple_support
-APPLE_SUPPORT_VERSION = "2.10.1"
+APPLE_SUPPORT_VERSION = "2.11.0"
 
 bazel_dep(name = "apple_support", dev_dependency = True)  # Apache-2.0
 archive_override(
     module_name = "apple_support",
-    integrity = "sha256-EUwVWNubVoNICWkoGm3SRGmJRRIARBOQtn2IIKwrBMM=",
+    integrity = "sha256-RHUGzq2eOiw4K0eA9Pq427j2w/ffMJp5FCRyYsX1HgA=",
     url = "https://github.com/bazelbuild/apple_support/releases/download/{0}/apple_support.{0}.tar.gz".format(APPLE_SUPPORT_VERSION),
 )
 
@@ -112,11 +112,11 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_rust
-RULES_RUST_VERSION = "0.74.0"
+RULES_RUST_VERSION = "0.75.0"
 
 archive_override(
     module_name = "rules_rust",
-    integrity = "sha256-2LzB4RHpgnDcAxcuIu96+cL5TzJpgBYYorg9IIkPjfU=",
+    integrity = "sha256-EJ6mMpL5LrHSeBY8p3qAr+VT6JqaZdHfKCoaSlnprV4=",
     url = "https://github.com/bazelbuild/rules_rust/releases/download/{0}/rules_rust-{0}.tar.gz".format(RULES_RUST_VERSION),
 )
 
@@ -142,21 +142,21 @@ archive_override(
 # =========================================================
 
 # https://github.com/bazel-contrib/bazel_features
-BAZEL_FEATURES_VERSION = "1.52.0"
+BAZEL_FEATURES_VERSION = "1.54.1"
 
 archive_override(
     module_name = "bazel_features",
-    integrity = "sha256-+HMkS7MqhwHQN0DYixlAdO851hVFxk7Imb7jJci3bpw=",
+    integrity = "sha256-eQtmDJyzWtuRBxpPbmLSmYinODy7lIs5qnwAZe6h4DU=",
     strip_prefix = "bazel_features-%s" % BAZEL_FEATURES_VERSION,
     url = "https://github.com/bazel-contrib/bazel_features/releases/download/v{0}/bazel_features-v{0}.tar.gz".format(BAZEL_FEATURES_VERSION),
 )
 
 # https://github.com/bazel-contrib/supply-chain
-PACKAGE_METADATA_VERSION = "0.0.13"
+PACKAGE_METADATA_VERSION = "0.0.15"
 
 archive_override(
     module_name = "package_metadata",
-    integrity = "sha256-dVvWyKN1GYLiVV2WyRPsBwlUyp0B+TVWM5IlXaTrrXI=",
+    integrity = "sha256-IBIoFs8tCZiOJvGgwy2MyUl99OVuL6xrLjqycfGQwvc=",
     strip_prefix = "package_metadata-%s/metadata" % PACKAGE_METADATA_VERSION,
     url = "https://github.com/bazel-contrib/supply-chain/releases/download/package_metadata-{0}/package_metadata-{0}.tar.gz".format(PACKAGE_METADATA_VERSION),
 )
