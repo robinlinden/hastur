@@ -190,12 +190,12 @@ SO=dylib
 SOBJ=dylib
 A=a
 LIBPREFIX=lib
-LIB_EXT_ORDER=.78.2.dylib
+LIB_EXT_ORDER=.79.1.dylib
 COMPILE=clang -DU_ATTRIBUTE_DEPRECATED=   -DU_HAVE_STRTOD_L=1 -DU_HAVE_XLOCALE_H=1 -DU_HAVE_STRING_VIEW=1  -O2 -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings  -Qunused-arguments -Wno-parentheses-equality -fno-common -c
 LIBFLAGS=-dynamic
 GENLIB=clang -dynamiclib -dynamic -O2 -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings  -Qunused-arguments -Wno-parentheses-equality
 LDICUDTFLAGS=
-LD_SONAME=-Wl,-compatibility_version -Wl,78 -Wl,-current_version -Wl,78.2 -install_name
+LD_SONAME=-Wl,-compatibility_version -Wl,79 -Wl,-current_version -Wl,79.1 -install_name
 RPATH_FLAGS=
 BIR_LDFLAGS=
 AR=ar
@@ -210,7 +210,7 @@ SO=so
 SOBJ=so
 A=a
 LIBPREFIX=lib
-LIB_EXT_ORDER=.78.2
+LIB_EXT_ORDER=.79.1
 COMPILE=gcc -D_REENTRANT  -DU_HAVE_ELF_H=1 -DU_HAVE_STRTOD_L=1 -DU_HAVE_XLOCALE_H=0  -DU_DISABLE_RENAMING=1 -DU_ATTRIBUTE_DEPRECATED= -march=native -O2 -pipe -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings   -c
 LIBFLAGS=-DPIC -fPIC
 GENLIB=gcc -march=native -O2 -pipe -std=c11 -Wall -pedantic -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings   -Wl,-O1 -Wl,--as-needed  -shared -Wl,-Bsymbolic
@@ -243,11 +243,11 @@ genrule(
         "pkgdata.lst",
         "uts46.nrm",
     ] + SPREP_DATA_COMPILED,
-    outs = ["libicudt78l.a"],
+    outs = ["libicudt79l.a"],
     cmd = r"""
         srcs=($(SRCS));
         export PATH=$$PATH:$(execpath icupkg);
-        $(execpath pkgdata) --bldopt $(execpath pkgdata_inc) --entrypoint icudt78 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt78l --mode static $${srcs[0]}
+        $(execpath pkgdata) --bldopt $(execpath pkgdata_inc) --entrypoint icudt79 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt79l --mode static $${srcs[0]}
     """,
     tools = [
         ":icupkg",
@@ -262,11 +262,11 @@ genrule(
         "pkgdata.lst",
         "uts46.nrm",
     ] + SPREP_DATA_COMPILED,
-    outs = ["sicudt78l.lib"],
+    outs = ["sicudt79l.lib"],
     cmd = r"""
         srcs=($(SRCS));
         export PATH=$$PATH:$(execpath icupkg):"/$$('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -prerelease -find 'VC\Tools\MSVC\*\bin\Hostx64\x64\lib.exe' | grep -v llvm | head -n1 | awk -F '\' 'BEGIN{OFS=FS} {$$NF=""; print}' | tr -d ':' | tr '\134' '/')";
-        $(execpath pkgdata) --entrypoint icudt78 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt78l --mode static $${srcs[0]}
+        $(execpath pkgdata) --entrypoint icudt79 --sourcedir $(RULEDIR) --destdir $(RULEDIR) --name icudt79l --mode static $${srcs[0]}
     """,
     tools = [
         ":icupkg",

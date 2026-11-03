@@ -126,6 +126,7 @@ expand_template(
         "#cmakedefine HAVE_INTRIN_H": "// HAVE_INTRIN_H",
         "#cmakedefine WITH_PROFILE": "// WITH_PROFILE",
         "#cmakedefine WITH_SIMD 1": "// WITH_SIMD",
+        "#cmakedefine WITH_SIMDE 0": "// WITH_SIMDE",
         "@CMAKE_PROJECT_NAME@": "libjpeg-turbo",
         "@HIDDEN@": "",
         "@INLINE@": "inline",

@@ -26,12 +26,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_cc
-RULES_CC_VERSION = "0.2.26"
+RULES_CC_VERSION = "0.2.27"
 
 bazel_dep(name = "rules_cc")  # Apache-2.0
 archive_override(
     module_name = "rules_cc",
-    integrity = "sha256-RKjzJforXPsOyt3aQ2WzN07u+h+XMJ/bkwGrsIl9+no=",
+    integrity = "sha256-a88bRtnmKcvkyW17/Fb2EDTCGTt7FgASASgupQvvXZE=",
     strip_prefix = "rules_cc-%s" % RULES_CC_VERSION,
     url = "https://github.com/bazelbuild/rules_cc/releases/download/{0}/rules_cc-{0}.tar.gz".format(RULES_CC_VERSION),
 )
@@ -51,12 +51,12 @@ archive_override(
 )
 
 # https://github.com/bazelbuild/rules_python
-RULES_PYTHON_VERSION = "2.4.5"
+RULES_PYTHON_VERSION = "2.4.6"
 
 bazel_dep(name = "rules_python")  # Apache-2.0
 archive_override(
     module_name = "rules_python",
-    integrity = "sha256-BQiEAvo1avCXBk28zXCCoGEXHvOfvXSPq5Rul3X0ahY=",
+    integrity = "sha256-R2W5pKnG4PuJ9GWqxbWwrAZYnJR3FENAhZMQd3rYAac=",
     patch_cmds = [
         # rules_python 2.0.0 and newer incorrectly resolve parts of the
         # py_console_script_binary dependency graph against the target
@@ -432,13 +432,13 @@ EOF""",
 )
 
 # https://github.com/unicode-org/icu
-ICU_VERSION = "78.3"
+ICU_VERSION = "79.1"
 
 bazel_dep(name = "icu")  # Unicode-DFS-2016
 archive_override(
     module_name = "icu",
     build_file = "//third_party:icu.BUILD",
-    integrity = "sha256-Oi56R2BLpwLzRYeDCOb+/sphLuiVz0pfIi55Vfq/4MA=",
+    integrity = "sha256-Bvpj7LUhBI+AgvEq2Yj2tnjZDL2IqvziTLyUkCsZHZk=",
     patch_cmds = [
         "rm source/common/BUILD.bazel",
         "rm source/stubdata/BUILD.bazel",
@@ -540,13 +540,13 @@ EOF""",
 )
 
 # https://github.com/libjpeg-turbo/libjpeg-turbo
-LIBJPEG_TURBO_VERSION = "3.2.0"
+LIBJPEG_TURBO_VERSION = "3.2.1"
 
 bazel_dep(name = "libjpeg-turbo")  # BSD-3-Clause AND IJG
 archive_override(
     module_name = "libjpeg-turbo",
     build_file = "//third_party:libjpeg-turbo.BUILD",
-    integrity = "sha256-bzAJLO+fuDl3lkZgj07hSuPLrJicR/oF6EGwhB8Jh44=",
+    integrity = "sha256-wnrXKmjaFRF3kpqpaa53Oi2lrCr5zpRgeTFP2sjOzn8=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "libjpeg-turbo")
@@ -686,12 +686,12 @@ EOF""",
 
 # https://github.com/KhronosGroup/Vulkan-Headers
 # https://github.com/KhronosGroup/Vulkan-Hpp
-VULKAN_TAG = "1.4.365"
+VULKAN_TAG = "1.4.367"
 
 archive_override(
     module_name = "vulkan",
     build_file = "//third_party:vulkan.BUILD",
-    integrity = "sha256-7YMrMpLM4yTrumUi/S0wBL8beX+km/vK0LMC/yPVarw=",
+    integrity = "sha256-DffVi132F+CmoX3sUhr0WSBnGfnHyxLQXQknVZfBb3A=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan")
@@ -707,7 +707,7 @@ bazel_dep(name = "vulkan_hpp")  # Apache-2.0
 archive_override(
     module_name = "vulkan_hpp",
     build_file = "//third_party:vulkan_hpp.BUILD",
-    integrity = "sha256-hRpcuycQforS8RkNWyfypcN64k+PMWlQb72lNpnLrWY=",
+    integrity = "sha256-+5+qqbgY/O3fzEu8CJcHWRKLop+uehfbD1r00gb2bjg=",
     patch_cmds = [
         """cat <<EOF >MODULE.bazel
 module(name = "vulkan_hpp")
@@ -813,7 +813,7 @@ EOF""",
 )
 
 # https://github.com/madler/zlib
-ZLIB_VERSION = "1.3.2"
+ZLIB_VERSION = "1.4"
 
 bazel_dep(name = "zlib")  # Zlib
 archive_override(
@@ -821,7 +821,7 @@ archive_override(
     # The official zlib BUILD file doesn't define things like ZLIB_CONST, so
     # it's not very nice to use.
     build_file = "//third_party:zlib.BUILD",
-    integrity = "sha256-uZoLhsC6k2DsfnjE8eQ7HL3x5pNsj6D2g1wM1pSklaE=",
+    integrity = "sha256-QzE1UEjihpCCYP2+qguM91zq8pB8dYVaCTpkh8cDKqo=",
     strip_prefix = "zlib-%s" % ZLIB_VERSION,
     url = "https://github.com/madler/zlib/archive/v%s.tar.gz" % ZLIB_VERSION,
 )
