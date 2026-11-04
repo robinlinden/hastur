@@ -4,6 +4,7 @@
 
 #include "etest/etest2.h"
 
+#include <expected>
 #include <format>
 #include <optional>
 #include <sstream>
@@ -41,6 +42,20 @@ int main() {
 
         a.expect_eq(printed(present, "!=", empty), "CustomPrintable{42} !=\nnullopt");
         a.expect_eq(printed(present, "!=", std::nullopt), "CustomPrintable{42} !=\nnullopt");
+    });
+
+    s.add_test("expected", [](etest::IActions &a) {
+        std::expected<CustomPrintable, CustomPrintable> const value{CustomPrintable{42}};
+        std::expected<CustomPrintable, CustomPrintable> const error{std::unexpect, CustomPrintable{24}};
+
+        a.expect_eq(printed(value, "!=", error), "CustomPrintable{42} !=\nunexpected{CustomPrintable{24}}");
+    });
+
+    s.add_test("expected void", [](etest::IActions &a) {
+        std::expected<void, CustomPrintable> const value;
+        std::expected<void, CustomPrintable> const error{std::unexpect, CustomPrintable{24}};
+
+        a.expect_eq(printed(value, "!=", error), "void !=\nunexpected{CustomPrintable{24}}");
     });
 
     return s.run();

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <concepts>
 #include <exception>
+#include <expected>
 #include <functional>
 #include <iosfwd>
 #include <optional>
@@ -38,11 +39,21 @@ template<typename T>
 struct IsOptional<std::optional<T>> : std::true_type {};
 
 template<typename T>
+struct IsExpected : std::false_type {};
+
+template<typename T, typename E>
+struct IsExpected<std::expected<T, E>> : std::true_type {};
+
+template<typename T>
 constexpr bool is_printable() {
     if constexpr (std::same_as<T, std::nullopt_t>) {
         return true;
     } else if constexpr (IsOptional<T>::value) {
         return is_printable<typename T::value_type>();
+    } else if constexpr (IsExpected<T>::value) {
+        using ValueType = T::value_type;
+        using ErrorType = T::error_type;
+        return (std::same_as<ValueType, void> || is_printable<ValueType>()) && is_printable<ErrorType>();
     } else {
         return Ostreamable<T> || HasToString<T>;
     }
@@ -60,6 +71,18 @@ void print_to(std::ostream &os, T const &value) {
             print_to(os, *value);
         } else {
             os << "nullopt";
+        }
+    } else if constexpr (IsExpected<T>::value) {
+        if (value) {
+            if constexpr (std::same_as<typename T::value_type, void>) {
+                os << "void";
+            } else {
+                print_to(os, *value);
+            }
+        } else {
+            os << "unexpected{";
+            print_to(os, value.error());
+            os << '}';
         }
     } else if constexpr (Ostreamable<T>) {
         os << value;
