@@ -222,7 +222,7 @@ int Suite::run(RunOptions const &opts) {
         std::cout << std::flush;
     }
 
-    if (opts.run_benchmarks && !benchmarks_.empty()) {
+    if (opts.run_benchmarks && !benchmarks_to_run.empty()) {
         auto const name_display_width = std::ranges::max_element(
                 benchmarks_to_run, [](auto const &a, auto const &b) { return a.size() < b.size(); }, &Benchmark::name)
                                                 ->name.length();
