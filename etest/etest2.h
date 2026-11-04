@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -31,26 +32,50 @@ concept HasToString = requires(T t) {
 };
 
 template<typename T>
-concept Printable = Ostreamable<T> || HasToString<T>;
+struct IsOptional : std::false_type {};
+
+template<typename T>
+struct IsOptional<std::optional<T>> : std::true_type {};
+
+template<typename T>
+constexpr bool is_printable() {
+    if constexpr (std::same_as<T, std::nullopt_t>) {
+        return true;
+    } else if constexpr (IsOptional<T>::value) {
+        return is_printable<typename T::value_type>();
+    } else {
+        return Ostreamable<T> || HasToString<T>;
+    }
+}
+
+template<typename T>
+concept Printable = is_printable<T>();
+
+template<typename T>
+void print_to(std::ostream &os, T const &value) {
+    if constexpr (std::same_as<T, std::nullopt_t>) {
+        os << "nullopt";
+    } else if constexpr (IsOptional<T>::value) {
+        if (value) {
+            print_to(os, *value);
+        } else {
+            os << "nullopt";
+        }
+    } else if constexpr (Ostreamable<T>) {
+        os << value;
+    } else {
+        os << to_string(value);
+    }
+}
 
 template<typename T, typename U>
 void print_to(std::ostream &, std::string_view, T const &, U const &) {}
 
 template<Printable T, Printable U>
 void print_to(std::ostream &os, std::string_view actual_op, T const &a, U const &b) {
-    if constexpr (Ostreamable<T>) {
-        os << a;
-    } else {
-        os << to_string(a);
-    }
-
+    print_to(os, a);
     os << ' ' << actual_op << '\n';
-
-    if constexpr (Ostreamable<U>) {
-        os << b;
-    } else {
-        os << to_string(b);
-    }
+    print_to(os, b);
 }
 
 struct RunOptions {
