@@ -229,7 +229,7 @@ int Suite::run(RunOptions const &opts) {
 
         std::cout << "\nRunning " << benchmarks_to_run.size() << " benchmarks:\n";
 
-        for (auto const &benchmark : benchmarks_) {
+        for (auto const &benchmark : benchmarks_to_run) {
             auto const result = run_benchmark(benchmark);
             print_benchmark_result(std::cout, benchmark, result, {.name_width = name_display_width});
         }
