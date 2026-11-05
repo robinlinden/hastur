@@ -160,7 +160,10 @@ std::expected<std::unique_ptr<PageState>, NavigationError> Engine::navigate(uri:
                         auto ast = js::Parser::parse(script_text.text);
                         if (!ast.has_value()) {
                             spdlog::warn("Failed to parse JavaScript in <script> tag:\n{}", script_text.text);
+                            return;
                         }
+
+                        spdlog::info("Parsed JavaScript in <script> tag:\n{}", script_text.text);
                     }},
                     .on_error = [](html::ParseError e) { spdlog::warn("HTML parse error: {}", to_string(e)); },
             });
