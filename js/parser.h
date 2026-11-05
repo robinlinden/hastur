@@ -95,6 +95,37 @@ private:
             return ast::ReturnStatement{.argument = std::move(argument)};
         }
 
+        if (std::holds_alternative<parse::Var>(tokens.front())) {
+            tokens = tokens.subspan(1); // 'var'
+            if (tokens.empty() || !std::holds_alternative<parse::Identifier>(tokens.front())) {
+                return std::nullopt;
+            }
+
+            auto &var_name = std::get<parse::Identifier>(tokens.front());
+            tokens = tokens.subspan(1); // identifier
+
+            std::optional<ast::Expression> init;
+            if (!tokens.empty() && std::holds_alternative<parse::Equals>(tokens.front())) {
+                tokens = tokens.subspan(1); // '='
+                init = parse_expression(tokens);
+                if (!init) {
+                    return std::nullopt;
+                }
+            }
+
+            // TODO(robinlinden): Support multiple variable declarations in a single statement.
+
+            return ast::VariableDeclaration{
+                    .declarations{
+                            ast::VariableDeclarator{
+                                    .id = ast::Identifier{.name = std::move(var_name.name)},
+                                    .init = std::move(init),
+                            },
+                    },
+                    .kind = ast::VariableDeclaration::Kind::Var,
+            };
+        }
+
         auto expr = parse_expression(tokens);
         if (!expr) {
             return std::nullopt;

@@ -577,5 +577,38 @@ int main() {
         a.expect_eq(js::Parser::parse("a = { a: 1, b: }").has_value(), false);
     });
 
+    s.add_test("var decl", [](etest::IActions &a) {
+        auto p = js::Parser::parse("var x = 42;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &var_decl = std::get<js::ast::VariableDeclaration>(statement);
+        a.expect_eq(var_decl.declarations.size(), std::size_t{1});
+        auto &declarator = var_decl.declarations.at(0);
+        a.expect_eq(std::get<js::ast::Identifier>(declarator.id).name, "x");
+        a.expect_eq(std::get<js::ast::NumericLiteral>(std::get<js::ast::Literal>(*declarator.init)).value, 42.);
+    });
+
+    s.add_test("var decl, no init", [](etest::IActions &a) {
+        auto p = js::Parser::parse("var x;").value();
+
+        a.expect_eq(p.body.size(), std::size_t{1});
+        auto &statement = p.body.at(0);
+        auto &var_decl = std::get<js::ast::VariableDeclaration>(statement);
+        a.expect_eq(var_decl.declarations.size(), std::size_t{1});
+        auto &declarator = var_decl.declarations.at(0);
+        a.expect_eq(std::get<js::ast::Identifier>(declarator.id).name, "x");
+        a.expect_eq(declarator.init.has_value(), false);
+    });
+
+    s.add_test("var decl, failures", [](etest::IActions &a) {
+        a.expect_eq(js::Parser::parse("var").has_value(), false);
+        a.expect_eq(js::Parser::parse("var 42").has_value(), false);
+        a.expect_eq(js::Parser::parse("var x =").has_value(), false);
+        a.expect_eq(js::Parser::parse("var x = 42,").has_value(), false);
+        a.expect_eq(js::Parser::parse("var x = 42, y").has_value(), false);
+        a.expect_eq(js::Parser::parse("var x = 42, y =").has_value(), false);
+    });
+
     return s.run();
 }
