@@ -12,6 +12,7 @@
 #include <functional>
 #include <iosfwd>
 #include <optional>
+#include <ranges>
 #include <source_location>
 #include <sstream>
 #include <string>
@@ -46,7 +47,7 @@ struct IsExpected<std::expected<T, E>> : std::true_type {};
 
 template<typename T>
 constexpr bool is_printable() {
-    if constexpr (std::same_as<T, std::nullopt_t>) {
+    if constexpr (std::same_as<T, std::nullopt_t> || Ostreamable<T> || HasToString<T>) {
         return true;
     } else if constexpr (IsOptional<T>::value) {
         return is_printable<typename T::value_type>();
@@ -54,8 +55,10 @@ constexpr bool is_printable() {
         using ValueType = T::value_type;
         using ErrorType = T::error_type;
         return (std::same_as<ValueType, void> || is_printable<ValueType>()) && is_printable<ErrorType>();
+    } else if constexpr (std::ranges::input_range<T const>) {
+        return is_printable<std::ranges::range_value_t<T const>>();
     } else {
-        return Ostreamable<T> || HasToString<T>;
+        return false;
     }
 }
 
@@ -86,8 +89,21 @@ void print_to(std::ostream &os, T const &value) {
         }
     } else if constexpr (Ostreamable<T>) {
         os << value;
-    } else {
+    } else if constexpr (HasToString<T>) {
         os << to_string(value);
+    } else {
+        os << '[';
+        bool first = true;
+
+        for (auto const &item : value) {
+            if (!std::exchange(first, false)) {
+                os << ", ";
+            }
+
+            print_to(os, item);
+        }
+
+        os << ']';
     }
 }
 

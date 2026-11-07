@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -31,6 +32,18 @@ std::string printed(auto const &lhs, std::string_view op, auto const &rhs) {
 
 int main() {
     etest::Suite s{};
+
+    s.add_test("non-printable", [](etest::IActions &a) {
+        struct NonPrintable {
+            int a{};
+            int b{};
+        };
+
+        NonPrintable const lhs{};
+        NonPrintable const rhs{};
+
+        a.expect(printed(lhs, "!=", rhs).empty());
+    });
 
     s.add_test("boring", [](etest::IActions &a) {
         a.expect_eq(printed(1, "!=", 2), "1 !=\n2"); //
@@ -56,6 +69,15 @@ int main() {
         std::expected<void, CustomPrintable> const error{std::unexpect, CustomPrintable{24}};
 
         a.expect_eq(printed(value, "!=", error), "void !=\nunexpected{CustomPrintable{24}}");
+    });
+
+    s.add_test("containers", [](etest::IActions &a) {
+        auto const values = std::vector{1, 2, 3};
+        std::vector<CustomPrintable> const custom_values{{42}, {24}};
+        std::vector<int> const empty;
+
+        a.expect_eq(printed(values, "!=", empty), "[1, 2, 3] !=\n[]");
+        a.expect_eq(printed(custom_values, "!=", values), "[CustomPrintable{42}, CustomPrintable{24}] !=\n[1, 2, 3]");
     });
 
     return s.run();
