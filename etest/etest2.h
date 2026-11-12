@@ -19,6 +19,7 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace etest {
@@ -46,6 +47,12 @@ template<typename T, typename E>
 struct IsExpected<std::expected<T, E>> : std::true_type {};
 
 template<typename T>
+struct IsVariant : std::false_type {};
+
+template<typename... T>
+struct IsVariant<std::variant<T...>> : std::true_type {};
+
+template<typename T>
 constexpr bool is_printable() {
     if constexpr (std::same_as<T, std::nullopt_t> || Ostreamable<T> || HasToString<T>) {
         return true;
@@ -55,6 +62,10 @@ constexpr bool is_printable() {
         using ValueType = T::value_type;
         using ErrorType = T::error_type;
         return (std::same_as<ValueType, void> || is_printable<ValueType>()) && is_printable<ErrorType>();
+    } else if constexpr (IsVariant<T>::value) {
+        return []<typename... U>(std::variant<U...> *) {
+            return (is_printable<U>() && ...);
+        }(static_cast<T *>(nullptr));
     } else if constexpr (std::ranges::input_range<T const>) {
         return is_printable<std::ranges::range_value_t<T const>>();
     } else {
@@ -87,6 +98,8 @@ void print_to(std::ostream &os, T const &value) {
             print_to(os, value.error());
             os << '}';
         }
+    } else if constexpr (IsVariant<T>::value) {
+        std::visit([&os](auto const &item) { print_to(os, item); }, value);
     } else if constexpr (Ostreamable<T>) {
         os << value;
     } else if constexpr (HasToString<T>) {

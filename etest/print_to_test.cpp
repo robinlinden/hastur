@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace {
@@ -69,6 +70,13 @@ int main() {
         std::expected<void, CustomPrintable> const error{std::unexpect, CustomPrintable{24}};
 
         a.expect_eq(printed(value, "!=", error), "void !=\nunexpected{CustomPrintable{24}}");
+    });
+
+    s.add_test("variant", [](etest::IActions &a) {
+        std::variant<CustomPrintable, std::vector<int>> const custom{CustomPrintable{42}};
+        std::variant<CustomPrintable, std::vector<int>> const values{std::vector{1, 2, 3}};
+
+        a.expect_eq(printed(custom, "!=", values), "CustomPrintable{42} !=\n[1, 2, 3]");
     });
 
     s.add_test("containers", [](etest::IActions &a) {
