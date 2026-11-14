@@ -180,5 +180,12 @@ int main() {
         a.expect_eq(e.execute(p), js::ast::Value{2.});
     });
 
+    s.add_test("'a' + 'b';", [](etest::IActions &a) {
+        auto p = js::Parser::parse("'a' + 'b';").value();
+        js::ast::Interpreter e;
+        // TODO(robinlinden): a.expect_eq(e.execute(p), js::ast::Value{"ab"});
+        a.expect_eq(js::ast::Interpreter{}.execute(p).has_value(), false);
+    });
+
     return s.run();
 }

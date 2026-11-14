@@ -87,6 +87,12 @@ public:
             return rhs;
         }
 
+        if (!lhs->is_number() || !rhs->is_number()) {
+            // TODO(robinlinden): Support more types in binary expressions. We
+            // want 1 + "0" - 1 to be 9, obviously.
+            return std::unexpected{ErrorValue{Value{}}};
+        }
+
         switch (v.op) {
             case BinaryOperator::Plus:
                 return Value{lhs->as_number() + rhs->as_number()};
