@@ -202,6 +202,17 @@ int main() {
                 css::Rule{.selectors{"p"}, .declarations{{css::PropertyId::FontSize, "123em"}}}));
     });
 
+    s.add_test("too many content-encodings", [](etest::IActions &a) {
+        Responses responses;
+        responses["hax://example.com"s] = Response{
+                .status_line = {.status_code = 200},
+                .headers{{"Content-Encoding", "gzip, gzip, gzip, gzip, gzip, gzip"}},
+        };
+        engine::Engine e{std::make_unique<FakeProtocolHandler>(std::move(responses))};
+        auto page = e.navigate(uri::Uri::parse("hax://example.com").value());
+        a.expect_eq(page.error().response.err, protocol::ErrorCode::InvalidResponse);
+    });
+
     // p { font-size: 123em; }, gzipped.
     std::string gzipped_css =
             "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03\x2b\x50\xa8\x56\x48\xcb\xcf\x2b\xd1\x2d\xce\xac\x4a\xb5\x52\x30\x34\x32\x4e\xcd\xb5\x56\xa8\xe5\x02\x00\x0c\x97\x72\x35\x18\x00\x00\x00"s;

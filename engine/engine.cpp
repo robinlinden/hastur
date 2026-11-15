@@ -53,6 +53,13 @@ namespace {
     // If multiple encodings are listed, they are in the order in which they
     // were applied, so we need to decode in the reverse order.
     auto encodings = util::split(it->second, ",");
+    if (encodings.size() > 5) {
+        spdlog::warn("Too many encodings ({}) in Content-Encoding header from '{}', skipping decoding",
+                encodings.size(),
+                uri.uri);
+        return false;
+    }
+
     for (auto encoding_view : encodings | std::views::reverse) {
         std::string_view encoding{encoding_view};
         encoding = util::trim(encoding);
