@@ -15,7 +15,7 @@
 namespace {
 
 // TODO(robinlinden): Nicer stringification.
-std::string to_string(js::ast::Value const &value) {
+std::string to_string(js::Value const &value) {
     if (value.is_undefined()) {
         return "undefined";
     }
@@ -64,7 +64,7 @@ public:
     }
 
 private:
-    js::ast::Interpreter interpreter_;
+    js::Interpreter interpreter_;
 };
 
 } // namespace

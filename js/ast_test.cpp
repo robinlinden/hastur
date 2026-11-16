@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-using namespace js::ast;
+using namespace js;
 
 int main() {
     etest::Suite s{};

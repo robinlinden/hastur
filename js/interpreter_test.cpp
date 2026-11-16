@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-using namespace js::ast;
+using namespace js;
 
 int main() {
     etest::Suite s{};
@@ -534,7 +534,7 @@ int main() {
     s.add_test("native function, exception from native code", [](etest::IActions &a) {
         Interpreter e;
         e.variables["will_throw"] = Value{NativeFunction{[](auto const &) {
-            return std::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}}; //
+            return std::unexpected{js::ErrorValue{js::Value{"Bad!"}}}; //
         }}};
 
         auto call = CallExpression{
@@ -542,7 +542,7 @@ int main() {
         };
 
         auto result = e.execute(call);
-        a.expect_eq(result, std::unexpected{js::ast::ErrorValue{js::ast::Value{"Bad!"}}});
+        a.expect_eq(result, std::unexpected{js::ErrorValue{js::Value{"Bad!"}}});
     });
 
     s.add_test("empty statement", [](etest::IActions &a) {

@@ -18,7 +18,7 @@ extern "C" int LLVMFuzzerTestOneInput(std::uint8_t const *data, std::size_t size
         return 0;
     }
 
-    auto interpreter = js::ast::Interpreter{};
+    auto interpreter = js::Interpreter{};
     std::ignore = interpreter.execute(*ast);
     return 0;
 }

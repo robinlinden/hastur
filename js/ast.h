@@ -16,7 +16,7 @@
 #include <variant>
 #include <vector>
 
-namespace js::ast {
+namespace js {
 
 class Value;
 struct NativeFunction;
@@ -249,6 +249,6 @@ struct WhileStatement {
     std::shared_ptr<Statement> body;
 };
 
-} // namespace js::ast
+} // namespace js
 
 #endif

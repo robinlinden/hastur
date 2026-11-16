@@ -22,7 +22,7 @@
 #include <variant>
 #include <vector>
 
-namespace js::ast {
+namespace js {
 
 class Interpreter {
 public:
@@ -363,6 +363,6 @@ private:
     }
 };
 
-} // namespace js::ast
+} // namespace js
 
 #endif
