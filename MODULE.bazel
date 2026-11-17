@@ -254,23 +254,22 @@ archive_override(
 # Third-party Bazel
 # =========================================================
 
-# https://github.com/uber/hermetic_cc_toolchain
-HERMETIC_CC_TOOLCHAIN_VERSION = "v4.3.0"
+# https://github.com/Zer0-One/toolchains_zig_cc
+TOOLCHAINS_ZIG_CC_VERSION = "v5.0.0"
 
-bazel_dep(name = "hermetic_cc_toolchain", dev_dependency = True)  # MIT
+bazel_dep(name = "toolchains_zig_cc", dev_dependency = True)  # MIT
 archive_override(
-    module_name = "hermetic_cc_toolchain",
-    integrity = "sha256-eTONjFxEmcdAKuof543NICZ/MA6fj1iGvnAX1XzPD7w=",
+    module_name = "toolchains_zig_cc",
+    integrity = "sha256-Up4JNEw06GD2joo+DCtU1dmV1HJ6qmI1JC7kbM9fbQI=",
     patch_args = ["-p1"],
     patches = [
-        "//third_party/hermetic_cc_toolchain:zig-16.patch",
-        # https://github.com/uber/hermetic_cc_toolchain/pull/239
-        "//third_party/hermetic_cc_toolchain:external_include_paths.patch",
+        # https://github.com/Zer0-One/toolchains_zig_cc/pull/2
+        "//third_party/toolchains_zig_cc:external_include_paths.patch",
     ],
-    url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/{0}/hermetic_cc_toolchain-{0}.tar.gz".format(HERMETIC_CC_TOOLCHAIN_VERSION),
+    url = "https://github.com/Zer0-One/toolchains_zig_cc/releases/download/{0}/toolchains_zig_cc-{0}.tar.gz".format(TOOLCHAINS_ZIG_CC_VERSION),
 )
 
-zig_toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")
+zig_toolchains = use_extension("@toolchains_zig_cc//toolchain:ext.bzl", "toolchains")
 use_repo(zig_toolchains, "zig_sdk")
 
 # Misc tools
