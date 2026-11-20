@@ -2065,15 +2065,44 @@ std::optional<InsertionMode> InCell::process(IActions &a, Token const &token) {
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
-// Incomplete.
-std::optional<InsertionMode> AfterBody::process(IActions &, Token const &token) {
-    auto const *end = std::get_if<EndTagToken>(&token);
-    if (end != nullptr && end->tag_name == "html") {
-        // TODO(robinlinden): Fragment-parsing stuff.
+// NOLINTNEXTLINE(misc-no-recursion)
+std::optional<InsertionMode> AfterBody::process(IActions &a, Token const &token) {
+    if (is_boring_whitespace(token)) {
+        return InBody{}.process(a, token);
+    }
+
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
+        a.insert_element_for(*comment);
+        return {};
+    }
+
+    // TODO(robinlinden): Processing instruction?
+
+    if (std::holds_alternative<DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
+    if (auto const *start = std::get_if<StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
+        return InBody{}.process(a, token);
+    }
+
+    if (auto const *end = std::get_if<EndTagToken>(&token); end != nullptr && end->tag_name == "html") {
+        if (a.fragment_parsing_context()) {
+            // Parse error.
+            return {};
+        }
+
         return AfterAfterBody{};
     }
 
-    return {};
+    if (std::holds_alternative<EndOfFileToken>(token)) {
+        return {};
+    }
+
+    // Parse error.
+    auto mode_override = current_insertion_mode_override(a, InBody{});
+    return InBody{}.process(mode_override, token).value_or(InBody{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
