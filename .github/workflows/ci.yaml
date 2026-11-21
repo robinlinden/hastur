@@ -329,6 +329,10 @@ jobs:
           key: windows_${{ matrix.compiler }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'third_party/**') }}
       - run: echo "build --config clang-cl" >.bazelrc.local
         if: matrix.compiler == 'clang-cl'
+      # Work around Microsoft installing incompatible versions of Visual Studio and LLVM.
+      # See: https://github.com/actions/runner-images/issues/15368
+      - run: choco upgrade llvm
+        if: matrix.compiler == 'clang-cl'
       # We run the MSVC job in debug mode because we want their extra stdlib runtime checks.
       - run: echo "build -c dbg" >.bazelrc.local
         if: matrix.compiler == 'msvc'
