@@ -1567,7 +1567,6 @@ std::optional<InsertionMode> Text::process(IActions &a, Token const &token) {
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
-// Incomplete.
 // NOLINTNEXTLINE(misc-no-recursion)
 std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
     static constexpr auto kClearToTableContext = [](IActions &ac) {
@@ -1592,6 +1591,8 @@ std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
         a.insert_element_for(*comment);
         return {};
     }
+
+    // TODO(robinlinden): processing instructions. :(
 
     if (std::holds_alternative<DoctypeToken>(token)) {
         // Parse error.
@@ -1630,10 +1631,21 @@ std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
     if (start != nullptr && std::ranges::contains(kWorseTableElements, start->tag_name)) {
         kClearToTableContext(a);
         a.insert_element_for(StartTagToken{.tag_name = "tbody"});
-        return InTableBody{}.process(a, token).value_or(InTableBody{});
+        auto mode_override = current_insertion_mode_override(a, InTableBody{});
+        return InTableBody{}.process(mode_override, token).value_or(InTableBody{});
     }
 
-    // TODO(robinlinden): Everything.
+    if (start != nullptr && start->tag_name == "table") {
+        // Parse error.
+        if (!has_element_in_table_scope(a, "table")) {
+            return {};
+        }
+
+        pop_past(a, "table");
+        auto new_mode = appropriate_insertion_mode(a);
+        auto mode_override = current_insertion_mode_override(a, new_mode);
+        return std::visit([&](auto &mode) { return mode.process(mode_override, token); }, new_mode).value_or(new_mode);
+    }
 
     auto const *end = std::get_if<EndTagToken>(&token);
     if (end != nullptr && end->tag_name == "table") {
@@ -1660,9 +1672,30 @@ std::optional<InsertionMode> InTable::process(IActions &a, Token const &token) {
         return InHead{}.process(mode_override, token);
     }
 
-    // TODO(robinlinden): Everything.
+    if (start != nullptr && start->tag_name == "input") {
+        auto type = std::ranges::find(start->attributes, "type", &Attribute::name);
+        if (type != std::ranges::end(start->attributes) && util::no_case_compare(type->value, "hidden")) {
+            // Parse error.
+            a.insert_element_for(*start);
+            a.pop_current_node();
+            return {};
+        }
 
-    return {};
+        // Fall through to anything else.
+    }
+
+    // TODO(robinlinden): Form nonsense.
+
+    if (std::holds_alternative<EndOfFileToken>(token)) {
+        auto mode_override = current_insertion_mode_override(a, InTable{});
+        return InBody{}.process(mode_override, token);
+    }
+
+    // Parse error.
+    a.set_foster_parenting(true);
+    auto new_state = InBody{}.process(a, token);
+    a.set_foster_parenting(false);
+    return new_state;
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intabletext
@@ -2032,15 +2065,44 @@ std::optional<InsertionMode> InCell::process(IActions &a, Token const &token) {
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
-// Incomplete.
-std::optional<InsertionMode> AfterBody::process(IActions &, Token const &token) {
-    auto const *end = std::get_if<EndTagToken>(&token);
-    if (end != nullptr && end->tag_name == "html") {
-        // TODO(robinlinden): Fragment-parsing stuff.
+// NOLINTNEXTLINE(misc-no-recursion)
+std::optional<InsertionMode> AfterBody::process(IActions &a, Token const &token) {
+    if (is_boring_whitespace(token)) {
+        return InBody{}.process(a, token);
+    }
+
+    if (auto const *comment = std::get_if<CommentToken>(&token)) {
+        a.insert_element_for(*comment);
+        return {};
+    }
+
+    // TODO(robinlinden): Processing instruction?
+
+    if (std::holds_alternative<DoctypeToken>(token)) {
+        // Parse error.
+        return {};
+    }
+
+    if (auto const *start = std::get_if<StartTagToken>(&token); start != nullptr && start->tag_name == "html") {
+        return InBody{}.process(a, token);
+    }
+
+    if (auto const *end = std::get_if<EndTagToken>(&token); end != nullptr && end->tag_name == "html") {
+        if (a.fragment_parsing_context()) {
+            // Parse error.
+            return {};
+        }
+
         return AfterAfterBody{};
     }
 
-    return {};
+    if (std::holds_alternative<EndOfFileToken>(token)) {
+        return {};
+    }
+
+    // Parse error.
+    auto mode_override = current_insertion_mode_override(a, InBody{});
+    return InBody{}.process(mode_override, token).value_or(InBody{});
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
