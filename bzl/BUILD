@@ -4,6 +4,11 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+exports_files(
+    ["domato_fuzz_runner.py"],
+    visibility = ["//visibility:public"],
+)
+
 alias(
     name = "linux_or_macos",
     actual = select({
